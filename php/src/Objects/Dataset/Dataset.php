@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinintel\Dataset;
+namespace Kinintel\Objects\Dataset;
 
 /**
  * Result of a query for a data source

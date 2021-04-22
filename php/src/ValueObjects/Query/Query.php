@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinintel\Query;
+namespace Kinintel\ValueObjects\Query;
 
 /**
  * Generic query interface
