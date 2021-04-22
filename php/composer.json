@@ -1,0 +1,24 @@
+{
+  "name": "oxil/kinintel",
+  "version": "0.1",
+  "description": "Kinintel - Open source Intelligence and data analysis framework building on kini tools",
+  "keywords": [
+    "PHP",
+    "intelligence",
+    "data analysis"
+  ],
+
+  "homepage": "https://kinintel.com",
+  "type": "library",
+  "require": {
+    "oxil/kinikit-core": "dev-master",
+    "oxil/kinikit-mvc": "dev-master",
+    "oxil/kinikit-persistence": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kinintel\\Test\\": "php/test/",
+      "Kinintel\\": "php/src/"
+    }
+  }
+}
