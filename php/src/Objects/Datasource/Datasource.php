@@ -15,6 +15,8 @@ use Kinintel\ValueObjects\Query\Query;
 /**
  * Data source - these provide raw access to data using query objects
  *
+ * @implementation json \Kinintel\Objects\Datasource\WebService\JSONWebServiceDatasource
+ *
  */
 abstract class Datasource {
 
