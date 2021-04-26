@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Query\Filter;
 
 
+use Kinikit\Core\Util\Primitive;
+
 class Filter {
 
     /**
@@ -53,10 +55,20 @@ class Filter {
      * @param mixed $value
      * @param string $filterType
      */
-    public function __construct($fieldName, $value, $filterType) {
+    public function __construct($fieldName, $value, $filterType = null) {
         $this->fieldName = $fieldName;
         $this->value = $value;
+
+        if (!$filterType) {
+            if (Primitive::isPrimitive($value)) {
+                $filterType = is_numeric(strpos($value, "*")) ? self::FILTER_TYPE_LIKE : self::FILTER_TYPE_EQUALS;
+            } else if (is_array($value)) {
+                $filterType = self::FILTER_TYPE_IN;
+            }
+        }
+
         $this->filterType = $filterType;
+
     }
 
     /**

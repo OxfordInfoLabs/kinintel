@@ -2,7 +2,7 @@
 
 namespace Kinintel\Services\Datasource;
 
-use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\ValueObjects\Query\Query;
 

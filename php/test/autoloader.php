@@ -22,7 +22,7 @@ spl_autoload_register(function ($class) {
     $srcClass = str_replace("Kinintel\\", "", $class);
     if ($srcClass !== $class) {
         $file = DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $srcClass) . '.php';
-        if (file_exists(__DIR__ . "/../src$file")) {
+        if (file_exists(__DIR__ . $file)) {
             require __DIR__ . $file;
             return true;
         }

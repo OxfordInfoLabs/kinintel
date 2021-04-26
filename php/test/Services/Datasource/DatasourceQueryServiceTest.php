@@ -4,7 +4,7 @@ namespace Kinintel\Services\Datasource;
 
 
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\ValueObjects\Query\FilterQuery;
 

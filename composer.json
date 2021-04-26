@@ -7,14 +7,15 @@
     "intelligence",
     "data analysis"
   ],
-
   "homepage": "https://kinintel.com",
   "type": "library",
   "require": {
-    "oxil/kinikit-core": "dev-master",
-    "oxil/kinikit-mvc": "dev-master",
-    "oxil/kinikit-persistence": "dev-master"
+    "oxil/kiniauth": "dev-master"
   },
+  "scripts": {
+    "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../kinikit/kinikit-core vendor/oxil/kinikit-core; ln -s ../../../kinikit/kinikit-mvc vendor/oxil/kinikit-mvc; ln -s ../../../kinikit/kinikit-persistence vendor/oxil/kinikit-persistence; ln -s ../../../kiniauth vendor/oxil/kiniauth"
+  },
+  "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
       "Kinintel\\Test\\": "php/test/",
