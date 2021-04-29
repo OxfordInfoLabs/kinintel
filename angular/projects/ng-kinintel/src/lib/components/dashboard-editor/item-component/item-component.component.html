@@ -1,0 +1,50 @@
+<ng-template [ngIf]="!data">
+    <mat-icon>{{item.icon}}</mat-icon> {{item.label}}
+</ng-template>
+
+<ng-template [ngIf]="data">
+
+    <div class="item-title">{{item.label}}</div>
+
+    <ng-template [ngIf]="item.type === 'lineChart'">
+        <canvas baseChart style="height: 200px"
+                [datasets]="data"
+                [labels]="['December', 'January', 'February', 'March', 'April']"
+                [options]="{responsive: true}"
+                [colors]="[{borderColor: 'rgba(32,166,211,0.7)',backgroundColor: 'rgba(32,166,211,0.3)'}]"
+                [legend]="false"
+                [chartType]="'line'"
+                [plugins]="[]">
+        </canvas>
+    </ng-template>
+
+    <ng-template [ngIf]="item.type === 'barChart'">
+
+        <canvas baseChart [datasets]="data" [labels]="['']" [options]="barChartOptions"
+                [legend]="true" [chartType]="'bar'"
+                [colors]="barChartColor"></canvas>
+
+    </ng-template>
+
+    <ng-template [ngIf]="item.type === 'table'">
+
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let itemData of data">
+                <td>{{itemData.domainName}}</td>
+                <td>{{itemData.score}}</td>
+                <td>{{itemData.registeredDate}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </ng-template>
+
+</ng-template>

@@ -1,0 +1,74 @@
+@import "../custom-theme"
+
+#toolbar
+    height: 64px
+    position: fixed
+    top: 0
+    z-index: 99
+    left: 0
+    right: 0
+
+#sidebar
+    width: 250px
+    background-color: whitesmoke
+    border-right: none
+    position: fixed
+    padding-bottom: 3rem
+    .mat-drawer-inner-container
+        display: flex
+        flex-direction: column
+        justify-content: space-between
+
+#main
+    background-color: whitesmoke
+    margin-top: 64px
+    height: calc(100vh - 64px - 4rem)
+    padding: 2rem 1rem
+    .page-header
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: 0 .5rem 1rem .5rem
+        h1
+            margin: 0
+    .page-title
+        letter-spacing: .7px
+    .flex-container
+        display: flex
+        flex-wrap: wrap
+    &.small-sidebar
+        margin-left: 50px
+        width: calc(100% - 50px - 2rem)
+    .content
+        display: flex
+        align-items: flex-start
+        text-align: left
+        max-width: 940px
+        margin: 0 auto
+        min-height: 100vh
+        flex-direction: column
+mat-sidenav
+    margin-top: 64px
+
+mat-sidenav-container
+    min-height: 100vh
+    background-color: #F5F5F5 !important
+
+.header
+    box-shadow: 0 0 1px #aaa
+
+.content
+    max-width: 1000px
+    margin: 0 auto
+    padding-bottom: 2rem
+
+    &.narrow
+        max-width: 800px
+
+table
+    width: 100%
+.align-center
+    display: flex
+    align-items: center
+.sb
+    justify-content: space-between
