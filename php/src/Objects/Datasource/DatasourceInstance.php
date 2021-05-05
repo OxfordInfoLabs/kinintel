@@ -4,7 +4,18 @@
 namespace Kinintel\Objects\Datasource;
 
 
+use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
+use Kinikit\Core\Exception\ItemNotFoundException;
+use Kinikit\Core\Reflection\ClassInspectorProvider;
+use Kinikit\Core\Validation\FieldValidationError;
+use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\ActiveRecord;
+use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
+use Kinintel\Exception\InvalidDatasourceTypeException;
+use Kinintel\Services\Authentication\AuthenticationCredentialsService;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 
 /**
  * Data source instance - can be stored in database table
@@ -24,6 +35,7 @@ class DatasourceInstance extends ActiveRecord {
      * Descriptive title for this data source instance
      *
      * @var string
+     * @required
      */
     private $title;
 
@@ -33,16 +45,16 @@ class DatasourceInstance extends ActiveRecord {
      *
      * @var string
      */
-    private $dataSourceType;
+    private $type;
 
     /**
      * Config for the data source - should match the required format for
      * the configuration for the data source type.
      *
-     * @var string
+     * @var mixed
      * @json
      */
-    private $dataSourceConfig;
+    private $config;
 
 
     /**
@@ -66,7 +78,7 @@ class DatasourceInstance extends ActiveRecord {
      * Inline credentials config if not referencing instance by key.  Should be valid
      * config for the supplied type.
      *
-     * @var string
+     * @var mixed
      * @json
      */
     private $credentialsConfig;
@@ -76,17 +88,17 @@ class DatasourceInstance extends ActiveRecord {
      *
      * @param string $key
      * @param string $title
-     * @param string $dataSourceType
-     * @param string $dataSourceConfig
+     * @param string $type
+     * @param mixed $config
      * @param string $credentialsKey
      * @param string $credentialsType
-     * @param string $credentialsConfig
+     * @param mixed $credentialsConfig
      */
-    public function __construct($key, $title, $dataSourceType, $dataSourceConfig = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = []) {
+    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = []) {
         $this->key = $key;
         $this->title = $title;
-        $this->dataSourceType = $dataSourceType;
-        $this->dataSourceConfig = $dataSourceConfig;
+        $this->type = $type;
+        $this->config = $config;
         $this->credentialsKey = $credentialsKey;
         $this->credentialsType = $credentialsType;
         $this->credentialsConfig = $credentialsConfig;
@@ -124,29 +136,29 @@ class DatasourceInstance extends ActiveRecord {
     /**
      * @return string
      */
-    public function getDataSourceType() {
-        return $this->dataSourceType;
+    public function getType() {
+        return $this->type;
     }
 
     /**
-     * @param string $dataSourceType
+     * @param string $type
      */
-    public function setDataSourceType($dataSourceType) {
-        $this->dataSourceType = $dataSourceType;
+    public function setType($type) {
+        $this->type = $type;
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getDataSourceConfig() {
-        return $this->dataSourceConfig;
+    public function getConfig() {
+        return $this->config;
     }
 
     /**
-     * @param string $dataSourceConfig
+     * @param mixed $config
      */
-    public function setDataSourceConfig($dataSourceConfig) {
-        $this->dataSourceConfig = $dataSourceConfig;
+    public function setConfig($config) {
+        $this->config = $config;
     }
 
     /**
@@ -178,18 +190,93 @@ class DatasourceInstance extends ActiveRecord {
     }
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getCredentialsConfig() {
         return $this->credentialsConfig;
     }
 
     /**
-     * @param string $credentialsConfig
+     * @param mixed $credentialsConfig
      */
     public function setCredentialsConfig($credentialsConfig) {
         $this->credentialsConfig = $credentialsConfig;
     }
 
+
+    /**
+     * Return a fully configured data source or throw appropriate validation exceptions
+     *
+     * @return Datasource
+     * @throws ValidationException
+     */
+    public function returnDataSource() {
+
+        /**
+         * @var ObjectBinder $objectBinder
+         */
+        $objectBinder = Container::instance()->get(ObjectBinder::class);
+
+        $credentials = null;
+        $credentialsType = $this->getCredentialsType();
+        $credentialsConfig = $this->getCredentialsConfig();
+
+        if ($this->getCredentialsKey()) {
+            /**
+             * @var AuthenticationCredentialsService $credentialsService
+             */
+            $credentialsService = Container::instance()->get(AuthenticationCredentialsService::class);
+            $credentialsInstance = $credentialsService->getCredentialsInstanceByKey($this->getCredentialsKey());
+            $credentialsType = $credentialsInstance->getType();
+            $credentialsConfig = $credentialsInstance->getConfig();
+
+        }
+
+        // If credentials type, create and populate the appropriate object
+        if ($credentialsType) {
+            try {
+                $credentialsClass = Container::instance()->getInterfaceImplementationClass(AuthenticationCredentials::class, $credentialsType);
+                if ($credentialsConfig) {
+                    $credentials = $objectBinder->bindFromArray($credentialsConfig, $credentialsClass);
+                } else {
+                    $credentials = Container::instance()->new($credentialsClass);
+                }
+
+            } catch (MissingInterfaceImplementationException $e) {
+                throw new InvalidDatasourceAuthenticationCredentialsException(
+                    ["authenticationCredentials" => [
+                        "type" => new FieldValidationError("type", "unknowntype", "Authentication credentials of type '$type' does not exist")
+                    ]
+                    ]);
+            }
+        }
+
+        // Attempt to grab a data source using the supplied type
+        try {
+            $dataSourceClass = Container::instance()->getInterfaceImplementationClass(Datasource::class, $this->type);
+
+            /**
+             * @var Datasource $dataSource
+             */
+            $dataSource = Container::instance()->new($dataSourceClass);
+
+            $config = null;
+            if ($dataSource->getConfigClass()) {
+                $config = $objectBinder->bindFromArray($this->config ?? [], $dataSource->getConfigClass());
+                $dataSource->setConfig($config);
+            }
+            if ($credentials) {
+                $dataSource->setAuthenticationCredentials($credentials);
+            }
+
+
+            return $dataSource;
+
+        } catch (MissingInterfaceImplementationException $e) {
+            throw new InvalidDatasourceTypeException($this->type);
+        }
+
+
+    }
 
 }

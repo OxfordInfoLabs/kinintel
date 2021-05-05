@@ -11,8 +11,8 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\WebService\WebserviceDataSourceConfig;
-use Kinintel\ValueObjects\Query\Filter\Filter;
-use Kinintel\ValueObjects\Query\FilterQuery;
+use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
 
 include_once "autoloader.php";
 
@@ -59,7 +59,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com"));
 
-        $request->applyQuery(new FilterQuery([
+        $request->applyTransformation(new FilterQuery([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));
@@ -95,7 +95,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]), new BasicAuthenticationCredentials("baggy", "trousers"));
 
 
-        $request->applyQuery(new FilterQuery([
+        $request->applyTransformation(new FilterQuery([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));
@@ -130,7 +130,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             "secret" => "trousers"
         ]));
 
-        $request->applyQuery(new FilterQuery([
+        $request->applyTransformation(new FilterQuery([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));
@@ -162,7 +162,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             "secret" => "trousers"
         ]));
 
-        $request->applyQuery(new FilterQuery([
+        $request->applyTransformation(new FilterQuery([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));

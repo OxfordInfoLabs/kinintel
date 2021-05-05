@@ -5,6 +5,8 @@ namespace Kinintel\Services\Authentication;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
+use Kinikit\Core\Validation\FieldValidationError;
+use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 
 /**
@@ -66,8 +68,13 @@ class AuthenticationCredentialsService {
                 return $this->fileSystemCredentials[$key];
             }
 
-        }
+            throw new InvalidDatasourceAuthenticationCredentialsException(
+                ["authenticationCredentials" => [
+                    "key" => new FieldValidationError("key", "unknownkey", "The authentication credentials with key '$key' does not exist")
+                ]
+                ]);
 
+        }
 
     }
 

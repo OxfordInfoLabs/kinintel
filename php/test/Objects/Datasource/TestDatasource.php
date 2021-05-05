@@ -5,7 +5,7 @@ namespace Kinintel\Objects\Datasource;
 
 
 use Kinintel\ValueObjects\Dataset\Dataset;
-use Kinintel\ValueObjects\Query\Query;
+use Kinintel\ValueObjects\Query\Transformation;
 
 class TestDatasource extends Datasource {
 
@@ -35,7 +35,7 @@ class TestDatasource extends Datasource {
     }
 
 
-    public function applyQuery($query) {
+    public function applyTransformation($transformation) {
         // TODO: Implement applyQuery() method.
     }
 

@@ -1,0 +1,8 @@
+{
+  "key": "test-json-invalid-config",
+  "title": "Test JSON Datasource with Invalid Config",
+  "type": "json",
+  "config": {
+  },
+  "credentialsKey": "http-basic"
+}

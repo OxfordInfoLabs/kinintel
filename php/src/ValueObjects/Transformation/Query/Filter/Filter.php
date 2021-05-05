@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Query\Filter;
+namespace Kinintel\ValueObjects\Transformation\Query\Filter;
 
 
 use Kinikit\Core\Util\Primitive;

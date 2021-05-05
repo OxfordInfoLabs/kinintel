@@ -10,7 +10,7 @@ use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
-use Kinintel\ValueObjects\Query\Query;
+use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
  * Data source - these provide raw access to data using query objects
@@ -139,17 +139,17 @@ abstract class Datasource {
 
 
     /**
-     * Apply a query to this data source and return a new (or the same) data source.
+     * Apply a transformation to this data source and return a new (or the same) data source.
      * This is primarily designed to facilitate query chaining using a MultiQuery
      *
-     * @param Query $query
+     * @param Transformation $transformation
      * @return Datasource
      */
-    public abstract function applyQuery($query);
+    public abstract function applyTransformation($transformation);
 
 
     /**
-     * Materialise this data source (after any queries have been applied)
+     * Materialise this data source (after any transformations have been applied)
      * and return a Dataset
      *
      * @return Dataset

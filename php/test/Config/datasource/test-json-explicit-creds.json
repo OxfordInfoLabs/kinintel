@@ -1,0 +1,13 @@
+{
+  "key": "test-json-explicit-creds",
+  "title": "Test JSON Datasource with Explicit Creds",
+  "type": "json",
+  "config": {
+    "url": "https://test-json.com/feed"
+  },
+  "credentialsType": "http-basic",
+  "credentialsConfig": {
+    "username": "mark",
+    "password": "test"
+  }
+}

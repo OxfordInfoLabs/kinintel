@@ -1,0 +1,9 @@
+{
+  "key": "test-json",
+  "title": "Test JSON Datasource",
+  "type": "json",
+  "config": {
+    "url": "https://test-json.com/feed"
+  },
+  "credentialsKey": "http-basic"
+}

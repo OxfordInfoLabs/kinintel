@@ -12,9 +12,8 @@ use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentia
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\WebService\WebserviceDataSourceConfig;
-use Kinintel\ValueObjects\Query\Filter\Filter;
-use Kinintel\ValueObjects\Query\FilterQuery;
-use Kinintel\ValueObjects\Query\Query;
+use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
 
 /**
  * Generic web service data source - should be subclassed with format specific webservice classes.
@@ -93,19 +92,19 @@ abstract class WebServiceDatasource extends Datasource {
     /**
      *
      *
-     * @param Query $query
+     * @param Transformation $transformation
      * @return Datasource
      */
-    public function applyQuery($query) {
+    public function applyTransformation($transformation) {
 
         // If a filter query, attempt to use it
-        if ($query instanceof FilterQuery) {
+        if ($transformation instanceof FilterQuery) {
 
             // Apply all filter values as equals matches as
             // no comprehension of other types of filtering.
             // Ignore filter logic here
             $filterValues = [];
-            foreach ($query->getFilterObjects() as $filterObject) {
+            foreach ($transformation->getFilters() as $filterObject) {
                 if ($filterObject instanceof Filter) {
                     $filterValues[$filterObject->getFieldName()] = $filterObject->getValue();
                 }

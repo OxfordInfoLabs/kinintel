@@ -13,7 +13,7 @@ class WebserviceDataSourceConfig implements DatasourceConfig {
      * @var string
      * @required
      */
-    private $url;
+    protected $url;
 
 
     /**
@@ -21,7 +21,7 @@ class WebserviceDataSourceConfig implements DatasourceConfig {
      *
      * @var string
      */
-    private $method;
+    protected $method;
 
 
     /**
@@ -30,7 +30,7 @@ class WebserviceDataSourceConfig implements DatasourceConfig {
      *
      * @var string
      */
-    private $payloadTemplate;
+    protected $payloadTemplate;
 
 
     /**
@@ -38,7 +38,7 @@ class WebserviceDataSourceConfig implements DatasourceConfig {
      *
      * @var array
      */
-    private $params = [];
+    protected $params = [];
 
     /**
      * WebserviceDataSourceConfig constructor.

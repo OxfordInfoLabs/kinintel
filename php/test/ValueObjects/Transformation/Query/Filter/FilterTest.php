@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinintel\ValueObjects\Query\Filter;
+namespace Kinintel\ValueObjects\Transformation\Query\Filter;
 
 include_once "autoloader.php";
 
