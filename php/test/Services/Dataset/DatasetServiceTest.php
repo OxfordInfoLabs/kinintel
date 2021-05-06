@@ -114,6 +114,61 @@ class DatasetServiceTest extends TestBase {
     }
 
 
+    public function testAdditionalTransformationsAppliedInSequenceIfSuppliedToEvaluate() {
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+        $transformation2 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+        $transformation3 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+
+
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance2 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance3 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+        $transformationInstance2->returnValue("returnTransformation", $transformation2);
+        $transformationInstance3->returnValue("returnTransformation", $transformation3);
+
+
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $transformed2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $transformed3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+
+
+        $dataSource->returnValue("applyTransformation", $transformed1, [
+            $transformation1
+        ]);
+
+        $transformed1->returnValue("applyTransformation", $transformed2, [
+            $transformation2
+        ]);
+
+        $transformed2->returnValue("applyTransformation", $transformed3, [
+            $transformation3
+        ]);
+
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataSetInstance = new DatasetInstance("Test Dataset", "test");
+
+        $this->assertEquals($transformed3, $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance, [
+            $transformationInstance1, $transformationInstance2, $transformationInstance3
+        ]));
+
+
+    }
+
+
     public function testDataSourceAndTransformationsAreValidatedOnDataSetSave() {
 
         $dataSetInstance = new DatasetInstance("Test Dataset", "badsource");

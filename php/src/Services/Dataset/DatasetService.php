@@ -6,6 +6,7 @@ use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Dataset;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DatasetService {
 
@@ -49,15 +50,29 @@ class DatasetService {
 
 
     /**
+     * Wrapper to below function for standard read only use where a data set is being
+     * queried
+     *
+     * @param $dataSetInstanceId
+     * @param TransformationInstance[] $additionalTransformations
+     */
+    public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $additionalTransformations = []) {
+        $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId);
+        return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations);
+    }
+
+
+    /**
      * Wrapper to below function which also calls the materialise function to just return
      * the dataset.  This is the normal function called to produce charts / tables etc for end
      * use.
      *
      * @param $dataSetInstance
+     * @param TransformationInstance[] $additionalTransformations
      *
      */
-    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance) {
-        $evaluatedDataSource = $this->getEvaluatedDataSourceForDataSetInstance($dataSetInstance);
+    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
+        $evaluatedDataSource = $this->getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations);
         return $evaluatedDataSource->materialise();
     }
 
@@ -67,9 +82,11 @@ class DatasetService {
      * data source returned after all transformations have been applied
      *
      * @param DatasetInstance $dataSetInstance
+     * @param TransformationInstance[] $additionalTransformations
+     *
      * @return Datasource
      */
-    public function getEvaluatedDataSourceForDataSetInstance($dataSetInstance) {
+    public function getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($dataSetInstance->getDatasourceInstanceKey());
@@ -80,6 +97,13 @@ class DatasetService {
         // If we have transformation instances, apply these in sequence
         if ($dataSetInstance->getTransformationInstances()) {
             foreach ($dataSetInstance->getTransformationInstances() as $transformationInstance) {
+                $transformation = $transformationInstance->returnTransformation();
+                $datasource = $datasource->applyTransformation($transformation);
+            }
+        }
+
+        if ($additionalTransformations ?? []) {
+            foreach ($additionalTransformations as $transformationInstance) {
                 $transformation = $transformationInstance->returnTransformation();
                 $datasource = $datasource->applyTransformation($transformation);
             }
