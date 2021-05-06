@@ -10,8 +10,7 @@ use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
-use Kinintel\ValueObjects\Dataset\Dataset;
-use Kinintel\ValueObjects\Datasource\WebService\WebserviceDataSourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
 
@@ -21,7 +20,7 @@ use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
  * Class WebServiceDatasource
  * @package Kinintel\Objects\Datasource\WebService
  */
-abstract class WebServiceDatasource extends Datasource {
+class WebServiceDatasource extends Datasource {
 
 
     /**
@@ -161,19 +160,9 @@ abstract class WebServiceDatasource extends Datasource {
         $response = $this->dispatcher->dispatch($request);
 
         // Materialise the web service result and return the result
-        return $this->materialiseWebServiceResult($response->getBody());
+        return $config->returnFormatter()->format($response->getBody());
 
     }
-
-
-    /**
-     * Materialise a web service result to a dataset in a format specific manner
-     *
-     *
-     * @param $result
-     * @return Dataset
-     */
-    public abstract function materialiseWebServiceResult($result);
 
 
 }

@@ -1,7 +1,7 @@
 {
   "key": "test-json-invalid-creds",
   "title": "Test JSON Datasource with invalid Creds",
-  "type": "json",
+  "type": "webservice",
   "config": {
     "url": "https://test-json.com/feed"
   },

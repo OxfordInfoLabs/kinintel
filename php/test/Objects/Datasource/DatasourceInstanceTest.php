@@ -7,7 +7,9 @@ use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\InvalidDatasourceTypeException;
 use Kinintel\Objects\Datasource\WebService\JSONWebServiceDatasource;
+use Kinintel\Objects\Datasource\WebService\WebServiceDatasource;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
+use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 
 include_once "autoloader.php";
@@ -29,7 +31,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Missing credentials key
-        $dataSourceInstance = new DatasourceInstance("badcredentials", "Bad Credentials", "json",
+        $dataSourceInstance = new DatasourceInstance("badcredentials", "Bad Credentials", "webservice",
             ["url" => "https://hello.com"], "badcreds");
 
         try {
@@ -41,7 +43,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Wrong credentials type
-        $dataSourceInstance = new DatasourceInstance("badcredentials", "Bad Credentials", "json",
+        $dataSourceInstance = new DatasourceInstance("badcredentials", "Bad Credentials", "webservice",
             ["url" => "https://hello.com"], null, "badtype");
 
         try {
@@ -52,7 +54,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
         }
 
         // Invalid credentials
-        $dataSourceInstance = new DatasourceInstance("badcredentials", "Bad Credentials", "json",
+        $dataSourceInstance = new DatasourceInstance("badcredentials", "Bad Credentials", "webservice",
             ["url" => "https://hello.com"], null, "http-basic", [
                 "username" => "Bob"
             ]);
@@ -66,7 +68,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Invalid config
-        $dataSourceInstance = new DatasourceInstance("badconfig", "Bad Credentials", "json", []);
+        $dataSourceInstance = new DatasourceInstance("badconfig", "Bad Credentials", "webservice", []);
         try {
             $dataSourceInstance->returnDataSource();
             $this->fail("Should have thrown here");
@@ -80,7 +82,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
     public function testValidDatasourceInstanceReturnsDataSourceCorrectly() {
 
         // Invalid credentials
-        $dataSourceInstance = new DatasourceInstance("goodone", "Good One", "json",
+        $dataSourceInstance = new DatasourceInstance("goodone", "Good One", "webservice",
             ["url" => "https://hello.com"], null, "http-basic", [
                 "username" => "Bob",
                 "password" => "password"
@@ -88,7 +90,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
 
 
         $dataSource = $dataSourceInstance->returnDataSource();
-        $this->assertEquals(new JSONWebServiceDatasource(new JSONWebServiceDataSourceConfig("https://hello.com"),
+        $this->assertEquals(new WebServiceDatasource(new WebserviceDataSourceConfig("https://hello.com"),
             new BasicAuthenticationCredentials("Bob", "password")), $dataSource);
 
     }

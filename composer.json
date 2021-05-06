@@ -10,7 +10,8 @@
   "homepage": "https://kinintel.com",
   "type": "library",
   "require": {
-    "oxil/kiniauth": "dev-master"
+    "oxil/kiniauth": "dev-master",
+    "aws/aws-sdk-php": "^3.180"
   },
   "scripts": {
     "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../kinikit/kinikit-core vendor/oxil/kinikit-core; ln -s ../../../kinikit/kinikit-mvc vendor/oxil/kinikit-mvc; ln -s ../../../kinikit/kinikit-persistence vendor/oxil/kinikit-persistence; ln -s ../../../kiniauth vendor/oxil/kiniauth"

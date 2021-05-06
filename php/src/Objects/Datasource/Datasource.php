@@ -16,7 +16,8 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 /**
  * Data source - these provide raw access to data using query objects
  *
- * @implementation json \Kinintel\Objects\Datasource\WebService\JSONWebServiceDatasource
+ * @implementation webservice \Kinintel\Objects\Datasource\WebService\WebServiceDatasource
+ * @implementation amazons3 \Kinintel\Objects\Datasource\Amazon\AmazonS3Datasource
  *
  */
 abstract class Datasource {

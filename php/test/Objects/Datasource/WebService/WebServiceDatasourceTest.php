@@ -10,7 +10,9 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
-use Kinintel\ValueObjects\Datasource\WebService\WebserviceDataSourceConfig;
+use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\TabularDataset;
+use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
 
@@ -30,7 +32,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanMaterialiseSimpleUnfilteredDatasourceForGetRequest() {
 
-        $expectedResponse = new Response("Pingu", 200, null, null);
+        $expectedResponse = new Response('{"name": "Pingu"}', 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET));
@@ -42,14 +44,18 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals("Pingu", $response);
+        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Pingu"
+            ]
+        ]), $response);
 
     }
 
 
     public function testCanMaterialiseFilteredGetRequestDatasource() {
 
-        $expectedResponse = new Response("Pinger", 200, null, null);
+        $expectedResponse = new Response('{"name": "Pinger"}', 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET, [
@@ -71,14 +77,17 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals("Pinger", $response);
-
+        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Pinger"
+            ]
+        ]), $response);
     }
 
 
     public function testCanMaterialiseFilteredGetRequestDataSourceWithBasicAuthentication() {
 
-        $expectedResponse = new Response("Pinky", 200, null, null);
+        $expectedResponse = new Response('{"name": "Pinky"}', 200, null, null);
 
         $headers = new ReqHeaders();
         $headers->set(ReqHeaders::AUTHORISATION, "Basic " . base64_encode('baggy:trousers'));
@@ -107,7 +116,11 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals("Pinky", $response);
+        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Pinky"
+            ]
+        ]), $response);
 
     }
 
@@ -115,7 +128,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanMaterialiseFilteredGetRequestDataSourceWithQueryParamAuthentication() {
 
 
-        $expectedResponse = new Response("Pinky", 200, null, null);
+        $expectedResponse = new Response('{"name": "Pinky"}', 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET, [
@@ -142,13 +155,17 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals("Pinky", $response);
+        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Pinky"
+            ]
+        ]), $response);
 
     }
 
     public function testCanMaterialiseFilteredPostRequestWithPayloadTemplate() {
 
-        $expectedResponse = new Response("Bosh", 200, null, null);
+        $expectedResponse = new Response('{"name": "Bosh"}', 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_POST, ["token" => "baggy", "secret" => "trousers"],
@@ -174,7 +191,11 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals("Bosh", $response);
+        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Bosh"
+            ]
+        ]), $response);
 
 
     }

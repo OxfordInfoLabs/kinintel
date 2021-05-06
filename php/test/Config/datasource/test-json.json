@@ -1,7 +1,7 @@
 {
   "key": "test-json",
   "title": "Test JSON Datasource",
-  "type": "json",
+  "type": "webservice",
   "config": {
     "url": "https://test-json.com/feed"
   },

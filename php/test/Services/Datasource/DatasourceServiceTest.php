@@ -31,7 +31,7 @@ class DatasourceServiceTest extends TestBase {
         $dataSource = $this->dataSourceService->getDataSourceInstanceByKey("test-json");
 
         $this->assertEquals(new DatasourceInstance("test-json", "Test JSON Datasource",
-            "json", ["url" => "https://test-json.com/feed"],
+            "webservice", ["url" => "https://test-json.com/feed"],
             "http-basic"
         ), $dataSource);
 
@@ -40,7 +40,7 @@ class DatasourceServiceTest extends TestBase {
         $dataSource = $this->dataSourceService->getDataSourceInstanceByKey("test-json-explicit-creds");
 
         $this->assertEquals(new DatasourceInstance("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds",
-            "json", ["url" => "https://test-json.com/feed"],
+            "webservice", ["url" => "https://test-json.com/feed"],
             null, "http-basic", [
                 "username" => "mark",
                 "password" => "test"
@@ -53,7 +53,7 @@ class DatasourceServiceTest extends TestBase {
 
     public function testCanStoreAndRetrieveDatabaseDataSourceInstances() {
 
-        $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "json", [
+        $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "webservice", [
             "url" => "https://json-test.com/dbfeed"
         ], "http-basic");
 
