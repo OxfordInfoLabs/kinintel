@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
+use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 
@@ -107,6 +108,24 @@ class DatasourceTest extends \PHPUnit\Framework\TestCase {
         $credentials = new TestAuthenticationCredentials("marko");
         $dataSource->setAuthenticationCredentials($credentials);
 
+
+    }
+
+
+    public function testIfNoCredentialsSuppliedWhenRequiredExceptionIsRaisedOnMaterialise() {
+        $dataSource = new TestDatasource(TestDatasourceConfig::class, [TestAuthenticationCredentials::class]);
+
+        try {
+            $dataSource->materialise();
+            $this->fail("Should have thrown here");
+        } catch (MissingDatasourceAuthenticationCredentialsException $e) {
+            $this->assertTrue(true);
+        }
+
+
+        // OK if not required
+        $dataSource = new TestDatasource(TestDatasourceConfig::class, [TestAuthenticationCredentials::class], false);
+        $dataSource->materialise();
 
     }
 

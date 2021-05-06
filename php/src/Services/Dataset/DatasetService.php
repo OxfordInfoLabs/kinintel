@@ -5,7 +5,6 @@ namespace Kinintel\Services\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DatasetService {

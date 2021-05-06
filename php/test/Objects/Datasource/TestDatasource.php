@@ -19,10 +19,16 @@ class TestDatasource extends Datasource {
      */
     private $supportedCredentialClasses;
 
+    /**
+     * @var bool
+     */
+    private $authenticationRequired;
 
-    public function __construct($configClass = null, $supportedCredentialClasses = []) {
+
+    public function __construct($configClass = null, $supportedCredentialClasses = [], $authenticationRequired = true) {
         $this->configClass = $configClass;
         $this->supportedCredentialClasses = $supportedCredentialClasses;
+        $this->authenticationRequired = $authenticationRequired;
         parent::__construct();
     }
 
@@ -34,12 +40,16 @@ class TestDatasource extends Datasource {
         return $this->supportedCredentialClasses;
     }
 
+    public function isAuthenticationRequired() {
+        return $this->authenticationRequired;
+    }
+
 
     public function applyTransformation($transformation) {
         // TODO: Implement applyQuery() method.
     }
 
-    public function materialise() {
+    public function materialiseDataset() {
         // TODO: Implement materialise() method.
     }
 }

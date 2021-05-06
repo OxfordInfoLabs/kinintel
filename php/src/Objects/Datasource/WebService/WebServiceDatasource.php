@@ -123,7 +123,7 @@ abstract class WebServiceDatasource extends Datasource {
      *
      * @return \Kinintel\ValueObjects\Dataset\Dataset
      */
-    public function materialise() {
+    public function materialiseDataset() {
 
         // Grab headers and params
         $headers = new Headers();

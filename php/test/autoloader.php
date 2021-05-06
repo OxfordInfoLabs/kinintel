@@ -8,16 +8,6 @@ include_once __DIR__ . "/../../vendor/autoload.php";
  */
 spl_autoload_register(function ($class) {
 
-    // Check for test classes first
-    $testClass = str_replace("Kinintel\\Test\\", "", $class);
-    if ($testClass !== $class) {
-        $file = DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $testClass) . '.php';
-        if (file_exists(__DIR__ . $file)) {
-            require __DIR__ . $file;
-            return true;
-        }
-    }
-
     // Now check for source classes.
     $srcClass = str_replace("Kinintel\\", "", $class);
     if ($srcClass !== $class) {

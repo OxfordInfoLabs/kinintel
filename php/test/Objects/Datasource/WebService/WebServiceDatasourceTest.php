@@ -39,7 +39,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $request->setDispatcher($this->httpDispatcher);
 
         // Materialise
-        $response = $request->materialise();
+        $response = $request->materialiseDataset();
 
         // Check that the response was received directly
         $this->assertEquals("Pingu", $response);
@@ -68,7 +68,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Materialise
-        $response = $request->materialise();
+        $response = $request->materialiseDataset();
 
         // Check that the response was received directly
         $this->assertEquals("Pinger", $response);
@@ -104,7 +104,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Materialise
-        $response = $request->materialise();
+        $response = $request->materialiseDataset();
 
         // Check that the response was received directly
         $this->assertEquals("Pinky", $response);
@@ -139,7 +139,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Materialise
-        $response = $request->materialise();
+        $response = $request->materialiseDataset();
 
         // Check that the response was received directly
         $this->assertEquals("Pinky", $response);
@@ -171,7 +171,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Materialise
-        $response = $request->materialise();
+        $response = $request->materialiseDataset();
 
         // Check that the response was received directly
         $this->assertEquals("Bosh", $response);

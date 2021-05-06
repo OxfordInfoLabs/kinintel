@@ -7,6 +7,7 @@ use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
+use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
@@ -32,6 +33,7 @@ abstract class Datasource {
      */
     private $authenticationCredentials;
 
+
     /**
      * @var Validator
      */
@@ -53,6 +55,7 @@ abstract class Datasource {
             $this->setAuthenticationCredentials($authenticationCredentials);
         }
 
+
     }
 
 
@@ -71,6 +74,16 @@ abstract class Datasource {
     public function getSupportedCredentialClasses() {
         return [];
     }
+
+    /**
+     * Default to requires authentication - generally the case
+     *
+     * @return bool
+     */
+    public function isAuthenticationRequired() {
+        return true;
+    }
+
 
     /**
      * @return DatasourceConfig
@@ -139,6 +152,22 @@ abstract class Datasource {
 
 
     /**
+     * Materialise the dataset having first checked any validation stuff
+     */
+    public function materialise() {
+
+        if ($this->isAuthenticationRequired() && !$this->authenticationCredentials) {
+            throw new MissingDatasourceAuthenticationCredentialsException(["authenticationCredentials" => [
+                "required" =>
+                    new FieldValidationError("authenticationCredentials", "required", "Authentication credentials are required for data source")
+            ]]);
+        }
+
+        return $this->materialiseDataset();
+    }
+
+
+    /**
      * Apply a transformation to this data source and return a new (or the same) data source.
      * This is primarily designed to facilitate query chaining using a MultiQuery
      *
@@ -154,7 +183,7 @@ abstract class Datasource {
      *
      * @return Dataset
      */
-    public abstract function materialise();
+    public abstract function materialiseDataset();
 
 
 }
