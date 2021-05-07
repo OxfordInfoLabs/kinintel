@@ -3,7 +3,10 @@
 namespace Kinintel\Objects\Datasource\Amazon;
 
 use Aws\S3\S3Client;
+use GuzzleHttp\Psr7\Stream;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Services\Thirdparty\Amazon\AmazonSDKClientProvider;
 use Kinintel\ValueObjects\Authentication\Generic\AccessKeyAndSecretAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\Configuration\Amazon\AmazonS3DatasourceConfig;
@@ -41,7 +44,6 @@ class AmazonS3Datasource extends Datasource {
          */
         $config = $this->getConfig();
 
-
         /**
          * @var AccessKeyAndSecretAuthenticationCredentials $credentials
          */
@@ -49,22 +51,26 @@ class AmazonS3Datasource extends Datasource {
 
         if ($config) {
 
-            $s3 = new S3Client([
-                'version' => 'latest',
-                'signatureVersion' => 'v4',
-                'region' => $config->getRegion(),
-                'credentials' => [
-                    'key' => $credentials->getAccessKey(),
-                    'secret' => $credentials->getSecret()
-                ]
-            ]);
+            /**
+             * @var AmazonSDKClientProvider $sdkClientProvider
+             */
+            $sdkClientProvider = Container::instance()->get(AmazonSDKClientProvider::class);
+
+            // Grab S3 from sdk provider
+            $s3 = $sdkClientProvider->createS3Client($config->getRegion(), $credentials->getAccessKey(), $credentials->getSecret());
 
             $result = $s3->getObject([
                 'Bucket' => $config->getBucket(),
                 'Key' => $config->getFilename()
             ]);
 
-            print_r($result);
+            $body = $result["Body"];
+
+            // If a stream object, read whole stream and convert to tabular data
+            if ($body instanceof Stream) {
+                $body = $body->getContents();
+                return $config->returnFormatter()->format($body);
+            }
 
         }
 
