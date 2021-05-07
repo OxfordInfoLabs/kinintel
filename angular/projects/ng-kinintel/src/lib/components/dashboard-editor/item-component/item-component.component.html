@@ -1,9 +1,21 @@
-<ng-template [ngIf]="!data">
-    <mat-icon>{{item.icon}}</mat-icon> {{item.label}}
+<button *ngIf="!dragItem" mat-icon-button color="warn" class="remove-widget" (click)="removeWidget($event)">
+    <mat-icon>delete</mat-icon>
+</button>
+<ng-template [ngIf]="dragItem">
+    <mat-icon>{{item.icon}}</mat-icon>
+    {{item.label}}
+</ng-template>
+
+<ng-template [ngIf]="!dragItem && !data">
+    <button mat-stroked-button color="primary" (click)="configure()">
+        Configure {{item.label}}
+    </button>
 </ng-template>
 
 <ng-template [ngIf]="data">
-
+    <button *ngIf="!dragItem" mat-icon-button color="primary" class="edit-widget" (click)="configure()">
+        <mat-icon>edit</mat-icon>
+    </button>
     <div class="item-title">{{item.label}}</div>
 
     <ng-template [ngIf]="item.type === 'lineChart'">

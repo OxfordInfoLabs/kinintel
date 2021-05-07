@@ -23,6 +23,9 @@
                         "polyfills": "projects/example/src/polyfills.ts",
                         "tsConfig": "projects/example/tsconfig.app.json",
                         "aot": true,
+                        "allowedCommonJsDependencies": [
+                            "gridstack"
+                        ],
                         "assets": [
                             "projects/example/src/favicon.ico",
                             "projects/example/src/assets"
@@ -30,7 +33,7 @@
                         "styles": [
                             "projects/example/src/custom-theme.scss",
                             "projects/example/src/styles.sass",
-                            "./node_modules/gridstack/dist//gridstack.min.css"
+                            "./node_modules/gridstack/dist/gridstack.min.css"
                         ],
                         "scripts": []
                     },

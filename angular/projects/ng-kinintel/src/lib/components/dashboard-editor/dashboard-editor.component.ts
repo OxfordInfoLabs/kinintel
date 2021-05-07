@@ -117,8 +117,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
                     item.el.firstChild.firstChild.remove();
                 }
 
-                this.addComponentToGridItem(item.el.firstChild, data || this.itemTypes[item.el.dataset.index]);
-                this.addRemoveWidgetItem(item.el.firstChild);
+                this.addComponentToGridItem(item.el.firstChild, data || this.itemTypes[item.el.dataset.index], !!data);
             });
         });
 
@@ -133,23 +132,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
         return event.target.cloneNode(true);
     }
 
-    private addRemoveWidgetItem(element) {
-        element.insertAdjacentHTML('beforeend', '<a href="javascript:void(0)" class="remove-widget"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">\n' +
-            '  <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>\n' +
-            '</svg></a>');
-        element.addEventListener('click', (event: any) => {
-            const widget = event.target.closest('.grid-stack-item');
-            this.grid.removeWidget(widget);
-        });
-    }
-
-    private addComponentToGridItem(element, itemData = {}) {
+    private addComponentToGridItem(element, itemData?, load?) {
         //create a component reference
         const componentRef = this.componentFactoryResolver.resolveComponentFactory(ItemComponentComponent)
             .create(this.injector);
 
-        componentRef.instance.item = itemData;
-        componentRef.instance.load();
+        componentRef.instance.grid = this.grid;
+        componentRef.instance.item = itemData || {};
+        if (load) {
+            componentRef.instance.load();
+        }
 
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
@@ -158,7 +150,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
         const domElem = (componentRef.hostView as EmbeddedViewRef < any > )
             .rootNodes[0] as HTMLElement;
 
-        domElem.dataset.itemData = JSON.stringify(itemData);
+        domElem.dataset.itemData = JSON.stringify(itemData || {});
 
         element.appendChild(domElem);
 

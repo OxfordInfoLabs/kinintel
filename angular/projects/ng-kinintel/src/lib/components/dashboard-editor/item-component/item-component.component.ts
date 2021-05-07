@@ -2,6 +2,8 @@ import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {Subject} from 'rxjs';
 import {Color, Label} from 'ng2-charts';
 import {ChartOptions, ChartType} from 'chart.js';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 
 @Component({
     selector: 'ki-item-component',
@@ -11,13 +13,19 @@ import {ChartOptions, ChartType} from 'chart.js';
 export class ItemComponentComponent implements OnInit, AfterViewInit {
 
     @Input() item: any;
+    @Input() dragItem: boolean;
+    @Input() grid: any;
 
     public data: any;
 
     public barChartOptions: ChartOptions = {
         responsive: true,
         // We use these empty structures as placeholders for dynamic theming.
-        scales: {xAxes: [{}], yAxes: [{}]},
+        scales: {xAxes: [{ticks: {
+                    beginAtZero: true
+                }}], yAxes: [{ticks: {
+                    beginAtZero: true
+                }}]},
     };
     public barChartColor: Color[] = [
         {
@@ -31,7 +39,7 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
         },
     ];
 
-    constructor() {
+    constructor(private dialog: MatDialog) {
     }
 
     ngOnInit(): void {
@@ -40,6 +48,19 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
+    }
+
+    public configure() {
+        const dialogRef = this.dialog.open(ConfigureItemComponent, {
+            width: '100vw',
+            height:  '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            hasBackdrop: false
+        });
+        dialogRef.afterClosed().subscribe(res => {
+
+        });
     }
 
     public load() {
@@ -73,6 +94,14 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
             for (let i = 0; i < 20; i++) {
                 this.data.push(this.generateRandomNames());
             }
+        }
+    }
+
+    public removeWidget(event) {
+        const message = 'Are your sure you would like to remove this item from your dashboard?';
+        if (window.confirm(message)) {
+            const widget = event.target.closest('.grid-stack-item');
+            this.grid.removeWidget(widget);
         }
     }
 

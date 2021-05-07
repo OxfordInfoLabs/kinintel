@@ -7,12 +7,15 @@ import { ItemComponentComponent } from './components/dashboard-editor/item-compo
 import {BrowserModule} from '@angular/platform-browser';
 import {CommonModule} from '@angular/common';
 import { GridsterModule } from 'angular2gridster';
+import { ConfigureItemComponent } from './components/dashboard-editor/configure-item/configure-item.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 
 @NgModule({
     declarations: [
         DashboardEditorComponent,
-        ItemComponentComponent
+        ItemComponentComponent,
+        ConfigureItemComponent
     ],
     imports: [
         BrowserModule,
@@ -20,11 +23,13 @@ import { GridsterModule } from 'angular2gridster';
         MatButtonModule,
         MatIconModule,
         ChartsModule,
-        GridsterModule.forRoot()
+        GridsterModule.forRoot(),
+        MatDialogModule
     ],
     exports: [
         DashboardEditorComponent,
-        ItemComponentComponent
+        ItemComponentComponent,
+        ConfigureItemComponent
     ]
 })
 export class NgKinintelModule {
