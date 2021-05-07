@@ -1,0 +1,19 @@
+<div class="draggable-toolbar">
+
+    <ng-template ngFor let-item [ngForOf]="itemTypes" let-i=index>
+        <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
+             [attr.gs-h]="item.height" [attr.data-index]="i">
+            <div class="grid-stack-item-content" draggable="true">
+                <ki-item-component [dragItem]="true" [item]="item"></ki-item-component>
+            </div>
+        </div>
+    </ng-template>
+
+
+</div>
+<div class="grid-stack"></div>
+<div class="action-toolbar">
+    <div></div>
+    <button mat-flat-button color="primary" (click)="save()">Save</button>
+</div>
+
