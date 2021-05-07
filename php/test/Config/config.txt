@@ -8,5 +8,3 @@ db.provider = sqlite3
 db.filename = DB/kinintel-test.db
 db.logFile = DB/db.log
 
-test.s3.access_key = AKIAZA6AIXDGFIFLLUUU
-test.s3.secret = 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
