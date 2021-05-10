@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
+use Kinikit\Core\Util\StringUtils;
+
 class Field {
 
     /**
@@ -26,8 +28,14 @@ class Field {
      * @param string $name
      * @param string $title
      */
-    public function __construct($name, $title) {
+    public function __construct($name, $title = null) {
         $this->name = $name;
+
+        // If no title supplied, make one using the name
+        if (!$title) {
+            $title = StringUtils::convertFromCamelCase($name);
+        }
+
         $this->title = $title;
     }
 

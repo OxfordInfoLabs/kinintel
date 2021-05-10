@@ -6,6 +6,7 @@ use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers as ReqHeaders;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\HTTP\Response\Response;
+use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
@@ -32,7 +33,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanMaterialiseSimpleUnfilteredDatasourceForGetRequest() {
 
-        $expectedResponse = new Response('{"name": "Pingu"}', 200, null, null);
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pingu"}'), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET));
@@ -55,7 +56,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanMaterialiseFilteredGetRequestDatasource() {
 
-        $expectedResponse = new Response('{"name": "Pinger"}', 200, null, null);
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pinger"}'), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET, [
@@ -87,7 +88,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanMaterialiseFilteredGetRequestDataSourceWithBasicAuthentication() {
 
-        $expectedResponse = new Response('{"name": "Pinky"}', 200, null, null);
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pinky"}'), 200, null, null);
 
         $headers = new ReqHeaders();
         $headers->set(ReqHeaders::AUTHORISATION, "Basic " . base64_encode('baggy:trousers'));
@@ -128,7 +129,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanMaterialiseFilteredGetRequestDataSourceWithQueryParamAuthentication() {
 
 
-        $expectedResponse = new Response('{"name": "Pinky"}', 200, null, null);
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pinky"}'), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET, [
@@ -165,7 +166,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanMaterialiseFilteredPostRequestWithPayloadTemplate() {
 
-        $expectedResponse = new Response('{"name": "Bosh"}', 200, null, null);
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Bosh"}'), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_POST, ["token" => "baggy", "secret" => "trousers"],
