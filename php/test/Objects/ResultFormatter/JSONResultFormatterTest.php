@@ -3,6 +3,7 @@
 namespace Kinintel\Objects\ResultFormatter;
 
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 
@@ -21,10 +22,10 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
             "item3"
         ])));
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("value", "Value")], $result->getColumns());
-        $this->assertEquals([["value" => "item1"], ["value" => "item2"], ["value" => "item3"]], $result->getData());
+        $this->assertEquals([["value" => "item1"], ["value" => "item2"], ["value" => "item3"]], $result->getAllData());
 
 
         // Array of values
@@ -35,11 +36,11 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         ])));
 
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("value1", "Value 1"), new Field("value2", "Value 2"), new Field("value3", "Value 3")], $result->getColumns());
         $this->assertEquals([["value1" => "Mark", "value2" => 3, "value3" => "Hello"],
-            ["value1" => "Bob", "value2" => 7, "value3" => "Bingo"]], $result->getData());
+            ["value1" => "Bob", "value2" => 7, "value3" => "Bingo"]], $result->getAllData());
 
 
         // Regular key / value pairs
@@ -49,11 +50,11 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         ])));
 
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
         $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
-            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getData());
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
 
 
     }
@@ -67,9 +68,9 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         // Primitive single value
         $result = $formatter->format(new ReadOnlyStringStream(json_encode(12345)));
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
         $this->assertEquals([new Field("value", "Value")], $result->getColumns());
-        $this->assertEquals([["value" => 12345]], $result->getData());
+        $this->assertEquals([["value" => 12345]], $result->getAllData());
 
 
         // Single unindexed object
@@ -77,10 +78,10 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
             ["Mark", 3, "Hello"]
         )));
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("value1", "Value 1"), new Field("value2", "Value 2"), new Field("value3", "Value 3")], $result->getColumns());
-        $this->assertEquals([["value1" => "Mark", "value2" => 3, "value3" => "Hello"]], $result->getData());
+        $this->assertEquals([["value1" => "Mark", "value2" => 3, "value3" => "Hello"]], $result->getAllData());
 
 
         // Single indexed object
@@ -89,10 +90,10 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         )));
 
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
-        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"]], $result->getData());
+        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"]], $result->getAllData());
 
 
     }
@@ -111,11 +112,11 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         ]])));
 
 
-        $this->assertInstanceOf(TabularDataset::class, $result);
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
         $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
-            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getData());
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
 
 
     }

@@ -73,7 +73,7 @@ class AmazonS3DatasourceTest extends \PHPUnit\Framework\TestCase {
                 "name" => "Joe",
                 "age" => 50
             ]
-        ], $result->getData());
+        ], $result->getAllData());
 
     }
 

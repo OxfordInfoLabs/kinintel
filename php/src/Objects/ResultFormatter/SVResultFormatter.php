@@ -6,9 +6,9 @@ namespace Kinintel\Objects\ResultFormatter;
 
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Util\StringUtils;
-use Kinintel\ValueObjects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
 use Kinintel\ValueObjects\Dataset\Field;
-use Kinintel\ValueObjects\Dataset\TabularDataset;
 
 /**
  * Separated values result formatter
@@ -117,38 +117,17 @@ class SVResultFormatter implements ResultFormatter {
      * Format the value string
      *
      * @param ReadableStream $result
-     * @return Dataset|void
+     * @return Dataset
      */
     public function format($readableStream) {
 
         $columns = [];
-        $data = [];
 
         if ($this->firstRowHeader) {
             $columns = $this->processHeaderRow($readableStream);
         }
 
-        while (!$readableStream->isEof()) {
-
-            $csvLine = $readableStream->readCSVLine($this->separator, $this->enclosure);
-
-            // Only continue if we have some content
-            if (trim($csvLine[0])) {
-
-                while (sizeof($columns) < sizeof($csvLine)) {
-                    $columns[] = new Field("column" . (sizeof($columns) + 1));
-                }
-
-                $dataItem = [];
-                foreach ($csvLine as $index => $value) {
-                    $dataItem[$columns[$index]->getName()] = trim($value);
-                }
-                $data[] = $dataItem;
-            }
-
-        }
-
-        return new TabularDataset($columns, $data);
+        return new SVStreamTabularDataSet($columns, $readableStream, $this->separator, $this->enclosure);
 
 
     }

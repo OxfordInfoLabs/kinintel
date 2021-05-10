@@ -5,9 +5,9 @@ namespace Kinintel\Objects\ResultFormatter;
 
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Util\Primitive;
-use Kinintel\ValueObjects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\ValueObjects\Dataset\Field;
-use Kinintel\ValueObjects\Dataset\TabularDataset;
 
 /**
  * Result mapping rules for JSON web service calls
@@ -121,7 +121,7 @@ class JSONResultFormatter implements ResultFormatter {
             }
         }
 
-        return new TabularDataset(array_values($columns), $data);
+        return new ArrayTabularDataset(array_values($columns), $data);
 
     }
 

@@ -9,10 +9,10 @@ use Kinikit\Core\HTTP\Response\Response;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
-use Kinintel\ValueObjects\Dataset\TabularDataset;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
@@ -45,7 +45,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
             [
                 "value" => "Pingu"
             ]
@@ -78,7 +78,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
             [
                 "value" => "Pinger"
             ]
@@ -117,7 +117,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
             [
                 "value" => "Pinky"
             ]
@@ -156,7 +156,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
             [
                 "value" => "Pinky"
             ]
@@ -192,7 +192,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $response = $request->materialiseDataset();
 
         // Check that the response was received directly
-        $this->assertEquals(new TabularDataset([new Field("value", "Value")], [
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
             [
                 "value" => "Bosh"
             ]

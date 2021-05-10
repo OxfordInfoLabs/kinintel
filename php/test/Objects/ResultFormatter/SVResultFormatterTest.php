@@ -3,6 +3,7 @@
 namespace Kinintel\Objects\ResultFormatter;
 
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 
@@ -16,14 +17,7 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
         $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv.csv"));
 
-        $this->assertInstanceOf(TabularDataset::class, $results);
-
-        $this->assertEquals([
-            new Field("column1", "Column 1"),
-            new Field("column2", "Column 2"),
-            new Field("column3", "Column 3")
-        ], $results->getColumns());
-
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
 
         $this->assertEquals([
             [
@@ -40,7 +34,16 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
                 "column3" => 20
             ]
 
-        ], $results->getData());
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("column1", "Column 1"),
+            new Field("column2", "Column 2"),
+            new Field("column3", "Column 3")
+        ], $results->getColumns());
+
+
+
 
     }
 
@@ -50,13 +53,7 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
         $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-tsv.txt"));
 
-        $this->assertInstanceOf(TabularDataset::class, $results);
-
-        $this->assertEquals([
-            new Field("column1", "Column 1"),
-            new Field("column2", "Column 2"),
-            new Field("column3", "Column 3")
-        ], $results->getColumns());
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
 
 
         $this->assertEquals([
@@ -74,7 +71,16 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
                 "column3" => 20
             ]
 
-        ], $results->getData());
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("column1", "Column 1"),
+            new Field("column2", "Column 2"),
+            new Field("column3", "Column 3")
+        ], $results->getColumns());
+
+
+
 
 
     }
@@ -88,13 +94,7 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
         $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"));
 
-        $this->assertInstanceOf(TabularDataset::class, $results);
-
-        $this->assertEquals([
-            new Field("nameOfPerson", "Name Of Person"),
-            new Field("surname", "Surname"),
-            new Field("currentAge", "Current Age")
-        ], $results->getColumns());
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
 
 
         $this->assertEquals([
@@ -112,7 +112,16 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
                 "currentAge" => 20
             ]
 
-        ], $results->getData());
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("nameOfPerson", "Name Of Person"),
+            new Field("surname", "Surname"),
+            new Field("currentAge", "Current Age")
+        ], $results->getColumns());
+
+
+
 
 
     }
