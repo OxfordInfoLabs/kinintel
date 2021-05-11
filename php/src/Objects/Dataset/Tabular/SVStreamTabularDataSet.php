@@ -30,6 +30,11 @@ class SVStreamTabularDataSet extends TabularDataset {
      */
     private $enclosure;
 
+    /**
+     * @var string
+     */
+    private $columns;
+
 
     /**
      * SVStreamTabularDataSet constructor.
@@ -40,7 +45,7 @@ class SVStreamTabularDataSet extends TabularDataset {
      * @param string $enclosure
      */
     public function __construct($columns, $stream, $separator = ",", $enclosure = '"') {
-        parent::__construct($columns);
+        $this->columns = $columns;
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
@@ -48,24 +53,33 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
+     * Return column array
+     *
+     * @return Field[]
+     */
+    public function getColumns() {
+        return $this->columns;
+    }
+
+    /**
      * Read the next data item from the stream using the SV format.
      */
     public function nextDataItem() {
 
         $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
-        $columns = $this->getColumns();
+
 
         // Only continue if we have some content
         if (trim($csvLine[0])) {
 
-            while (sizeof($columns) < sizeof($csvLine)) {
-                $columns[] = new Field("column" . (sizeof($columns) + 1));
-                $this->setColumns($columns);
+            while (sizeof($this->columns) < sizeof($csvLine)) {
+                $this->columns[] = new Field("column" . (sizeof($this->columns) + 1));
+
             }
 
             $dataItem = [];
             foreach ($csvLine as $index => $value) {
-                $dataItem[$columns[$index]->getName()] = trim($value);
+                $dataItem[$this->columns[$index]->getName()] = trim($value);
             }
             return $dataItem;
         } else {
@@ -73,4 +87,6 @@ class SVStreamTabularDataSet extends TabularDataset {
         }
 
     }
+
+
 }

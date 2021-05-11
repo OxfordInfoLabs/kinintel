@@ -14,41 +14,12 @@ use Kinintel\ValueObjects\Dataset\Field;
 abstract class TabularDataset implements Dataset {
 
     /**
-     * Array of fields representing the columns for this tabular set
+     * Get array of columns as Field objects
      *
-     * @var Field[]
-     */
-    private $columns;
-
-
-    /**
-     * TabularDataset constructor.  Base class only requires columns
-     * as these are the only thing that's generic at the mo.  Subclasses should
-     * supply other data as required.
-     *
-     * @param Field[] $columns
-     */
-    public function __construct($columns) {
-        $this->columns = $columns;
-    }
-
-
-    /**
      * @return Field[]
      */
-    public function getColumns() {
-        return $this->columns;
-    }
+    public abstract function getColumns();
 
-
-    /**
-     * Set columns (internal use only)
-     *
-     * @param $columns
-     */
-    protected function setColumns($columns) {
-        $this->columns = $columns;
-    }
 
     /**
      * Provide the next data item
