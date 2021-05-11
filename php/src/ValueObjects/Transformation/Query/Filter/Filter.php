@@ -39,7 +39,7 @@ class Filter {
     const FILTER_TYPE_NOT_NULL = "notnull";
     const FILTER_TYPE_GREATER_THAN = "gt";
     const FILTER_TYPE_LESS_THAN = "lt";
-    const FILTER_TYPE_GREATER_OR_EQUAL_TO = "gte";
+    const FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO = "gte";
     const FILTER_TYPE_LESS_THAN_OR_EQUAL_TO = "lte";
     const FILTER_TYPE_LIKE = "like";
 

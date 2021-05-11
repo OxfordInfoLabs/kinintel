@@ -109,7 +109,8 @@ class DashboardServiceTest extends TestBase {
                 "filterType" => "eq"
             ]],
             "logic" => "and",
-            "filterJunctions" => []
+            "filterJunctions" => [],
+            "sQLTransformationProcessorKey" => "filterquery"
         ])], $dashboardDatasetInstance->getTransformationInstances());
 
     }

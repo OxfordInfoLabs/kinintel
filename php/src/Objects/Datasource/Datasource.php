@@ -47,8 +47,8 @@ abstract class Datasource {
      * @param DatasourceConfig $config
      * @param AuthenticationCredentials $authenticationCredentials
      */
-    public function __construct($config = null, $authenticationCredentials = null) {
-        $this->validator = Container::instance()->get(Validator::class);
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null) {
+        $this->validator = $validator ? $validator : Container::instance()->get(Validator::class);
         if ($config)
             $this->setConfig($config);
 
@@ -135,12 +135,13 @@ abstract class Datasource {
     public function setAuthenticationCredentials($authenticationCredentials) {
         // If credentials supplied check for validity
         if ($authenticationCredentials) {
-            if (!in_array(get_class($authenticationCredentials), $this->getSupportedCredentialClasses())) {
+            if (!$this->authenticationClassMatchesSupported($authenticationCredentials)) {
                 throw new InvalidDatasourceAuthenticationCredentialsException(["authenticationCredentials" => [
                     "wrongtype" =>
                         new FieldValidationError("authenticationCredentials", "wrongtype", "Authentication credentials supplied are of wrong type for data source")
                 ]]);
             } else {
+
                 $validationErrors = $this->validator->validateObject($authenticationCredentials);
                 if (sizeof($validationErrors)) {
                     throw new InvalidDatasourceAuthenticationCredentialsException($validationErrors);
@@ -185,6 +186,25 @@ abstract class Datasource {
      * @return Dataset
      */
     public abstract function materialiseDataset();
+
+
+    // Check whether the configured authentication class matches including subclasses
+    private function authenticationClassMatchesSupported($authenticationObject) {
+
+        $targetClass = get_class($authenticationObject);
+
+        // Check supported classes
+        foreach ($this->getSupportedCredentialClasses() as $supportedCredentialClass) {
+            if ($supportedCredentialClass == $targetClass)
+                return true;
+
+            if (is_subclass_of($targetClass, $supportedCredentialClass))
+                return true;
+        }
+
+
+        return false;
+    }
 
 
 }

@@ -227,7 +227,8 @@ class DatasetServiceTest extends TestBase {
                     "value" => "foobar",
                     "filterType" => "eq"]],
                 "logic" => "and",
-                "filterJunctions" => []
+                "filterJunctions" => [],
+                "sQLTransformationProcessorKey" => "filterquery"
             ]
         ), $transformationInstance);
 
