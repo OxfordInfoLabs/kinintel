@@ -15,6 +15,7 @@
     },
     "private": true,
     "dependencies": {
+        "@3dgenomes/ngx-resizable": "^1.8.1",
         "@angular/animations": "~11.2.5",
         "@angular/cdk": "^11.2.10",
         "@angular/common": "~11.2.5",

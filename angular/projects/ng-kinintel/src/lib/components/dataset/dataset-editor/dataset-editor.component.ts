@@ -1,111 +1,81 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
-import {Color, Label} from 'ng2-charts';
-import {ChartOptions, ChartType} from 'chart.js';
-import {MatDialog} from '@angular/material/dialog';
-import {ConfigureItemComponent} from '../configure-item/configure-item.component';
+import {Component, OnInit} from '@angular/core';
+import * as _ from 'lodash';
 
 @Component({
-    selector: 'ki-item-component',
-    templateUrl: './item-component.component.html',
-    styleUrls: ['./item-component.component.sass']
+    selector: 'ki-dataset-editor',
+    templateUrl: './dataset-editor.component.html',
+    styleUrls: ['./dataset-editor.component.sass']
 })
-export class ItemComponentComponent implements OnInit, AfterViewInit {
+export class DatasetEditorComponent implements OnInit {
 
-    @Input() item: any;
-    @Input() dragItem: boolean;
-    @Input() grid: any;
+    public tableData = [];
+    public showFilters = false;
+    public displayedColumns = [];
+    public _ = _;
+    public filterFields = [];
+    public transformations = [];
 
-    public data: any;
-
-    public barChartOptions: ChartOptions = {
-        responsive: true,
-        // We use these empty structures as placeholders for dynamic theming.
-        scales: {xAxes: [{ticks: {
-                    beginAtZero: true
-                }}], yAxes: [{ticks: {
-                    beginAtZero: true
-                }}]},
-    };
-    public barChartColor: Color[] = [
-        {
-            backgroundColor: 'rgb(60,167,25)',
-        },
-        {
-            backgroundColor: 'rgb(32,166,211)',
-        },
-        {
-            backgroundColor: 'rgb(229,0,0)',
-        },
-    ];
-
-    constructor(private dialog: MatDialog) {
+    constructor() {
     }
 
     ngOnInit(): void {
-
+        this.loadData();
     }
 
-    ngAfterViewInit() {
-
-    }
-
-    public configure() {
-        const dialogRef = this.dialog.open(ConfigureItemComponent, {
-            width: '100vw',
-            height:  '100vh',
-            maxWidth: '100vw',
-            maxHeight: '100vh',
-            hasBackdrop: false,
-            data: {
-                item: this.item
-            }
+    public applyFilter(field, condition, value, andOr) {
+        const existingFilters = _.filter(this.transformations, {type: 'filter'});
+        const andOrValue = existingFilters.length ? andOr.value: '';
+        this.transformations.push({
+            type: 'filter',
+            column: field.value,
+            condition: condition.value,
+            value: value.value,
+            andOr: andOrValue,
+            string: andOrValue + ' ' + field.value + ' ' + condition.value + ' ' + value.value
         });
-        dialogRef.afterClosed().subscribe(res => {
 
-        });
+        field.value = '';
+        condition.value = '';
+        value.value = '';
     }
 
-    public load() {
-        if (this.item.type == 'lineChart') {
-            this.data = [
-                {data: [1000, 1400, 1999, 2500, 5000]},
-            ];
-        } else if (this.item.type === 'barChart') {
-            this.data = [
-                {
-                    data: [
-                        500
-                    ],
-                    label: 'Trusted'
-                },
-                {
-                    data: [
-                        200
-                    ],
-                    label: 'Monitored'
-                },
-                {
-                    data: [
-                        300
-                    ],
-                    label: 'Alert'
-                }
-            ];
-        } else if (this.item.type === 'table') {
-            this.data = [];
-            for (let i = 0; i < 20; i++) {
-                this.data.push(this.generateRandomNames());
+    public removeFilter(index) {
+        this.transformations.splice(index, 1);
+    }
+
+    public sort(event) {
+        console.log(event);
+        const column = event.active;
+        const direction = _.upperCase(event.direction);
+        const existingIndex = _.findIndex(this.transformations, {type: 'sort', column});
+        if (existingIndex > -1) {
+            if (!direction) {
+                this.transformations.splice(existingIndex, 1);
+            } else {
+                this.transformations[existingIndex].direction = direction;
+                this.transformations[existingIndex].string = 'Sort ' + _.startCase(column) + ' ' + direction;
             }
+        } else {
+            this.transformations.push({
+                type: 'sort',
+                column: column,
+                direction,
+                string: 'Sort ' + _.startCase(column) + ' ' + direction
+            })
         }
     }
 
-    public removeWidget(event) {
-        const message = 'Are your sure you would like to remove this item from your dashboard?';
-        if (window.confirm(message)) {
-            const widget = event.target.closest('.grid-stack-item');
-            this.grid.removeWidget(widget);
+    private loadData() {
+        for (let i = 0; i < 20; i++) {
+            this.tableData.push(this.generateRandomNames());
         }
+        this.displayedColumns = Object.keys(this.tableData[0]);
+        this.filterFields = _.map(this.displayedColumns, column => {
+            return {
+                label: _.startCase(column),
+                value: column
+            }
+        });
     }
 
     private generateRandomNames() {
@@ -125,4 +95,5 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
         }
 
     }
+
 }
