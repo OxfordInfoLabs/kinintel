@@ -3,7 +3,7 @@
 namespace Kinintel\Services\Dataset;
 
 use Kinintel\Objects\Dataset\DatasetInstance;
-use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -83,7 +83,7 @@ class DatasetService {
      * @param DatasetInstance $dataSetInstance
      * @param TransformationInstance[] $additionalTransformations
      *
-     * @return Datasource
+     * @return BaseDatasource
      */
     public function getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
 

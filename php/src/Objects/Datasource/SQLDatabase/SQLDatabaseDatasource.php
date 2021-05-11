@@ -6,10 +6,13 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
-use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Dataset\Tabular\TabularDataset;
+use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -17,7 +20,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class SQLDatabaseDatasource extends Datasource {
+class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasource {
 
     /**
      * @var Transformation[]
@@ -77,7 +80,7 @@ class SQLDatabaseDatasource extends Datasource {
      * provided it is of the right type
      *
      * @param Transformation $transformation
-     * @return Datasource|void
+     * @return BaseDatasource|void
      */
     public function applyTransformation($transformation) {
 
@@ -108,6 +111,37 @@ class SQLDatabaseDatasource extends Datasource {
         return new SQLResultSetTabularDataset($resultSet);
     }
 
+
+    /**
+     * Update this datasource using a supplied dataset and the update mode supplied.
+     *
+     * @param $dataset
+     *
+     * @param string $updateMode
+     * @return mixed|void
+     */
+    public function update($dataset, $updateMode = self::UPDATE_MODE_APPEND) {
+
+        if (!($dataset instanceof TabularDataset)) {
+            throw new DatasourceUpdateException("SQL Database Datasources can only be updated with Tabular Datasets");
+        }
+
+        /**
+         * @var SQLDatabaseDatasourceConfig $config
+         */
+        $config = $this->getConfig();
+
+        if (!$config->isUpdatable()) {
+            throw new DatasourceUpdateException("Attempted to update a SQL datasource which is not updatable");
+        }
+
+        if ($config->getSource() !== SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
+            throw new DatasourceUpdateException("Attempted to update a SQL datasource which does not have a table source");
+        }
+
+    }
+
+
     // Build SQL statement using configured settings
     private function buildQuery() {
 
@@ -119,7 +153,11 @@ class SQLDatabaseDatasource extends Datasource {
         // If a tabular based source, create base clause
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
             $query = new SQLQuery("SELECT * FROM " . $config->getTableName());
+        } else {
+            $querySql = sizeof($this->transformations) ? "SELECT * FROM (" . $config->getQuery() . ") A" : $config->getQuery();
+            $query = new SQLQuery($querySql);
         }
+
 
         /**
          * Process each transformation
@@ -151,5 +189,6 @@ class SQLDatabaseDatasource extends Datasource {
         }
         return $this->transformationProcessorInstances[$key] ?? null;
     }
+
 
 }

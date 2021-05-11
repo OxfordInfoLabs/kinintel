@@ -7,7 +7,7 @@ namespace Kinintel\Objects\Datasource;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Query\Transformation;
 
-class TestDatasource extends Datasource {
+class TestDatasource extends BaseDatasource {
 
     /**
      * @var string

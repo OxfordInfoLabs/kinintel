@@ -9,7 +9,7 @@ use Kinintel\Exception\InvalidDatasourceTypeException;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
 use Kinintel\Objects\Dataset\DatasetInstance;
-use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
@@ -45,7 +45,7 @@ class DatasetServiceTest extends TestBase {
 
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $dataSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
@@ -64,7 +64,7 @@ class DatasetServiceTest extends TestBase {
 
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $dataSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
@@ -81,9 +81,9 @@ class DatasetServiceTest extends TestBase {
         $transformationInstance3->returnValue("returnTransformation", $transformation3);
 
 
-        $transformed1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $transformed2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $transformed3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed3 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
@@ -119,7 +119,7 @@ class DatasetServiceTest extends TestBase {
 
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $dataSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
@@ -136,9 +136,9 @@ class DatasetServiceTest extends TestBase {
         $transformationInstance3->returnValue("returnTransformation", $transformation3);
 
 
-        $transformed1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $transformed2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $transformed3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed3 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
