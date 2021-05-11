@@ -1,7 +1,48 @@
-<h2 mat-dialog-title>Delete all</h2>
-<mat-dialog-content>Are you sure?</mat-dialog-content>
-<mat-dialog-actions>
-    <button mat-button mat-dialog-close>No</button>
-    <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
-    <button mat-button [mat-dialog-close]="true">Yes</button>
-</mat-dialog-actions>
+<div class="configure-header">
+    Configure {{data.item.label}}
+    <button mat-icon-button mat-dialog-close>
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<div class="configure-content">
+
+    <rsz-layout class="row" [directions]="['none']" [rFlex]="false">
+
+        <rsz-layout class="cell left" [directions]="['right']" [rFlex]="true">
+            <div class="cell-contents">
+                <ki-dataset-editor></ki-dataset-editor>
+            </div>
+
+
+        </rsz-layout>
+
+        <rsz-layout class="cell right" [directions]="['none']" [rFlex]="false">
+
+            <div class="cell-contents">
+                <canvas baseChart style="height: 200px"
+                        [datasets]="chartData"
+                        [labels]="['December', 'January', 'February', 'March', 'April']"
+                        [options]="{responsive: true}"
+                        [colors]="[{borderColor: 'rgba(32,166,211,0.7)',backgroundColor: 'rgba(32,166,211,0.3)'}]"
+                        [legend]="false"
+                        [chartType]="'line'"
+                        [plugins]="[]">
+                </canvas>
+            </div>
+
+
+
+        </rsz-layout>
+    </rsz-layout>
+
+</div>
+
+<div class="configure-footer">
+    <button mat-stroked-button mat-dialog-close color="primary">
+        Cancel
+    </button>
+    <button mat-flat-button color="primary">
+        Save Changes
+    </button>
+</div>

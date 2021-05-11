@@ -11,12 +11,16 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import {NgKinintelModule} from 'ng-kinintel';
+import { DatasetComponent } from './views/dataset/dataset.component';
+import { DatasourceComponent } from './views/datasource/datasource.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         HomeComponent,
-        DashboardComponent
+        DashboardComponent,
+        DatasetComponent,
+        DatasourceComponent
     ],
     imports: [
         BrowserModule,

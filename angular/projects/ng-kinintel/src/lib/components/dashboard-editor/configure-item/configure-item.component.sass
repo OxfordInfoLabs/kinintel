@@ -1,0 +1,69 @@
+.configure-header
+    height: 60px
+    width: 100%
+    background-color: #f0f0f0
+    //border-bottom: 1px solid #dadce0
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0 1rem
+    box-sizing: border-box
+    font-size: 1.2rem
+    font-weight: 300
+
+.configure-content
+    flex: 1
+    background-color: whitesmoke
+    overflow: hidden
+    rsz-layout.row
+        height: 100%
+        background-color: transparent
+        .cell
+            border-bottom: none
+            border-top: none
+            position: relative
+            padding: 1rem
+
+        .left
+            flex-basis: 65%
+        .right
+            border-right: none
+
+.cell-contents
+    position: absolute
+    left: 0
+    right: 0
+    top: 0
+    bottom: 0
+    overflow-y: auto
+    padding: 1rem
+    &::-webkit-scrollbar
+        width: .75em
+        background: transparent
+    &::-webkit-scrollbar-thumb
+        background: #d2d2d2
+    &.pad
+        padding: 2rem
+    &.bar-space
+        margin-top: 30px
+    .entity-header
+        padding: 1rem
+    .cell-header
+        height: 50px
+        width: 100%
+        display: flex
+        align-items: center
+        justify-content: space-between
+
+.configure-footer
+    height: 60px
+    width: 100%
+    background-color: #f0f0f0
+    //border-top: 1px solid #dadce0
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 0 1rem
+    box-sizing: border-box
+
+

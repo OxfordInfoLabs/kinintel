@@ -23,7 +23,14 @@
                     <mat-icon>dashboard</mat-icon>
                     <span>Dashboard</span>
                 </a>
-
+                <a [routerLink]="['/datasource']" routerLinkActive="active" class="menu-item">
+                    <mat-icon>storage</mat-icon>
+                    <span>Datasource</span>
+                </a>
+                <a [routerLink]="['/dataset']" routerLinkActive="active" class="menu-item">
+                    <mat-icon>table_chart</mat-icon>
+                    <span>Dataset</span>
+                </a>
             </div>
         </div>
         <div>

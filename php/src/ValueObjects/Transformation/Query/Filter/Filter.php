@@ -46,7 +46,7 @@ class Filter {
     // Filter type constants (multi valued)
     const FILTER_TYPE_BETWEEN = "between";
     const FILTER_TYPE_IN = "in";
-    const FILTER_TYPE_NOT_ON = "notin";
+    const FILTER_TYPE_NOT_IN = "notin";
 
     /**
      * Filter constructor.
