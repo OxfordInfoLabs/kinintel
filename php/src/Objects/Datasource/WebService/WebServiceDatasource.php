@@ -77,6 +77,15 @@ class WebServiceDatasource extends Datasource {
         return self::$supportedAuthenticationCredentials;
     }
 
+    /**
+     * We allow guest web service calls
+     *
+     * @return false
+     */
+    public function isAuthenticationRequired() {
+        return false;
+    }
+
 
     /**
      * Allow setting of dispatcher for testing
@@ -160,7 +169,7 @@ class WebServiceDatasource extends Datasource {
         $response = $this->dispatcher->dispatch($request);
 
         // Materialise the web service result and return the result
-        return $config->returnFormatter()->format($response->getBody());
+        return $config->returnFormatter()->format($response->getStream());
 
     }
 

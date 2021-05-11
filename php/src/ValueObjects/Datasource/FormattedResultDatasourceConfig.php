@@ -6,8 +6,8 @@ namespace Kinintel\ValueObjects\Datasource;
 
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinintel\ValueObjects\Datasource\ResultFormatter\ResultFormatter;
-use Kinintel\ValueObjects\Datasource\WebService\JSONResultFormatter;
+use Kinintel\Objects\ResultFormatter\ResultFormatter;
+
 
 /**
  * Datasource config where formatted results are expected to provide

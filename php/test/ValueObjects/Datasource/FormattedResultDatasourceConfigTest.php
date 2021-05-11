@@ -2,7 +2,7 @@
 
 namespace Kinintel\ValueObjects\Datasource;
 
-use Kinintel\ValueObjects\Datasource\ResultFormatter\JSONResultFormatter;
+use Kinintel\Objects\ResultFormatter\JSONResultFormatter;
 
 include_once "autoloader.php";
 

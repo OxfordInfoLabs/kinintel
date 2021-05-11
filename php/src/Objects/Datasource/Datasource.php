@@ -8,8 +8,8 @@ use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
-use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Transformation;
 

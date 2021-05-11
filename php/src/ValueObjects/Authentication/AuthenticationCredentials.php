@@ -11,6 +11,10 @@ namespace Kinintel\ValueObjects\Authentication;
  * @implementation accesskeyandsecret \Kinintel\ValueObjects\Authentication\Generic\AccessKeyAndSecretAuthenticationCredentials
  * @implementation http-basic \Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials
  * @implementation http-query \Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials
+ *
+ * @implementation mysql \Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials
+ * @implementation sqlite \Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials
+ *
  */
 interface AuthenticationCredentials {
 }
