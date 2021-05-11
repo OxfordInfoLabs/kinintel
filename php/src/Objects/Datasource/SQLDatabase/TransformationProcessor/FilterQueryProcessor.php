@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\Filter\FilterJunction;
@@ -47,6 +48,10 @@ class FilterQueryProcessor implements SQLTransformationProcessor {
             return $this->createFilterStatement($filter, $parameters);
         }, $filterJunction->getFilters());
 
+        $clauses = array_merge($clauses, array_map(function ($junction) use (&$parameters) {
+            return "(" . $this->createFilterJunctionStatement($junction, $parameters) . ")";
+        }, $filterJunction->getFilterJunctions()));
+
         return join(" " . $filterJunction->getLogic() . " ", $clauses);
     }
 
@@ -69,10 +74,8 @@ class FilterQueryProcessor implements SQLTransformationProcessor {
         }
 
         $clause = "";
+        $expectArray = false;
         switch ($filter->getFilterType()) {
-            case Filter::FILTER_TYPE_EQUALS:
-                $clause = "$fieldName = ?";
-                break;
             case Filter::FILTER_TYPE_NOT_EQUALS:
                 $clause = "$fieldName <> ?";
                 break;
@@ -101,11 +104,29 @@ class FilterQueryProcessor implements SQLTransformationProcessor {
                 $newParams = [str_replace("*", "%", $filterValue)];
                 break;
             case Filter::FILTER_TYPE_BETWEEN:
+                if (!is_array($filterValue) || sizeof($filterValue) !== 2) {
+                    throw new DatasourceTransformationException("Filter value for $fieldName must be a two valued array");
+                }
+                $expectArray = true;
                 $clause = "$fieldName BETWEEN ? AND ?";
                 break;
             case Filter::FILTER_TYPE_IN:
+                $expectArray = true;
                 $clause = "$fieldName IN (" . str_repeat("?,", sizeof($filterValue) - 1) . "?)";
                 break;
+            case Filter::FILTER_TYPE_NOT_IN:
+                $expectArray = true;
+                $clause = "$fieldName NOT IN (" . str_repeat("?,", sizeof($filterValue) - 1) . "?)";
+                break;
+            default:
+                $clause = "$fieldName = ?";
+                break;
+        }
+
+        if ($expectArray && !is_array($filterValue)) {
+            throw new DatasourceTransformationException("Filter value for $fieldName must be an array");
+        } else if (!$expectArray && is_array($filterValue)) {
+            throw new DatasourceTransformationException("Filter value for $fieldName should not be an array");
         }
 
         array_splice($parameters, sizeof($parameters), 0, $newParams);

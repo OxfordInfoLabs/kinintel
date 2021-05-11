@@ -3,8 +3,10 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Query\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
 
 include_once "autoloader.php";
@@ -13,8 +15,17 @@ class FilterQueryProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testEqualsFiltersAreAppliedCorrectly() {
-
         $processor = new FilterQueryProcessor();
+
+        try {
+            $processor->updateQuery(new FilterQuery([
+                new Filter("name", ["hello"], Filter::FILTER_TYPE_EQUALS)
+            ]), new SQLQuery("SELECT * FROM test_data"));
+            $this->fail("Should have thrown here");
+        } catch (DatasourceTransformationException $e) {
+            $this->assertTrue(true);
+        }
+
         $query = $processor->updateQuery(new FilterQuery([
             new Filter("name", "Jeeves")
         ]), new SQLQuery("SELECT * FROM test_data"));
@@ -29,6 +40,16 @@ class FilterQueryProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testNotEqualsFiltersAppliedCorrectly() {
         $processor = new FilterQueryProcessor();
+
+        try {
+            $processor->updateQuery(new FilterQuery([
+                new Filter("name", ["hello"], Filter::FILTER_TYPE_NOT_EQUALS)
+            ]), new SQLQuery("SELECT * FROM test_data"));
+            $this->fail("Should have thrown here");
+        } catch (DatasourceTransformationException $e) {
+            $this->assertTrue(true);
+        }
+
         $query = $processor->updateQuery(new FilterQuery([
             new Filter("name", "Jeeves", Filter::FILTER_TYPE_NOT_EQUALS)
         ]), new SQLQuery("SELECT * FROM test_data"));
@@ -141,6 +162,26 @@ class FilterQueryProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $processor = new FilterQueryProcessor();
 
+
+        try {
+            $processor->updateQuery(new FilterQuery([
+                new Filter("age", 18, Filter::FILTER_TYPE_BETWEEN)
+            ]), new SQLQuery("SELECT * FROM test_data"));
+            $this->fail("Should have thrown here");
+        } catch (DatasourceTransformationException $e) {
+
+        }
+
+        try {
+            $processor->updateQuery(new FilterQuery([
+                new Filter("age", [18], Filter::FILTER_TYPE_BETWEEN)
+            ]), new SQLQuery("SELECT * FROM test_data"));
+            $this->fail("Should have thrown here");
+        } catch (DatasourceTransformationException $e) {
+
+        }
+
+
         $query = $processor->updateQuery(new FilterQuery([
             new Filter("age", [18, 65], Filter::FILTER_TYPE_BETWEEN)
         ]), new SQLQuery("SELECT * FROM test_data"));
@@ -170,14 +211,66 @@ class FilterQueryProcessorTest extends \PHPUnit\Framework\TestCase {
         $processor = new FilterQueryProcessor();
 
         $query = $processor->updateQuery(new FilterQuery([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTE)
+            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN)
         ]), new SQLQuery("SELECT * FROM test_data"));
 
-        $this->assertEquals(new SQLQuery("SELECT * FROM test_data WHERE age IN (?,?,?,?,?,?,?,?,?,?)", [
+        $this->assertEquals(new SQLQuery("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?)", [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10
         ]), $query);
 
     }
+
+
+    public function testMultipleFiltersAppliedWithLogicCorrectly() {
+
+        $processor = new FilterQueryProcessor();
+
+        // And one
+        $query = $processor->updateQuery(new FilterQuery([
+            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
+            new Filter("weight", 10, Filter::FILTER_TYPE_GREATER_THAN)
+        ]), new SQLQuery("SELECT * FROM test_data"));
+
+        $this->assertEquals(new SQLQuery("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?) AND weight > ?", [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10
+        ]), $query);
+
+
+        // Or one
+        $query = $processor->updateQuery(new FilterQuery([
+            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
+            new Filter("weight", 10, Filter::FILTER_TYPE_GREATER_THAN)
+        ], [], FilterJunction::LOGIC_OR), new SQLQuery("SELECT * FROM test_data"));
+
+        $this->assertEquals(new SQLQuery("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?) OR weight > ?", [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10
+        ]), $query);
+
+
+    }
+
+
+    public function testNestedFilterJunctionsAreAppliedCorrectlyAsExpected() {
+
+        $processor = new FilterQueryProcessor();
+
+        // And one
+        $query = $processor->updateQuery(new FilterQuery([
+            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
+            new Filter("weight", 10, Filter::FILTER_TYPE_GREATER_THAN)
+        ], [
+            new FilterJunction([
+                new Filter("name", "bob%", Filter::FILTER_TYPE_LIKE),
+                new Filter("name", "mary%", Filter::FILTER_TYPE_LIKE),
+            ], [], FilterJunction::LOGIC_OR)
+        ]), new SQLQuery("SELECT * FROM test_data"));
+
+        $this->assertEquals(new SQLQuery("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?) AND weight > ? AND (name LIKE ? OR name LIKE ?)", [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, "bob%", "mary%"
+        ]), $query);
+
+    }
+
 
 }
 

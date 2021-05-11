@@ -226,7 +226,7 @@ class DatasetServiceTest extends TestBase {
                 "filters" => [["fieldName" => "property",
                     "value" => "foobar",
                     "filterType" => "eq"]],
-                "logic" => "and",
+                "logic" => "AND",
                 "filterJunctions" => [],
                 "sQLTransformationProcessorKey" => "filterquery"
             ]

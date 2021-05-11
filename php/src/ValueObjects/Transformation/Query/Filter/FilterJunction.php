@@ -35,8 +35,8 @@ class FilterJunction {
 
 
     // Logic modes
-    const LOGIC_AND = "and";
-    const LOGIC_OR = "or";
+    const LOGIC_AND = "AND";
+    const LOGIC_OR = "OR";
 
     /**
      * FilterJunction constructor.
