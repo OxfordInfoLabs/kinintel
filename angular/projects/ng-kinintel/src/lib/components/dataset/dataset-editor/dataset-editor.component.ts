@@ -44,7 +44,6 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public sort(event) {
-        console.log(event);
         const column = event.active;
         const direction = _.upperCase(event.direction);
         const existingIndex = _.findIndex(this.transformations, {type: 'sort', column});

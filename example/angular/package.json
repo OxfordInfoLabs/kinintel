@@ -7,10 +7,7 @@
         "build": "ng build",
         "test": "ng test",
         "lint": "ng lint",
-        "e2e": "ng e2e",
-        "build:lib": "ng build ng-kinintel",
-        "build:lib-p": "ng build ng-kinintel --prod",
-        "watch:lib": "ng build ng-kinintel --watch"
+        "e2e": "ng e2e"
     },
     "private": true,
     "dependencies": {
@@ -29,7 +26,7 @@
         "angular2gridster": "^11.0.0",
         "chart.js": "^2.9.3",
         "gridstack": "^4.2.1",
-        "ng-kinintel": "file:dist/ng-kinintel",
+        "ng-kinintel": "file:../../angular/dist/ng-kinintel",
         "ng2-charts": "^2.4.2",
         "rxjs": "~6.6.0",
         "tslib": "^2.0.0",

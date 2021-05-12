@@ -8,7 +8,7 @@
 </div>
 <div class="cell-header" *ngIf="showFilters">
     <mat-icon>filter_alt</mat-icon>
-    <select #andOr [ngStyle]="{visibility: filters.length ? 'visible': 'hidden'}">
+    <select #andOr [ngStyle]="{visibility: _.filter(transformations, {type: 'filter'}).length ? 'visible': 'hidden'}">
         <option value="AND">AND</option>
         <option value="OR">OR</option>
     </select>
@@ -36,7 +36,7 @@
 <div class="cell-header" *ngIf="transformations.length">
     <mat-chip-list>
         <mat-chip *ngFor="let transformation of transformations; let i = index"
-                  color="primary" selected (removed)="removeFilter(i)">
+                  (removed)="removeFilter(i)">
             {{transformation.string}}
             <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
