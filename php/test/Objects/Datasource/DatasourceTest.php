@@ -6,6 +6,7 @@ use Kinikit\Core\Validation\FieldValidationError;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
+use Kinintel\Test\Objects\Datasource\TestAuthenticationCredentialsAlt;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 
@@ -77,7 +78,7 @@ class DatasourceTest extends \PHPUnit\Framework\TestCase {
             $this->assertTrue(true);
         }
 
-        $dataSource = new TestDatasource(DatasourceConfig::class, [AuthenticationCredentials::class]);
+        $dataSource = new TestDatasource(DatasourceConfig::class, [TestAuthenticationCredentialsAlt::class]);
 
         try {
             $dataSource->setAuthenticationCredentials(new TestAuthenticationCredentials());

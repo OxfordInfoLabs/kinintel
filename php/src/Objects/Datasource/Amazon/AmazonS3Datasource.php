@@ -6,14 +6,14 @@ use Aws\S3\S3Client;
 use GuzzleHttp\Psr7\Stream;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
-use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Thirdparty\Amazon\AmazonSDKClientProvider;
 use Kinintel\ValueObjects\Authentication\Generic\AccessKeyAndSecretAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\Configuration\Amazon\AmazonS3DatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class AmazonS3Datasource extends Datasource {
+class AmazonS3Datasource extends BaseDatasource {
 
     public function getConfigClass() {
         return AmazonS3DatasourceConfig::class;
@@ -27,7 +27,7 @@ class AmazonS3Datasource extends Datasource {
      * Apply any transformation to the results of this datasource.
      *
      * @param Transformation $transformation
-     * @return Datasource|void
+     * @return BaseDatasource|void
      */
     public function applyTransformation($transformation) {
         // TODO: Implement applyTransformation() method.

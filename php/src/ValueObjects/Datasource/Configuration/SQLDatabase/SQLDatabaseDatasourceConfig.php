@@ -23,6 +23,11 @@ class SQLDatabaseDatasourceConfig implements DatasourceConfig {
      */
     private $query;
 
+    /**
+     * @var boolean
+     */
+    private $updatable;
+
     // Currently supported sources for the data using the authenticated connection.
     const SOURCE_TABLE = "table";
     const SOURCE_QUERY = "query";
@@ -34,10 +39,11 @@ class SQLDatabaseDatasourceConfig implements DatasourceConfig {
      * @param string $tableName
      * @param string $query
      */
-    public function __construct($source, $tableName = "", $query = "") {
+    public function __construct($source, $tableName = "", $query = "", $updatable = false) {
         $this->source = $source;
         $this->tableName = $tableName;
         $this->query = $query;
+        $this->updatable = $updatable;
     }
 
     /**
@@ -80,6 +86,20 @@ class SQLDatabaseDatasourceConfig implements DatasourceConfig {
      */
     public function setQuery($query) {
         $this->query = $query;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUpdatable() {
+        return $this->updatable;
+    }
+
+    /**
+     * @param bool $updatable
+     */
+    public function setUpdatable($updatable) {
+        $this->updatable = $updatable;
     }
 
 

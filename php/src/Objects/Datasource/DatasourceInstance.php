@@ -7,8 +7,6 @@ namespace Kinintel\Objects\Datasource;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
-use Kinikit\Core\Exception\ItemNotFoundException;
-use Kinikit\Core\Reflection\ClassInspectorProvider;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\ActiveRecord;
@@ -207,7 +205,7 @@ class DatasourceInstance extends ActiveRecord {
     /**
      * Return a fully configured data source or throw appropriate validation exceptions
      *
-     * @return Datasource
+     * @return BaseDatasource
      * @throws ValidationException
      */
     public function returnDataSource() {
@@ -256,7 +254,7 @@ class DatasourceInstance extends ActiveRecord {
             $dataSourceClass = Container::instance()->getInterfaceImplementationClass(Datasource::class, $this->type);
 
             /**
-             * @var Datasource $dataSource
+             * @var BaseDatasource $dataSource
              */
             $dataSource = Container::instance()->new($dataSourceClass);
 

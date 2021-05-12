@@ -7,7 +7,7 @@ use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\Template\TemplateParser;
-use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
@@ -20,7 +20,7 @@ use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
  * Class WebServiceDatasource
  * @package Kinintel\Objects\Datasource\WebService
  */
-class WebServiceDatasource extends Datasource {
+class WebServiceDatasource extends BaseDatasource {
 
 
     /**
@@ -101,7 +101,7 @@ class WebServiceDatasource extends Datasource {
      *
      *
      * @param Transformation $transformation
-     * @return Datasource
+     * @return BaseDatasource
      */
     public function applyTransformation($transformation) {
 
