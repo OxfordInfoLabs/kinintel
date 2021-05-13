@@ -21,6 +21,10 @@ import { DatasetEditorComponent } from './components/dataset/dataset-editor/data
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
+import { ProjectPickerComponent } from './components/project-picker/project-picker.component';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {FormsModule} from '@angular/forms';
+import { DatasetFilterComponent } from './components/dataset/dataset-editor/dataset-filter/dataset-filter.component';
 
 
 @NgModule({
@@ -30,7 +34,9 @@ import {MatSortModule} from '@angular/material/sort';
         ConfigureItemComponent,
         DatasourceComponent,
         DatasetComponent,
-        DatasetEditorComponent
+        DatasetEditorComponent,
+        ProjectPickerComponent,
+        DatasetFilterComponent
     ],
     imports: [
         BrowserModule,
@@ -48,7 +54,9 @@ import {MatSortModule} from '@angular/material/sort';
         MatChipsModule,
         MatTableModule,
         MatPaginatorModule,
-        MatSortModule
+        MatSortModule,
+        DragDropModule,
+        FormsModule
     ],
     exports: [
         DashboardEditorComponent,
@@ -56,7 +64,8 @@ import {MatSortModule} from '@angular/material/sort';
         ConfigureItemComponent,
         DatasourceComponent,
         DatasetComponent,
-        DatasetEditorComponent
+        DatasetEditorComponent,
+        ProjectPickerComponent
     ]
 })
 export class NgKinintelModule {

@@ -8,5 +8,6 @@ export * from './lib/components/dashboard-editor/item-component/item-component.c
 export * from './lib/components/dataset/dataset.component';
 export * from './lib/components/dataset/dataset-editor/dataset-editor.component';
 export * from './lib/components/datasource/datasource.component';
+export * from './lib/components/project-picker/project-picker.component';
 
 export * from './lib/ng-kinintel.module';

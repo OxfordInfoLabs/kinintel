@@ -6,32 +6,94 @@
         Filter
     </button>
 </div>
-<div class="cell-header" *ngIf="showFilters">
-    <mat-icon>filter_alt</mat-icon>
-    <select #andOr [ngStyle]="{visibility: _.filter(transformations, {type: 'filter'}).length ? 'visible': 'hidden'}">
-        <option value="AND">AND</option>
-        <option value="OR">OR</option>
-    </select>
-    <select #field>
-        <option value="">Column Name</option>
-        <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
-    </select>
+<div class="filters" *ngIf="showFilters">
 
-    <select #condition>
-        <option value="">Condition</option>
-        <option value="==">(==) equal to</option>
-        <option value="!==">(!=) not equal to</option>
-        <option value=">">(>) greater than</option>
-        <option value=">=">(>=) greater than or equal to</option>
-        <option value="<">(<) less than</option>
-        <option value="<=">(<=) less than or equal to</option>
-    </select>
+    <ng-template ngFor let-filter [ngForOf]="filters">
 
-    <input type="text" #value placeholder="Value">
+        <ng-template [ngIf]="filter.type === 'single'">
+            <div class="filter">
+                <select [(ngModel)]="filter.andOr" [ngStyle]="{visibility: filters.length ? 'visible': 'hidden'}">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                </select>
+                <select [(ngModel)]="filter.column">
+                    <option value="">Column Name</option>
+                    <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
+                </select>
 
-    <button mat-flat-button color="primary" (click)="applyFilter(field, condition, value, andOr)">
-        Apply
-    </button>
+                <select [(ngModel)]="filter.condition">
+                    <option value="">Condition</option>
+                    <option value="==">(==) equal to</option>
+                    <option value="!==">(!=) not equal to</option>
+                    <option value=">">(>) greater than</option>
+                    <option value=">=">(>=) greater than or equal to</option>
+                    <option value="<">(<) less than</option>
+                    <option value="<=">(<=) less than or equal to</option>
+                </select>
+
+                <input type="text" [(ngModel)]="filter.value" placeholder="Value">
+            </div>
+        </ng-template>
+
+        <ng-template [ngIf]="filter.type === 'group'">
+
+            <div class="group-filters">
+                <ng-template ngFor let-groupFilter [ngForOf]="filter.group">
+
+                    <div class="filter">
+                        <select [(ngModel)]="groupFilter.andOr"
+                                [ngStyle]="{visibility: filters.length ? 'visible': 'hidden'}">
+                            <option value="AND">AND</option>
+                            <option value="OR">OR</option>
+                        </select>
+                        <select [(ngModel)]="groupFilter.column">
+                            <option value="">Column Name</option>
+                            <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
+                        </select>
+
+                        <select [(ngModel)]="groupFilter.condition">
+                            <option value="">Condition</option>
+                            <option value="==">(==) equal to</option>
+                            <option value="!==">(!=) not equal to</option>
+                            <option value=">">(>) greater than</option>
+                            <option value=">=">(>=) greater than or equal to</option>
+                            <option value="<">(<) less than</option>
+                            <option value="<=">(<=) less than or equal to</option>
+                        </select>
+
+                        <input type="text" [(ngModel)]="groupFilter.value" placeholder="Value">
+                    </div>
+                </ng-template>
+            </div>
+
+        </ng-template>
+    </ng-template>
+
+    <!--    <mat-icon>filter_alt</mat-icon>-->
+    <!--    <select #andOr [ngStyle]="{visibility: _.filter(transformations, {type: 'filter'}).length ? 'visible': 'hidden'}">-->
+    <!--        <option value="AND">AND</option>-->
+    <!--        <option value="OR">OR</option>-->
+    <!--    </select>-->
+    <!--    <select #field>-->
+    <!--        <option value="">Column Name</option>-->
+    <!--        <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>-->
+    <!--    </select>-->
+
+    <!--    <select #condition>-->
+    <!--        <option value="">Condition</option>-->
+    <!--        <option value="==">(==) equal to</option>-->
+    <!--        <option value="!==">(!=) not equal to</option>-->
+    <!--        <option value=">">(>) greater than</option>-->
+    <!--        <option value=">=">(>=) greater than or equal to</option>-->
+    <!--        <option value="<">(<) less than</option>-->
+    <!--        <option value="<=">(<=) less than or equal to</option>-->
+    <!--    </select>-->
+
+    <!--    <input type="text" #value placeholder="Value">-->
+
+    <!--    <button mat-flat-button color="primary" (click)="applyFilter(field, condition, value, andOr)">-->
+    <!--        Apply-->
+    <!--    </button>-->
 </div>
 <div class="cell-header" *ngIf="transformations.length">
     <mat-chip-list>

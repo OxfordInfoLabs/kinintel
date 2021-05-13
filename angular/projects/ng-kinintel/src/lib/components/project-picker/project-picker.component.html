@@ -1,0 +1,60 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Edit Field</h2>
+        <button mat-stroked-button color="primary">
+            <mat-icon>add</mat-icon>
+            New Project
+        </button>
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <input class="full" type="text" placeholder="Search projects">
+
+        <table class="hover">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>ID</th>
+                <th>Created</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>My First Project</td>
+                <td>my-first-project</td>
+                <td>2021-02-23</td>
+            </tr>
+            <tr>
+                <td>Domain Abuse Project</td>
+                <td>domain-abuse-project</td>
+                <td>2021-03-15</td>
+            </tr>
+            <tr>
+                <td>Domain Name Study</td>
+                <td>domain-name-study</td>
+                <td>2021-04-05</td>
+            </tr>
+            <tr>
+                <td>ICANN Report 2021</td>
+                <td>icann-report-2021</td>
+                <td>2021-05-06</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Cancel</button>
+
+        <div></div>
+    </div>
+
+</div>
+
+

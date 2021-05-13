@@ -13,6 +13,23 @@ export class DatasetEditorComponent implements OnInit {
     public displayedColumns = [];
     public _ = _;
     public filterFields = [];
+    public filters = [
+        {
+            type: 'single',
+            column: '',
+        },
+        {
+            type: 'group',
+            group: [
+                {
+                    column: '',
+                },
+                {
+                    column: ''
+                }
+            ]
+        }
+    ];
     public transformations = [];
 
     constructor() {
@@ -24,7 +41,7 @@ export class DatasetEditorComponent implements OnInit {
 
     public applyFilter(field, condition, value, andOr) {
         const existingFilters = _.filter(this.transformations, {type: 'filter'});
-        const andOrValue = existingFilters.length ? andOr.value: '';
+        const andOrValue = existingFilters.length ? andOr.value : '';
         this.transformations.push({
             type: 'filter',
             column: field.value,
