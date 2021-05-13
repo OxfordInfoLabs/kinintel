@@ -111,7 +111,7 @@ abstract class BaseDatasource implements Datasource {
                 ]]);
             } else {
                 $validationErrors = $this->validator->validateObject($config);
-                if (sizeof($validationErrors)) {
+                if (is_array($validationErrors) && sizeof($validationErrors)) {
                     throw new InvalidDatasourceConfigException($validationErrors);
                 }
             }
@@ -141,7 +141,7 @@ abstract class BaseDatasource implements Datasource {
             } else {
 
                 $validationErrors = $this->validator->validateObject($authenticationCredentials);
-                if (sizeof($validationErrors)) {
+                if (is_array($validationErrors) && sizeof($validationErrors)) {
                     throw new InvalidDatasourceAuthenticationCredentialsException($validationErrors);
                 }
             }
