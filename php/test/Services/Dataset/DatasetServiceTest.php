@@ -2,13 +2,17 @@
 
 namespace Kinintel\Services\Dataset;
 
+use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Objects\MetaData\Tag;
+use Kiniauth\Objects\MetaData\TagSummary;
+use Kiniauth\Services\MetaData\MetaDataService;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
-use Kinintel\Exception\InvalidDatasourceTypeException;
-use Kinintel\Exception\InvalidTransformationConfigException;
-use Kinintel\Exception\InvalidTransformationTypeException;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -29,6 +33,11 @@ class DatasetServiceTest extends TestBase {
     private $datasourceService;
 
     /**
+     * @var MockObject
+     */
+    private $metaDataService;
+
+    /**
      * @var DatasetService
      */
     private $datasetService;
@@ -36,7 +45,8 @@ class DatasetServiceTest extends TestBase {
 
     public function setUp(): void {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-        $this->datasetService = new DatasetService($this->datasourceService);
+        $this->metaDataService = MockObjectProvider::instance()->getMockInstance(MetaDataService::class);
+        $this->datasetService = new DatasetService($this->datasourceService, $this->metaDataService);
     }
 
 
@@ -52,7 +62,7 @@ class DatasetServiceTest extends TestBase {
             "test"
         ]);
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "test");
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test");
         $this->assertEquals($dataSource, $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance));
 
 
@@ -104,7 +114,7 @@ class DatasetServiceTest extends TestBase {
             "test"
         ]);
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "test", [
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test", [
             $transformationInstance1, $transformationInstance2, $transformationInstance3
         ]);
 
@@ -159,7 +169,7 @@ class DatasetServiceTest extends TestBase {
             "test"
         ]);
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "test");
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test");
 
         $this->assertEquals($transformed3, $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance, [
             $transformationInstance1, $transformationInstance2, $transformationInstance3
@@ -171,7 +181,7 @@ class DatasetServiceTest extends TestBase {
 
     public function testDataSourceAndTransformationsAreValidatedOnDataSetSave() {
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "badsource");
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "badsource");
 
         try {
             $this->datasetService->saveDataSetInstance($dataSetInstance);
@@ -181,7 +191,7 @@ class DatasetServiceTest extends TestBase {
         }
 
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "test-json", [
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
             new TransformationInstance("badtrans")
         ]);
 
@@ -193,7 +203,7 @@ class DatasetServiceTest extends TestBase {
         }
 
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "test-json", [
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
             new TransformationInstance("Kinintel\ValueObjects\Transformation\TestTransformation", new TestTransformation())
         ]);
 
@@ -207,17 +217,25 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testCanSaveAndRetrieveValidDataSetInstances() {
+    public function testCanSaveRetrieveAndRemoveValidDataSetInstanceForLoggedInUserAndProject() {
 
-        $dataSetInstance = new DatasetInstance("Test Dataset", "test-json", [
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
             new TransformationInstance("filterquery", new FilterQuery([
                 new Filter("property", "foobar")
             ]))
         ]);
 
-        $this->datasetService->saveDataSetInstance($dataSetInstance);
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstance, 1, 5);
 
-        $reSet = $this->datasetService->getDataSetInstance($dataSetInstance->getId());
+        // Check saved correctly in db
+        $dataset = DatasetInstance::fetch($id);
+        $this->assertEquals(1, $dataset->getAccountId());
+        $this->assertEquals(5, $dataset->getProjectKey());
+
+
+        $reSet = $this->datasetService->getDataSetInstance($id);
         $this->assertEquals("Test Dataset", $reSet->getTitle());
         $this->assertEquals("test-json", $reSet->getDatasourceInstanceKey());
         $transformationInstance = $reSet->getTransformationInstances()[0];
@@ -236,6 +254,57 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals(new FilterQuery([
             new Filter("property", "foobar")
         ]), $transformationInstance->returnTransformation());
+
+
+        // Remove the data set instance
+        $this->datasetService->removeDataSetInstance($id);
+
+        try {
+            $this->datasetService->getDataSetInstance($id);
+        } catch (ObjectNotFoundException $e) {
+            $this->assertTrue(true);
+        }
+
+    }
+
+
+    public function testCanSaveValidDatasetInstancesForProjectsAndTags() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
+
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
+            new TransformationInstance("filterquery", new FilterQuery([
+                new Filter("property", "foobar")
+            ]))
+        ]);
+
+
+        $tags = [new TagSummary("Project", "My Project", "project"),
+            new TagSummary("Account2", "My Account", "account2")];
+
+        $dataSetInstance->setTags($tags);
+
+
+        $this->metaDataService->returnValue("getObjectTagsFromSummaries", [
+            new ObjectTag(new Tag(new TagSummary("Project", "My Project", "project"), 2, "soapSuds")),
+            new ObjectTag(new Tag(new TagSummary("Account 2", "Account 2", "account2"), 2)),
+        ], [
+            $tags, 2, "soapSuds"
+        ]);
+
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstance, 2, "soapSuds");
+
+        $dataset = DatasetInstance::fetch($id);
+        $this->assertEquals(2, $dataset->getAccountId());
+        $this->assertEquals("soapSuds", $dataset->getProjectKey());
+
+        $tags = $dataset->getTags();
+        $this->assertEquals(2, sizeof($tags));
+
+        $this->assertEquals("account2", $tags[0]->getTag()->getKey());
+        $this->assertEquals("project", $tags[1]->getTag()->getKey());
+
 
     }
 

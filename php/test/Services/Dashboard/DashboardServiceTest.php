@@ -2,13 +2,17 @@
 
 namespace Kinintel\Services\Dashboard;
 
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
+use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
@@ -75,16 +79,18 @@ class DashboardServiceTest extends TestBase {
 
     }
 
-    public function testCanCreateAndRetrieveValidDashboard() {
+    public function testCanCreateRetrieveAndRemoveValidDashboard() {
 
-        $dashboard = new Dashboard("Johnny 5");
-        $this->dashboardService->saveDashboard($dashboard);
+        AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
 
-        $reDashboard = $this->dashboardService->getDashboardById($dashboard->getId());
+        $dashboard = new DashboardSummary("Johnny 5");
+        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
+
+        $reDashboard = $this->dashboardService->getDashboardById($id);
         $this->assertEquals("Johnny 5", $reDashboard->getTitle());
 
 
-        $dashboard = new Dashboard("Test Instance", [
+        $dashboard = new DashboardSummary("Test Instance", [
             new DashboardDatasetInstance("brandnew", null, "test-json", [
                 new TransformationInstance("filterquery", new FilterQuery([
                     new Filter("value", "bingo")
@@ -95,9 +101,9 @@ class DashboardServiceTest extends TestBase {
             "font" => "Arial"
         ]);
 
-        $this->dashboardService->saveDashboard($dashboard);
+        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
 
-        $reDashboard = $this->dashboardService->getDashboardById($dashboard->getId());
+        $reDashboard = $this->dashboardService->getDashboardById($id);
         $this->assertEquals("Test Instance", $reDashboard->getTitle());
         $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[0];
         $this->assertEquals("brandnew", $dashboardDatasetInstance->getInstanceKey());
@@ -113,22 +119,33 @@ class DashboardServiceTest extends TestBase {
             "sQLTransformationProcessorKey" => "filterquery"
         ])], $dashboardDatasetInstance->getTransformationInstances());
 
+        $this->dashboardService->removeDashboard($id);
+
+        try {
+            $this->dashboardService->getDashboardById($id);
+            $this->fail("Should have thrown here");
+        } catch (ObjectNotFoundException $e) {
+            $this->assertTrue(true);
+        }
+
     }
 
 
     public function testCanGetEvaluatedDatasetForValidDashboardDatasetInstanceUsingInstanceId() {
 
-        $dataSetInstance = new DatasetInstance("Test instance", "test-json");
+        AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
+
+        $dataSetInstance = new DatasetInstance(new DatasetInstanceSummary("Test instance", "test-json"), 2);
         $dataSetInstance->save();
 
         // Save a dashboard
-        $dashboard = new Dashboard("Test Instance", [
+        $dashboard = new DashboardSummary("Test Instance", [
             new DashboardDatasetInstance("brandnew", $dataSetInstance->getId())
         ], [
             "color" => "green",
             "font" => "Arial"
         ]);
-        $this->dashboardService->saveDashboard($dashboard);
+        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
         $transformation = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
@@ -138,7 +155,7 @@ class DashboardServiceTest extends TestBase {
                 $dataSetInstance->getId(), [$transformation]
             ]);
 
-        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($dashboard->getId(), "brandnew", [
+        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($id, "brandnew", [
             $transformation
         ]);
         $this->assertEquals($dataSet, $evaluatedDataset);
@@ -154,14 +171,14 @@ class DashboardServiceTest extends TestBase {
             ]))
         ]);
 
-         // Save a dashboard
-        $dashboard = new Dashboard("Test Instance", [
+        // Save a dashboard
+        $dashboard = new DashboardSummary("Test Instance", [
             $dashboardDataSetInstance
         ], [
             "color" => "green",
             "font" => "Arial"
         ]);
-        $this->dashboardService->saveDashboard($dashboard);
+        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
         $transformation = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
@@ -171,7 +188,7 @@ class DashboardServiceTest extends TestBase {
                 $dashboardDataSetInstance, [$transformation]
             ]);
 
-        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($dashboard->getId(),
+        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($id,
             "otherset", [$transformation]);
         $this->assertEquals($dataSet, $evaluatedDataset);
 

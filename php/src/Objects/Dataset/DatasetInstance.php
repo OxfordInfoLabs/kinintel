@@ -2,76 +2,60 @@
 
 namespace Kinintel\Objects\Dataset;
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Persistence\ORM\ActiveRecord;
-use Kinintel\Exception\InvalidTransformationConfigException;
-use Kinintel\Exception\InvalidTransformationTypeException;
-use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Traits\Account\AccountProject;
+
 
 /**
  * @table ki_dataset_instance
  * @generate
  */
-class DatasetInstance extends BaseDatasetInstance {
+class DatasetInstance extends DatasetInstanceSummary {
+
+    // use account project trait
+    use AccountProject;
 
     /**
-     * The auto generated id for this data set instance
+     * @var ObjectTag[]
+     * @oneToMany
+     * @childJoinColumns object_id, object_type=DatasetInstance
+     */
+    protected $tags;
+
+    /**
+     * DatasetInstance constructor - used to convert summaries
      *
-     * @var integer
+     * @param DatasetInstanceSummary $datasetInstanceSummary
+     * @param integer $accountId
+     * @param integer $projectNumber
      */
-    private $id;
+    public function __construct($datasetInstanceSummary = null, $accountId = null, $projectKey = null) {
+        if ($datasetInstanceSummary instanceof DatasetInstanceSummary)
+            parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getTransformationInstances(), $datasetInstanceSummary->getId());
+        $this->accountId = $accountId;
+        $this->projectKey = $projectKey;
+    }
 
     /**
-     * Information title for this data set
-     *
-     * @var string
-     * @required
+     * @return ObjectTag[]
      */
-    private $title;
+    public function getTags() {
+        return $this->tags;
+    }
 
     /**
-     * Redeclared instance key with required validation
-     *
-     * @var string
-     * @required
+     * @param ObjectTag[] $tags
      */
-    protected $datasourceInstanceKey;
-
-
-    /**
-     * DatasetInstance constructor.
-     * @param string $title
-     * @param $datasourceInstanceKey
-     * @param TransformationInstance[] $transformationInstances
-     */
-    public function __construct($title, $datasourceInstanceKey, $transformationInstances = []) {
-        $this->title = $title;
-        $this->datasourceInstanceKey = $datasourceInstanceKey;
-        $this->transformationInstances = $transformationInstances;
+    public function setTags($tags) {
+        $this->tags = $tags;
     }
 
 
     /**
-     * @return int
+     * @return DatasetInstanceSummary
      */
-    public function getId() {
-        return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle() {
-        return $this->title;
-    }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle($title) {
-        $this->title = $title;
+    public function returnSummary() {
+        return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey, $this->transformationInstances, $this->id);
     }
 
 

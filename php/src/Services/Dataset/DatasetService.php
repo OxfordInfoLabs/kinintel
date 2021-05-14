@@ -2,7 +2,12 @@
 
 namespace Kinintel\Services\Dataset;
 
+use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\MetaData\TagSummary;
+use Kiniauth\Services\MetaData\MetaDataService;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -14,15 +19,21 @@ class DatasetService {
      */
     private $datasourceService;
 
+    /**
+     * @var MetaDataService
+     */
+    private $metaDataService;
+
 
     /**
      * DatasetService constructor.
      *
      * @param DatasourceService $datasourceService
+     * @param MetaDataService $metaDataService
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService, $metaDataService) {
         $this->datasourceService = $datasourceService;
-
+        $this->metaDataService = $metaDataService;
     }
 
 
@@ -30,21 +41,41 @@ class DatasetService {
      * Get a data set instance by id
      *
      * @param $id
-     * @return DatasetInstance
+     * @return DatasetInstanceSummary
      */
     public function getDataSetInstance($id) {
-        return DatasetInstance::fetch($id);
+        return DatasetInstance::fetch($id)->returnSummary();
     }
 
 
     /**
      * Save a data set instance
      *
-     * @param DatasetInstance $dataSetInstance
+     * @param DatasetInstanceSummary $dataSetInstanceSummary
      */
-    public function saveDataSetInstance($dataSetInstance) {
+    public function saveDataSetInstance($dataSetInstanceSummary, $accountId = Account::LOGGED_IN_ACCOUNT, $projectKey = null) {
+        $dataSetInstance = new DatasetInstance($dataSetInstanceSummary, $accountId, $projectKey);
+
+        // Process tags
+        if (sizeof($dataSetInstanceSummary->getTags())) {
+            $tags = $this->metaDataService->getObjectTagsFromSummaries($dataSetInstanceSummary->getTags(), $accountId, $projectKey);
+            $dataSetInstance->setTags($tags);
+        }
+
+
         $dataSetInstance->save();
         return $dataSetInstance->getId();
+    }
+
+
+    /**
+     * Remove the data set instance by id
+     *
+     * @param $id
+     */
+    public function removeDataSetInstance($id) {
+        $dataSetInstance = DatasetInstance::fetch($id);
+        $dataSetInstance->remove();
     }
 
 
@@ -66,7 +97,7 @@ class DatasetService {
      * the dataset.  This is the normal function called to produce charts / tables etc for end
      * use.
      *
-     * @param $dataSetInstance
+     * @param DatasetInstanceSummary $dataSetInstance
      * @param TransformationInstance[] $additionalTransformations
      *
      */
@@ -80,7 +111,7 @@ class DatasetService {
      * Get the evaluated data source for a data set instance.  This is the resultant
      * data source returned after all transformations have been applied
      *
-     * @param DatasetInstance $dataSetInstance
+     * @param DatasetInstanceSummary $dataSetInstance
      * @param TransformationInstance[] $additionalTransformations
      *
      * @return BaseDatasource
@@ -113,5 +144,6 @@ class DatasetService {
         return $datasource;
 
     }
+
 
 }

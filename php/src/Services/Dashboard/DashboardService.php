@@ -2,8 +2,10 @@
 
 namespace Kinintel\Services\Dashboard;
 
+use Kiniauth\Objects\Account\Account;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
+use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -33,19 +35,32 @@ class DashboardService {
      * Get a dashboard by id
      *
      * @param $id
-     * @return Dashboard
+     * @return DashboardSummary
      */
     public function getDashboardById($id) {
-        return Dashboard::fetch($id);
+        return Dashboard::fetch($id)->returnSummary();
     }
 
     /**
      * Save a dashboard
      *
-     * @param Dashboard $dashboard
+     * @param DashboardSummary $dashboard
      */
-    public function saveDashboard($dashboard) {
+    public function saveDashboard($dashboardSummary, $accountId = Account::LOGGED_IN_ACCOUNT, $projectNumber = null) {
+        $dashboard = new Dashboard($dashboardSummary, $accountId, $projectNumber);
         $dashboard->save();
+        return $dashboard->getId();
+    }
+
+
+    /**
+     * Remove a dashboard by id
+     *
+     * @param $dashboardId
+     */
+    public function removeDashboard($dashboardId) {
+        $dashboard = Dashboard::fetch($dashboardId);
+        $dashboard->remove();
     }
 
 

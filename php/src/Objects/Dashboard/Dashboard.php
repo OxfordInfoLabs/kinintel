@@ -2,6 +2,7 @@
 
 namespace Kinintel\Objects\Dashboard;
 
+use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
 /**
@@ -12,105 +13,30 @@ use Kinikit\Persistence\ORM\ActiveRecord;
  * @table ki_dashboard
  * @generate
  */
-class Dashboard extends ActiveRecord {
+class Dashboard extends DashboardSummary {
 
-    /**
-     * Primary key for this dashboard
-     *
-     * @var integer
-     */
-    private $id;
-
-
-    /**
-     * Title for the dashboard
-     *
-     * @var string
-     * @required
-     */
-    private $title;
-
-
-    /**
-     * Attached dataset instances
-     *
-     * @var DashboardDatasetInstance[]
-     * @oneToMany
-     * @childJoinColumns dashboard_id
-     */
-    private $datasetInstances;
-
-
-    /**
-     * Display settings
-     *
-     * @var mixed
-     * @json
-     * @sqlType LONGTEXT
-     */
-    private $displaySettings;
+    // Use the account project trait
+    use AccountProject;
 
     /**
      * Dashboard constructor.
      *
-     * @param string $title
-     * @param DashboardDatasetInstance[] $datasetInstances
-     * @param mixed $displaySettings
+     * @param DashboardSummary $dashboardSummary
+     * @param integer $accountId
+     * @param integer $projectNumber
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null) {
-        $this->title = $title;
-        $this->datasetInstances = $datasetInstances;
-        $this->displaySettings = $displaySettings;
+    public function __construct($dashboardSummary = null, $accountId = null, $projectNumber = null) {
+        if ($dashboardSummary instanceof DashboardSummary)
+            parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getId());
+        $this->accountId = $accountId;
+        $this->projectNumber = $projectNumber;
     }
 
     /**
-     * @return int
+     * Return a dashboard summary
      */
-    public function getId() {
-        return $this->id;
+    public function returnSummary() {
+        return new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->id);
     }
-
-    /**
-     * @return string
-     */
-    public function getTitle() {
-        return $this->title;
-    }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle($title) {
-        $this->title = $title;
-    }
-
-    /**
-     * @return DashboardDatasetInstance[]
-     */
-    public function getDatasetInstances() {
-        return $this->datasetInstances;
-    }
-
-    /**
-     * @param DashboardDatasetInstance[] $datasetInstances
-     */
-    public function setDatasetInstances($datasetInstances) {
-        $this->datasetInstances = $datasetInstances;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDisplaySettings() {
-        return $this->displaySettings;
-    }
-
-    /**
-     * @param mixed $displaySettings
-     */
-    public function setDisplaySettings($displaySettings) {
-        $this->displaySettings = $displaySettings;
-    }
-
 
 }
