@@ -1,0 +1,7 @@
+# Config file for Kinintel example
+
+search.paths = ../vendor/oxil/kiniauth/php/src;../vendor/oxil/kinintel/php/src
+
+db.provider = sqlite3
+db.filename = DB/kinintel-example.db
+db.logFile = DB/db.log

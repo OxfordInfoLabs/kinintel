@@ -1,0 +1,8 @@
+{
+  "name": "kinintel",
+  "version": "0.0.1",
+  "scripts": {
+    "install:backend": "rm -rf vendor; (cd php; composer install; composer dev; composer test-data) ",
+    "run:backend": "(cd src; php -S localhost:3050)"
+  }
+}
