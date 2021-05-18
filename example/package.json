@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "install:backend": "rm -rf vendor; (cd php; composer install; composer dev; composer test-data) ",
-    "run:backend": "(cd php/src; php -S localhost:3050)"
+    "run:backend": "(cd php/src; php -S localhost:3050)",
+    "install:testdata": "(cd php; composer test-data)"
   }
 }
