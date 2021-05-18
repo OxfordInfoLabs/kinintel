@@ -4,7 +4,7 @@
 
 export const environment = {
     production: false,
-    backendURL: 'http://localhost:3050'
+    backendURL: 'http://webservices.kinintel.test:3050'
 };
 
 /*
