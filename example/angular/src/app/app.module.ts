@@ -13,6 +13,9 @@ import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { DatasetComponent } from './views/dataset/dataset.component';
 import { DatasourceComponent } from './views/datasource/datasource.component';
 import {NgKinintelModule} from 'ng-kinintel';
+import { LoginComponent } from './views/login/login.component';
+import {NgKiniAuthModule} from 'ng-kiniauth';
+import {environment} from '../environments/environment';
 
 @NgModule({
     declarations: [
@@ -20,7 +23,8 @@ import {NgKinintelModule} from 'ng-kinintel';
         HomeComponent,
         DashboardComponent,
         DatasetComponent,
-        DatasourceComponent
+        DatasourceComponent,
+        LoginComponent
     ],
     imports: [
         BrowserModule,
@@ -30,7 +34,11 @@ import {NgKinintelModule} from 'ng-kinintel';
         MatSidenavModule,
         MatIconModule,
         MatButtonModule,
-        NgKinintelModule
+        NgKinintelModule,
+        NgKiniAuthModule.forRoot({
+            guestHttpURL: `${environment.backendURL}/guest`,
+            accessHttpURL: `${environment.backendURL}/account`
+        }),
     ],
     providers: [],
     bootstrap: [AppComponent]

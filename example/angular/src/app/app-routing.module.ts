@@ -4,6 +4,7 @@ import {HomeComponent} from './views/home/home.component';
 import {DashboardComponent} from './views/dashboard/dashboard.component';
 import {DatasetComponent} from './views/dataset/dataset.component';
 import {DatasourceComponent} from './views/datasource/datasource.component';
+import {LoginComponent} from './views/login/login.component';
 
 const routes: Routes = [
     {
@@ -26,6 +27,10 @@ const routes: Routes = [
     {
         path: 'datasource',
         component: DatasourceComponent
+    },
+    {
+        path: 'login',
+        component: LoginComponent
     }
 ];
 
