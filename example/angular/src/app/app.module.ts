@@ -16,6 +16,8 @@ import {NgKinintelModule} from 'ng-kinintel';
 import { LoginComponent } from './views/login/login.component';
 import {NgKiniAuthModule} from 'ng-kiniauth';
 import {environment} from '../environments/environment';
+import {SessionInterceptor} from './session.interceptor';
+import {HTTP_INTERCEPTORS} from '@angular/common/http';
 
 @NgModule({
     declarations: [
@@ -40,7 +42,13 @@ import {environment} from '../environments/environment';
             accessHttpURL: `${environment.backendURL}/account`
         }),
     ],
-    providers: [],
+    providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: SessionInterceptor,
+            multi: true
+        }
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule {
