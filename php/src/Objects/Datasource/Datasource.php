@@ -16,7 +16,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  *
  * @implementation webservice \Kinintel\Objects\Datasource\WebService\WebServiceDatasource
  * @implementation amazons3 \Kinintel\Objects\Datasource\Amazon\AmazonS3Datasource
- * @implementation sqldatabase  \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
+ * @implementation sqldatabase \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  */
 interface Datasource {
 

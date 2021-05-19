@@ -38,7 +38,6 @@ trait Dataset {
      * @param DatasetInstanceEvaluationDescriptor $datasetInstanceEvaluationDescriptor
      */
     public function evaluateDatasetInstance($datasetInstanceEvaluationDescriptor) {
-        Logger::log($datasetInstanceEvaluationDescriptor);
         return $this->datasetService->getEvaluatedDataSetForDataSetInstance($datasetInstanceEvaluationDescriptor->getDatasetInstanceSummary(), $datasetInstanceEvaluationDescriptor->getAdditionalTransformations());
     }
 

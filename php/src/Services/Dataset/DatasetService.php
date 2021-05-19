@@ -5,6 +5,7 @@ namespace Kinintel\Services\Dataset;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -117,6 +118,7 @@ class DatasetService {
      * @return BaseDatasource
      */
     public function getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
+
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($dataSetInstance->getDatasourceInstanceKey());
