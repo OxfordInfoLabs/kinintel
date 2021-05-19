@@ -4,7 +4,8 @@
     </button>
     <span>Kinintel</span>
     <button mat-stroked-button (click)="selectProject()">
-        Select Project
+        <ng-template [ngIf]="!activeProject">Select Project</ng-template>
+        <ng-template [ngIf]="activeProject">{{activeProject.name}}</ng-template>
         <mat-icon>expand_more</mat-icon>
     </button>
 </mat-toolbar>

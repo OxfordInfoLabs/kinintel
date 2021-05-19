@@ -31,6 +31,8 @@ trait Datasource {
     /**
      * Get a datasource by key
      *
+     * @http GET /$key
+     *
      * @param $key
      * @return DatasourceInstanceSummary
      */

@@ -6,6 +6,7 @@ namespace Kinintel\Services\Datasource;
 
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Exception\ItemNotFoundException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
@@ -60,7 +61,7 @@ class DatasourceService {
         // Firstly loop through the file system ones and gather any matches
         $matches = [];
         foreach ($this->fileSystemDataSources as $dataSource) {
-            if (is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
+            if (!$filterString || is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
                 $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle());
             }
         }

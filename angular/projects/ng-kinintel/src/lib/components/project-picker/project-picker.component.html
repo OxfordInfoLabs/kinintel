@@ -2,7 +2,7 @@
 
     <div class="dialog-title" cdkDragHandle>
         <h2 mat-dialog-title>Edit Field</h2>
-        <button mat-stroked-button color="primary">
+        <button mat-stroked-button color="primary" (click)="addNew = !addNew">
             <mat-icon>add</mat-icon>
             New Project
         </button>
@@ -13,46 +13,59 @@
 
     <div class="dialog-content">
 
-        <input class="full" type="text" placeholder="Search projects">
+        <ng-template [ngIf]="!addNew">
+            <input class="full" type="text" placeholder="Search projects" (keyup)="searchText.next($event.target.value)">
 
-        <table class="hover">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>ID</th>
-                <th>Created</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>My First Project</td>
-                <td>my-first-project</td>
-                <td>2021-02-23</td>
-            </tr>
-            <tr>
-                <td>Domain Abuse Project</td>
-                <td>domain-abuse-project</td>
-                <td>2021-03-15</td>
-            </tr>
-            <tr>
-                <td>Domain Name Study</td>
-                <td>domain-name-study</td>
-                <td>2021-04-05</td>
-            </tr>
-            <tr>
-                <td>ICANN Report 2021</td>
-                <td>icann-report-2021</td>
-                <td>2021-05-06</td>
-            </tr>
-            </tbody>
-        </table>
+            <table class="hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Key</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let project of projects" (click)="activateProject(project)">
+                    <td>
+                        <mat-icon color="primary" *ngIf="activeProject.projectKey === project.projectKey">check_circle</mat-icon>
+                    </td>
+                    <td>{{project.name}}</td>
+                    <td>{{project.description}}</td>
+                    <td>{{project.projectKey}}</td>
+                    <td class="text-right">
+                        <button mat-icon-button color="warn" (click)="removeProject(project.projectKey)">
+                            <mat-icon>clear</mat-icon>
+                        </button>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </ng-template>
+
+        <ng-template [ngIf]="addNew">
+            <div class="my-4">
+                <p><b>Project Name</b></p>
+                <input class="full" type="text" placeholder="Enter project name" [(ngModel)]="newName">
+            </div>
+            <div class="my-4">
+                <p class="mt-1"><b>Project Description</b></p>
+                <input class="full" type="text" placeholder="Enter project description" [(ngModel)]="newDescription">
+            </div>
+        </ng-template>
+
 
     </div>
 
     <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button">Cancel</button>
+        <button mat-button mat-dialog-close mat-stroked-button type="button" *ngIf="!addNew">Close</button>
+        <button mat-button mat-stroked-button type="button" (click)="addNew = false;" *ngIf="addNew">Cancel</button>
 
-        <div></div>
+        <button mat-button mat-flat-button color="primary" type="button" *ngIf="addNew"
+                (click)="createProject()" [disabled]="!newName || !newDescription">Create Project
+        </button>
     </div>
 
 </div>

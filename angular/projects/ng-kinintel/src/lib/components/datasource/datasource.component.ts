@@ -1,15 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'ki-datasource',
-  templateUrl: './datasource.component.html',
-  styleUrls: ['./datasource.component.sass']
+    selector: 'ki-datasource',
+    templateUrl: './datasource.component.html',
+    styleUrls: ['./datasource.component.sass']
 })
 export class DatasourceComponent implements OnInit {
 
-  constructor() { }
+    @Input() datasourceService: any;
 
-  ngOnInit(): void {
-  }
+    constructor() {
+    }
+
+    ngOnInit(): void {
+        this.datasourceService.getDatasources().then(sources => {
+            console.log(sources);
+            this.datasourceService.getDatasource(sources[0].key).then(data => {
+                console.log(data);
+            });
+        });
+    }
 
 }
