@@ -23,24 +23,10 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
  * @table ki_datasource_instance
  * @generate
  */
-class DatasourceInstance extends ActiveRecord {
+class DatasourceInstance extends DatasourceInstanceSearchResult {
 
     // use account project trait
     use AccountProject;
-
-    /**
-     * @var string
-     * @primaryKey
-     */
-    private $key;
-
-    /**
-     * Descriptive title for this data source instance
-     *
-     * @var string
-     * @required
-     */
-    private $title;
 
     /**
      * Type for this data source - can either be a mapping implementation key
@@ -106,8 +92,7 @@ class DatasourceInstance extends ActiveRecord {
      * @param mixed $credentialsConfig
      */
     public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = []) {
-        $this->key = $key;
-        $this->title = $title;
+        parent::__construct($key, $title);
         $this->type = $type;
         $this->config = $config;
         $this->credentialsKey = $credentialsKey;
@@ -117,24 +102,10 @@ class DatasourceInstance extends ActiveRecord {
 
 
     /**
-     * @return string
-     */
-    public function getKey() {
-        return $this->key;
-    }
-
-    /**
      * @param string $key
      */
     public function setKey($key) {
         $this->key = $key;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle() {
-        return $this->title;
     }
 
     /**

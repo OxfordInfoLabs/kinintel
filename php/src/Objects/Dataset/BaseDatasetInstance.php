@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Dataset;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Persistence\ORM\ActiveRecord;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -71,10 +72,13 @@ class BaseDatasetInstance extends ActiveRecord {
              * @var DatasourceService $dataSourceService
              */
             $dataSourceService = Container::instance()->get(DatasourceService::class);
-            $instance = $dataSourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
-            if (!$instance) {
+
+            try {
+                $dataSourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
+            } catch (ObjectNotFoundException $e){
                 $validationErrors["datasourceInstanceKey"] = new FieldValidationError("datasourceInstanceKey", "notfound", "Data source with instance key '{$this->datasourceInstanceKey}' does not exist");
             }
+
         }
 
 

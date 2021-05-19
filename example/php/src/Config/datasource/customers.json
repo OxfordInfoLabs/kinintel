@@ -1,0 +1,10 @@
+{
+  "key": "customers",
+  "title": "Customers",
+  "type": "sqldatabase",
+  "config": {
+    "source": "table",
+    "tableName": "customers"
+  },
+  "credentialsKey": "exampledb"
+}

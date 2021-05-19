@@ -7,8 +7,10 @@ namespace Kinintel\Services\Datasource;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 
 class DatasourceService {
 
@@ -45,6 +47,46 @@ class DatasourceService {
 
 
     /**
+     * Get an array of filtered datasources using passed filter string to limit on
+     * name of data source.  This checks both local datasources and database ones.
+     *
+     * @param string $filterString
+     * @param int $limit
+     * @param int $offset
+     */
+    public function filterDatasources($filterString = "", $limit = 10, $offset = 0) {
+        $this->loadFileSystemDatasources();
+
+        // Firstly loop through the file system ones and gather any matches
+        $matches = [];
+        foreach ($this->fileSystemDataSources as $dataSource) {
+            if (is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
+                $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle());
+            }
+        }
+
+        // If still more to get, search the db.
+        $dbMatches = DatasourceInstance::filter("WHERE title LIKE ? LIMIT ?",
+            "%$filterString%", $limit - sizeof($matches));
+
+        $newMatches = array_map(function ($dbMatch) {
+            return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
+        }, $dbMatches);
+
+        $matches = array_merge($matches, $newMatches);
+
+        usort($matches, function ($x, $y) {
+            return ($x->getTitle() > $y->getTitle() ? 1 : -1);
+        });
+
+
+        return $matches;
+
+
+    }
+
+
+    /**
      * Get a datasource instance by key
      *
      * @param $key
@@ -54,7 +96,7 @@ class DatasourceService {
 
         try {
             return DatasourceInstance::fetch($key);
-        } catch (ItemNotFoundException $e) {
+        } catch (ObjectNotFoundException $e) {
 
             // Ensure we have loaded any built in credentials
             if ($this->fileSystemDataSources === null) {
@@ -63,6 +105,8 @@ class DatasourceService {
 
             if (isset($this->fileSystemDataSources[$key])) {
                 return $this->fileSystemDataSources[$key];
+            } else {
+                throw new ObjectNotFoundException(DatasourceInstance::class, $key);
             }
         }
     }
@@ -77,6 +121,19 @@ class DatasourceService {
         $dataSourceInstance->save();
     }
 
+
+    /**
+     * Remove a datasource instance by key
+     *
+     * @param $dataSourceInstanceKey
+     */
+    public function removeDatasourceInstance($dataSourceInstanceKey) {
+        try {
+            $dbDatasource = DatasourceInstance::fetch($dataSourceInstanceKey);
+            $dbDatasource->remove();
+        } catch (ObjectNotFoundException $e) {
+        }
+    }
 
     // Load file system credentials
     private function loadFileSystemDatasources() {
