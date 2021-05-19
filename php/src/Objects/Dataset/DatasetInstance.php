@@ -18,7 +18,7 @@ class DatasetInstance extends DatasetInstanceSummary {
     /**
      * @var ObjectTag[]
      * @oneToMany
-     * @childJoinColumns object_id, object_type=DatasetInstance
+     * @childJoinColumns object_id, object_type=KiDatasetInstance
      */
     protected $tags;
 

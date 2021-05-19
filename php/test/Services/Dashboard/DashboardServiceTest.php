@@ -2,6 +2,10 @@
 
 namespace Kinintel\Services\Dashboard;
 
+use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Objects\MetaData\Tag;
+use Kiniauth\Objects\MetaData\TagSummary;
+use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
@@ -34,9 +38,16 @@ class DashboardServiceTest extends TestBase {
     private $dashboardService;
 
 
+    /**
+     * @var MetaDataService
+     */
+    private $metaDataService;
+
+
     public function setUp(): void {
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
-        $this->dashboardService = new DashboardService($this->datasetService);
+        $this->metaDataService = MockObjectProvider::instance()->getMockInstance(MetaDataService::class);
+        $this->dashboardService = new DashboardService($this->datasetService, $this->metaDataService);
     }
 
 
@@ -193,4 +204,41 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals($dataSet, $evaluatedDataset);
 
     }
+
+
+    public function testCanSaveValidDashboardForProjectsAndTags() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
+
+        $dashboardInstance = new DashboardSummary("Test Dataset");
+
+        $tags = [new TagSummary("Project", "My Project", "project"),
+            new TagSummary("Account2", "My Account", "account2")];
+
+        $dashboardInstance->setTags($tags);
+
+
+        $this->metaDataService->returnValue("getObjectTagsFromSummaries", [
+            new ObjectTag(new Tag(new TagSummary("Project", "My Project", "project"), 2, "soapSuds")),
+            new ObjectTag(new Tag(new TagSummary("Account 2", "Account 2", "account2"), 2)),
+        ], [
+            $tags, 2, "soapSuds"
+        ]);
+
+        $id = $this->dashboardService->saveDashboard($dashboardInstance, 2, "soapSuds");
+
+        $dashboard = Dashboard::fetch($id);
+        $this->assertEquals(2, $dashboard->getAccountId());
+        $this->assertEquals("soapSuds", $dashboard->getProjectKey());
+
+        $tags = $dashboard->getTags();
+        $this->assertEquals(2, sizeof($tags));
+
+        $this->assertEquals("account2", $tags[0]->getTag()->getKey());
+        $this->assertEquals("project", $tags[1]->getTag()->getKey());
+
+
+    }
+
 }

@@ -3,6 +3,7 @@
 namespace Kinintel\Services\Dashboard;
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Services\MetaData\MetaDataService;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Objects\Dashboard\DashboardSummary;
@@ -21,13 +22,21 @@ class DashboardService {
      */
     private $datasetService;
 
+
+    /**
+     * @var MetaDataService
+     */
+    private $metaDataService;
+
     /**
      * DashboardService constructor.
      *
      * @param DatasetService $datasetService
+     * @param MetaDataService $metaDataService
      */
-    public function __construct($datasetService) {
+    public function __construct($datasetService, $metaDataService) {
         $this->datasetService = $datasetService;
+        $this->metaDataService = $metaDataService;
     }
 
 
@@ -46,8 +55,15 @@ class DashboardService {
      *
      * @param DashboardSummary $dashboard
      */
-    public function saveDashboard($dashboardSummary, $accountId = Account::LOGGED_IN_ACCOUNT, $projectNumber = null) {
-        $dashboard = new Dashboard($dashboardSummary, $accountId, $projectNumber);
+    public function saveDashboard($dashboardSummary, $accountId = Account::LOGGED_IN_ACCOUNT, $projectKey = null) {
+        $dashboard = new Dashboard($dashboardSummary, $accountId, $projectKey);
+
+        // Process tags
+        if (sizeof($dashboardSummary->getTags())) {
+            $tags = $this->metaDataService->getObjectTagsFromSummaries($dashboardSummary->getTags(), $accountId, $projectKey);
+            $dashboard->setTags($tags);
+        }
+
         $dashboard->save();
         return $dashboard->getId();
     }

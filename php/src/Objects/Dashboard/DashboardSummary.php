@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Dashboard;
 
 
+use Kiniauth\Objects\MetaData\TagSummary;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
 class DashboardSummary extends ActiveRecord {
@@ -43,6 +44,14 @@ class DashboardSummary extends ActiveRecord {
      * @sqlType LONGTEXT
      */
     protected $displaySettings;
+
+
+    /**
+     * Array of tag keys associated with this instance summary if required
+     *
+     * @var TagSummary[]
+     */
+    protected $tags = [];
 
     /**
      * Dashboard constructor.
@@ -105,6 +114,20 @@ class DashboardSummary extends ActiveRecord {
      */
     public function setDisplaySettings($displaySettings) {
         $this->displaySettings = $displaySettings;
+    }
+
+    /**
+     * @return TagSummary[]
+     */
+    public function getTags() {
+        return $this->tags;
+    }
+
+    /**
+     * @param TagSummary[] $tags
+     */
+    public function setTags($tags) {
+        $this->tags = $tags;
     }
 
 }

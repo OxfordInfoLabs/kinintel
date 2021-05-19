@@ -2,6 +2,7 @@
 
 namespace Kinintel\Objects\Dashboard;
 
+use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
@@ -18,18 +19,41 @@ class Dashboard extends DashboardSummary {
     // Use the account project trait
     use AccountProject;
 
+
+    /**
+     * @var ObjectTag[]
+     * @oneToMany
+     * @childJoinColumns object_id, object_type=KiDashboard
+     */
+    protected $tags = [];
+
     /**
      * Dashboard constructor.
      *
      * @param DashboardSummary $dashboardSummary
      * @param integer $accountId
-     * @param integer $projectNumber
+     * @param integer $projectKey
      */
-    public function __construct($dashboardSummary = null, $accountId = null, $projectNumber = null) {
+    public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
             parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getId());
         $this->accountId = $accountId;
-        $this->projectNumber = $projectNumber;
+        $this->projectKey = $projectKey;
+    }
+
+
+    /**
+     * @return ObjectTag[]
+     */
+    public function getTags() {
+        return $this->tags;
+    }
+
+    /**
+     * @param ObjectTag[] $tags
+     */
+    public function setTags($tags) {
+        $this->tags = $tags;
     }
 
     /**

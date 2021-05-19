@@ -4,6 +4,8 @@
 namespace Kinintel\Objects\Datasource;
 
 
+use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
@@ -22,6 +24,9 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
  * @generate
  */
 class DatasourceInstance extends ActiveRecord {
+
+    // use account project trait
+    use AccountProject;
 
     /**
      * @var string
@@ -80,6 +85,14 @@ class DatasourceInstance extends ActiveRecord {
      * @json
      */
     private $credentialsConfig;
+
+
+    /**
+     * @var ObjectTag[]
+     * @oneToMany
+     * @childJoinColumns object_id, object_type=KiDatasourceInstance
+     */
+    protected $tags;
 
     /**
      * DatasourceInstance constructor.
@@ -199,6 +212,20 @@ class DatasourceInstance extends ActiveRecord {
      */
     public function setCredentialsConfig($credentialsConfig) {
         $this->credentialsConfig = $credentialsConfig;
+    }
+
+    /**
+     * @return ObjectTag[]
+     */
+    public function getTags() {
+        return $this->tags;
+    }
+
+    /**
+     * @param ObjectTag[] $tags
+     */
+    public function setTags($tags) {
+        $this->tags = $tags;
     }
 
 

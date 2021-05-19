@@ -3,6 +3,7 @@
 
 namespace Kinintel\Services\Datasource;
 
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\TestBase;
@@ -51,7 +52,9 @@ class DatasourceServiceTest extends TestBase {
     }
 
 
-    public function testCanStoreAndRetrieveDatabaseDataSourceInstances() {
+    public function testCanStoreAndRetrieveTopLevelDatabaseDataSourceInstances() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
 
         $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "webservice", [
             "url" => "https://json-test.com/dbfeed"
