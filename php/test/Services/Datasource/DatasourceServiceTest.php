@@ -96,7 +96,7 @@ class DatasourceServiceTest extends TestBase {
 
 
         // Check a couple of filters
-        $filtered = $this->dataSourceService->filterDatasources("json");
+        $filtered = $this->dataSourceService->filterDatasourceInstances("json");
         $this->assertEquals(5, sizeof($filtered));
 
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
@@ -105,7 +105,7 @@ class DatasourceServiceTest extends TestBase {
         $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config"), $filtered[3]);
         $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds"), $filtered[4]);
 
-        $filtered = $this->dataSourceService->filterDatasources("database");
+        $filtered = $this->dataSourceService->filterDatasourceInstances("database");
         $this->assertEquals(2, sizeof($filtered));
 
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);

@@ -23,7 +23,7 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
  * @table ki_datasource_instance
  * @generate
  */
-class DatasourceInstance extends DatasourceInstanceSearchResult {
+class DatasourceInstance extends DatasourceInstanceSummary {
 
     // use account project trait
     use AccountProject;

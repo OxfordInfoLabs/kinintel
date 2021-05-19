@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Services\Datasource\DatasourceService;
 
 /**
@@ -28,7 +29,18 @@ trait Datasource {
 
 
     /**
-     * Filter datasources
+     * Get a datasource by key
+     *
+     * @param $key
+     * @return DatasourceInstanceSummary
+     */
+    public function getDatasourceInstance($key) {
+        return $this->datasourceService->getDataSourceInstanceByKey($key);
+    }
+
+
+    /**
+     * Filter datasource instances
      *
      * @http GET /
      *
@@ -36,8 +48,8 @@ trait Datasource {
      * @param int $limit
      * @param int $offset
      */
-    public function filterDatasources($filterString = 0, $limit = 10, $offset = 0) {
-        return $this->datasourceService->filterDatasources($filterString, $limit, $offset);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0) {
+        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset);
     }
 
 

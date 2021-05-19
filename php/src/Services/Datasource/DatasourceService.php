@@ -54,7 +54,7 @@ class DatasourceService {
      * @param int $limit
      * @param int $offset
      */
-    public function filterDatasources($filterString = "", $limit = 10, $offset = 0) {
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0) {
         $this->loadFileSystemDatasources();
 
         // Firstly loop through the file system ones and gather any matches
