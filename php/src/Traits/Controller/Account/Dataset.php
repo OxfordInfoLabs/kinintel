@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
 
@@ -37,6 +38,7 @@ trait Dataset {
      * @param DatasetInstanceEvaluationDescriptor $datasetInstanceEvaluationDescriptor
      */
     public function evaluateDatasetInstance($datasetInstanceEvaluationDescriptor) {
+        Logger::log($datasetInstanceEvaluationDescriptor);
         return $this->datasetService->getEvaluatedDataSetForDataSetInstance($datasetInstanceEvaluationDescriptor->getDatasetInstanceSummary(), $datasetInstanceEvaluationDescriptor->getAdditionalTransformations());
     }
 
