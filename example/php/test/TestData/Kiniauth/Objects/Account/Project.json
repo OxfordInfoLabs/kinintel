@@ -1,0 +1,20 @@
+[
+  {
+    "accountId": 1,
+    "projectKey": "project1",
+    "name": "General",
+    "description": "General Analysis Project for internal use"
+  },
+  {
+    "accountId": 1,
+    "projectKey": "project2",
+    "name": "Buildflex construction",
+    "description": "Buildflex client Project"
+  },
+  {
+    "accountId": 1,
+    "projectKey": "project2",
+    "name": "Firestorm LTD",
+    "description": "Firestorm LTD client Project"
+  }
+]
