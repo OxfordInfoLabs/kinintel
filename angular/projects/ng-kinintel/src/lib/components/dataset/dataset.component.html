@@ -1,32 +1,34 @@
-<div class="container mx-auto max-w-screen-lg p-8 bg-white">
+<div class="container mx-auto max-w-screen-lg">
 
     <h2>Datasets</h2>
 
-    <div class="my-8">
-        <input class="full" type="text" placeholder="Search for a datasource" (keyup)="searchText.next($event.target.value)">
+    <div class="bg-white p-6 content-wrapper">
+        <div class="mb-8">
+            <input class="full" type="text" placeholder="Search for a datasource" (keyup)="searchText.next($event.target.value)">
+        </div>
+
+        <table mat-table [dataSource]="datasets">
+
+            <!-- Position Column -->
+            <ng-container matColumnDef="datasource">
+                <th mat-header-cell *matHeaderCellDef> Datasource </th>
+                <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="explore">
+                <th mat-header-cell *matHeaderCellDef>  </th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                    <button mat-button color="primary" (click)="view(element.id)"> View</button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+        </table>
+        <mat-paginator [length]="datasets.length"
+                       [pageSize]="10"
+                       [pageSizeOptions]="[5, 10, 25, 100]">
+        </mat-paginator>
     </div>
-
-    <table mat-table [dataSource]="datasets">
-
-        <!-- Position Column -->
-        <ng-container matColumnDef="datasource">
-            <th mat-header-cell *matHeaderCellDef> Datasource </th>
-            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="explore">
-            <th mat-header-cell *matHeaderCellDef>  </th>
-            <td mat-cell *matCellDef="let element" class="text-right">
-                <button mat-button color="primary" (click)="view(element.id)"> View</button>
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
-    </table>
-    <mat-paginator [length]="datasets.length"
-                   [pageSize]="10"
-                   [pageSizeOptions]="[5, 10, 25, 100]">
-    </mat-paginator>
 
 </div>

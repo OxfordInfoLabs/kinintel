@@ -8,13 +8,15 @@ import { throwError } from 'rxjs/internal/observable/throwError';
 import { finalize, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { AuthenticationService } from 'ng-kiniauth';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Injectable()
 export class SessionInterceptor implements HttpInterceptor {
 
     private static totalRequests = 0;
 
-    constructor(private authService: AuthenticationService) {
+    constructor(private authService: AuthenticationService,
+                private snackBar: MatSnackBar) {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler) {
@@ -47,7 +49,17 @@ export class SessionInterceptor implements HttpInterceptor {
                     },
                     error => {
                         if (error instanceof HttpErrorResponse) {
-                            return throwError(error);
+                            if (error.error && error.error.message.includes('No CSRF token supplied for user authenticated request')) {
+                                this.authService.logout();
+                            } else {
+                                const message = error.error.message;
+                                if (message) {
+                                    this.snackBar.open(error.error.message, 'Close', {
+                                        verticalPosition: 'top'
+                                    });
+                                }
+                                return throwError(error);
+                            }
                         }
                     }
                 ),

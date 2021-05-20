@@ -5,6 +5,7 @@ import {DashboardComponent} from './views/dashboard/dashboard.component';
 import {DatasetComponent} from './views/dataset/dataset.component';
 import {DatasourceComponent} from './views/datasource/datasource.component';
 import {LoginComponent} from './views/login/login.component';
+import {AuthGuard} from './guards/auth.guard';
 
 const routes: Routes = [
     {
