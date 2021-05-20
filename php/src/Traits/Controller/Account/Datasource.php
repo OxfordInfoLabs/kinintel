@@ -46,7 +46,7 @@ trait Datasource {
      *
      * @http GET /
      *
-     * @param int $filterString
+     * @param string $filterString
      * @param int $limit
      * @param int $offset
      */

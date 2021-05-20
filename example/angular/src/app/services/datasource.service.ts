@@ -9,8 +9,12 @@ export class DatasourceService {
     constructor(private http: HttpClient) {
     }
 
-    public getDatasources() {
-        return this.http.get('/account/datasource').toPromise();
+    public getDatasources(filterString = '', limit = '10', offset = '0') {
+        return this.http.get('/account/datasource', {
+            params: {
+                filterString, limit, offset
+            }
+        });
     }
 
     public getDatasource(key) {

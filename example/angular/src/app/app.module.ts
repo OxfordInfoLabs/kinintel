@@ -18,6 +18,7 @@ import {NgKiniAuthModule} from 'ng-kiniauth';
 import {environment} from '../environments/environment';
 import {SessionInterceptor} from './session.interceptor';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
+import {MatChipsModule} from '@angular/material/chips';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import {HTTP_INTERCEPTORS} from '@angular/common/http';
             guestHttpURL: `${environment.backendURL}/guest`,
             accessHttpURL: `${environment.backendURL}/account`
         }),
+        MatChipsModule
     ],
     providers: [
         {
