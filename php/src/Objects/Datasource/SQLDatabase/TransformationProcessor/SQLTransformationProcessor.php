@@ -9,7 +9,9 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
  *
- * @implementation filterquery  Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\FilterQueryProcessor
+ * @implementation filter Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\FilterTransformationProcessor
+ * @implementation multisort Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\MultiSortTransformationProcessor
+ * @implementation paging Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\PagingTransformationProcessor
  */
 interface SQLTransformationProcessor {
 

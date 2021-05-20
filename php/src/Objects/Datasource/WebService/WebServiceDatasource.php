@@ -11,8 +11,8 @@ use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
-use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 /**
  * Generic web service data source - should be subclassed with format specific webservice classes.
@@ -88,6 +88,16 @@ class WebServiceDatasource extends BaseDatasource {
 
 
     /**
+     * Get supported transformation classes
+     *
+     * @return string[]
+     */
+    public function getSupportedTransformationClasses() {
+        return [FilterTransformation::class];
+    }
+
+
+    /**
      * Allow setting of dispatcher for testing
      *
      * @param HttpRequestDispatcher $dispatcher
@@ -106,7 +116,7 @@ class WebServiceDatasource extends BaseDatasource {
     public function applyTransformation($transformation) {
 
         // If a filter query, attempt to use it
-        if ($transformation instanceof FilterQuery) {
+        if ($transformation instanceof FilterTransformation) {
 
             // Apply all filter values as equals matches as
             // no comprehension of other types of filtering.

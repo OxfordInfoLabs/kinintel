@@ -7,11 +7,14 @@ use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -173,23 +176,55 @@ class DatasetService {
 
         // If we have transformation instances, apply these in sequence
         if ($dataSetInstance->getTransformationInstances()) {
-            foreach ($dataSetInstance->getTransformationInstances() as $transformationInstance) {
-                $transformation = $transformationInstance->returnTransformation();
-                $datasource = $datasource->applyTransformation($transformation);
-            }
+            $datasource = $this->applyTransformationsToDatasource($datasource, $dataSetInstance->getTransformationInstances());
         }
 
+        // If we have additional transformations, apply these in sequence
         if ($additionalTransformations ?? []) {
-            foreach ($additionalTransformations as $transformationInstance) {
-                $transformation = $transformationInstance->returnTransformation();
-                $datasource = $datasource->applyTransformation($transformation);
-            }
+            $datasource = $this->applyTransformationsToDatasource($datasource, $additionalTransformations);
         }
-
 
         // Return the evaluated data source
         return $datasource;
 
+    }
+
+
+    /**
+     * Apply the transformation instances to the supplied data source and return
+     * a new datasource.
+     *
+     * @param Datasource $datasource
+     * @param TransformationInstance[] $transformationInstances
+     */
+    private function applyTransformationsToDatasource($datasource, $transformationInstances) {
+        foreach ($transformationInstances as $transformationInstance) {
+            $transformation = $transformationInstance->returnTransformation();
+
+            if ($this->isTransformationSupported($datasource, $transformation)) {
+                $datasource = $datasource->applyTransformation($transformation);
+            } else if ($datasource instanceof DefaultDatasource) {
+                throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
+            } else {
+                $defaultDatasource = new DefaultDatasource($datasource);
+                if ($this->isTransformationSupported($defaultDatasource, $transformation))
+                    $datasource = $defaultDatasource->applyTransformation($transformation);
+                else
+                    throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
+            }
+
+        }
+        return $datasource;
+    }
+
+    // Check whether a transformation is supported by a datasource
+    private function isTransformationSupported($datasource, $transformation) {
+        foreach ($datasource->getSupportedTransformationClasses() ?? [] as $supportedTransformationClass) {
+            if (is_a($transformation, $supportedTransformationClass) || is_subclass_of($transformation, $supportedTransformationClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

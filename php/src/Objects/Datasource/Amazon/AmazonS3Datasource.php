@@ -24,6 +24,16 @@ class AmazonS3Datasource extends BaseDatasource {
     }
 
     /**
+     * We don't support any transformation classes directly here
+     *
+     * @return array
+     */
+    public function getSupportedTransformationClasses() {
+        return [];
+    }
+
+
+    /**
      * Apply any transformation to the results of this datasource.
      *
      * @param Transformation $transformation
@@ -77,4 +87,6 @@ class AmazonS3Datasource extends BaseDatasource {
 
 
     }
+
+
 }

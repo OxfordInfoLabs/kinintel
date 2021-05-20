@@ -13,15 +13,18 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
-use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -72,13 +75,18 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testTransformationsAppliedInSequenceIfDataSetWithTransformationsPassedToEvaluateFunction() {
+    public function testTransformationsAppliedInSequenceIfDataSetWithTransformationsPassedToEvaluateFunctionWithSupportedTransformations() {
 
 
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
         $transformation2 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
@@ -95,7 +103,15 @@ class DatasetServiceTest extends TestBase {
 
 
         $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
         $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed2->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
         $transformed3 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
 
@@ -127,13 +143,17 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testAdditionalTransformationsAppliedInSequenceIfSuppliedToEvaluate() {
+    public function testAdditionalTransformationsAppliedInSequenceIfSuppliedToEvaluateAndTransformationSupported() {
 
 
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
         $transformation2 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
@@ -150,7 +170,13 @@ class DatasetServiceTest extends TestBase {
 
 
         $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
         $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed2->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
         $transformed3 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
 
@@ -179,6 +205,93 @@ class DatasetServiceTest extends TestBase {
         ]));
 
 
+    }
+
+
+    public function testDefaultDatasourceReturnedIfUnsupportedTransformationSuppliedAsPartOfDatasetOrAdditionalTransformations() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            TestTransformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(FilterTransformation::class);
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        // Try as part of data set
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test", [
+            $transformationInstance1
+        ]);
+
+        $expected = new DefaultDatasource($dataSource);
+        $expected->applyTransformation($transformation1);
+
+        $this->assertEquals($expected, $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance));
+
+
+        // Try as additional
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test");
+
+        $this->assertEquals($expected, $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance, [
+            $transformationInstance1
+        ]));
+
+    }
+
+
+    public function testExceptionRaisedIfDefaultDatasourceCannotHandleUnsupportedTransformationSuppliedAsPartOfDatasetOrAdditionalTransformations() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            TestTransformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(AnotherTestTransformation::class);
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        // Try as part of data set
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test", [
+            $transformationInstance1
+        ]);
+
+        try {
+            $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance);
+            $this->fail("Should have thrown here");
+        } catch (UnsupportedDatasourceTransformationException $e) {
+            $this->assertTrue(true);
+        }
+
+        // Try as additional
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test");
+
+        try {
+            $this->datasetService->getEvaluatedDataSourceForDataSetInstance($dataSetInstance, [
+                $transformationInstance1
+            ]);
+            $this->fail("Should have thrown here");
+        } catch (UnsupportedDatasourceTransformationException $e) {
+            $this->assertTrue(true);
+        }
     }
 
 
@@ -225,7 +338,7 @@ class DatasetServiceTest extends TestBase {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
         $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
-            new TransformationInstance("filterquery", new FilterQuery([
+            new TransformationInstance("filter", new FilterTransformation([
                 new Filter("property", "foobar")
             ]))
         ]);
@@ -242,19 +355,19 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals("Test Dataset", $reSet->getTitle());
         $this->assertEquals("test-json", $reSet->getDatasourceInstanceKey());
         $transformationInstance = $reSet->getTransformationInstances()[0];
-        $this->assertEquals(new TransformationInstance("filterquery",
+        $this->assertEquals(new TransformationInstance("filter",
             [
                 "filters" => [["fieldName" => "property",
                     "value" => "foobar",
                     "filterType" => "eq"]],
                 "logic" => "AND",
                 "filterJunctions" => [],
-                "sQLTransformationProcessorKey" => "filterquery"
+                "sQLTransformationProcessorKey" => "filter"
             ]
         ), $transformationInstance);
 
         // Check unserialisation works for transformation instance
-        $this->assertEquals(new FilterQuery([
+        $this->assertEquals(new FilterTransformation([
             new Filter("property", "foobar")
         ]), $transformationInstance->returnTransformation());
 
@@ -277,7 +390,7 @@ class DatasetServiceTest extends TestBase {
         AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
 
         $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
-            new TransformationInstance("filterquery", new FilterQuery([
+            new TransformationInstance("filter", new FilterTransformation([
                 new Filter("property", "foobar")
             ]))
         ]);
@@ -415,7 +528,6 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Project Dataset", $filtered[0]->getTitle());
-
 
 
     }

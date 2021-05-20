@@ -64,6 +64,14 @@ interface Datasource {
 
 
     /**
+     * Get an array of supported transformation classes for this datasource.
+     *
+     * @return string[]
+     */
+    public function getSupportedTransformationClasses();
+
+
+    /**
      * Apply a transformation to this data source and return a new (or the same) data source.
      *
      * @param Transformation $transformation

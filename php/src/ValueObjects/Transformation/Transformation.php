@@ -7,7 +7,9 @@ namespace Kinintel\ValueObjects\Transformation;
  *
  * Interface Transformation
  *
- * @implementation filterquery \Kinintel\ValueObjects\Transformation\Query\FilterQuery
+ * @implementation filter \Kinintel\ValueObjects\Transformation\Filter\FilterTransformation
+ * @implementation multisort \Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation
+ * @implementation paging \Kinintel\ValueObjects\Transformation\Paging\PagingTransformation
  *
  */
 interface Transformation {

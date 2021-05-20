@@ -14,8 +14,8 @@ use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentia
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
-use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 include_once "autoloader.php";
 
@@ -66,7 +66,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com"));
 
-        $request->applyTransformation(new FilterQuery([
+        $request->applyTransformation(new FilterTransformation([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));
@@ -105,7 +105,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]), new BasicAuthenticationCredentials("baggy", "trousers"));
 
 
-        $request->applyTransformation(new FilterQuery([
+        $request->applyTransformation(new FilterTransformation([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));
@@ -144,7 +144,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             "secret" => "trousers"
         ]));
 
-        $request->applyTransformation(new FilterQuery([
+        $request->applyTransformation(new FilterTransformation([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));
@@ -180,7 +180,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             "secret" => "trousers"
         ]));
 
-        $request->applyTransformation(new FilterQuery([
+        $request->applyTransformation(new FilterTransformation([
             new Filter("name", "Bobby smith"),
             new Filter("scope", "local"),
         ]));

@@ -17,6 +17,8 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredenti
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
@@ -65,6 +67,20 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
         return true;
     }
 
+
+    /**
+     * Get supported transformation classes
+     *
+     * @return string[]
+     */
+    public function getSupportedTransformationClasses() {
+        return [
+            FilterTransformation::class,
+            MultiSortTransformation::class
+        ];
+    }
+
+
     /**
      * Set transformation processor instances (testing purposes)
      *
@@ -101,11 +117,12 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
 
         $query = $this->buildQuery();
 
+
         /**
          * @var DatabaseConnection $dbConnection
          */
         $dbConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
-        $resultSet = $dbConnection->query($query->getSql(), $query->getParameters());
+        $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
         // Return a tabular dataset
         return new SQLResultSetTabularDataset($resultSet);
@@ -152,12 +169,10 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
 
         // If a tabular based source, create base clause
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
-            $query = new SQLQuery("SELECT * FROM " . $config->getTableName());
+            $query = new SQLQuery("*", $config->getTableName());
         } else {
-            $querySql = sizeof($this->transformations) ? "SELECT * FROM (" . $config->getQuery() . ") A" : $config->getQuery();
-            $query = new SQLQuery($querySql);
+            $query = new SQLQuery("*", "(" . $config->getQuery() . ") A");
         }
-
 
         /**
          * Process each transformation

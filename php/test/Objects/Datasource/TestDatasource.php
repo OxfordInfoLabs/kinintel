@@ -23,13 +23,18 @@ class TestDatasource extends BaseDatasource {
      * @var bool
      */
     private $authenticationRequired;
+    /**
+     * @var array
+     */
+    private $supportedTransformationClasses;
 
 
-    public function __construct($configClass = null, $supportedCredentialClasses = [], $authenticationRequired = true) {
+    public function __construct($configClass = null, $supportedCredentialClasses = [], $authenticationRequired = true, $supportedTransformationClasses = []) {
         $this->configClass = $configClass;
         $this->supportedCredentialClasses = $supportedCredentialClasses;
         $this->authenticationRequired = $authenticationRequired;
         parent::__construct();
+        $this->supportedTransformationClasses = $supportedTransformationClasses;
     }
 
     public function getConfigClass() {
@@ -42,6 +47,13 @@ class TestDatasource extends BaseDatasource {
 
     public function isAuthenticationRequired() {
         return $this->authenticationRequired;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSupportedTransformationClasses() {
+        return $this->supportedTransformationClasses;
     }
 
 

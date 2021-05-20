@@ -5,7 +5,7 @@ namespace Kinintel\ValueObjects\Transformation;
 use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
-use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 include_once "autoloader.php";
 
@@ -38,8 +38,8 @@ class TransformationInstanceTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanReturnTransformationForValidConfig() {
 
-        $transformationInstance = new TransformationInstance("filterquery", []);
-        $this->assertEquals(new FilterQuery(), $transformationInstance->returnTransformation());
+        $transformationInstance = new TransformationInstance("filter", []);
+        $this->assertEquals(new FilterTransformation(), $transformationInstance->returnTransformation());
 
     }
 

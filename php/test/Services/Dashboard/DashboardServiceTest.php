@@ -18,13 +18,12 @@ use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
-use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
-use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Query\FilterQuery;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DashboardServiceTest extends TestBase {
@@ -106,7 +105,7 @@ class DashboardServiceTest extends TestBase {
 
         $dashboard = new DashboardSummary("Test Instance", [
             new DashboardDatasetInstance("brandnew", null, "test-json", [
-                new TransformationInstance("filterquery", new FilterQuery([
+                new TransformationInstance("filter", new FilterTransformation([
                     new Filter("value", "bingo")
                 ]))
             ])
@@ -122,7 +121,7 @@ class DashboardServiceTest extends TestBase {
         $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[0];
         $this->assertEquals("brandnew", $dashboardDatasetInstance->getInstanceKey());
         $this->assertEquals("test-json", $dashboardDatasetInstance->getDatasourceInstanceKey());
-        $this->assertEquals([new TransformationInstance("filterquery", [
+        $this->assertEquals([new TransformationInstance("filter", [
             "filters" => [[
                 "fieldName" => "value",
                 "value" => "bingo",
@@ -130,7 +129,7 @@ class DashboardServiceTest extends TestBase {
             ]],
             "logic" => "AND",
             "filterJunctions" => [],
-            "sQLTransformationProcessorKey" => "filterquery"
+            "sQLTransformationProcessorKey" => "filter"
         ])], $dashboardDatasetInstance->getTransformationInstances());
 
         $this->dashboardService->removeDashboard($id);
@@ -180,7 +179,7 @@ class DashboardServiceTest extends TestBase {
     public function testCanGetEvaluatedDatasetForValidDashboardDatasetInstanceUsingExplicitDataSet() {
 
         $dashboardDataSetInstance = new DashboardDatasetInstance("otherset", null, "test-json", [
-            new TransformationInstance("filterquery", new FilterQuery([
+            new TransformationInstance("filter", new FilterTransformation([
                 new Filter("value", "bingo")
             ]))
         ]);
