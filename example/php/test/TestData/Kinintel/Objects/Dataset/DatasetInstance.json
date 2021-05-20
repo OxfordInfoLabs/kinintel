@@ -1,0 +1,78 @@
+[
+  {
+    "title": "All Employees",
+    "datasourceInstanceKey": "employees",
+    "accountId": 1,
+    "projectKey": "project1",
+    "tags": [
+      {
+        "tag": {
+          "tag": "HR",
+          "key": "hr",
+          "accountId": 1,
+          "projectKey": "project1"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Employee Totals by Title",
+    "datasourceInstanceKey": "employees",
+    "accountId": 1,
+    "projectKey": "project1",
+    "tags": [
+      {
+        "tag": {
+          "tag": "HR",
+          "key": "hr",
+          "accountId": 1,
+          "projectKey": "project1"
+        }
+      }
+    ]
+  },
+  {
+    "title": "All Invoices",
+    "datasourceInstanceKey": "invoices",
+    "accountId": 1,
+    "projectKey": "project1",
+    "tags": [
+      {
+        "tag": {
+          "tag": "Billing",
+          "key": "billing",
+          "accountId": 1,
+          "projectKey": "project1"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Total Invoices by Country",
+    "datasourceInstanceKey": "invoices",
+    "accountId": 1,
+    "projectKey": "project1",
+    "tags": [
+      {
+        "tag": {
+          "tag": "Billing",
+          "key": "billing",
+          "accountId": 1,
+          "projectKey": "project1"
+        }
+      }
+    ]
+  },
+  {
+    "title": "All customers",
+    "datasourceInstanceKey": "customers",
+    "accountId": 1,
+    "projectKey": "project2"
+  },
+  {
+    "title": "Total Customers by Country",
+    "datasourceInstanceKey": "customers",
+    "accountId": 1,
+    "projectKey": "project2"
+  }
+]

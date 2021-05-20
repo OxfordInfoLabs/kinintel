@@ -7,7 +7,9 @@ use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -50,11 +52,54 @@ class DatasetService {
 
 
     /**
+     * Filter data set instances optionally limiting by the passed filter string,
+     * array of tags and project id.
+     *
+     * @param string $filterString
+     * @param array $tags
+     * @param string $projectKey
+     * @param int $offset
+     * @param int $limit
+     * @param int $accountId
+     */
+    public function filterDataSetInstances($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $query = "WHERE accountId = ?";
+        $params = [$accountId];
+
+        if ($filterString) {
+            $query .= " AND title LIKE ?";
+            $params[] = "%$filterString%";
+        }
+
+        if ($projectKey) {
+            $query .= " AND project_key = ?";
+            $params[] = $projectKey;
+        }
+
+        if ($tags && sizeof($tags) > 0) {
+            $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+            $params = array_merge($params, $tags);
+        }
+
+
+        $query .= "ORDER BY title LIMIT $limit OFFSET $offset";
+
+        // Return a summary array
+        return array_map(function ($instance) {
+            return new DatasetInstanceSearchResult($instance->getId(), $instance->getTitle());
+        },
+            DatasetInstance::filter($query, $params));
+
+    }
+
+
+    /**
      * Save a data set instance
      *
      * @param DatasetInstanceSummary $dataSetInstanceSummary
      */
-    public function saveDataSetInstance($dataSetInstanceSummary, $accountId = Account::LOGGED_IN_ACCOUNT, $projectKey = null) {
+    public function saveDataSetInstance($dataSetInstanceSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $dataSetInstance = new DatasetInstance($dataSetInstanceSummary, $accountId, $projectKey);
 
         // Process tags

@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Employee Summary",
+    "accountId": 1,
+    "projectKey": "project1",
+    "tags": [
+      {
+        "tag": {
+          "tag": "HR",
+          "key": "hr",
+          "accountId": 1,
+          "projectKey": "project1"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Billing Summary",
+    "accountId": 1,
+    "projectKey": "project1",
+    "tags": [
+      {
+        "tag": {
+          "tag": "Billing",
+          "key": "billing",
+          "accountId": 1,
+          "projectKey": "project1"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Customer Summary",
+    "accountId": 1,
+    "projectKey": "project2"
+  }
+]

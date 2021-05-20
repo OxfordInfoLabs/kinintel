@@ -28,7 +28,7 @@ class BaseDatasetInstance extends ActiveRecord {
      * @json
      * @sqlType LONGTEXT
      */
-    protected $transformationInstances;
+    protected $transformationInstances = [];
 
     /**
      * @param TransformationInstance[] $transformationInstances

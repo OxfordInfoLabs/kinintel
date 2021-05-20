@@ -32,7 +32,7 @@ class Dashboard extends DashboardSummary {
      *
      * @param DashboardSummary $dashboardSummary
      * @param integer $accountId
-     * @param integer $projectKey
+     * @param string $projectKey
      */
     public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
