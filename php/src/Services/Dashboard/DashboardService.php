@@ -6,7 +6,10 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
+use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
+use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -50,12 +53,58 @@ class DashboardService {
         return Dashboard::fetch($id)->returnSummary();
     }
 
+
+    /**
+     * Filter dashboards optionally by title, tags, project key and limiting as required
+     *
+     * @param string $filterString
+     * @param array $tags
+     * @param string $projectKey
+     * @param int $offset
+     * @param int $limit
+     * @param string $accountId
+     *
+     * @return DashboardSearchResult[]
+     */
+    public function filterDashboards($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $query = "WHERE accountId = ?";
+        $params = [$accountId];
+
+        if ($filterString) {
+            $query .= " AND title LIKE ?";
+            $params[] = "%$filterString%";
+        }
+
+        if ($projectKey) {
+            $query .= " AND project_key = ?";
+            $params[] = $projectKey;
+        }
+
+        if ($tags && sizeof($tags) > 0) {
+            $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+            $params = array_merge($params, $tags);
+        }
+
+
+        $query .= "ORDER BY title LIMIT $limit OFFSET $offset";
+
+        // Return a summary array
+        return array_map(function ($instance) {
+            return new DashboardSearchResult($instance->getId(), $instance->getTitle());
+        },
+            Dashboard::filter($query, $params));
+
+
+    }
+
+
     /**
      * Save a dashboard
      *
      * @param DashboardSummary $dashboard
      */
-    public function saveDashboard($dashboardSummary, $accountId = Account::LOGGED_IN_ACCOUNT, $projectKey = null) {
+    public function saveDashboard($dashboardSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $dashboard = new Dashboard($dashboardSummary, $accountId, $projectKey);
 
         // Process tags

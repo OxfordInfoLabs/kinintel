@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\Dashboard;
 
+use Kiniauth\Objects\Account\Project;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
@@ -13,9 +14,11 @@ use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
+use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
@@ -95,7 +98,7 @@ class DashboardServiceTest extends TestBase {
         AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
 
         $dashboard = new DashboardSummary("Johnny 5");
-        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
+        $id = $this->dashboardService->saveDashboard($dashboard, 1, 2);
 
         $reDashboard = $this->dashboardService->getDashboardById($id);
         $this->assertEquals("Johnny 5", $reDashboard->getTitle());
@@ -112,7 +115,7 @@ class DashboardServiceTest extends TestBase {
             "font" => "Arial"
         ]);
 
-        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
+        $id = $this->dashboardService->saveDashboard($dashboard, 1, 2);
 
         $reDashboard = $this->dashboardService->getDashboardById($id);
         $this->assertEquals("Test Instance", $reDashboard->getTitle());
@@ -156,7 +159,7 @@ class DashboardServiceTest extends TestBase {
             "color" => "green",
             "font" => "Arial"
         ]);
-        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
+        $id = $this->dashboardService->saveDashboard($dashboard, 1, 2);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
         $transformation = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
@@ -189,7 +192,7 @@ class DashboardServiceTest extends TestBase {
             "color" => "green",
             "font" => "Arial"
         ]);
-        $id = $this->dashboardService->saveDashboard($dashboard, 2, 1);
+        $id = $this->dashboardService->saveDashboard($dashboard, 1, 2);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
         $transformation = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
@@ -226,7 +229,7 @@ class DashboardServiceTest extends TestBase {
             $tags, 2, "soapSuds"
         ]);
 
-        $id = $this->dashboardService->saveDashboard($dashboardInstance, 2, "soapSuds");
+        $id = $this->dashboardService->saveDashboard($dashboardInstance, "soapSuds", 2);
 
         $dashboard = Dashboard::fetch($id);
         $this->assertEquals(2, $dashboard->getAccountId());
@@ -240,5 +243,113 @@ class DashboardServiceTest extends TestBase {
 
 
     }
+
+    public function testCanGetFilteredDashboardsForAccountsOptionallyFilteredByProjectAndTag() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $accountDashboard = new DashboardSummary("Account Dashboard");
+        $this->dashboardService->saveDashboard($accountDashboard, 1, 1);
+
+        $accountDashboard = new DashboardSummary("Second Account Dashboard");
+        $this->dashboardService->saveDashboard($accountDashboard, null, 1);
+
+
+        $datasetProject = new Project("Dataset Project", 1, "datasetProject");
+        $datasetProject->save();
+
+        $this->metaDataService->returnValue("getObjectTagsFromSummaries", [
+            new ObjectTag(new Tag(new TagSummary("Special", "Special Tag", "special"), 1, "datasetProject")),
+            new ObjectTag(new Tag(new TagSummary("General", "General Tag", "general"), 1, "datasetProject"))
+        ], [
+            [
+                new TagSummary("Special", "", "special"),
+                new TagSummary("General", "", "general")
+            ], 1, "datasetProject"
+        ]);
+
+        $this->metaDataService->returnValue("getObjectTagsFromSummaries", [
+            new ObjectTag(new Tag(new TagSummary("General", "General Tag", "general"), 1, "datasetProject"))
+        ], [
+            [
+                new TagSummary("General", "", "general")
+            ], 1, "datasetProject"
+        ]);
+
+
+        $projectDashboard = new DashboardSummary("Project Dashboard");
+        $projectDashboard->setTags([
+            new TagSummary("Special", "", "special"),
+            new TagSummary("General", "", "general")
+        ]);
+        $this->dashboardService->saveDashboard($projectDashboard, "datasetProject", 1);
+
+        $projectDashboard = new DashboardSummary("Second Project Dashboard");
+        $projectDashboard->setTags([
+            new TagSummary("General", "", "general")
+        ]);
+        $this->dashboardService->saveDashboard($projectDashboard, "datasetProject", 1);
+
+
+        $filtered = $this->dashboardService->filterDashboards("", [], null, 0, 10, 1);
+        $this->assertEquals(4, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
+        $this->assertEquals("Project Dashboard", $filtered[1]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[2]);
+        $this->assertEquals("Second Account Dashboard", $filtered[2]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[3]);
+        $this->assertEquals("Second Project Dashboard", $filtered[3]->getTitle());
+
+
+        // Filter on title
+        $filtered = $this->dashboardService->filterDashboards("econd", [], null, 0, 10, 1);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Second Account Dashboard", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
+        $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
+
+
+        // Filter on project key
+        $filtered = $this->dashboardService->filterDashboards("", [], "datasetProject", 0, 10, 1);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
+        $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
+
+        // Filter on tags
+        $filtered = $this->dashboardService->filterDashboards("", ["general"], "datasetProject", 0, 10, 1);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
+        $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
+
+        $filtered = $this->dashboardService->filterDashboards("", ["special"], "datasetProject", 0, 10, 1);
+        $this->assertEquals(1, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
+
+
+        // Offsets and limits
+        $filtered = $this->dashboardService->filterDashboards("", ["general"], "datasetProject", 0, 1, 1);
+        $this->assertEquals(1, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
+
+
+        $filtered = $this->dashboardService->filterDashboards("", ["general"], "datasetProject", 1, 10, 1);
+        $this->assertEquals(1, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Second Project Dashboard", $filtered[0]->getTitle());
+
+
+    }
+
 
 }

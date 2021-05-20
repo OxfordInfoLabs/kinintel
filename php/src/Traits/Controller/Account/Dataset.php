@@ -47,6 +47,8 @@ trait Dataset {
     /**
      * Filter dataset instances, optionally by title, project key, tags and limited by offset and limit.
      *
+     * @http GET /
+     *
      * @param string $filterString
      * @param string $projectKey
      * @param string $tags

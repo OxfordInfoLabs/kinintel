@@ -7,23 +7,7 @@ namespace Kinintel\Objects\Dashboard;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
-class DashboardSummary extends ActiveRecord {
-
-    /**
-     * Primary key for this dashboard
-     *
-     * @var integer
-     */
-    protected $id;
-
-
-    /**
-     * Title for the dashboard
-     *
-     * @var string
-     * @required
-     */
-    protected $title;
+class DashboardSummary extends DashboardSearchResult {
 
 
     /**
@@ -61,31 +45,9 @@ class DashboardSummary extends ActiveRecord {
      * @param mixed $displaySettings
      */
     public function __construct($title, $datasetInstances = [], $displaySettings = null, $id = null) {
-        $this->title = $title;
+        parent::__construct($id, $title);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
-        $this->id = $id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId() {
-        return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle() {
-        return $this->title;
-    }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle($title) {
-        $this->title = $title;
     }
 
     /**
