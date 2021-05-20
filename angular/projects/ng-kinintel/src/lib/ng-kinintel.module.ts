@@ -25,6 +25,8 @@ import { ProjectPickerComponent } from './components/project-picker/project-pick
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {FormsModule} from '@angular/forms';
 import { DatasetFilterComponent } from './components/dataset/dataset-editor/dataset-filter/dataset-filter.component';
+import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
+import { TagPickerComponent } from './components/tag-picker/tag-picker.component';
 
 
 @NgModule({
@@ -36,7 +38,9 @@ import { DatasetFilterComponent } from './components/dataset/dataset-editor/data
         DatasetComponent,
         DatasetEditorComponent,
         ProjectPickerComponent,
-        DatasetFilterComponent
+        DatasetFilterComponent,
+        DataExplorerComponent,
+        TagPickerComponent
     ],
     imports: [
         BrowserModule,
@@ -65,7 +69,10 @@ import { DatasetFilterComponent } from './components/dataset/dataset-editor/data
         DatasourceComponent,
         DatasetComponent,
         DatasetEditorComponent,
-        ProjectPickerComponent
+        ProjectPickerComponent,
+        DatasetFilterComponent,
+        DataExplorerComponent,
+        TagPickerComponent
     ]
 })
 export class NgKinintelModule {

@@ -3,9 +3,11 @@ import {MediaMatcher} from '@angular/cdk/layout';
 import {MatSidenav} from '@angular/material/sidenav';
 import {SidenavService} from './services/sidenav.service';
 import {MatDialog} from '@angular/material/dialog';
-import {ProjectPickerComponent} from 'ng-kinintel';
+import {ProjectPickerComponent, TagPickerComponent} from 'ng-kinintel';
 import {ProjectService} from './services/project.service';
 import {Subscription} from 'rxjs';
+import {environment} from '../environments/environment';
+import {TagService} from './services/tag.service';
 
 @Component({
     selector: 'app-root',
@@ -18,15 +20,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     public mobileQuery: MediaQueryList;
     public showFixedSidebar: boolean;
     public activeProject: any;
+    public activeTag: any;
+    public environment = environment;
 
     private readonly mobileQueryListener: () => void;
     private projectSub: Subscription;
+    private tagSub: Subscription;
 
     constructor(private changeDetectorRef: ChangeDetectorRef,
                 private media: MediaMatcher,
                 private sidenavService: SidenavService,
                 private dialog: MatDialog,
-                private projectService: ProjectService) {
+                private projectService: ProjectService,
+                private tagService: TagService) {
 
         this.mobileQuery = media.matchMedia('(max-width: 768px)');
         this.mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -39,6 +45,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             if (!project) {
                 this.selectProject(true);
             }
+        });
+        this.tagSub = this.tagService.activeTag.subscribe(tag => {
+            this.activeTag = tag;
         });
     }
 
@@ -70,5 +79,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                 projectService: this.projectService
             }
         });
+    }
+
+    public selectTag() {
+        const dialogRef = this.dialog.open(TagPickerComponent, {
+            width: '700px',
+            height:  '500px',
+            data: {
+                tagService: this.tagService
+            }
+        });
+    }
+
+    public removeActiveTag() {
+        this.tagService.resetActiveTag();
     }
 }

@@ -1,10 +1,10 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
     <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Projects</h2>
+        <h2 mat-dialog-title>Tags</h2>
         <button mat-stroked-button color="primary" (click)="addNew = !addNew">
             <mat-icon>add</mat-icon>
-            New Project
+            New Tag
         </button>
         <button mat-icon-button mat-dialog-close>
             <mat-icon>clear</mat-icon>
@@ -14,7 +14,7 @@
     <div class="dialog-content">
 
         <ng-template [ngIf]="!addNew">
-            <input class="full" type="text" placeholder="Search projects" (keyup)="searchText.next($event.target.value)">
+            <input class="full" type="text" placeholder="Search tags" (keyup)="searchText.next($event.target.value)">
 
             <table class="hover">
                 <thead>
@@ -27,15 +27,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let project of projects" (click)="activateProject(project)">
+                <tr *ngFor="let tag of tags" (click)="activateTag(tag)">
                     <td>
-                        <mat-icon color="primary" *ngIf="activeProject.projectKey === project.projectKey">check_circle</mat-icon>
+                        <mat-icon color="primary" *ngIf="activeTag.key === tag.key">check_circle</mat-icon>
                     </td>
-                    <td>{{project.name}}</td>
-                    <td>{{project.description}}</td>
-                    <td>{{project.projectKey}}</td>
+                    <td>{{tag.tag}}</td>
+                    <td>{{tag.description}}</td>
+                    <td>{{tag.key}}</td>
                     <td class="text-right">
-                        <button mat-icon-button color="warn" (click)="removeProject(project.projectKey)">
+                        <button mat-icon-button color="warn" (click)="removeTag(tag)">
                             <mat-icon>clear</mat-icon>
                         </button>
                     </td>
@@ -64,7 +64,7 @@
         <button mat-button mat-stroked-button type="button" (click)="addNew = false;" *ngIf="addNew">Cancel</button>
 
         <button mat-button mat-flat-button color="primary" type="button" *ngIf="addNew"
-                (click)="createProject()" [disabled]="!newName || !newDescription">Create Project
+                (click)="createTag()" [disabled]="!newName || !newDescription">Create Project
         </button>
     </div>
 
