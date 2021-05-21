@@ -20,6 +20,7 @@ import {SessionInterceptor} from './session.interceptor';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { DashboardsComponent } from './views/dashboards/dashboards.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +29,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
         DashboardComponent,
         DatasetComponent,
         DatasourceComponent,
-        LoginComponent
+        LoginComponent,
+        DashboardsComponent
     ],
     imports: [
         BrowserModule,

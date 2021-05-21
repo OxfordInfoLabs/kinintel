@@ -6,6 +6,7 @@ import {DatasetComponent} from './views/dataset/dataset.component';
 import {DatasourceComponent} from './views/datasource/datasource.component';
 import {LoginComponent} from './views/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
+import {DashboardsComponent} from './views/dashboards/dashboards.component';
 
 const routes: Routes = [
     {
@@ -18,7 +19,11 @@ const routes: Routes = [
         component: HomeComponent
     },
     {
-        path: 'dashboard',
+        path: 'dashboards',
+        component: DashboardsComponent
+    },
+    {
+        path: 'dashboards/:dashboard',
         component: DashboardComponent
     },
     {

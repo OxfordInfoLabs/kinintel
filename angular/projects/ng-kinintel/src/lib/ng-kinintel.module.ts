@@ -27,6 +27,7 @@ import {FormsModule} from '@angular/forms';
 import { DatasetFilterComponent } from './components/dataset/dataset-editor/dataset-filter/dataset-filter.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 import { TagPickerComponent } from './components/tag-picker/tag-picker.component';
+import { DashboardsComponent } from './components/dashboards/dashboards.component';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import { TagPickerComponent } from './components/tag-picker/tag-picker.component
         ProjectPickerComponent,
         DatasetFilterComponent,
         DataExplorerComponent,
-        TagPickerComponent
+        TagPickerComponent,
+        DashboardsComponent
     ],
     imports: [
         BrowserModule,
@@ -72,7 +74,8 @@ import { TagPickerComponent } from './components/tag-picker/tag-picker.component
         ProjectPickerComponent,
         DatasetFilterComponent,
         DataExplorerComponent,
-        TagPickerComponent
+        TagPickerComponent,
+        DashboardsComponent
     ]
 })
 export class NgKinintelModule {

@@ -1,7 +1,7 @@
 import {
     AfterViewInit, ApplicationRef,
     ChangeDetectorRef,
-    Component, ComponentFactoryResolver, EmbeddedViewRef, Injector,
+    Component, ComponentFactoryResolver, EmbeddedViewRef, Injector, Input,
     NgZone,
     OnInit,
     ViewChild,
@@ -15,6 +15,7 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import * as _ from 'lodash';
 import {Subject} from 'rxjs';
 import {ItemComponentComponent} from './item-component/item-component.component';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -23,6 +24,8 @@ import {ItemComponentComponent} from './item-component/item-component.component'
     encapsulation: ViewEncapsulation.None
 })
 export class DashboardEditorComponent implements OnInit, AfterViewInit {
+
+    @Input() dashboardService: any;
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -63,15 +66,23 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
             height: 5
         }
     ];
+    public dashboard: any = {};
 
     private grid: GridStack;
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
-                private injector: Injector) {
+                private injector: Injector,
+                private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
+        const dashboardId = this.route.snapshot.params.dashboard;
+        if (dashboardId) {
+            this.dashboardService.getDashboard(dashboardId).then(dashboard => {
+                this.dashboard = dashboard;
+            });
+        }
     }
 
     ngAfterViewInit() {
