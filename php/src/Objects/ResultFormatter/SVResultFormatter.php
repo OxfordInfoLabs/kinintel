@@ -129,7 +129,7 @@ class SVResultFormatter implements ResultFormatter {
             $columns = $this->processHeaderRow($stream);
         }
 
-        return new SVStreamTabularDataSet($columns, $stream, $this->separator, $this->enclosure);
+        return new SVStreamTabularDataSet($columns, $stream, $this->separator, $this->enclosure, $limit, $offset);
 
 
     }

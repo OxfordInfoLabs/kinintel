@@ -103,6 +103,9 @@ class JSONResultFormatter implements ResultFormatter {
             $decodedResult = [$decodedResult];
         }
 
+        // Deal with any offset and limit up front
+        $decodedResult = array_slice($decodedResult, $offset, $limit);
+
         // Loop through each item
         foreach ($decodedResult as $item) {
             // If item is an array, we map accordingly
@@ -122,6 +125,7 @@ class JSONResultFormatter implements ResultFormatter {
                 $data[] = ["value" => $item];
             }
         }
+
 
         return new ArrayTabularDataset(array_values($columns), $data);
 

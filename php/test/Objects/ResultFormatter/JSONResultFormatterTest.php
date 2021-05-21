@@ -122,23 +122,36 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testOffsetAndLimitIsImplementedWhenSupplied(){
+    public function testOffsetAndLimitIsImplementedWhenSupplied() {
 
         $formatter = new JSONResultFormatter("results");
 
 
-        // Regular key / value pairs
+        // Limited to 1 result
         $result = $formatter->format(new ReadOnlyStringStream(json_encode(["results" => [
             ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
             ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
-        ]])));
+        ]])), 1);
 
 
         $this->assertInstanceOf(ArrayTabularDataset::class, $result);
 
         $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
-        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
-            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
+        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"]], $result->getAllData());
+
+
+        // Offset by 1
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode(["results" => [
+            ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
+        ]])), 10, 1);
+
+
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
+
+        $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
+        $this->assertEquals([["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
+
 
     }
 

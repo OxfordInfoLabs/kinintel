@@ -11,9 +11,15 @@ use Kinintel\Services\Thirdparty\Amazon\AmazonSDKClientProvider;
 use Kinintel\ValueObjects\Authentication\Generic\AccessKeyAndSecretAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\Configuration\Amazon\AmazonS3DatasourceConfig;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
 class AmazonS3Datasource extends BaseDatasource {
+
+    /**
+     * @var PagingTransformation[]
+     */
+    private $pagingTransformations = [];
 
     public function getConfigClass() {
         return AmazonS3DatasourceConfig::class;
@@ -29,7 +35,7 @@ class AmazonS3Datasource extends BaseDatasource {
      * @return array
      */
     public function getSupportedTransformationClasses() {
-        return [];
+        return [PagingTransformation::class];
     }
 
 
@@ -40,7 +46,10 @@ class AmazonS3Datasource extends BaseDatasource {
      * @return BaseDatasource|void
      */
     public function applyTransformation($transformation) {
-        // TODO: Implement applyTransformation() method.
+
+        // Track paging transformations
+        if ($transformation instanceof PagingTransformation)
+            $this->pagingTransformations[] = $transformation;
     }
 
     /**
@@ -77,10 +86,22 @@ class AmazonS3Datasource extends BaseDatasource {
 
             $body = $result["Body"];
 
+
             // If a stream object, read whole stream and convert to tabular data
             if ($body instanceof Stream) {
+
+                $offset = 0;
+                $limit = PHP_INT_MAX;
+
+                // Increment the offset and limit accordingly.
+                foreach ($this->pagingTransformations as $pagingTransformation) {
+                    $offset += $pagingTransformation->getOffset();
+                    $limit = $pagingTransformation->getLimit();
+                }
+
+                // Temporary read all contents logic
                 $body = $body->getContents();
-                return $config->returnFormatter()->format(new ReadOnlyStringStream($body));
+                return $config->returnFormatter()->format(new ReadOnlyStringStream($body), $limit, $offset);
             }
 
         }

@@ -37,6 +37,17 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
+     * @var integer
+     */
+    private $limit;
+
+    /**
+     * @var int
+     */
+    private $readItems = 0;
+
+
+    /**
      * SVStreamTabularDataSet constructor.
      *
      * @param Field[] $columns
@@ -44,11 +55,21 @@ class SVStreamTabularDataSet extends TabularDataset {
      * @param string $separator
      * @param string $enclosure
      */
-    public function __construct($columns, $stream, $separator = ",", $enclosure = '"') {
+    public function __construct($columns, $stream, $separator = ",", $enclosure = '"', $limit = PHP_INT_MAX, $offset = 0) {
         $this->columns = $columns;
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
+
+        // Total limit including offset
+        $this->limit = $limit + $offset;
+
+        // if offset, forward wind to that offset
+        if ($offset) {
+            for ($i = 0; $i < $offset; $i++)
+                $this->nextDataItem();
+        }
+
     }
 
 
@@ -66,8 +87,12 @@ class SVStreamTabularDataSet extends TabularDataset {
      */
     public function nextDataItem() {
 
-        $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
+        // Shortcut if we have reached the limit
+        if ($this->readItems >= $this->limit)
+            return null;
 
+        $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
+        $this->readItems++;
 
         // Only continue if we have some content
         if (trim($csvLine[0])) {

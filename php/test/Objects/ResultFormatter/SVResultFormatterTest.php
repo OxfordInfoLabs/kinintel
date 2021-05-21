@@ -43,8 +43,6 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
         ], $results->getColumns());
 
 
-
-
     }
 
     public function testFormatProcessesTabSeparatedValuesWhenConfigured() {
@@ -80,17 +78,12 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
         ], $results->getColumns());
 
 
-
-
-
     }
-
-
 
 
     public function testIfFirstRowSuppliedAsHeaderTheseAreUsedAsColumnTitlesAndCompressedAsNames() {
 
-        $formatter = new SVResultFormatter(",",  '"', true);
+        $formatter = new SVResultFormatter(",", '"', true);
 
         $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"));
 
@@ -121,7 +114,47 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
         ], $results->getColumns());
 
 
+    }
 
+
+    public function testOffsetAndLimitObservedIfPassedIn() {
+
+        $formatter = new SVResultFormatter(",", '"', true);
+
+
+        // Limit first
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), 2);
+
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
+
+
+        $this->assertEquals([
+            [
+                "nameOfPerson" => "Mark",
+                "surname" => "Robertshaw",
+                "currentAge" => 30
+            ], [
+                "nameOfPerson" => "James",
+                "surname" => "Smith",
+                "currentAge" => 10
+            ]
+
+        ], $results->getAllData());
+
+
+        // Offset one next
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), 2, 2);
+
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
+
+
+        $this->assertEquals([
+            [
+                "nameOfPerson" => "David John",
+                "surname" => "Wright",
+                "currentAge" => 20
+            ]
+        ], $results->getAllData());
 
 
     }
