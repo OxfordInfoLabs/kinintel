@@ -19,6 +19,8 @@ import {environment} from '../environments/environment';
 import {SessionInterceptor} from './session.interceptor';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {MatChipsModule} from '@angular/material/chips';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { DashboardsComponent } from './views/dashboards/dashboards.component';
 
 @NgModule({
     declarations: [
@@ -27,7 +29,8 @@ import {MatChipsModule} from '@angular/material/chips';
         DashboardComponent,
         DatasetComponent,
         DatasourceComponent,
-        LoginComponent
+        LoginComponent,
+        DashboardsComponent
     ],
     imports: [
         BrowserModule,
@@ -42,7 +45,8 @@ import {MatChipsModule} from '@angular/material/chips';
             guestHttpURL: `${environment.backendURL}/guest`,
             accessHttpURL: `${environment.backendURL}/account`
         }),
-        MatChipsModule
+        MatChipsModule,
+        MatSnackBarModule
     ],
     providers: [
         {

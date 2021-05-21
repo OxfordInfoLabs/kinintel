@@ -13,5 +13,6 @@ export * from './lib/components/project-picker/project-picker.component';
 export * from './lib/components/tag-picker/tag-picker.component';
 export * from './lib/components/tag-picker/tag-picker.component';
 export * from './lib/components/data-explorer/data-explorer.component';
+export * from './lib/components/dashboards/dashboards.component';
 
 export * from './lib/ng-kinintel.module';

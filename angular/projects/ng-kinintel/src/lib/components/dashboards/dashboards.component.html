@@ -1,13 +1,13 @@
 <div class="container mx-auto max-w-screen-lg">
 
-    <h2>Datasets</h2>
+    <h2>Dashboards</h2>
 
     <div class="bg-white p-6 content-wrapper">
         <div class="mb-8">
             <input class="full" type="text" placeholder="Search for a datasource" (keyup)="searchText.next($event.target.value)">
         </div>
 
-        <table mat-table [dataSource]="datasets">
+        <table mat-table [dataSource]="dashboards">
 
             <!-- Position Column -->
             <ng-container matColumnDef="datasource">
@@ -25,7 +25,7 @@
             <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
             <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
         </table>
-        <mat-paginator [length]="datasets.length"
+        <mat-paginator [length]="dashboards.length"
                        [pageSize]="10"
                        [pageSizeOptions]="[5, 10, 25, 100]">
         </mat-paginator>
