@@ -141,6 +141,7 @@ class WebServiceDatasource extends BaseDatasource {
             $this->pagingTransformations[] = $transformation;
         }
 
+        return $this;
 
     }
 

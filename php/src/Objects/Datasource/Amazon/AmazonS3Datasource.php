@@ -50,6 +50,8 @@ class AmazonS3Datasource extends BaseDatasource {
         // Track paging transformations
         if ($transformation instanceof PagingTransformation)
             $this->pagingTransformations[] = $transformation;
+
+        return $this;
     }
 
     /**
