@@ -121,4 +121,26 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testOffsetAndLimitIsImplementedWhenSupplied(){
+
+        $formatter = new JSONResultFormatter("results");
+
+
+        // Regular key / value pairs
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode(["results" => [
+            ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
+        ]])));
+
+
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
+
+        $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
+        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
+
+    }
+
+
 }

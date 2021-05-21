@@ -8,6 +8,7 @@ use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Test\Objects\Datasource\TestAuthenticationCredentialsAlt;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 
 include_once "autoloader.php";
@@ -30,7 +31,7 @@ class DatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfConfigOfWrongTypeSuppliedExceptionRaised() {
 
-        $dataSource = new TestDatasource(DatasourceConfig::class);
+        $dataSource = new TestDatasource(WebserviceDataSourceConfig::class);
 
         try {
             $dataSource->setConfig(new TestDatasourceConfig());

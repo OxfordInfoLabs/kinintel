@@ -117,17 +117,19 @@ class SVResultFormatter implements ResultFormatter {
      * Format the value string
      *
      * @param ReadableStream $result
+     * @param int $limit
+     * @param int $offset
      * @return Dataset
      */
-    public function format($readableStream) {
+    public function format($stream, $limit = PHP_INT_MAX, $offset = 0) {
 
         $columns = [];
 
         if ($this->firstRowHeader) {
-            $columns = $this->processHeaderRow($readableStream);
+            $columns = $this->processHeaderRow($stream);
         }
 
-        return new SVStreamTabularDataSet($columns, $readableStream, $this->separator, $this->enclosure);
+        return new SVStreamTabularDataSet($columns, $stream, $this->separator, $this->enclosure);
 
 
     }

@@ -98,13 +98,16 @@ abstract class BaseDatasource implements Datasource {
 
         // If a config supplied where no config class throw an exception
         if ($config) {
+
+
             if (!$this->getConfigClass()) {
                 throw new InvalidDatasourceConfigException(["config" => [
                     "wrongtype" =>
                         new FieldValidationError("config", "wrongtype", "Config supplied to data source when none is required")
 
                 ]]);
-            } else if ($this->getConfigClass() !== get_class($config)) {
+
+            } else if ($this->getConfigClass() !== get_class($config) && !is_subclass_of($config, $this->getConfigClass())) {
                 throw new InvalidDatasourceConfigException(["config" => [
                     "wrongtype" =>
                         new FieldValidationError("config", "wrongtype", "Config supplied is of wrong type for data source")

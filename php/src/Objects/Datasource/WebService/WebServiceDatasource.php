@@ -13,6 +13,7 @@ use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthentication
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 /**
  * Generic web service data source - should be subclassed with format specific webservice classes.
@@ -38,6 +39,11 @@ class WebServiceDatasource extends BaseDatasource {
      */
     private $params = [];
 
+    /**
+     * @var PagingTransformation[]
+     */
+    private $pagingTransformations = [];
+
 
     /**
      * Extensible supported auth credentials
@@ -50,10 +56,10 @@ class WebServiceDatasource extends BaseDatasource {
     ];
 
 
-    public function __construct($config = null, $authenticationCredentials = null) {
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null) {
 
         // Construct parent
-        parent::__construct($config, $authenticationCredentials);
+        parent::__construct($config, $authenticationCredentials, $validator);
 
         $this->dispatcher = Container::instance()->get(HttpRequestDispatcher::class);
         $this->templateParser = Container::instance()->get(TemplateParser::class);
@@ -93,7 +99,7 @@ class WebServiceDatasource extends BaseDatasource {
      * @return string[]
      */
     public function getSupportedTransformationClasses() {
-        return [FilterTransformation::class];
+        return [FilterTransformation::class, PagingTransformation::class];
     }
 
 
@@ -131,6 +137,8 @@ class WebServiceDatasource extends BaseDatasource {
             // Set params
             $this->params = array_merge($this->params, $filterValues);
 
+        } else if ($transformation instanceof PagingTransformation) {
+            $this->pagingTransformations[] = $transformation;
         }
 
 
@@ -178,8 +186,17 @@ class WebServiceDatasource extends BaseDatasource {
         // Dispatch the request and return a response
         $response = $this->dispatcher->dispatch($request);
 
+        $offset = 0;
+        $limit = PHP_INT_MAX;
+
+        // Increment the offset and limit accordingly.
+        foreach ($this->pagingTransformations as $pagingTransformation) {
+            $offset += $pagingTransformation->getOffset();
+            $limit = $pagingTransformation->getLimit();
+        }
+
         // Materialise the web service result and return the result
-        return $config->returnFormatter()->format($response->getStream());
+        return $config->returnFormatter()->format($response->getStream(), $limit, $offset);
 
     }
 

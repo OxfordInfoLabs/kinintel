@@ -78,9 +78,11 @@ class JSONResultFormatter implements ResultFormatter {
      * Map the result from the webservice to JSON using configured rules
      *
      * @param ReadableStream $stream
+     * @param int $limit
+     * @param int $offset
      * @return Dataset
      */
-    public function format($stream) {
+    public function format($stream, $limit = PHP_INT_MAX, $offset = 0) {
 
         $columns = [];
         $data = [];

@@ -9,13 +9,16 @@ use Kinikit\Core\HTTP\Response\Response;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Core\Validation\Validator;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\ResultFormatter\ResultFormatter;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 include_once "autoloader.php";
 
@@ -197,6 +200,72 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "value" => "Bosh"
             ]
         ]), $response);
+
+
+    }
+
+
+    public function testIfPagingTransformationsAppliedToDatasourceTheyAreStoredAndAppliedToFormatterAtMaterialise() {
+
+        $stream = new ReadOnlyStringStream('[{"name": "Bob"},{"name": "Pete"},{"name": "Rose"}]');
+        $expectedResponse = new Response($stream, 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET));
+
+        $config = MockObjectProvider::instance()->getMockInstance(WebserviceDataSourceConfig::class);
+        $formatter = MockObjectProvider::instance()->getMockInstance(ResultFormatter::class);
+        $config->returnValue("returnFormatter", $formatter);
+        $config->returnValue("getUrl", "https://mytest.com");
+        $config->returnValue("getMethod", Request::METHOD_GET);
+
+
+        $validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
+
+        // Check default offset and limit passed when no transformations
+        $request = new TestWebServiceDataSource($config, null, $validator);
+        $request->setDispatcher($this->httpDispatcher);
+
+        // Materialise
+        $request->materialiseDataset();
+
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, PHP_INT_MAX, 0]));
+
+
+        // Check limit passed correctly when supplied
+        $request = new TestWebServiceDataSource($config, null, $validator);
+        $request->setDispatcher($this->httpDispatcher);
+
+        $request->applyTransformation(new PagingTransformation(100));
+
+        // Materialise
+        $request->materialiseDataset();
+
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, 100, 0]));
+
+
+        // Check offset passed correctly when supplied
+        $request = new TestWebServiceDataSource($config, null, $validator);
+        $request->setDispatcher($this->httpDispatcher);
+
+        $request->applyTransformation(new PagingTransformation(100,10));
+
+        // Materialise
+        $request->materialiseDataset();
+
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, 100, 10]));
+
+
+        // Apply a second transformation
+        $request->applyTransformation(new PagingTransformation(20, 20));
+        // Materialise
+        $request->materialiseDataset();
+
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, 20, 30]));
 
 
     }
