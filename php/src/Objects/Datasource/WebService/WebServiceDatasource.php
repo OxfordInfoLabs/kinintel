@@ -165,7 +165,7 @@ class WebServiceDatasource extends BaseDatasource {
          * @var WebserviceDataSourceConfig $config
          */
         $config = $this->getConfig();
-        $params = array_merge($config->getParams(), $this->params);
+        $params = array_merge($config->getParams() ?? [], $this->params);
 
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
             $payload = $this->templateParser->parseTemplateText($config->getPayloadTemplate(), $params);
