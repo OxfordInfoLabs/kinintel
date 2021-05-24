@@ -87,7 +87,7 @@ class DashboardService {
         }
 
 
-        $query .= "ORDER BY title LIMIT $limit OFFSET $offset";
+        $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
 
         // Return a summary array
         return array_map(function ($instance) {
