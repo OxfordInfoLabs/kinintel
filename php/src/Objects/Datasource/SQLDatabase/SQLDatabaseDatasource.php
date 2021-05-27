@@ -19,6 +19,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
@@ -76,7 +77,8 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
     public function getSupportedTransformationClasses() {
         return [
             FilterTransformation::class,
-            MultiSortTransformation::class
+            MultiSortTransformation::class,
+            PagingTransformation::class
         ];
     }
 

@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {BehaviorSubject, Subject} from 'rxjs';
 
@@ -17,6 +17,7 @@ export class TagPickerComponent implements OnInit {
     public activeTag: any = {};
     public newName;
     public newDescription;
+    public environment: any = {};
 
     private tagService: any;
 
@@ -26,6 +27,7 @@ export class TagPickerComponent implements OnInit {
 
     ngOnInit(): void {
         this.tagService = this.data.tagService;
+        this.environment = this.data.environment || {};
 
         this.activeTag = this.tagService.activeTag.getValue() || {};
 

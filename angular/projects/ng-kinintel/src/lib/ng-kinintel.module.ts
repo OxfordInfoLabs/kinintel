@@ -6,7 +6,6 @@ import {ChartsModule} from 'ng2-charts';
 import { ItemComponentComponent } from './components/dashboard-editor/item-component/item-component.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {CommonModule} from '@angular/common';
-import { GridsterModule } from 'angular2gridster';
 import { ConfigureItemComponent } from './components/dashboard-editor/configure-item/configure-item.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {NgxResizableModule} from '@3dgenomes/ngx-resizable';
@@ -28,6 +27,8 @@ import { DatasetFilterComponent } from './components/dataset/dataset-editor/data
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 import { TagPickerComponent } from './components/tag-picker/tag-picker.component';
 import { DashboardsComponent } from './components/dashboards/dashboards.component';
+import { DatasetFilterJunctionComponent } from './components/dataset/dataset-editor/dataset-filter-junction/dataset-filter-junction.component';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { DashboardsComponent } from './components/dashboards/dashboards.componen
         DatasetFilterComponent,
         DataExplorerComponent,
         TagPickerComponent,
-        DashboardsComponent
+        DashboardsComponent,
+        DatasetFilterJunctionComponent
     ],
     imports: [
         BrowserModule,
@@ -50,7 +52,6 @@ import { DashboardsComponent } from './components/dashboards/dashboards.componen
         MatButtonModule,
         MatIconModule,
         ChartsModule,
-        GridsterModule.forRoot(),
         MatDialogModule,
         NgxResizableModule,
         MatMenuModule,
@@ -62,7 +63,8 @@ import { DashboardsComponent } from './components/dashboards/dashboards.componen
         MatPaginatorModule,
         MatSortModule,
         DragDropModule,
-        FormsModule
+        FormsModule,
+        MatButtonToggleModule
     ],
     exports: [
         DashboardEditorComponent,

@@ -40,6 +40,6 @@ class MultiSortTransformation implements Transformation, SQLDatabaseTransformati
 
 
     public function getSQLTransformationProcessorKey() {
-        return "sort";
+        return "multisort";
     }
 }

@@ -1,1 +1,23 @@
-<p>dataset-filter works!</p>
+<div class="filter">
+
+    <select [(ngModel)]="filter.fieldName" class="mr-4">
+        <option value="">Column Name</option>
+        <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
+    </select>
+
+    <select [(ngModel)]="filter.filterType" class="mr-4">
+        <option value="">Condition</option>
+        <option [value]="filterType.value" *ngFor="let filterType of filterTypes">
+            {{filterType.label}}
+        </option>
+    </select>
+
+    <input type="text" [(ngModel)]="filter.value" placeholder="Value" class="mr-4">
+
+    <div>
+        <button mat-icon-button color="warn" title="Remove filter" (click)="removeFilter()">
+            <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+    </div>
+
+</div>

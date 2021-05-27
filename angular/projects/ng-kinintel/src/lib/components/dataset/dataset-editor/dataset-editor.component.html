@@ -1,105 +1,54 @@
 <div class="cell-header">
     <button mat-stroked-button color="primary">Connect Datasource</button>
     <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
-        <ng-template [ngIf]="!showFilters">Add</ng-template>
+        <ng-template [ngIf]="!showFilters">Show</ng-template>
         <ng-template [ngIf]="showFilters">Hide</ng-template>
-        Filter
+        Filters
     </button>
 </div>
-<div class="filters" *ngIf="showFilters">
+<div class="filters mt-4" *ngIf="showFilters">
 
-    <ng-template ngFor let-filter [ngForOf]="filters">
-
-        <ng-template [ngIf]="filter.type === 'single'">
-            <div class="filter">
-                <select [(ngModel)]="filter.andOr" [ngStyle]="{visibility: filters.length ? 'visible': 'hidden'}">
-                    <option value="AND">AND</option>
-                    <option value="OR">OR</option>
-                </select>
-                <select [(ngModel)]="filter.column">
-                    <option value="">Column Name</option>
-                    <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
-                </select>
-
-                <select [(ngModel)]="filter.condition">
-                    <option value="">Condition</option>
-                    <option value="==">(==) equal to</option>
-                    <option value="!==">(!=) not equal to</option>
-                    <option value=">">(>) greater than</option>
-                    <option value=">=">(>=) greater than or equal to</option>
-                    <option value="<">(<) less than</option>
-                    <option value="<=">(<=) less than or equal to</option>
-                </select>
-
-                <input type="text" [(ngModel)]="filter.value" placeholder="Value">
-            </div>
-        </ng-template>
-
-        <ng-template [ngIf]="filter.type === 'group'">
-
-            <div class="group-filters">
-                <ng-template ngFor let-groupFilter [ngForOf]="filter.group">
-
-                    <div class="filter">
-                        <select [(ngModel)]="groupFilter.andOr"
-                                [ngStyle]="{visibility: filters.length ? 'visible': 'hidden'}">
-                            <option value="AND">AND</option>
-                            <option value="OR">OR</option>
-                        </select>
-                        <select [(ngModel)]="groupFilter.column">
-                            <option value="">Column Name</option>
-                            <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
-                        </select>
-
-                        <select [(ngModel)]="groupFilter.condition">
-                            <option value="">Condition</option>
-                            <option value="==">(==) equal to</option>
-                            <option value="!==">(!=) not equal to</option>
-                            <option value=">">(>) greater than</option>
-                            <option value=">=">(>=) greater than or equal to</option>
-                            <option value="<">(<) less than</option>
-                            <option value="<=">(<=) less than or equal to</option>
-                        </select>
-
-                        <input type="text" [(ngModel)]="groupFilter.value" placeholder="Value">
-                    </div>
-                </ng-template>
-            </div>
-
-        </ng-template>
+    <div class="flex align-center justify-between">
+        <mat-button-toggle-group [(ngModel)]="filterJunction.logic">
+            <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
+            <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
+        </mat-button-toggle-group>
+        <div>
+            <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
+                <mat-icon>add_circle</mat-icon>
+                filter
+            </button>
+            <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')"
+                    [disabled]="!filterJunction.filters.length">
+                <mat-icon>playlist_add</mat-icon>
+                filter group
+            </button>
+        </div>
+    </div>
+    <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
+        <ki-dataset-filter class="first" [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
+                           [filterFields]="filterFields"></ki-dataset-filter>
     </ng-template>
 
-    <!--    <mat-icon>filter_alt</mat-icon>-->
-    <!--    <select #andOr [ngStyle]="{visibility: _.filter(transformations, {type: 'filter'}).length ? 'visible': 'hidden'}">-->
-    <!--        <option value="AND">AND</option>-->
-    <!--        <option value="OR">OR</option>-->
-    <!--    </select>-->
-    <!--    <select #field>-->
-    <!--        <option value="">Column Name</option>-->
-    <!--        <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>-->
-    <!--    </select>-->
 
-    <!--    <select #condition>-->
-    <!--        <option value="">Condition</option>-->
-    <!--        <option value="==">(==) equal to</option>-->
-    <!--        <option value="!==">(!=) not equal to</option>-->
-    <!--        <option value=">">(>) greater than</option>-->
-    <!--        <option value=">=">(>=) greater than or equal to</option>-->
-    <!--        <option value="<">(<) less than</option>-->
-    <!--        <option value="<=">(<=) less than or equal to</option>-->
-    <!--    </select>-->
+    <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions">
+        <ki-dataset-filter-junction [filterJunction]="junction"
+                                    [filterFields]="filterFields"></ki-dataset-filter-junction>
+    </div>
 
-    <!--    <input type="text" #value placeholder="Value">-->
+    <div class="flex align-center justify-end mt-4">
+        <button mat-stroked-button color="primary" style="margin-right: .5rem" (click)="clearFilters()">Clear filters
+        </button>
+        <button mat-flat-button color="primary" (click)="applyFilters()"
+            [disabled]="!filterJunction.filters.length">Apply filters</button>
+    </div>
 
-    <!--    <button mat-flat-button color="primary" (click)="applyFilter(field, condition, value, andOr)">-->
-    <!--        Apply-->
-    <!--    </button>-->
 </div>
-<div class="cell-header" *ngIf="transformations.length">
-    <mat-chip-list>
-        <mat-chip *ngFor="let transformation of transformations; let i = index"
+<div class="cell-header">
+    <mat-chip-list *ngIf="multiSortConfig.length">
+        <mat-chip *ngFor="let sort of multiSortConfig; let i = index"
                   (removed)="removeFilter(i)">
-            {{transformation.string}}
+            {{sort.string}}
             <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
     </mat-chip-list>
@@ -119,7 +68,18 @@
 
 </table>
 
-<mat-paginator [length]="100"
-               [pageSize]="10"
-               [pageSizeOptions]="[5, 10, 25, 100]">
-</mat-paginator>
+<div class="flex align-center justify-end mt-4">
+    <select (change)="pageSizeChange($event.target.value)" class="mr-8">
+        <option [value]="25">25</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+        <option [value]="250">250</option>
+        <option [value]="1000">1000</option>
+    </select>
+    <button mat-icon-button class="mr-4"(click)="decreaseOffset()" [disabled]="page <= 1">
+        <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button mat-icon-button (click)="increaseOffset()">
+        <mat-icon>chevron_right</mat-icon>
+    </button>
+</div>

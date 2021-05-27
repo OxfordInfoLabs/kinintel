@@ -1,10 +1,10 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
     <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Tags</h2>
+        <h2 mat-dialog-title>{{environment.tagMenuLabel || 'Tags'}}</h2>
         <button mat-stroked-button color="primary" (click)="addNew = !addNew">
             <mat-icon>add</mat-icon>
-            New Tag
+            New {{environment.tagLabel || 'Tag'}}
         </button>
         <button mat-icon-button mat-dialog-close>
             <mat-icon>clear</mat-icon>
@@ -14,7 +14,7 @@
     <div class="dialog-content">
 
         <ng-template [ngIf]="!addNew">
-            <input class="full" type="text" placeholder="Search tags" (keyup)="searchText.next($event.target.value)">
+            <input class="full" type="text" placeholder="Search {{environment.tagMenuLabel || 'tags'}}" (keyup)="searchText.next($event.target.value)">
 
             <table class="hover">
                 <thead>

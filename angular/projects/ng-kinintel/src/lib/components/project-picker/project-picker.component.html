@@ -29,7 +29,7 @@
                 <tbody>
                 <tr *ngFor="let project of projects" (click)="activateProject(project)">
                     <td>
-                        <mat-icon color="primary" *ngIf="activeProject.projectKey === project.projectKey">check_circle</mat-icon>
+                        <mat-icon color="primary" *ngIf="activeProject && activeProject.projectKey === project.projectKey">check_circle</mat-icon>
                     </td>
                     <td>{{project.name}}</td>
                     <td>{{project.description}}</td>

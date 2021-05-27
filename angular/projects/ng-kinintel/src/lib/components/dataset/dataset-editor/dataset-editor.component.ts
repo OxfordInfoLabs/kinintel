@@ -1,6 +1,8 @@
-import {Component, Inject, Input, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as _ from 'lodash';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {BehaviorSubject} from 'rxjs';
+import {DatasetFilterComponent} from './dataset-filter/dataset-filter.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -10,31 +12,31 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 export class DatasetEditorComponent implements OnInit {
 
     @Input() datasource: any = {};
-    @Input() dataset: any;
+    @Input() datasetInstance: any;
+    @Input() datasetService: any;
 
+    @Output() dataLoaded = new EventEmitter<any>();
+
+    public dataset: any;
     public tableData = [];
     public showFilters = false;
     public displayedColumns = [];
     public _ = _;
     public filterFields = [];
-    public filters = [
-        {
-            type: 'single',
-            column: '',
-        },
-        {
-            type: 'group',
-            group: [
-                {
-                    column: '',
-                },
-                {
-                    column: ''
-                }
-            ]
-        }
-    ];
-    public transformations = [];
+    public filterJunction = {
+        logic: 'AND',
+        filters: [{
+            fieldName: '',
+            value: '',
+            filterType: ''
+        }],
+        filterJunctions: []
+    };
+    public multiSortConfig = [];
+    public page = 1;
+
+    private limit = 25;
+    private offset = 0;
 
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -45,49 +47,140 @@ export class DatasetEditorComponent implements OnInit {
             this.datasource = this.data.datasource;
         }
 
-        this.loadData();
+        if (!this.datasetInstance) {
+            this.datasetInstance = {
+                datasourceInstanceKey: this.datasource.key,
+                transformationInstances: []
+            };
+        }
+        this.evaluateDataset();
     }
 
-    public applyFilter(field, condition, value, andOr) {
-        const existingFilters = _.filter(this.transformations, {type: 'filter'});
-        const andOrValue = existingFilters.length ? andOr.value : '';
-        this.transformations.push({
-            type: 'filter',
-            column: field.value,
-            condition: condition.value,
-            value: value.value,
-            andOr: andOrValue,
-            string: andOrValue + ' ' + field.value + ' ' + condition.value + ' ' + value.value
-        });
-
-        field.value = '';
-        condition.value = '';
-        value.value = '';
+    public addFilter(type) {
+        if (type === 'single') {
+            this.filterJunction.filters.push({
+                fieldName: '',
+                value: '',
+                filterType: ''
+            });
+        } else if (type === 'group') {
+            this.filterJunction.filterJunctions.push({
+                logic: 'AND',
+                filters: [{
+                    fieldName: '',
+                    value: '',
+                    filterType: ''
+                }],
+                filterJunctions: []
+            });
+        }
     }
 
     public removeFilter(index) {
-        this.transformations.splice(index, 1);
+        this.multiSortConfig.splice(index, 1);
+        this.setMultiSortValues();
+    }
+
+    public applyFilters() {
+        const filterTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'filter'});
+        if (filterTransformation) {
+            filterTransformation.config = this.filterJunction;
+        } else {
+            this.datasetInstance.transformationInstances.push({
+                type: 'filter',
+                config: this.filterJunction
+            });
+        }
+
+        this.evaluateDataset();
+    }
+
+    public clearFilters() {
+        this.filterJunction = {
+            logic: 'AND',
+            filters: [{
+                fieldName: '',
+                value: '',
+                filterType: ''
+            }],
+            filterJunctions: []
+        };
+
+        const filterTransformation = _.findIndex(this.datasetInstance.transformationInstances, {type: 'filter'});
+        if (filterTransformation > -1) {
+            this.datasetInstance.transformationInstances.splice(filterTransformation, 1);
+        }
+        this.evaluateDataset();
+    }
+
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.evaluateDataset();
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.evaluateDataset();
+    }
+
+    public pageSizeChange(value) {
+        this.limit = value;
+        this.evaluateDataset();
     }
 
     public sort(event) {
         const column = event.active;
-        const direction = _.upperCase(event.direction);
-        const existingIndex = _.findIndex(this.transformations, {type: 'sort', column});
+        const direction = event.direction;
+        const existingIndex = _.findIndex(this.multiSortConfig, {type: 'sort', column});
         if (existingIndex > -1) {
             if (!direction) {
-                this.transformations.splice(existingIndex, 1);
+                this.multiSortConfig.splice(existingIndex, 1);
             } else {
-                this.transformations[existingIndex].direction = direction;
-                this.transformations[existingIndex].string = 'Sort ' + _.startCase(column) + ' ' + direction;
+                this.multiSortConfig[existingIndex].direction = direction;
+                this.multiSortConfig[existingIndex].string = 'Sort ' + _.startCase(column) + ' ' + direction;
             }
         } else {
-            this.transformations.push({
+            this.multiSortConfig.push({
                 type: 'sort',
                 column,
                 direction,
                 string: 'Sort ' + _.startCase(column) + ' ' + direction
             });
         }
+
+        this.setMultiSortValues();
+    }
+
+    private setMultiSortValues() {
+        if (!this.multiSortConfig.length) {
+            const sortIndex = _.findIndex(this.datasetInstance.transformationInstances, {type: 'multisort'});
+            if (sortIndex > -1) {
+                this.datasetInstance.transformationInstances.splice(sortIndex, 1);
+            }
+        } else {
+            const multiSortTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'multisort'});
+            if (multiSortTransformation) {
+                multiSortTransformation.config.sorts = _.map(this.multiSortConfig, item => {
+                    return {fieldName: item.column, direction: item.direction};
+                });
+            } else {
+                this.datasetInstance.transformationInstances.push(
+                    {
+                        type: 'multisort',
+                        config: {
+                            sorts: _.map(this.multiSortConfig, item => {
+                                return {fieldName: item.column, direction: item.direction};
+                            })
+                        }
+                    }
+                );
+            }
+        }
+
+
+        this.evaluateDataset();
     }
 
     private loadData() {
@@ -98,6 +191,20 @@ export class DatasetEditorComponent implements OnInit {
                 label: column.title,
                 value: column.name
             };
+        });
+        this.dataLoaded.emit(this.dataset);
+    }
+
+    private evaluateDataset() {
+        this.datasetService.evaluateDataset(this.datasetInstance, [{
+            type: 'paging',
+            config: {
+                limit: this.limit,
+                offset: this.offset
+            }
+        }]).then(dataset => {
+            this.dataset = dataset;
+            this.loadData();
         });
     }
 

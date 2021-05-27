@@ -1,0 +1,25 @@
+:host
+    background-color: whitesmoke
+    padding: .5rem 1rem
+    display: block
+    position: relative
+    &:not(.first)
+        &::before
+            content: ""
+            height: 45%
+            position: absolute
+            left: -2rem
+            width: 2rem
+            border-bottom: 2px solid #bdbdbd
+.filter
+    display: flex
+    align-items: center
+
+    margin: .5rem 0
+    position: relative
+
+.group-filters
+    margin-left: 2rem
+    padding-left: 2rem
+    position: relative
+    border-left: 2px solid #bdbdbd

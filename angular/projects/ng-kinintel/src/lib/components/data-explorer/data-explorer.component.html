@@ -1,7 +1,10 @@
 <div class="configure-header">
-    <ng-template [ngIf]="!datasetInstance.title">Data Explorer</ng-template>
-    <ng-template [ngIf]="datasetInstance.title">{{datasetInstance.title}}</ng-template>
-
+    <ng-template [ngIf]="datasetInstance && datasetInstance.title">
+        {{datasetInstance.title}}
+    </ng-template>
+    <ng-template [ngIf]="!datasetInstance || !datasetInstance.title">
+        Data Explorer
+    </ng-template>
     <button mat-icon-button mat-dialog-close>
         <mat-icon>close</mat-icon>
     </button>
@@ -14,7 +17,8 @@
         <rsz-layout class="cell left" [directions]="['right']" [rFlex]="true"
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents">
-                <ki-dataset-editor *ngIf="dataset" [dataset]="dataset"></ki-dataset-editor>
+                <ki-dataset-editor  [datasetInstance]="datasetInstance" [datasetService]="datasetService"
+                    [datasource]="datasource" (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
             </div>
         </rsz-layout>
 

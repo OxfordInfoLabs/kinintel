@@ -14,8 +14,8 @@ export class DataExplorerComponent implements OnInit {
     public datasource: any;
     public dataset: any;
     public datasetInstance: any;
-
-    private datasetService: any;
+    public filters: any;
+    public datasetService: any;
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -27,19 +27,14 @@ export class DataExplorerComponent implements OnInit {
         this.datasetInstance = this.data.dataset;
         this.datasetService = this.data.datasetService;
 
-        if (!this.datasetInstance) {
-            this.datasetInstance = {datasourceInstanceKey: this.datasource.key};
-        }
-
-        this.datasetService.evaluateDataset(this.datasetInstance).then(dataset => {
-            console.log(dataset);
-            this.dataset = dataset;
-        });
-
         this.chartData = [
             {data: [1000, 1400, 1999, 2500, 5000]},
         ];
 
+    }
+
+    public dataLoaded(data) {
+        console.log('Data loaded', data);
     }
 
 }

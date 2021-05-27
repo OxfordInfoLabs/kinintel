@@ -13,6 +13,7 @@ export class ProjectPickerComponent implements OnInit {
 
 
     public projectService: any;
+    public tagService: any;
     public projects: any = [];
     public addNew = false;
     public newName;
@@ -28,6 +29,7 @@ export class ProjectPickerComponent implements OnInit {
 
     ngOnInit(): void {
         this.projectService = this.data.projectService;
+        this.tagService = this.data.tagService;
 
         this.activeProject = this.projectService.activeProject.getValue();
 
@@ -66,6 +68,7 @@ export class ProjectPickerComponent implements OnInit {
 
     public activateProject(project) {
         this.projectService.setActiveProject(project);
+        this.tagService.resetActiveTag();
         this.dialogRef.close();
     }
 

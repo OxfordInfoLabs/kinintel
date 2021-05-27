@@ -1,5 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {BehaviorSubject, merge} from 'rxjs';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -9,29 +9,51 @@ import {MatDialog} from '@angular/material/dialog';
     templateUrl: './dataset.component.html',
     styleUrls: ['./dataset.component.sass']
 })
-export class DatasetComponent implements OnInit {
+export class DatasetComponent implements OnInit, OnDestroy {
 
     @Input() datasetService: any;
+    @Input() tagService: any;
+    @Input() projectService: any;
+    @Input() environment: any = {};
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
     public offset = new BehaviorSubject(0);
+    public activeTagSub = new Subject();
+    public projectSub = new Subject();
+
+    public activeTag: any;
+
+    private tagSub: Subscription;
 
     constructor(private dialog: MatDialog) {
     }
 
     ngOnInit(): void {
-        merge(this.searchText, this.limit, this.offset)
+        if (this.tagService) {
+            this.activeTagSub = this.tagService.activeTag;
+            this.tagSub = this.tagService.activeTag.subscribe(tag => this.activeTag = tag);
+        }
+
+        if (this.projectService) {
+            this.projectSub = this.projectService.activeProject;
+        }
+
+        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub)
             .pipe(
                 debounceTime(300),
-                distinctUntilChanged(),
+                // distinctUntilChanged(),
                 switchMap(() =>
                     this.getDatasets()
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
         });
+    }
+
+    ngOnDestroy() {
+        this.tagSub.unsubscribe();
     }
 
     public view(datasetId) {
@@ -52,6 +74,10 @@ export class DatasetComponent implements OnInit {
 
             });
         });
+    }
+
+    public removeActiveTag() {
+        this.tagService.resetActiveTag();
     }
 
     private getDatasets() {
