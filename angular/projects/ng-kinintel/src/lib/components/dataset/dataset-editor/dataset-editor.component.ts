@@ -34,6 +34,7 @@ export class DatasetEditorComponent implements OnInit {
     };
     public multiSortConfig = [];
     public page = 1;
+    public endOfResults = false;
 
     private limit = 25;
     private offset = 0;
@@ -185,6 +186,7 @@ export class DatasetEditorComponent implements OnInit {
 
     private loadData() {
         this.tableData = this.dataset.allData;
+        this.endOfResults = this.tableData.length < this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
