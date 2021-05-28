@@ -54,8 +54,8 @@
     </mat-chip-list>
 </div>
 
-<table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)">
-
+<table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
+    class="block overflow-x-auto">
     <ng-template ngFor let-column [ngForOf]="displayedColumns">
         <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> {{_.startCase(column)}} </th>
