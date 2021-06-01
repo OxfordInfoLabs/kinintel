@@ -17,6 +17,7 @@ use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceTypeException;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Parameter\Parameter;
 
 /**
  * Data source instance - can be stored in database table
@@ -75,6 +76,13 @@ class DatasourceInstance extends DatasourceInstanceSummary {
 
 
     /**
+     * @var Parameter[]
+     * @json
+     */
+    private $parameters;
+
+
+    /**
      * @var ObjectTag[]
      * @oneToMany
      * @childJoinColumns object_id, object_type=KiDatasourceInstance
@@ -92,13 +100,14 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * @param string $credentialsType
      * @param mixed $credentialsConfig
      */
-    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = []) {
+    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $parameters = []) {
         parent::__construct($key, $title);
         $this->type = $type;
         $this->config = $config;
         $this->credentialsKey = $credentialsKey;
         $this->credentialsType = $credentialsType;
         $this->credentialsConfig = $credentialsConfig;
+        $this->parameters = $parameters;
     }
 
 
@@ -185,6 +194,21 @@ class DatasourceInstance extends DatasourceInstanceSummary {
     public function setCredentialsConfig($credentialsConfig) {
         $this->credentialsConfig = $credentialsConfig;
     }
+
+    /**
+     * @return Parameter[]
+     */
+    public function getParameters() {
+        return $this->parameters;
+    }
+
+    /**
+     * @param Parameter[] $parameters
+     */
+    public function setParameters($parameters) {
+        $this->parameters = $parameters;
+    }
+
 
     /**
      * @return ObjectTag[]

@@ -155,76 +155,19 @@ class DatasetService {
         return $evaluatedDataSource->materialise();
     }
 
-
     /**
-     * Get the evaluated data source for a data set instance.  This is the resultant
-     * data source returned after all transformations have been applied
+     * Get an evaluated data source for a dataset instance
      *
      * @param DatasetInstanceSummary $dataSetInstance
      * @param TransformationInstance[] $additionalTransformations
-     *
-     * @return BaseDatasource
      */
     public function getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
 
+        $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
 
-        // Grab the datasource for this data set instance by key
-        $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($dataSetInstance->getDatasourceInstanceKey());
+        return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), [],
+            $transformations);
 
-        // Grab the data source for this instance
-        $datasource = $datasourceInstance->returnDataSource();
-
-        // If we have transformation instances, apply these in sequence
-        if ($dataSetInstance->getTransformationInstances()) {
-            $datasource = $this->applyTransformationsToDatasource($datasource, $dataSetInstance->getTransformationInstances());
-        }
-
-        // If we have additional transformations, apply these in sequence
-        if ($additionalTransformations ?? []) {
-            $datasource = $this->applyTransformationsToDatasource($datasource, $additionalTransformations);
-        }
-
-        // Return the evaluated data source
-        return $datasource;
-
-    }
-
-
-    /**
-     * Apply the transformation instances to the supplied data source and return
-     * a new datasource.
-     *
-     * @param Datasource $datasource
-     * @param TransformationInstance[] $transformationInstances
-     */
-    private function applyTransformationsToDatasource($datasource, $transformationInstances) {
-        foreach ($transformationInstances as $transformationInstance) {
-            $transformation = $transformationInstance->returnTransformation();
-
-            if ($this->isTransformationSupported($datasource, $transformation)) {
-                $datasource = $datasource->applyTransformation($transformation);
-            } else if ($datasource instanceof DefaultDatasource) {
-                throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
-            } else {
-                $defaultDatasource = new DefaultDatasource($datasource);
-                if ($this->isTransformationSupported($defaultDatasource, $transformation))
-                    $datasource = $defaultDatasource->applyTransformation($transformation);
-                else
-                    throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
-            }
-
-        }
-        return $datasource;
-    }
-
-    // Check whether a transformation is supported by a datasource
-    private function isTransformationSupported($datasource, $transformation) {
-        foreach ($datasource->getSupportedTransformationClasses() ?? [] as $supportedTransformationClass) {
-            if (is_a($transformation, $supportedTransformationClass) || is_subclass_of($transformation, $supportedTransformationClass)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 

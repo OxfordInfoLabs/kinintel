@@ -57,11 +57,11 @@ class TestDatasource extends BaseDatasource {
     }
 
 
-    public function applyTransformation($transformation) {
+    public function applyTransformation($transformation, $parameterValues = []) {
         // TODO: Implement applyQuery() method.
     }
 
-    public function materialiseDataset() {
+    public function materialiseDataset($parameterValues = []) {
         // TODO: Implement materialise() method.
     }
 }

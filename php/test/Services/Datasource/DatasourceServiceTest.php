@@ -6,11 +6,22 @@ namespace Kinintel\Services\Datasource;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\ItemNotFoundException;
+use Kinikit\Core\Testing\MockObject;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Exception\UnsupportedDatasourceTransformationException;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
+use Kinintel\Objects\Datasource\DefaultDatasource;
+use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\TestTransformation;
+use Kinintel\ValueObjects\Transformation\Transformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 
@@ -23,93 +34,202 @@ class DatasourceServiceTest extends TestBase {
 
 
     /**
+     * @var MockObject
+     */
+    private $datasourceDAO;
+
+    /**
      * Set up
      */
     public function setUp(): void {
-        $this->dataSourceService = Container::instance()->get(DatasourceService::class);
+        $this->datasourceDAO = MockObjectProvider::instance()->getMockInstance(DatasourceDAO::class);
+        $this->dataSourceService = new DatasourceService($this->datasourceDAO);
     }
 
-    public function testCanGetFileSystemDataSourceInstancesByKey() {
 
-        // Creds Key
-        $dataSource = $this->dataSourceService->getDataSourceInstanceByKey("test-json");
-
-        $this->assertEquals(new DatasourceInstance("test-json", "Test JSON Datasource",
-            "webservice", ["url" => "https://test-json.com/feed"],
-            "http-basic"
-        ), $dataSource);
+    public function testDataSourceReturnedIfDataSetWithNoTransformationsPassedToEvaluateFunction() {
 
 
-        // Explicit Creds
-        $dataSource = $this->dataSourceService->getDataSourceInstanceByKey("test-json-explicit-creds");
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
-        $this->assertEquals(new DatasourceInstance("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds",
-            "webservice", ["url" => "https://test-json.com/feed"],
-            null, "http-basic", [
-                "username" => "mark",
-                "password" => "test"
-            ]
-        ), $dataSource);
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $this->assertEquals($dataSource, $this->dataSourceService->getEvaluatedDataSource("test"));
 
 
     }
 
 
-    public function testCanStoreAndRetrieveAndRemoveTopLevelDatabaseDataSourceInstances() {
+    public function testTransformationsAppliedInSequenceForSupportedTransformations() {
 
-        AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "webservice", [
-            "url" => "https://json-test.com/dbfeed"
-        ], "http-basic");
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
 
-        $this->dataSourceService->saveDataSourceInstance($dataSourceInstance);
 
-        $reSource = $this->dataSourceService->getDataSourceInstanceByKey("db-json");
-        $this->assertEquals($dataSourceInstance, $reSource);
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
 
-        $this->dataSourceService->removeDataSourceInstance("db-json");
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+        $transformation2 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+        $transformation3 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+
+
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance2 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance3 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+        $transformationInstance2->returnValue("returnTransformation", $transformation2);
+        $transformationInstance3->returnValue("returnTransformation", $transformation3);
+
+
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed2->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformed3 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+
+        $dataSource->returnValue("applyTransformation", $transformed1, [
+            $transformation1, []
+        ]);
+
+        $transformed1->returnValue("applyTransformation", $transformed2, [
+            $transformation2, []
+        ]);
+
+        $transformed2->returnValue("applyTransformation", $transformed3, [
+            $transformation3, []
+        ]);
+
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+
+        $this->assertEquals($transformed3, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3]));
+
+
+    }
+
+
+    public function testParameterValuesSuppliedToApplyTransformationOnEvaluate() {
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+
+        $dataSource->returnValue("applyTransformation", $transformed1, [
+            $transformation1, ["param1" => "Joe", "param2" => "Bloggs"]
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+
+        $this->assertEquals($transformed1, $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "Joe", "param2" => "Bloggs"], [$transformationInstance1]));
+
+
+    }
+
+
+    public function testDefaultDatasourceReturnedIfUnsupportedTransformationSuppliedAsPartOfDatasetOrAdditionalTransformations() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            TestTransformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(FilterTransformation::class);
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+
+        $expected = new DefaultDatasource($dataSource);
+        $expected->applyTransformation($transformation1);
+
+        $this->assertEquals($expected, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1]));
+
+
+    }
+
+
+    public function testExceptionRaisedIfDefaultDatasourceCannotHandleUnsupportedTransformationSuppliedAsPartOfDatasetOrAdditionalTransformations() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            TestTransformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(AnotherTestTransformation::class);
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
 
         try {
-            $this->dataSourceService->getDataSourceInstanceByKey("db-json");
+            $this->dataSourceService->getEvaluatedDataSource("test", [], [
+                $transformationInstance1
+            ]);
             $this->fail("Should have thrown here");
-        } catch (ObjectNotFoundException $e) {
-            // Success
+        } catch (UnsupportedDatasourceTransformationException $e) {
+            $this->assertTrue(true);
         }
-    }
 
-
-    public function testCanGetFilteredDatasourcesUsingBothDatabaseAndFilesystem() {
-
-        AuthenticationHelper::login("admin@kinicart.com", "password");
-
-        $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "webservice", [
-            "url" => "https://json-test.com/dbfeed"
-        ], "http-basic");
-        $dataSourceInstance->save();
-
-        $dataSourceInstance = new DatasourceInstance("db-sql", "Database SQL", "sqldatabase", [
-            "source" => "table",
-            "tableName" => "bob"
-        ], "http-basic");
-        $dataSourceInstance->save();
-
-
-        // Check a couple of filters
-        $filtered = $this->dataSourceService->filterDatasourceInstances("json");
-        $this->assertEquals(5, sizeof($filtered));
-
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource"), $filtered[1]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds"), $filtered[2]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config"), $filtered[3]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds"), $filtered[4]);
-
-        $filtered = $this->dataSourceService->filterDatasourceInstances("database");
-        $this->assertEquals(2, sizeof($filtered));
-
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[1]);
 
     }
 

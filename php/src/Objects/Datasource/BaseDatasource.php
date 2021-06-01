@@ -4,6 +4,7 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Validation\FieldValidationError;
+use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
@@ -11,6 +12,7 @@ use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
@@ -156,8 +158,9 @@ abstract class BaseDatasource implements Datasource {
 
     /**
      * Materialise the dataset having first checked any validation stuff
+     * @param array $parameterValues
      */
-    public function materialise() {
+    public function materialise($parameterValues = []) {
 
         if ($this->isAuthenticationRequired() && !$this->authenticationCredentials) {
             throw new MissingDatasourceAuthenticationCredentialsException(["authenticationCredentials" => [
@@ -166,27 +169,17 @@ abstract class BaseDatasource implements Datasource {
             ]]);
         }
 
-        return $this->materialiseDataset();
+        return $this->materialiseDataset($parameterValues);
     }
-
-
-    /**
-     * Apply a transformation to this data source and return a new (or the same) data source.
-     * This is primarily designed to facilitate query chaining using a MultiQuery
-     *
-     * @param Transformation $transformation
-     * @return BaseDatasource
-     */
-    public abstract function applyTransformation($transformation);
-
 
     /**
      * Materialise this data source (after any transformations have been applied)
      * and return a Dataset
      *
+     * @param array $parameterValues
      * @return Dataset
      */
-    public abstract function materialiseDataset();
+    public abstract function materialiseDataset($parameterValues = []);
 
 
     // Check whether the configured authentication class matches including subclasses

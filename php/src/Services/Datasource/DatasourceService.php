@@ -9,41 +9,31 @@ use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
+use Kinintel\Objects\Datasource\DefaultDatasource;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DatasourceService {
 
 
     /**
-     * @var FileResolver
+     * @var DatasourceDAO
      */
-    private $fileResolver;
-
+    private $datasourceDAO;
 
     /**
-     * @var JSONToObjectConverter
-     */
-    private $jsonToObjectConverter;
-
-
-    /**
-     * Cached file system credentials
+     * DatasourceService constructor.
      *
-     * @var DataSourceInstance[]
+     * @param DatasourceDAO $datasourceDAO
      */
-    private $fileSystemDataSources = null;
-
-    /**
-     * AuthenticationCredentialsService constructor.
-     *
-     * @param FileResolver $fileResolver
-     * @param JSONToObjectConverter $jsonToObjectConverter
-     */
-    public function __construct($fileResolver, $jsonToObjectConverter) {
-        $this->fileResolver = $fileResolver;
-        $this->jsonToObjectConverter = $jsonToObjectConverter;
+    public function __construct($datasourceDAO) {
+        $this->datasourceDAO = $datasourceDAO;
     }
 
 
@@ -56,34 +46,7 @@ class DatasourceService {
      * @param int $offset
      */
     public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0) {
-        $this->loadFileSystemDatasources();
-
-        // Firstly loop through the file system ones and gather any matches
-        $matches = [];
-        foreach ($this->fileSystemDataSources as $dataSource) {
-            if (!$filterString || is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
-                $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle());
-            }
-        }
-
-        // If still more to get, search the db.
-        $dbMatches = DatasourceInstance::filter("WHERE title LIKE ? LIMIT ?",
-            "%$filterString%", $limit - sizeof($matches));
-
-        $newMatches = array_map(function ($dbMatch) {
-            return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
-        }, $dbMatches);
-
-        $matches = array_merge($matches, $newMatches);
-
-        usort($matches, function ($x, $y) {
-            return ($x->getTitle() > $y->getTitle() ? 1 : -1);
-        });
-
-
-        return $matches;
-
-
+        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset);
     }
 
 
@@ -94,22 +57,7 @@ class DatasourceService {
      * @return DatasourceInstance
      */
     public function getDataSourceInstanceByKey($key) {
-
-        try {
-            return DatasourceInstance::fetch($key);
-        } catch (ObjectNotFoundException $e) {
-
-            // Ensure we have loaded any built in credentials
-            if ($this->fileSystemDataSources === null) {
-                $this->loadFileSystemDatasources();
-            }
-
-            if (isset($this->fileSystemDataSources[$key])) {
-                return $this->fileSystemDataSources[$key];
-            } else {
-                throw new ObjectNotFoundException(DatasourceInstance::class, $key);
-            }
-        }
+        return $this->datasourceDAO->getDataSourceInstanceByKey($key);
     }
 
 
@@ -119,7 +67,7 @@ class DatasourceService {
      * @param DatasourceInstance $dataSourceInstance
      */
     public function saveDataSourceInstance($dataSourceInstance) {
-        $dataSourceInstance->save();
+        $this->datasourceDAO->saveDataSourceInstance($dataSourceInstance);
     }
 
 
@@ -129,33 +77,75 @@ class DatasourceService {
      * @param $dataSourceInstanceKey
      */
     public function removeDatasourceInstance($dataSourceInstanceKey) {
-        try {
-            $dbDatasource = DatasourceInstance::fetch($dataSourceInstanceKey);
-            $dbDatasource->remove();
-        } catch (ObjectNotFoundException $e) {
-        }
+        $this->datasourceDAO->removeDatasourceInstance($dataSourceInstanceKey);
     }
 
-    // Load file system credentials
-    private function loadFileSystemDatasources() {
-        $this->fileSystemDataSources = [];
 
-        $searchPaths = $this->fileResolver->getSearchPaths();
-        foreach ($searchPaths as $searchPath) {
-            $dataSourceDir = $searchPath . "/Config/datasource";
-            if (file_exists($dataSourceDir)) {
-                $dataSources = scandir($dataSourceDir);
-                foreach ($dataSources as $dataSource) {
-                    if (strpos($dataSource, ".json")) {
-                        $splitFilename = explode(".", $dataSource);
-                        $instance = $this->jsonToObjectConverter->convert(file_get_contents($dataSourceDir . "/" . $dataSource), DataSourceInstance::class);
-                        $instance->setKey($splitFilename[0]);
-                        $this->fileSystemDataSources[$splitFilename[0]] = $instance;
-                    }
-                }
-            }
+    /**
+     * Get the evaluated data source for a source specified by key, using the supplied parameter values and applying the
+     * passed transformations
+     *
+     * @param DatasetInstanceSummary $dataSetInstance
+     * @param mixed[] $parameterValues
+     * @param TransformationInstance[] $additionalTransformations
+     *
+     * @return BaseDatasource
+     */
+    public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = []) {
+
+
+        // Grab the datasource for this data set instance by key
+        $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        // Grab the data source for this instance
+        $datasource = $datasourceInstance->returnDataSource();
+
+        // If we have transformations, apply these now
+        if ($transformations ?? []) {
+            $datasource = $this->applyTransformationsToDatasource($datasource, $transformations, $parameterValues);
         }
 
+        // Return the evaluated data source
+        return $datasource;
+
+    }
+
+
+    /**
+     * Apply the transformation instances to the supplied data source and return
+     * a new datasource.
+     *
+     * @param Datasource $datasource
+     * @param TransformationInstance[] $transformationInstances
+     */
+    private function applyTransformationsToDatasource($datasource, $transformationInstances, $parameterValues) {
+        foreach ($transformationInstances as $transformationInstance) {
+            $transformation = $transformationInstance->returnTransformation();
+
+            if ($this->isTransformationSupported($datasource, $transformation)) {
+                $datasource = $datasource->applyTransformation($transformation, $parameterValues);
+            } else if ($datasource instanceof DefaultDatasource) {
+                throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
+            } else {
+                $defaultDatasource = new DefaultDatasource($datasource);
+                if ($this->isTransformationSupported($defaultDatasource, $transformation))
+                    $datasource = $defaultDatasource->applyTransformation($transformation, $parameterValues);
+                else
+                    throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
+            }
+
+        }
+        return $datasource;
+    }
+
+    // Check whether a transformation is supported by a datasource
+    private function isTransformationSupported($datasource, $transformation) {
+        foreach ($datasource->getSupportedTransformationClasses() ?? [] as $supportedTransformationClass) {
+            if (is_a($transformation, $supportedTransformationClass) || is_subclass_of($transformation, $supportedTransformationClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

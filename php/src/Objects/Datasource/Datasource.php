@@ -10,6 +10,7 @@ use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
@@ -73,19 +74,23 @@ interface Datasource {
 
     /**
      * Apply a transformation to this data source and return a new (or the same) data source.
+     * Parameter values are passed if required by the transformation
      *
      * @param Transformation $transformation
+     * @param array $parameterValues
      * @return BaseDatasource
      */
-    public function applyTransformation($transformation);
+    public function applyTransformation($transformation, $parameterValues = []);
 
 
     /**
-     * Materialise this datasource to a dataset.
+     * Materialise this datasource to a dataset.  Parameter values are passed in
+     * if required to materialise this datasource.
      *
+     * @param array $parameterValues
      * @return Dataset
      */
-    public function materialise();
+    public function materialise($parameterValues = []);
 
 
 }

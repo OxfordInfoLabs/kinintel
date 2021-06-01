@@ -117,9 +117,10 @@ class WebServiceDatasource extends BaseDatasource {
      *
      *
      * @param Transformation $transformation
+     * @param array $parameterValues
      * @return BaseDatasource
      */
-    public function applyTransformation($transformation) {
+    public function applyTransformation($transformation, $parameterValues = []) {
 
         // If a filter query, attempt to use it
         if ($transformation instanceof FilterTransformation) {
@@ -148,9 +149,10 @@ class WebServiceDatasource extends BaseDatasource {
     /**
      * Return materialised result set
      *
+     * @param array $parameterValues
      * @return \Kinintel\ValueObjects\Dataset\Dataset
      */
-    public function materialiseDataset() {
+    public function materialiseDataset($parameterValues = []) {
 
         // Grab headers and params
         $headers = new Headers();

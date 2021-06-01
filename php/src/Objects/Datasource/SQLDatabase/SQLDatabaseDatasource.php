@@ -98,9 +98,10 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
      * provided it is of the right type
      *
      * @param Transformation $transformation
+     * @param array $parameterValues
      * @return BaseDatasource|void
      */
-    public function applyTransformation($transformation) {
+    public function applyTransformation($transformation, $parameterValues = []) {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
             $this->transformations[] = $transformation;
@@ -112,9 +113,10 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
     /**
      * Materialise this dataset using a SQL query
      *
+     * @param array $parameterValues
      * @return Dataset|void
      */
-    public function materialiseDataset() {
+    public function materialiseDataset($parameterValues = []) {
 
 
         $query = $this->buildQuery();

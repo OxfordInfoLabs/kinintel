@@ -43,9 +43,10 @@ class AmazonS3Datasource extends BaseDatasource {
      * Apply any transformation to the results of this datasource.
      *
      * @param Transformation $transformation
+     * @param array $parameterValues
      * @return BaseDatasource|void
      */
-    public function applyTransformation($transformation) {
+    public function applyTransformation($transformation, $parameterValues = []) {
 
         // Track paging transformations
         if ($transformation instanceof PagingTransformation)
@@ -57,9 +58,10 @@ class AmazonS3Datasource extends BaseDatasource {
     /**
      * Materialise a dataset for this datasource.
      *
+     * @param array $parameterValues
      * @return Dataset|void
      */
-    public function materialiseDataset() {
+    public function materialiseDataset($parameterValues = []) {
 
         /**
          * @var AmazonS3DatasourceConfig $config
