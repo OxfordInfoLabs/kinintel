@@ -4,26 +4,47 @@
 namespace Kinintel\Objects\Datasource;
 
 
-/**
- * Updatable data source.  This interface must be implemented by datasources which support update as well as read.
- * i.e. those which we wish to use for caching of data etc.
- */
-interface UpdatableDatasource extends Datasource {
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 
-    // Update mode constants
+interface UpdatableDatasource {
+
+    const UPDATE_MODE_ADD = "add";
+    const UPDATE_MODE_DELETE = "delete";
     const UPDATE_MODE_REPLACE = "replace";
-    const UPDATE_MODE_APPEND = "append";
 
 
     /**
-     * Update this datasource from a dataset (usually returned from a different datasource)
-     * use the provided mode to determine how to do the update (replace / append)
+     * Get the class in use for update config
+     *
+     * @return string
+     */
+    public function getUpdateConfigClass();
+
+
+    /**
+     * Get update config
+     *
+     * @return DatasourceUpdateConfig
+     */
+    public function getUpdateConfig();
+
+
+    /**
+     * Set update config
+     *
+     * @param DatasourceUpdateConfig $updateConfig
+     */
+    public function setUpdateConfig($updateConfig);
+
+
+    /**
+     * Update this datasource using a supplied dataset and the update mode supplied.
      *
      * @param $dataset
-     * @param string $updateMode
      *
-     * @return mixed
+     * @param string $updateMode
+     * @return mixed|void
      */
-    public function update($dataset, $updateMode = self::UPDATE_MODE_APPEND);
+    public function update($dataset, $updateMode = self::UPDATE_MODE_ADD);
 
 }

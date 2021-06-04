@@ -6,10 +6,14 @@ namespace Kinintel\Objects\Datasource;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\InvalidDatasourceTypeException;
+use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\WebService\JSONWebServiceDatasource;
 use Kinintel\Objects\Datasource\WebService\WebServiceDatasource;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 
 include_once "autoloader.php";
@@ -76,12 +80,13 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
             $this->assertTrue(true);
         }
 
+
     }
 
 
     public function testValidDatasourceInstanceReturnsDataSourceCorrectly() {
 
-        // Invalid credentials
+        // Valid credentials
         $dataSourceInstance = new DatasourceInstance("goodone", "Good One", "webservice",
             ["url" => "https://hello.com"], null, "http-basic", [
                 "username" => "Bob",
@@ -92,6 +97,31 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
         $dataSource = $dataSourceInstance->returnDataSource();
         $this->assertEquals(new WebServiceDatasource(new WebserviceDataSourceConfig("https://hello.com"),
             new BasicAuthenticationCredentials("Bob", "password")), $dataSource);
+
+    }
+
+
+    public function testValidUpdatableDatasourceInstanceReturnsDatasourceWithUpdateConfigIntact() {
+
+        $dataSourceInstance = new DatasourceInstance("updatable", "Updatable DS", "sqldatabase",
+            [
+                "source" => "table",
+                "tableName" => "test_one"
+            ], null, "mysql", [
+                "host" => "localhost",
+                "database" => "test",
+                "username" => "test",
+                "password" => "test"
+            ], [
+                "keyFieldNames" => [
+                    "name", "dob"
+                ]
+            ]);
+
+        $dataSource = $dataSourceInstance->returnDataSource();
+        $this->assertEquals(new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig("table", "test_one"),
+            new MySQLAuthenticationCredentials("localhost", null, "test", null, null, "test", "test"),
+            new DatasourceUpdateConfig(["name", "dob"])), $dataSource);
 
     }
 

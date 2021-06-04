@@ -6,16 +6,20 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
@@ -23,7 +27,7 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasource {
+class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
     /**
      * @var Transformation[]
@@ -37,6 +41,14 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
      * @var SQLTransformationProcessor[]
      */
     private $transformationProcessorInstances = [];
+
+
+    /**
+     * Cached DB connection for efficiency
+     *
+     * @var DatabaseConnection
+     */
+    private $dbConnection = null;
 
     /**
      * Return the config class for this datasource
@@ -125,7 +137,7 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
         /**
          * @var DatabaseConnection $dbConnection
          */
-        $dbConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
+        $dbConnection = $this->returnDatabaseConnection();
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
         // Return a tabular dataset
@@ -136,12 +148,21 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
     /**
      * Update this datasource using a supplied dataset and the update mode supplied.
      *
-     * @param $dataset
-     *
+     * @param Dataset $dataset
      * @param string $updateMode
-     * @return mixed|void
+     *
      */
-    public function update($dataset, $updateMode = self::UPDATE_MODE_APPEND) {
+    public function update($dataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
+
+        /**
+         * @var DatasourceUpdateConfig
+         */
+        $updateConfig = $this->getUpdateConfig();
+
+        // If no update config throw now.
+        if (!$updateConfig) {
+            throw new DatasourceNotUpdatableException($this);
+        }
 
         if (!($dataset instanceof TabularDataset)) {
             throw new DatasourceUpdateException("SQL Database Datasources can only be updated with Tabular Datasets");
@@ -152,16 +173,50 @@ class SQLDatabaseDatasource extends BaseDatasource implements UpdatableDatasourc
          */
         $config = $this->getConfig();
 
-        if (!$config->isUpdatable()) {
-            throw new DatasourceUpdateException("Attempted to update a SQL datasource which is not updatable");
-        }
-
         if ($config->getSource() !== SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
             throw new DatasourceUpdateException("Attempted to update a SQL datasource which does not have a table source");
         }
 
+        // Get a db connection and the bulk data manager
+        $dbConnection = $this->returnDatabaseConnection();
+        $bulkDataManager = $dbConnection->getBulkDataManager();
+
+        // Get all data from the dataset
+        $allData = $dataset->getAllData();
+
+        switch ($updateMode) {
+            case UpdatableDatasource::UPDATE_MODE_ADD:
+                $bulkDataManager->insert($config->getTableName(), $allData, null);
+                break;
+            case UpdatableDatasource::UPDATE_MODE_DELETE:
+                $pks = array_map(function ($row) use ($updateConfig) {
+                    $pkValue = [];
+                    foreach ($updateConfig->getKeyFieldNames() as $keyFieldName) {
+                        $pkValue[] = $row[$keyFieldName] ?? null;
+                    }
+                    return $pkValue;
+                }, $allData);
+                $bulkDataManager->delete($config->getTableName(), $pks, null);
+                break;
+            case UpdatableDatasource::UPDATE_MODE_REPLACE:
+                $bulkDataManager->replace($config->getTableName(), $allData, null);
+                break;
+        }
     }
 
+
+    /**
+     * Get a singleton db connection
+     *
+     * @return DatabaseConnection
+     */
+    private function returnDatabaseConnection() {
+        if (!$this->dbConnection) {
+            $this->dbConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
+        }
+
+        return $this->dbConnection;
+    }
 
     // Build SQL statement using configured settings
     private function buildQuery() {

@@ -2,7 +2,14 @@
 
 namespace Kinintel\Objects\Authentication;
 
+use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
+use Kinikit\Core\Validation\FieldValidationError;
+use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\ActiveRecord;
+use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 
 /**
  * Class AuthenticationCredentialsInstance
@@ -94,5 +101,36 @@ class AuthenticationCredentialsInstance extends ActiveRecord {
         $this->config = $config;
     }
 
+
+    /**
+     * Return credentials object for this instance
+     *
+     * @return AuthenticationCredentials
+     */
+    public function returnCredentials() {
+
+        /**
+         * @var ObjectBinder $objectBinder
+         */
+        $objectBinder = Container::instance()->get(ObjectBinder::class);
+
+        try {
+            $credentialsClass = Container::instance()->getInterfaceImplementationClass(AuthenticationCredentials::class, $this->getType());
+            if ($this->getConfig()) {
+                return $objectBinder->bindFromArray($this->getConfig(), $credentialsClass);
+            } else {
+                return Container::instance()->new($credentialsClass);
+            }
+
+        } catch (MissingInterfaceImplementationException $e) {
+
+            throw new InvalidDatasourceAuthenticationCredentialsException(
+                ["authenticationCredentials" => [
+                    "type" => new FieldValidationError("type", "unknowntype", "Authentication credentials of type '$credentialsType' does not exist")
+                ]
+                ]);
+        }
+
+    }
 
 }

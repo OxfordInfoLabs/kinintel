@@ -1,0 +1,5 @@
+{
+  "key": "test-import",
+  "title": "Test import data processor",
+  "type": "datasourceimport"
+}

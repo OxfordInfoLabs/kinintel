@@ -76,6 +76,16 @@ class DatasourceInstance extends DatasourceInstanceSummary {
 
 
     /**
+     * Update config if using - the type for this config will be inferred from the
+     * dataset definition
+     *
+     * @var mixed
+     * @json
+     */
+    private $updateConfig;
+
+
+    /**
      * @var Parameter[]
      * @json
      */
@@ -100,13 +110,14 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * @param string $credentialsType
      * @param mixed $credentialsConfig
      */
-    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $parameters = []) {
+    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = []) {
         parent::__construct($key, $title);
         $this->type = $type;
         $this->config = $config;
         $this->credentialsKey = $credentialsKey;
         $this->credentialsType = $credentialsType;
         $this->credentialsConfig = $credentialsConfig;
+        $this->updateConfig = $updateConfig;
         $this->parameters = $parameters;
     }
 
@@ -196,6 +207,21 @@ class DatasourceInstance extends DatasourceInstanceSummary {
     }
 
     /**
+     * @return mixed
+     */
+    public function getUpdateConfig() {
+        return $this->updateConfig;
+    }
+
+    /**
+     * @param mixed $updateConfig
+     */
+    public function setUpdateConfig($updateConfig) {
+        $this->updateConfig = $updateConfig;
+    }
+
+
+    /**
      * @return Parameter[]
      */
     public function getParameters() {
@@ -282,11 +308,17 @@ class DatasourceInstance extends DatasourceInstanceSummary {
              */
             $dataSource = Container::instance()->new($dataSourceClass);
 
-            $config = null;
             if ($dataSource->getConfigClass()) {
                 $config = $objectBinder->bindFromArray($this->config ?? [], $dataSource->getConfigClass());
                 $dataSource->setConfig($config);
             }
+
+            if ($dataSource instanceof UpdatableDatasource && $dataSource->getUpdateConfigClass()) {
+                $updateConfig = $objectBinder->bindFromArray($this->updateConfig ?? [], $dataSource->getUpdateConfigClass());
+                $dataSource->setUpdateConfig($updateConfig);
+            }
+
+
             if ($credentials) {
                 $dataSource->setAuthenticationCredentials($credentials);
             }

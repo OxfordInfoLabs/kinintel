@@ -9,6 +9,8 @@ use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Exception\DatasourceNotUpdatableException;
+use Kinintel\Exception\MissingDatasourceUpdaterException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -17,6 +19,7 @@ use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DefaultDatasource;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DatasourceService {

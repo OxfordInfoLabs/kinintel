@@ -7,18 +7,23 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
+use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
+use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterTransformation;
@@ -45,11 +50,20 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     private $databaseConnection;
 
 
+    /**
+     * @var MockObject
+     */
+    private $bulkDataManager;
+
+
     // Setup
     public function setUp(): void {
 
 
         $this->databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $this->bulkDataManager = MockObjectProvider::instance()->getMockInstance(BulkDataManager::class);
+        $this->databaseConnection->returnValue("getBulkDataManager", $this->bulkDataManager);
+
         $this->authCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
         $this->authCredentials->returnValue("returnDatabaseConnection", $this->databaseConnection);
 
@@ -62,7 +76,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data"),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, null, $this->validator);
 
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
@@ -84,7 +98,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "", "SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id"),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, null, $this->validator);
 
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
@@ -105,7 +119,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanMaterialiseTableBasedDataSetWithSQLDatabaseTransformationsApplied() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data"),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, null, $this->validator);
 
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
@@ -164,7 +178,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanMaterialiseQueryBasedDataSetWithSQLDatabaseTransformationsApplied() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "", "SELECT * FROM test_data d"),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, null, $this->validator);
 
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
@@ -215,23 +229,23 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         //$dataSet = $sqlDatabaseDatasource->materialiseDataset();
 
 
-       // $this->assertEquals(new SQLResultSetTabularDataset($resultSet), $dataSet);
+        // $this->assertEquals(new SQLResultSetTabularDataset($resultSet), $dataSet);
         $this->assertTrue(true);
 
     }
 
 
-    public function testUpdateExceptionThrownIfAttemptToUpdateNoneUpdatableDatasource() {
+    public function testUpdateExceptionThrownIfAttemptToUpdateUpdatableDatasourceWithNoUpdateConfig() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data"),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, null, $this->validator);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
 
         try {
             $sqlDatabaseDatasource->update($dataSet);
             $this->fail("Should have thrown here");
-        } catch (DatasourceUpdateException $e) {
+        } catch (DatasourceNotUpdatableException $e) {
             $this->assertTrue(true);
         }
 
@@ -241,7 +255,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testUpdateExceptionThrownIfAttemptToUpdateDatasourceWithQuery() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "", "SELECT * FROM test", true),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
 
@@ -258,7 +272,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, $this->validator);
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
 
@@ -269,6 +283,106 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             $this->assertTrue(true);
         }
 
+    }
+
+
+    public function testAllDataAddedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuch() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens",
+                "age" => 55,
+                "extraDetail" => "He's a dude"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => 66,
+                "extraDetail" => "He's a geezer"
+            ]
+        ];
+
+        $dataSet->returnValue("getAllData", $data, []);
+
+
+        $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
+            "test_data", $data, null
+        ]));
+
+    }
+
+
+    public function testAllDataRemovedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuchUsingKeyFieldNames() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(["name"]), $this->validator);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens",
+                "age" => 55,
+                "extraDetail" => "He's a dude"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => 66,
+                "extraDetail" => "He's a geezer"
+            ]
+        ];
+
+        $dataSet->returnValue("getAllData", $data, []);
+
+
+        $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
+
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("delete", [
+            "test_data", [["Bobby Owens"], ["David Suchet"]], null
+        ]));
+
+    }
+
+    public function testAllDataReplacedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuch() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens",
+                "age" => 55,
+                "extraDetail" => "He's a dude"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => 66,
+                "extraDetail" => "He's a geezer"
+            ]
+        ];
+
+        $dataSet->returnValue("getAllData", $data, []);
+
+
+        $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_REPLACE);
+
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("replace", [
+            "test_data", $data, null
+        ]));
     }
 
 
