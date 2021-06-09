@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
@@ -184,9 +185,15 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Get all data from the dataset
         $allData = $dataset->getAllData();
 
+        // Get insert columns from dataset
+        $updateColumns = null;
+        if ($dataset->getColumns()) {
+            $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
+        }
+
         switch ($updateMode) {
             case UpdatableDatasource::UPDATE_MODE_ADD:
-                $bulkDataManager->insert($config->getTableName(), $allData, null);
+                $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
                 break;
             case UpdatableDatasource::UPDATE_MODE_DELETE:
                 $pks = array_map(function ($row) use ($updateConfig) {
@@ -199,7 +206,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 $bulkDataManager->delete($config->getTableName(), $pks, null);
                 break;
             case UpdatableDatasource::UPDATE_MODE_REPLACE:
-                $bulkDataManager->replace($config->getTableName(), $allData, null);
+                $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
                 break;
         }
     }

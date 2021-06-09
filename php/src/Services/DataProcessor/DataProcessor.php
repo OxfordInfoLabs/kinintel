@@ -4,7 +4,7 @@
 namespace Kinintel\Services\DataProcessor;
 
 /**
- * @implementation datasourceimport \Kinintel\Services\DataProcessor\Generic\DatasourceImportProcessor
+ * @implementation tabulardatasourceimport \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceImportProcessor
  */
 interface DataProcessor {
 
