@@ -1,0 +1,27 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Dataset Name</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        Enter a name for this dataset.
+
+        <input type="text" #datasetName>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close>Cancel</button>
+
+        <button mat-button [mat-dialog-close]="datasetName.value">Set Name</button>
+    </div>
+
+</div>
+
+

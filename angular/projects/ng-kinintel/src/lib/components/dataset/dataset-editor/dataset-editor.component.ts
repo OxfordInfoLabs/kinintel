@@ -1,8 +1,9 @@
 import {Component, Inject, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as _ from 'lodash';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {BehaviorSubject} from 'rxjs';
 import {DatasetFilterComponent} from './dataset-filter/dataset-filter.component';
+import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -16,6 +17,7 @@ export class DatasetEditorComponent implements OnInit {
     @Input() datasetService: any;
 
     @Output() dataLoaded = new EventEmitter<any>();
+    @Output() datasetInstanceChange = new EventEmitter();
 
     public dataset: any;
     public tableData = [];
@@ -40,7 +42,8 @@ export class DatasetEditorComponent implements OnInit {
     private offset = 0;
 
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any) {
+                @Inject(MAT_DIALOG_DATA) public data: any,
+                private dialog: MatDialog) {
     }
 
     ngOnInit(): void {
@@ -154,6 +157,16 @@ export class DatasetEditorComponent implements OnInit {
         this.setMultiSortValues();
     }
 
+    public summariseData() {
+        this.dialog.open(DatasetSummariseComponent, {
+            width: '1200px',
+            height: '600px',
+            data: {
+                availableColumns: this.filterFields
+            }
+        });
+    }
+
     private setMultiSortValues() {
         if (!this.multiSortConfig.length) {
             const sortIndex = _.findIndex(this.datasetInstance.transformationInstances, {type: 'multisort'});
@@ -195,6 +208,7 @@ export class DatasetEditorComponent implements OnInit {
             };
         });
         this.dataLoaded.emit(this.dataset);
+        this.datasetInstanceChange.emit(this.datasetInstance);
     }
 
     private evaluateDataset() {

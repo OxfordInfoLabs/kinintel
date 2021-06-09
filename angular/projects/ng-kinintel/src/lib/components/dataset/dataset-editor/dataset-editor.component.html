@@ -1,10 +1,14 @@
 <div class="cell-header">
     <button mat-stroked-button color="primary">Connect Datasource</button>
-    <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
-        <ng-template [ngIf]="!showFilters">Show</ng-template>
-        <ng-template [ngIf]="showFilters">Hide</ng-template>
-        Filters
-    </button>
+    <div>
+        <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
+        <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
+            <ng-template [ngIf]="!showFilters">Show</ng-template>
+            <ng-template [ngIf]="showFilters">Hide</ng-template>
+            Filters
+        </button>
+    </div>
+
 </div>
 <div class="filters mt-4" *ngIf="showFilters">
 

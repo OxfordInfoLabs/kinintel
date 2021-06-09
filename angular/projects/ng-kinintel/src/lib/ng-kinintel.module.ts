@@ -29,6 +29,8 @@ import { TagPickerComponent } from './components/tag-picker/tag-picker.component
 import { DashboardsComponent } from './components/dashboards/dashboards.component';
 import { DatasetFilterJunctionComponent } from './components/dataset/dataset-editor/dataset-filter-junction/dataset-filter-junction.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { DatasetNameDialogComponent } from './components/dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
+import { DatasetSummariseComponent } from './components/dataset/dataset-editor/dataset-summarise/dataset-summarise.component';
 
 
 @NgModule({
@@ -44,7 +46,9 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
         DataExplorerComponent,
         TagPickerComponent,
         DashboardsComponent,
-        DatasetFilterJunctionComponent
+        DatasetFilterJunctionComponent,
+        DatasetNameDialogComponent,
+        DatasetSummariseComponent
     ],
     imports: [
         BrowserModule,
@@ -77,7 +81,9 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
         DatasetFilterComponent,
         DataExplorerComponent,
         TagPickerComponent,
-        DashboardsComponent
+        DashboardsComponent,
+        DatasetFilterJunctionComponent,
+        DatasetNameDialogComponent
     ]
 })
 export class NgKinintelModule {

@@ -17,7 +17,7 @@
         <rsz-layout class="cell left" [directions]="['right']" [rFlex]="true"
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents">
-                <ki-dataset-editor  [datasetInstance]="datasetInstance" [datasetService]="datasetService"
+                <ki-dataset-editor  [(datasetInstance)]="datasetInstance" [datasetService]="datasetService"
                     [datasource]="datasource" (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
             </div>
         </rsz-layout>
@@ -47,7 +47,7 @@
     <button mat-stroked-button mat-dialog-close color="primary">
         Cancel
     </button>
-    <button mat-flat-button color="primary">
+    <button mat-flat-button color="primary" (click)="saveChanges()">
         Save Changes
     </button>
 </div>
