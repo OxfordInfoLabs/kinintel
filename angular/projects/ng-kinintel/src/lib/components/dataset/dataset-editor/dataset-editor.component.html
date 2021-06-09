@@ -1,5 +1,5 @@
 <div class="cell-header">
-    <button mat-stroked-button color="primary">Connect Datasource</button>
+    <button mat-stroked-button color="primary" style="visibility: hidden">Connect Datasource</button>
     <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
         <ng-template [ngIf]="!showFilters">Show</ng-template>
         <ng-template [ngIf]="showFilters">Hide</ng-template>
@@ -59,7 +59,7 @@
     <ng-template ngFor let-column [ngForOf]="displayedColumns">
         <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> {{_.startCase(column)}} </th>
-            <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+            <td style="padding-right:10px" mat-cell *matCellDef="let element"> {{element[column]}} </td>
         </ng-container>
     </ng-template>
 

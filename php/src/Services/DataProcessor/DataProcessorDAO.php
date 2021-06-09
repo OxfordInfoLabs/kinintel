@@ -46,6 +46,8 @@ class DataProcessorDAO {
      * the database and the filesystem in that order
      *
      * @param $string
+     *
+     * @return DataProcessorInstance
      */
     public function getDataProcessorInstanceByKey($key) {
 
@@ -81,7 +83,7 @@ class DataProcessorDAO {
      *
      * @param string $instanceKey
      */
-    public function removeProcessorInstance($instanceKey){
+    public function removeProcessorInstance($instanceKey) {
         $existing = DataProcessorInstance::fetch($instanceKey);
         $existing->remove();
     }
