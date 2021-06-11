@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {CdkDragDrop, copyArrayItem, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import {CdkDragDrop, copyArrayItem, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'ki-dataset-summarise',
@@ -13,6 +13,10 @@ export class DatasetSummariseComponent implements OnInit {
     public availableColumns: any = [];
     public summariseFields: any = [];
     public summariseExpressions: any = [];
+
+    public readonly expressionTypes = [
+        'COUNT', 'SUM', 'MIN', 'MAX', 'AVG'
+    ];
 
     constructor(public dialogRef: MatDialogRef<DatasetSummariseComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any) {

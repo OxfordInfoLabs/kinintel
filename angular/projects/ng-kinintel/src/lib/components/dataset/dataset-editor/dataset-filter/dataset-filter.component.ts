@@ -13,6 +13,8 @@ export class DatasetFilterComponent implements OnInit {
     @Input() filterJunction: any;
     @Input() filterFields: any = [];
 
+    @Output() filtersRemoved = new EventEmitter();
+
     public filterTypes = [
         {label: '(==) Equal To', value: 'eq'},
         {label: '(!=) Not Equal To', value: 'neq'},
@@ -33,6 +35,11 @@ export class DatasetFilterComponent implements OnInit {
 
     public removeFilter() {
         this.filterJunction.filters.splice(this.filterIndex, 1);
+        if (!this.filterJunction.filters.length &&
+            !this.filterJunction.filterJunctions.length) {
+
+            this.filtersRemoved.emit(this.filterJunction);
+        }
     }
 
 }

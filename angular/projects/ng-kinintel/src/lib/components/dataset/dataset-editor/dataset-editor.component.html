@@ -12,11 +12,21 @@
 </div>
 <div class="filters mt-4" *ngIf="showFilters">
 
-    <div class="flex align-center justify-between">
-        <mat-button-toggle-group [(ngModel)]="filterJunction.logic">
-            <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
-            <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
-        </mat-button-toggle-group>
+    <div class="filter">
+        <div class="flex align-center justify-between">
+            <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
+                                     [ngStyle]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
+                <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
+                <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
+            </mat-button-toggle-group>
+
+        </div>
+        <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
+
+            <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
+                               [filterFields]="filterFields"></ki-dataset-filter>
+
+        </ng-template>
         <div>
             <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
                 <mat-icon>add_circle</mat-icon>
@@ -29,15 +39,11 @@
             </button>
         </div>
     </div>
-    <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
-        <ki-dataset-filter class="first" [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
-                           [filterFields]="filterFields"></ki-dataset-filter>
-    </ng-template>
 
 
-    <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions">
-        <ki-dataset-filter-junction [filterJunction]="junction"
-                                    [filterFields]="filterFields"></ki-dataset-filter-junction>
+    <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
+        <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]"
+                                    [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
     </div>
 
     <div class="flex align-center justify-end mt-4">

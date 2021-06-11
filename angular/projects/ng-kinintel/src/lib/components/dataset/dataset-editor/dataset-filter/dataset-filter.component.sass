@@ -1,25 +1,25 @@
 :host
-    background-color: whitesmoke
-    padding: .5rem 1rem
-    display: block
-    position: relative
-    &:not(.first)
-        &::before
-            content: ""
-            height: 45%
-            position: absolute
-            left: -2rem
-            width: 2rem
-            border-bottom: 2px solid #bdbdbd
-.filter
+    padding: .5rem 0
     display: flex
     align-items: center
-
+    position: relative
+    //&:not(.first)
+    //    &::before
+    //        content: ""
+    //        height: 45%
+    //        position: absolute
+    //        left: -2rem
+    //        width: 2rem
+    //        border-bottom: 2px solid #bdbdbd
+.filter
+    display: flex
+    flex-direction: column
     margin: .5rem 0
     position: relative
+    background-color: whitesmoke
 
 .group-filters
     margin-left: 2rem
     padding-left: 2rem
     position: relative
-    border-left: 2px solid #bdbdbd
+    //border-left: 2px solid #bdbdbd

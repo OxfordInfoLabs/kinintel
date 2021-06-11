@@ -9,6 +9,8 @@ export class DatasetFilterJunctionComponent implements OnInit {
 
     @Input() filterJunction: any;
     @Input() filterFields: any = [];
+    @Input() parentJunction: any;
+    @Input() junctionIndex: number;
 
     @Output() filterJunctionChange = new EventEmitter<any>();
 
@@ -37,5 +39,9 @@ export class DatasetFilterJunctionComponent implements OnInit {
             });
         }
         this.filterJunctionChange.emit(this.filterJunction);
+    }
+
+    public filtersRemoved(change) {
+        this.parentJunction.filterJunctions.splice(this.junctionIndex, 1);
     }
 }

@@ -1,23 +1,20 @@
-<div class="filter">
+<mat-select [(value)]="filter.fieldName" class="mr-4" name="fieldName">
+    <mat-option value="">Column Name</mat-option>
+    <mat-option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</mat-option>
+</mat-select>
 
-    <select [(ngModel)]="filter.fieldName" class="mr-4">
-        <option value="">Column Name</option>
-        <option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</option>
-    </select>
+<mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
+    <mat-option value="">Condition</mat-option>
+    <mat-option [value]="filterType.value" *ngFor="let filterType of filterTypes">
+        {{filterType.label}}
+    </mat-option>
+</mat-select>
 
-    <select [(ngModel)]="filter.filterType" class="mr-4">
-        <option value="">Condition</option>
-        <option [value]="filterType.value" *ngFor="let filterType of filterTypes">
-            {{filterType.label}}
-        </option>
-    </select>
+<input type="text" [(ngModel)]="filter.value" name="filterValue" placeholder="Value" class="mr-4 full">
 
-    <input type="text" [(ngModel)]="filter.value" placeholder="Value" class="mr-4">
-
-    <div>
-        <button mat-icon-button color="warn" title="Remove filter" (click)="removeFilter()">
-            <mat-icon>remove_circle_outline</mat-icon>
-        </button>
-    </div>
-
+<div>
+    <button mat-icon-button color="warn" title="Remove filter" (click)="removeFilter()">
+        <mat-icon>remove_circle_outline</mat-icon>
+    </button>
 </div>
+

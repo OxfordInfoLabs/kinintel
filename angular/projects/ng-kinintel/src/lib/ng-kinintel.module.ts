@@ -31,6 +31,7 @@ import { DatasetFilterJunctionComponent } from './components/dataset/dataset-edi
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { DatasetNameDialogComponent } from './components/dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import { DatasetSummariseComponent } from './components/dataset/dataset-editor/dataset-summarise/dataset-summarise.component';
+import {MatSelectModule} from '@angular/material/select';
 
 
 @NgModule({
@@ -68,7 +69,8 @@ import { DatasetSummariseComponent } from './components/dataset/dataset-editor/d
         MatSortModule,
         DragDropModule,
         FormsModule,
-        MatButtonToggleModule
+        MatButtonToggleModule,
+        MatSelectModule
     ],
     exports: [
         DashboardEditorComponent,

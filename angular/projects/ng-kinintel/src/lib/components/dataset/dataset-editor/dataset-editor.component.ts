@@ -86,17 +86,19 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public applyFilters() {
-        const filterTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'filter'});
-        if (filterTransformation) {
-            filterTransformation.config = this.filterJunction;
-        } else {
-            this.datasetInstance.transformationInstances.push({
-                type: 'filter',
-                config: this.filterJunction
-            });
-        }
-
-        this.evaluateDataset();
+        this.validateFilterJunction();
+        console.log(this.filterJunction);
+        // const filterTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'filter'});
+        // if (filterTransformation) {
+        //     filterTransformation.config = this.filterJunction;
+        // } else {
+        //     this.datasetInstance.transformationInstances.push({
+        //         type: 'filter',
+        //         config: this.filterJunction
+        //     });
+        // }
+        //
+        // this.evaluateDataset();
     }
 
     public clearFilters() {
@@ -165,6 +167,23 @@ export class DatasetEditorComponent implements OnInit {
                 availableColumns: this.filterFields
             }
         });
+    }
+
+    private validateFilterJunction() {
+
+        const check = (filterJunction) => {
+            // tslint:disable-next-line:prefer-for-of
+            for (let i = 0; i < filterJunction.filterJunctions.length; i++) {
+                const junction = filterJunction.filterJunctions[i];
+                if (!junction.filters.length && !junction.filterJunctions.length) {
+                    filterJunction.filterJunctions.splice(i, 1);
+                } else {
+                    check(junction);
+                }
+            }
+        };
+
+        check(this.filterJunction);
     }
 
     private setMultiSortValues() {
