@@ -69,7 +69,7 @@ class DataProcessorService {
             }
 
             // Actually process this data processor
-            $dataProcessor->process($config);
+            $dataProcessor->process($config ?? null);
 
 
         } catch (MissingInterfaceImplementationException $e) {
