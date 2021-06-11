@@ -87,18 +87,17 @@ export class DatasetEditorComponent implements OnInit {
 
     public applyFilters() {
         this.validateFilterJunction();
-        console.log(this.filterJunction);
-        // const filterTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'filter'});
-        // if (filterTransformation) {
-        //     filterTransformation.config = this.filterJunction;
-        // } else {
-        //     this.datasetInstance.transformationInstances.push({
-        //         type: 'filter',
-        //         config: this.filterJunction
-        //     });
-        // }
-        //
-        // this.evaluateDataset();
+        const filterTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'filter'});
+        if (filterTransformation) {
+            filterTransformation.config = this.filterJunction;
+        } else {
+            this.datasetInstance.transformationInstances.push({
+                type: 'filter',
+                config: this.filterJunction
+            });
+        }
+
+        this.evaluateDataset();
     }
 
     public clearFilters() {
