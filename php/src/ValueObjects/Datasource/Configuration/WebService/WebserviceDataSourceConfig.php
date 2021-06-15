@@ -44,7 +44,6 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
                                 $resultFormat = "json", $resultFormatConfig = []) {
         $this->url = $url;
         $this->method = $method;
-        $this->params = $params;
         $this->payloadTemplate = $payloadTemplate;
         parent::__construct($resultFormat, $resultFormatConfig);
     }
