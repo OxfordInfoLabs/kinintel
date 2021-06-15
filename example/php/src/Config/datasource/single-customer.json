@@ -4,7 +4,7 @@
   "type": "sqldatabase",
   "config": {
     "source": "query",
-    "query": "SELECT * FROM customers WHERE id = {customerId}"
+    "query": "SELECT * FROM customers WHERE id = {{customerId}}"
   },
   "parameters": [
     {

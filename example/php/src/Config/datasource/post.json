@@ -3,7 +3,7 @@
   "title": "Single Post",
   "type": "webservice",
   "config": {
-    "url": "https://jsonplaceholder.typicode.com/posts/{postId}"
+    "url": "https://jsonplaceholder.typicode.com/posts/{{postId}}"
   },
   "parameters": [
     {

@@ -34,7 +34,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testCanMaterialiseSimpleUnfilteredDatasourceForGetRequest() {
+    public function testCanMaterialiseSimpleDatasourceForGetRequest() {
 
         $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pingu"}'), 200, null, null);
 
@@ -57,39 +57,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testCanMaterialiseFilteredGetRequestDatasource() {
-
-        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pinger"}'), 200, null, null);
-
-        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET, [
-                "name" => "Bobby smith",
-                "scope" => "local"
-            ]));
-
-        $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com"));
-
-        $request->applyTransformation(new FilterTransformation([
-            new Filter("name", "Bobby smith"),
-            new Filter("scope", "local"),
-        ]));
-
-        $request->setDispatcher($this->httpDispatcher);
-
-
-        // Materialise
-        $response = $request->materialiseDataset();
-
-        // Check that the response was received directly
-        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
-            [
-                "value" => "Pinger"
-            ]
-        ]), $response);
-    }
-
-
-    public function testCanMaterialiseFilteredGetRequestDataSourceWithBasicAuthentication() {
+    public function testCanMaterialiseGetRequestDataSourceWithBasicAuthentication() {
 
         $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pinky"}'), 200, null, null);
 
@@ -97,21 +65,13 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $headers->set(ReqHeaders::AUTHORISATION, "Basic " . base64_encode('baggy:trousers'));
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET, [
-                "name" => "Bobby smith",
-                "scope" => "local"
-            ], null, $headers));
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, $headers));
 
         $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com", Request::METHOD_GET, [
             "username" => "baggy",
             "password" => "trousers"
         ]), new BasicAuthenticationCredentials("baggy", "trousers"));
 
-
-        $request->applyTransformation(new FilterTransformation([
-            new Filter("name", "Bobby smith"),
-            new Filter("scope", "local"),
-        ]));
 
         $request->setDispatcher($this->httpDispatcher);
 
@@ -129,15 +89,13 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testCanMaterialiseFilteredGetRequestDataSourceWithQueryParamAuthentication() {
+    public function testCanMaterialiseGetRequestDataSourceWithQueryParamAuthentication() {
 
 
         $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pinky"}'), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_GET, [
-                "name" => "Bobby smith",
-                "scope" => "local",
                 "token" => "baggy",
                 "secret" => "trousers"
             ]));
@@ -147,10 +105,6 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             "secret" => "trousers"
         ]));
 
-        $request->applyTransformation(new FilterTransformation([
-            new Filter("name", "Bobby smith"),
-            new Filter("scope", "local"),
-        ]));
 
         $request->setDispatcher($this->httpDispatcher);
 
@@ -167,26 +121,22 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testCanMaterialiseFilteredPostRequestWithPayloadTemplate() {
+    public function testCanMaterialisePostRequestWithPayloadTemplate() {
 
         $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Bosh"}'), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
             new Request("https://mytest.com", Request::METHOD_POST, ["token" => "baggy", "secret" => "trousers"],
-                "static:true,name:Bobby smith,scope:local"));
+                "static:true"));
 
 
-        $template = "static:true,name:{{name}}{{#scope}},scope:{{.}}{{/scope}}{{#optional}},optional:{{.}}{{/optional}}";
+        $template = "static:true";
 
-        $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com", Request::METHOD_POST, [], $template), new QueryParameterAuthenticationCredentials([
+        $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com", Request::METHOD_POST, $template), new QueryParameterAuthenticationCredentials([
             "token" => "baggy",
             "secret" => "trousers"
         ]));
 
-        $request->applyTransformation(new FilterTransformation([
-            new Filter("name", "Bobby smith"),
-            new Filter("scope", "local"),
-        ]));
 
         $request->setDispatcher($this->httpDispatcher);
 
@@ -201,6 +151,43 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ]), $response);
 
+
+    }
+
+
+    public function testAnySuppliedDataSourceParameterValuesAreMadeAvailableToBothUrlAndPayload() {
+
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Bosh"}'), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com?scope=test", Request::METHOD_POST, ["token" => "baggy", "secret" => "trousers"],
+                "staticValue:12345,mode:test"));
+
+
+        $template = "staticValue:{{staticValue}},mode:{{mode}}";
+
+        $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com?scope={{scope}}", Request::METHOD_POST, $template), new QueryParameterAuthenticationCredentials([
+            "token" => "baggy",
+            "secret" => "trousers"
+        ]));
+
+
+        $request->setDispatcher($this->httpDispatcher);
+
+
+        // Materialise
+        $response = $request->materialiseDataset([
+            "scope" => "test",
+            "staticValue" => 12345,
+            "mode" => "test"
+        ]);
+
+        // Check that the response was received directly
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Bosh"
+            ]
+        ]), $response);
 
     }
 
@@ -250,7 +237,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $request = new TestWebServiceDataSource($config, null, $validator);
         $request->setDispatcher($this->httpDispatcher);
 
-        $request->applyTransformation(new PagingTransformation(100,10));
+        $request->applyTransformation(new PagingTransformation(100, 10));
 
         // Materialise
         $request->materialiseDataset();
@@ -269,5 +256,6 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
 
 }

@@ -35,11 +35,6 @@ class WebServiceDatasource extends BaseDatasource {
     private $templateParser;
 
     /**
-     * @var array
-     */
-    private $params = [];
-
-    /**
      * @var PagingTransformation[]
      */
     private $pagingTransformations = [];
@@ -99,7 +94,7 @@ class WebServiceDatasource extends BaseDatasource {
      * @return string[]
      */
     public function getSupportedTransformationClasses() {
-        return [FilterTransformation::class, PagingTransformation::class];
+        return [PagingTransformation::class];
     }
 
 
@@ -122,23 +117,7 @@ class WebServiceDatasource extends BaseDatasource {
      */
     public function applyTransformation($transformation, $parameterValues = []) {
 
-        // If a filter query, attempt to use it
-        if ($transformation instanceof FilterTransformation) {
-
-            // Apply all filter values as equals matches as
-            // no comprehension of other types of filtering.
-            // Ignore filter logic here
-            $filterValues = [];
-            foreach ($transformation->getFilters() as $filterObject) {
-                if ($filterObject instanceof Filter) {
-                    $filterValues[$filterObject->getFieldName()] = $filterObject->getValue();
-                }
-            }
-
-            // Set params
-            $this->params = array_merge($this->params, $filterValues);
-
-        } else if ($transformation instanceof PagingTransformation) {
+        if ($transformation instanceof PagingTransformation) {
             $this->pagingTransformations[] = $transformation;
         }
 
@@ -156,7 +135,6 @@ class WebServiceDatasource extends BaseDatasource {
 
         // Grab headers and params
         $headers = new Headers();
-        $requestParams = [];
         $payload = null;
 
         if (!$this->getConfig()) {
@@ -167,17 +145,14 @@ class WebServiceDatasource extends BaseDatasource {
          * @var WebserviceDataSourceConfig $config
          */
         $config = $this->getConfig();
-        $params = array_merge($config->getParams() ?? [], $this->params);
 
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
-            $payload = $this->templateParser->parseTemplateText($config->getPayloadTemplate(), $params);
-        } else {
-            $requestParams = $this->params;
+            $payload = $this->templateParser->parseTemplateText($config->getPayloadTemplate(), $parameterValues);
         }
 
-
         // Create a new HttpRequest for this request
-        $request = new Request($config->getUrl(), $config->getMethod(), $requestParams, $payload, $headers);
+        $url = $this->templateParser->parseTemplateText($config->getUrl(), $parameterValues);
+        $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
 
         // Inject authentication if required

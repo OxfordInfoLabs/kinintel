@@ -34,21 +34,13 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
 
 
     /**
-     * Parameters to pass to the web service
-     *
-     * @var array
-     */
-    protected $params = [];
-
-    /**
      * WebserviceDataSourceConfig constructor.
      * @param string $url
      * @param string $method
-     * @param array $params
      * @param string $payloadTemplate
      *
      */
-    public function __construct($url = "", $method = Request::METHOD_GET, $params = [], $payloadTemplate = null,
+    public function __construct($url = "", $method = Request::METHOD_GET, $payloadTemplate = null,
                                 $resultFormat = "json", $resultFormatConfig = []) {
         $this->url = $url;
         $this->method = $method;
@@ -99,20 +91,6 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     public function setPayloadTemplate($payloadTemplate) {
         $this->payloadTemplate = $payloadTemplate;
-    }
-
-    /**
-     * @return array
-     */
-    public function getParams() {
-        return $this->params;
-    }
-
-    /**
-     * @param array $params
-     */
-    public function setParams($params) {
-        $this->params = $params;
     }
 
 
