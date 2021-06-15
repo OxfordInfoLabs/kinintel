@@ -1,0 +1,17 @@
+{
+  "key": "single-customer",
+  "title": "Single Customer",
+  "type": "sqldatabase",
+  "config": {
+    "source": "query",
+    "query": "SELECT * FROM customers WHERE id = {customerId}"
+  },
+  "parameters": [
+    {
+      "name": "customerId",
+      "title": "Customer Id",
+      "type": "numeric"
+    }
+  ],
+  "credentialsKey": "exampledb"
+}

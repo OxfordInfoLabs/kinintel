@@ -1,0 +1,15 @@
+{
+  "key": "post",
+  "title": "Single Post",
+  "type": "webservice",
+  "config": {
+    "url": "https://jsonplaceholder.typicode.com/posts/{postId}"
+  },
+  "parameters": [
+    {
+      "name": "postId",
+      "title": "Post Id",
+      "type": "numeric"
+    }
+  ]
+}

@@ -11,6 +11,7 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\MissingDatasourceUpdaterException;
+use Kinintel\Exception\InvalidParametersException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -25,6 +26,7 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -133,6 +135,76 @@ class DatasourceServiceTest extends TestBase {
 
         $this->assertEquals($transformed3, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3]));
 
+
+    }
+
+
+    public function testExceptionRaisedIfMissingParametersForDatasourceInstance() {
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        $dataSourceInstance->returnValue("getParameters", [
+            new Parameter("param1", "Parameter 1")
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        try {
+            $this->dataSourceService->getEvaluatedDataSource("test");
+            $this->fail("Should have thrown here");
+        } catch (InvalidParametersException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function testExceptionRaisedIfParameterValueOfWrongTypeSuppliedForDatasourceInstance() {
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        $dataSourceInstance->returnValue("getParameters", [
+            new Parameter("param1", "Parameter 1", Parameter::TYPE_NUMERIC)
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        try {
+            $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "My Bad Type"]);
+            $this->fail("Should have thrown here");
+        } catch (InvalidParametersException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+
+    public function testDatasourceInstanceEvaluatedCorrectlyIfDefaultValueSuppliedForParameter() {
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        $dataSourceInstance->returnValue("getParameters", [
+            new Parameter("param1", "Parameter 1", Parameter::TYPE_TEXT, false, "Hello World")
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $this->assertEquals($dataSource, $this->dataSourceService->getEvaluatedDataSource("test"));
 
     }
 

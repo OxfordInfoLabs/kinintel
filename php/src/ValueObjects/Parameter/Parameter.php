@@ -42,9 +42,19 @@ class Parameter {
      */
     private $multiple;
 
+
+    /**
+     * A default value for this parameter if one has been supplied
+     *
+     * @var mixed
+     */
+    private $defaultValue;
+
+
     const TYPE_TEXT = "text";
     const TYPE_NUMERIC = "numeric";
     const TYPE_DATE = "date";
+    const TYPE_DATE_TIME = "datetime";
     const TYPE_BOOLEAN = "boolean";
 
     /**
@@ -54,11 +64,12 @@ class Parameter {
      * @param string $type
      * @param bool $multiple
      */
-    public function __construct($name, $title, $type = self::TYPE_TEXT, $multiple = false) {
+    public function __construct($name, $title, $type = self::TYPE_TEXT, $multiple = false, $defaultValue = null) {
         $this->name = $name;
         $this->title = $title;
         $this->type = $type;
         $this->multiple = $multiple;
+        $this->defaultValue = $defaultValue;
     }
 
 
@@ -116,6 +127,43 @@ class Parameter {
      */
     public function setMultiple($multiple) {
         $this->multiple = $multiple;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultValue() {
+        return $this->defaultValue;
+    }
+
+    /**
+     * @param mixed $defaultValue
+     */
+    public function setDefaultValue($defaultValue) {
+        $this->defaultValue = $defaultValue;
+    }
+
+
+    /**
+     * Validate a parameter value according to the type specified here.
+     * Return true or false according to whether this matches the supplied type
+     *
+     * @param $value
+     * @return boolean
+     */
+    public function validateParameterValue($value) {
+        switch ($this->getType()) {
+            case self::TYPE_TEXT:
+                return is_string($value) || is_numeric($value) || is_bool($value);
+            case self::TYPE_NUMERIC:
+                return is_numeric($value);
+            case self::TYPE_BOOLEAN:
+                return is_bool($value) || $value === 0 || $value === 1;
+            case self::TYPE_DATE:
+                return date_create_from_format("Y-m-d", $value) ? true : false;
+            case self::TYPE_DATE_TIME:
+                return date_create_from_format("Y-m-d H:i:s", $value) ? true : false;
+        }
     }
 
 

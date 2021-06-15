@@ -109,6 +109,8 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * @param string $credentialsKey
      * @param string $credentialsType
      * @param mixed $credentialsConfig
+     * @param mixed $updateConfig
+     * @param Parameter[] $parameters
      */
     public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = []) {
         parent::__construct($key, $title);

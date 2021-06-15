@@ -8,8 +8,11 @@ use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
+use Kinikit\Core\Validation\FieldValidationError;
+use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\DatasourceNotUpdatableException;
+use Kinintel\Exception\InvalidParametersException;
 use Kinintel\Exception\MissingDatasourceUpdaterException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
@@ -20,6 +23,7 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DatasourceService {
@@ -85,10 +89,21 @@ class DatasourceService {
 
 
     /**
+     * 
+     *
+     * @param string $datasourceInstanceKey
+     * @param TransformationInstance[] $transformations
+     */
+    public function getEvaluatedParameters($datasourceInstanceKey, $transformations = []) {
+
+    }
+
+
+    /**
      * Get the evaluated data source for a source specified by key, using the supplied parameter values and applying the
      * passed transformations
      *
-     * @param DatasetInstanceSummary $dataSetInstance
+     * @param string $datasourceInstanceKey
      * @param mixed[] $parameterValues
      * @param TransformationInstance[] $additionalTransformations
      *
@@ -99,6 +114,10 @@ class DatasourceService {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        // Validate parameters first up
+        $this->validateParameters($datasourceInstance, $transformations, $parameterValues);
+
 
         // Grab the data source for this instance
         $datasource = $datasourceInstance->returnDataSource();
@@ -149,6 +168,47 @@ class DatasourceService {
             }
         }
         return false;
+    }
+
+
+    /**
+     * Ensure all required parameters are supplied
+     *
+     * @param DatasourceInstance $datasourceInstance
+     * @param TransformationInstance[] $transformationInstances
+     *
+     * @param mixed[] $parameterValues
+     */
+    private function validateParameters($datasourceInstance, $transformationInstances, $parameterValues) {
+
+        $validationErrors = [];
+
+        // Grab parameters from data source instance
+        $parameters = $datasourceInstance->getParameters() ?? [];
+
+        // Check that the parameters are supplied and of required type
+        foreach ($parameters as $parameter) {
+            $paramName = $parameter->getName();
+            if (!isset($parameterValues[$paramName])) {
+
+                if ($parameter->getDefaultValue()) {
+                    $parameterValues[$paramName] = $parameter->getDefaultValue();
+                } else {
+                    $validationErrors[$paramName] = [
+                        "required" => new FieldValidationError($paramName, "required", "Parameter {$paramName} is required")];
+                }
+            } else if (!$parameter->validateParameterValue($parameterValues[$paramName])) {
+                $validationErrors[$paramName] = [
+                    new FieldValidationError($paramName, "wrongtype", "Parameter {$paramName} is of the wrong type - should be {$parameter->getType()}")
+                ];
+            }
+        }
+
+        // Throw exception if at least one validation error
+        if (sizeof($validationErrors) > 0) {
+            throw new InvalidParametersException($validationErrors);
+        }
+
     }
 
 
