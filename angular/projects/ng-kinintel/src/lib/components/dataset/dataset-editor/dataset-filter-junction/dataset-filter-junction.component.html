@@ -1,38 +1,42 @@
 <ng-template [ngIf]="filterJunction">
-    <ng-template [ngIf]="filterJunction.filters.length">
 
-        <div class="filter">
-            <div class="flex align-center justify-between">
-                <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
-                                         [ngStyle]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
-                    <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
-                    <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
-                </mat-button-toggle-group>
 
-            </div>
-            <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
+    <div class="filter">
+        <div class="flex align-center justify-between">
+            <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
+                                     [ngStyle]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
+                <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
+                <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
+            </mat-button-toggle-group>
 
-                <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
-                                   [filterFields]="filterFields" (filtersRemoved)="filtersRemoved($event)"></ki-dataset-filter>
-
-            </ng-template>
-            <div>
-                <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
-                    <mat-icon>add_circle</mat-icon>
-                    filter
-                </button>
-                <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')"
-                        [disabled]="!filterJunction.filters.length">
-                    <mat-icon>playlist_add</mat-icon>
-                    filter group
-                </button>
-            </div>
         </div>
-    </ng-template>
+        <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
+
+            <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
+                               [filterFields]="filterFields"
+                               (filtersRemoved)="filtersRemoved()"></ki-dataset-filter>
+
+        </ng-template>
+        <div>
+            <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
+                <mat-icon>add_circle</mat-icon>
+                filter
+            </button>
+            <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')">
+                <mat-icon>playlist_add</mat-icon>
+                filter group
+            </button>
+            <button mat-button color="warn" title="Remove group filter" (click)="filtersRemoved()">
+                <mat-icon>delete_sweep</mat-icon>
+                remove group
+            </button>
+        </div>
+    </div>
 
 
     <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
         <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]"
-                                    [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
+                                    [filterFields]="filterFields" [parentJunction]="filterJunction"
+                                    [junctionIndex]="j"></ki-dataset-filter-junction>
     </div>
 </ng-template>

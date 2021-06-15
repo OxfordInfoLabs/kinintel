@@ -15,6 +15,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() tagService: any;
     @Input() projectService: any;
     @Input() environment: any = {};
+    @Input() datasourceService: any;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -67,7 +68,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 data: {
                     dataset,
                     showChart: false,
-                    datasetService: this.datasetService
+                    datasetService: this.datasetService,
+                    datasourceService: this.datasourceService
                 }
             });
             dialogRef.afterClosed().subscribe(res => {

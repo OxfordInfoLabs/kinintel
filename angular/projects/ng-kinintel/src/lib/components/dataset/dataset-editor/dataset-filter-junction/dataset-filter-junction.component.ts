@@ -41,7 +41,7 @@ export class DatasetFilterJunctionComponent implements OnInit {
         this.filterJunctionChange.emit(this.filterJunction);
     }
 
-    public filtersRemoved(change) {
+    public filtersRemoved() {
         this.parentJunction.filterJunctions.splice(this.junctionIndex, 1);
     }
 }

@@ -46,7 +46,8 @@ export class DatasourceComponent implements OnInit {
             data: {
                 datasource,
                 showChart: false,
-                datasetService: this.datasetService
+                datasetService: this.datasetService,
+                datasourceService: this.datasourceService
             }
         });
         dialogRef.afterClosed().subscribe(res => {

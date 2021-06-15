@@ -13,11 +13,11 @@ import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.c
 export class DatasetEditorComponent implements OnInit {
 
     @Input() datasource: any = {};
-    @Input() datasetInstance: any;
-    @Input() datasetService: any;
+    @Input() evaluatedDatasource: any;
+    @Input() datasourceService: any;
 
     @Output() dataLoaded = new EventEmitter<any>();
-    @Output() datasetInstanceChange = new EventEmitter();
+    @Output() evaluatedDatasourceChange = new EventEmitter();
 
     public dataset: any;
     public tableData = [];
@@ -51,13 +51,14 @@ export class DatasetEditorComponent implements OnInit {
             this.datasource = this.data.datasource;
         }
 
-        if (!this.datasetInstance) {
-            this.datasetInstance = {
-                datasourceInstanceKey: this.datasource.key,
-                transformationInstances: []
+        if (!this.evaluatedDatasource) {
+            this.evaluatedDatasource = {
+                key: this.datasource.key,
+                transformationInstances: [],
+                evaluatedParameters: []
             };
         }
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     public addFilter(type) {
@@ -87,17 +88,17 @@ export class DatasetEditorComponent implements OnInit {
 
     public applyFilters() {
         this.validateFilterJunction();
-        const filterTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'filter'});
+        const filterTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
         if (filterTransformation) {
             filterTransformation.config = this.filterJunction;
         } else {
-            this.datasetInstance.transformationInstances.push({
+            this.evaluatedDatasource.transformationInstances.push({
                 type: 'filter',
                 config: this.filterJunction
             });
         }
 
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     public clearFilters() {
@@ -111,28 +112,28 @@ export class DatasetEditorComponent implements OnInit {
             filterJunctions: []
         };
 
-        const filterTransformation = _.findIndex(this.datasetInstance.transformationInstances, {type: 'filter'});
+        const filterTransformation = _.findIndex(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
         if (filterTransformation > -1) {
-            this.datasetInstance.transformationInstances.splice(filterTransformation, 1);
+            this.evaluatedDatasource.transformationInstances.splice(filterTransformation, 1);
         }
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     public increaseOffset() {
         this.page = this.page + 1;
         this.offset = (this.limit * this.page) - this.limit;
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     public decreaseOffset() {
         this.page = this.page <= 1 ? 1 : this.page - 1;
         this.offset = (this.limit * this.page) - this.limit;
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     public pageSizeChange(value) {
         this.limit = value;
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     public sort(event) {
@@ -187,18 +188,18 @@ export class DatasetEditorComponent implements OnInit {
 
     private setMultiSortValues() {
         if (!this.multiSortConfig.length) {
-            const sortIndex = _.findIndex(this.datasetInstance.transformationInstances, {type: 'multisort'});
+            const sortIndex = _.findIndex(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
             if (sortIndex > -1) {
-                this.datasetInstance.transformationInstances.splice(sortIndex, 1);
+                this.evaluatedDatasource.transformationInstances.splice(sortIndex, 1);
             }
         } else {
-            const multiSortTransformation = _.find(this.datasetInstance.transformationInstances, {type: 'multisort'});
+            const multiSortTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
             if (multiSortTransformation) {
                 multiSortTransformation.config.sorts = _.map(this.multiSortConfig, item => {
                     return {fieldName: item.column, direction: item.direction};
                 });
             } else {
-                this.datasetInstance.transformationInstances.push(
+                this.evaluatedDatasource.transformationInstances.push(
                     {
                         type: 'multisort',
                         config: {
@@ -212,7 +213,7 @@ export class DatasetEditorComponent implements OnInit {
         }
 
 
-        this.evaluateDataset();
+        this.evaluateDatasource();
     }
 
     private loadData() {
@@ -226,11 +227,15 @@ export class DatasetEditorComponent implements OnInit {
             };
         });
         this.dataLoaded.emit(this.dataset);
-        this.datasetInstanceChange.emit(this.datasetInstance);
+        this.evaluatedDatasourceChange.emit(this.evaluatedDatasource);
     }
 
-    private evaluateDataset() {
-        this.datasetService.evaluateDataset(this.datasetInstance, [{
+    private evaluateDatasource() {
+        this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
+            .then(res => {
+                console.log(res);
+            });
+        this.datasourceService.evaluateDatasource(this.evaluatedDatasource, [{
             type: 'paging',
             config: {
                 limit: this.limit,

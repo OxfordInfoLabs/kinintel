@@ -1,5 +1,8 @@
 <div class="cell-header">
-    <button mat-stroked-button color="primary">Connect Datasource</button>
+    <button mat-stroked-button color="primary">
+        <mat-icon>add</mat-icon>
+        Datasource
+    </button>
     <div>
         <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
         <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
@@ -12,39 +15,41 @@
 </div>
 <div class="filters mt-4" *ngIf="showFilters">
 
-    <div class="filter">
-        <div class="flex align-center justify-between">
-            <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
-                                     [ngStyle]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
-                <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
-                <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
-            </mat-button-toggle-group>
+    <div class="top-filters">
+        <div class="filter">
+            <div class="flex align-center justify-between">
+                <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
+                                         [ngStyle]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
+                    <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
+                    <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
 
+                <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
+                                   [filterFields]="filterFields"></ki-dataset-filter>
+
+            </ng-template>
+            <div>
+                <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
+                    <mat-icon>add_circle</mat-icon>
+                    filter
+                </button>
+                <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')"
+                        [disabled]="!filterJunction.filters.length">
+                    <mat-icon>playlist_add</mat-icon>
+                    filter group
+                </button>
+            </div>
         </div>
-        <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
 
-            <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
-                               [filterFields]="filterFields"></ki-dataset-filter>
 
-        </ng-template>
-        <div>
-            <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
-                <mat-icon>add_circle</mat-icon>
-                filter
-            </button>
-            <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')"
-                    [disabled]="!filterJunction.filters.length">
-                <mat-icon>playlist_add</mat-icon>
-                filter group
-            </button>
+        <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
+            <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]"
+                                        [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
         </div>
     </div>
 
-
-    <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
-        <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]"
-                                    [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
-    </div>
 
     <div class="flex align-center justify-end mt-4">
         <button mat-stroked-button color="primary" style="margin-right: .5rem" (click)="clearFilters()">Clear filters

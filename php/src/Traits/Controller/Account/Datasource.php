@@ -6,6 +6,7 @@ namespace Kinintel\Traits\Controller\Account;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
  * Datasource trait for account level access to datasources
@@ -62,8 +63,8 @@ trait Datasource {
      *
      * @http POST /parameters/$key
      *
-     * @param $key
-     * @param $transformationInstances
+     * @param string $key
+     * @param TransformationInstance[] $transformationInstances
      */
     public function getEvaluatedParameters($key, $transformationInstances) {
         return $this->datasourceService->getEvaluatedParameters($key, $transformationInstances);

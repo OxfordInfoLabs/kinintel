@@ -8,15 +8,21 @@
 .filter
     display: flex
     flex-direction: column
-    margin: .5rem 0
+    margin: 0
     position: relative
     background-color: whitesmoke
     padding: .5rem
 
+.top-filters
+    padding: .5rem
+    position: relative
+    background-color: rgba(0, 0, 0, 0.05)
+
 .group-filters
     margin-left: 2rem
-    padding-left: 2rem
-    //border-left: 2px solid #bdbdbd
+    padding: .5rem
+    position: relative
+    background-color: rgba(0, 0, 0, 0.05)
 
 select, input
     padding: .75rem
@@ -27,6 +33,13 @@ select, input
     border-style: solid
 
 table
+    td
+        max-width: 400px
+        word-wrap: break-word
+        padding-top: .5rem
+        padding-bottom: .5rem
+        padding-right: 1rem
+        min-width: 130px
     &::-webkit-scrollbar
         width: .75em
         background: transparent
