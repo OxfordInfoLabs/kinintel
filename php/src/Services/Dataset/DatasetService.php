@@ -151,24 +151,13 @@ class DatasetService {
      *
      */
     public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
-        $evaluatedDataSource = $this->getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations);
-        return $evaluatedDataSource->materialise();
-    }
-
-    /**
-     * Get an evaluated data source for a dataset instance
-     *
-     * @param DatasetInstanceSummary $dataSetInstance
-     * @param TransformationInstance[] $additionalTransformations
-     */
-    public function getEvaluatedDataSourceForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
 
         $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
 
         return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), [],
             $transformations);
-
     }
+
 
 
 }

@@ -86,15 +86,4 @@ trait Dataset {
     }
 
 
-    /**
-     * Evaluate a dataset instance (used within the GUI)
-     *
-     * @http POST /evaluate
-     *
-     * @param DatasetInstanceEvaluationDescriptor $datasetInstanceEvaluationDescriptor
-     */
-    public function evaluateDatasetInstance($datasetInstanceEvaluationDescriptor) {
-        return $this->datasetService->getEvaluatedDataSetForDataSetInstance($datasetInstanceEvaluationDescriptor->getDatasetInstanceSummary(), $datasetInstanceEvaluationDescriptor->getAdditionalTransformations());
-    }
-
 }

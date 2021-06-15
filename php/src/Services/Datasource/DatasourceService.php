@@ -16,6 +16,7 @@ use Kinintel\Exception\InvalidParametersException;
 use Kinintel\Exception\MissingDatasourceUpdaterException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
@@ -89,12 +90,20 @@ class DatasourceService {
 
 
     /**
-     * 
+     * Get evaluated parameters for the passed datasource and transformations array
      *
      * @param string $datasourceInstanceKey
      * @param TransformationInstance[] $transformations
      */
     public function getEvaluatedParameters($datasourceInstanceKey, $transformations = []) {
+
+        // Grab the datasource for this data set instance by key
+        $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        // Grab parameters from top level data source instance
+        $parameters = $datasourceInstance->getParameters();
+
+        return $parameters;
 
     }
 
@@ -107,7 +116,7 @@ class DatasourceService {
      * @param mixed[] $parameterValues
      * @param TransformationInstance[] $additionalTransformations
      *
-     * @return BaseDatasource
+     * @return Dataset
      */
     public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = []) {
 
@@ -116,7 +125,7 @@ class DatasourceService {
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
 
         // Validate parameters first up
-        $this->validateParameters($datasourceInstance, $transformations, $parameterValues);
+        $parameterValues = $this->validateParameters($datasourceInstance, $transformations, $parameterValues);
 
 
         // Grab the data source for this instance
@@ -128,7 +137,7 @@ class DatasourceService {
         }
 
         // Return the evaluated data source
-        return $datasource;
+        return $datasource->materialise($parameterValues);
 
     }
 
@@ -208,6 +217,8 @@ class DatasourceService {
         if (sizeof($validationErrors) > 0) {
             throw new InvalidParametersException($validationErrors);
         }
+
+        return $parameterValues;
 
     }
 
