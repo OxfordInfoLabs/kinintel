@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 export class DatasetParameterValuesComponent implements OnInit {
 
     @Input() parameterValues: any = [];
+    @Input() focusParameters = false;
 
     @Output() changed = new EventEmitter();
 
@@ -21,11 +22,7 @@ export class DatasetParameterValuesComponent implements OnInit {
     }
 
     public parameterChange(data?) {
-        const parameterValues = {};
-        this.parameterValues.forEach(value => {
-            parameterValues[value.name] = value.value;
-        });
-        this.changed.emit(parameterValues);
+        this.changed.emit(this.parameterValues);
     }
 
 }

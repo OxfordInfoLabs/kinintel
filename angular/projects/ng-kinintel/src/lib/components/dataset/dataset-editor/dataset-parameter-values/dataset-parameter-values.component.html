@@ -9,7 +9,11 @@
         </ng-template>
 
         <div class="flex align-center justify-between">
-            <div></div>
+            <div class="warn">
+                <ng-template [ngIf]="focusParameters">
+                    Please complete the required parameters for this datasource.
+                </ng-template>
+            </div>
             <button mat-flat-button color="primary" (click)="parameterChange()"
                     [disabled]="!_.every(parameterValues, 'value')">Apply Parameters</button>
         </div>

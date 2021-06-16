@@ -14,7 +14,8 @@
 
 </div>
 <div class="parameter-values" *ngIf="parameterValues.length">
-    <ki-dataset-parameter-values [parameterValues]="parameterValues" (changed)="parameterValueChange($event)"></ki-dataset-parameter-values>
+    <ki-dataset-parameter-values [parameterValues]="parameterValues" [focusParameters]="focusParams"
+                                 (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
 </div>
 <div class="filters mt-4" *ngIf="showFilters">
 

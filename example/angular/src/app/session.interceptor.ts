@@ -52,13 +52,13 @@ export class SessionInterceptor implements HttpInterceptor {
                             if (error.error && error.error.message.includes('No CSRF token supplied for user authenticated request')) {
                                 this.authService.logout();
                             } else {
-                                const message = error.error.message;
-                                if (message) {
-                                    this.snackBar.open(error.error.message, 'Close', {
-                                        verticalPosition: 'top',
-                                        duration: 3000
-                                    });
-                                }
+                                // const message = error.error.message;
+                                // if (message) {
+                                //     this.snackBar.open(error.error.message, 'Close', {
+                                //         verticalPosition: 'top',
+                                //         duration: 3000
+                                //     });
+                                // }
                                 return throwError(error);
                             }
                         }

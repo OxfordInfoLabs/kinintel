@@ -36,6 +36,7 @@ export class DatasetEditorComponent implements OnInit {
     public page = 1;
     public endOfResults = false;
     public parameterValues: any = [];
+    public focusParams = false;
 
     private limit = 25;
     private offset = 0;
@@ -53,8 +54,9 @@ export class DatasetEditorComponent implements OnInit {
         if (!this.evaluatedDatasource) {
             this.evaluatedDatasource = {
                 key: this.datasource.key,
+                datasourceInstanceKey: this.datasource.key,
                 transformationInstances: [],
-                parameterValues: []
+                parameterValues: {}
             };
         }
         this.evaluateDatasource();
@@ -149,9 +151,14 @@ export class DatasetEditorComponent implements OnInit {
         });
     }
 
-    public parameterValueChange(data) {
-        this.evaluatedDatasource.parameterValues = data;
-        this.evaluateDatasource();
+    public setEvaluatedParameters(parameterValues, evaluate?) {
+        this.parameterValues = parameterValues;
+        parameterValues.forEach(param => {
+            this.evaluatedDatasource.parameterValues[param.name] = param.value;
+        });
+        if (evaluate) {
+            this.evaluateDatasource();
+        }
     }
 
     private validateFilterJunction() {
@@ -218,8 +225,23 @@ export class DatasetEditorComponent implements OnInit {
     private evaluateDatasource() {
         this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
             .then(values => {
-                this.parameterValues = values;
-                console.log(values);
+                this.focusParams = false;
+                const parameterValues = {};
+                values.forEach(paramValue => {
+                    const existParam = _.find(this.parameterValues, {name: paramValue.name});
+                    if (!existParam || (existParam && !existParam.value)) {
+                        paramValue.value = paramValue.defaultValue;
+                        parameterValues[paramValue.name] = paramValue;
+                        this.focusParams = true;
+                    } else {
+                        parameterValues[existParam.name] = existParam;
+                    }
+                });
+
+                this.parameterValues = _.values(parameterValues);
+                this.setEvaluatedParameters(this.parameterValues);
+
+                console.log(this.parameterValues);
                 this.datasourceService.evaluateDatasource(
                     this.evaluatedDatasource.key,
                     this.evaluatedDatasource.transformationInstances,
