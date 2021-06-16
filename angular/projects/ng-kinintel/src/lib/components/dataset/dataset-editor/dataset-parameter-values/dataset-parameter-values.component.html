@@ -3,11 +3,16 @@
 
     <div class="parameters">
         <ng-template ngFor let-parameter [ngForOf]="parameterValues">
-            <ki-dataset-parameter-type [parameter]="parameter"
-                                       (parameterChange)="parameterChange($event)">
+            <ki-dataset-parameter-type [parameter]="parameter">
 
             </ki-dataset-parameter-type>
         </ng-template>
+
+        <div class="flex align-center justify-between">
+            <div></div>
+            <button mat-flat-button color="primary" (click)="parameterChange()"
+                    [disabled]="!_.every(parameterValues, 'value')">Apply Parameters</button>
+        </div>
     </div>
 </div>
 

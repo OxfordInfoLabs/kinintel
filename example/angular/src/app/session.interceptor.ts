@@ -55,7 +55,8 @@ export class SessionInterceptor implements HttpInterceptor {
                                 const message = error.error.message;
                                 if (message) {
                                     this.snackBar.open(error.error.message, 'Close', {
-                                        verticalPosition: 'top'
+                                        verticalPosition: 'top',
+                                        duration: 3000
                                     });
                                 }
                                 return throwError(error);
