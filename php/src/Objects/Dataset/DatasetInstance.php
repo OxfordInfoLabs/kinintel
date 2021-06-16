@@ -31,7 +31,7 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     public function __construct($datasetInstanceSummary = null, $accountId = null, $projectKey = null) {
         if ($datasetInstanceSummary instanceof DatasetInstanceSummary)
-            parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getTransformationInstances(), $datasetInstanceSummary->getId());
+            parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getTransformationInstances(), $datasetInstanceSummary->getParameterValues(), $datasetInstanceSummary->getId());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -55,7 +55,7 @@ class DatasetInstance extends DatasetInstanceSummary {
      * @return DatasetInstanceSummary
      */
     public function returnSummary() {
-        return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey, $this->transformationInstances, $this->id);
+        return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey, $this->transformationInstances, $this->parameterValues, $this->id);
     }
 
 

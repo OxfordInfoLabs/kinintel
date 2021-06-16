@@ -56,7 +56,6 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-
     public function testDataSourceAndTransformationsAreValidatedOnDataSetSave() {
 
         $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "badsource");
@@ -102,7 +101,11 @@ class DatasetServiceTest extends TestBase {
         $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
             new TransformationInstance("filter", new FilterTransformation([
                 new Filter("property", "foobar")
-            ]))
+            ])),
+        ], [
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
         ]);
 
         $id = $this->datasetService->saveDataSetInstance($dataSetInstance, 5, 1);
@@ -128,11 +131,18 @@ class DatasetServiceTest extends TestBase {
             ]
         ), $transformationInstance);
 
+
         // Check unserialisation works for transformation instance
         $this->assertEquals(new FilterTransformation([
             new Filter("property", "foobar")
         ]), $transformationInstance->returnTransformation());
 
+
+        $this->assertEquals([
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
+        ], $reSet->getParameterValues());
 
         // Remove the data set instance
         $this->datasetService->removeDataSetInstance($id);

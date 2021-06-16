@@ -30,6 +30,17 @@ class BaseDatasetInstance extends ActiveRecord {
      */
     protected $transformationInstances = [];
 
+
+    /**
+     * Array of parameter values saved with this dataset.
+     *
+     * @var mixed
+     * @json
+     * @sqlType LONGTEXT
+     */
+    protected $parameterValues = [];
+
+
     /**
      * @param TransformationInstance[] $transformationInstances
      */
@@ -42,6 +53,20 @@ class BaseDatasetInstance extends ActiveRecord {
      */
     public function getTransformationInstances() {
         return $this->transformationInstances;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParameterValues() {
+        return $this->parameterValues;
+    }
+
+    /**
+     * @param mixed $parameterValues
+     */
+    public function setParameterValues($parameterValues) {
+        $this->parameterValues = $parameterValues;
     }
 
 
@@ -59,6 +84,7 @@ class BaseDatasetInstance extends ActiveRecord {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
 
+
     /**
      * Implement validate method to perform additional validation as required
      */
@@ -75,7 +101,7 @@ class BaseDatasetInstance extends ActiveRecord {
 
             try {
                 $dataSourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
-            } catch (ObjectNotFoundException $e){
+            } catch (ObjectNotFoundException $e) {
                 $validationErrors["datasourceInstanceKey"] = new FieldValidationError("datasourceInstanceKey", "notfound", "Data source with instance key '{$this->datasourceInstanceKey}' does not exist");
             }
 
