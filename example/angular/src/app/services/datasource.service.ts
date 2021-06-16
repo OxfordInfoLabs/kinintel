@@ -27,11 +27,12 @@ export class DatasourceService {
             {transformationInstances: evaluatedDatasource.transformationInstances}).toPromise();
     }
 
-    public evaluateDatasource(evaluatedDatasource, additionalTransformations?) {
-        const transformationInstances = _.merge(evaluatedDatasource.transformationInstances, additionalTransformations);
-
+    public evaluateDatasource(key, transformationInstances, parameterValues?, additionalTransformations?) {
+        if (additionalTransformations) {
+            Object.assign(transformationInstances, additionalTransformations);
+        }
         return this.http.post('/account/datasource/evaluate', _.omit({
-            key: evaluatedDatasource.key, transformationInstances
+            key, transformationInstances, parameterValues
         }, _.isNil)).toPromise();
     }
 }

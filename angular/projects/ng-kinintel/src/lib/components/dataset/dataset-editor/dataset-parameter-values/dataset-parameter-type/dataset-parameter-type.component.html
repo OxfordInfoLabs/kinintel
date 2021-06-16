@@ -1,0 +1,22 @@
+<div class="parameter">
+    <p *ngIf="parameter.type !== 'boolean'">{{parameter.title}}<span>*</span></p>
+
+    <ng-template [ngIf]="parameter.type === 'text'">
+        <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+            (change)="valueChanged()">
+    </ng-template>
+    <ng-template [ngIf]="parameter.type === 'numeric'">
+        <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+               (change)="valueChanged()">
+    </ng-template>
+    <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
+        <input type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+               (change)="valueChanged()">
+    </ng-template>
+    <ng-template [ngIf]="parameter.type === 'boolean'">
+        <mat-slide-toggle [(ngModel)]="parameter.value" (ngModelChange)="valueChanged()">{{parameter.title}}</mat-slide-toggle>
+    </ng-template>
+
+
+<!--    <small>Description</small>-->
+</div>

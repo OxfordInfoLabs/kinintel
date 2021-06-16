@@ -1,0 +1,13 @@
+<div class="parameter-values">
+    <div class="pv-title">Required parameters</div>
+
+    <div class="parameters">
+        <ng-template ngFor let-parameter [ngForOf]="parameterValues">
+            <ki-dataset-parameter-type [parameter]="parameter"
+                                       (parameterChange)="parameterChange($event)">
+
+            </ki-dataset-parameter-type>
+        </ng-template>
+    </div>
+</div>
+

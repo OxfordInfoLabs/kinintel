@@ -1,8 +1,6 @@
 import {Component, Inject, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as _ from 'lodash';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {BehaviorSubject} from 'rxjs';
-import {DatasetFilterComponent} from './dataset-filter/dataset-filter.component';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 
 @Component({
@@ -37,6 +35,7 @@ export class DatasetEditorComponent implements OnInit {
     public multiSortConfig = [];
     public page = 1;
     public endOfResults = false;
+    public parameterValues: any = [];
 
     private limit = 25;
     private offset = 0;
@@ -55,31 +54,12 @@ export class DatasetEditorComponent implements OnInit {
             this.evaluatedDatasource = {
                 key: this.datasource.key,
                 transformationInstances: [],
-                evaluatedParameters: []
+                parameterValues: []
             };
         }
         this.evaluateDatasource();
     }
 
-    public addFilter(type) {
-        if (type === 'single') {
-            this.filterJunction.filters.push({
-                fieldName: '',
-                value: '',
-                filterType: ''
-            });
-        } else if (type === 'group') {
-            this.filterJunction.filterJunctions.push({
-                logic: 'AND',
-                filters: [{
-                    fieldName: '',
-                    value: '',
-                    filterType: ''
-                }],
-                filterJunctions: []
-            });
-        }
-    }
 
     public removeFilter(index) {
         this.multiSortConfig.splice(index, 1);
@@ -169,6 +149,11 @@ export class DatasetEditorComponent implements OnInit {
         });
     }
 
+    public parameterValueChange(data) {
+        this.evaluatedDatasource.parameterValues = data;
+        this.evaluateDatasource();
+    }
+
     private validateFilterJunction() {
 
         const check = (filterJunction) => {
@@ -232,19 +217,27 @@ export class DatasetEditorComponent implements OnInit {
 
     private evaluateDatasource() {
         this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
-            .then(res => {
-                console.log(res);
+            .then(values => {
+                this.parameterValues = values;
+                console.log(values);
+                this.datasourceService.evaluateDatasource(
+                    this.evaluatedDatasource.key,
+                    this.evaluatedDatasource.transformationInstances,
+                    this.evaluatedDatasource.parameterValues,
+                    [{
+                        type: 'paging',
+                        config: {
+                            limit: this.limit,
+                            offset: this.offset
+                        }
+                    }]).then(dataset => {
+                    this.dataset = dataset;
+                    this.loadData();
+                }).catch(err => {
+                    console.log(err);
+                });
             });
-        this.datasourceService.evaluateDatasource(this.evaluatedDatasource, [{
-            type: 'paging',
-            config: {
-                limit: this.limit,
-                offset: this.offset
-            }
-        }]).then(dataset => {
-            this.dataset = dataset;
-            this.loadData();
-        });
+
     }
 
 }

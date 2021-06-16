@@ -23,15 +23,19 @@ import {MatSortModule} from '@angular/material/sort';
 import { ProjectPickerComponent } from './components/project-picker/project-picker.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {FormsModule} from '@angular/forms';
-import { DatasetFilterComponent } from './components/dataset/dataset-editor/dataset-filter/dataset-filter.component';
+import { DatasetFilterComponent } from './components/dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 import { TagPickerComponent } from './components/tag-picker/tag-picker.component';
 import { DashboardsComponent } from './components/dashboards/dashboards.component';
-import { DatasetFilterJunctionComponent } from './components/dataset/dataset-editor/dataset-filter-junction/dataset-filter-junction.component';
+import { DatasetFilterJunctionComponent } from './components/dataset/dataset-editor/dataset-filters/dataset-filter-junction/dataset-filter-junction.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { DatasetNameDialogComponent } from './components/dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import { DatasetSummariseComponent } from './components/dataset/dataset-editor/dataset-summarise/dataset-summarise.component';
 import {MatSelectModule} from '@angular/material/select';
+import { DatasetFiltersComponent } from './components/dataset/dataset-editor/dataset-filters/dataset-filters.component';
+import { DatasetParameterValuesComponent } from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-values.component';
+import { DatasetParameterTypeComponent } from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-type/dataset-parameter-type.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 
 @NgModule({
@@ -49,7 +53,10 @@ import {MatSelectModule} from '@angular/material/select';
         DashboardsComponent,
         DatasetFilterJunctionComponent,
         DatasetNameDialogComponent,
-        DatasetSummariseComponent
+        DatasetSummariseComponent,
+        DatasetFiltersComponent,
+        DatasetParameterValuesComponent,
+        DatasetParameterTypeComponent
     ],
     imports: [
         BrowserModule,
@@ -70,7 +77,8 @@ import {MatSelectModule} from '@angular/material/select';
         DragDropModule,
         FormsModule,
         MatButtonToggleModule,
-        MatSelectModule
+        MatSelectModule,
+        MatSlideToggleModule
     ],
     exports: [
         DashboardEditorComponent,
@@ -85,7 +93,8 @@ import {MatSelectModule} from '@angular/material/select';
         TagPickerComponent,
         DashboardsComponent,
         DatasetFilterJunctionComponent,
-        DatasetNameDialogComponent
+        DatasetNameDialogComponent,
+        DatasetFiltersComponent
     ]
 })
 export class NgKinintelModule {
