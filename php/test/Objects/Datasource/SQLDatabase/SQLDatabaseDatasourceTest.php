@@ -116,6 +116,31 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testAnyPassedParametersAreAppliedExplicitlyToTheQueryInAQueryBasedDatasource() {
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "", "SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id WHERE d.id = {{testId}}"),
+            $this->authCredentials, null, $this->validator);
+
+
+        $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
+
+        $this->databaseConnection->returnValue("query", $resultSet, [
+            "SELECT * FROM (SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id WHERE d.id = 255) A", []
+        ]);
+
+        /**
+         * @var SQLResultSetTabularDataset $dataSet
+         */
+        $dataSet = $sqlDatabaseDatasource->materialiseDataset([
+            "testId" => 255
+        ]);
+
+        $this->assertEquals(new SQLResultSetTabularDataset($resultSet), $dataSet);
+
+    }
+
+
     public function testCanMaterialiseTableBasedDataSetWithSQLDatabaseTransformationsApplied() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data"),

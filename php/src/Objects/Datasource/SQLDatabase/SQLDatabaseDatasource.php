@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceNotUpdatableException;
@@ -131,9 +132,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
-
-        $query = $this->buildQuery();
-
+        $query = $this->buildQuery($parameterValues);
 
         /**
          * @var DatabaseConnection $dbConnection
@@ -226,7 +225,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     }
 
     // Build SQL statement using configured settings
-    private function buildQuery() {
+    private function buildQuery($parameterValues = []) {
 
         /**
          * @var SQLDatabaseDatasourceConfig $config
@@ -237,7 +236,13 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
             $query = new SQLQuery("*", $config->getTableName());
         } else {
-            $query = new SQLQuery("*", "(" . $config->getQuery() . ") A");
+            /**
+             * @var TemplateParser $templateParser
+             */
+            $templateParser = Container::instance()->get(TemplateParser::class);
+            $queryString = $templateParser->parseTemplateText($config->getQuery(), $parameterValues);
+
+            $query = new SQLQuery("*", "(" . $queryString . ") A");
         }
 
         /**

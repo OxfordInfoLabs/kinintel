@@ -71,7 +71,6 @@ class BasicAuthenticationCredentials implements WebServiceCredentials {
 
         $headers = $request->getHeaders();
         $headers->set(Headers::AUTHORISATION, "Basic " . base64_encode($this->username . ":" . $this->password));
-
         return $request;
     }
 }

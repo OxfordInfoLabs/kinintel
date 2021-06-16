@@ -13,17 +13,17 @@ class FormattedResultDatasourceConfigTest extends \PHPUnit\Framework\TestCase {
 
 
         // Test an object one
-        $formattedResultConfig = new FormattedResultDatasourceConfig("json",new JSONResultFormatter("results", false));
+        $formattedResultConfig = new FormattedResultDatasourceConfig("json",new JSONResultFormatter("results", "", false));
 
-        $this->assertEquals(new JSONResultFormatter("results", false), $formattedResultConfig->returnFormatter());
+        $this->assertEquals(new JSONResultFormatter("results", "", false), $formattedResultConfig->returnFormatter());
 
         // Test an unserialised array
         $formattedResultConfig = new FormattedResultDatasourceConfig("json", [
-            "resultPath" => "results.single",
+            "resultsOffsetPath" => "results.single",
             "singleResult" => true
         ]);
 
-        $this->assertEquals(new JSONResultFormatter("results.single", true), $formattedResultConfig->returnFormatter());
+        $this->assertEquals(new JSONResultFormatter("results.single", "", true), $formattedResultConfig->returnFormatter());
 
     }
 

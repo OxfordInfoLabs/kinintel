@@ -137,7 +137,7 @@ class DatasourceService {
         }
 
         // Return the evaluated data source
-        return $datasource->materialise($parameterValues);
+        return $datasource->materialise($parameterValues ?? []);
 
     }
 

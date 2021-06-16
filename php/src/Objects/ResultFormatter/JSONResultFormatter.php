@@ -22,7 +22,7 @@ class JSONResultFormatter implements ResultFormatter {
      *
      * @var string
      */
-    private $resultPath;
+    private $resultsOffsetPath;
 
 
     /**
@@ -33,31 +33,54 @@ class JSONResultFormatter implements ResultFormatter {
      */
     private $singleResult;
 
+
+    /**
+     * @var string
+     */
+    private $itemOffsetPath;
+
     /**
      * JSONWebServiceResultMapping constructor.
      *
-     * @param string $resultPath
+     * @param string $resultsOffsetPath
+     * @param string $itemOffsetPath
      * @param bool $singleResult
      */
-    public function __construct($resultPath = "", $singleResult = false) {
-        $this->resultPath = $resultPath;
+    public function __construct($resultsOffsetPath = "", $itemOffsetPath = "", $singleResult = false) {
+        $this->resultsOffsetPath = $resultsOffsetPath;
         $this->singleResult = $singleResult;
+        $this->itemOffsetPath = $itemOffsetPath;
     }
 
 
     /**
      * @return string
      */
-    public function getResultPath() {
-        return $this->resultPath;
+    public function getResultsOffsetPath() {
+        return $this->resultsOffsetPath;
     }
 
     /**
-     * @param string $resultPath
+     * @param string $resultsOffsetPath
      */
-    public function setResultPath($resultPath) {
-        $this->resultPath = $resultPath;
+    public function setResultsOffsetPath($resultsOffsetPath) {
+        $this->resultsOffsetPath = $resultsOffsetPath;
     }
+
+    /**
+     * @return string
+     */
+    public function getItemOffsetPath() {
+        return $this->itemOffsetPath;
+    }
+
+    /**
+     * @param string $itemOffsetPath
+     */
+    public function setItemOffsetPath($itemOffsetPath) {
+        $this->itemOffsetPath = $itemOffsetPath;
+    }
+
 
     /**
      * @return bool
@@ -93,8 +116,8 @@ class JSONResultFormatter implements ResultFormatter {
         $decodedResult = json_decode($result, true);
 
         // if result path, drill down to here first
-        if ($this->getResultPath()) {
-            $resultPath = $this->getResultPath();
+        if ($this->getResultsOffsetPath()) {
+            $resultPath = $this->getResultsOffsetPath();
             $decodedResult = $this->drillDown($resultPath, $decodedResult);
         }
 
@@ -110,6 +133,14 @@ class JSONResultFormatter implements ResultFormatter {
         foreach ($decodedResult as $item) {
             // If item is an array, we map accordingly
             if (is_array($item)) {
+
+                // if an item offset path supplied, drill down.
+                if ($this->getItemOffsetPath()) {
+                    $item = $this->drillDown($this->getItemOffsetPath(), $item);
+                }
+
+
+
                 $dataItem = [];
                 foreach ($item as $field => $value) {
                     $columnName = $field;

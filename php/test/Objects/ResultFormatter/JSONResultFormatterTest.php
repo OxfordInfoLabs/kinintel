@@ -62,7 +62,7 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     public function testDataSetIsReturnedCorrectlyForSingleItemsReturnedAtTopLevel() {
 
-        $formatter = new JSONResultFormatter("", true);
+        $formatter = new JSONResultFormatter("", "", true);
 
 
         // Primitive single value
@@ -99,7 +99,7 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testResultPathIsObservedIfSetInResultMappingConfig() {
+    public function testResultsOffsetPathIsObservedIfSetInResultMappingConfig() {
 
 
         $formatter = new JSONResultFormatter("results");
@@ -120,6 +120,28 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
+    public function testItemOffsetPathIsObservedIfSetInResultMappingConfig() {
+
+        $formatter = new JSONResultFormatter("", "drilled.down");
+
+
+        // Regular key / value pairs
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode([
+            ["drilled" => ["down" => ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"]]],
+            ["drilled" => ["down" => ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]]]
+        ])));
+
+
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
+
+        $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
+        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
+
+    }
+
 
 
     public function testOffsetAndLimitIsImplementedWhenSupplied() {

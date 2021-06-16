@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Dataset\Tabular;
 
 use Kinikit\Core\Stream\ReadableStream;
+use Kinikit\Core\Stream\StreamException;
 use Kinintel\ValueObjects\Dataset\Field;
 
 /**
@@ -91,23 +92,27 @@ class SVStreamTabularDataSet extends TabularDataset {
         if ($this->readItems >= $this->limit)
             return null;
 
-        $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
-        $this->readItems++;
+        try {
+            $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
+            $this->readItems++;
 
-        // Only continue if we have some content
-        if (trim($csvLine[0])) {
+            // Only continue if we have some content
+            if (trim($csvLine[0])) {
 
-            while (sizeof($this->columns) < sizeof($csvLine)) {
-                $this->columns[] = new Field("column" . (sizeof($this->columns) + 1));
+                while (sizeof($this->columns) < sizeof($csvLine)) {
+                    $this->columns[] = new Field("column" . (sizeof($this->columns) + 1));
 
+                }
+
+                $dataItem = [];
+                foreach ($csvLine as $index => $value) {
+                    $dataItem[$this->columns[$index]->getName()] = trim($value);
+                }
+                return $dataItem;
+            } else {
+                return null;
             }
-
-            $dataItem = [];
-            foreach ($csvLine as $index => $value) {
-                $dataItem[$this->columns[$index]->getName()] = trim($value);
-            }
-            return $dataItem;
-        } else {
+        } catch (StreamException $e) {
             return null;
         }
 
