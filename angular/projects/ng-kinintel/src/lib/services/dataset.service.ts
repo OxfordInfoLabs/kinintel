@@ -32,6 +32,10 @@ export class DatasetService {
 
     public saveDataset(datasetInstanceSummary) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        const activeTag = this.tagService.activeTag.getValue() || null;
+        if (activeTag) {
+            datasetInstanceSummary.tags = [activeTag];
+        }
         return this.http.post(this.config.backendURL + '/account/dataset/?projectKey=' + projectKey, datasetInstanceSummary).toPromise();
     }
 }
