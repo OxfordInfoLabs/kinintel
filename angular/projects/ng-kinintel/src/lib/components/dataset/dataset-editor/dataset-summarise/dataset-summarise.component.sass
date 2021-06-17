@@ -36,8 +36,8 @@
         width: 35%
     &.expression
         flex-direction: column
-        max-height: 100px
         padding: 0
+        max-height: inherit
         .top, .bottom
             padding: 10px
             width: 100%
@@ -45,7 +45,8 @@
             flex-direction: row
             align-items: center
             justify-content: space-between
-
+        .bottom
+            padding-top: 0
 
 .cdk-drag-preview
     box-sizing: border-box
