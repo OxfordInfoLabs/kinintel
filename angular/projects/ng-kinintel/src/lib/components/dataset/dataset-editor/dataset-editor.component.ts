@@ -48,7 +48,6 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        console.log('evaluated datasource', this.evaluatedDatasource);
         if (!this.datasource) {
             this.datasource = this.data.datasource;
         }
@@ -61,6 +60,15 @@ export class DatasetEditorComponent implements OnInit {
                 parameterValues: {}
             };
         }
+
+        if (this.evaluatedDatasource.transformationInstances.length) {
+            const filter = _.find(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
+            if (filter) {
+                this.filterJunction = filter.config;
+                this.showFilters = true;
+            }
+        }
+
         this.evaluateDatasource();
     }
 
@@ -244,7 +252,6 @@ export class DatasetEditorComponent implements OnInit {
                 this.parameterValues = _.values(parameterValues);
                 this.setEvaluatedParameters(this.parameterValues);
 
-                console.log(this.parameterValues);
                 this.datasourceService.evaluateDatasource(
                     this.evaluatedDatasource.key || this.evaluatedDatasource.datasourceInstanceKey,
                     this.evaluatedDatasource.transformationInstances,
