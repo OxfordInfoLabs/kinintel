@@ -1,17 +1,21 @@
+.drop-container
+    display: flex
+    align-items: center
+    justify-content: space-between
+
 .example-container
-    width: 300px
+    width: 350px
     max-width: 100%
-    margin: 0 25px 25px 0
     display: inline-block
     vertical-align: top
 
 
 .example-list
     border: solid 1px #ccc
-    min-height: 60px
     background: white
     border-radius: 4px
     display: block
+    height: 400px
     max-height: 400px
     overflow-x: auto
 
@@ -27,6 +31,20 @@
     cursor: move
     background: white
     font-size: 14px
+    max-height: 60px
+    mat-select
+        width: 35%
+    &.expression
+        flex-direction: column
+        max-height: 100px
+        padding: 0
+        .top, .bottom
+            padding: 10px
+            width: 100%
+            display: flex
+            flex-direction: row
+            align-items: center
+            justify-content: space-between
 
 
 .cdk-drag-preview
@@ -41,10 +59,6 @@
 
 .cdk-drag-animating
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1)
-
-
-.example-box:last-child
-    border: none
 
 
 .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder)

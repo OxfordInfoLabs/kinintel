@@ -1,6 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {CdkDragDrop, copyArrayItem, moveItemInArray} from '@angular/cdk/drag-drop';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'ki-dataset-summarise',
@@ -35,6 +36,30 @@ export class DatasetSummariseComponent implements OnInit {
                 event.container.data,
                 event.previousIndex,
                 event.currentIndex);
+            console.log(event);
+
+            if (event.container.id === 'summariseExpressions') {
+                const item: any = event.container.data[event.currentIndex];
+                item.expressionType = 'SUM';
+            }
         }
+    }
+
+    public removeListItem(list, index) {
+        list.splice(index, 1);
+    }
+
+    public applySettings() {
+        const summariseTransformation: any = {
+            summariseFieldNames: _.map(this.summariseFields, 'value'),
+            expressions: _.map(this.summariseExpressions, expression => {
+                return {
+                    expressionType: expression.expressionType,
+                    fieldName: expression.value
+                };
+            })
+        };
+
+        console.log(summariseTransformation);
     }
 }

@@ -32,6 +32,13 @@ class SummariseExpression {
      */
     private $customExpression;
 
+    /**
+     * Used to set a custom label
+     *
+     * @var string
+     */
+    private $customLabel;
+
 
     // Expression constants
     const EXPRESSION_TYPE_COUNT = "COUNT";
@@ -95,6 +102,22 @@ class SummariseExpression {
      */
     public function setCustomExpression($customExpression) {
         $this->customExpression = $customExpression;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomLabel(): string
+    {
+        return $this->customLabel;
+    }
+
+    /**
+     * @param string $customLabel
+     */
+    public function setCustomLabel(string $customLabel): void
+    {
+        $this->customLabel = $customLabel;
     }
 
     /**

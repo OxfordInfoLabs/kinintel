@@ -221,7 +221,7 @@ export class DatasetEditorComponent implements OnInit {
     private loadData() {
         this.tableData = this.dataset.allData;
         this.endOfResults = this.tableData.length < this.limit;
-        this.displayedColumns = _.map(this.dataset.columns, 'name');
+        this.displayedColumns = _.map(this.dataset.columns, 'title');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
                 label: column.title,
@@ -265,9 +265,7 @@ export class DatasetEditorComponent implements OnInit {
                     }]).then(dataset => {
                     this.dataset = dataset;
                     this.loadData();
-                }).catch(err => {
-                    console.log(err);
-                });
+                }).catch(err => {});
             });
 
     }

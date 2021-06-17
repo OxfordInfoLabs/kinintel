@@ -10,7 +10,7 @@
 
     <div class="dialog-content">
 
-        <div cdkDropListGroup>
+        <div class="drop-container" cdkDropListGroup>
             <div class="example-container">
                 <h2>Available Columns</h2>
 
@@ -32,7 +32,12 @@
                     [cdkDropListData]="summariseFields"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of summariseFields" cdkDrag>{{item.label}}</div>
+                    <div class="example-box" *ngFor="let item of summariseFields; let i = index" cdkDrag>
+                        {{item.label}}
+                        <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
+                            <mat-icon>remove</mat-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -42,9 +47,25 @@
                 <div
                     cdkDropList
                     [cdkDropListData]="summariseExpressions"
+                    id="summariseExpressions"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of summariseExpressions" cdkDrag>{{item.label}}</div>
+                    <div class="example-box expression" *ngFor="let item of summariseExpressions; let i = index" cdkDrag>
+                        <div class="top">
+                            <mat-select [(ngModel)]="item.expressionType">
+                                <mat-option *ngFor="let type of expressionTypes" [value]="type">{{type}}</mat-option>
+                            </mat-select>
+                            {{item.label}}
+
+                            <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
+                                <mat-icon>remove</mat-icon>
+                            </button>
+                        </div>
+                        <div class="bottom">
+                            <span>Custom label</span>
+                            <input type="text">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,7 +76,7 @@
     <div class="dialog-footer">
         <button mat-button mat-dialog-close>Cancel</button>
 
-        <button mat-button [mat-dialog-close]="true">Apply Settings</button>
+        <button mat-button (click)="applySettings()">Apply Settings</button>
     </div>
 
 </div>
