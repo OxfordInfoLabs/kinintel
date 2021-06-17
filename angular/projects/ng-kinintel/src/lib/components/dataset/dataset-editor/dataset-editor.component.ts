@@ -2,6 +2,7 @@ import {Component, Inject, Input, OnInit, Output, EventEmitter} from '@angular/c
 import * as _ from 'lodash';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
+import {DatasourceService} from '../../../services/datasource.service';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -12,7 +13,6 @@ export class DatasetEditorComponent implements OnInit {
 
     @Input() datasource: any = {};
     @Input() evaluatedDatasource: any;
-    @Input() datasourceService: any;
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() evaluatedDatasourceChange = new EventEmitter();
@@ -43,10 +43,12 @@ export class DatasetEditorComponent implements OnInit {
 
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
-                private dialog: MatDialog) {
+                private dialog: MatDialog,
+                private datasourceService: DatasourceService) {
     }
 
     ngOnInit(): void {
+        console.log('evaluated datasource', this.evaluatedDatasource);
         if (!this.datasource) {
             this.datasource = this.data.datasource;
         }
@@ -224,15 +226,16 @@ export class DatasetEditorComponent implements OnInit {
 
     private evaluateDatasource() {
         this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
-            .then(values => {
+            .then((values: any) => {
                 this.focusParams = false;
                 const parameterValues = {};
                 values.forEach(paramValue => {
                     const existParam = _.find(this.parameterValues, {name: paramValue.name});
                     if (!existParam || (existParam && !existParam.value)) {
-                        paramValue.value = paramValue.defaultValue;
+                        const existingValue = this.evaluatedDatasource.parameterValues[paramValue.name];
+                        paramValue.value = existingValue || paramValue.defaultValue;
                         parameterValues[paramValue.name] = paramValue;
-                        this.focusParams = true;
+                        this.focusParams = !existingValue;
                     } else {
                         parameterValues[existParam.name] = existParam;
                     }
@@ -243,7 +246,7 @@ export class DatasetEditorComponent implements OnInit {
 
                 console.log(this.parameterValues);
                 this.datasourceService.evaluateDatasource(
-                    this.evaluatedDatasource.key,
+                    this.evaluatedDatasource.key || this.evaluatedDatasource.datasourceInstanceKey,
                     this.evaluatedDatasource.transformationInstances,
                     this.evaluatedDatasource.parameterValues,
                     [{

@@ -3,11 +3,9 @@ import {MediaMatcher} from '@angular/cdk/layout';
 import {MatSidenav} from '@angular/material/sidenav';
 import {SidenavService} from './services/sidenav.service';
 import {MatDialog} from '@angular/material/dialog';
-import {ProjectPickerComponent, TagPickerComponent} from 'ng-kinintel';
-import {ProjectService} from './services/project.service';
+import {ProjectPickerComponent, ProjectService, TagPickerComponent, TagService} from 'ng-kinintel';
 import {Subscription} from 'rxjs';
 import {environment} from '../environments/environment';
-import {TagService} from './services/tag.service';
 import {AuthenticationService} from 'ng-kiniauth';
 import {Router} from '@angular/router';
 

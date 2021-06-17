@@ -1,6 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {DatasetService} from '../../services/dataset.service';
-import {DatasourceService} from '../../services/datasource.service';
 
 @Component({
     selector: 'app-dataset',
@@ -9,8 +7,7 @@ import {DatasourceService} from '../../services/datasource.service';
 })
 export class DatasetComponent implements OnInit {
 
-    constructor(public datasetService: DatasetService,
-                public datasourceService: DatasourceService) {
+    constructor() {
     }
 
     ngOnInit(): void {

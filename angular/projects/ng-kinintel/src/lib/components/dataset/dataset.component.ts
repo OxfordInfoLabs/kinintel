@@ -3,6 +3,10 @@ import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {MatDialog} from '@angular/material/dialog';
+import {TagService} from '../../services/tag.service';
+import {ProjectService} from '../../services/project.service';
+import {DatasetService} from '../../services/dataset.service';
+import {KinintelModuleConfig} from '../../ng-kinintel.module';
 
 @Component({
     selector: 'ki-dataset',
@@ -10,12 +14,6 @@ import {MatDialog} from '@angular/material/dialog';
     styleUrls: ['./dataset.component.sass']
 })
 export class DatasetComponent implements OnInit, OnDestroy {
-
-    @Input() datasetService: any;
-    @Input() tagService: any;
-    @Input() projectService: any;
-    @Input() environment: any = {};
-    @Input() datasourceService: any;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -28,7 +26,11 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     private tagSub: Subscription;
 
-    constructor(private dialog: MatDialog) {
+    constructor(private dialog: MatDialog,
+                private tagService: TagService,
+                private projectService: ProjectService,
+                private datasetService: DatasetService,
+                public config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {
@@ -54,7 +56,9 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.tagSub.unsubscribe();
+        if (this.tagSub) {
+            this.tagSub.unsubscribe();
+        }
     }
 
     public view(datasetId) {
@@ -67,9 +71,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 hasBackdrop: false,
                 data: {
                     dataset,
-                    showChart: false,
-                    datasetService: this.datasetService,
-                    datasourceService: this.datasourceService
+                    showChart: false
                 }
             });
             dialogRef.afterClosed().subscribe(res => {

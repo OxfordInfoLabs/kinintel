@@ -2,6 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {Router} from '@angular/router';
+import {TagService} from '../../services/tag.service';
+import {ProjectService} from '../../services/project.service';
+import {DashboardService} from '../../services/dashboard.service';
+import {KinintelModuleConfig} from '../../ng-kinintel.module';
 
 @Component({
     selector: 'ki-dashboards',
@@ -9,11 +13,6 @@ import {Router} from '@angular/router';
     styleUrls: ['./dashboards.component.sass']
 })
 export class DashboardsComponent implements OnInit {
-
-    @Input() dashboardService: any;
-    @Input() tagService: any;
-    @Input() projectService: any;
-    @Input() environment: any = {};
 
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');
@@ -26,7 +25,11 @@ export class DashboardsComponent implements OnInit {
 
     private tagSub: Subscription;
 
-    constructor(private router: Router) {
+    constructor(private router: Router,
+                private tagService: TagService,
+                private projectService: ProjectService,
+                private dashboardService: DashboardService,
+                public config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {

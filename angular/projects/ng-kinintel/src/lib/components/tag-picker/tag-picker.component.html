@@ -1,10 +1,10 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
     <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>{{environment.tagMenuLabel || 'Tags'}}</h2>
+        <h2 mat-dialog-title>{{config.tagMenuLabel || 'Tags'}}</h2>
         <button mat-stroked-button color="primary" (click)="addNew = !addNew">
             <mat-icon>add</mat-icon>
-            New {{environment.tagLabel || 'Tag'}}
+            New {{config.tagLabel || 'Tag'}}
         </button>
         <button mat-icon-button mat-dialog-close>
             <mat-icon>clear</mat-icon>
@@ -14,7 +14,7 @@
     <div class="dialog-content">
 
         <ng-template [ngIf]="!addNew">
-            <input class="full" type="text" placeholder="Search {{environment.tagMenuLabel || 'tags'}}" (keyup)="searchText.next($event.target.value)">
+            <input class="full" type="text" placeholder="Search {{config.tagMenuLabel || 'tags'}}" (keyup)="searchText.next($event.target.value)">
 
             <table class="hover">
                 <thead>
@@ -35,7 +35,7 @@
                     <td>{{tag.description}}</td>
                     <td>{{tag.key}}</td>
                     <td class="text-right">
-                        <button mat-icon-button color="warn" (click)="removeTag(tag)">
+                        <button mat-icon-button color="warn" (click)="removeTag(tag.key)">
                             <mat-icon>clear</mat-icon>
                         </button>
                     </td>
@@ -47,12 +47,12 @@
 
         <ng-template [ngIf]="addNew">
             <div class="my-4">
-                <p><b>Project Name</b></p>
-                <input class="full" type="text" placeholder="Enter project name" [(ngModel)]="newName">
+                <p><b>{{config.tagLabel || 'Tag'}} Name</b></p>
+                <input class="full" type="text" placeholder="Enter {{config.tagLabel || 'tag'}} name" [(ngModel)]="newName">
             </div>
             <div class="my-4">
-                <p class="mt-1"><b>Project Description</b></p>
-                <input class="full" type="text" placeholder="Enter project description" [(ngModel)]="newDescription">
+                <p class="mt-1"><b>{{config.tagLabel || 'Tag'}} Description</b></p>
+                <input class="full" type="text" placeholder="Enter {{config.tagLabel || 'Tag'}} description" [(ngModel)]="newDescription">
             </div>
         </ng-template>
 
@@ -64,7 +64,7 @@
         <button mat-button mat-stroked-button type="button" (click)="addNew = false;" *ngIf="addNew">Cancel</button>
 
         <button mat-button mat-flat-button color="primary" type="button" *ngIf="addNew"
-                (click)="createTag()" [disabled]="!newName || !newDescription">Create Project
+                (click)="createTag()" [disabled]="!newName || !newDescription">Create {{config.tagLabel || 'Tag'}}
         </button>
     </div>
 

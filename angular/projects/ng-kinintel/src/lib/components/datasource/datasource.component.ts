@@ -2,8 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
-import {DatasetEditorComponent} from '../dataset/dataset-editor/dataset-editor.component';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
+import {DatasourceService} from '../../services/datasource.service';
 
 @Component({
     selector: 'ki-datasource',
@@ -12,15 +12,13 @@ import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 })
 export class DatasourceComponent implements OnInit {
 
-    @Input() datasourceService: any;
-    @Input() datasetService: any;
-
     public datasources: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
     public offset = new BehaviorSubject(0);
 
-    constructor(private dialog: MatDialog) {
+    constructor(private dialog: MatDialog,
+                private datasourceService: DatasourceService) {
     }
 
     ngOnInit(): void {
@@ -45,9 +43,7 @@ export class DatasourceComponent implements OnInit {
             hasBackdrop: false,
             data: {
                 datasource,
-                showChart: false,
-                datasetService: this.datasetService,
-                datasourceService: this.datasourceService
+                showChart: false
             }
         });
         dialogRef.afterClosed().subscribe(res => {

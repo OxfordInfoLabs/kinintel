@@ -2,6 +2,8 @@ import {Component, Inject, Input, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
+import {ProjectService} from '../../services/project.service';
+import {TagService} from '../../services/tag.service';
 
 @Component({
     selector: 'ki-project-picker',
@@ -11,9 +13,6 @@ import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators
 })
 export class ProjectPickerComponent implements OnInit {
 
-
-    public projectService: any;
-    public tagService: any;
     public projects: any = [];
     public addNew = false;
     public newName;
@@ -24,12 +23,12 @@ export class ProjectPickerComponent implements OnInit {
 
 
     constructor(public dialogRef: MatDialogRef<ProjectPickerComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any) {
+                @Inject(MAT_DIALOG_DATA) public data: any,
+                private projectService: ProjectService,
+                private tagService: TagService) {
     }
 
     ngOnInit(): void {
-        this.projectService = this.data.projectService;
-        this.tagService = this.data.tagService;
 
         this.activeProject = this.projectService.activeProject.getValue();
 

@@ -3,7 +3,7 @@
     <h2 class="flex align-center"><span class="">Dashboards</span>
         <mat-chip-list *ngIf="activeTag" class="overflow-hidden">
             <mat-chip class="active-tag" [removable]="true" (removed)="removeActiveTag()">
-                <span><b>{{environment.tagLabel}}:&nbsp;</b>{{activeTag ? activeTag.tag : ''}}</span>
+                <span><b>{{config.tagLabel || 'Tag'}}:&nbsp;</b>{{activeTag ? activeTag.tag : ''}}</span>
                 <mat-icon matChipRemove>cancel</mat-icon>
             </mat-chip>
         </mat-chip-list>

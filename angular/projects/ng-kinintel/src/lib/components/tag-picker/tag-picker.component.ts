@@ -1,6 +1,9 @@
 import {Component, Inject, Input, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject, merge, Subject} from 'rxjs';
+import {TagService} from '../../services/tag.service';
+import {KinintelModuleConfig} from '../../ng-kinintel.module';
+import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'ki-tag-picker',
@@ -17,23 +20,27 @@ export class TagPickerComponent implements OnInit {
     public activeTag: any = {};
     public newName;
     public newDescription;
-    public environment: any = {};
-
-    private tagService: any;
 
     constructor(public dialogRef: MatDialogRef<TagPickerComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any) {
+                @Inject(MAT_DIALOG_DATA) public data: any,
+                private tagService: TagService,
+                public config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {
-        this.tagService = this.data.tagService;
-        this.environment = this.data.environment || {};
 
         this.activeTag = this.tagService.activeTag.getValue() || {};
 
-        this.tagService.getTags().then(tags => {
+        merge(this.searchText, this.reload).pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap(() =>
+                this.getTags()
+            )
+        ).subscribe((tags: any) => {
             this.tags = tags;
         });
+
     }
 
     public activateTag(tag) {
@@ -41,12 +48,35 @@ export class TagPickerComponent implements OnInit {
         this.dialogRef.close();
     }
 
-    public removeTag(tag) {
-
+    public removeTag(tagKey) {
+        const message = `Are you sure you would like to remove this ${this.config.tagLabel}?`;
+        if (window.confirm(message)) {
+            this.tagService.removeTag(tagKey).then(() => {
+                if (this.tagService.activeTag.getValue() &&
+                    this.tagService.activeTag.getValue().key === tagKey) {
+                    this.tagService.resetActiveTag();
+                }
+                this.reload.next(Date.now());
+            });
+        }
     }
 
     public createTag() {
+        this.tagService.saveTag(this.newName, this.newDescription).then(() => {
+            this.newName = '';
+            this.newDescription = '';
+            this.addNew = false;
+            this.reload.next(Date.now());
+        });
+    }
 
+    private getTags() {
+        return this.tagService.getTags(
+            this.searchText.getValue()
+        ).pipe(map((tags: any) => {
+                return tags;
+            })
+        );
     }
 
 }

@@ -14,6 +14,7 @@ import {GridStack, GridStackNode} from 'gridstack';
 import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
 import {ActivatedRoute} from '@angular/router';
+import {DashboardService} from '../../services/dashboard.service';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -22,8 +23,6 @@ import {ActivatedRoute} from '@angular/router';
     encapsulation: ViewEncapsulation.None
 })
 export class DashboardEditorComponent implements OnInit, AfterViewInit {
-
-    @Input() dashboardService: any;
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -71,7 +70,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
                 private injector: Injector,
-                private route: ActivatedRoute) {
+                private route: ActivatedRoute,
+                private dashboardService: DashboardService) {
     }
 
     ngOnInit(): void {
@@ -97,7 +97,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
                 revert: 'invalid',
                 scroll: false,
                 appendTo: 'body',
-                helper: DashboardEditorComponent.myClone
+                // helper: DashboardEditorComponent.myClone
             },
             acceptWidgets: (el) => {
                 el.className += ' grid-stack-item';

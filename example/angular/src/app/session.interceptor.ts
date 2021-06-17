@@ -9,6 +9,7 @@ import { finalize, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { AuthenticationService } from 'ng-kiniauth';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class SessionInterceptor implements HttpInterceptor {
@@ -16,7 +17,8 @@ export class SessionInterceptor implements HttpInterceptor {
     private static totalRequests = 0;
 
     constructor(private authService: AuthenticationService,
-                private snackBar: MatSnackBar) {
+                private snackBar: MatSnackBar,
+                private router: Router) {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler) {
@@ -50,7 +52,9 @@ export class SessionInterceptor implements HttpInterceptor {
                     error => {
                         if (error instanceof HttpErrorResponse) {
                             if (error.error && error.error.message.includes('No CSRF token supplied for user authenticated request')) {
-                                this.authService.logout();
+                                this.authService.logout().then(() => {
+                                    this.router.navigate(['/login']);
+                                });
                             } else {
                                 // const message = error.error.message;
                                 // if (message) {

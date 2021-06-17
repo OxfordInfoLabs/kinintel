@@ -40,7 +40,9 @@ import { DashboardsComponent } from './views/dashboards/dashboards.component';
         MatSidenavModule,
         MatIconModule,
         MatButtonModule,
-        NgKinintelModule,
+        NgKinintelModule.forRoot({
+            backendURL: environment.backendURL
+        }),
         NgKiniAuthModule.forRoot({
             guestHttpURL: `${environment.backendURL}/guest`,
             accessHttpURL: `${environment.backendURL}/account`

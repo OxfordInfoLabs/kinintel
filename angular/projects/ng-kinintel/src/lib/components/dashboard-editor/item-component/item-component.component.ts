@@ -67,7 +67,7 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     }
 
     public load() {
-        if (this.item.type == 'lineChart') {
+        if (this.item.type === 'lineChart') {
             this.data = [
                 {data: [1000, 1400, 1999, 2500, 5000]},
             ];
