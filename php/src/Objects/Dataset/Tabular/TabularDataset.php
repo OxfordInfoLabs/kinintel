@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Dataset\Tabular;
 
 
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Dataset\Field;
 
@@ -14,17 +15,70 @@ use Kinintel\ValueObjects\Dataset\Field;
 abstract class TabularDataset implements Dataset {
 
     /**
-     * Get array of columns as Field objects
-     *
-     * @return Field[]
+     * @var Field[]
      */
-    public abstract function getColumns();
+    protected $columns;
 
 
     /**
-     * Provide the next data item
+     * Construct with columns - default behaviour
+     *
+     * TabularDataSetTest constructor.
+     *
+     * @param Field[] $columns
      */
-    public abstract function nextDataItem();
+    public function __construct($columns = []) {
+        $this->columns = $columns;
+    }
+
+    /**
+     * Return the columns as constructed
+     *
+     * @return Field[]
+     */
+    public function getColumns() {
+        return $this->columns;
+    }
+
+
+    /**
+     * Provide the next data item - this will be an associative array with keys matching
+     * column names returned from getColumns
+     *
+     * @return mixed
+     */
+    public function nextDataItem() {
+
+        // Grab data item
+        $dataItem = $this->nextRawDataItem();
+
+        if (is_array($dataItem)) {
+
+            $newDataItem = [];
+            foreach ($this->getColumns() as $column) {
+                $columnName = $column->getName();
+
+                if ($column->getStaticValue()) {
+                    $value = $column->getStaticValue();
+                } else {
+                    $value = $dataItem[$columnName] ?? null;
+                }
+
+                $newDataItem[$columnName] = $value;
+            }
+        } else {
+            $newDataItem = null;
+        }
+
+        return $newDataItem;
+
+    }
+
+
+    /**
+     * Return next raw data item for the dataset.
+     */
+    public abstract function nextRawDataItem();
 
 
     /**

@@ -141,7 +141,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
         // Return a tabular dataset
-        return new SQLResultSetTabularDataset($resultSet);
+        return new SQLResultSetTabularDataset($resultSet, $this->getConfig()->returnEvaluatedColumns($parameterValues));
     }
 
 

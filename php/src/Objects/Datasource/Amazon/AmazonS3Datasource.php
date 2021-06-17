@@ -105,7 +105,7 @@ class AmazonS3Datasource extends BaseDatasource {
 
                 // Temporary read all contents logic
                 $body = $body->getContents();
-                return $config->returnFormatter()->format(new ReadOnlyStringStream($body), $limit, $offset);
+                return $config->returnFormatter()->format(new ReadOnlyStringStream($body), [], $limit, $offset);
             }
 
         }

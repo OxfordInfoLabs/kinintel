@@ -38,14 +38,17 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      * @param string $url
      * @param string $method
      * @param string $payloadTemplate
+     * @param string $resultFormat
+     * @param mixed $resultFormatConfig
+     * @param Field[] $columns
      *
      */
     public function __construct($url = "", $method = Request::METHOD_GET, $payloadTemplate = null,
-                                $resultFormat = "json", $resultFormatConfig = []) {
+                                $resultFormat = "json", $resultFormatConfig = [], $columns = []) {
         $this->url = $url;
         $this->method = $method;
         $this->payloadTemplate = $payloadTemplate;
-        parent::__construct($resultFormat, $resultFormatConfig);
+        parent::__construct($resultFormat, $resultFormatConfig, $columns);
     }
 
 

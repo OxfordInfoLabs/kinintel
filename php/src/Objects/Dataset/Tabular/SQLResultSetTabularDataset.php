@@ -22,7 +22,8 @@ class SQLResultSetTabularDataset extends TabularDataset {
      *
      * @param $resultSet
      */
-    public function __construct($resultSet) {
+    public function __construct($resultSet, $columns = []) {
+        parent::__construct($columns);
         $this->resultSet = $resultSet;
     }
 
@@ -32,16 +33,20 @@ class SQLResultSetTabularDataset extends TabularDataset {
      * @return Field[]
      */
     public function getColumns() {
-        return array_map(function ($columnName) {
-            return new Field($columnName);
-        }, $this->resultSet->getColumnNames());
+        if (!$this->columns || sizeof($this->columns) == 0) {
+            $this->columns = array_map(function ($columnName) {
+                return new Field($columnName);
+            }, $this->resultSet->getColumnNames());
+        }
+
+        return parent::getColumns();
     }
 
 
     /**
      * Simply read the next data item from the result set
      */
-    public function nextDataItem() {
+    public function nextRawDataItem() {
         return $this->resultSet->nextRow();
     }
 

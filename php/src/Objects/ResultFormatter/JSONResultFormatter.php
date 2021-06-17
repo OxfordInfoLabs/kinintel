@@ -101,11 +101,12 @@ class JSONResultFormatter implements ResultFormatter {
      * Map the result from the webservice to JSON using configured rules
      *
      * @param ReadableStream $stream
+     * @param array $columns
      * @param int $limit
      * @param int $offset
      * @return Dataset
      */
-    public function format($stream, $limit = PHP_INT_MAX, $offset = 0) {
+    public function format($stream, $passedColumns = [], $limit = PHP_INT_MAX, $offset = 0) {
 
         $columns = [];
         $data = [];
@@ -157,8 +158,7 @@ class JSONResultFormatter implements ResultFormatter {
             }
         }
 
-
-        return new ArrayTabularDataset(array_values($columns), $data);
+        return new ArrayTabularDataset(sizeof($passedColumns) ? $passedColumns : array_values($columns), $data);
 
     }
 

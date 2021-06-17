@@ -22,13 +22,19 @@ class Field {
      */
     private $title;
 
+
+    /**
+     * @var mixed
+     */
+    private $staticValue;
+
     /**
      * Field constructor.
      *
      * @param string $name
      * @param string $title
      */
-    public function __construct($name, $title = null) {
+    public function __construct($name, $title = null, $staticValue = null) {
         $this->name = $name;
 
         // If no title supplied, make one using the name
@@ -37,6 +43,7 @@ class Field {
         }
 
         $this->title = $title;
+        $this->staticValue = $staticValue;
     }
 
 
@@ -52,6 +59,13 @@ class Field {
      */
     public function getTitle() {
         return $this->title;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStaticValue() {
+        return $this->staticValue;
     }
 
 

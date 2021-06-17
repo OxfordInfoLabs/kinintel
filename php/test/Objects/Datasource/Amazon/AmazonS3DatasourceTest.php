@@ -130,7 +130,7 @@ class AmazonS3DatasourceTest extends \PHPUnit\Framework\TestCase {
             "name": "Joe",
             "age": 50
         }
-        ]'), 1, 0
+        ]'), [], 1, 0
         ]));
 
 
@@ -153,7 +153,7 @@ class AmazonS3DatasourceTest extends \PHPUnit\Framework\TestCase {
             "name": "Joe",
             "age": 50
         }
-        ]'), 1, 1
+        ]'), [], 1, 1
         ]));
     }
 

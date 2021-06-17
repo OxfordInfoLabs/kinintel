@@ -12,15 +12,13 @@ include_once "autoloader.php";
 
 class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
-    public function testCanGetNextItemDataUsingStream() {
+    public function testCanGetNextItemDataUsingStreamWhenFirstRowNotHeader() {
 
         // Create mock stream
         $mockStream = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
 
         $dataSet = new SVStreamTabularDataSet([
-            new Field("name", "Name"),
-            new Field("age", "Age")
-        ], $mockStream, ",", '"');
+        ], $mockStream, false, ",", '"');
 
         $mockStream->returnValue("readCSVLine", [
             "Mark", 22
@@ -30,13 +28,36 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
         $nextValue = $dataSet->nextDataItem();
         $this->assertEquals([
-            "name" => "Mark",
-            "age" => 22
+            "column1" => "Mark",
+            "column2" => 22
         ], $nextValue);
 
 
     }
 
+    public function testCanGetNextItemDataUsingStreamWhenFirstRowIsHeader() {
+
+        // Create mock stream
+        $mockStream = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
+
+        $mockStream->returnValue("readCSVLine", [
+            "name", "age"
+        ], [
+            ",", '"'
+        ]);
+
+        $dataSet = new SVStreamTabularDataSet([
+        ], $mockStream, true, ",", '"');
+
+
+        $nextValue = $dataSet->nextDataItem();
+        $this->assertEquals([
+            "name" => "name",
+            "age" => "age"
+        ], $nextValue);
+
+
+    }
 
 
 }

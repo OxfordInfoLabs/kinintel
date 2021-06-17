@@ -174,7 +174,7 @@ class WebServiceDatasource extends BaseDatasource {
         }
 
         // Materialise the web service result and return the result
-        return $config->returnFormatter()->format($response->getStream(), $limit, $offset);
+        return $config->returnFormatter()->format($response->getStream(), $config->returnEvaluatedColumns($parameterValues), $limit, $offset);
 
     }
 

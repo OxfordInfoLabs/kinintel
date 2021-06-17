@@ -117,41 +117,13 @@ class SVResultFormatter implements ResultFormatter {
      * Format the value string
      *
      * @param ReadableStream $result
+     * @param array $columns
      * @param int $limit
      * @param int $offset
      * @return Dataset
      */
-    public function format($stream, $limit = PHP_INT_MAX, $offset = 0) {
-
-        $columns = [];
-
-        if ($this->firstRowHeader) {
-            $columns = $this->processHeaderRow($stream);
-        }
-
-        return new SVStreamTabularDataSet($columns, $stream, $this->separator, $this->enclosure, $limit, $offset);
-
-
-    }
-
-    /**
-     * @param ReadableStream $stream
-     * @return array
-     */
-    private function processHeaderRow($stream) {
-
-        // Grab the line as items
-        $csvLine = $stream->readCSVLine($this->separator, $this->enclosure);
-
-        // Create fields from these
-        $columns = [];
-        foreach ($csvLine as $column) {
-            // Expand out the title and the name
-            $name = StringUtils::convertToCamelCase(trim($column));
-            $columns[] = new Field($name);
-        }
-
-        return $columns;
+    public function format($stream, $passedColumns = [], $limit = PHP_INT_MAX, $offset = 0) {
+        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset);
     }
 
 }

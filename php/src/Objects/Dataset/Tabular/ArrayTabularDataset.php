@@ -19,11 +19,6 @@ class ArrayTabularDataset extends TabularDataset {
     private $data;
 
     /**
-     * @var Field[]
-     */
-    private $columns;
-
-    /**
      * @var integer
      */
     private $pointer = 0;
@@ -36,37 +31,28 @@ class ArrayTabularDataset extends TabularDataset {
      * @param array $data
      */
     public function __construct($columns, $data) {
-        $this->columns = $columns;
+        parent::__construct($columns);
         $this->data = $data;
-    }
-
-
-    /**
-     * Get columns
-     *
-     * @return Field[]
-     */
-    public function getColumns() {
-        return $this->columns;
     }
 
 
     /**
      * Implement only required method
      */
-    public function nextDataItem() {
+    public function nextRawDataItem() {
         $item = $this->data[$this->pointer] ?? null;
         if ($item) $this->pointer++;
         return $item;
     }
 
     /**
-     * Get all data
+     * Get all data - reset pointer
      *
      * @return array
      */
     public function getAllData() {
-        return $this->data;
+        $this->pointer = 0;
+        return parent::getAllData();
     }
 
 

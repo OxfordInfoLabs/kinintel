@@ -155,6 +155,37 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testAnyConfiguredColumnsArePassedToFormatterFormatFunction() {
+
+        $expectedResponse = new Response(new ReadOnlyStringStream('[{"name": "Pingu", "age": 33},{"name": "Pooch", "age": 5}]'), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET));
+
+        $request = new TestWebServiceDataSource(new WebserviceDataSourceConfig("https://mytest.com", Request::METHOD_GET,
+            null, "json", [], [
+                new Field("age")
+            ]));
+        $request->setDispatcher($this->httpDispatcher);
+
+        // Materialise
+        $response = $request->materialiseDataset();
+
+        // Check that the response was received directly
+        $this->assertEquals(new ArrayTabularDataset([new Field("age", "Age")], [
+            [
+                "name" => "Pingu",
+                "age" => 33
+            ],
+            [
+                "name" => "Pooch",
+                "age" => 5
+            ]
+        ]), $response);
+
+    }
+
+
     public function testAnySuppliedDataSourceParameterValuesAreMadeAvailableToBothUrlAndPayload() {
 
         $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Bosh"}'), 200, null, null);
@@ -217,7 +248,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $request->materialiseDataset();
 
         $this->assertTrue($formatter->methodWasCalled("format", [
-            $stream, PHP_INT_MAX, 0]));
+            $stream, [], PHP_INT_MAX, 0]));
 
 
         // Check limit passed correctly when supplied
@@ -230,7 +261,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $request->materialiseDataset();
 
         $this->assertTrue($formatter->methodWasCalled("format", [
-            $stream, 100, 0]));
+            $stream, [], 100, 0]));
 
 
         // Check offset passed correctly when supplied
@@ -243,7 +274,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $request->materialiseDataset();
 
         $this->assertTrue($formatter->methodWasCalled("format", [
-            $stream, 100, 10]));
+            $stream, [], 100, 10]));
 
 
         // Apply a second transformation
@@ -252,7 +283,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         $request->materialiseDataset();
 
         $this->assertTrue($formatter->methodWasCalled("format", [
-            $stream, 20, 30]));
+            $stream, [], 20, 30]));
 
 
     }

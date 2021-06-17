@@ -117,13 +117,43 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfColumnsPassedExplicitlyTheseArePassedToDataSet() {
+
+        $formatter = new SVResultFormatter(",", '"', true);
+
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), [
+            new Field("currentAge", "Age")
+        ]);
+
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
+
+
+        $this->assertEquals([
+            [
+                "currentAge" => 30
+            ], [
+                "currentAge" => 10
+            ], [
+                "currentAge" => 20
+            ]
+
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("currentAge", "Age")
+        ], $results->getColumns());
+
+
+    }
+
+
     public function testOffsetAndLimitObservedIfPassedIn() {
 
         $formatter = new SVResultFormatter(",", '"', true);
 
 
         // Limit first
-        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), 2);
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), [], 2);
 
         $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
 
@@ -143,7 +173,7 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
 
         // Offset one next
-        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), 2, 2);
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), [], 2, 2);
 
         $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
 

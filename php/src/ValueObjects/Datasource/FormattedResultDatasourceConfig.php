@@ -16,7 +16,7 @@ use Kinintel\Objects\ResultFormatter\ResultFormatter;
  * Class FormattedDatasourceConfig
  * @package Kinintel\ValueObjects\Datasource
  */
-class FormattedResultDatasourceConfig implements DatasourceConfig {
+class FormattedResultDatasourceConfig extends TabularResultsDatasourceConfig {
 
     /**
      * The format of results expected
@@ -38,7 +38,8 @@ class FormattedResultDatasourceConfig implements DatasourceConfig {
      * @param string $resultFormat
      * @param mixed $resultFormatConfig
      */
-    public function __construct($resultFormat, $resultFormatConfig) {
+    public function __construct($resultFormat, $resultFormatConfig, $columns = []) {
+        parent::__construct($columns);
         $this->resultFormat = $resultFormat;
         $this->resultFormatConfig = $resultFormatConfig;
     }

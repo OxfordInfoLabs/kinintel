@@ -35,6 +35,9 @@ class SQLResultSetTabularDatasetTest extends \PHPUnit\Framework\TestCase {
     public function testNextDataItemSimplyCallsNextOnResultSet() {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
+        $resultSet->returnValue("getColumnNames", [
+            "id", "name", "date_of_birth"
+        ]);
         $resultSet->returnValue("nextRow", [
             "id" => 4,
             "name" => "Bob"
@@ -45,7 +48,8 @@ class SQLResultSetTabularDatasetTest extends \PHPUnit\Framework\TestCase {
         $nextItem = $dataset->nextDataItem();
         $this->assertEquals([
             "id" => 4,
-            "name" => "Bob"
+            "name" => "Bob",
+            "date_of_birth" => null
         ], $nextItem);
 
     }

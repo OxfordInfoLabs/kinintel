@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Dataset\Tabular;
 
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Stream\StreamException;
+use Kinikit\Core\Util\StringUtils;
 use Kinintel\ValueObjects\Dataset\Field;
 
 /**
@@ -31,11 +32,6 @@ class SVStreamTabularDataSet extends TabularDataset {
      */
     private $enclosure;
 
-    /**
-     * @var string
-     */
-    private $columns;
-
 
     /**
      * @var integer
@@ -49,18 +45,33 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
+     * CSV Columns as read from the stream
+     *
+     * @var Field[]
+     */
+    private $csvColumns = [];
+
+
+    /**
      * SVStreamTabularDataSet constructor.
      *
      * @param Field[] $columns
      * @param ReadableStream $stream
+     * @param false $firstRowHeader
      * @param string $separator
      * @param string $enclosure
      */
-    public function __construct($columns, $stream, $separator = ",", $enclosure = '"', $limit = PHP_INT_MAX, $offset = 0) {
-        $this->columns = $columns;
+    public function __construct($columns, $stream, $firstRowHeader = false, $separator = ",", $enclosure = '"', $limit = PHP_INT_MAX, $offset = 0) {
+        parent::__construct($columns);
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
+
+
+        // Read header row
+        if ($firstRowHeader) {
+            $this->readHeaderRow();
+        }
 
         // Total limit including offset
         $this->limit = $limit + $offset;
@@ -75,18 +86,19 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
-     * Return column array
+     * Fall back to the csv columns if no explicit columns
      *
      * @return Field[]
      */
     public function getColumns() {
-        return $this->columns;
+        return sizeof($this->columns) ? $this->columns : $this->csvColumns;
     }
+
 
     /**
      * Read the next data item from the stream using the SV format.
      */
-    public function nextDataItem() {
+    public function nextRawDataItem() {
 
         // Shortcut if we have reached the limit
         if ($this->readItems >= $this->limit)
@@ -99,14 +111,14 @@ class SVStreamTabularDataSet extends TabularDataset {
             // Only continue if we have some content
             if (trim($csvLine[0])) {
 
-                while (sizeof($this->columns) < sizeof($csvLine)) {
-                    $this->columns[] = new Field("column" . (sizeof($this->columns) + 1));
+                while (sizeof($this->csvColumns) < sizeof($csvLine)) {
+                    $this->csvColumns[] = new Field("column" . (sizeof($this->csvColumns) + 1));
 
                 }
 
                 $dataItem = [];
                 foreach ($csvLine as $index => $value) {
-                    $dataItem[$this->columns[$index]->getName()] = trim($value);
+                    $dataItem[$this->csvColumns[$index]->getName()] = trim($value);
                 }
                 return $dataItem;
             } else {
@@ -116,6 +128,23 @@ class SVStreamTabularDataSet extends TabularDataset {
             return null;
         }
 
+    }
+
+    // Read the header row
+    private function readHeaderRow() {
+
+        // Grab the line as items
+        $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
+
+        // Create fields from these
+        $columns = [];
+        foreach ($csvLine as $column) {
+            // Expand out the title and the name
+            $name = StringUtils::convertToCamelCase(trim($column));
+            $columns[] = new Field($name);
+        }
+
+        $this->csvColumns = $columns;
     }
 
 

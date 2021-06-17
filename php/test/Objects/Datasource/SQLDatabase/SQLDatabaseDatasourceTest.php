@@ -94,6 +94,31 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testColumnsPassedThroughToDataSetIfSupplied() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", [
+            new Field("test_id")
+        ]),
+            $this->authCredentials, null, $this->validator);
+
+
+        $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
+
+        $this->databaseConnection->returnValue("query", $resultSet, [
+            "SELECT * FROM test_data", []
+        ]);
+
+        /**
+         * @var SQLResultSetTabularDataset $dataSet
+         */
+        $dataSet = $sqlDatabaseDatasource->materialiseDataset();
+
+        $this->assertEquals(new SQLResultSetTabularDataset($resultSet, [
+            new Field("test_id")
+        ]), $dataSet);
+    }
+
+
     public function testCanMaterialiseDataSetForUntransformedQueryDatasource() {
 
 

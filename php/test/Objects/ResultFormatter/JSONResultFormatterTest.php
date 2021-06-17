@@ -60,6 +60,31 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testColumnsPassedThroughToDatasetIfSuppliedToFormat() {
+
+
+        $formatter = new JSONResultFormatter();
+
+
+        // Regular key / value pairs
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode([
+            ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
+        ])), [
+            new Field("other_data", "Custom"), new Field("name")
+        ]);
+
+
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
+
+        $this->assertEquals([new Field("other_data", "Custom"), new Field("name", "Name")], $result->getColumns());
+        $this->assertEquals([["other_data" => "Hello", "name" => "Mark"],
+            ["other_data" => "Bingo", "name" => "Bob"]], $result->getAllData());
+
+
+    }
+
+
     public function testDataSetIsReturnedCorrectlyForSingleItemsReturnedAtTopLevel() {
 
         $formatter = new JSONResultFormatter("", "", true);
@@ -143,7 +168,6 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-
     public function testOffsetAndLimitIsImplementedWhenSupplied() {
 
         $formatter = new JSONResultFormatter("results");
@@ -153,7 +177,7 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         $result = $formatter->format(new ReadOnlyStringStream(json_encode(["results" => [
             ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
             ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
-        ]])), 1);
+        ]])), [], 1);
 
 
         $this->assertInstanceOf(ArrayTabularDataset::class, $result);
@@ -166,7 +190,7 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         $result = $formatter->format(new ReadOnlyStringStream(json_encode(["results" => [
             ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
             ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
-        ]])), 10, 1);
+        ]])), [], 10, 1);
 
 
         $this->assertInstanceOf(ArrayTabularDataset::class, $result);

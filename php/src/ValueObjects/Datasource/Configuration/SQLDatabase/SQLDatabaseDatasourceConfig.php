@@ -4,9 +4,9 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 
 
-use Kinintel\ValueObjects\Datasource\DatasourceConfig;
+use Kinintel\ValueObjects\Datasource\TabularResultsDatasourceConfig;
 
-class SQLDatabaseDatasourceConfig implements DatasourceConfig {
+class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
 
     /**
      * @var string
@@ -34,8 +34,10 @@ class SQLDatabaseDatasourceConfig implements DatasourceConfig {
      * @param string $source
      * @param string $tableName
      * @param string $query
+     * @param Field[] $columns
      */
-    public function __construct($source, $tableName = "", $query = "") {
+    public function __construct($source, $tableName = "", $query = "", $columns = []) {
+        parent::__construct($columns);
         $this->source = $source;
         $this->tableName = $tableName;
         $this->query = $query;
@@ -82,7 +84,6 @@ class SQLDatabaseDatasourceConfig implements DatasourceConfig {
     public function setQuery($query) {
         $this->query = $query;
     }
-
 
 
 }
