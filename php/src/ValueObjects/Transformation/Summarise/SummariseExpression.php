@@ -3,6 +3,8 @@
 
 namespace Kinintel\ValueObjects\Transformation\Summarise;
 
+use Kinikit\Core\Util\StringUtils;
+
 /**
  * Capture a summarise expression
  *
@@ -54,11 +56,13 @@ class SummariseExpression {
      * @param string $expressionType
      * @param string $fieldName
      * @param string $customExpression
+     * @param string $customLabel
      */
-    public function __construct($expressionType, $fieldName = null, $customExpression = null) {
+    public function __construct($expressionType, $fieldName = null, $customExpression = null, $customLabel = null) {
         $this->expressionType = $expressionType;
         $this->fieldName = $fieldName;
         $this->customExpression = $customExpression;
+        $this->customLabel = $customLabel;
     }
 
 
@@ -107,16 +111,14 @@ class SummariseExpression {
     /**
      * @return string
      */
-    public function getCustomLabel(): string
-    {
+    public function getCustomLabel() {
         return $this->customLabel;
     }
 
     /**
      * @param string $customLabel
      */
-    public function setCustomLabel(string $customLabel): void
-    {
+    public function setCustomLabel($customLabel) {
         $this->customLabel = $customLabel;
     }
 
@@ -127,12 +129,19 @@ class SummariseExpression {
      */
     public function getFunctionString() {
         if ($this->expressionType == self::EXPRESSION_TYPE_CUSTOM) {
-            return $this->customExpression;
+            $function = $this->customExpression;
         } else if ($this->expressionType == self::EXPRESSION_TYPE_COUNT) {
-            return "COUNT(*)";
+            $function = "COUNT(*)";
         } else {
-            return $this->expressionType . "(" . $this->fieldName . ")";
+            $function = $this->expressionType . "(" . $this->fieldName . ")";
         }
+
+        if ($this->customLabel) {
+            $function .= " " . StringUtils::convertToCamelCase($this->customLabel);
+        }
+
+        return $function;
+
     }
 
 }
