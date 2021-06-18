@@ -19,7 +19,7 @@
     </div>
 
     <div>
-        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>
+<!--        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>-->
         <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
         <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
             <ng-template [ngIf]="!showFilters">Show</ng-template>
@@ -46,7 +46,7 @@
     </div>
 
 </div>
-<div class="cell-header">
+<div class="cell-header sorting">
     <mat-chip-list *ngIf="_.find(evaluatedDatasource.transformationInstances, {type: 'multisort'})">
         <mat-chip
             *ngFor="let sort of _.find(evaluatedDatasource.transformationInstances, {type: 'multisort'}).config.sorts; let i = index"
