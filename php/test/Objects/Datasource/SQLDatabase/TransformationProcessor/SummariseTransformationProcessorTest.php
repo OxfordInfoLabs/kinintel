@@ -89,4 +89,21 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testCustomLabelsAreAppliedToExpressionsIfSupplied() {
+        $summariseTransformation = new SummariseTransformation(["category", "dept"], [
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
+
+        $query = new SQLQuery("name,category,dept", "my_table");
+
+        $transformationProcessor = new SummariseTransformationProcessor();
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+
+        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept", $query->getSQL());
+
+
+    }
+
+
 }
