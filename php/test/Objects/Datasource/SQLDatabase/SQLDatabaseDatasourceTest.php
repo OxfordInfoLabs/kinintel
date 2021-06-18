@@ -398,7 +398,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $this->assertTrue($this->bulkDataManager->methodWasCalled("delete", [
-            "test_data", [["Bobby Owens"], ["David Suchet"]], null
+            "test_data", $data
         ]));
 
     }
