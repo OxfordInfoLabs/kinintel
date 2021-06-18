@@ -4,6 +4,7 @@
 namespace Kinintel\Services\Datasource\Processing\Compression;
 
 
+use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Exception\DatasourceCompressionException;
@@ -44,14 +45,16 @@ class ZipCompressor implements Compressor {
             throw new DatasourceCompressionException("The data stream for this data source is not in valid zip format");
         }
 
-        $entry = $zip->getFromName($config->getEntryFilename());
+        mkdir($zipFile . "-extracted", 0777, true);
+
+        $entry = $zip->extractTo($zipFile . "-extracted", $config->getEntryFilename());
 
         // If no entry matching entry filename throw compression exception
         if ($entry === false) {
             throw new DatasourceCompressionException("The compressed zip data does not have an entry matching the supplied entry filename '{$config->getEntryFilename()}'");
         }
 
-        return new ReadOnlyStringStream($entry);
+        return new ReadOnlyFileStream($zipFile . "-extracted/" . $config->getEntryFilename());
 
     }
 

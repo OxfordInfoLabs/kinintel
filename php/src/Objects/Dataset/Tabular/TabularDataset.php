@@ -32,6 +32,22 @@ abstract class TabularDataset implements Dataset {
     }
 
     /**
+     * By default, simply call next data item repeatedly until no more data available
+     * and return
+     *
+     * @return mixed[]
+     */
+    public function getAllData() {
+        $data = [];
+        while ($row = $this->nextDataItem()) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+
+    /**
      * Return the columns as constructed
      *
      * @return Field[]
@@ -79,22 +95,6 @@ abstract class TabularDataset implements Dataset {
      * Return next raw data item for the dataset.
      */
     public abstract function nextRawDataItem();
-
-
-    /**
-     * By default, simply call next data item repeatedly until no more data available
-     * and return
-     *
-     * @return mixed[]
-     */
-    public function getAllData() {
-        $data = [];
-        while ($row = $this->nextDataItem()) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
 
 
 }

@@ -6,16 +6,19 @@ use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers as ReqHeaders;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\HTTP\Response\Response;
+use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
 use Kinintel\Objects\ResultFormatter\ResultFormatter;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
+use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\ZipCompressorConfiguration;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -53,6 +56,35 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "value" => "Pingu"
             ]
         ]), $response);
+
+    }
+
+    public function testCanMaterialiseDatasourceWithCompression() {
+
+        $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/../../../Services/Datasource/Processing/Compression/test-compressed.zip"), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET));
+
+        $config = new WebserviceDataSourceConfig("https://mytest.com", Request::METHOD_GET, null, "sv");
+        $config->setCompressionType("zip");
+        $config->setCompressionConfig(new ZipCompressorConfiguration("test.csv"));
+
+        $request = new TestWebServiceDataSource($config);
+        $request->setDispatcher($this->httpDispatcher);
+
+        /**
+         * @var SVStreamTabularDataSet $response
+         */
+        $response = $request->materialiseDataset();
+
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $response);
+
+        $this->assertEquals(["column1" => "Name", "column2" => "Age", "column3" => "Shoe Size"], $response->nextDataItem());
+        $this->assertEquals(["column1" => "Mark", "column2" => 50, "column3" => 10], $response->nextDataItem());
+        $this->assertEquals(["column1" => "Bob", "column2" => 20, "column3" => 9], $response->nextDataItem());
+        $this->assertEquals(["column1" => "Mary", "column2" => 30, "column3" => 7], $response->nextDataItem());
+
 
     }
 

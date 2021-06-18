@@ -4,7 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration;
 
 
-class ZipCompressorConfiguration {
+class ZipCompressorConfiguration implements CompressorConfiguration {
 
     /**
      * The target filename of the entry inside to stream once expanded.

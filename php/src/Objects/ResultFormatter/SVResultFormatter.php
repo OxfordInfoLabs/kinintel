@@ -34,6 +34,13 @@ class SVResultFormatter implements ResultFormatter {
      */
     private $enclosure;
 
+    /**
+     * Offset to first row
+     *
+     * @var int
+     */
+    private $firstRowOffset;
+
 
     /**
      * Boolean as to whether the first row is a header
@@ -44,28 +51,18 @@ class SVResultFormatter implements ResultFormatter {
 
 
     /**
-     * @var string
-     */
-    private $compressionFormat;
-
-
-    // Supported compression formats
-    const COMPRESSION_FORMAT_NONE = "none";
-    const COMPRESSION_FORMAT_ZIP = "zip";
-
-    /**
      * SVResultFormatter constructor.
      *
      * @param string $separator
-     * @param string $lineEnding
      * @param string $enclosure
-     * @param string $compressionFormat
+     * @param int $firstRowOffset
+     * @param boolean $firstRowHeader
      */
-    public function __construct($separator = ",", $enclosure = '"', $firstRowHeader = false, $compressionFormat = self::COMPRESSION_FORMAT_NONE) {
+    public function __construct($separator = ",", $enclosure = '"', $firstRowOffset = 0, $firstRowHeader = false) {
         $this->separator = $separator;
         $this->enclosure = $enclosure;
+        $this->firstRowOffset = $firstRowOffset;
         $this->firstRowHeader = $firstRowHeader;
-        $this->compressionFormat = $compressionFormat;
     }
 
     /**
@@ -97,19 +94,32 @@ class SVResultFormatter implements ResultFormatter {
         $this->enclosure = $enclosure;
     }
 
-
     /**
-     * @return string
+     * @return int
      */
-    public function getCompressionFormat() {
-        return $this->compressionFormat;
+    public function getFirstRowOffset() {
+        return $this->firstRowOffset;
     }
 
     /**
-     * @param string $compressionFormat
+     * @param int $firstRowOffset
      */
-    public function setCompressionFormat($compressionFormat) {
-        $this->compressionFormat = $compressionFormat;
+    public function setFirstRowOffset($firstRowOffset) {
+        $this->firstRowOffset = $firstRowOffset;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFirstRowHeader() {
+        return $this->firstRowHeader;
+    }
+
+    /**
+     * @param bool $firstRowHeader
+     */
+    public function setFirstRowHeader($firstRowHeader) {
+        $this->firstRowHeader = $firstRowHeader;
     }
 
 
@@ -123,7 +133,7 @@ class SVResultFormatter implements ResultFormatter {
      * @return Dataset
      */
     public function format($stream, $passedColumns = [], $limit = PHP_INT_MAX, $offset = 0) {
-        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset);
+        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowOffset, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset);
     }
 
 }

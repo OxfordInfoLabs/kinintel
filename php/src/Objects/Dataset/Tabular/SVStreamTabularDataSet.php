@@ -57,24 +57,34 @@ class SVStreamTabularDataSet extends TabularDataset {
      *
      * @param Field[] $columns
      * @param ReadableStream $stream
+     * @param int $firstRowOffset
      * @param false $firstRowHeader
      * @param string $separator
      * @param string $enclosure
+     * @param integer $limit
+     * @param integer $offset
      */
-    public function __construct($columns, $stream, $firstRowHeader = false, $separator = ",", $enclosure = '"', $limit = PHP_INT_MAX, $offset = 0) {
+    public function __construct($columns, $stream, $firstRowOffset = 0, $firstRowHeader = false, $separator = ",", $enclosure = '"', $limit = PHP_INT_MAX, $offset = 0) {
         parent::__construct($columns);
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
 
+        // Total limit including offset
+        $this->limit = $limit + $offset + $firstRowOffset;
+
+
+        // If first row offset supplied, move there now
+        if ($firstRowOffset) {
+            for ($i = 0; $i < $firstRowOffset; $i++)
+                $this->nextDataItem();
+        }
 
         // Read header row
         if ($firstRowHeader) {
             $this->readHeaderRow();
         }
 
-        // Total limit including offset
-        $this->limit = $limit + $offset;
 
         // if offset, forward wind to that offset
         if ($offset) {
@@ -106,6 +116,7 @@ class SVStreamTabularDataSet extends TabularDataset {
 
         try {
             $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
+
             $this->readItems++;
 
             // Only continue if we have some content
@@ -120,10 +131,13 @@ class SVStreamTabularDataSet extends TabularDataset {
                 foreach ($csvLine as $index => $value) {
                     $dataItem[$this->csvColumns[$index]->getName()] = trim($value);
                 }
+
                 return $dataItem;
             } else {
                 return null;
             }
+
+
         } catch (StreamException $e) {
             return null;
         }

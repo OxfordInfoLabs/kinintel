@@ -9,7 +9,7 @@ use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\Compre
 /**
  * Generic compressor interface
  *
- * @implementation zip Kinintel\Services\Processing\Compression\ZipCompressor
+ * @implementation zip Kinintel\Services\Datasource\Processing\Compression\ZipCompressor
  */
 interface Compressor {
 

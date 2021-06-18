@@ -18,7 +18,7 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
         $mockStream = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
 
         $dataSet = new SVStreamTabularDataSet([
-        ], $mockStream, false, ",", '"');
+        ], $mockStream, 0, false, ",", '"');
 
         $mockStream->returnValue("readCSVLine", [
             "Mark", 22
@@ -47,7 +47,7 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $dataSet = new SVStreamTabularDataSet([
-        ], $mockStream, true, ",", '"');
+        ], $mockStream, 0, true, ",", '"');
 
 
         $nextValue = $dataSet->nextDataItem();
@@ -58,6 +58,7 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
 
 
 }

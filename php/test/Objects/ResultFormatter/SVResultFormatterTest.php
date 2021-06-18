@@ -81,9 +81,36 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfFirstRowOffsetSuppliedResultSetIsMovedToThisRowBeforeProcessing() {
+
+        $formatter = new SVResultFormatter("\t", '"', 2);
+
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-tsv.txt"));
+
+        $this->assertInstanceOf(SVStreamTabularDataSet::class, $results);
+
+
+        $this->assertEquals([
+            [
+                "column1" => "David John",
+                "column2" => "Wright",
+                "column3" => 20
+            ]
+
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("column1", "Column 1"),
+            new Field("column2", "Column 2"),
+            new Field("column3", "Column 3")
+        ], $results->getColumns());
+
+    }
+
+
     public function testIfFirstRowSuppliedAsHeaderTheseAreUsedAsColumnTitlesAndCompressedAsNames() {
 
-        $formatter = new SVResultFormatter(",", '"', true);
+        $formatter = new SVResultFormatter(",", '"', 0, true);
 
         $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"));
 
@@ -119,7 +146,7 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfColumnsPassedExplicitlyTheseArePassedToDataSet() {
 
-        $formatter = new SVResultFormatter(",", '"', true);
+        $formatter = new SVResultFormatter(",", '"', 0, true);
 
         $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-csv-with-headers.csv"), [
             new Field("currentAge", "Age")
@@ -149,7 +176,7 @@ class SVResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     public function testOffsetAndLimitObservedIfPassedIn() {
 
-        $formatter = new SVResultFormatter(",", '"', true);
+        $formatter = new SVResultFormatter(",", '"', 0, true);
 
 
         // Limit first

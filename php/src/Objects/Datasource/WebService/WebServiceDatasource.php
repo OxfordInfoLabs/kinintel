@@ -8,6 +8,7 @@ use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
@@ -173,8 +174,15 @@ class WebServiceDatasource extends BaseDatasource {
             $limit = $pagingTransformation->getLimit();
         }
 
+        $responseStream = $response->getStream();
+
+        if ($this->getConfig()->getCompressionType()) {
+            $compressor = Container::instance()->getInterfaceImplementation(Compressor::class, $this->getConfig()->getCompressionType());
+            $responseStream = $compressor->uncompress($responseStream, $this->getConfig()->returnCompressionConfig());
+        }
+
         // Materialise the web service result and return the result
-        return $config->returnFormatter()->format($response->getStream(), $config->returnEvaluatedColumns($parameterValues), $limit, $offset);
+        return $config->returnFormatter()->format($responseStream, $config->returnEvaluatedColumns($parameterValues), $limit, $offset);
 
     }
 
