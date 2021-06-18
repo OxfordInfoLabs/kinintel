@@ -32,10 +32,16 @@ export class DatasourceService {
 
     public evaluateDatasource(key, transformationInstances, parameterValues?, additionalTransformations?) {
         if (additionalTransformations) {
-            Object.assign(transformationInstances, additionalTransformations);
+            transformationInstances.push(additionalTransformations);
         }
         return this.http.post(this.config.backendURL + '/account/datasource/evaluate', _.omit({
             key, transformationInstances, parameterValues
         }, _.isNil)).toPromise();
+    }
+
+    public exportData(evaluatedDatasource) {
+        return this.http.post(this.config.backendURL + '/account/datasource/parameters/' +
+            (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey),
+            {transformationInstances: evaluatedDatasource.transformationInstances}).toPromise();
     }
 }
