@@ -1,9 +1,25 @@
 <div class="cell-header">
-    <button mat-stroked-button color="primary">
-        <mat-icon>add</mat-icon>
-        Datasource
-    </button>
     <div>
+        <mat-chip-list *ngIf="_.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length">
+            <mat-chip
+                *ngFor="let summary of _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}); let i = index"
+                (removed)="removeSummarisation(summary, i)"
+                [selected]="(i + 1) === _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length"
+                [disabled]="(i + 1) < _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length">
+
+                {{getOrdinal(i+1)}}&nbsp;Summarisation
+
+                <ng-template
+                    [ngIf]="(i + 1) === _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length">
+<!--                    <mat-icon matChipTrailingIcon>block</mat-icon>-->
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                </ng-template>
+            </mat-chip>
+        </mat-chip-list>
+    </div>
+
+    <div>
+        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>
         <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
         <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
             <ng-template [ngIf]="!showFilters">Show</ng-template>
@@ -25,22 +41,24 @@
         <button mat-stroked-button color="primary" style="margin-right: .5rem" (click)="clearFilters()">Clear filters
         </button>
         <button mat-flat-button color="primary" (click)="applyFilters()"
-            [disabled]="!filterJunction.filters.length">Apply filters</button>
+                [disabled]="!filterJunction.filters.length">Apply filters
+        </button>
     </div>
 
 </div>
 <div class="cell-header">
-    <mat-chip-list *ngIf="multiSortConfig.length">
-        <mat-chip *ngFor="let sort of multiSortConfig; let i = index"
-                  (removed)="removeFilter(i)">
-            {{sort.string}}
+    <mat-chip-list *ngIf="_.find(evaluatedDatasource.transformationInstances, {type: 'multisort'})">
+        <mat-chip
+            *ngFor="let sort of _.find(evaluatedDatasource.transformationInstances, {type: 'multisort'}).config.sorts; let i = index"
+            (removed)="removeFilter(i)">
+            {{sort.fieldName}}&nbsp;{{sort.direction}}
             <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
     </mat-chip-list>
 </div>
 
 <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
-    class="block overflow-x-auto">
+       class="block overflow-x-auto">
     <ng-template ngFor let-column [ngForOf]="filterFields">
         <ng-container [matColumnDef]="column.label">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.label}} </th>
@@ -53,7 +71,7 @@
 
 </table>
 
-<div class="flex align-center justify-end mt-4">
+<div class="paging-toolbar flex align-center justify-end mt-4">
     <select (change)="pageSizeChange($event.target.value)" class="mr-8">
         <option [value]="25">25</option>
         <option [value]="50">50</option>

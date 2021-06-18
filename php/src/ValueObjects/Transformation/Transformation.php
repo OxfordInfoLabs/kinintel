@@ -10,7 +10,7 @@ namespace Kinintel\ValueObjects\Transformation;
  * @implementation filter \Kinintel\ValueObjects\Transformation\Filter\FilterTransformation
  * @implementation multisort \Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation
  * @implementation paging \Kinintel\ValueObjects\Transformation\Paging\PagingTransformation
- * @implementation summarise \Kinintel\ValueObjects\Transformation\Sumamrise\SummariseTransformation
+ * @implementation summarise \Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation
  *
  */
 interface Transformation {

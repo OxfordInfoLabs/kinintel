@@ -38,6 +38,7 @@ export class DatasetEditorComponent implements OnInit {
     public parameterValues: any = [];
     public focusParams = false;
 
+
     private limit = 25;
     private offset = 0;
 
@@ -74,8 +75,24 @@ export class DatasetEditorComponent implements OnInit {
 
 
     public removeFilter(index) {
-        this.multiSortConfig.splice(index, 1);
-        this.setMultiSortValues();
+        const existingMultiSort = _.find(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
+        existingMultiSort.config.sorts.splice(index, 1);
+        if (!existingMultiSort.config.sorts.length) {
+            _.remove(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
+        }
+        this.evaluateDatasource();
+    }
+
+    public removeSummarisation(summary, i) {
+        _.remove(this.evaluatedDatasource.transformationInstances, {
+            type: 'summarise',
+            config: summary.config
+        });
+        this.evaluateDatasource();
+    }
+
+    public exportData() {
+
     }
 
     public applyFilters() {
@@ -131,32 +148,53 @@ export class DatasetEditorComponent implements OnInit {
     public sort(event) {
         const column = event.active;
         const direction = event.direction;
-        const existingIndex = _.findIndex(this.multiSortConfig, {type: 'sort', column});
-        if (existingIndex > -1) {
-            if (!direction) {
-                this.multiSortConfig.splice(existingIndex, 1);
+
+        const existingMultiSort = _.find(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
+        if (existingMultiSort) {
+            const existingIndex = _.findIndex(existingMultiSort.config.sorts, {fieldName: column});
+            if (direction) {
+                if (existingIndex > -1) {
+                    existingMultiSort.config.sorts[existingIndex] = {fieldName: column, direction};
+                } else {
+                    existingMultiSort.config.sorts.push({fieldName: column, direction});
+                }
             } else {
-                this.multiSortConfig[existingIndex].direction = direction;
-                this.multiSortConfig[existingIndex].string = 'Sort ' + _.startCase(column) + ' ' + direction;
+                existingMultiSort.config.sorts.splice(existingIndex, 1);
+                if (!existingMultiSort.config.sorts.length) {
+                    _.remove(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
+                }
             }
         } else {
-            this.multiSortConfig.push({
-                type: 'sort',
-                column,
-                direction,
-                string: 'Sort ' + _.startCase(column) + ' ' + direction
-            });
+            if (direction) {
+                this.evaluatedDatasource.transformationInstances.push(
+                    {
+                        type: 'multisort',
+                        config: {
+                            sorts: [{fieldName: column, direction}]
+                        }
+                    }
+                );
+            }
         }
-
-        this.setMultiSortValues();
+        this.evaluateDatasource();
     }
 
     public summariseData() {
-        this.dialog.open(DatasetSummariseComponent, {
+        const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
             width: '1200px',
-            height: '600px',
+            height: '675px',
             data: {
                 availableColumns: this.filterFields
+            }
+        });
+
+        summariseDialog.afterClosed().subscribe(summariseTransformation => {
+            if (summariseTransformation) {
+                this.evaluatedDatasource.transformationInstances.push({
+                    type: 'summarise',
+                    config: summariseTransformation
+                });
+                this.evaluateDatasource();
             }
         });
     }
@@ -169,6 +207,12 @@ export class DatasetEditorComponent implements OnInit {
         if (evaluate) {
             this.evaluateDatasource();
         }
+    }
+
+    public getOrdinal(n) {
+        const s = ['th', 'st', 'nd', 'rd'];
+        const v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
     }
 
     private validateFilterJunction() {
@@ -186,36 +230,6 @@ export class DatasetEditorComponent implements OnInit {
         };
 
         check(this.filterJunction);
-    }
-
-    private setMultiSortValues() {
-        if (!this.multiSortConfig.length) {
-            const sortIndex = _.findIndex(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
-            if (sortIndex > -1) {
-                this.evaluatedDatasource.transformationInstances.splice(sortIndex, 1);
-            }
-        } else {
-            const multiSortTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
-            if (multiSortTransformation) {
-                multiSortTransformation.config.sorts = _.map(this.multiSortConfig, item => {
-                    return {fieldName: item.column, direction: item.direction};
-                });
-            } else {
-                this.evaluatedDatasource.transformationInstances.push(
-                    {
-                        type: 'multisort',
-                        config: {
-                            sorts: _.map(this.multiSortConfig, item => {
-                                return {fieldName: item.column, direction: item.direction};
-                            })
-                        }
-                    }
-                );
-            }
-        }
-
-
-        this.evaluateDatasource();
     }
 
     private loadData() {
@@ -265,7 +279,8 @@ export class DatasetEditorComponent implements OnInit {
                     }]).then(dataset => {
                     this.dataset = dataset;
                     this.loadData();
-                }).catch(err => {});
+                }).catch(err => {
+                });
             });
 
     }

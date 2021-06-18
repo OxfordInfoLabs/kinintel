@@ -25,22 +25,22 @@ export class DatasetSummariseComponent implements OnInit {
 
     ngOnInit(): void {
         this.availableColumns = this.data.availableColumns;
-        console.log(this.availableColumns);
     }
 
     drop(event: CdkDragDrop<string[]>) {
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
-            copyArrayItem(event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex);
-            console.log(event);
+            if (event.previousContainer.id === 'availableColumns') {
+                copyArrayItem(event.previousContainer.data,
+                    event.container.data,
+                    event.previousIndex,
+                    event.currentIndex);
 
-            if (event.container.id === 'summariseExpressions') {
-                const item: any = event.container.data[event.currentIndex];
-                item.expressionType = 'SUM';
+                if (event.container.id === 'summariseExpressions') {
+                    const item: any = event.container.data[event.currentIndex];
+                    item.expressionType = 'SUM';
+                }
             }
         }
     }
@@ -49,17 +49,34 @@ export class DatasetSummariseComponent implements OnInit {
         list.splice(index, 1);
     }
 
+    public createCustomExpression() {
+        this.summariseExpressions.push({
+            expressionType: 'CUSTOM'
+        });
+    }
+
     public applySettings() {
         const summariseTransformation: any = {
             summariseFieldNames: _.map(this.summariseFields, 'value'),
             expressions: _.map(this.summariseExpressions, expression => {
-                return {
-                    expressionType: expression.expressionType,
-                    fieldName: expression.value
+                const summariseExpression: any = {
+                    expressionType: expression.expressionType
                 };
+
+                if (expression.expressionType !== 'CUSTOM') {
+                    summariseExpression.fieldName = expression.value;
+                } else {
+                    summariseExpression.customExpression = expression.customExpression;
+                }
+
+                if (expression.customLabel) {
+                    summariseExpression.customLabel = expression.customLabel;
+                }
+
+                return summariseExpression;
             })
         };
 
-        console.log(summariseTransformation);
+        this.dialogRef.close(summariseTransformation);
     }
 }

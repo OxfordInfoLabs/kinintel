@@ -16,6 +16,7 @@
 
                 <div
                     cdkDropList
+                    id="availableColumns"
                     [cdkDropListData]="availableColumns"
                     class="example-list"
                     cdkDropListSortingDisabled
@@ -50,23 +51,45 @@
                     id="summariseExpressions"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box expression" *ngFor="let item of summariseExpressions; let i = index" cdkDrag>
-                        <div class="top">
-                            <mat-select [(ngModel)]="item.expressionType">
-                                <mat-option *ngFor="let type of expressionTypes" [value]="type">{{type}}</mat-option>
-                            </mat-select>
-                            {{item.label}}
+                    <div class="example-box expression" *ngFor="let item of summariseExpressions; let i = index"
+                         cdkDrag >
+                        <ng-template [ngIf]="item.expressionType !== 'CUSTOM'">
+                            <div class="top">
+                                <mat-select [(ngModel)]="item.expressionType">
+                                    <mat-option *ngFor="let type of expressionTypes"
+                                                [value]="type">{{type}}</mat-option>
+                                </mat-select>
+                                {{item.label}}
 
-                            <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
-                                <mat-icon>remove</mat-icon>
-                            </button>
-                        </div>
+                                <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
+                                    <mat-icon>remove</mat-icon>
+                                </button>
+                            </div>
+                        </ng-template>
+                        <ng-template [ngIf]="item.expressionType === 'CUSTOM'">
+                            <div class="top">
+                                <div class="custom-container">
+                                    <div class="align-center justify-between">
+                                        <b>Custom expression</b>
+                                        <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
+                                            <mat-icon>remove</mat-icon>
+                                        </button>
+                                    </div>
+                                    <textarea rows="4" [(ngModel)]="item.customExpression"></textarea>
+                                </div>
+
+                            </div>
+                        </ng-template>
                         <div class="bottom">
                             <span>Custom label</span>
-                            <input type="text" placeholder="{{item.expressionType}}_of_{{item.value}}">
+                            <input type="text" [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.value"
+                                   [(ngModel)]="item.customLabel">
                         </div>
+
+
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -76,7 +99,15 @@
     <div class="dialog-footer">
         <button mat-button mat-dialog-close>Cancel</button>
 
-        <button mat-button (click)="applySettings()">Apply Settings</button>
+        <div>
+            <button mat-stroked-button color="primary" (click)="createCustomExpression()"
+                class="create-custom-button">
+                <mat-icon>construction</mat-icon>
+                Create custom expression
+            </button>
+            <button mat-flat-button color="primary" (click)="applySettings()">Apply Settings</button>
+        </div>
+
     </div>
 
 </div>
