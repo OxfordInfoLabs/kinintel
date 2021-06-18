@@ -2,6 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetNameDialogComponent} from '../dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import {DatasetService} from '../../services/dataset.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'ki-data-explorer',
@@ -21,7 +22,8 @@ export class DataExplorerComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private router: Router) {
     }
 
     ngOnInit(): void {
@@ -50,6 +52,7 @@ export class DataExplorerComponent implements OnInit {
                     this.datasetInstance.title = res;
                     this.datasetService.saveDataset(this.datasetInstance).then(() => {
                         this.dialogRef.close();
+                        this.router.navigate(['/datasets']);
                     });
                 }
             });
