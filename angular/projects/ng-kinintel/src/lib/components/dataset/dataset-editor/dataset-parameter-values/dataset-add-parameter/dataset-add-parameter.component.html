@@ -1,0 +1,54 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>New Parameter</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <div class="field">
+            <p>Enter the title for this parameter. <span>*</span></p>
+            <input type="text" [(ngModel)]="parameter.title" (ngModelChange)="setName()" required>
+        </div>
+
+        <div class="field">
+            <p>Name for this parameter.</p>
+            <input type="text" [(ngModel)]="parameter.name" disabled>
+        </div>
+
+        <div class="field">
+            <p>Enter the field type for this parameter.</p>
+            <select [(ngModel)]="parameter.type">
+                <option value="text">Text</option>
+                <option value="numeric">Numeric</option>
+                <option value="date">Date</option>
+                <option value="datetime">Datetime</option>
+                <option value="boolean">Boolean</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <p>Is this parameter multiple</p>
+            <mat-slide-toggle [(ngModel)]="parameter.multiple">Multiple</mat-slide-toggle>
+        </div>
+
+        <div class="field">
+            <p>Enter a default value for this parameter</p>
+            <input type="text" [(ngModel)]="parameter.defaultValue">
+        </div>
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close>Cancel</button>
+
+        <button mat-flat-button color="primary" [mat-dialog-close]="parameter"
+            [disabled]="!parameter.title">Save Parameter</button>
+    </div>
+
+</div>
+
+

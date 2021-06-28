@@ -20,6 +20,7 @@
 
     <div>
 <!--        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>-->
+        <button mat-stroked-button color="primary" (click)="showParameters = !showParameters">Add Parameter</button>
         <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
         <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
             <ng-template [ngIf]="!showFilters">Show</ng-template>
@@ -29,8 +30,9 @@
     </div>
 
 </div>
-<div class="parameter-values" *ngIf="parameterValues.length">
+<div class="parameter-values" *ngIf="showParameters || parameterValues.length">
     <ki-dataset-parameter-values [parameterValues]="parameterValues" [focusParameters]="focusParams"
+                                 [(evaluatedDatasource)]="evaluatedDatasource"
                                  (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
 </div>
 <div class="filters mt-4" *ngIf="showFilters">

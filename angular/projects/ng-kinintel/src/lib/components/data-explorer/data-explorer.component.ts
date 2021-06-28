@@ -52,7 +52,7 @@ export class DataExplorerComponent implements OnInit {
                     this.datasetInstance.title = res;
                     this.datasetService.saveDataset(this.datasetInstance).then(() => {
                         this.dialogRef.close();
-                        this.router.navigate(['/datasets']);
+                        this.router.navigate(['/dataset']);
                     });
                 }
             });

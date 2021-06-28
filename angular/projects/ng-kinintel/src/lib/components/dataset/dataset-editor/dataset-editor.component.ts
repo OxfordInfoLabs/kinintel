@@ -20,6 +20,7 @@ export class DatasetEditorComponent implements OnInit {
     public dataset: any;
     public tableData = [];
     public showFilters = false;
+    public showParameters = false;
     public displayedColumns = [];
     public _ = _;
     public filterFields = [];
@@ -58,7 +59,8 @@ export class DatasetEditorComponent implements OnInit {
                 key: this.datasource.key,
                 datasourceInstanceKey: this.datasource.key,
                 transformationInstances: [],
-                parameterValues: {}
+                parameterValues: {},
+                parameters: []
             };
         }
 
@@ -246,12 +248,21 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluatedDatasourceChange.emit(this.evaluatedDatasource);
     }
 
+    private setParameterValues(values) {
+
+    }
+
     private evaluateDatasource() {
         this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
             .then((values: any) => {
+                let paramValues = values;
+                if (this.evaluatedDatasource.parameters.length) {
+                    paramValues = values.concat(this.evaluatedDatasource.parameters);
+                }
+
                 this.focusParams = false;
                 const parameterValues = {};
-                values.forEach(paramValue => {
+                paramValues.forEach(paramValue => {
                     const existParam = _.find(this.parameterValues, {name: paramValue.name});
                     if (!existParam || (existParam && !existParam.value)) {
                         const existingValue = this.evaluatedDatasource.parameterValues[paramValue.name];

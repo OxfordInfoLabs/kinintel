@@ -36,6 +36,7 @@ import {DatasetFiltersComponent} from './components/dataset/dataset-editor/datas
 import {DatasetParameterValuesComponent} from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-values.component';
 import {DatasetParameterTypeComponent} from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-type/dataset-parameter-type.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { DatasetAddParameterComponent } from './components/dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 
 
 @NgModule({
@@ -56,7 +57,8 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
         DatasetSummariseComponent,
         DatasetFiltersComponent,
         DatasetParameterValuesComponent,
-        DatasetParameterTypeComponent
+        DatasetParameterTypeComponent,
+        DatasetAddParameterComponent
     ],
     imports: [
         BrowserModule,
