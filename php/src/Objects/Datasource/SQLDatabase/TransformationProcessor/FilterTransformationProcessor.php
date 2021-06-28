@@ -90,15 +90,15 @@ class FilterTransformationProcessor implements SQLTransformationProcessor {
         // Map any param values up front using the template mapper
         $newParams = [];
         foreach (is_array($filterValue) ? $filterValue : [$filterValue] as $param) {
-            $newParam = $this->templateParser->parseTemplateText($param, $parameterValues);
 
-            // If this is evaluated to an Array, process the string more manually
-            if ($newParam == "Array") {
-                $arrayParams = $parameterValues[trim($param, "{}")] ?? [];
-                $newParams = array_merge($newParams, $arrayParams);
-                $filterValue = $arrayParams;
-            } else
+            $directParam = $parameterValues[trim($param, "{}")] ?? null;
+            if (is_array($directParam)) {
+                $newParams = array_merge($newParams, $directParam);
+                $filterValue = $directParam;
+            } else {
+                $newParam = $this->templateParser->parseTemplateText($param, $parameterValues);
                 $newParams[] = $newParam;
+            }
         }
 
         // Remap the filter value back if not an array
