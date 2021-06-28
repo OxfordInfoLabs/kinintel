@@ -36,10 +36,11 @@ class FilterTransformationProcessor implements SQLTransformationProcessor {
      * @param FilterTransformation $transformation
      * @param SQLQuery $query
      * @param mixed[] $parameterValues
+     * @param $dataSource
      *
      * @return SQLQuery
      */
-    public function updateQuery($transformation, $query, $parameterValues = []) {
+    public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
         $newParams = [];
         $filterSQL = $this->createFilterJunctionStatement($transformation, $newParams, $parameterValues);

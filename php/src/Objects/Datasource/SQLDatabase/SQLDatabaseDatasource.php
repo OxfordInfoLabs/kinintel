@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
@@ -255,8 +256,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         foreach ($this->transformations as $transformation) {
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
-            $query = $processor->updateQuery($transformation, $query, $parameterValues);
+            $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
         }
+
 
         return $query;
 

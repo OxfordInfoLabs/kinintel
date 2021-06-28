@@ -21,7 +21,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, COUNT(*) FROM my_table GROUP BY category, dept", $query->getSQL());
 
@@ -32,7 +32,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, SUM(total) FROM my_table GROUP BY category, dept", $query->getSQL());
 
@@ -44,7 +44,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, MAX(total) FROM my_table GROUP BY category, dept", $query->getSQL());
 
@@ -55,7 +55,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, MIN(total) FROM my_table GROUP BY category, dept", $query->getSQL());
 
@@ -67,7 +67,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, AVG(total) FROM my_table GROUP BY category, dept", $query->getSQL());
 
@@ -82,7 +82,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, COUNT(*) + SUM(total) FROM my_table GROUP BY category, dept", $query->getSQL());
 
@@ -98,7 +98,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $query = $transformationProcessor->updateQuery($summariseTransformation, $query);
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], null);
 
         $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept", $query->getSQL());
 
