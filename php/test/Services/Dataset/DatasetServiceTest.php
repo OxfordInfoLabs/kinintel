@@ -23,6 +23,7 @@ use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
@@ -102,7 +103,8 @@ class DatasetServiceTest extends TestBase {
             new TransformationInstance("filter", new FilterTransformation([
                 new Filter("property", "foobar")
             ])),
-        ], [
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
             "param1" => "Test",
             "param2" => 44,
             "param3" => true
@@ -137,6 +139,10 @@ class DatasetServiceTest extends TestBase {
             new Filter("property", "foobar")
         ]), $transformationInstance->returnTransformation());
 
+        $this->assertEquals([
+            new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)
+        ], $reSet->getParameters());
 
         $this->assertEquals([
             "param1" => "Test",

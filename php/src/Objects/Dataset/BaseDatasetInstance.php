@@ -10,6 +10,7 @@ use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class BaseDatasetInstance extends ActiveRecord {
@@ -29,6 +30,18 @@ class BaseDatasetInstance extends ActiveRecord {
      * @sqlType LONGTEXT
      */
     protected $transformationInstances = [];
+
+
+    /**
+     * Array of parameters defined by this data set.  These
+     * augment any parameters provided by the underlying datasource
+     * and are most often used to parameterise transformation instances.
+     *
+     * @var Parameter[]
+     * @json
+     * @sqlType LONGTEXT
+     */
+    protected $parameters = [];
 
 
     /**
@@ -53,6 +66,20 @@ class BaseDatasetInstance extends ActiveRecord {
      */
     public function getTransformationInstances() {
         return $this->transformationInstances;
+    }
+
+    /**
+     * @return Parameter[]
+     */
+    public function getParameters() {
+        return $this->parameters;
+    }
+
+    /**
+     * @param Parameter[] $parameters
+     */
+    public function setParameters($parameters) {
+        $this->parameters = $parameters;
     }
 
     /**
