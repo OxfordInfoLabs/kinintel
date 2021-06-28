@@ -2,6 +2,7 @@ import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as _ from 'lodash';
 import {MatDialog} from '@angular/material/dialog';
 import {DatasetAddParameterComponent} from './dataset-add-parameter/dataset-add-parameter.component';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-parameter-values',
@@ -13,6 +14,7 @@ export class DatasetParameterValuesComponent implements OnInit {
     @Input() parameterValues: any = [];
     @Input() focusParameters = false;
     @Input() evaluatedDatasource: any;
+    @Input() showNewOnOpen: boolean;
 
     @Output() changed = new EventEmitter();
     @Output() evaluatedDatasourceChange = new EventEmitter();
@@ -23,6 +25,9 @@ export class DatasetParameterValuesComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        if (this.showNewOnOpen && !this.parameterValues.length) {
+            this.addParameter();
+        }
     }
 
     public parameterChange(data?) {

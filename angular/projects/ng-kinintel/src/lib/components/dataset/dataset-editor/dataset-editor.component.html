@@ -30,9 +30,9 @@
     </div>
 
 </div>
-<div class="parameter-values" *ngIf="showParameters || parameterValues.length">
+<div class="parameter-values mt-4" *ngIf="showParameters || parameterValues.length">
     <ki-dataset-parameter-values [parameterValues]="parameterValues" [focusParameters]="focusParams"
-                                 [(evaluatedDatasource)]="evaluatedDatasource"
+                                 [(evaluatedDatasource)]="evaluatedDatasource" [showNewOnOpen]="true"
                                  (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
 </div>
 <div class="filters mt-4" *ngIf="showFilters">
