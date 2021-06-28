@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;

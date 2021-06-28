@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -86,7 +87,6 @@ class FilterTransformationProcessor implements SQLTransformationProcessor {
         $fieldName = $filter->getFieldName();
         $filterValue = $filter->getValue();
 
-
         // Map any param values up front using the template mapper
         $newParams = [];
         foreach (is_array($filterValue) ? $filterValue : [$filterValue] as $param) {
@@ -99,6 +99,11 @@ class FilterTransformationProcessor implements SQLTransformationProcessor {
                 $filterValue = $arrayParams;
             } else
                 $newParams[] = $newParam;
+        }
+
+        // Remap the filter value back if not an array
+        if (!is_array($filterValue)) {
+            $filterValue = $newParams[0];
         }
 
         $clause = "";
