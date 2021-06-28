@@ -17,7 +17,7 @@ class PagingTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $pagingTransformation = new PagingTransformation(100);
         $sqlQuery = new SQLQuery("*", "test_data");
 
-        $resultQuery = $processor->updateQuery($pagingTransformation, $sqlQuery);
+        $resultQuery = $processor->updateQuery($pagingTransformation, $sqlQuery, [], null);
         $this->assertEquals("SELECT * FROM test_data LIMIT ?", $resultQuery->getSQL());
         $this->assertEquals([100], $resultQuery->getParameters());
 
@@ -25,7 +25,7 @@ class PagingTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $pagingTransformation = new PagingTransformation(100, 50);
         $sqlQuery = new SQLQuery("*", "test_data");
 
-        $resultQuery = $processor->updateQuery($pagingTransformation, $sqlQuery);
+        $resultQuery = $processor->updateQuery($pagingTransformation, $sqlQuery, [], null);
         $this->assertEquals("SELECT * FROM test_data LIMIT ? OFFSET ?", $resultQuery->getSQL());
         $this->assertEquals([100, 50], $resultQuery->getParameters());
 

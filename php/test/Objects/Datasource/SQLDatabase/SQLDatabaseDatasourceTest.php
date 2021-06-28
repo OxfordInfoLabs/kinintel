@@ -196,15 +196,18 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $transformation3->returnValue("getSQLTransformationProcessorKey", "test2");
 
         $transformationProcessor->returnValue("updateQuery", new SQLQuery("*", "?", [1]), [
-            $transformation1, new SQLQuery("*", "test_data"), ["param1" => "Hello", "param2" => "World"]
+            $transformation1, new SQLQuery("*", "test_data"), ["param1" => "Hello", "param2" => "World"],
+            $sqlDatabaseDatasource
         ]);
 
         $transformationProcessor->returnValue("updateQuery", new SQLQuery("*", "?", [2]), [
-            $transformation2, new SQLQuery("*", "?", [1]), ["param1" => "Hello", "param2" => "World"]
+            $transformation2, new SQLQuery("*", "?", [1]), ["param1" => "Hello", "param2" => "World"],
+            $sqlDatabaseDatasource
         ]);
 
         $transformationProcessor2->returnValue("updateQuery", new SQLQuery("*", "?", [3]), [
-            $transformation3, new SQLQuery("*", "?", [2]), ["param1" => "Hello", "param2" => "World"]
+            $transformation3, new SQLQuery("*", "?", [2]), ["param1" => "Hello", "param2" => "World"],
+            $sqlDatabaseDatasource
         ]);
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);

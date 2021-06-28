@@ -19,7 +19,7 @@ class MultiSortTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformation = new MultiSortTransformation($sorts);
 
         $processor = new MultiSortTransformationProcessor();
-        $sqlQuery = $processor->updateQuery($transformation, new SQLQuery("*", "test_data", [5, 6, 7]));
+        $sqlQuery = $processor->updateQuery($transformation, new SQLQuery("*", "test_data", [5, 6, 7]), [], null);
 
         $this->assertEquals("SELECT * FROM test_data ORDER BY name ASC, dept DESC", $sqlQuery->getSQL());
         $this->assertEquals([5, 6, 7], $sqlQuery->getParameters());
