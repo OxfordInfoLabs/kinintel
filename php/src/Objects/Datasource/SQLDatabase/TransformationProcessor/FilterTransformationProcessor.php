@@ -3,29 +3,46 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
-use Kinintel\ValueObjects\Transformation\Transformation;
+
 
 class FilterTransformationProcessor implements SQLTransformationProcessor {
 
+
+    /**
+     * @var TemplateParser
+     */
+    private $templateParser;
+
+
+    /**
+     * FilterTransformationProcessor constructor.
+     *
+     * @param TemplateParser $templateParser
+     */
+    public function __construct($templateParser) {
+        $this->templateParser = $templateParser;
+    }
 
     /**
      * Update the passed query and return another query
      *
      * @param FilterTransformation $transformation
      * @param SQLQuery $query
-     * @param Transformation[] $previousTransformationsDescending
+     * @param mixed[] $parameterValues
      *
      * @return SQLQuery
      */
-    public function updateQuery($transformation, $query, $previousTransformationsDescending = []) {
+    public function updateQuery($transformation, $query, $parameterValues = []) {
 
         $newParams = [];
-        $filterSQL = $this->createFilterJunctionStatement($transformation, $newParams);
+        $filterSQL = $this->createFilterJunctionStatement($transformation, $newParams, $parameterValues);
+
 
         if ($query->hasGroupByClause()) {
             $query->setHavingClause($filterSQL, $newParams);
@@ -44,15 +61,15 @@ class FilterTransformationProcessor implements SQLTransformationProcessor {
      * @param FilterJunction $filterJunction
      * @param mixed[] $parameters
      */
-    private function createFilterJunctionStatement($filterJunction, &$parameters) {
+    private function createFilterJunctionStatement($filterJunction, &$parameters, $parameterValues = []) {
 
         // Create an array of filter clauses
-        $clauses = array_map(function ($filter) use (&$parameters) {
-            return $this->createFilterStatement($filter, $parameters);
+        $clauses = array_map(function ($filter) use (&$parameters, $parameterValues) {
+            return $this->createFilterStatement($filter, $parameters, $parameterValues);
         }, $filterJunction->getFilters());
 
-        $clauses = array_merge($clauses, array_map(function ($junction) use (&$parameters) {
-            return "(" . $this->createFilterJunctionStatement($junction, $parameters) . ")";
+        $clauses = array_merge($clauses, array_map(function ($junction) use (&$parameters, $parameterValues) {
+            return "(" . $this->createFilterJunctionStatement($junction, $parameters, $parameterValues) . ")";
         }, $filterJunction->getFilterJunctions()));
 
         return join(" " . $filterJunction->getLogic() . " ", $clauses);
@@ -64,16 +81,24 @@ class FilterTransformationProcessor implements SQLTransformationProcessor {
      * @param Filter $filter
      * @param $parameters
      */
-    private function createFilterStatement($filter, &$parameters) {
+    private function createFilterStatement($filter, &$parameters, $parameterValues = []) {
 
         $fieldName = $filter->getFieldName();
         $filterValue = $filter->getValue();
 
+
+        // Map any param values up front using the template mapper
         $newParams = [];
-        if (is_array($filterValue)) {
-            $newParams = $filterValue;
-        } else if ($filterValue) {
-            $newParams = [$filterValue];
+        foreach (is_array($filterValue) ? $filterValue : [$filterValue] as $param) {
+            $newParam = $this->templateParser->parseTemplateText($param, $parameterValues);
+
+            // If this is evaluated to an Array, process the string more manually
+            if ($newParam == "Array") {
+                $arrayParams = $parameterValues[trim($param, "{}")] ?? [];
+                $newParams = array_merge($newParams, $arrayParams);
+                $filterValue = $arrayParams;
+            } else
+                $newParams[] = $newParam;
         }
 
         $clause = "";

@@ -23,10 +23,10 @@ interface SQLTransformationProcessor {
      *
      * @param Transformation $transformation
      * @param SQLQuery $query
-     * @param Transformation[] $previousTransformationsDescending
+     * @param mixed[] $parameterValues
      *
      * @return SQLQuery
      */
-    public function updateQuery($transformation, $query, $previousTransformationsDescending = []);
+    public function updateQuery($transformation, $query, $parameterValues = []);
 
 }

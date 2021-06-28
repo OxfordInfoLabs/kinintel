@@ -252,12 +252,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          *
          * @var $transformation SQLDatabaseTransformation
          */
-        $previousTransformationsDescending = [];
         foreach ($this->transformations as $transformation) {
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
-            $query = $processor->updateQuery($transformation, $query, $previousTransformationsDescending);
-            $previousTransformationsDescending[] = $transformation;
+            $query = $processor->updateQuery($transformation, $query, $parameterValues);
         }
 
         return $query;

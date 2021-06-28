@@ -3,7 +3,6 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;

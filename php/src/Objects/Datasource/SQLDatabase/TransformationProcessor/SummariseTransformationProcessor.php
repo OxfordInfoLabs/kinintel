@@ -15,10 +15,10 @@ class SummariseTransformationProcessor implements SQLTransformationProcessor {
      *
      * @param Transformation $transformation
      * @param SQLQuery $query
-     * @param array $previousTransformationsDescending
+     * @param mixed[] $parameterValues
      * @return SQLQuery|void
      */
-    public function updateQuery($transformation, $query, $previousTransformationsDescending = []) {
+    public function updateQuery($transformation, $query, $parameterValues = []) {
 
         if ($transformation instanceof SummariseTransformation) {
             $groupByClauses = $transformation->getSummariseFieldNames();

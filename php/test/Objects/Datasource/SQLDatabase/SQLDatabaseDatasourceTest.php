@@ -177,9 +177,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $transformation3 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
 
         // Apply each transformation
-        $sqlDatabaseDatasource->applyTransformation($transformation1);
-        $sqlDatabaseDatasource->applyTransformation($transformation2);
-        $sqlDatabaseDatasource->applyTransformation($transformation3);
+        $sqlDatabaseDatasource->applyTransformation($transformation1, ["param1" => "Hello", "param2" => "World"]);
+        $sqlDatabaseDatasource->applyTransformation($transformation2, ["param1" => "Hello", "param2" => "World"]);
+        $sqlDatabaseDatasource->applyTransformation($transformation3, ["param1" => "Hello", "param2" => "World"]);
 
 
         $transformationProcessor = MockObjectProvider::instance()->getMockInstance(SQLTransformationProcessor::class);
@@ -196,15 +196,15 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $transformation3->returnValue("getSQLTransformationProcessorKey", "test2");
 
         $transformationProcessor->returnValue("updateQuery", new SQLQuery("*", "?", [1]), [
-            $transformation1, new SQLQuery("*", "test_data", []), null
+            $transformation1, new SQLQuery("*", "test_data"), ["param1" => "Hello", "param2" => "World"]
         ]);
 
         $transformationProcessor->returnValue("updateQuery", new SQLQuery("*", "?", [2]), [
-            $transformation2, new SQLQuery("*", "?", [1]), [$transformation1]
+            $transformation2, new SQLQuery("*", "?", [1]), ["param1" => "Hello", "param2" => "World"]
         ]);
 
         $transformationProcessor2->returnValue("updateQuery", new SQLQuery("*", "?", [3]), [
-            $transformation3, new SQLQuery("*", "?", [2]), [$transformation2, $transformation1]
+            $transformation3, new SQLQuery("*", "?", [2]), ["param1" => "Hello", "param2" => "World"]
         ]);
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
@@ -217,7 +217,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         /**
          * @var SQLResultSetTabularDataset $dataSet
          */
-        $dataSet = $sqlDatabaseDatasource->materialiseDataset();
+        $dataSet = $sqlDatabaseDatasource->materialiseDataset(["param1" => "Hello", "param2" => "World"]);
 
         $this->assertEquals(new SQLResultSetTabularDataset($resultSet), $dataSet);
 

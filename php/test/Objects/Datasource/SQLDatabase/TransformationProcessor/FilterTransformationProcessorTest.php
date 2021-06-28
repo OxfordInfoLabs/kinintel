@@ -3,6 +3,8 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -13,9 +15,18 @@ include_once "autoloader.php";
 
 class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
+    /**
+     * @var TemplateParser
+     */
+    private $templateParser;
+
+    public function setUp(): void {
+        $this->templateParser = Container::instance()->get(TemplateParser::class);
+    }
+
 
     public function testEqualsFiltersAreAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         try {
             $processor->updateQuery(new FilterTransformation([
@@ -37,7 +48,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testNotEqualsFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         try {
             $processor->updateQuery(new FilterTransformation([
@@ -60,7 +71,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testNullFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("name", "", Filter::FILTER_TYPE_NULL)
         ]), new SQLQuery("*", "test_data"));
@@ -69,7 +80,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testNotNullFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("name", "", Filter::FILTER_TYPE_NOT_NULL)
         ]), new SQLQuery("*", "test_data"));
@@ -78,7 +89,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testGreaterThanFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("age", 25, Filter::FILTER_TYPE_GREATER_THAN)
         ]), new SQLQuery("*", "test_data"));
@@ -90,7 +101,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testGreaterThanEqualFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("age", 25, Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)
         ]), new SQLQuery("*", "test_data"));
@@ -102,7 +113,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testLessThanFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("age", 25, Filter::FILTER_TYPE_LESS_THAN)
         ]), new SQLQuery("*", "test_data"));
@@ -114,7 +125,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testLessThanEqualFiltersAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("age", 25, Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO)
         ]), new SQLQuery("*", "test_data"));
@@ -127,7 +138,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testLikeFiltersAppliedCorrectly() {
 
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         // Straight like (effectively equals)
         $query = $processor->updateQuery(new FilterTransformation([
@@ -164,7 +175,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testBetweenFilterAppliedCorrectly() {
 
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
 
         try {
@@ -199,7 +210,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testInFilterAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_IN)
@@ -214,7 +225,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testNotInFilterAppliedCorrectly() {
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN)
@@ -230,7 +241,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testMultipleFiltersAppliedWithLogicCorrectly() {
 
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         // And one
         $query = $processor->updateQuery(new FilterTransformation([
@@ -261,7 +272,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testNestedFilterJunctionsAreAppliedCorrectlyAsExpected() {
 
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         // And one
         $query = $processor->updateQuery(new FilterTransformation([
@@ -284,7 +295,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfGroupByClausePresentInPassedQueryHavingClauseWrittenInstead() {
 
-        $processor = new FilterTransformationProcessor();
+        $processor = new FilterTransformationProcessor($this->templateParser);
 
         $sourceQuery = new SQLQuery("*", "test_data");
         $sourceQuery->setWhereClause("category = 'tech'");
@@ -299,6 +310,58 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10
         ], $query->getParameters());
 
+    }
+
+    public function testIfParameterValuesPassedThroughTheseAreSubstitutedWhereDoubleBracesSuppliedInFilterValues() {
+        $processor = new FilterTransformationProcessor($this->templateParser);
+
+        $sourceQuery = new SQLQuery("*", "test_data");
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("job", "{{jobTitle}}")
+        ]), $sourceQuery, [
+            "jobTitle" => "Company Director"
+        ]);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE job = ?", $query->getSQL());
+        $this->assertEquals([
+            "Company Director"
+        ], $query->getParameters());
+
+
+        // Check an array one
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("age", "{{ages}}", Filter::FILTER_TYPE_IN)
+        ]), $query, [
+            "ages" => [10, 11, 12, 13, 14, 15]
+        ]);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE age IN (?,?,?,?,?,?)", $query->getSQL());
+        $this->assertEquals([
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+        ], $query->getParameters());
+
+
+
+        $sourceQuery = new SQLQuery("*", "test_data");
+        $sourceQuery->setWhereClause("category = 'tech'");
+        $sourceQuery->setGroupByClause("age, count(*)", "age");
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("job", "{{jobTitle}}")
+        ]), $sourceQuery, [
+            "jobTitle" => "Company Director"
+        ]);
+
+        $this->assertEquals("SELECT age, count(*) FROM test_data WHERE category = 'tech' GROUP BY age HAVING job = ?", $query->getSQL());
+        $this->assertEquals([
+            "Company Director"
+        ], $query->getParameters());
     }
 
 

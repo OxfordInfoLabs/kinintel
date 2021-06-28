@@ -16,10 +16,10 @@ class MultiSortTransformationProcessor implements SQLTransformationProcessor {
      *
      * @param Transformation $transformation
      * @param SQLQuery $query
-     * @param array $previousTransformationsDescending
+     * @param mixed[] $parameterValues
      * @return SQLQuery
      */
-    public function updateQuery($transformation, $query, $previousTransformationsDescending = []) {
+    public function updateQuery($transformation, $query, $parameterValues = []) {
         if ($transformation instanceof MultiSortTransformation) {
             $sortStrings = ObjectArrayUtils::getMemberValueArrayForObjects("sortString", $transformation->getSorts());
             $query->setOrderByClause(join(", ", $sortStrings));
