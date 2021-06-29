@@ -114,15 +114,24 @@ class SQLFilterJunctionEvaluator {
         }
 
         // Remap the filter value back if not an array
+        $placeholder = "?";
         if (!is_array($filterValue)) {
             $filterValue = $newParams[0];
+
+            // Check for [[]] column syntax
+            $columnReplaced = preg_replace("/\[\[(.*?)\]\]/", ($this->rhsTableAlias ? $this->rhsTableAlias . "." : "") . "$1", $filterValue);
+            if ($columnReplaced !== $filterValue) {
+                $placeholder = $columnReplaced;
+                $newParams = [];
+            }
+
         }
 
         $clause = "";
         $expectArray = false;
         switch ($filter->getFilterType()) {
             case Filter::FILTER_TYPE_NOT_EQUALS:
-                $clause = "$fieldName <> ?";
+                $clause = "$fieldName <> $placeholder";
                 break;
             case Filter::FILTER_TYPE_NULL:
                 $clause = "$fieldName IS NULL";
@@ -133,19 +142,19 @@ class SQLFilterJunctionEvaluator {
                 $newParams = [];
                 break;
             case Filter::FILTER_TYPE_GREATER_THAN:
-                $clause = "$fieldName > ?";
+                $clause = "$fieldName > $placeholder";
                 break;
             case Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO:
-                $clause = "$fieldName >= ?";
+                $clause = "$fieldName >= $placeholder";
                 break;
             case Filter::FILTER_TYPE_LESS_THAN:
-                $clause = "$fieldName < ?";
+                $clause = "$fieldName < $placeholder";
                 break;
             case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
-                $clause = "$fieldName <= ?";
+                $clause = "$fieldName <= $placeholder";
                 break;
             case Filter::FILTER_TYPE_LIKE:
-                $clause = "$fieldName LIKE ?";
+                $clause = "$fieldName LIKE $placeholder";
                 $newParams = [str_replace("*", "%", $filterValue)];
                 break;
             case Filter::FILTER_TYPE_BETWEEN:
@@ -164,8 +173,13 @@ class SQLFilterJunctionEvaluator {
                 $clause = "$fieldName NOT IN (" . str_repeat("?,", sizeof($filterValue) - 1) . "?)";
                 break;
             default:
-                $clause = "$fieldName = ?";
+                $clause = "$fieldName = $placeholder";
                 break;
+        }
+
+        // If a LHS table alias passed through this is pre-pended to the clause
+        if ($clause && $this->lhsTableAlias) {
+            $clause = $this->lhsTableAlias . "." . $clause;
         }
 
         if ($expectArray && !is_array($filterValue)) {

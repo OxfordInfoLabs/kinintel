@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -54,8 +55,6 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-        $mainQuery = $dataSource->buildQuery($parameterValues);
-
         // If this is a data source join, check to see whether we can directly join the datasource.
         if ($transformation->getJoinedDataSourceKey()) {
             $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceKey());
@@ -74,29 +73,26 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
             $mainTableAlias = "T" . ++$this->tableIndex;
             $childTableAlias = "T" . ++$this->tableIndex;
 
-            // Grab the join criteria
-            $joinCriteria = $this->createJoinCriteria($mainTableAlias, $childTableAlias, $transformation);
+            // Evaluate join criteria if supplied
+            $joinCriteria = "1 = 1";
+            $joinParameters = [];
+            if ($transformation->getJoinFilters()) {
+                $evaluator = new SQLFilterJunctionEvaluator($childTableAlias, $mainTableAlias);
+                $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation->getJoinFilters(), $parameterValues);
+                $joinCriteria = $evaluated["sql"];
+                $joinParameters = $evaluated["parameters"];
+            }
+
+            // Aggregate all parameters for join query
+            $allParameters = array_merge($query->getParameters(), $childQuery->getParameters(), $joinParameters);
 
             // Create the join query
-            $joinQuery = new SQLQuery("$mainTableAlias.*,$childTableAlias.*", "({$mainQuery->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}");
+            $joinQuery = new SQLQuery("$mainTableAlias.*,$childTableAlias.*", "({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}", $allParameters);
 
             return $joinQuery;
         } else {
-            return $mainQuery;
+            return $query;
         }
-
-
-    }
-
-    /**
-     * Create the join criteria
-     *
-     * @param string $mainTableAlias
-     * @param string $childTableAlias
-     * @param Transformation $transformation
-     */
-    private function createJoinCriteria($mainTableAlias, $childTableAlias, $transformation) {
-
 
 
     }

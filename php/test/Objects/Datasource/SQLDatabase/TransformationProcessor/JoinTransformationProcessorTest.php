@@ -35,11 +35,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfTwoDatasourcesUseSameAuthenticationCredsSQLJoinCanBePerformedForSimpleTableJoin() {
-
-        $joinTransformation = new JoinTransformation("testsource", null, [],
-            new FilterJunction([
-                new Filter("name", ":otherName", Filter::FILTER_TYPE_EQUALS)]));
+    public function testIfTwoDatasourcesUseSameAuthenticationCredsSQLJoinCanBePerformedForColumnAndValueBasedJoins() {
 
         // Create set of authentication credentials
         $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
@@ -60,15 +56,85 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
-        $mainDataSource->returnValue("buildQuery", new SQLQuery("*", "test_table"), [
-            []
-        ]);
+
+
+        // Try a simple column based join
+        $joinTransformation = new JoinTransformation("testsource", null, [],
+            new FilterJunction([
+                new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]));
+
 
         $sqlQuery = $this->processor->updateQuery($joinTransformation, new SQLQuery("*", "test_table"), [],
             $mainDataSource);
 
 
         $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName"),
+            $sqlQuery);
+
+
+        // Try a simple value based join
+        $joinTransformation = new JoinTransformation("testsource", null, [],
+            new FilterJunction([
+                new Filter("name", "bobby", Filter::FILTER_TYPE_EQUALS)]));
+
+
+        $sqlQuery = $this->processor->updateQuery($joinTransformation, new SQLQuery("*", "test_table"), [],
+            $mainDataSource);
+
+
+        $this->assertEquals(new SQLQuery("T3.*,T4.*", "(SELECT * FROM test_table) T3 INNER JOIN (SELECT * FROM join_table) T4 ON T4.name = ?", [
+            "bobby"
+        ]),
+            $sqlQuery);
+
+
+    }
+
+
+    public function testExistingDatasourceParametersAreMergedIntoParametersForJoinQuery() {
+
+        // Create set of authentication credentials
+        $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
+
+
+        // Ensure joined datasource returns this set of credentials
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $joinQuery = new SQLQuery("*", "join_table");
+        $joinQuery->setWhereClause("category = ? AND published = ?", ["swimming", 1]);
+
+        $joinDatasource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $joinDatasource->returnValue("buildQuery", $joinQuery, [
+            []
+        ]);
+
+        // Return the data source by key
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, ["testsource"]);
+
+        $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+
+
+        // Try a simple column based join
+        $joinTransformation = new JoinTransformation("testsource", null, [],
+            new FilterJunction([
+                new Filter("name", "*bob*", Filter::FILTER_TYPE_LIKE)]));
+
+
+        $query = new SQLQuery("*", "test_table");
+        $query->setWhereClause("archived = ?", [0]);
+
+
+        $sqlQuery = $this->processor->updateQuery($joinTransformation, $query, [],
+            $mainDataSource);
+
+
+        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table WHERE archived = ?) T1 INNER JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON T2.name LIKE ?",
+            [
+                0, "swimming", 1, "%bob%"
+            ]),
             $sqlQuery);
 
 
