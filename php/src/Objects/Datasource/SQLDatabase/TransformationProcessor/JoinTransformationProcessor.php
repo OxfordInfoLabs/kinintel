@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -20,26 +21,27 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
 
 
     /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+    /**
      * Table index
      *
      * @var int
      */
     private $tableIndex = 0;
 
-    /**
-     * Join clause index
-     *
-     * @var int
-     */
-    private $joinClauseIndex = 0;
 
     /**
      * JoinTransformationProcessor constructor.
      *
      * @param DatasourceService $datasourceService
+     * @param DatasetService $datasetService
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService, $datasetService) {
         $this->datasourceService = $datasourceService;
+        $this->datasetService = $datasetService;
     }
 
 
@@ -56,8 +58,8 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
         // If this is a data source join, check to see whether we can directly join the datasource.
-        if ($transformation->getJoinedDataSourceKey()) {
-            $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceKey());
+        if ($transformation->getJoinedDataSourceInstanceKey()) {
+            $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
             $joinDatasource = $joinDatasourceInstance->returnDataSource();
 
             if ($joinDatasource instanceof SQLDatabaseDatasource &&

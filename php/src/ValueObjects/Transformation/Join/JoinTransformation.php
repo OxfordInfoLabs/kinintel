@@ -16,9 +16,9 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      * This is either / or with a joined data set id.
      *
      * @var string
-     * @requiredEither joinedDataSetId
+     * @requiredEither joinedDataSetInstanceId
      */
-    private $joinedDataSourceKey;
+    private $joinedDataSourceInstanceKey;
 
 
     /**
@@ -27,7 +27,7 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      *
      * @var integer
      */
-    private $joinedDataSetId;
+    private $joinedDataSetInstanceId;
 
 
     /**
@@ -63,8 +63,8 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      */
     public function __construct($joinedDataSourceKey = null, $joinedDataSetId = null, $joinParameterMappings = [],
                                 $joinFilters = null, $includedColumnNames = []) {
-        $this->joinedDataSourceKey = $joinedDataSourceKey;
-        $this->joinedDataSetId = $joinedDataSetId;
+        $this->joinedDataSourceInstanceKey = $joinedDataSourceKey;
+        $this->joinedDataSetInstanceId = $joinedDataSetId;
         $this->joinParameterMappings = $joinParameterMappings;
         $this->joinFilters = $joinFilters;
         $this->includedColumnNames = $includedColumnNames;
@@ -73,29 +73,29 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     /**
      * @return string
      */
-    public function getJoinedDataSourceKey() {
-        return $this->joinedDataSourceKey;
+    public function getJoinedDataSourceInstanceKey() {
+        return $this->joinedDataSourceInstanceKey;
     }
 
     /**
-     * @param string $joinedDataSourceKey
+     * @param string $joinedDataSourceInstanceKey
      */
-    public function setJoinedDataSourceKey($joinedDataSourceKey) {
-        $this->joinedDataSourceKey = $joinedDataSourceKey;
+    public function setJoinedDataSourceInstanceKey($joinedDataSourceInstanceKey) {
+        $this->joinedDataSourceInstanceKey = $joinedDataSourceInstanceKey;
     }
 
     /**
      * @return int
      */
-    public function getJoinedDataSetId() {
-        return $this->joinedDataSetId;
+    public function getJoinedDataSetInstanceId() {
+        return $this->joinedDataSetInstanceId;
     }
 
     /**
-     * @param int $joinedDataSetId
+     * @param int $joinedDataSetInstanceId
      */
-    public function setJoinedDataSetId($joinedDataSetId) {
-        $this->joinedDataSetId = $joinedDataSetId;
+    public function setJoinedDataSetInstanceId($joinedDataSetInstanceId) {
+        $this->joinedDataSetInstanceId = $joinedDataSetInstanceId;
     }
 
     /**
