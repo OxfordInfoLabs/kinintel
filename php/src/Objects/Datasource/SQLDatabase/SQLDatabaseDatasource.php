@@ -228,7 +228,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     }
 
     // Build SQL statement using configured settings
-    private function buildQuery($parameterValues = []) {
+    public function buildQuery($parameterValues = []) {
 
         /**
          * @var SQLDatabaseDatasourceConfig $config

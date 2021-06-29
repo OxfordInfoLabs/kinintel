@@ -44,6 +44,15 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      */
     private $joinFilters;
 
+
+    /**
+     * Which column names from the new join data set are to be included
+     *
+     * @var string[]
+     */
+    private $includedColumnNames = [];
+
+
     /**
      * JoinTransformation constructor.
      *
@@ -52,11 +61,13 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      * @param JoinParameterMapping[] $joinParameterMappings
      * @param FilterJunction $joinFilters
      */
-    public function __construct($joinedDataSourceKey = null, $joinedDataSetId = null, $joinParameterMappings = [], $joinFilters = null) {
+    public function __construct($joinedDataSourceKey = null, $joinedDataSetId = null, $joinParameterMappings = [],
+                                $joinFilters = null, $includedColumnNames = []) {
         $this->joinedDataSourceKey = $joinedDataSourceKey;
         $this->joinedDataSetId = $joinedDataSetId;
         $this->joinParameterMappings = $joinParameterMappings;
         $this->joinFilters = $joinFilters;
+        $this->includedColumnNames = $includedColumnNames;
     }
 
     /**
@@ -113,6 +124,20 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      */
     public function setJoinFilters($joinFilters) {
         $this->joinFilters = $joinFilters;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getIncludedColumnNames() {
+        return $this->includedColumnNames;
+    }
+
+    /**
+     * @param string[] $includedColumnNames
+     */
+    public function setIncludedColumnNames($includedColumnNames) {
+        $this->includedColumnNames = $includedColumnNames;
     }
 
 
