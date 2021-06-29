@@ -57,19 +57,23 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
+        $joinDatasource = null;
+
         // If this is a data source join, check to see whether we can directly join the datasource.
+        // If this is a data set join, get the transformed data source to use for joining in.
         if ($transformation->getJoinedDataSourceInstanceKey()) {
             $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
             $joinDatasource = $joinDatasourceInstance->returnDataSource();
-
-            if ($joinDatasource instanceof SQLDatabaseDatasource &&
-                ($joinDatasource->getAuthenticationCredentials() === $dataSource->getAuthenticationCredentials())) {
-                $childQuery = $joinDatasource->buildQuery($parameterValues);
-            }
+        } else if ($transformation->getJoinedDataSetInstanceId()) {
+            $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
+            $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
+                $joinDataSet->getTransformationInstances(), $parameterValues);
         }
 
         // If we have a child query, use this to generate a new query using the various criteria.
-        if ($childQuery) {
+        if ($joinDatasource instanceof SQLDatabaseDatasource &&
+            ($joinDatasource->getAuthenticationCredentials() === $dataSource->getAuthenticationCredentials())) {
+            $childQuery = $joinDatasource->buildQuery($parameterValues);
 
             // Calculate the new aliases
             $mainTableAlias = "T" . ++$this->tableIndex;

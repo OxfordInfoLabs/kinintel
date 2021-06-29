@@ -119,7 +119,28 @@ class DatasourceService {
      * @return Dataset
      */
     public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = []) {
+        $datasource = $this->getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues);
 
+        // Return the evaluated data source
+        return $datasource->materialise($parameterValues ?? []);
+
+    }
+
+
+    /**
+     * Get a transformed data source
+     *
+     * @param $datasourceInstanceKey
+     * @param $transformations
+     * @param mixed[] $parameterValues
+     *
+     * @return Datasource
+     * @throws InvalidParametersException
+     * @throws ObjectNotFoundException
+     * @throws UnsupportedDatasourceTransformationException
+     * @throws ValidationException
+     */
+    public function getTransformedDataSource($datasourceInstanceKey, $transformations, &$parameterValues) {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
@@ -135,10 +156,7 @@ class DatasourceService {
         if ($transformations ?? []) {
             $datasource = $this->applyTransformationsToDatasource($datasource, $transformations, $parameterValues);
         }
-
-        // Return the evaluated data source
-        return $datasource->materialise($parameterValues ?? []);
-
+        return $datasource;
     }
 
 

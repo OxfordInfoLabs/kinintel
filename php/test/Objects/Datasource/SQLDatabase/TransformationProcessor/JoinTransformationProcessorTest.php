@@ -8,6 +8,7 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\MVC\Request\MockPHPInputStream;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Services\Dataset\DatasetService;
@@ -17,6 +18,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 
@@ -157,13 +159,16 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Create set of authentication credentials
         $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
 
-        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
-
+        // Set up and programme return of data set instance
+        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstanceSummary::class);
+        $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testDS");
+        $joinDataSetInstance->returnValue("getTransformationInstances", [
+            new TransformationInstance("test"), new TransformationInstance("otherone")
+        ]);
+        $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [5]);
 
         // Ensure joined datasource returns this set of credentials
-        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
 
         $joinDatasource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $joinDatasource->returnValue("buildQuery", new SQLQuery("*", "join_table"), [
@@ -171,14 +176,16 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         // Return the data source by key
-        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, ["testsource"]);
+        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, ["testDS", [
+            new TransformationInstance("test"), new TransformationInstance("otherone")
+        ], []]);
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
 
 
         // Try a simple column based join
-        $joinTransformation = new JoinTransformation("testsource", null, [],
+        $joinTransformation = new JoinTransformation(null, 5, [],
             new FilterJunction([
                 new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]));
 
