@@ -156,6 +156,22 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     public function applyTransformation($transformation, $parameterValues = []) {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
+
+//            if ($transformation instanceof JoinTransformation) {
+//
+//                if ($transformation->getJoinedDataSourceInstanceKey()) {
+//                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
+//                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
+//                } else if ($transformation->getJoinedDataSetInstanceId()) {
+//
+//                }
+//
+//                if ($joinDatasource && $joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials()){
+//
+//                }
+//
+//            }
+
             $this->transformations[] = $transformation;
         }
         return $this;

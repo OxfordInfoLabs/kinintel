@@ -485,10 +485,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $transformation = new JoinTransformation("testjoindatasource");
 
-        // Programme same creds, i.e. nothing to do.
+        // Programme different creds - should convert
         $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
         $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
-
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $datasourceService);
