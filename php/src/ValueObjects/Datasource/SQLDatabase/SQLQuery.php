@@ -57,6 +57,13 @@ class SQLQuery {
         $this->initialParameters = $initialParameters;
     }
 
+    /**
+     * @param string $selectClause
+     */
+    public function setSelectClause($selectClause) {
+        $this->selectClause = $selectClause;
+    }
+
 
     /**
      * @return bool

@@ -225,11 +225,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
 
 
-        // Try a simple column based join
+        // Try simple non aliased columns
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]),[
-                    new JoinColumn("name"), new JoinColumn("category"), new JoinColumn("status")
+                new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [
+                new JoinColumn("name"), new JoinColumn("category"), new JoinColumn("status")
             ]);
 
 
@@ -241,6 +241,20 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $sqlQuery);
 
 
+        // Try aliased columns
+        $joinTransformation = new JoinTransformation("testsource", null, [],
+            new FilterJunction([
+                new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [
+                new JoinColumn("name","column_1"), new JoinColumn("category", "column_2"), new JoinColumn("status", "column_3")
+            ]);
+
+
+        $sqlQuery = $this->processor->updateQuery($joinTransformation, new SQLQuery("*", "test_table"), [],
+            $mainDataSource);
+
+
+        $this->assertEquals(new SQLQuery("T3.*,T4.*", "(SELECT * FROM test_table) T3 INNER JOIN (SELECT name column_1,category column_2,status column_3 FROM join_table) T4 ON T4.name = T3.otherName"),
+            $sqlQuery);
 
     }
 

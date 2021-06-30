@@ -92,6 +92,16 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
             // Aggregate all parameters for join query
             $allParameters = array_merge($query->getParameters(), $childQuery->getParameters(), $joinParameters);
 
+
+            // If join columns supplied, change the select query for selection
+            if ($transformation->getJoinColumns()) {
+                $joinColumnStrings = [];
+                foreach ($transformation->getJoinColumns() as $joinColumn) {
+                    $joinColumnStrings[] = $joinColumn->getName() . ($joinColumn->getAlias() ? " " . $joinColumn->getAlias() : "");
+                }
+                $childQuery->setSelectClause(join(",", $joinColumnStrings));
+            }
+
             // Create the join query
             $joinQuery = new SQLQuery("$mainTableAlias.*,$childTableAlias.*", "({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}", $allParameters);
 

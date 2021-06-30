@@ -26,7 +26,7 @@ class JoinColumn extends Field {
      */
     public function __construct($name, $alias = null, $title = null) {
         parent::__construct($name, $title);
-        $this->alias = $alias ?? $name;
+        $this->alias = $alias;
     }
 
 
