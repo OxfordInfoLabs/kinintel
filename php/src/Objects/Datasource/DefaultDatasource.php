@@ -99,10 +99,6 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         // Update this data set with the source dataset.
         $this->update($sourceDataset);
 
-       // $results = $dbConnection->query("SELECT * FROM $this->tableName");
-
-
-
         // Match columns in configuration with those from the source dataset
         $this->getConfig()->setColumns($columns);
 

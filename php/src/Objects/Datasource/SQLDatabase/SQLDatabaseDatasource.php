@@ -181,7 +181,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 $transformation->setEvaluatedDataSource($joinDatasource);
 
                 // If mismatch of authentication credentials, harmonise as required
-                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials())) {
+                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() != $this->getAuthenticationCredentials())) {
 
                     if (!($joinDatasource instanceof DefaultDatasource)) {
                         $transformation->setEvaluatedDataSource(new DefaultDatasource($joinDatasource));
@@ -229,7 +229,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $dbConnection = $this->returnDatabaseConnection();
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
-
 
         // Return a tabular dataset
         return new SQLResultSetTabularDataset($resultSet, $this->getConfig()->returnEvaluatedColumns($parameterValues));
