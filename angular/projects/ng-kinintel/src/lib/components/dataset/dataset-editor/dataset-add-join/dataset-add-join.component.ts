@@ -83,12 +83,12 @@ export class DatasetAddJoinComponent implements OnInit {
         if (type === 'datasource') {
             promise = this.datasourceService.getDatasource(item.key).then(datasource => {
                 this.selectedSource = datasource;
-                this.joinTransformation.config.joinedDataSourceKey = item.key;
+                this.joinTransformation.config.joinedDataSourceInstanceKey = item.key;
             });
         } else {
             promise = this.datasetService.getDataset(item.id).then(dataset => {
                 this.selectedSource = dataset;
-                this.joinTransformation.config.joinedDataSetId = item.id;
+                this.joinTransformation.config.joinedDataSetInstanceId = item.id;
             });
         }
 
@@ -99,6 +99,10 @@ export class DatasetAddJoinComponent implements OnInit {
                 this.getRightColumns();
             }, 0);
         });
+    }
+
+    public join() {
+        this.dialogRef.close(this.joinTransformation);
     }
 
     private getRightColumns() {

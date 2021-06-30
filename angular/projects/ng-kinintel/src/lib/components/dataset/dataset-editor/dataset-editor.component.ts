@@ -108,6 +108,13 @@ export class DatasetEditorComponent implements OnInit {
                 filterFields: this.filterFields
             },
         });
+
+        dialogReg.afterClosed().subscribe(joinTransformation => {
+            if (joinTransformation) {
+                this.evaluatedDatasource.transformationInstances.push(joinTransformation);
+                this.evaluateDatasource();
+            }
+        });
     }
 
     public applyFilters() {

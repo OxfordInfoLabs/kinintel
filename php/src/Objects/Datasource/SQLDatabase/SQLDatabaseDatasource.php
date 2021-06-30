@@ -25,6 +25,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
@@ -95,7 +96,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             FilterTransformation::class,
             MultiSortTransformation::class,
             PagingTransformation::class,
-            SummariseTransformation::class
+            SummariseTransformation::class,
+            JoinTransformation::class
         ];
     }
 

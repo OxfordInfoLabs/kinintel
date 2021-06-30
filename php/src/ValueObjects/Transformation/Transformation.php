@@ -11,6 +11,7 @@ namespace Kinintel\ValueObjects\Transformation;
  * @implementation multisort \Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation
  * @implementation paging \Kinintel\ValueObjects\Transformation\Paging\PagingTransformation
  * @implementation summarise \Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation
+ * @implementation join \Kinintel\ValueObjects\Transformation\Join\JoinTransformation
  *
  */
 interface Transformation {
