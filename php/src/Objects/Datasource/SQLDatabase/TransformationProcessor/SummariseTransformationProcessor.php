@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -16,7 +17,7 @@ class SummariseTransformationProcessor implements SQLTransformationProcessor {
      * @param Transformation $transformation
      * @param SQLQuery $query
      * @param mixed[] $parameterValues
-     * @param $dataSource
+     * @param SQLDatabaseDatasource $dataSource
      * @return SQLQuery|void
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
@@ -29,6 +30,10 @@ class SummariseTransformationProcessor implements SQLTransformationProcessor {
             }
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
             $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses));
+
+            // Unset any explicit columns from the datasource config
+            $dataSource->getConfig()->setColumns([]);
+
         }
 
         return $query;
