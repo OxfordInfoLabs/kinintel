@@ -1,0 +1,8 @@
+{
+  "key": "posts",
+  "title": "Posts",
+  "type": "webservice",
+  "config": {
+    "url": "https://jsonplaceholder.typicode.com/posts"
+  }
+}

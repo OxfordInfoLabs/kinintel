@@ -28,6 +28,16 @@ class SQLResultSetTabularDataset extends TabularDataset {
     }
 
     /**
+     * Return the underlying result set.
+     *
+     * @return ResultSet
+     */
+    public function returnResultSet() {
+        return $this->resultSet;
+    }
+
+
+    /**
      * Get columns
      *
      * @return Field[]
