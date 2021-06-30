@@ -20,6 +20,7 @@
 
     <div>
 <!--        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>-->
+        <button mat-stroked-button color="primary" (click)="joinData()">Join Data</button>
         <button mat-stroked-button color="primary" (click)="showParameters = !showParameters">Add Parameter</button>
         <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
         <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
@@ -62,7 +63,7 @@
 <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
        class="block overflow-x-auto">
     <ng-template ngFor let-column [ngForOf]="filterFields">
-        <ng-container [matColumnDef]="column.label">
+        <ng-container [matColumnDef]="column.value">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.label}} </th>
             <td mat-cell *matCellDef="let element"> {{element[column.value]}} </td>
         </ng-container>

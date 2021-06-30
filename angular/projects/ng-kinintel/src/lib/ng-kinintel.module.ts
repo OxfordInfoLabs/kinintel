@@ -37,6 +37,8 @@ import {DatasetParameterValuesComponent} from './components/dataset/dataset-edit
 import {DatasetParameterTypeComponent} from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-type/dataset-parameter-type.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { DatasetAddParameterComponent } from './components/dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
+import { DatasetAddJoinComponent } from './components/dataset/dataset-editor/dataset-add-join/dataset-add-join.component';
+import {MatStepperModule} from '@angular/material/stepper';
 
 
 @NgModule({
@@ -58,7 +60,8 @@ import { DatasetAddParameterComponent } from './components/dataset/dataset-edito
         DatasetFiltersComponent,
         DatasetParameterValuesComponent,
         DatasetParameterTypeComponent,
-        DatasetAddParameterComponent
+        DatasetAddParameterComponent,
+        DatasetAddJoinComponent
     ],
     imports: [
         BrowserModule,
@@ -80,7 +83,8 @@ import { DatasetAddParameterComponent } from './components/dataset/dataset-edito
         FormsModule,
         MatButtonToggleModule,
         MatSelectModule,
-        MatSlideToggleModule
+        MatSlideToggleModule,
+        MatStepperModule
     ],
     exports: [
         DashboardEditorComponent,
