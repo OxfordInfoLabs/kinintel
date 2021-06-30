@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 import {DatasourceService} from '../../../services/datasource.service';
+import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -13,6 +14,7 @@ export class DatasetEditorComponent implements OnInit {
 
     @Input() datasource: any = {};
     @Input() evaluatedDatasource: any;
+    @Input() environment: any = {};
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() evaluatedDatasourceChange = new EventEmitter();
@@ -95,6 +97,17 @@ export class DatasetEditorComponent implements OnInit {
 
     public exportData() {
 
+    }
+
+    public joinData() {
+        const dialogReg = this.dialog.open(DatasetAddJoinComponent, {
+            width: '1000px',
+            height: '800px',
+            data: {
+                environment: this.environment,
+                filterFields: this.filterFields
+            },
+        });
     }
 
     public applyFilters() {
@@ -237,7 +250,7 @@ export class DatasetEditorComponent implements OnInit {
     private loadData() {
         this.tableData = this.dataset.allData;
         this.endOfResults = this.tableData.length < this.limit;
-        this.displayedColumns = _.map(this.dataset.columns, 'title');
+        this.displayedColumns = _.map(this.dataset.columns, 'name');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
                 label: column.title,

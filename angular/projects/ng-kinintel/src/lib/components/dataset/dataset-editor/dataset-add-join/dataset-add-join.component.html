@@ -1,0 +1,102 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Join Data</h2>
+
+        <div>
+            <b>Project:</b> {{activeProject.name}}
+            <ng-template [ngIf]="activeTag"><b>Active {{environment.tagLabel || 'Tag'}}:</b> {{activeTag.tag}}
+            </ng-template>
+        </div>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content" style="padding: 0 0 1rem 0">
+
+        <mat-horizontal-stepper [linear]="true" #stepper>
+            <mat-step [completed]="selectedSource" label="Select a Datasource or Dataset">
+
+                <div class="mb-8 mt-4">
+                    <input class="full" type="text" placeholder="Search for a datasource or dataset"
+                           (keyup)="searchText.next($event.target.value)">
+                </div>
+
+                <table mat-table [dataSource]="datasources">
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="datasource">
+                        <th mat-header-cell *matHeaderCellDef> Datasources</th>
+                        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="explore">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="text-right">
+                            <button mat-button color="primary" (click)="select(element, 'datasource', stepper)"> Select</button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+                </table>
+
+
+                <table mat-table [dataSource]="datasets">
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="datasource">
+                        <th mat-header-cell *matHeaderCellDef> Datasets</th>
+                        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="explore">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="text-right">
+                            <button mat-button color="primary" (click)="select(element, 'dataset', stepper)">
+                                Select
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+                </table>
+
+            </mat-step>
+            <mat-step [completed]="false" label="Add join criteria">
+
+                <ng-template [ngIf]="!selectedSource">
+                    <p>Please select either a Datasource or Dataset to join to.</p>
+                </ng-template>
+
+                <ng-template [ngIf]="selectedSource">
+                    <p class="mt-4 mb-4">
+                        <b>Selected source: {{selectedSource.title || selectedSource.name}}</b>
+                    </p>
+
+                    <ki-dataset-filters [filterFields]="filterFields" [filterJunction]="joinTransformation.config.joinFilters"></ki-dataset-filters>
+
+                </ng-template>
+
+                <div class="align-center justify-between mt-4">
+                    <button mat-stroked-button color="primary" matStepperPrevious>Back</button>
+<!--                    <button mat-button matStepperNext>Next</button>-->
+                </div>
+            </mat-step>
+
+        </mat-horizontal-stepper>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+
+        <button mat-flat-button color="primary" *ngIf="false">Create Join</button>
+    </div>
+
+</div>
+
+
