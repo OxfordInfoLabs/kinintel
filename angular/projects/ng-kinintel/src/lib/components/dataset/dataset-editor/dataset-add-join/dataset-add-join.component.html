@@ -35,7 +35,9 @@
                     <ng-container matColumnDef="explore">
                         <th mat-header-cell *matHeaderCellDef></th>
                         <td mat-cell *matCellDef="let element" class="text-right">
-                            <button mat-button color="primary" (click)="select(element, 'datasource', stepper)"> Select</button>
+                            <button mat-button color="primary" (click)="select(element, 'datasource', stepper)">
+                                Select
+                            </button>
                         </td>
                     </ng-container>
 
@@ -66,7 +68,9 @@
                 </table>
 
             </mat-step>
-            <mat-step [completed]="false" label="Add join criteria">
+            <mat-step [completed]="joinTransformation.config.joinFilters.filters[0].fieldName &&
+                                   joinTransformation.config.joinFilters.filters[0].value"
+                      label="Add join criteria">
 
                 <ng-template [ngIf]="!selectedSource">
                     <p>Please select either a Datasource or Dataset to join to.</p>
@@ -78,15 +82,39 @@
                     </p>
 
                     <ki-dataset-filters [filterFields]="filterFields"
-                                        [rightFilterFields]="rightFilterFields"
+                                        [joinFilterFields]="joinFilterFields"
+                                        [joinFieldsName]="selectedSource.title || selectedSource.name"
                                         [filterJunction]="joinTransformation.config.joinFilters"></ki-dataset-filters>
 
                 </ng-template>
 
-                <div class="align-center justify-between mt-4">
-                    <button mat-stroked-button color="primary" matStepperPrevious>Back</button>
-<!--                    <button mat-button matStepperNext>Next</button>-->
-                </div>
+            </mat-step>
+
+            <mat-step [completed]="false" label="Column definition">
+
+                <ng-template [ngIf]="!selectedSource">
+                    <p>Please select either a Datasource or Dataset to join to.</p>
+                </ng-template>
+
+                <ng-template [ngIf]="selectedSource">
+                    <p>Select the columns you would like to view, and set column name aliases if required.</p>
+
+                    <div class="column-definition align-center" *ngFor="let column of joinColumns">
+                        <mat-checkbox [(ngModel)]="column.selected"></mat-checkbox>
+                        <label>
+                            Column name
+                            <input type="text" [(ngModel)]="column.name" disabled>
+                        </label>
+                        <label>
+                            New Column title
+                            <input type="text" [(ngModel)]="column.title">
+                        </label>
+                        <span *ngIf="column.duplicate">Duplicate column name</span>
+                    </div>
+
+
+                </ng-template>
+
             </mat-step>
 
         </mat-horizontal-stepper>
@@ -94,9 +122,17 @@
     </div>
 
     <div class="dialog-footer">
-        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+        <button *ngIf="stepper.selectedIndex === 0" mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+        <button *ngIf="stepper.selectedIndex > 0" mat-stroked-button color="primary" (click)="stepper.previous()">Back
+        </button>
 
-        <button mat-flat-button color="primary" *ngIf="selectedSource" (click)="join()">Create Join</button>
+        <button *ngIf="stepper.selectedIndex === 1" mat-flat-button color="primary"
+                (click)="stepper.next()" [disabled]="!joinTransformation.config.joinFilters.filters[0].fieldName ||
+                                    !joinTransformation.config.joinFilters.filters[0].value">Next
+        </button>
+        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 2"
+                (click)="join()">Create Join
+        </button>
     </div>
 
 </div>

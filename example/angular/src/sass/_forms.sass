@@ -9,3 +9,12 @@ select, input, mat-select, textarea
     background-color: white
     &.full
         width: 100%
+    &[disabled]
+        cursor: not-allowed
+        opacity: .5
+        background-color: whitesmoke
+
+label
+    display: flex
+    flex-direction: column
+    font-weight: 500

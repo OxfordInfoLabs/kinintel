@@ -9,7 +9,8 @@ export class DatasetFiltersComponent implements OnInit {
 
     @Input() filterJunction: any;
     @Input() filterFields: any = [];
-    @Input() rightFilterFields: any;
+    @Input() joinFilterFields: any;
+    @Input() joinFieldsName: string;
 
     constructor() {
     }

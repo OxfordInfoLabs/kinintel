@@ -6,7 +6,7 @@ import {DatasourceService} from '../../../../services/datasource.service';
 import {ProjectService} from '../../../../services/project.service';
 import {TagService} from '../../../../services/tag.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {MatStepper} from '@angular/material/stepper';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'ki-dataset-add-join',
@@ -22,7 +22,8 @@ export class DatasetAddJoinComponent implements OnInit {
     public searchText = new BehaviorSubject('');
     public selectedSource: any;
     public filterFields: any;
-    public rightFilterFields: any;
+    public joinFilterFields: any;
+    public joinColumns: any = [];
     public joinTransformation: any = {
         type: 'join',
         config: {
@@ -34,7 +35,8 @@ export class DatasetAddJoinComponent implements OnInit {
                     filterType: ''
                 }],
                 filterJunctions: []
-            }
+            },
+            joinColumns: []
         }
     };
 
@@ -78,7 +80,7 @@ export class DatasetAddJoinComponent implements OnInit {
         });
     }
 
-    public select(item, type, step: MatStepper) {
+    public select(item, type, step) {
         let promise: Promise<any>;
         if (type === 'datasource') {
             promise = this.datasourceService.getDatasource(item.key).then(datasource => {
@@ -93,15 +95,18 @@ export class DatasetAddJoinComponent implements OnInit {
         }
 
         promise.then(() => {
-            console.log(this.selectedSource);
+            this.getRightColumns();
             setTimeout(() => {
                 step.next();
-                this.getRightColumns();
             }, 0);
         });
     }
 
     public join() {
+        const selectedColumns = _.filter(this.joinColumns, 'selected');
+        this.joinTransformation.config.joinColumns = selectedColumns.map(column => {
+            return {name: column.name, title: column.title};
+        });
         this.dialogRef.close(this.joinTransformation);
     }
 
@@ -119,11 +124,21 @@ export class DatasetAddJoinComponent implements OnInit {
             }])
             .then((data: any) => {
                 if (data.columns) {
-                    this.rightFilterFields = data.columns.map(column => {
-                        return {
-                            label: column.title,
-                            value: column.name
-                        };
+                    this.joinFilterFields = [];
+                    this.joinColumns = [];
+                    data.columns.forEach(column => {
+                        this.joinFilterFields.push(
+                            {
+                                label: column.title,
+                                value: column.name
+                            }
+                        );
+                        this.joinColumns.push({
+                            selected: true,
+                            name: column.name,
+                            title: column.title,
+                            duplicate: !!_.find(this.filterFields, {value: column.name, label: column.title})
+                        });
                     });
                 }
             });

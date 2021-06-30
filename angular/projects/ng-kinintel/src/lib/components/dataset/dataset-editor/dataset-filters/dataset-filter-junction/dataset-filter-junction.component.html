@@ -13,8 +13,8 @@
         <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
 
             <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
-                               [filterFields]="filterFields" [rightFilterFields]="rightFilterFields"
-                               (filtersRemoved)="filtersRemoved()"></ki-dataset-filter>
+                               [filterFields]="filterFields" [joinFilterFields]="joinFilterFields"
+                               (filtersRemoved)="filtersRemoved()" [joinFieldsName]="joinFieldsName"></ki-dataset-filter>
 
         </ng-template>
         <div>
@@ -36,7 +36,7 @@
 
     <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
         <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]"
-                                    [rightFilterFields]="rightFilterFields"
+                                    [joinFilterFields]="joinFilterFields" [joinFieldsName]="joinFieldsName"
                                     [filterFields]="filterFields" [parentJunction]="filterJunction"
                                     [junctionIndex]="j"></ki-dataset-filter-junction>
     </div>

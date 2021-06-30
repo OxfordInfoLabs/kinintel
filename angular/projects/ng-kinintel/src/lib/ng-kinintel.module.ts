@@ -39,6 +39,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { DatasetAddParameterComponent } from './components/dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import { DatasetAddJoinComponent } from './components/dataset/dataset-editor/dataset-add-join/dataset-add-join.component';
 import {MatStepperModule} from '@angular/material/stepper';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -84,7 +85,8 @@ import {MatStepperModule} from '@angular/material/stepper';
         MatButtonToggleModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatStepperModule
+        MatStepperModule,
+        MatCheckboxModule
     ],
     exports: [
         DashboardEditorComponent,
