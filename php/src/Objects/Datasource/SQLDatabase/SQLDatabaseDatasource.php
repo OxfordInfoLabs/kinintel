@@ -137,8 +137,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $query = $this->buildQuery($parameterValues);
 
-        Logger::log($query->getSQL());
-
         /**
          * @var DatabaseConnection $dbConnection
          */

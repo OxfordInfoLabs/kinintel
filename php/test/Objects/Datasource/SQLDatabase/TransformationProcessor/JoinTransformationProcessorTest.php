@@ -200,4 +200,47 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testIfIncludedColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTable() {
+
+        // Create set of authentication credentials
+        $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
+
+
+        // Ensure joined datasource returns this set of credentials
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $joinDatasource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $joinDatasource->returnValue("buildQuery", new SQLQuery("*", "join_table"), [
+            []
+        ]);
+
+        // Return the data source by key
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, ["testsource"]);
+
+        $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+
+
+        // Try a simple column based join
+        $joinTransformation = new JoinTransformation("testsource", null, [],
+            new FilterJunction([
+                new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]),[
+                    "name", "category", "status"
+            ]);
+
+
+        $sqlQuery = $this->processor->updateQuery($joinTransformation, new SQLQuery("*", "test_table"), [],
+            $mainDataSource);
+
+
+        $this->assertEquals(new SQLQuery("T1.*,T2.name,T2.category,T2.status", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName"),
+            $sqlQuery);
+
+
+
+    }
+
 }
