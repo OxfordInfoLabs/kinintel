@@ -158,27 +158,27 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
 
-            if ($transformation instanceof JoinTransformation) {
-
-                if ($transformation->getJoinedDataSourceInstanceKey()) {
-                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
-                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
-                } else if ($transformation->getJoinedDataSetInstanceId()) {
-
-                }
-
-                // If mismatch of authentication credentials, harmonise as required
-                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials())) {
-
-
-                    // If we are not a default datasource already, return a new instance
-                    if (!($this instanceof DefaultDatasource)) {
-                        return new DefaultDatasource($this);
-                    }
-
-                }
-
-            }
+//            if ($transformation instanceof JoinTransformation) {
+//
+//                if ($transformation->getJoinedDataSourceInstanceKey()) {
+//                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
+//                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
+//                } else if ($transformation->getJoinedDataSetInstanceId()) {
+//
+//                }
+//
+//                // If mismatch of authentication credentials, harmonise as required
+//                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials())) {
+//
+//
+//                    // If we are not a default datasource already, return a new instance
+//                    if (!($this instanceof DefaultDatasource)) {
+//                        return new DefaultDatasource($this);
+//                    }
+//
+//                }
+//
+//            }
 
             $this->transformations[] = $transformation;
         }
