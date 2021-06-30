@@ -17,6 +17,7 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredent
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Join\JoinColumn;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -201,7 +202,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfIncludedColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTable() {
+    public function testIfJoinColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTable() {
 
         // Create set of authentication credentials
         $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
@@ -228,7 +229,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
                 new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]),[
-                    "name", "category", "status"
+                    new JoinColumn("name"), new JoinColumn("category"), new JoinColumn("status")
             ]);
 
 
@@ -236,7 +237,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T1.*,T2.name,T2.category,T2.status", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName"),
+        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT name,category,status FROM join_table) T2 ON T2.name = T1.otherName"),
             $sqlQuery);
 
 

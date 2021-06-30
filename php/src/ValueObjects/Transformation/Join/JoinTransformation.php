@@ -48,9 +48,9 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     /**
      * Which column names from the new join data set are to be included
      *
-     * @var string[]
+     * @var JoinColumn[]
      */
-    private $includedColumnNames = [];
+    private $joinColumns = [];
 
 
     /**
@@ -67,7 +67,7 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
         $this->joinedDataSetInstanceId = $joinedDataSetId;
         $this->joinParameterMappings = $joinParameterMappings;
         $this->joinFilters = $joinFilters;
-        $this->includedColumnNames = $includedColumnNames;
+        $this->joinColumns = $includedColumnNames;
     }
 
     /**
@@ -127,17 +127,17 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     }
 
     /**
-     * @return string[]
+     * @return JoinColumn[]
      */
-    public function getIncludedColumnNames() {
-        return $this->includedColumnNames;
+    public function getJoinColumns() {
+        return $this->joinColumns;
     }
 
     /**
-     * @param string[] $includedColumnNames
+     * @param JoinColumn[] $joinColumns
      */
-    public function setIncludedColumnNames($includedColumnNames) {
-        $this->includedColumnNames = $includedColumnNames;
+    public function setJoinColumns($joinColumns) {
+        $this->joinColumns = $joinColumns;
     }
 
 
