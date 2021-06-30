@@ -34,6 +34,14 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
 
 
     /**
+     * Alias index
+     *
+     * @var int
+     */
+    private $aliasIndex = 0;
+
+
+    /**
      * JoinTransformationProcessor constructor.
      *
      * @param DatasourceService $datasourceService
@@ -97,7 +105,7 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
             if ($transformation->getJoinColumns()) {
                 $joinColumnStrings = [];
                 foreach ($transformation->getJoinColumns() as $joinColumn) {
-                    $joinColumnStrings[] = $joinColumn->getName() . ($joinColumn->getAlias() ? " " . $joinColumn->getAlias() : "");
+                    $joinColumnStrings[] = $joinColumn->getName() . " alias_" . ++$this->aliasIndex;
                 }
                 $childQuery->setSelectClause(join(",", $joinColumnStrings));
             }

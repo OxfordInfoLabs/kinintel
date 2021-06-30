@@ -17,14 +17,20 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
@@ -436,6 +442,61 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->bulkDataManager->methodWasCalled("replace", [
             "test_data", $data, null
         ]));
+    }
+
+
+    public function testIfJoinTransformationSuppliedToApplyTransformationWithSameCredsDatasourceIsReturnedIntact() {
+
+        $datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $datasourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
+            "testjoindatasource"
+        ]);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $transformation = new JoinTransformation("testjoindatasource");
+
+
+        // Programme same creds, i.e. nothing to do.
+        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $datasourceService);
+
+        $transformedDatasource = $sqlDatabaseDatasource->applyTransformation($transformation);
+
+        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource);
+
+
+    }
+
+    public function testIfJoinTransformationSuppliedToApplyTransformationWithDifferentCredsNewDefaultDatasourceReturnedAndCreatedForTransformation() {
+
+        $datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $datasourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
+            "testjoindatasource"
+        ]);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $transformation = new JoinTransformation("testjoindatasource");
+
+        // Programme same creds, i.e. nothing to do.
+        $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
+        $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $datasourceService);
+
+        $transformedDatasource = $sqlDatabaseDatasource->applyTransformation($transformation);
+
+        $this->assertEquals(new DefaultDatasource($sqlDatabaseDatasource), $transformedDatasource);
+
     }
 
 

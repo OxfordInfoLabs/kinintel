@@ -8,6 +8,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
@@ -19,6 +20,9 @@ use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
+use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -54,6 +58,35 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @var DatabaseConnection
      */
     private $dbConnection = null;
+
+
+    /**
+     * @var DatasourceService
+     */
+    private $datasourceService;
+
+    /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+
+    /**
+     * SQLDatabaseDatasource constructor.
+     *
+     * @param SQLDatabaseDatasourceConfig $config
+     * @param AuthenticationCredentials $authenticationCredentials
+     * @param DatasourceUpdateConfig $updateConfig
+     * @param Validator $validator
+     * @param DatasourceService $datasourceService
+     * @param DatasetService $datasetService
+     */
+    public function __construct($config, $authenticationCredentials, $updateConfig, $validator = null, $datasourceService = null, $datasetService = null) {
+        parent::__construct($config, $authenticationCredentials, $updateConfig, $validator);
+        $this->datasetService = $datasetService;
+        $this->datasourceService = $datasourceService;
+    }
+
 
     /**
      * Return the config class for this datasource

@@ -14,6 +14,7 @@ use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -202,7 +203,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfJoinColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTable() {
+    public function testIfJoinColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTableWithAliases() {
 
         // Create set of authentication credentials
         $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
@@ -229,7 +230,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
                 new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [
-                new JoinColumn("name"), new JoinColumn("category"), new JoinColumn("status")
+                new Field("name"), new Field("category"), new Field("status")
             ]);
 
 
@@ -237,25 +238,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT name,category,status FROM join_table) T2 ON T2.name = T1.otherName"),
+        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT name alias_1,category alias_2,status alias_3 FROM join_table) T2 ON T2.name = T1.otherName"),
             $sqlQuery);
 
-
-        // Try aliased columns
-        $joinTransformation = new JoinTransformation("testsource", null, [],
-            new FilterJunction([
-                new Filter("name", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [
-                new JoinColumn("name","column_1"), new JoinColumn("category", "column_2"), new JoinColumn("status", "column_3")
-            ]);
-
-
-        $sqlQuery = $this->processor->updateQuery($joinTransformation, new SQLQuery("*", "test_table"), [],
-            $mainDataSource);
-
-
-        $this->assertEquals(new SQLQuery("T3.*,T4.*", "(SELECT * FROM test_table) T3 INNER JOIN (SELECT name column_1,category column_2,status column_3 FROM join_table) T4 ON T4.name = T3.otherName"),
-            $sqlQuery);
 
     }
+
 
 }

@@ -46,9 +46,9 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
 
 
     /**
-     * Which column names from the new join data set are to be included
+     * Which columns are to be included - here is also an opportunity to rename them.
      *
-     * @var JoinColumn[]
+     * @var Field[]
      */
     private $joinColumns = [];
 
@@ -127,14 +127,14 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     }
 
     /**
-     * @return JoinColumn[]
+     * @return Field[]
      */
     public function getJoinColumns() {
         return $this->joinColumns;
     }
 
     /**
-     * @param JoinColumn[] $joinColumns
+     * @param Field[] $joinColumns
      */
     public function setJoinColumns($joinColumns) {
         $this->joinColumns = $joinColumns;
