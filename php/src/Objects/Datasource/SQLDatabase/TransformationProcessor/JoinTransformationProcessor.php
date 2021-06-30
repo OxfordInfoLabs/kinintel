@@ -72,7 +72,7 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
 
         // If we have a child query, use this to generate a new query using the various criteria.
         if ($joinDatasource instanceof SQLDatabaseDatasource &&
-            ($joinDatasource->getAuthenticationCredentials() === $dataSource->getAuthenticationCredentials())) {
+            ($joinDatasource->getAuthenticationCredentials() == $dataSource->getAuthenticationCredentials())) {
             $childQuery = $joinDatasource->buildQuery($parameterValues);
 
             // Calculate the new aliases

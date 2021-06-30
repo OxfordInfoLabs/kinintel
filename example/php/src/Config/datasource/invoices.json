@@ -4,7 +4,7 @@
   "type": "sqldatabase",
   "config": {
     "source": "query",
-    "query": "SELECT i.InvoiceId, c.Firstname + c.Lastname CustomerName, i.InvoiceDate, i.BillingAddress, i.BillingCity, i.BillingState, i.BillingCountry, i.BillingPostalCode, i.Total FROM invoices i LEFT JOIN customers c ON i.CustomerId = c.CustomerId"
+    "query": "SELECT i.InvoiceId, c.CustomerId, c.FirstName || ' ' || c.LastName CustomerName, i.InvoiceDate, i.BillingAddress, i.BillingCity, i.BillingState, i.BillingCountry, i.BillingPostalCode, i.Total FROM invoices i LEFT JOIN customers c ON i.CustomerId = c.CustomerId"
   },
   "credentialsKey": "exampledb"
 }
