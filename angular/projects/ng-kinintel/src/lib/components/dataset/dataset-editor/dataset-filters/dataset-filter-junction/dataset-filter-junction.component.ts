@@ -11,7 +11,8 @@ export class DatasetFilterJunctionComponent implements OnInit {
     @Input() filterFields: any = [];
     @Input() parentJunction: any;
     @Input() junctionIndex: number;
-    @Input() rightFilterFields: any;
+    @Input() joinFilterFields: any;
+    @Input() joinFieldsName: string;
 
     @Output() filterJunctionChange = new EventEmitter<any>();
 

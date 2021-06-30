@@ -12,7 +12,8 @@ export class DatasetFilterComponent implements OnInit {
     @Input() filterIndex: any;
     @Input() filterJunction: any;
     @Input() filterFields: any = [];
-    @Input() rightFilterFields: any;
+    @Input() joinFilterFields: any;
+    @Input() joinFieldsName: string;
 
     @Output() filtersRemoved = new EventEmitter();
 
