@@ -4,6 +4,8 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\Logging\Logger;
+use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Services\Dataset\DatasetService;
@@ -72,6 +74,12 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
         if ($joinDatasource instanceof SQLDatabaseDatasource &&
             ($joinDatasource->getAuthenticationCredentials() == $dataSource->getAuthenticationCredentials())) {
             $childQuery = $joinDatasource->buildQuery($parameterValues);
+
+            // if this is a default data source, ensure population
+            if ($joinDatasource instanceof DefaultDatasource) {
+                $joinDatasource->populate($parameterValues);
+            }
+
 
             // Calculate the new aliases
             $mainTableAlias = "T" . ++$this->tableIndex;

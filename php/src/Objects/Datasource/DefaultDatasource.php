@@ -4,8 +4,8 @@
 namespace Kinintel\Objects\Datasource;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
-use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Authentication\DefaultDatasourceCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
@@ -30,6 +30,12 @@ class DefaultDatasource extends SQLDatabaseDatasource {
      * @var string
      */
     private $tableName;
+
+
+    /**
+     * @var boolean
+     */
+    private $populated = false;
 
     /**
      * Table index
@@ -64,13 +70,14 @@ class DefaultDatasource extends SQLDatabaseDatasource {
 
 
     /**
-     * Materialise function overloaded to ensure that we create and populate the table first
+     * Populate this datasource
      *
      * @param array $parameterValues
-     * @return \Kinintel\Objects\Dataset\Dataset
-     * @throws \Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException
      */
-    public function materialise($parameterValues = []) {
+    public function populate($parameterValues = []) {
+
+        if ($this->populated)
+            return;
 
         // Firstly materialise the source datasource
         $sourceDataset = $this->sourceDatasource->materialise($parameterValues);
@@ -92,8 +99,29 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         // Update this data set with the source dataset.
         $this->update($sourceDataset);
 
+       // $results = $dbConnection->query("SELECT * FROM $this->tableName");
+
+
+
         // Match columns in configuration with those from the source dataset
         $this->getConfig()->setColumns($columns);
+
+        $this->populated = true;
+
+    }
+
+
+    /**
+     * Materialise function overloaded to ensure that we create and populate the table first
+     *
+     * @param array $parameterValues
+     * @return \Kinintel\Objects\Dataset\Dataset
+     * @throws \Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException
+     */
+    public function materialise($parameterValues = []) {
+
+        // Ensure population has occurred.x
+        $this->populate($parameterValues);
 
         // Materialise this dataset
         return parent::materialise($parameterValues);
