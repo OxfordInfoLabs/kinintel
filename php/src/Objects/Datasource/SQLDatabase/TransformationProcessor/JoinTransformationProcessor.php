@@ -65,18 +65,8 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-        $joinDatasource = null;
-
-        // If this is a data source join, check to see whether we can directly join the datasource.
-        // If this is a data set join, get the transformed data source to use for joining in.
-        if ($transformation->getJoinedDataSourceInstanceKey()) {
-            $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
-            $joinDatasource = $joinDatasourceInstance->returnDataSource();
-        } else if ($transformation->getJoinedDataSetInstanceId()) {
-            $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
-            $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
-                $joinDataSet->getTransformationInstances(), $parameterValues);
-        }
+        // Ensure we have an evaluated datasource before continuing
+        $joinDatasource = $transformation->returnEvaluatedDataSource();
 
         // If we have a child query, use this to generate a new query using the various criteria.
         if ($joinDatasource instanceof SQLDatabaseDatasource &&

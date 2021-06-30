@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Transformation\Join;
 
 
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
@@ -52,6 +53,14 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      * @var Field[]
      */
     private $joinColumns = [];
+
+
+    /**
+     * Evaluated data source in use for the joined data
+     *
+     * @var Datasource
+     */
+    private $evaluatedDataSource = null;
 
 
     /**
@@ -139,6 +148,25 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      */
     public function setJoinColumns($joinColumns) {
         $this->joinColumns = $joinColumns;
+    }
+
+    /**
+     * Set an evaluated data source (for convenience in processing)
+     *
+     * @param Datasource $evaluatedDataSource
+     */
+    public function setEvaluatedDataSource($evaluatedDataSource) {
+        $this->evaluatedDataSource = $evaluatedDataSource;
+    }
+
+
+    /**
+     * Return the evaluated data source
+     *
+     * @return Datasource
+     */
+    public function returnEvaluatedDataSource() {
+        return $this->evaluatedDataSource;
     }
 
 

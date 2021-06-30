@@ -158,31 +158,59 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
 
-//            if ($transformation instanceof JoinTransformation) {
-//
-//                if ($transformation->getJoinedDataSourceInstanceKey()) {
-//                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
-//                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
-//                } else if ($transformation->getJoinedDataSetInstanceId()) {
-//
-//                }
-//
-//                // If mismatch of authentication credentials, harmonise as required
-//                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials())) {
-//
-//
-//                    // If we are not a default datasource already, return a new instance
-//                    if (!($this instanceof DefaultDatasource)) {
-//                        return new DefaultDatasource($this);
-//                    }
-//
-//                }
-//
-//            }
+            // Handle join transformations as these require a bit more up front processing.
+            if ($transformation instanceof JoinTransformation) {
+
+                // Triage to see whether we can read the evaluated data source
+                if ($transformation->returnEvaluatedDataSource()) {
+                    $joinDatasource = $transformation->returnEvaluatedDataSource();
+                } else if ($transformation->getJoinedDataSourceInstanceKey()) {
+                    $this->datasourceService = $this->datasourceService ?? Container::instance()->get(DatasourceService::class);
+                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
+                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
+                } else if ($transformation->getJoinedDataSetInstanceId()) {
+                    $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
+                    $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
+
+                    $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
+                        $joinDataSet->getTransformationInstances(), $parameterValues);
+
+                }
+
+                // Update the transformation with the evaluated data source.
+                $transformation->setEvaluatedDataSource($joinDatasource);
+
+                // If mismatch of authentication credentials, harmonise as required
+                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials())) {
+
+                    if (!($joinDatasource instanceof DefaultDatasource)) {
+                        $transformation->setEvaluatedDataSource(new DefaultDatasource($joinDatasource));
+                    }
+
+                    // If we are not a default datasource already, return a new instance
+                    if (!($this instanceof DefaultDatasource)) {
+                        $newTransformation = new DefaultDatasource($this);
+                        $newTransformation->applyTransformation($transformation);
+                        return $newTransformation;
+                    }
+
+                }
+
+            }
 
             $this->transformations[] = $transformation;
         }
         return $this;
+    }
+
+
+    /**
+     * Return the current set of transformations
+     *
+     * @return Transformation[]
+     */
+    public function returnTransformations() {
+        return $this->transformations;
     }
 
 

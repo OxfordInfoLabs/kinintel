@@ -54,6 +54,16 @@ class DefaultDatasource extends SQLDatabaseDatasource {
 
 
     /**
+     * Return the source datasource
+     *
+     * @return Datasource
+     */
+    public function returnSourceDatasource() {
+        return $this->sourceDatasource;
+    }
+
+
+    /**
      * Materialise function overloaded to ensure that we create and populate the table first
      *
      * @param array $parameterValues
