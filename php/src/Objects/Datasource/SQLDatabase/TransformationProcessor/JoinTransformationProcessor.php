@@ -102,16 +102,17 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
 
 
             // If join columns supplied, change the select query for selection
+            $childSelectColumns = $childTableAlias . ".*";
             if ($transformation->getJoinColumns()) {
                 $joinColumnStrings = [];
                 foreach ($transformation->getJoinColumns() as $joinColumn) {
-                    $joinColumnStrings[] = $joinColumn->getName() . " alias_" . ++$this->aliasIndex;
+                    $joinColumnStrings[] = $childTableAlias . "." . $joinColumn->getName() . " alias_" . ++$this->aliasIndex;
                 }
-                $childQuery->setSelectClause(join(",", $joinColumnStrings));
+                $childSelectColumns = join(",", $joinColumnStrings);
             }
 
             // Create the join query
-            $joinQuery = new SQLQuery("$mainTableAlias.*,$childTableAlias.*", "({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}", $allParameters);
+            $joinQuery = new SQLQuery("$mainTableAlias.*,$childSelectColumns", "({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}", $allParameters);
 
             return $joinQuery;
         } else {

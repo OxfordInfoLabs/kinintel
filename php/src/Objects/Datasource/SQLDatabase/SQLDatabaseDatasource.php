@@ -17,6 +17,7 @@ use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
@@ -157,20 +158,27 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
 
-//            if ($transformation instanceof JoinTransformation) {
-//
-//                if ($transformation->getJoinedDataSourceInstanceKey()) {
-//                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
-//                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
-//                } else if ($transformation->getJoinedDataSetInstanceId()) {
-//
-//                }
-//
-//                if ($joinDatasource && $joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials()){
-//
-//                }
-//
-//            }
+            if ($transformation instanceof JoinTransformation) {
+
+                if ($transformation->getJoinedDataSourceInstanceKey()) {
+                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
+                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
+                } else if ($transformation->getJoinedDataSetInstanceId()) {
+
+                }
+
+                // If mismatch of authentication credentials, harmonise as required
+                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() !== $this->getAuthenticationCredentials())) {
+
+
+                    // If we are not a default datasource already, return a new instance
+                    if (!($this instanceof DefaultDatasource)) {
+                        return new DefaultDatasource($this);
+                    }
+
+                }
+
+            }
 
             $this->transformations[] = $transformation;
         }

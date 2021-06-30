@@ -238,7 +238,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT name alias_1,category alias_2,status alias_3 FROM join_table) T2 ON T2.name = T1.otherName"),
+        $this->assertEquals(new SQLQuery("T1.*,T2.name alias_1,T2.category alias_2,T2.status alias_3", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName"),
             $sqlQuery);
 
 
