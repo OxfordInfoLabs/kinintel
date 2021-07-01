@@ -90,7 +90,7 @@ trait Dataset {
      * Get the evaluated parameters for the supplied dataset instance by id.
      * The array of transformation instances can be supplied as payload.
      *
-     * @http POST /parameters/$id
+     * @http GET /parameters/$id
      *
      * @param integer $id
      */
