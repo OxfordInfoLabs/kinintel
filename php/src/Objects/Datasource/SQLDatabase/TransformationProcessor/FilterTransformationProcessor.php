@@ -13,7 +13,7 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 
-class FilterTransformationProcessor implements SQLTransformationProcessor {
+class FilterTransformationProcessor extends SQLTransformationProcessor {
 
 
     /**

@@ -5,21 +5,29 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Core\Validation\Validator;
 use Kinikit\MVC\Request\MockPHPInputStream;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Join\JoinColumn;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
+use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
@@ -36,6 +44,17 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
      */
     private $dataSetService;
 
+
+    /**
+     * @var MockObject
+     */
+    private $authCredentials;
+
+    /**
+     * @var MockObject
+     */
+    private $validator;
+
     /**
      * @var JoinTransformationProcessor
      */
@@ -43,9 +62,149 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function setUp(): void {
+        $this->authCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
         $this->dataSourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->dataSetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->processor = new JoinTransformationProcessor($this->dataSourceService, $this->dataSetService);
+        $this->validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
+    }
+
+
+    public function testIfJoinTransformationSuppliedToApplyTransformationWithSameCredsDatasourceIsReturnedIntact() {
+
+
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
+            "testjoindatasource"
+        ]);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $transformation = new JoinTransformation("testjoindatasource");
+
+        // Programme same creds, i.e. nothing to do.
+        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService);
+
+
+        $transformedDatasource = $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
+
+        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource);
+
+
+    }
+
+    public function testIfJoinTransformationSuppliedToApplyTransformationWithDataSourceWithDifferentCredsNewDefaultDatasourceReturnedAndCreatedForTransformation() {
+
+
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
+            "testjoindatasource"
+        ]);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $transformation = new JoinTransformation("testjoindatasource");
+
+        // Programme different creds - should convert
+        $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
+        $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService);
+
+        $transformedDatasource = $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
+
+        $this->assertInstanceOf(DefaultDatasource::class, $transformedDatasource);
+        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource->returnSourceDatasource());
+
+
+        $this->assertInstanceOf(DefaultDatasource::class, $transformation->returnEvaluatedDataSource());
+        $this->assertEquals($joinDatasource, $transformation->returnEvaluatedDataSource()->returnSourceDatasource());
+
+
+    }
+
+
+    public function testIfJoinTransformationSuppliedToApplyTransformationWithDataSetWithDifferentCredsNewDefaultDatasourceReturnedAndCreatedForTransformation() {
+
+
+        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testjoindataset");
+        $joinDataSetInstance->returnValue("getTransformationInstances", [
+            new TestTransformation(), new TestTransformation()
+        ]);
+        $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
+
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
+            "testjoindataset", [
+                new TestTransformation(), new TestTransformation()
+            ], []
+        ]);
+
+        $transformation = new JoinTransformation(null, 10);
+
+        // Programme different creds - should convert
+        $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
+        $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService, $this->dataSetService);
+
+        $transformedDatasource = $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
+
+
+        $this->assertInstanceOf(DefaultDatasource::class, $transformation->returnEvaluatedDataSource());
+        $this->assertEquals($joinDatasource, $transformation->returnEvaluatedDataSource()->returnSourceDatasource());
+
+        // Check that the new transformed datasource is default with transformation attached.
+        $this->assertInstanceOf(DefaultDatasource::class, $transformedDatasource);
+        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource->returnSourceDatasource());
+        $this->assertEquals([$transformation], $transformedDatasource->returnTransformations());
+
+
+    }
+
+
+    public function testOnApplyTransformationIfJoinColumnsSuppliedSourceDatasetColumnsAreEvaluated() {
+
+
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
+            "testjoindatasource"
+        ]);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $transformation = new JoinTransformation("testjoindatasource", null, [], [], [
+            new Field("name")
+        ]);
+
+        // Programme same creds, i.e. nothing to do.
+        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
+        $mainDataSource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
+
+        $mainDataSource->returnValue("materialise", new ArrayTabularDataset([
+            new Field("otherName"), new Field("notes")
+        ], []));
+
+        $this->processor->applyTransformation($transformation, $mainDataSource, []);
+
+        $this->assertTrue($mainDataSourceConfig->methodWasCalled("setColumns", [
+            [
+                new Field("otherName"), new Field("notes")
+            ]
+        ]));
+
+
     }
 
 
@@ -61,7 +220,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
 
 
         // Try a simple column based join
@@ -75,7 +236,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
             $sqlQuery);
 
 
@@ -91,7 +252,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T3.*,T4.*", "(SELECT * FROM test_table) T3 INNER JOIN (SELECT * FROM join_table) T4 ON T4.name = ?", [
+        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 INNER JOIN (SELECT * FROM join_table) T4 ON T4.name = ?) S2", [
             "bobby"
         ]),
             $sqlQuery);
@@ -119,7 +280,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
 
 
         // Try a simple column based join
@@ -137,7 +300,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T1.*,T2.*", "(SELECT * FROM test_table WHERE archived = ?) T1 INNER JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON T2.name LIKE ?",
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 INNER JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON T2.name LIKE ?) S1",
             [
                 0, "swimming", 1, "%bob%"
             ]),
@@ -147,7 +310,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfJoinColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTableWithAliases() {
+    public function testIfJoinColumnsSuppliedToAJoinTransformationTheseAreSelectedExplicitlyFromJoinedTable() {
 
         // Create set of authentication credentials
         $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
@@ -163,7 +326,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
+
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
+        $mainDataSourceConfig->returnValue("getColumns", [new Field("otherName"), new Field("notes")]);
 
 
         // Try simple non aliased columns
@@ -180,9 +347,16 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("T1.*,T2.name alias_1,T2.category alias_2,T2.status alias_3", "(SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name alias_1,T2.category alias_2,T2.status alias_3 FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
             $sqlQuery);
 
+
+        // Check the columns were added as expected
+        $this->assertTrue($mainDataSourceConfig->methodWasCalled("setColumns", [[
+            new Field("otherName"), new Field("notes"),
+            new Field("alias_1", "Name"),
+            new Field("alias_2", "Category"), new Field("alias_3", "Status")
+        ]]));
 
     }
 

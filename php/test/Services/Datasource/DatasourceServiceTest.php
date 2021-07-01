@@ -302,6 +302,7 @@ class DatasourceServiceTest extends TestBase {
         ]);
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(FilterTransformation::class);
+        $transformation1->returnValue("getSQLTransformationProcessorKey", "filter");
         $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
 

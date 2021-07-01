@@ -182,8 +182,12 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
+        $transformation1->returnValue("getSQLTransformationProcessorKey", "filter");
         $transformation2 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
+        $transformation2->returnValue("getSQLTransformationProcessorKey", "filter");
         $transformation3 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
+        $transformation3->returnValue("getSQLTransformationProcessorKey", "filter");
+
 
         // Apply each transformation
         $sqlDatabaseDatasource->applyTransformation($transformation1, ["param1" => "Hello", "param2" => "World"]);
@@ -244,8 +248,13 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $transformation1 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
+        $transformation1->returnValue("getSQLTransformationProcessorKey", "filter");
+
         $transformation2 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
+        $transformation2->returnValue("getSQLTransformationProcessorKey", "filter");
+
         $transformation3 = MockObjectProvider::instance()->getMockInstance(SQLDatabaseTransformation::class);
+        $transformation3->returnValue("getSQLTransformationProcessorKey", "filter");
 
         // Apply each transformation
         $sqlDatabaseDatasource->applyTransformation($transformation1);
@@ -447,107 +456,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
     }
 
-
-    public function testIfJoinTransformationSuppliedToApplyTransformationWithSameCredsDatasourceIsReturnedIntact() {
-
-        $datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-
-        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
-            "testjoindatasource"
-        ]);
-        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
-
-        $transformation = new JoinTransformation("testjoindatasource");
-
-
-        // Programme same creds, i.e. nothing to do.
-        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
-
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $datasourceService);
-
-        $transformedDatasource = $sqlDatabaseDatasource->applyTransformation($transformation);
-
-        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource);
-
-
-    }
-
-    public function testIfJoinTransformationSuppliedToApplyTransformationWithDataSourceWithDifferentCredsNewDefaultDatasourceReturnedAndCreatedForTransformation() {
-
-        $datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-
-        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
-            "testjoindatasource"
-        ]);
-        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
-
-        $transformation = new JoinTransformation("testjoindatasource");
-
-        // Programme different creds - should convert
-        $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
-        $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
-
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $datasourceService);
-
-        $transformedDatasource = $sqlDatabaseDatasource->applyTransformation($transformation);
-
-        $this->assertInstanceOf(DefaultDatasource::class, $transformedDatasource);
-        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource->returnSourceDatasource());
-
-
-        $this->assertInstanceOf(DefaultDatasource::class, $transformation->returnEvaluatedDataSource());
-        $this->assertEquals($joinDatasource, $transformation->returnEvaluatedDataSource()->returnSourceDatasource());
-
-
-    }
-
-
-    public function testIfJoinTransformationSuppliedToApplyTransformationWithDataSetWithDifferentCredsNewDefaultDatasourceReturnedAndCreatedForTransformation() {
-
-        $datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
-        $datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-
-        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
-        $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testjoindataset");
-        $joinDataSetInstance->returnValue("getTransformationInstances", [
-            new TestTransformation(), new TestTransformation()
-        ]);
-        $datasetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
-
-        $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $datasourceService->returnValue("getTransformedDataSource", $joinDatasource, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], []
-        ]);
-
-        $transformation = new JoinTransformation(null, 10);
-
-        // Programme different creds - should convert
-        $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
-        $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
-
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $datasourceService, $datasetService);
-
-        $transformedDatasource = $sqlDatabaseDatasource->applyTransformation($transformation);
-
-        $this->assertInstanceOf(DefaultDatasource::class, $transformation->returnEvaluatedDataSource());
-        $this->assertEquals($joinDatasource, $transformation->returnEvaluatedDataSource()->returnSourceDatasource());
-
-        // Check that the new transformed datasource is default with transformation attached.
-        $this->assertInstanceOf(DefaultDatasource::class, $transformedDatasource);
-        $this->assertEquals($sqlDatabaseDatasource, $transformedDatasource->returnSourceDatasource());
-        $this->assertEquals([$transformation], $transformedDatasource->returnTransformations());
-
-
-    }
 
 
 }

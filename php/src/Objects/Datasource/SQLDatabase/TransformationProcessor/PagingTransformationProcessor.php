@@ -8,7 +8,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class PagingTransformationProcessor implements SQLTransformationProcessor {
+class PagingTransformationProcessor extends SQLTransformationProcessor {
 
     /**
      * Update query

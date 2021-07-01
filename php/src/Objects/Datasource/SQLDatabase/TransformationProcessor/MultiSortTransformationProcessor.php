@@ -9,7 +9,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class MultiSortTransformationProcessor implements SQLTransformationProcessor {
+class MultiSortTransformationProcessor extends SQLTransformationProcessor {
 
     /**
      * Update the query with

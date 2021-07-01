@@ -4,28 +4,31 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class JoinTransformationProcessor implements SQLTransformationProcessor {
+class JoinTransformationProcessor extends SQLTransformationProcessor {
 
     /**
      * @var DatasourceService
      */
     private $datasourceService;
 
-
     /**
      * @var DatasetService
      */
     private $datasetService;
+
 
     /**
      * Table index
@@ -33,6 +36,14 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
      * @var int
      */
     private $tableIndex = 0;
+
+
+    /**
+     * Subquery index
+     *
+     * @var int
+     */
+    private $subQueryIndex = 0;
 
 
     /**
@@ -52,6 +63,64 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
     public function __construct($datasourceService, $datasetService) {
         $this->datasourceService = $datasourceService;
         $this->datasetService = $datasetService;
+    }
+
+    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+
+        // Triage to see whether we can read the evaluated data source
+        if ($transformation->returnEvaluatedDataSource()) {
+            $joinDatasource = $transformation->returnEvaluatedDataSource();
+        } else if ($transformation->getJoinedDataSourceInstanceKey()) {
+            $this->datasourceService = $this->datasourceService ?? Container::instance()->get(DatasourceService::class);
+            $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
+            $joinDatasource = $joinDatasourceInstance->returnDataSource();
+        } else if ($transformation->getJoinedDataSetInstanceId()) {
+            $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
+            $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
+
+            $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
+                $joinDataSet->getTransformationInstances(), $parameterValues);
+
+        }
+
+        // Update the transformation with the evaluated data source.
+        $transformation->setEvaluatedDataSource($joinDatasource);
+
+        // If mismatch of authentication credentials, harmonise as required
+        if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials())) {
+
+            if (!($joinDatasource instanceof DefaultDatasource)) {
+                $transformation->setEvaluatedDataSource(new DefaultDatasource($joinDatasource));
+            }
+
+            // If we are not a default datasource already, return a new instance
+            if (!($datasource instanceof DefaultDatasource)) {
+                $newDataSource = new DefaultDatasource($datasource);
+                $newDataSource->applyTransformation($transformation);
+                $datasource = $newDataSource;
+            }
+
+        }
+
+
+        // For a join transformation, if join columns are supplied we must have master datasource columns as well
+        if ($transformation->getJoinColumns() && !$datasource->getConfig()->getColumns()) {
+
+            // Add a paging transformation to make the query efficient
+            $datasource->applyTransformation(new PagingTransformation(1));
+
+            // Materialise the set
+            $dataSet = $datasource->materialise($parameterValues);
+
+            // Remove the redundant Paging Transformation
+            $datasource->unapplyLastTransformation();
+
+            $datasource->getConfig()->setColumns($dataSet->getColumns());
+        }
+
+
+        return $datasource;
+
     }
 
 
@@ -102,15 +171,24 @@ class JoinTransformationProcessor implements SQLTransformationProcessor {
             // If join columns supplied, change the select query for selection
             $childSelectColumns = $childTableAlias . ".*";
             if ($transformation->getJoinColumns()) {
+
+                $newColumns = $dataSource->getConfig()->getColumns() ?? [];
+
+                // Create the SQL fragments and new column mappings.
                 $joinColumnStrings = [];
                 foreach ($transformation->getJoinColumns() as $joinColumn) {
                     $joinColumnStrings[] = $childTableAlias . "." . $joinColumn->getName() . " alias_" . ++$this->aliasIndex;
+                    $newColumns[] = new Field("alias_" . $this->aliasIndex, $joinColumn->getTitle());
                 }
+
                 $childSelectColumns = join(",", $joinColumnStrings);
+                $dataSource->getConfig()->setColumns($newColumns);
             }
 
+            $subQueryIndex = ++$this->subQueryIndex;
+
             // Create the join query
-            $joinQuery = new SQLQuery("$mainTableAlias.*,$childSelectColumns", "({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}", $allParameters);
+            $joinQuery = new SQLQuery("*", "(SELECT $mainTableAlias.*,$childSelectColumns FROM ({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}) S$subQueryIndex", $allParameters);
 
             return $joinQuery;
         } else {

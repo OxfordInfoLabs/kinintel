@@ -9,7 +9,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class SummariseTransformationProcessor implements SQLTransformationProcessor {
+class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
     /**
      * Update a query object for a passed transformation.

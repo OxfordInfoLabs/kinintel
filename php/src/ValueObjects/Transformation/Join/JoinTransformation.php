@@ -70,14 +70,15 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      * @param int $joinedDataSetId
      * @param JoinParameterMapping[] $joinParameterMappings
      * @param FilterJunction $joinFilters
+     * @param Field[] $joinColumns
      */
     public function __construct($joinedDataSourceKey = null, $joinedDataSetId = null, $joinParameterMappings = [],
-                                $joinFilters = null, $includedColumnNames = []) {
+                                $joinFilters = null, $joinColumns = []) {
         $this->joinedDataSourceInstanceKey = $joinedDataSourceKey;
         $this->joinedDataSetInstanceId = $joinedDataSetId;
         $this->joinParameterMappings = $joinParameterMappings;
         $this->joinFilters = $joinFilters;
-        $this->joinColumns = $includedColumnNames;
+        $this->joinColumns = $joinColumns;
     }
 
     /**

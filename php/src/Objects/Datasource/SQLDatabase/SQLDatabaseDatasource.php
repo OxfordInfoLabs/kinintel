@@ -156,51 +156,24 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function applyTransformation($transformation, $parameterValues = []) {
 
+        $dataSource = $this;
+
         if ($transformation instanceof SQLDatabaseTransformation) {
 
-            // Handle join transformations as these require a bit more up front processing.
-            if ($transformation instanceof JoinTransformation) {
-
-                // Triage to see whether we can read the evaluated data source
-                if ($transformation->returnEvaluatedDataSource()) {
-                    $joinDatasource = $transformation->returnEvaluatedDataSource();
-                } else if ($transformation->getJoinedDataSourceInstanceKey()) {
-                    $this->datasourceService = $this->datasourceService ?? Container::instance()->get(DatasourceService::class);
-                    $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
-                    $joinDatasource = $joinDatasourceInstance->returnDataSource();
-                } else if ($transformation->getJoinedDataSetInstanceId()) {
-                    $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
-                    $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
-
-                    $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
-                        $joinDataSet->getTransformationInstances(), $parameterValues);
-
-                }
-
-                // Update the transformation with the evaluated data source.
-                $transformation->setEvaluatedDataSource($joinDatasource);
-
-                // If mismatch of authentication credentials, harmonise as required
-                if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() != $this->getAuthenticationCredentials())) {
-
-                    if (!($joinDatasource instanceof DefaultDatasource)) {
-                        $transformation->setEvaluatedDataSource(new DefaultDatasource($joinDatasource));
-                    }
-
-                    // If we are not a default datasource already, return a new instance
-                    if (!($this instanceof DefaultDatasource)) {
-                        $newTransformation = new DefaultDatasource($this);
-                        $newTransformation->applyTransformation($transformation);
-                        return $newTransformation;
-                    }
-
-                }
-
-            }
+            // Apply the transformation using the processor for this transformation
+            $processorKey = $transformation->getSQLTransformationProcessorKey();
+            $processor = $this->getTransformationProcessor($processorKey);
+            $dataSource = $processor->applyTransformation($transformation, $dataSource, $parameterValues);
 
             $this->transformations[] = $transformation;
         }
-        return $this;
+        return $dataSource;
+    }
+
+
+    // Unapply the last transformation
+    public function unapplyLastTransformation() {
+        array_pop($this->transformations);
     }
 
 

@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -16,7 +17,20 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation summarise Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SummariseTransformationProcessor
  * @implementation join Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\JoinTransformationProcessor
  */
-interface SQLTransformationProcessor {
+abstract class SQLTransformationProcessor {
+
+
+    /**
+     * @param $transformation
+     * @param $parameterValues
+     * @param $datasource
+     *
+     * @return Datasource
+     */
+    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+        return $datasource;
+    }
+
 
     /**
      * Modify the passed SQL to apply the transformation, return modified sql string.
@@ -30,6 +44,6 @@ interface SQLTransformationProcessor {
      *
      * @return SQLQuery
      */
-    public function updateQuery($transformation, $query, $parameterValues, $dataSource);
+    public abstract function updateQuery($transformation, $query, $parameterValues, $dataSource);
 
 }
