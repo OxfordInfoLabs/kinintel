@@ -97,7 +97,7 @@
                 </ng-template>
 
                 <ng-template [ngIf]="selectedSource">
-                    <p>Select the columns you would like to view, and set column name aliases if required.</p>
+                    <p>Select the columns you would like to view, and set a new column name if required.</p>
 
                     <div class="column-definition align-center" *ngFor="let column of joinColumns">
                         <mat-checkbox [(ngModel)]="column.selected"></mat-checkbox>
@@ -109,7 +109,7 @@
                             New Column title
                             <input type="text" [(ngModel)]="column.title">
                         </label>
-                        <span *ngIf="column.duplicate">Duplicate column name</span>
+                        <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
                     </div>
 
 

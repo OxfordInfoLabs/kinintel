@@ -36,3 +36,16 @@ $example-theme: mat-light-theme((
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.primary {
+    color: mat-color($example-primary);
+}
+.accent {
+    color: mat-color($example-accent);
+}
+.warn {
+    color: mat-color($example-warn);
+}
+.bg-primary {
+    background-color: mat-color($example-primary);
+}

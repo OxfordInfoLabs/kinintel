@@ -1,32 +1,31 @@
 <div class="cell-header">
-    <div>
-        <mat-chip-list *ngIf="_.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length">
-            <mat-chip
-                *ngFor="let summary of _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}); let i = index"
-                (removed)="removeSummarisation(summary, i)"
-                [selected]="(i + 1) === _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length"
-                [disabled]="(i + 1) < _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length">
+    <div class="badge-holder">
+        <div class="badge-item" *ngFor="let transformation of terminatingTransformations; let i = index"
+            [ngClass]="{active: transformation._active}">
+            <span>{{transformation._label}}</span>
 
-                {{getOrdinal(i+1)}}&nbsp;Summarisation
-
-                <ng-template
-                    [ngIf]="(i + 1) === _.filter(evaluatedDatasource.transformationInstances, {type: 'summarise'}).length">
-<!--                    <mat-icon matChipTrailingIcon>block</mat-icon>-->
-                    <mat-icon matChipRemove>cancel</mat-icon>
-                </ng-template>
-            </mat-chip>
-        </mat-chip-list>
+            <button *ngIf="transformation._disable" mat-icon-button (click)="disableTransformation(i)">
+                <mat-icon>block</mat-icon>
+            </button>
+            <button *ngIf="transformation._active" mat-icon-button color="primary" (click)="removeTransformation(transformation)">
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </div>
     </div>
 
-    <div>
+    <div class="data-actions">
 <!--        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>-->
-        <button mat-stroked-button color="primary" (click)="joinData()">Join Data</button>
-        <button mat-stroked-button color="primary" (click)="showParameters = !showParameters">Add Parameter</button>
-        <button mat-stroked-button color="primary" (click)="summariseData()">Summarise Data</button>
-        <button mat-stroked-button color="primary" (click)="showFilters = !showFilters">
-            <ng-template [ngIf]="!showFilters">Show</ng-template>
-            <ng-template [ngIf]="showFilters">Hide</ng-template>
-            Filters
+        <button mat-button color="primary" class="align-center" (click)="joinData()">
+            <mat-icon>merge_type</mat-icon>&nbsp;Join Data
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="showParameters = !showParameters">
+            <mat-icon>text_fields</mat-icon>&nbsp;Add Parameter
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="summariseData()">
+            <mat-icon>pivot_table_chart</mat-icon>&nbsp;Summarise Data
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="showFilters = !showFilters">
+            <mat-icon>filter_alt</mat-icon>&nbsp;Filter
         </button>
     </div>
 
@@ -50,14 +49,14 @@
 
 </div>
 <div class="cell-header sorting">
-    <mat-chip-list *ngIf="_.find(evaluatedDatasource.transformationInstances, {type: 'multisort'})">
-        <mat-chip
-            *ngFor="let sort of _.find(evaluatedDatasource.transformationInstances, {type: 'multisort'}).config.sorts; let i = index"
-            (removed)="removeFilter(i)">
-            {{sort.fieldName}}&nbsp;{{sort.direction}}
-            <mat-icon matChipRemove>cancel</mat-icon>
-        </mat-chip>
-    </mat-chip-list>
+    <div class="badge-holder" *ngIf="_.find(evaluatedDatasource.transformationInstances, {type: 'multisort'})">
+        <div class="badge-item outline" *ngFor="let sort of _.find(evaluatedDatasource.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
+            <span>{{sort.fieldName}}&nbsp;{{sort.direction}}</span>
+            <button mat-icon-button (click)="removeFilter(i)">
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </div>
+    </div>
 </div>
 
 <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"

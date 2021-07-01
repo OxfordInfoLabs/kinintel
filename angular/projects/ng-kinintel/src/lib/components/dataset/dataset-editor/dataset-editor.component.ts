@@ -35,12 +35,11 @@ export class DatasetEditorComponent implements OnInit {
         }],
         filterJunctions: []
     };
-    public multiSortConfig = [];
     public page = 1;
     public endOfResults = false;
     public parameterValues: any = [];
     public focusParams = false;
-
+    public terminatingTransformations = [];
 
     private limit = 25;
     private offset = 0;
@@ -87,12 +86,16 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDatasource();
     }
 
-    public removeSummarisation(summary, i) {
+    public removeTransformation(transformation) {
         _.remove(this.evaluatedDatasource.transformationInstances, {
-            type: 'summarise',
-            config: summary.config
+            type: transformation.type,
+            config: transformation.config
         });
         this.evaluateDatasource();
+    }
+
+    public disableTransformation(transformation) {
+
     }
 
     public exportData() {
@@ -266,6 +269,28 @@ export class DatasetEditorComponent implements OnInit {
         });
         this.dataLoaded.emit(this.dataset);
         this.evaluatedDatasourceChange.emit(this.evaluatedDatasource);
+
+        let summarise = 0;
+        let join = 0;
+        const summariseTotal = _.filter(this.evaluatedDatasource.transformationInstances, {type: 'summarise'}).length;
+        const joinTotal = _.filter(this.evaluatedDatasource.transformationInstances, {type: 'join'}).length;
+        this.terminatingTransformations = _.filter(this.evaluatedDatasource.transformationInstances, (transformation, index) => {
+            if (transformation.type === 'summarise') {
+                summarise++;
+                transformation._label = this.getOrdinal(summarise) + ' Summarisation';
+                transformation._disable = summarise < summariseTotal;
+                transformation._active = summarise === summariseTotal;
+                return true;
+            }
+            if (transformation.type === 'join') {
+                join++;
+                transformation._label = this.getOrdinal(join) + ' Join';
+                transformation._disable = join < joinTotal;
+                transformation._active = join === joinTotal;
+                return true;
+            }
+            return false;
+        });
     }
 
     private setParameterValues(values) {
