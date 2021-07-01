@@ -6,6 +6,7 @@ namespace Kinintel\Traits\Controller\Account;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
  * Dataset service, acts on both in process and saved datasets
@@ -82,6 +83,19 @@ trait Dataset {
      */
     public function removeDatasetInstance($id) {
         $this->datasetService->removeDataSetInstance($id);
+    }
+
+
+    /**
+     * Get the evaluated parameters for the supplied dataset instance by id.
+     * The array of transformation instances can be supplied as payload.
+     *
+     * @http POST /parameters/$id
+     *
+     * @param integer $id
+     */
+    public function getEvaluatedParameters($id) {
+        return $this->datasetService->getEvaluatedParameters($id);
     }
 
 

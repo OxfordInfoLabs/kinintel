@@ -6,6 +6,9 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinintel\Exception\DatasourceTransformationException;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
@@ -65,7 +68,22 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         $this->datasetService = $datasetService;
     }
 
+    /**
+     * @param JoinTransformation $transformation
+     * @param Datasource $datasource
+     * @param mixed[] $parameterValues
+     *
+     * @return \Kinintel\Objects\Datasource\Datasource|DefaultDatasource|mixed
+     * @throws \Kinikit\Core\Validation\ValidationException
+     * @throws \Kinikit\Persistence\ORM\Exception\ObjectNotFoundException
+     * @throws \Kinintel\Exception\InvalidParametersException
+     * @throws \Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException
+     * @throws \Kinintel\Exception\UnsupportedDatasourceTransformationException
+     */
     public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+
+        // Get the parameter mappings as an indexed array
+        $joinParameterMappings = ObjectArrayUtils::indexArrayOfObjectsByMember("parameterName", $transformation->getJoinParameterMappings() ?? []);
 
         // Triage to see whether we can read the evaluated data source
         if ($transformation->returnEvaluatedDataSource()) {
@@ -73,15 +91,25 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         } else if ($transformation->getJoinedDataSourceInstanceKey()) {
             $this->datasourceService = $this->datasourceService ?? Container::instance()->get(DatasourceService::class);
             $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
+
+            // If parameters required for a data source, ensure that we have received mappings for them.
+            if ($joinDatasourceParams = $joinDatasourceInstance->getParameters()) {
+                foreach ($joinDatasourceParams as $datasourceParam) {
+                    if (!isset($joinParameterMappings[$datasourceParam->getName()])) {
+                        throw new DatasourceTransformationException("Parameter mapping required for parameter {$datasourceParam->getName()} when adding the datasource with key {$transformation->getJoinedDataSourceInstanceKey()} using the join operation.");
+                    }
+                }
+            }
+
             $joinDatasource = $joinDatasourceInstance->returnDataSource();
         } else if ($transformation->getJoinedDataSetInstanceId()) {
             $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
             $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
-
             $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
                 $joinDataSet->getTransformationInstances(), $parameterValues);
 
         }
+
 
         // Update the transformation with the evaluated data source.
         $transformation->setEvaluatedDataSource($joinDatasource);

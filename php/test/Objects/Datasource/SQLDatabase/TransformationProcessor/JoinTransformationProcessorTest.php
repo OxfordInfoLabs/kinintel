@@ -7,6 +7,7 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\MVC\Request\MockPHPInputStream;
+use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -23,6 +24,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Join\JoinColumn;
@@ -204,6 +206,75 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             ]
         ]));
 
+
+    }
+
+
+    public function testTransformationExceptionRaisedIfJoinDatasourceHasDefinedParametersWhichHaveNotBeenFulfilledOnApply() {
+
+
+        $joinDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $joinDatasourceInstance, [
+            "testjoindatasource"
+        ]);
+        $joinDatasourceInstance->returnValue("returnDataSource", $joinDatasource);
+
+        $transformation = new JoinTransformation("testjoindatasource");
+
+        // Programme same creds, i.e. nothing to do.
+        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $joinDatasourceInstance->returnValue("getParameters", [
+            new Parameter("term", "Term")
+        ]);
+
+
+        $sqlDatabaseDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+
+        try {
+            $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
+            $this->fail("Should have thrown here");
+        } catch (DatasourceTransformationException $e) {
+            $this->assertTrue(true);
+        }
+
+    }
+
+
+    public function testTransformationExceptionRaisedIfJoinDatasetHasDefinedParametersWhichHaveNotBeenFulfilledOnApply() {
+
+
+        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testjoindataset");
+        $joinDataSetInstance->returnValue("getTransformationInstances", [
+            new TestTransformation(), new TestTransformation()
+        ]);
+
+        $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
+
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
+            "testjoindataset", [
+                new TestTransformation(), new TestTransformation()
+            ], []
+        ]);
+
+        $transformation = new JoinTransformation(null, 10);
+
+        // Programme different creds - should convert
+        $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
+        $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService, $this->dataSetService);
+
+        try {
+            $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
+            $this->fail("Should have thrown here");
+        } catch (DatasourceTransformationException $e) {
+            $this->assertTrue(true);
+        }
 
     }
 

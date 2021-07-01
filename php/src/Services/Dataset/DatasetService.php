@@ -16,6 +16,7 @@ use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class DatasetService {
@@ -129,6 +130,22 @@ class DatasetService {
 
 
     /**
+     * Get evaluated parameters for the passed datasource by id - this includes parameters from both
+     * the dataset and datasource concatenated.
+     *
+     * @param string $datasourceInstanceKey
+     *
+     * @return Parameter[]
+     */
+    public function getEvaluatedParameters($datasetInstanceId) {
+        $dataset = $this->getDataSetInstance($datasetInstanceId);
+        $params = $this->datasourceService->getEvaluatedParameters($dataset->getDatasourceInstanceKey());
+        $params = array_merge($params, $dataset->getParameters() ?? []);
+        return $params;
+    }
+
+
+    /**
      * Wrapper to below function for standard read only use where a data set is being
      * queried
      *
@@ -157,7 +174,6 @@ class DatasetService {
         return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), [],
             $transformations);
     }
-
 
 
 }

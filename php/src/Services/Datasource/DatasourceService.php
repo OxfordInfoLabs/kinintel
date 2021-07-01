@@ -93,9 +93,10 @@ class DatasourceService {
      * Get evaluated parameters for the passed datasource and transformations array
      *
      * @param string $datasourceInstanceKey
-     * @param TransformationInstance[] $transformations
+     *
+     * @return Parameter[]
      */
-    public function getEvaluatedParameters($datasourceInstanceKey, $transformations = []) {
+    public function getEvaluatedParameters($datasourceInstanceKey) {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);

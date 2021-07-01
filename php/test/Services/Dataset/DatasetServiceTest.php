@@ -310,4 +310,30 @@ class DatasetServiceTest extends TestBase {
 
     }
 
+    public function testCanGetEvaluatedParametersContainingBothDatasourceAndDatasetParams() {
+
+        $datasetSummary = new DatasetInstanceSummary("My Test", "test-json", [], [
+            new Parameter("datasetParam1", "Dataset Param 1"), new Parameter("datasetParam2", "Dataset Param 2")
+        ]);
+
+        $newId = $this->datasetService->saveDataSetInstance($datasetSummary, null, null);
+
+        $this->datasourceService->returnValue("getEvaluatedParameters", [
+            new Parameter("datasourceParam1", "Datasource Param 1"), new Parameter("datasourceParam2", "Datasource Param 2")
+        ], [
+            "test-json"
+        ]);
+
+
+        $parameters = $this->datasetService->getEvaluatedParameters($newId);
+
+        $this->assertEquals([
+            new Parameter("datasourceParam1", "Datasource Param 1"), new Parameter("datasourceParam2", "Datasource Param 2"),
+            new Parameter("datasetParam1", "Dataset Param 1"), new Parameter("datasetParam2", "Dataset Param 2")
+        ], $parameters);
+
+
+    }
+
+
 }

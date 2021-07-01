@@ -62,13 +62,12 @@ trait Datasource {
      * Get the evaluated parameters for the supplied instance by key.
      * The array of transformation instances can be supplied as payload.
      *
-     * @http POST /parameters/$key
+     * @http GET /parameters/$key
      *
      * @param string $key
-     * @param TransformationInstance[] $transformationInstances
      */
-    public function getEvaluatedParameters($key, $transformationInstances) {
-        return $this->datasourceService->getEvaluatedParameters($key, $transformationInstances);
+    public function getEvaluatedParameters($key) {
+        return $this->datasourceService->getEvaluatedParameters($key);
     }
 
     /**

@@ -35,7 +35,7 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     /**
      * @var JoinParameterMapping[]
      */
-    private $joinParameterMappings;
+    private $joinParameterMappings = [];
 
 
     /**
