@@ -14,7 +14,7 @@
 
     <rsz-layout class="row" [directions]="['none']" [rFlex]="false">
 
-        <rsz-layout class="cell left" [directions]="['right']" [rFlex]="true"
+        <rsz-layout class="cell left" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents">
                 <ki-dataset-editor [(evaluatedDatasource)]="datasetInstance" [datasource]="datasource"
