@@ -114,6 +114,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Programme different creds - should convert
         $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
         $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
+        $joinDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("name")], []), [[]]);
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService);
@@ -153,6 +154,8 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Programme different creds - should convert
         $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
         $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
+        $joinDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("name")], []), [[]]);
+
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService, $this->dataSetService);
@@ -260,6 +263,12 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             ], []
         ]);
 
+        $this->dataSetService->returnValue("getEvaluatedParameters", [
+            new Parameter("term", "Term")
+        ], [
+            10
+        ]);
+
         $transformation = new JoinTransformation(null, 10);
 
         // Programme different creds - should convert
@@ -275,6 +284,13 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         } catch (DatasourceTransformationException $e) {
             $this->assertTrue(true);
         }
+
+    }
+
+
+    public function testParameterisedDataSourceWithParametersMappedToParametersAreFulfilledByMaterialisingWithMappedParameters() {
+
+        
 
     }
 
