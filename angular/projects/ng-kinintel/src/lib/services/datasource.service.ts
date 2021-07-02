@@ -25,9 +25,8 @@ export class DatasourceService {
     }
 
     public getEvaluatedParameters(evaluatedDatasource) {
-        return this.http.post(this.config.backendURL + '/account/datasource/parameters/' +
-            (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey),
-            {transformationInstances: evaluatedDatasource.transformationInstances}).toPromise();
+        return this.http.get(this.config.backendURL + '/account/datasource/parameters/' +
+            (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey)).toPromise();
     }
 
     public evaluateDatasource(key, transformationInstances, parameterValues?, additionalTransformations?) {

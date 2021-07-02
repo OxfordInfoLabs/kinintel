@@ -38,14 +38,14 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .primary {
-    color: mat-color($example-primary);
+    color: mat-color($example-primary) !important;
 }
 .accent {
-    color: mat-color($example-accent);
+    color: mat-color($example-accent) !important;
 }
 .warn {
-    color: mat-color($example-warn);
+    color: mat-color($example-warn) !important;
 }
 .bg-primary {
-    background-color: mat-color($example-primary);
+    background-color: mat-color($example-primary) !important;
 }

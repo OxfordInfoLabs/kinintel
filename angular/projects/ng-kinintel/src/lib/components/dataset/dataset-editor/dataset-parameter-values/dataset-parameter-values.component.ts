@@ -15,6 +15,7 @@ export class DatasetParameterValuesComponent implements OnInit {
     @Input() focusParameters = false;
     @Input() evaluatedDatasource: any;
     @Input() showNewOnOpen: boolean;
+    @Input() hideNew = false;
 
     @Output() changed = new EventEmitter();
     @Output() evaluatedDatasourceChange = new EventEmitter();

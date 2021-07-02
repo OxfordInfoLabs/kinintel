@@ -40,8 +40,10 @@ export class DatasetAddJoinComponent implements OnInit {
         }
     };
 
+    public allColumns = true;
     public activeProject: any;
     public activeTag: any;
+    public requiredParameters: any;
 
     constructor(private datasetService: DatasetService,
                 private datasourceService: DatasourceService,
@@ -86,6 +88,13 @@ export class DatasetAddJoinComponent implements OnInit {
             promise = this.datasourceService.getDatasource(item.key).then(datasource => {
                 this.selectedSource = datasource;
                 this.joinTransformation.config.joinedDataSourceInstanceKey = item.key;
+                return this.datasourceService.getEvaluatedParameters({
+                    key: item.key,
+                    transformationInstances: []
+                }).then(requiredParams => {
+                    this.requiredParameters = requiredParams;
+                    return requiredParams;
+                });
             });
         } else {
             promise = this.datasetService.getDataset(item.id).then(dataset => {
@@ -95,11 +104,37 @@ export class DatasetAddJoinComponent implements OnInit {
         }
 
         promise.then(() => {
-            this.getRightColumns();
+            if (!this.requiredParameters) {
+                this.getRightColumns();
+            } else {
+                this.getRightColumns();
+            }
+
             setTimeout(() => {
                 step.next();
             }, 0);
         });
+    }
+
+    public toggleAllColumns(event) {
+        this.joinColumns.map(column => {
+            column.selected = event.checked;
+            return column;
+        });
+    }
+
+    public allSelected() {
+        this.allColumns = _.every(this.joinColumns, 'selected');
+    }
+
+    public setEvaluatedParameters(requiredParameters) {
+        if (!this.selectedSource.parameterValues) {
+            this.selectedSource.parameterValues = {};
+        }
+        requiredParameters.forEach(param => {
+            this.selectedSource.parameterValues[param.name] = param.value;
+        });
+        this.getRightColumns();
     }
 
     public join() {

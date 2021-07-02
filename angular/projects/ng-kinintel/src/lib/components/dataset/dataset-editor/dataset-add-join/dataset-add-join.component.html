@@ -81,7 +81,13 @@
                         <b>Selected source: {{selectedSource.title || selectedSource.name}}</b>
                     </p>
 
-                    <ki-dataset-filters [filterFields]="filterFields"
+                    <div class="mb-4" *ngIf="requiredParameters && requiredParameters.length">
+                        <ki-dataset-parameter-values [parameterValues]="requiredParameters" [hideNew]="true"
+                                                     (changed)="setEvaluatedParameters($event)"></ki-dataset-parameter-values>
+                    </div>
+
+
+                    <ki-dataset-filters *ngIf="joinFilterFields" [filterFields]="filterFields"
                                         [joinFilterFields]="joinFilterFields"
                                         [joinFieldsName]="selectedSource.title || selectedSource.name"
                                         [filterJunction]="joinTransformation.config.joinFilters"></ki-dataset-filters>
@@ -99,14 +105,18 @@
                 <ng-template [ngIf]="selectedSource">
                     <p>Select the columns you would like to view, and set a new column name if required.</p>
 
+                    <div class="column-definition align-center">
+                        <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
+                        <label class="mw">Column Name</label>
+                        <label class="mw">New Column Title</label>
+                    </div>
+
                     <div class="column-definition align-center" *ngFor="let column of joinColumns">
-                        <mat-checkbox [(ngModel)]="column.selected"></mat-checkbox>
+                        <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
                         <label>
-                            Column name
                             <input type="text" [(ngModel)]="column.name" disabled>
                         </label>
                         <label>
-                            New Column title
                             <input type="text" [(ngModel)]="column.title">
                         </label>
                         <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
