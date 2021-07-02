@@ -108,6 +108,16 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
                 $joinDataSet->getTransformationInstances(), $parameterValues);
 
+            // If parameters required for a data set, ensure we have mappings for them.
+            if ($joinDatasetParams = $this->datasetService->getEvaluatedParameters($transformation->getJoinedDataSetInstanceId())) {
+                foreach ($joinDatasetParams as $datasetParam) {
+                    if (!isset($joinParameterMappings[$datasetParam->getName()])) {
+                        throw new DatasourceTransformationException("Parameter mapping required for parameter {$datasetParam->getName()} when adding the dataset with id {$transformation->getJoinedDataSetInstanceId()} using the join operation.");
+                    }
+                }
+            }
+
+
         }
 
 
@@ -118,7 +128,10 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials())) {
 
             if (!($joinDatasource instanceof DefaultDatasource)) {
-                $transformation->setEvaluatedDataSource(new DefaultDatasource($joinDatasource));
+                $joinDatasource = new DefaultDatasource($joinDatasource);
+                $joinDatasource->populate($parameterValues);
+                $transformation->setEvaluatedDataSource($joinDatasource);
+
             }
 
             // If we are not a default datasource already, return a new instance
@@ -171,12 +184,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         if ($joinDatasource instanceof SQLDatabaseDatasource &&
             ($joinDatasource->getAuthenticationCredentials() == $dataSource->getAuthenticationCredentials())) {
             $childQuery = $joinDatasource->buildQuery($parameterValues);
-
-            // if this is a default data source, ensure population
-            if ($joinDatasource instanceof DefaultDatasource) {
-                $joinDatasource->populate($parameterValues);
-            }
-
 
             // Calculate the new aliases
             $mainTableAlias = "T" . ++$this->tableIndex;
