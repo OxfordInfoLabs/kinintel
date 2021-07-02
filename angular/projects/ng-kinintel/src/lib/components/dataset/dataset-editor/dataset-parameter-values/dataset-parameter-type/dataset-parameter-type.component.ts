@@ -15,6 +15,9 @@ export class DatasetParameterTypeComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        if (this.parameter.type === 'join') {
+            this.parameter.value = '';
+        }
     }
 
     public valueChanged() {

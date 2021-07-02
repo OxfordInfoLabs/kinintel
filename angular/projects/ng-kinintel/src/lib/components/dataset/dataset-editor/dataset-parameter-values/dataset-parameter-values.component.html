@@ -16,7 +16,7 @@
                 <mat-icon>add</mat-icon>
                 Add Parameters
             </button>
-            <button mat-flat-button color="primary" (click)="parameterChange()"
+            <button *ngIf="!update" mat-flat-button color="primary" (click)="parameterChange()"
                     [disabled]="!_.every(parameterValues, 'value')">Apply Parameters</button>
         </div>
     </div>

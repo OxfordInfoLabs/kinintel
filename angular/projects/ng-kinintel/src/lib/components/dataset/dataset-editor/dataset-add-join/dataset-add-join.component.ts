@@ -1,5 +1,5 @@
 import {Component, Inject, Input, OnInit} from '@angular/core';
-import {BehaviorSubject, merge} from 'rxjs';
+import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DatasetService} from '../../../../services/dataset.service';
 import {DatasourceService} from '../../../../services/datasource.service';
@@ -7,6 +7,7 @@ import {ProjectService} from '../../../../services/project.service';
 import {TagService} from '../../../../services/tag.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as _ from 'lodash';
+import {MatStepper} from '@angular/material/stepper';
 
 @Component({
     selector: 'ki-dataset-add-join',
@@ -36,7 +37,8 @@ export class DatasetAddJoinComponent implements OnInit {
                 }],
                 filterJunctions: []
             },
-            joinColumns: []
+            joinColumns: [],
+            joinParameterMappings: []
         }
     };
 
@@ -44,6 +46,10 @@ export class DatasetAddJoinComponent implements OnInit {
     public activeProject: any;
     public activeTag: any;
     public requiredParameters: any;
+    public parameterValues: any;
+    public updateParams = new Subject();
+
+    public _ = _;
 
     constructor(private datasetService: DatasetService,
                 private datasourceService: DatasourceService,
@@ -56,6 +62,8 @@ export class DatasetAddJoinComponent implements OnInit {
     ngOnInit(): void {
         this.environment = this.data.environment || {};
         this.filterFields = this.data.filterFields;
+        this.parameterValues = this.data.parameterValues;
+
         this.activeProject = this.projectService.activeProject.getValue();
         this.activeTag = this.tagService.activeTag.getValue();
 
@@ -83,16 +91,16 @@ export class DatasetAddJoinComponent implements OnInit {
     }
 
     public select(item, type, step) {
+        this.joinFilterFields = null;
         let promise: Promise<any>;
         if (type === 'datasource') {
             promise = this.datasourceService.getDatasource(item.key).then(datasource => {
                 this.selectedSource = datasource;
                 this.joinTransformation.config.joinedDataSourceInstanceKey = item.key;
                 return this.datasourceService.getEvaluatedParameters({
-                    key: item.key,
-                    transformationInstances: []
+                    key: item.key
                 }).then(requiredParams => {
-                    this.requiredParameters = requiredParams;
+                    this.createParameterStructure(requiredParams);
                     return requiredParams;
                 });
             });
@@ -100,14 +108,16 @@ export class DatasetAddJoinComponent implements OnInit {
             promise = this.datasetService.getDataset(item.id).then(dataset => {
                 this.selectedSource = dataset;
                 this.joinTransformation.config.joinedDataSetInstanceId = item.id;
+                this.datasetService.getEvaluatedParameters(item.id).then((requiredParams: any) => {
+                    this.createParameterStructure(requiredParams);
+                    return requiredParams;
+                });
             });
         }
 
         promise.then(() => {
-            if (!this.requiredParameters) {
-                this.getRightColumns();
-            } else {
-                this.getRightColumns();
+            if (!this.requiredParameters || !this.requiredParameters.length) {
+                this.getJoinColumns();
             }
 
             setTimeout(() => {
@@ -127,14 +137,35 @@ export class DatasetAddJoinComponent implements OnInit {
         this.allColumns = _.every(this.joinColumns, 'selected');
     }
 
-    public setEvaluatedParameters(requiredParameters) {
-        if (!this.selectedSource.parameterValues) {
-            this.selectedSource.parameterValues = {};
-        }
+    public getParameterValues() {
+        this.updateParams.next(Date.now());
+    }
+
+    public setEvaluatedParameters(requiredParameters, step?) {
+        const parameterMappings = [];
         requiredParameters.forEach(param => {
-            this.selectedSource.parameterValues[param.name] = param.value;
+            const mapping: any = {parameterName: param.name};
+            if (param.selectedType === 'Column') {
+                mapping.sourceColumnName = param.value;
+            } else if (param.selectedType === 'Parameter') {
+                mapping.sourceParameterName = param.value;
+            }
+            parameterMappings.push(mapping);
         });
-        this.getRightColumns();
+        // if (!this.selectedSource.parameterValues) {
+        //     this.selectedSource.parameterValues = {};
+        // }
+        // requiredParameters.forEach(param => {
+        //     this.selectedSource.parameterValues[param.name] = param.value;
+        // });
+        // this.getJoinColumns();
+        this.joinTransformation.config.joinParameterMappings = parameterMappings;
+
+        if (step) {
+            setTimeout(() => {
+                step.next();
+            }, 0);
+        }
     }
 
     public join() {
@@ -145,7 +176,30 @@ export class DatasetAddJoinComponent implements OnInit {
         this.dialogRef.close(this.joinTransformation);
     }
 
-    private getRightColumns() {
+    private createParameterStructure(requiredParameters) {
+        this.requiredParameters = requiredParameters.map(param => {
+            param.type = 'join';
+            param.selectedType = 'Column';
+            param.values = [
+                {
+                    label: 'Column',
+                    values: this.filterFields
+                },
+                {
+                    label: 'Parameter',
+                    values: _.map(this.parameterValues, (value) => {
+                        return {
+                            label: value.label + ' (' + value.currentValue + ')',
+                            value: value.value
+                        };
+                    })
+                }
+            ];
+            return param;
+        });
+    }
+
+    private getJoinColumns() {
         this.datasourceService.evaluateDatasource(
             this.selectedSource.key || this.selectedSource.datasourceInstanceKey,
             this.selectedSource.transformationInstances || [],

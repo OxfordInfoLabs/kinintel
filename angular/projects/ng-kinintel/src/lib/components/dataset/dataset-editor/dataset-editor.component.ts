@@ -108,7 +108,14 @@ export class DatasetEditorComponent implements OnInit {
             height: '800px',
             data: {
                 environment: this.environment,
-                filterFields: this.filterFields
+                filterFields: this.filterFields,
+                parameterValues: _.map(this.parameterValues, param => {
+                    return {
+                        label: param.title,
+                        value: param.name,
+                        currentValue: this.evaluatedDatasource.parameterValues[param.name]
+                    };
+                })
             },
         });
 

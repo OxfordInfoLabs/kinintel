@@ -16,6 +16,7 @@ export class DatasetParameterValuesComponent implements OnInit {
     @Input() evaluatedDatasource: any;
     @Input() showNewOnOpen: boolean;
     @Input() hideNew = false;
+    @Input() update: Subject<any>;
 
     @Output() changed = new EventEmitter();
     @Output() evaluatedDatasourceChange = new EventEmitter();
@@ -29,10 +30,21 @@ export class DatasetParameterValuesComponent implements OnInit {
         if (this.showNewOnOpen && !this.parameterValues.length) {
             this.addParameter();
         }
+
+        if (this.update) {
+            this.update.subscribe(() => {
+                this.parameterChange();
+            });
+        }
     }
 
     public parameterChange(data?) {
-        this.changed.emit(this.parameterValues);
+        if (!_.every(this.parameterValues, 'value')) {
+            this.focusParameters = true;
+        } else {
+            this.focusParameters = false;
+            this.changed.emit(this.parameterValues);
+        }
     }
 
     public addParameter() {

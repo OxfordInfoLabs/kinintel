@@ -17,7 +17,7 @@
     <div class="dialog-content" style="padding: 0 0 1rem 0">
 
         <mat-horizontal-stepper [linear]="true" #stepper>
-            <mat-step [completed]="selectedSource" label="Select a Datasource or Dataset">
+            <mat-step [completed]="selectedSource" label="Select data">
 
                 <div class="mb-8 mt-4">
                     <input class="full" type="text" placeholder="Search for a datasource or dataset"
@@ -68,10 +68,9 @@
                 </table>
 
             </mat-step>
-            <mat-step [completed]="joinTransformation.config.joinFilters.filters[0].fieldName &&
-                                   joinTransformation.config.joinFilters.filters[0].value"
-                      label="Add join criteria">
-
+            <mat-step *ngIf="requiredParameters && requiredParameters.length"
+                      [completed]="joinTransformation.config.joinParameterMappings.length >= 1"
+                      label="Required parameters">
                 <ng-template [ngIf]="!selectedSource">
                     <p>Please select either a Datasource or Dataset to join to.</p>
                 </ng-template>
@@ -83,10 +82,22 @@
 
                     <div class="mb-4" *ngIf="requiredParameters && requiredParameters.length">
                         <ki-dataset-parameter-values [parameterValues]="requiredParameters" [hideNew]="true"
-                                                     (changed)="setEvaluatedParameters($event)"></ki-dataset-parameter-values>
+                                                     [update]="updateParams"
+                                                     (changed)="setEvaluatedParameters($event, stepper)"></ki-dataset-parameter-values>
                     </div>
 
+                </ng-template>
+            </mat-step>
+            <mat-step [completed]="(!joinFilterFields || !joinFilterFields.length) ||
+                        (_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
+                                   _.every(joinTransformation.config.joinFilters.filters, 'value'))"
+                      label="Join criteria">
 
+                <ng-template [ngIf]="!selectedSource">
+                    <p>Please select either a Datasource or Dataset to join to.</p>
+                </ng-template>
+
+                <ng-template [ngIf]="selectedSource">
                     <ki-dataset-filters *ngIf="joinFilterFields" [filterFields]="filterFields"
                                         [joinFilterFields]="joinFilterFields"
                                         [joinFieldsName]="selectedSource.title || selectedSource.name"
@@ -136,11 +147,23 @@
         <button *ngIf="stepper.selectedIndex > 0" mat-stroked-button color="primary" (click)="stepper.previous()">Back
         </button>
 
-        <button *ngIf="stepper.selectedIndex === 1" mat-flat-button color="primary"
-                (click)="stepper.next()" [disabled]="!joinTransformation.config.joinFilters.filters[0].fieldName ||
-                                    !joinTransformation.config.joinFilters.filters[0].value">Next
-        </button>
-        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 2"
+        <ng-template [ngIf]="(stepper.selectedIndex === 1 && stepper.steps.length === 4)">
+            <button mat-flat-button color="primary"
+                    (click)="getParameterValues(stepper)">Apply Parameters
+            </button>
+        </ng-template>
+
+        <ng-template [ngIf]="(stepper.selectedIndex === 1 && stepper.steps.length === 3) ||
+                            (stepper.selectedIndex === 2 && stepper.steps.length === 4)">
+            <button mat-flat-button color="primary"
+                    (click)="stepper.next()" [disabled]="(joinFilterFields && joinFilterFields.length) &&
+                                !(_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
+                                   _.every(joinTransformation.config.joinFilters.filters, 'value'))">Next
+            </button>
+        </ng-template>
+
+        <button mat-flat-button color="primary" *ngIf="(stepper.selectedIndex === 2 && stepper.steps.length === 3) ||
+                            (stepper.selectedIndex === 3 && stepper.steps.length === 4)"
                 (click)="join()">Create Join
         </button>
     </div>

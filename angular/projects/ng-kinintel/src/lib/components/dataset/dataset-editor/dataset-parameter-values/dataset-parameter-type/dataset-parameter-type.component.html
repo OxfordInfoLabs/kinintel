@@ -3,7 +3,7 @@
 
     <ng-template [ngIf]="parameter.type === 'text'">
         <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-            (change)="valueChanged()" required autofocus>
+               (change)="valueChanged()" required autofocus>
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'numeric'">
         <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
@@ -15,9 +15,32 @@
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'boolean'">
         <mat-slide-toggle [(ngModel)]="parameter.value" (ngModelChange)="valueChanged()"
-            required>{{parameter.title}}</mat-slide-toggle>
+                          required>{{parameter.title}}</mat-slide-toggle>
     </ng-template>
 
+    <ng-template [ngIf]="parameter.type === 'join'">
+        <mat-button-toggle-group class="mt-2 mb-2" [(ngModel)]="parameter.selectedType" (ngModelChange)="parameter.value = ''">
+            <ng-template ngFor let-joinType [ngForOf]="parameter.values">
+                <mat-button-toggle *ngIf="joinType.values.length" [value]="joinType.label">
+                    {{joinType.label}}
+                </mat-button-toggle>
+            </ng-template>
 
-<!--    <small>Description</small>-->
+        </mat-button-toggle-group>
+        <div class="align-center">
+            <ng-template ngFor let-joinType [ngForOf]="parameter.values">
+                <ng-template [ngIf]="parameter.selectedType === joinType.label">
+                    <mat-select [(value)]="parameter.value" class="mr-4">
+                        <mat-option value="">-- Select {{joinType.label}} --</mat-option>
+                        <mat-option *ngFor="let field of joinType.values"
+                                    [value]="field.value">{{field.label}}</mat-option>
+                    </mat-select>
+                </ng-template>
+            </ng-template>
+
+        </div>
+
+    </ng-template>
+
+    <!--    <small>Description</small>-->
 </div>
