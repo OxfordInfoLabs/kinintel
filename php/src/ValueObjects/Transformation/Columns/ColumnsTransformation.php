@@ -5,9 +5,10 @@ namespace Kinintel\ValueObjects\Transformation\Columns;
 
 
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
-class ColumnsTransformation implements Transformation {
+class ColumnsTransformation implements Transformation, SQLDatabaseTransformation {
 
     /**
      * @var Field[]
@@ -39,4 +40,7 @@ class ColumnsTransformation implements Transformation {
     }
 
 
+    public function getSQLTransformationProcessorKey() {
+        return "columns";
+    }
 }

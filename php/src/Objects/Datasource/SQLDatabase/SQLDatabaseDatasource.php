@@ -29,7 +29,9 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredent
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -132,7 +134,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             PagingTransformation::class,
             SummariseTransformation::class,
             JoinTransformation::class,
-
+            ColumnsTransformation::class,
+            FormulaTransformation::class
         ];
     }
 
