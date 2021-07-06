@@ -12,6 +12,7 @@ use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -95,7 +96,7 @@ class WebServiceDatasource extends BaseDatasource {
      * @return string[]
      */
     public function getSupportedTransformationClasses() {
-        return [PagingTransformation::class];
+        return [PagingTransformation::class, ColumnsTransformation::class];
     }
 
 
@@ -120,6 +121,8 @@ class WebServiceDatasource extends BaseDatasource {
 
         if ($transformation instanceof PagingTransformation) {
             $this->pagingTransformations[] = $transformation;
+        } else if ($transformation instanceof ColumnsTransformation) {
+            $this->getConfig()->setColumns($transformation->getColumns());
         }
 
         return $this;

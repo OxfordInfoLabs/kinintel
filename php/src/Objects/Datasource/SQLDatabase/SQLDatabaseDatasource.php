@@ -131,7 +131,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             MultiSortTransformation::class,
             PagingTransformation::class,
             SummariseTransformation::class,
-            JoinTransformation::class
+            JoinTransformation::class,
+
         ];
     }
 

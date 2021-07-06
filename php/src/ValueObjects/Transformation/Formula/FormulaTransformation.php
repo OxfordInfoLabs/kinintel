@@ -4,7 +4,7 @@
 namespace Kinintel\ValueObjects\Transformation\Formula;
 
 
-class Formula {
+class FormulaTransformation {
 
     /**
      * @var Expression[]

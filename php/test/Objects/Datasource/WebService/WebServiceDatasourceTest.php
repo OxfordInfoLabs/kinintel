@@ -19,6 +19,7 @@ use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthentication
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\ZipCompressorConfiguration;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -320,5 +321,17 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testIfColumnsTransformationAppliedToDatasourceItIsAppliedImmediatelyToColumnsConfig() {
+
+        $datasource = new WebServiceDatasource(new WebserviceDataSourceConfig("http://google.com", null, null, null, null, [
+            new Field("column1"), new Field("column2"), new Field("column1")
+        ]));
+
+        $datasource->applyTransformation(new ColumnsTransformation([new Field("column2", "Basic Column"), new Field("column1", "Other Column")]));
+
+        $this->assertEquals([new Field("column2", "Basic Column"), new Field("column1", "Other Column")],
+            $datasource->getConfig()->getColumns());
+    }
 
 }
