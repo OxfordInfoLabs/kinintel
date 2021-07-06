@@ -12,8 +12,8 @@ namespace Kinintel\ValueObjects\Transformation;
  * @implementation paging \Kinintel\ValueObjects\Transformation\Paging\PagingTransformation
  * @implementation summarise \Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation
  * @implementation join \Kinintel\ValueObjects\Transformation\Join\JoinTransformation
- * @implementation columns \Kinintel\ValueObjects\Transformation\Columns\Columns
- * @implementation formula \Kinintel\ValueObjects\Transformation\Formula\Formula
+ * @implementation columns \Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation
+ * @implementation formula \Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation
  *
  */
 interface Transformation {

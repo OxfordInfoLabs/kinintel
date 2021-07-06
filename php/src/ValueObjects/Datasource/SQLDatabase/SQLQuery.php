@@ -57,6 +57,16 @@ class SQLQuery {
         $this->initialParameters = $initialParameters;
     }
 
+
+    /**
+     * Return the select clause
+     *
+     * @return string
+     */
+    public function getSelectClause() {
+        return $this->selectClause;
+    }
+
     /**
      * @param string $selectClause
      */

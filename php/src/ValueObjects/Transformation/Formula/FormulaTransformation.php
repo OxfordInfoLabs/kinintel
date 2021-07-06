@@ -12,6 +12,15 @@ class FormulaTransformation {
     private $expressions;
 
     /**
+     * FormulaTransformation constructor.
+     *
+     * @param Expression[] $expressions
+     */
+    public function __construct($expressions = []) {
+        $this->expressions = $expressions;
+    }
+
+    /**
      * @return Expression[]
      */
     public function getExpressions() {
