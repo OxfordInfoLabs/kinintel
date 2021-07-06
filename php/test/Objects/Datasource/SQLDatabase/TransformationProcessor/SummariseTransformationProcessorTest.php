@@ -122,7 +122,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testExplicitlyConfiguredDatasourceColumnsAreUnsetFollowingASummarisation() {
+    public function testExplicitlyConfiguredDatasourceColumnsAreUnsetFollowingAnApplyTransformationForSummarisation() {
 
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $config = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
@@ -132,10 +132,9 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
             new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
 
-        $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
-        $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
+        $transformationProcessor->applyTransformation($summariseTransformation, $dataSource, []);
 
         $this->assertTrue($config->methodWasCalled("setColumns", [[]]));
 

@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Authentication\DefaultDatasourceCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
@@ -22,9 +23,9 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 class DefaultDatasource extends SQLDatabaseDatasource {
 
     /**
-     * @var Datasource
+     * @var Datasource|Dataset
      */
-    private $sourceDatasource;
+    private $sourceDataobject;
 
     /**
      * @var string
@@ -50,11 +51,16 @@ class DefaultDatasource extends SQLDatabaseDatasource {
      */
     private static $credentials;
 
-    public function __construct($sourceDatasource) {
+    /**
+     * DefaultDatasource constructor.
+     *
+     * @param Datasource|Dataset $sourceDataobject
+     */
+    public function __construct($sourceDataobject) {
         $this->tableName = "table_" . ++self::$tableIndex;
         parent::__construct(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $this->tableName, null),
             self::getCredentials(), new DatasourceUpdateConfig());
-        $this->sourceDatasource = $sourceDatasource;
+        $this->sourceDataobject = $sourceDataobject;
 
     }
 
@@ -65,7 +71,7 @@ class DefaultDatasource extends SQLDatabaseDatasource {
      * @return Datasource
      */
     public function returnSourceDatasource() {
-        return $this->sourceDatasource;
+        return $this->sourceDataobject;
     }
 
 
@@ -79,8 +85,11 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         if ($this->populated)
             return;
 
-        // Firstly materialise the source datasource
-        $sourceDataset = $this->sourceDatasource->materialise($parameterValues);
+        if ($this->sourceDataobject instanceof Datasource)
+            // Firstly materialise the source datasource
+            $sourceDataset = $this->sourceDataobject->materialise($parameterValues);
+        else
+            $sourceDataset = $this->sourceDataobject;
 
         /**
          * @var SQLite3DatabaseConnection $dbConnection

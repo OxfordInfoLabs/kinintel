@@ -8,6 +8,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Exception\DatasourceTransformationException;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
@@ -16,6 +17,10 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -82,8 +87,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      */
     public function applyTransformation($transformation, $datasource, $parameterValues = []) {
 
-        // Get the parameter mappings as an indexed array
-        $joinParameterMappings = ObjectArrayUtils::indexArrayOfObjectsByMember("parameterName", $transformation->getJoinParameterMappings() ?? []);
+        $joinDataParameters = [];
 
         // Triage to see whether we can read the evaluated data source
         if ($transformation->returnEvaluatedDataSource()) {
@@ -91,16 +95,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         } else if ($transformation->getJoinedDataSourceInstanceKey()) {
             $this->datasourceService = $this->datasourceService ?? Container::instance()->get(DatasourceService::class);
             $joinDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($transformation->getJoinedDataSourceInstanceKey());
-
-            // If parameters required for a data source, ensure that we have received mappings for them.
-            if ($joinDatasourceParams = $joinDatasourceInstance->getParameters()) {
-                foreach ($joinDatasourceParams as $datasourceParam) {
-                    if (!isset($joinParameterMappings[$datasourceParam->getName()])) {
-                        throw new DatasourceTransformationException("Parameter mapping required for parameter {$datasourceParam->getName()} when adding the datasource with key {$transformation->getJoinedDataSourceInstanceKey()} using the join operation.");
-                    }
-                }
-            }
-
+            $joinDataParameters = $joinDatasourceInstance->getParameters();
             $joinDatasource = $joinDatasourceInstance->returnDataSource();
         } else if ($transformation->getJoinedDataSetInstanceId()) {
             $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
@@ -109,29 +104,37 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 $joinDataSet->getTransformationInstances(), $parameterValues);
 
             // If parameters required for a data set, ensure we have mappings for them.
-            if ($joinDatasetParams = $this->datasetService->getEvaluatedParameters($transformation->getJoinedDataSetInstanceId())) {
-                foreach ($joinDatasetParams as $datasetParam) {
-                    if (!isset($joinParameterMappings[$datasetParam->getName()])) {
-                        throw new DatasourceTransformationException("Parameter mapping required for parameter {$datasetParam->getName()} when adding the dataset with id {$transformation->getJoinedDataSetInstanceId()} using the join operation.");
-                    }
-                }
-            }
-
-
+            $joinDataParameters = $this->datasetService->getEvaluatedParameters($transformation->getJoinedDataSetInstanceId());
         }
 
+        // If we have join data parameters, evaluate now.
+        $paramParameters = [];
+        $columnParameters = [];
+        if (sizeof($joinDataParameters)) {
+            list($paramParameters, $columnParameters) = $this->processJoinParameterMappings($transformation, $joinDataParameters, $parameterValues);
+        }
+
+
+        // Boolean indicating whether or not we need to convert the join datasource to
+        // a default datasource
+        $joinDatasourceConversionRequired = false;
+        $joinDatasourceParameterValues = $parameterValues;
+
+        // If we have param parameters, materialise to a
+        if (sizeof($paramParameters) || sizeof($columnParameters)) {
+            $joinDatasourceConversionRequired = true;
+            $joinDatasourceParameterValues = $paramParameters;
+        }
 
         // Update the transformation with the evaluated data source.
         $transformation->setEvaluatedDataSource($joinDatasource);
 
+
         // If mismatch of authentication credentials, harmonise as required
-        if ($joinDatasource && ($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials())) {
+        if ($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials()) {
 
             if (!($joinDatasource instanceof DefaultDatasource)) {
-                $joinDatasource = new DefaultDatasource($joinDatasource);
-                $joinDatasource->populate($parameterValues);
-                $transformation->setEvaluatedDataSource($joinDatasource);
-
+                $joinDatasourceConversionRequired = true;
             }
 
             // If we are not a default datasource already, return a new instance
@@ -141,6 +144,63 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 $datasource = $newDataSource;
             }
 
+        }
+
+        // If we need to convert the join datasource, do this now
+        if ($joinDatasourceConversionRequired) {
+
+            // If we have column parameters we need to do a more advanced evaluation
+            if ($columnParameters) {
+
+                // Materialise the parent data set
+                $parentDataset = $datasource->materialise($parameterValues);
+
+                $aliasFields = [];
+                $joinFilters = [];
+                foreach ($columnParameters as $parameterName => $columnName) {
+                    $aliasField = "alias_" . ++$this->aliasIndex;
+                    $aliasFields[$parameterName] = $aliasField;
+                    $joinFilters[] = new Filter($aliasField, "[[$columnName]]");
+                }
+
+                // Update join filter junction with join filter
+                $joinFilterJunction = new FilterJunction($joinFilters, $transformation->getJoinFilters() ? [$transformation->getJoinFilters()] : []);
+                $transformation->setJoinFilters($joinFilterJunction);
+
+                // Now materialise the join data set using column values from parent dataset
+                $newJoinData = [];
+                while ($parentRow = $parentDataset->nextDataItem()) {
+
+                    // Set any column parameters accordingly
+                    $columnValues = [];
+                    foreach ($columnParameters as $parameterName => $columnName) {
+                        $joinDatasourceParameterValues[$parameterName] = $columnValues[$aliasFields[$parameterName]] = $parentRow[$columnName] ?? null;
+                    }
+                    $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
+                    while ($joinRow = $materialisedJoinSet->nextDataItem()) {
+                        $newJoinData[] = array_merge($columnValues, $joinRow);
+                    }
+                }
+
+                // Derive new columns for join dataset
+                $newColumns = [];
+                if (sizeof($newJoinData)) {
+                    foreach ($aliasFields as $aliasField) {
+                        $newColumns[] = new Field($aliasField);
+                    }
+                    $newColumns = array_merge($newColumns, $materialisedJoinSet->getColumns());
+                }
+
+                // Create new join dataset.
+                $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
+                $joinDatasource = new DefaultDatasource($newJoinDataset);
+
+            } else {
+                $joinDatasource = new DefaultDatasource($joinDatasource);
+            }
+
+            $joinDatasource->populate($joinDatasourceParameterValues);
+            $transformation->setEvaluatedDataSource($joinDatasource);
         }
 
 
@@ -155,6 +215,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             // Remove the redundant Paging Transformation
             $datasource->unapplyLastTransformation();
+
 
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
@@ -176,6 +237,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @return SQLQuery|void
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
+
 
         // Ensure we have an evaluated datasource before continuing
         $joinDatasource = $transformation->returnEvaluatedDataSource();
@@ -230,6 +292,55 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             return $query;
         }
 
+
+    }
+
+
+    /**
+     * Process join parameter mappings for transformation
+     *
+     * @param JoinTransformation $transformation
+     * @param Parameter[] $joinDataParameters
+     */
+    private function processJoinParameterMappings($transformation, $joinDataParameters, $parameterValues = []) {
+
+        // Get the parameter mappings as an indexed array
+        $joinParameterMappings = ObjectArrayUtils::indexArrayOfObjectsByMember("parameterName", $transformation->getJoinParameterMappings() ?? []);
+
+
+        if ($transformation->getJoinedDataSetInstanceId()) {
+            $scope = "dataset";
+            $member = "id";
+            $value = $transformation->getJoinedDataSetInstanceId();
+        } else {
+            $scope = "datasource";
+            $member = "key";
+            $value = $transformation->getJoinedDataSourceInstanceKey();
+        }
+
+
+        $columnParameters = [];
+        $paramParameters = [];
+
+
+        // If parameters required for a data source, ensure that we have received mappings for them.
+        foreach ($joinDataParameters as $datasourceParam) {
+            if (!isset($joinParameterMappings[$datasourceParam->getName()])) {
+                throw new DatasourceTransformationException("Parameter mapping required for parameter {$datasourceParam->getName()} when adding the $scope with $member $value using the join operation.");
+            }
+
+            $mapping = $joinParameterMappings[$datasourceParam->getName()];
+
+            // if a source parameter mapping, bind directly to incoming parameter
+            if ($mapping->getSourceParameterName() && isset($parameterValues[$mapping->getSourceParameterName()])) {
+                $paramParameters[$mapping->getParameterName()] = $parameterValues[$mapping->getSourceParameterName()];
+            } else if ($mapping->getSourceColumnName()) {
+                $columnParameters[$mapping->getParameterName()] = $mapping->getSourceColumnName();
+            }
+
+        }
+
+        return [$paramParameters, $columnParameters];
 
     }
 

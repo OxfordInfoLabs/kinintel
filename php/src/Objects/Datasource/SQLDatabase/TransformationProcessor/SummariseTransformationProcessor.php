@@ -11,6 +11,24 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 
 class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
+
+    /**
+     * Unset any columns
+     *
+     * @param $transformation
+     * @param $datasource
+     * @param array $parameterValues
+     * @return \Kinintel\Objects\Datasource\Datasource|void
+     */
+    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+
+        // Unset any explicit columns from the datasource config
+        $datasource->getConfig()->setColumns([]);
+
+        return $datasource;
+    }
+
+
     /**
      * Update a query object for a passed transformation.
      *
@@ -30,9 +48,6 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
             }
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
             $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses));
-
-            // Unset any explicit columns from the datasource config
-            $dataSource->getConfig()->setColumns([]);
 
         }
 

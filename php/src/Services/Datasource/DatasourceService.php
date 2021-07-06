@@ -157,6 +157,7 @@ class DatasourceService {
         if ($transformations ?? []) {
             $datasource = $this->applyTransformationsToDatasource($datasource, $transformations, $parameterValues);
         }
+
         return $datasource;
     }
 

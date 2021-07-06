@@ -34,8 +34,6 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-
-
     public function testSQLLiteDatabasePopulatedAsExpectedOnMaterialiseOfDefaultDatasource() {
 
         $tabularDataset = new ArrayTabularDataset([
@@ -69,6 +67,33 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["name" => "Bobby", "age" => 33], $results->nextRow());
         $this->assertEquals(["name" => "Mark", "age" => 44], $results->nextRow());
         $this->assertEquals(["name" => "Clare", "age" => 55], $results->nextRow());
+
+    }
+
+    public function testCanConstructDefaultDatasetDirectlyWithDatasetInstead() {
+
+        $tabularDataset = new ArrayTabularDataset([
+            new Field("name", "Full Name"),
+            new Field("age", "Actual age")
+        ], [
+            ["name" => "Bobby", "age" => 33],
+            ["name" => "Mark", "age" => 44],
+            ["name" => "Clare", "age" => 55]
+        ]);
+
+        $defaultDatasource = new DefaultDatasource($tabularDataset);
+        $dataSet = $defaultDatasource->materialise();
+
+        $this->assertInstanceOf(SQLResultSetTabularDataset::class, $dataSet);
+        $this->assertEquals([
+            new Field("name", "Full Name"),
+            new Field("age", "Actual age")
+        ], $dataSet->getColumns());
+
+        $this->assertEquals(["name" => "Bobby", "age" => 33], $dataSet->nextDataItem());
+        $this->assertEquals(["name" => "Mark", "age" => 44], $dataSet->nextDataItem());
+        $this->assertEquals(["name" => "Clare", "age" => 55], $dataSet->nextDataItem());
+
 
     }
 
