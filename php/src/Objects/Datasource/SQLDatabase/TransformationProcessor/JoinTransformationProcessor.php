@@ -110,7 +110,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         // If we have join data parameters, evaluate now.
         $paramParameters = [];
         $columnParameters = [];
-        if (sizeof($joinDataParameters)) {
+        if (is_array($joinDataParameters) && sizeof($joinDataParameters)) {
             list($paramParameters, $columnParameters) = $this->processJoinParameterMappings($transformation, $joinDataParameters, $parameterValues);
         }
 
