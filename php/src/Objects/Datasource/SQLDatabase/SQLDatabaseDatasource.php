@@ -324,7 +324,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
-
         return $query;
 
     }
