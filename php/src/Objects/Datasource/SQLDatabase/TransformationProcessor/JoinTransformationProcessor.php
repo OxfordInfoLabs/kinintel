@@ -110,10 +110,10 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         // If we have join data parameters, evaluate now.
         $paramParameters = [];
         $columnParameters = [];
+
         if (is_array($joinDataParameters) && sizeof($joinDataParameters)) {
             list($paramParameters, $columnParameters) = $this->processJoinParameterMappings($transformation, $joinDataParameters, $parameterValues);
         }
-
 
         // Boolean indicating whether or not we need to convert the join datasource to
         // a default datasource
@@ -130,21 +130,13 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         $transformation->setEvaluatedDataSource($joinDatasource);
 
 
-        // If mismatch of authentication credentials, harmonise as required
-        if ($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials()) {
+        // Calculate whether or not we need to perform join datasource conversion
+        // to default datasource
+        $joinDatasourceConversionRequired = $joinDatasourceConversionRequired || (
+                ($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials()) &&
+                !($joinDatasource instanceof DefaultDatasource)
+            );
 
-            if (!($joinDatasource instanceof DefaultDatasource)) {
-                $joinDatasourceConversionRequired = true;
-            }
-
-            // If we are not a default datasource already, return a new instance
-            if (!($datasource instanceof DefaultDatasource)) {
-                $newDataSource = new DefaultDatasource($datasource);
-                $newDataSource->applyTransformation($transformation);
-                $datasource = $newDataSource;
-            }
-
-        }
 
         // If we need to convert the join datasource, do this now
         if ($joinDatasourceConversionRequired) {
@@ -193,6 +185,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 // Create new join dataset.
                 $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
+
+
                 $joinDatasource = new DefaultDatasource($newJoinDataset);
 
             } else {
@@ -200,7 +194,22 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             }
 
             $joinDatasource->populate($joinDatasourceParameterValues);
+
+
+            // If no join columns supplied, set them up now.
+            if (!$transformation->getJoinColumns()) {
+                $transformation->setJoinColumns($joinDatasource->getConfig()->getColumns());
+            }
+
             $transformation->setEvaluatedDataSource($joinDatasource);
+        }
+
+
+        // If we are not a default datasource already, return a new instance
+        if (($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials()) && !($datasource instanceof DefaultDatasource)) {
+            $newDataSource = new DefaultDatasource($datasource);
+            $newDataSource->applyTransformation($transformation);
+            $datasource = $newDataSource;
         }
 
 
@@ -238,7 +247,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-
         // Ensure we have an evaluated datasource before continuing
         $joinDatasource = $transformation->returnEvaluatedDataSource();
 
@@ -246,6 +254,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         if ($joinDatasource instanceof SQLDatabaseDatasource &&
             ($joinDatasource->getAuthenticationCredentials() == $dataSource->getAuthenticationCredentials())) {
             $childQuery = $joinDatasource->buildQuery($parameterValues);
+
 
             // Calculate the new aliases
             $mainTableAlias = "T" . ++$this->tableIndex;
@@ -267,6 +276,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             // If join columns supplied, change the select query for selection
             $childSelectColumns = $childTableAlias . ".*";
+
             if ($transformation->getJoinColumns()) {
 
                 $newColumns = $dataSource->getConfig()->getColumns() ?? [];
