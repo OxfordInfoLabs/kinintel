@@ -180,8 +180,8 @@ export class DatasetAddJoinComponent implements OnInit {
                     label: 'Parameter',
                     values: _.map(this.parameterValues, (value) => {
                         return {
-                            label: value.label + ' (' + value.currentValue + ')',
-                            value: value.value
+                            title: value.title + ' (' + value.currentValue + ')',
+                            name: value.name
                         };
                     })
                 }

@@ -27,6 +27,7 @@ export class DatasetParameterValuesComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        console.log(this.parameterValues);
         if (this.showNewOnOpen && !this.parameterValues.length) {
             this.addParameter();
         }

@@ -119,11 +119,13 @@ export class DatasetEditorComponent implements OnInit {
             });
             const filterTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'columns'});
             if (filterTransformation) {
-                filterTransformation.config = fields;
+                filterTransformation.config.columns = fields;
             } else {
                 this.evaluatedDatasource.transformationInstances.push({
                     type: 'columns',
-                    config: fields
+                    config: {
+                        columns: fields
+                    }
                 });
             }
 
@@ -147,8 +149,8 @@ export class DatasetEditorComponent implements OnInit {
                 filterFields: this.filterFields,
                 parameterValues: _.map(this.parameterValues, param => {
                     return {
-                        label: param.title,
-                        value: param.name,
+                        title: param.title,
+                        name: param.name,
                         currentValue: this.evaluatedDatasource.parameterValues[param.name]
                     };
                 })
