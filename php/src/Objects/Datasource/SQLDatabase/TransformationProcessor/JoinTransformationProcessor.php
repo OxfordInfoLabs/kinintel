@@ -155,9 +155,12 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     $joinFilters[] = new Filter($aliasField, "[[$columnName]]");
                 }
 
-                // Update join filter junction with join filter
-                $joinFilterJunction = new FilterJunction($joinFilters, $transformation->getJoinFilters() ? [$transformation->getJoinFilters()] : []);
+
+                $joinFilterJunction = new FilterJunction($joinFilters, $transformation->getJoinFilters()
+                && (sizeof($transformation->getJoinFilters()->getFilterJunctions()) || sizeof($transformation->getJoinFilters()->getFilters()))
+                    ? [$transformation->getJoinFilters()] : []);
                 $transformation->setJoinFilters($joinFilterJunction);
+
 
                 // Now materialise the join data set using column values from parent dataset
                 $newJoinData = [];
@@ -198,7 +201,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             // If no join columns supplied, set them up now.
             if (!$transformation->getJoinColumns()) {
-                $transformation->setJoinColumns($joinDatasource->getConfig()->getColumns());
+                $transformation->setJoinColumns(array_slice($joinDatasource->getConfig()->getColumns(), sizeof($columnParameters)));
             }
 
             $transformation->setEvaluatedDataSource($joinDatasource);
