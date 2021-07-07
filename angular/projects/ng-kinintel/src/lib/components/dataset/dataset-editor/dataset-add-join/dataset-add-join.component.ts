@@ -7,7 +7,6 @@ import {ProjectService} from '../../../../services/project.service';
 import {TagService} from '../../../../services/tag.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as _ from 'lodash';
-import {MatStepper} from '@angular/material/stepper';
 
 @Component({
     selector: 'ki-dataset-add-join',
@@ -28,15 +27,7 @@ export class DatasetAddJoinComponent implements OnInit {
     public joinTransformation: any = {
         type: 'join',
         config: {
-            joinFilters: {
-                logic: 'AND',
-                filters: [{
-                    fieldName: '',
-                    value: '',
-                    filterType: ''
-                }],
-                filterJunctions: []
-            },
+            joinFilters: [],
             joinColumns: [],
             joinParameterMappings: []
         }
@@ -200,6 +191,15 @@ export class DatasetAddJoinComponent implements OnInit {
     }
 
     private getJoinColumns() {
+        this.joinTransformation.config.joinFilters = {
+            logic: 'AND',
+            filters: [{
+                fieldName: '',
+                value: '',
+                filterType: ''
+            }],
+            filterJunctions: []
+        };
         this.datasourceService.evaluateDatasource(
             this.selectedSource.key || this.selectedSource.datasourceInstanceKey,
             this.selectedSource.transformationInstances || [],
@@ -218,17 +218,19 @@ export class DatasetAddJoinComponent implements OnInit {
                     data.columns.forEach(column => {
                         this.joinFilterFields.push(
                             {
-                                label: column.title,
-                                value: column.name
+                                title: column.title,
+                                name: column.name
                             }
                         );
+                        const duplicate = !!_.find(this.filterFields, {name: column.name, title: column.title});
                         this.joinColumns.push({
-                            selected: true,
+                            selected: !duplicate,
                             name: column.name,
                             title: column.title,
-                            duplicate: !!_.find(this.filterFields, {value: column.name, label: column.title})
+                            duplicate
                         });
                     });
+                    this.allColumns = _.every(this.joinColumns, 'selected');
                 }
             });
     }

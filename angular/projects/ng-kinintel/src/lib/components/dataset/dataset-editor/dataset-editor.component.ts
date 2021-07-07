@@ -4,6 +4,8 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 import {DatasourceService} from '../../../services/datasource.service';
 import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.component';
+import {DatasetCreateFormulaComponent} from './dataset-create-formula/dataset-create-formula.component';
+import {DatasetColumnSettingsComponent} from './dataset-column-settings/dataset-column-settings.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -102,8 +104,42 @@ export class DatasetEditorComponent implements OnInit {
 
     }
 
+    public editColumnSettings() {
+        const dialogRef = this.dialog.open(DatasetColumnSettingsComponent, {
+            width: '1000px',
+            height: '800px',
+            data: {
+                columns: this.filterFields
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(columns => {
+            const fields = _.map(columns, column => {
+                return {title: column.title, name: column.name};
+            });
+            const filterTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'columns'});
+            if (filterTransformation) {
+                filterTransformation.config = fields;
+            } else {
+                this.evaluatedDatasource.transformationInstances.push({
+                    type: 'columns',
+                    config: fields
+                });
+            }
+
+            this.evaluateDatasource();
+        });
+    }
+
+    public createFormula() {
+        const dialogRef = this.dialog.open(DatasetCreateFormulaComponent, {
+            width: '1000px',
+            height: '800px',
+        });
+    }
+
     public joinData() {
-        const dialogReg = this.dialog.open(DatasetAddJoinComponent, {
+        const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
             width: '1000px',
             height: '800px',
             data: {
@@ -119,7 +155,7 @@ export class DatasetEditorComponent implements OnInit {
             },
         });
 
-        dialogReg.afterClosed().subscribe(joinTransformation => {
+        dialogRef.afterClosed().subscribe(joinTransformation => {
             if (joinTransformation) {
                 this.evaluatedDatasource.transformationInstances.push(joinTransformation);
                 this.evaluateDatasource();
@@ -268,10 +304,11 @@ export class DatasetEditorComponent implements OnInit {
         this.tableData = this.dataset.allData;
         this.endOfResults = this.tableData.length < this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
+        this.displayedColumns.unshift('settings');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
-                label: column.title,
-                value: column.name
+                title: column.title,
+                name: column.name
             };
         });
         this.dataLoaded.emit(this.dataset);

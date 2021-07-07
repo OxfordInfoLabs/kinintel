@@ -1,0 +1,27 @@
+<div class="p-4">
+
+    <div class="column-toolbar">
+        <div class="align-center">
+            <div class="show-hide">
+                <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
+            </div>
+            <div class="column-name">Name</div>
+            <div class="column-name">New column title</div>
+        </div>
+
+        <div class="reorder">Reorder</div>
+    </div>
+
+    <div cdkDropList class="column-editor" (cdkDropListDropped)="drop($event)">
+        <div class="align-center column-item" cdkDrag *ngFor="let column of columns">
+            <div class="align-center">
+                <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
+                <input type="text" [(ngModel)]="column.name" disabled>
+                <input type="text" [(ngModel)]="column.title">
+                <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
+            </div>
+
+            <mat-icon cdkDragHandle>drag_handle</mat-icon>
+        </div>
+    </div>
+</div>

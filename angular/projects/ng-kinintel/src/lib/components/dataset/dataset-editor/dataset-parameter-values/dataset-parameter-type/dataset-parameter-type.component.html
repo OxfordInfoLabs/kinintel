@@ -33,7 +33,7 @@
                     <mat-select [(value)]="parameter.value" class="mr-4">
                         <mat-option value="">-- Select {{joinType.label}} --</mat-option>
                         <mat-option *ngFor="let field of joinType.values"
-                                    [value]="field.value">{{field.label}}</mat-option>
+                                    [value]="field.name">{{field.title}}</mat-option>
                     </mat-select>
                 </ng-template>
             </ng-template>

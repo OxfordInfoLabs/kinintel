@@ -21,7 +21,7 @@
                     class="example-list"
                     cdkDropListSortingDisabled
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of availableColumns" cdkDrag>{{item.label}}</div>
+                    <div class="example-box" *ngFor="let item of availableColumns" cdkDrag>{{item.title}}</div>
                 </div>
             </div>
 
@@ -34,7 +34,7 @@
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
                     <div class="example-box" *ngFor="let item of summariseFields; let i = index" cdkDrag>
-                        {{item.label}}
+                        {{item.title}}
                         <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
                             <mat-icon>remove</mat-icon>
                         </button>
@@ -59,7 +59,7 @@
                                     <mat-option *ngFor="let type of expressionTypes"
                                                 [value]="type">{{type}}</mat-option>
                                 </mat-select>
-                                {{item.label}}
+                                {{item.title}}
 
                                 <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
                                     <mat-icon>remove</mat-icon>
@@ -82,7 +82,7 @@
                         </ng-template>
                         <div class="bottom">
                             <span>Custom label</span>
-                            <input type="text" [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.value"
+                            <input type="text" [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.name"
                                    [(ngModel)]="item.customLabel">
                         </div>
 

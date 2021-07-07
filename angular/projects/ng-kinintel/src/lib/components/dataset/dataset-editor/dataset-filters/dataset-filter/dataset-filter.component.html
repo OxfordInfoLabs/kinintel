@@ -1,7 +1,7 @@
 <ng-template [ngIf]="!joinFilterFields">
     <mat-select [(value)]="filter.fieldName" class="mr-4" name="fieldName">
         <mat-option value="">Column Name</mat-option>
-        <mat-option *ngFor="let field of filterFields" [value]="field.value">{{field.label}}</mat-option>
+        <mat-option *ngFor="let field of filterFields" [value]="field.name">{{field.title}}</mat-option>
     </mat-select>
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
@@ -18,7 +18,7 @@
 <ng-template [ngIf]="joinFilterFields">
     <mat-select [(value)]="filter.fieldName" class="mr-4" >
         <mat-option value="">{{joinFieldsName}} Column Name</mat-option>
-        <mat-option *ngFor="let field of joinFilterFields" [value]="field.value">{{field.label}}</mat-option>
+        <mat-option *ngFor="let field of joinFilterFields" [value]="field.name">{{field.title}}</mat-option>
     </mat-select>
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
@@ -30,7 +30,7 @@
 
     <mat-select [(value)]="filter.value" class="mr-4" >
         <mat-option value="">Column Name</mat-option>
-        <mat-option *ngFor="let field of filterFields" [value]="'[['+field.value+']]'">{{field.label}}</mat-option>
+        <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
         <mat-option value="custom value">Custom value</mat-option>
     </mat-select>
 

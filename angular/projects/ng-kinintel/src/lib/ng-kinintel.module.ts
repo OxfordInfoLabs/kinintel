@@ -40,6 +40,10 @@ import { DatasetAddParameterComponent } from './components/dataset/dataset-edito
 import { DatasetAddJoinComponent } from './components/dataset/dataset-editor/dataset-add-join/dataset-add-join.component';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import { DatasetCreateFormulaComponent } from './components/dataset/dataset-editor/dataset-create-formula/dataset-create-formula.component';
+import {MatListModule} from '@angular/material/list';
+import { DatasetColumnSettingsComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-settings.component';
+import { DatasetColumnEditorComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-editor/dataset-column-editor.component';
 
 
 @NgModule({
@@ -62,7 +66,10 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
         DatasetParameterValuesComponent,
         DatasetParameterTypeComponent,
         DatasetAddParameterComponent,
-        DatasetAddJoinComponent
+        DatasetAddJoinComponent,
+        DatasetCreateFormulaComponent,
+        DatasetColumnSettingsComponent,
+        DatasetColumnEditorComponent
     ],
     imports: [
         BrowserModule,
@@ -86,7 +93,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
         MatSelectModule,
         MatSlideToggleModule,
         MatStepperModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        MatListModule
     ],
     exports: [
         DashboardEditorComponent,
