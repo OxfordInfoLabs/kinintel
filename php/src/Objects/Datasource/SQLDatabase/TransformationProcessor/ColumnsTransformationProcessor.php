@@ -22,6 +22,7 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      */
     public function applyTransformation($transformation, $datasource, $parameterValues = []) {
         $datasource->getConfig()->setColumns($transformation->getColumns());
+        return $datasource;
     }
 
 
