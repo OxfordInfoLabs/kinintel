@@ -117,8 +117,8 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
         $joinDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("name")], []), [[]]);
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService);
+        $sqlDatabaseDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $sqlDatabaseDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("test")], []));
 
         $transformedDatasource = $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
 
@@ -158,8 +158,8 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("name")], []), [[]]);
 
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService, $this->dataSetService);
+        $sqlDatabaseDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $sqlDatabaseDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("test")], []));
 
         $transformedDatasource = $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
 
@@ -334,6 +334,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $mainDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $mainDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("test")], []));
 
 
         $this->processor->applyTransformation($transformation, $mainDatasource, [
