@@ -11,6 +11,7 @@ export class DatasetColumnEditorComponent implements OnInit {
 
     @Input() columns: any = [];
     @Input() toggleAll = true;
+    @Input() titleOnly = false;
 
     @Output() columnsChange = new EventEmitter();
 
@@ -20,10 +21,16 @@ export class DatasetColumnEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        console.log('HELLO', this.columns);
         this.columns.forEach(column => {
-            const duplicate = _.filter(this.columns, {name: column.name, title: column.title}) > 1;
+            const filterObject: any = {title: column.title};
+            if (!this.titleOnly) {
+                filterObject.name = column.name;
+            }
+            const duplicate = _.filter(this.columns, filterObject) > 1;
             column.duplicate = duplicate;
             column.selected = !duplicate;
+
         });
         this.allColumns = _.every(this.columns, 'selected');
     }

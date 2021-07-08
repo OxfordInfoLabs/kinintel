@@ -10,7 +10,11 @@
 
     <div class="dialog-content" style="padding: 0 0 1rem 0">
 
-        <ki-dataset-column-editor [(columns)]="columns"></ki-dataset-column-editor>
+        <button mat-button color="primary" class="align-center" *ngIf="reset" (click)="resetColumns()">
+            <mat-icon>restart_alt</mat-icon>&nbsp;Reset to original columns
+        </button>
+
+        <ki-dataset-column-editor [(columns)]="columns" [titleOnly]="true"></ki-dataset-column-editor>
 
     </div>
 

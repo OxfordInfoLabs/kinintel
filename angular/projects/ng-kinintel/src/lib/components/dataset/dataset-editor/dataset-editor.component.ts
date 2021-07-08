@@ -109,27 +109,28 @@ export class DatasetEditorComponent implements OnInit {
             width: '1000px',
             height: '800px',
             data: {
-                columns: this.filterFields
+                columns: this.filterFields,
+                reset: !!_.find(this.evaluatedDatasource.transformationInstances, {type: 'columns'})
             }
         });
 
         dialogRef.afterClosed().subscribe(columns => {
-            const fields = _.map(columns, column => {
-                return {title: column.title, name: column.name};
-            });
-            const filterTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'columns'});
-            if (filterTransformation) {
-                filterTransformation.config.columns = fields;
-            } else {
+            if (columns) {
+                const fields = _.map(columns, column => {
+                    return {title: column.title, name: column.name};
+                });
+
+                _.remove(this.evaluatedDatasource.transformationInstances, {type: 'columns'});
+
                 this.evaluatedDatasource.transformationInstances.push({
                     type: 'columns',
                     config: {
                         columns: fields
                     }
                 });
-            }
 
-            this.evaluateDatasource();
+                this.evaluateDatasource();
+            }
         });
     }
 
@@ -153,14 +154,15 @@ export class DatasetEditorComponent implements OnInit {
                         name: param.name,
                         currentValue: this.evaluatedDatasource.parameterValues[param.name]
                     };
-                })
+                }),
+                datasetEditor: this
             },
         });
 
         dialogRef.afterClosed().subscribe(joinTransformation => {
             if (joinTransformation) {
-                this.evaluatedDatasource.transformationInstances.push(joinTransformation);
-                this.evaluateDatasource();
+                // this.evaluatedDatasource.transformationInstances.push(joinTransformation);
+                // this.evaluateDatasource();
             }
         });
     }
@@ -337,14 +339,15 @@ export class DatasetEditorComponent implements OnInit {
             }
             return false;
         });
+        return true;
     }
 
     private setParameterValues(values) {
 
     }
 
-    private evaluateDatasource() {
-        this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
+    public evaluateDatasource() {
+        return this.datasourceService.getEvaluatedParameters(this.evaluatedDatasource)
             .then((values: any) => {
                 let paramValues = values;
                 if (this.evaluatedDatasource.parameters.length) {
@@ -368,7 +371,7 @@ export class DatasetEditorComponent implements OnInit {
                 this.parameterValues = _.values(parameterValues);
                 this.setEvaluatedParameters(this.parameterValues);
 
-                this.datasourceService.evaluateDatasource(
+                return this.datasourceService.evaluateDatasource(
                     this.evaluatedDatasource.key || this.evaluatedDatasource.datasourceInstanceKey,
                     this.evaluatedDatasource.transformationInstances,
                     this.evaluatedDatasource.parameterValues,
@@ -380,7 +383,7 @@ export class DatasetEditorComponent implements OnInit {
                         }
                     }]).then(dataset => {
                     this.dataset = dataset;
-                    this.loadData();
+                    return this.loadData();
                 }).catch(err => {
                 });
             });

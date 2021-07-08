@@ -7,6 +7,7 @@ import {ProjectService} from '../../../../services/project.service';
 import {TagService} from '../../../../services/tag.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as _ from 'lodash';
+import {DatasetEditorComponent} from '../../dataset-editor/dataset-editor.component';
 
 @Component({
     selector: 'ki-dataset-add-join',
@@ -33,7 +34,7 @@ export class DatasetAddJoinComponent implements OnInit {
         }
     };
 
-    public allColumns = true;
+    public allColumns: any = [];
     public activeProject: any;
     public activeTag: any;
     public requiredParameters: any;
@@ -41,6 +42,8 @@ export class DatasetAddJoinComponent implements OnInit {
     public updateParams = new Subject();
 
     public _ = _;
+
+    private datasetEditor: DatasetEditorComponent;
 
     constructor(private datasetService: DatasetService,
                 private datasourceService: DatasourceService,
@@ -54,6 +57,7 @@ export class DatasetAddJoinComponent implements OnInit {
         this.environment = this.data.environment || {};
         this.filterFields = this.data.filterFields;
         this.parameterValues = this.data.parameterValues;
+        this.datasetEditor = this.data.datasetEditor;
 
         this.activeProject = this.projectService.activeProject.getValue();
         this.activeTag = this.tagService.activeTag.getValue();
@@ -83,6 +87,15 @@ export class DatasetAddJoinComponent implements OnInit {
 
     public select(item, type, step) {
         this.joinFilterFields = null;
+        this.joinTransformation = {
+            type: 'join',
+            config: {
+                joinFilters: [],
+                joinColumns: [],
+                joinParameterMappings: []
+            }
+        };
+
         let promise: Promise<any>;
         if (type === 'datasource') {
             promise = this.datasourceService.getDatasource(item.key).then(datasource => {
@@ -117,13 +130,6 @@ export class DatasetAddJoinComponent implements OnInit {
         });
     }
 
-    public toggleAllColumns(event) {
-        this.joinColumns.map(column => {
-            column.selected = event.checked;
-            return column;
-        });
-    }
-
     public allSelected() {
         this.allColumns = _.every(this.joinColumns, 'selected');
     }
@@ -152,19 +158,41 @@ export class DatasetAddJoinComponent implements OnInit {
         // this.getJoinColumns();
         this.joinTransformation.config.joinParameterMappings = parameterMappings;
 
-        if (step) {
-            setTimeout(() => {
-                step.next();
-            }, 0);
-        }
+        this.join(step);
     }
 
-    public join() {
-        const selectedColumns = _.filter(this.joinColumns, 'selected');
-        this.joinTransformation.config.joinColumns = selectedColumns.map(column => {
-            return {name: column.name, title: column.title};
+    public join(step?) {
+        // const selectedColumns = _.filter(this.joinColumns, 'selected');
+        // this.joinTransformation.config.joinColumns = selectedColumns.map(column => {
+        //     return {name: column.name, title: column.title};
+        // });
+        // this.dialogRef.close(this.joinTransformation);
+
+        // If we've gone back around - remove the previous join, so we don't get multiples;
+        _.remove(this.datasetEditor.evaluatedDatasource.transformationInstances, {type: 'join'});
+        this.datasetEditor.evaluatedDatasource.transformationInstances.push(this.joinTransformation);
+        this.datasetEditor.evaluateDatasource().then(() => {
+            this.allColumns = this.datasetEditor.filterFields;
+            if (step) {
+                setTimeout(() => {
+                    step.next();
+                }, 0);
+            }
         });
-        this.dialogRef.close(this.joinTransformation);
+    }
+
+    public finaliseJoin() {
+        const fields = _.map(_.filter(this.allColumns, 'selected'), column => {
+            return {title: column.title, name: column.name};
+        });
+        this.datasetEditor.evaluatedDatasource.transformationInstances.push({
+            type: 'columns',
+            config: {
+                columns: fields
+            }
+        });
+        this.datasetEditor.evaluateDatasource();
+        this.dialogRef.close(true);
     }
 
     private createParameterStructure(requiredParameters) {

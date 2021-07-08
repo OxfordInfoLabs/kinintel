@@ -88,7 +88,8 @@
 
                 </ng-template>
             </mat-step>
-            <mat-step [completed]="(!joinFilterFields || !joinFilterFields.length) ||
+            <mat-step *ngIf="!requiredParameters || !requiredParameters.length"
+                      [completed]="(!joinFilterFields || !joinFilterFields.length) ||
                         (_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
                                    _.every(joinTransformation.config.joinFilters.filters, 'value'))"
                       label="Join criteria">
@@ -116,22 +117,7 @@
                 <ng-template [ngIf]="selectedSource">
                     <p>Select the columns you would like to view, and set a new column name if required.</p>
 
-                    <div class="column-definition align-center">
-                        <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
-                        <label class="mw">Column Name</label>
-                        <label class="mw">New Column Title</label>
-                    </div>
-
-                    <div class="column-definition align-center" *ngFor="let column of joinColumns">
-                        <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
-                        <label>
-                            <input type="text" [(ngModel)]="column.name" disabled>
-                        </label>
-                        <label>
-                            <input type="text" [(ngModel)]="column.title">
-                        </label>
-                        <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
-                    </div>
+                    <ki-dataset-column-editor *ngIf="allColumns.length" [(columns)]="allColumns" [titleOnly]="true"></ki-dataset-column-editor>
 
 
                 </ng-template>
@@ -143,28 +129,32 @@
     </div>
 
     <div class="dialog-footer">
+
+        <!-- BACK/CANCEL BUTTONS-->
         <button *ngIf="stepper.selectedIndex === 0" mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
         <button *ngIf="stepper.selectedIndex > 0" mat-stroked-button color="primary" (click)="stepper.previous()">Back
         </button>
 
-        <ng-template [ngIf]="(stepper.selectedIndex === 1 && stepper.steps.length === 4)">
-            <button mat-flat-button color="primary"
-                    (click)="getParameterValues(stepper)">Apply Parameters
-            </button>
-        </ng-template>
-
-        <ng-template [ngIf]="(stepper.selectedIndex === 1 && stepper.steps.length === 3) ||
-                            (stepper.selectedIndex === 2 && stepper.steps.length === 4)">
-            <button mat-flat-button color="primary"
-                    (click)="stepper.next()" [disabled]="(joinFilterFields && joinFilterFields.length) &&
+        <!-- MIDDLE NEXT BUTTONS -->
+        <ng-template [ngIf]="stepper.selectedIndex === 1">
+            <ng-template [ngIf]="!requiredParameters || !requiredParameters.length">
+                <button mat-flat-button color="primary" (click)="join(stepper)"
+                        [disabled]="(joinFilterFields && joinFilterFields.length) &&
                                 !(_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
-                                   _.every(joinTransformation.config.joinFilters.filters, 'value'))">Next
-            </button>
-        </ng-template>
+                                   _.every(joinTransformation.config.joinFilters.filters, 'value'))">
+                    Next
+                </button>
+            </ng-template>
 
-        <button mat-flat-button color="primary" *ngIf="(stepper.selectedIndex === 2 && stepper.steps.length === 3) ||
-                            (stepper.selectedIndex === 3 && stepper.steps.length === 4)"
-                (click)="join()">Create Join
+            <ng-template [ngIf]="requiredParameters && requiredParameters.length">
+                <button mat-flat-button color="primary" (click)="getParameterValues()">
+                    Apply Parameters
+                </button>
+            </ng-template>
+        </ng-template>
+        <!-- FINAL BUTTON -->
+        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 2" (click)="finaliseJoin()">
+            Create Join
         </button>
     </div>
 

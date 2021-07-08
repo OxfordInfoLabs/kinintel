@@ -5,7 +5,7 @@
             <div class="show-hide">
                 <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
             </div>
-            <div class="column-name">Name</div>
+            <div class="column-name" *ngIf="!titleOnly">Name</div>
             <div class="column-name">New column title</div>
         </div>
 
@@ -16,7 +16,7 @@
         <div class="align-center column-item" cdkDrag *ngFor="let column of columns">
             <div class="align-center">
                 <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
-                <input type="text" [(ngModel)]="column.name" disabled>
+                <input type="text" [(ngModel)]="column.name" disabled *ngIf="!titleOnly">
                 <input type="text" [(ngModel)]="column.title">
                 <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
             </div>
