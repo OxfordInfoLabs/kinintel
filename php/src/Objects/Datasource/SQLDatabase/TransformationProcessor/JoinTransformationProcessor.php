@@ -227,8 +227,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             // Remove the redundant Paging Transformation
             $datasource->unapplyLastTransformation();
-
-
+            
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
 
