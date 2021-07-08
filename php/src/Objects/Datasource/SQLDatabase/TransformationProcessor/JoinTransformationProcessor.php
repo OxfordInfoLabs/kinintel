@@ -266,7 +266,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             // Evaluate join criteria if supplied
             $joinCriteria = "1 = 1";
             $joinParameters = [];
-            if ($transformation->getJoinFilters()) {
+            if ($transformation->getJoinFilters() && (sizeof($transformation->getJoinFilters()->getFilters()) || sizeof($transformation->getJoinFilters()->getFilterJunctions()))) {
                 $evaluator = new SQLFilterJunctionEvaluator($childTableAlias, $mainTableAlias);
                 $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation->getJoinFilters(), $parameterValues);
                 $joinCriteria = $evaluated["sql"];
@@ -296,6 +296,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             }
 
             $subQueryIndex = ++$this->subQueryIndex;
+
 
             // Create the join query
             $joinQuery = new SQLQuery("*", "(SELECT $mainTableAlias.*,$childSelectColumns FROM ({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}) S$subQueryIndex", $allParameters);
