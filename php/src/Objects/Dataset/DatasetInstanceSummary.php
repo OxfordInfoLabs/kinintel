@@ -59,7 +59,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
         $this->transformationInstances = $transformationInstances;
         $this->parameters = $parameters;
         $this->parameterValues = $parameterValues;
-        $this->id = null;
+        $this->id = $id;
     }
 
     /**
