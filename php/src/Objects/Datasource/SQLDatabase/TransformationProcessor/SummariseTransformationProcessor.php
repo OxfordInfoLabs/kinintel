@@ -47,8 +47,10 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
                 $evaluatedExpressions[] = $expression->getFunctionString();
             }
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
-            $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses));
-
+            if (sizeof($groupByClauses))
+                $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses));
+            else if (sizeof($evaluatedExpressions))
+                $query->setSelectClause(join(", ", $evaluatedExpressions));
         }
 
         return $query;
