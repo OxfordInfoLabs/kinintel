@@ -324,9 +324,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
         }
 
-
-        Logger::log("\n".$query->getSQL());
-
         return $query;
 
     }
