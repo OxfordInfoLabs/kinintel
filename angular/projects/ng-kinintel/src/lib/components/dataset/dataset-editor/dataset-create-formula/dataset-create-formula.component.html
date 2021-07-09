@@ -17,8 +17,6 @@
 
         <p [innerText]="_.map(allColumns, 'title').join(', ')"></p>
 
-        <hr class="mt-8 mb-4">
-
         <div class="formula-container" *ngFor="let formula of formulas; let i = index">
             <div class="formula-fields">
                 <label>
@@ -28,7 +26,7 @@
 
                 <label>
                     Expression
-                    <textarea name="" id="" cols="30" rows="5" [(ngModel)]="formula.expression"></textarea>
+                    <textarea name="" id="" cols="30" rows="2" [(ngModel)]="formula.expression"></textarea>
                 </label>
             </div>
 
@@ -47,7 +45,10 @@
     <div class="dialog-footer">
         <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
 
-        <button mat-flat-button color="primary" (click)="createFormula()">Create Formula
+        <button mat-flat-button color="primary" (click)="createFormula()"
+                [disabled]="!_.every(this.formulas, 'fieldTitle') ||
+                            !_.every(this.formulas, 'expression')">
+            Create Formula
         </button>
     </div>
 

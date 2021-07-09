@@ -44,20 +44,25 @@ export class DataExplorerComponent implements OnInit {
     public saveChanges() {
         if (!this.datasetInstance.title) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
-                width: '400px',
-                height: '200px',
+                width: '475px',
+                height: '150px',
             });
             dialogRef.afterClosed().subscribe(res => {
                 if (res) {
                     this.datasetInstance.title = res;
-                    this.datasetService.saveDataset(this.datasetInstance).then(() => {
-                        this.dialogRef.close();
-                        this.router.navigate(['/dataset']);
-                    });
+                    this.saveDataset();
                 }
             });
+        } else {
+            this.saveDataset();
         }
+    }
 
+    private saveDataset() {
+        this.datasetService.saveDataset(this.datasetInstance).then(() => {
+            this.dialogRef.close();
+            this.router.navigate(['/dataset']);
+        });
     }
 
 }

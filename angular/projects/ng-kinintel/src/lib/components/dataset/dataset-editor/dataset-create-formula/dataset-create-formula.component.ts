@@ -22,12 +22,15 @@ export class DatasetCreateFormulaComponent implements OnInit {
         this.allColumns = this.data.allColumns;
         this.formulas = this.data.formulas || [{}];
         this.formulas.map(formula => {
-            formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
-                const name = _.find(this.allColumns, column => {
-                    return `[[${column.name}]]` === exp;
+            if (formula.expression) {
+                formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
+                    const name = _.find(this.allColumns, column => {
+                        return `[[${column.name}]]` === exp;
+                    });
+                    formula.expression = formula.expression.replace(exp, name ? `[[${name.title}]]` : '');
                 });
-                formula.expression = formula.expression.replace(exp, name ? `[[${name.title}]]` : '');
-            });
+            }
+
             return formula;
         });
     }
