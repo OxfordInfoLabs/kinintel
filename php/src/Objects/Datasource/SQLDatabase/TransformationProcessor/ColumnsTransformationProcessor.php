@@ -36,6 +36,7 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      * @return SQLQuery
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
+        $dataSource->getConfig()->setColumns($transformation->getColumns());
         return $query;
     }
 }
