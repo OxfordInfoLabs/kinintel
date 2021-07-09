@@ -312,6 +312,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $query = new SQLQuery("*", "(" . $queryString . ") A");
         }
 
+
         /**
          * Process each transformation
          *
@@ -324,6 +325,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
+        Logger::log("\n".$query->getSQL());
 
         return $query;
 

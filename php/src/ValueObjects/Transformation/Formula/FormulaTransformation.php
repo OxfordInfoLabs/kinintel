@@ -4,7 +4,10 @@
 namespace Kinintel\ValueObjects\Transformation\Formula;
 
 
-class FormulaTransformation {
+use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
+use Kinintel\ValueObjects\Transformation\Transformation;
+
+class FormulaTransformation implements Transformation, SQLDatabaseTransformation {
 
     /**
      * @var Expression[]
@@ -34,5 +37,12 @@ class FormulaTransformation {
         $this->expressions = $expressions;
     }
 
-
+    /**
+     * Get processor key
+     *
+     * @return string|void
+     */
+    public function getSQLTransformationProcessorKey() {
+        return "formula";
+    }
 }
