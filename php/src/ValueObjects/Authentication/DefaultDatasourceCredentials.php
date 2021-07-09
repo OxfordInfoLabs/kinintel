@@ -18,7 +18,7 @@ class DefaultDatasourceCredentials extends SQLiteAuthenticationCredentials {
 
     // Construct as temporary SQLLite database
     public function __construct() {
-        parent::__construct("");
+        parent::__construct(":memory:");
     }
 
 
