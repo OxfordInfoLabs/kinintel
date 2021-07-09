@@ -1,3 +1,27 @@
+<div class="cell-header end">
+    <div class="data-actions">
+        <!--        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>-->
+        <button mat-button color="primary" class="align-center" (click)="editColumnSettings()">
+            <mat-icon>table_chart</mat-icon>&nbsp;Columns
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="createFormula()">
+            <mat-icon>functions</mat-icon>&nbsp;Formulas
+        </button>
+        <div class="divider"></div>
+        <button mat-button color="primary" class="align-center" (click)="joinData()">
+            <mat-icon>merge_type</mat-icon>&nbsp;Join Data
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="showParameters = !showParameters">
+            <mat-icon>text_fields</mat-icon>&nbsp;Add Parameter
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="summariseData()">
+            <mat-icon>pivot_table_chart</mat-icon>&nbsp;Summarise Data
+        </button>
+        <button mat-button color="primary" class="align-center" (click)="showFilters = !showFilters">
+            <mat-icon>filter_alt</mat-icon>&nbsp;Filter
+        </button>
+    </div>
+</div>
 <div class="cell-header">
     <div class="badge-holder">
         <div class="badge-item" *ngFor="let transformation of terminatingTransformations; let i = index"
@@ -12,27 +36,8 @@
             </button>
         </div>
     </div>
-
-    <div class="data-actions">
-<!--        <button mat-stroked-button color="primary" (click)="exportData()">Export Data</button>-->
-        <button mat-button color="primary" class="align-center" (click)="createFormula()">
-            <mat-icon>functions</mat-icon>&nbsp;Create Formula
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="joinData()">
-            <mat-icon>merge_type</mat-icon>&nbsp;Join Data
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="showParameters = !showParameters">
-            <mat-icon>text_fields</mat-icon>&nbsp;Add Parameter
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="summariseData()">
-            <mat-icon>pivot_table_chart</mat-icon>&nbsp;Summarise Data
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="showFilters = !showFilters">
-            <mat-icon>filter_alt</mat-icon>&nbsp;Filter
-        </button>
-    </div>
-
 </div>
+
 <div class="parameter-values mt-4" *ngIf="showParameters || parameterValues.length">
     <ki-dataset-parameter-values [parameterValues]="parameterValues" [focusParameters]="focusParams"
                                  [(evaluatedDatasource)]="evaluatedDatasource" [showNewOnOpen]="true"
@@ -64,15 +69,6 @@
 
 <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
        class="block overflow-x-auto">
-
-    <ng-container matColumnDef="settings">
-        <th mat-header-cell *matHeaderCellDef class="settings">
-            <button mat-icon-button (click)="editColumnSettings()">
-                <mat-icon>settings</mat-icon>
-            </button>
-        </th>
-        <td mat-cell *matCellDef="let element" class="settings"> </td>
-    </ng-container>
 
     <ng-template ngFor let-column [ngForOf]="filterFields">
         <ng-container [matColumnDef]="column.name">

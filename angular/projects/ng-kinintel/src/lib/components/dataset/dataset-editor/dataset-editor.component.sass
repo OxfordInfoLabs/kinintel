@@ -3,12 +3,22 @@
     display: flex
     align-items: center
     justify-content: space-between
+    &.end
+        justify-content: flex-end
     &.sorting
         min-height: 43px
 
 .data-actions
+    display: flex
+    align-items: center
+    flex-wrap: wrap
     button
         margin-left: .5rem
+        background-color: whitesmoke
+    .divider
+        margin: 0 1rem 0 1.5rem
+        width: 2px
+        height: 36px
         background-color: whitesmoke
 
 .badge-holder

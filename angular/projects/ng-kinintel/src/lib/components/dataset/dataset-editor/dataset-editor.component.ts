@@ -135,11 +135,14 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public createFormula() {
+        const existingFormulas = _.find(this.evaluatedDatasource.transformationInstances, {type: 'formula'});
+
         const dialogRef = this.dialog.open(DatasetCreateFormulaComponent, {
             width: '1000px',
             height: '800px',
             data: {
-                allColumns: this.filterFields
+                allColumns: this.filterFields,
+                formulas: existingFormulas ? existingFormulas.config.expressions : [{}]
             }
         });
 
@@ -151,6 +154,7 @@ export class DatasetEditorComponent implements OnInit {
                     expressions: formulas
                 }
             });
+            console.log(formulas);
             this.evaluateDatasource();
         });
     }
@@ -322,7 +326,6 @@ export class DatasetEditorComponent implements OnInit {
         this.tableData = this.dataset.allData;
         this.endOfResults = this.tableData.length < this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
-        this.displayedColumns.unshift('settings');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
                 title: column.title,

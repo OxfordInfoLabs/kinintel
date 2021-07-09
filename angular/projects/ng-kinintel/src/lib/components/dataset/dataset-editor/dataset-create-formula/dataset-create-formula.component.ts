@@ -29,6 +29,7 @@ export class DatasetCreateFormulaComponent implements OnInit {
                     });
                     formula.expression = formula.expression.replace(exp, name ? `[[${name.title}]]` : '');
                 });
+                formula.expression = decodeURIComponent(formula.expression);
             }
 
             return formula;
@@ -55,6 +56,7 @@ export class DatasetCreateFormulaComponent implements OnInit {
                 });
                 formula.expression = formula.expression.replace(exp, name ? `[[${name.name}]]` : '');
             });
+            formula.expression = encodeURIComponent(formula.expression);
             return formula;
         });
 
