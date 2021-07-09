@@ -147,14 +147,16 @@ export class DatasetEditorComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(formulas => {
-            _.remove(this.evaluatedDatasource.transformationInstances, {type: 'formula'});
-            this.evaluatedDatasource.transformationInstances.push({
-                type: 'formula',
-                config: {
-                    expressions: formulas
-                }
-            });
-            this.evaluateDatasource();
+            if (formulas) {
+                _.remove(this.evaluatedDatasource.transformationInstances, {type: 'formula'});
+                this.evaluatedDatasource.transformationInstances.push({
+                    type: 'formula',
+                    config: {
+                        expressions: formulas
+                    }
+                });
+                this.evaluateDatasource();
+            }
         });
     }
 

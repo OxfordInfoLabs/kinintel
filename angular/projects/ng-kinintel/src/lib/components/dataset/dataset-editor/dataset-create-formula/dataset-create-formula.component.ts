@@ -23,13 +23,15 @@ export class DatasetCreateFormulaComponent implements OnInit {
         this.formulas = this.data.formulas || [{}];
         this.formulas.map(formula => {
             if (formula.expression) {
+                formula.expression = decodeURIComponent(formula.expression);
                 formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
                     const name = _.find(this.allColumns, column => {
                         return `[[${column.name}]]` === exp;
                     });
-                    formula.expression = formula.expression.replace(exp, name ? `[[${name.title}]]` : '');
+                    if (name) {
+                        formula.expression = formula.expression.replace(exp, `[[${name.title}]]`);
+                    }
                 });
-                formula.expression = decodeURIComponent(formula.expression);
             }
 
             return formula;
@@ -49,18 +51,27 @@ export class DatasetCreateFormulaComponent implements OnInit {
     }
 
     public createFormula() {
+        this.matchColumnName();
+        this.dialogRef.close(this.formulas);
+    }
+
+    public close() {
+        this.matchColumnName();
+        this.dialogRef.close();
+    }
+
+    private matchColumnName() {
         this.formulas.map(formula => {
             formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
                 const name = _.find(this.allColumns, column => {
                     return `[[${column.title}]]` === exp;
                 });
-                formula.expression = formula.expression.replace(exp, name ? `[[${name.name}]]` : '');
+                if (name) {
+                    formula.expression = formula.expression.replace(exp, `[[${name.name}]]`);
+                }
             });
             formula.expression = encodeURIComponent(formula.expression);
             return formula;
         });
-
-        this.dialogRef.close(this.formulas);
     }
-
 }

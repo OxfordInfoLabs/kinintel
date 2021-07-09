@@ -3,7 +3,7 @@
     <div class="dialog-title" cdkDragHandle>
         <h2 mat-dialog-title>Join Data</h2>
 
-        <button mat-icon-button mat-dialog-close>
+        <button mat-icon-button (click)="close()">
             <mat-icon>clear</mat-icon>
         </button>
     </div>
@@ -43,7 +43,7 @@
     </div>
 
     <div class="dialog-footer">
-        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+        <button mat-stroked-button color="primary" (click)="close()">Cancel</button>
 
         <button mat-flat-button color="primary" (click)="createFormula()"
                 [disabled]="!_.every(this.formulas, 'fieldTitle') ||
