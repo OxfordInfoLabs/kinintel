@@ -10,6 +10,7 @@ export class DatasetParameterTypeComponent implements OnInit {
     @Input() parameter: any;
 
     @Output() parameterChange = new EventEmitter();
+    @Output() triggerApply = new EventEmitter();
 
     constructor() {
     }
@@ -22,6 +23,10 @@ export class DatasetParameterTypeComponent implements OnInit {
 
     public valueChanged() {
         this.parameterChange.emit(this.parameter);
+    }
+
+    public applyChanges() {
+        this.triggerApply.emit(this.parameter);
     }
 
 }

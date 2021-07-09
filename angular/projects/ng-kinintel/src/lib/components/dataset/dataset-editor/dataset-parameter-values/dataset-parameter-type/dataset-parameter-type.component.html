@@ -3,15 +3,15 @@
 
     <ng-template [ngIf]="parameter.type === 'text'">
         <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" required autofocus>
+               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'numeric'">
         <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" required autofocus>
+               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
         <input type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" required autofocus>
+               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'boolean'">
         <mat-slide-toggle [(ngModel)]="parameter.value" (ngModelChange)="valueChanged()"

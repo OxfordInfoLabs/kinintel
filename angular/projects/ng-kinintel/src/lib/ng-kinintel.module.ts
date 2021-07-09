@@ -44,6 +44,7 @@ import { DatasetCreateFormulaComponent } from './components/dataset/dataset-edit
 import {MatListModule} from '@angular/material/list';
 import { DatasetColumnSettingsComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-settings.component';
 import { DatasetColumnEditorComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-editor/dataset-column-editor.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 @NgModule({
@@ -94,7 +95,8 @@ import { DatasetColumnEditorComponent } from './components/dataset/dataset-edito
         MatSlideToggleModule,
         MatStepperModule,
         MatCheckboxModule,
-        MatListModule
+        MatListModule,
+        MatProgressSpinnerModule
     ],
     exports: [
         DashboardEditorComponent,

@@ -154,7 +154,6 @@ export class DatasetEditorComponent implements OnInit {
                     expressions: formulas
                 }
             });
-            console.log(formulas);
             this.evaluateDatasource();
         });
     }

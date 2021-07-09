@@ -6,7 +6,7 @@
 
     <div class="parameters">
         <ng-template ngFor let-parameter [ngForOf]="parameterValues">
-            <ki-dataset-parameter-type [parameter]="parameter">
+            <ki-dataset-parameter-type [parameter]="parameter" (triggerApply)="parameterChange()">
 
             </ki-dataset-parameter-type>
         </ng-template>

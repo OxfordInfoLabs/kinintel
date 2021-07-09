@@ -24,11 +24,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     public environment = environment;
     public loggedIn = false;
     public sessionUser: any = {};
+    public isLoading: boolean;
 
     private readonly mobileQueryListener: () => void;
     private projectSub: Subscription;
     private tagSub: Subscription;
     private authSub: Subscription;
+    private loadingSub: Subscription;
 
     constructor(private changeDetectorRef: ChangeDetectorRef,
                 private media: MediaMatcher,
@@ -60,6 +62,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.sessionUser = this.authService.sessionData.getValue().user;
             }
         });
+        this.loadingSub = this.authService.loadingRequests.subscribe(isLoading =>
+            setTimeout(() => this.isLoading = isLoading, 0)
+        );
     }
 
     ngAfterViewInit() {

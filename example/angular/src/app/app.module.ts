@@ -21,6 +21,7 @@ import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { DashboardsComponent } from './views/dashboards/dashboards.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
     declarations: [
@@ -48,7 +49,8 @@ import { DashboardsComponent } from './views/dashboards/dashboards.component';
             accessHttpURL: `${environment.backendURL}/account`
         }),
         MatChipsModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatProgressBarModule
     ],
     providers: [
         {
