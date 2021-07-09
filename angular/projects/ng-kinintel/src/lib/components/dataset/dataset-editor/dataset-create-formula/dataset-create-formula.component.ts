@@ -37,6 +37,10 @@ export class DatasetCreateFormulaComponent implements OnInit {
 
     public addFormula() {
         this.formulas.push({});
+        setTimeout(() => {
+            const formulaScroll = document.getElementById('formula-scroll');
+            formulaScroll.scrollTop = formulaScroll.scrollHeight;
+        }, 0);
     }
 
     public removeFormula(i) {
