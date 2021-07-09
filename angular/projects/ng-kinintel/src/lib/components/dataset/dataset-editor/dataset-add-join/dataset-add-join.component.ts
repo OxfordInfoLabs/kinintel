@@ -112,7 +112,7 @@ export class DatasetAddJoinComponent implements OnInit {
             promise = this.datasetService.getDataset(item.id).then(dataset => {
                 this.selectedSource = dataset;
                 this.joinTransformation.config.joinedDataSetInstanceId = item.id;
-                this.datasetService.getEvaluatedParameters(item.id).then((requiredParams: any) => {
+                return this.datasetService.getEvaluatedParameters(item.id).then((requiredParams: any) => {
                     this.createParameterStructure(requiredParams);
                     return requiredParams;
                 });
