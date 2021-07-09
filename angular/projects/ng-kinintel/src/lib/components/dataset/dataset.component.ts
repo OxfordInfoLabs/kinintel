@@ -25,6 +25,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     public activeTag: any;
 
     private tagSub: Subscription;
+    private reload = new Subject();
 
     constructor(private dialog: MatDialog,
                 private tagService: TagService,
@@ -43,7 +44,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.projectSub = this.projectService.activeProject;
         }
 
-        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub)
+        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -82,6 +83,15 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public removeActiveTag() {
         this.tagService.resetActiveTag();
+    }
+
+    public delete(datasetId) {
+        const message = 'Are you sure you would like to remove this Dataset?';
+        if (window.confirm(message)) {
+            this.datasetService.removeDataset(datasetId).then(() => {
+                this.reload.next(Date.now());
+            });
+        }
     }
 
     private getDatasets() {

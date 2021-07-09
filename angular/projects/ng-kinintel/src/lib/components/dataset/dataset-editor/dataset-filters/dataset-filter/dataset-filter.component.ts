@@ -17,6 +17,7 @@ export class DatasetFilterComponent implements OnInit {
 
     @Output() filtersRemoved = new EventEmitter();
 
+    public customValue = false;
     public filterTypes = [
         {label: '(==) Equal To', value: 'eq'},
         {label: '(!=) Not Equal To', value: 'neq'},

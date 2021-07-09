@@ -160,7 +160,7 @@ export class DatasetEditorComponent implements OnInit {
 
     public joinData() {
         const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
-            width: '1000px',
+            width: '1200px',
             height: '800px',
             data: {
                 environment: this.environment,

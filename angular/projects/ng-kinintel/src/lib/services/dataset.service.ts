@@ -39,6 +39,10 @@ export class DatasetService {
         return this.http.post(this.config.backendURL + '/account/dataset/?projectKey=' + projectKey, datasetInstanceSummary).toPromise();
     }
 
+    public removeDataset(id) {
+        return this.http.delete(this.config.backendURL + '/account/dataset/' + id).toPromise();
+    }
+
     public getEvaluatedParameters(datasetId) {
         return this.http.get(this.config.backendURL + '/account/dataset/parameters/' + datasetId)
             .toPromise();

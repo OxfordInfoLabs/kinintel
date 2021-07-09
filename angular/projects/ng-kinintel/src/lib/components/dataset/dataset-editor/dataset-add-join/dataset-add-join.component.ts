@@ -169,6 +169,8 @@ export class DatasetAddJoinComponent implements OnInit {
     }
 
     public join() {
+        const filters = this.joinTransformation.config.joinFilters;
+        console.log(filters);
         const selectedColumns = _.filter(this.joinColumns, 'selected');
         this.joinTransformation.config.joinColumns = selectedColumns.map(column => {
             return {name: column.name, title: column.title};
