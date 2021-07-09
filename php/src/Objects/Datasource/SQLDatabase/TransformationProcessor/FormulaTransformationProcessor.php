@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
@@ -22,13 +23,13 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
     public function applyTransformation($transformation, $datasource, $parameterValues = []) {
 
         // Update current set of columns if set
-        $datasourceColumns = $datasource->getConfig()->getColumns();
-        if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
-            foreach ($transformation->getExpressions() as $expression) {
-                $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
-            }
-            $datasource->getConfig()->setColumns($datasourceColumns);
-        }
+//        $datasourceColumns = $datasource->getConfig()->getColumns();
+//        if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
+//            foreach ($transformation->getExpressions() as $expression) {
+//                $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
+//            }
+//            $datasource->getConfig()->setColumns($datasourceColumns);
+//        }
 
         return $datasource;
     }
@@ -45,6 +46,17 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
+
+        // Update current set of columns if set
+        $datasourceColumns = $dataSource->getConfig()->getColumns();
+        if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
+            foreach ($transformation->getExpressions() as $expression) {
+                $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
+            }
+            $dataSource->getConfig()->setColumns($datasourceColumns);
+        }
+
+
         // Gather together the expressions we need.
         $clauses = [];
         foreach ($transformation->getExpressions() as $expression) {
@@ -52,6 +64,8 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         }
 
         $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses));
+
+
 
         return $query;
 

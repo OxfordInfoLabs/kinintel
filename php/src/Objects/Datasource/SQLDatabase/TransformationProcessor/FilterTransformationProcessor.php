@@ -47,7 +47,6 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
 
         $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation, $parameterValues);
 
-
         if ($query->hasGroupByClause()) {
             $query->setHavingClause($evaluated["sql"], $evaluated["parameters"]);
         } else {

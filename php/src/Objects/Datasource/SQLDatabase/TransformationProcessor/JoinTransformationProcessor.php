@@ -100,8 +100,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         } else if ($transformation->getJoinedDataSetInstanceId()) {
             $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
             $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
-            $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
-                $joinDataSet->getTransformationInstances(), $parameterValues);
+
 
             // If parameters required for a data set, ensure we have mappings for them.
             $joinDataParameters = $this->datasetService->getEvaluatedParameters($transformation->getJoinedDataSetInstanceId());
@@ -124,10 +123,18 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         if (sizeof($paramParameters) || sizeof($columnParameters)) {
             $joinDatasourceConversionRequired = true;
             $joinDatasourceParameterValues = $paramParameters;
-        }
 
-        // Update the transformation with the evaluated data source.
-        $transformation->setEvaluatedDataSource($joinDatasource);
+
+        } else {
+            if (isset($joinDataSet)) {
+                $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
+                    $joinDataSet->getTransformationInstances(), $parameterValues);
+
+            }
+            // Update the transformation with the evaluated data source.
+            $transformation->setEvaluatedDataSource($joinDatasource);
+
+        }
 
 
         // Calculate whether or not we need to perform join datasource conversion
@@ -155,15 +162,14 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     $joinFilters[] = new Filter($aliasField, "[[$columnName]]");
                 }
 
-
                 $joinFilterJunction = new FilterJunction($joinFilters, $transformation->getJoinFilters()
                 && (sizeof($transformation->getJoinFilters()->getFilterJunctions()) || sizeof($transformation->getJoinFilters()->getFilters()))
                     ? [$transformation->getJoinFilters()] : []);
                 $transformation->setJoinFilters($joinFilterJunction);
 
-
                 // Now materialise the join data set using column values from parent dataset
                 $newJoinData = [];
+                $aliasIndex = $this->aliasIndex;
                 while ($parentRow = $parentDataset->nextDataItem()) {
 
                     // Set any column parameters accordingly
@@ -171,11 +177,25 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     foreach ($columnParameters as $parameterName => $columnName) {
                         $joinDatasourceParameterValues[$parameterName] = $columnValues[$aliasFields[$parameterName]] = $parentRow[$columnName] ?? null;
                     }
+
+                    // If we have a join data set, evaluate now.
+                    if (isset($joinDataSet)) {
+                        $this->aliasIndex = $aliasIndex;
+
+                        $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
+                            $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
+
+                    }
+
                     $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
+
                     while ($joinRow = $materialisedJoinSet->nextDataItem()) {
                         $newJoinData[] = array_merge($columnValues, $joinRow);
                     }
+
+
                 }
+
 
                 // Derive new columns for join dataset
                 $newColumns = [];
@@ -189,10 +209,15 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 // Create new join dataset.
                 $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
 
-
                 $joinDatasource = new DefaultDatasource($newJoinDataset);
 
             } else {
+
+                if (isset($joinDataSet)) {
+                    $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
+                        $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
+                }
+
                 $joinDatasource = new DefaultDatasource($joinDatasource);
             }
 
@@ -211,7 +236,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         // If we are not a default datasource already, return a new instance
         if (($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials()) && !($datasource instanceof DefaultDatasource)) {
             $newDataSource = new DefaultDatasource($datasource);
-            $newDataSource->applyTransformation($transformation);
+            $newDataSource->applyTransformation($transformation, $parameterValues);
             $datasource = $newDataSource;
         }
 
@@ -230,7 +255,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
-
 
         return $datasource;
 
@@ -298,7 +322,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
 
             // Create the join query
-            $joinQuery = new SQLQuery("*", "(SELECT $mainTableAlias.*,$childSelectColumns FROM ({$query->getSQL()}) $mainTableAlias INNER JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}) S$subQueryIndex", $allParameters);
+            $joinQuery = new SQLQuery("*", "(SELECT $mainTableAlias.*,$childSelectColumns FROM ({$query->getSQL()}) $mainTableAlias LEFT JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}) S$subQueryIndex", $allParameters);
 
             return $joinQuery;
         } else {
