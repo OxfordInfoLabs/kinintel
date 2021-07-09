@@ -325,8 +325,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
-        Logger::log("\n".$query->getSQL());
-
         return $query;
 
     }
