@@ -34,7 +34,7 @@ export class DatasetAddJoinComponent implements OnInit {
         }
     };
 
-    public allColumns: any = [];
+    public allColumns = true;
     public activeProject: any;
     public activeTag: any;
     public requiredParameters: any;
@@ -130,6 +130,13 @@ export class DatasetAddJoinComponent implements OnInit {
         });
     }
 
+    public toggleAllColumns(event) {
+        this.joinColumns.map(column => {
+            column.selected = event.checked;
+            return column;
+        });
+    }
+
     public allSelected() {
         this.allColumns = _.every(this.joinColumns, 'selected');
     }
@@ -158,41 +165,15 @@ export class DatasetAddJoinComponent implements OnInit {
         // this.getJoinColumns();
         this.joinTransformation.config.joinParameterMappings = parameterMappings;
 
-        this.join(step);
+        this.dialogRef.close(this.joinTransformation);
     }
 
-    public join(step?) {
-        // const selectedColumns = _.filter(this.joinColumns, 'selected');
-        // this.joinTransformation.config.joinColumns = selectedColumns.map(column => {
-        //     return {name: column.name, title: column.title};
-        // });
-        // this.dialogRef.close(this.joinTransformation);
-
-        // If we've gone back around - remove the previous join, so we don't get multiples;
-        _.remove(this.datasetEditor.evaluatedDatasource.transformationInstances, {type: 'join'});
-        this.datasetEditor.evaluatedDatasource.transformationInstances.push(this.joinTransformation);
-        this.datasetEditor.evaluateDatasource().then(() => {
-            this.allColumns = this.datasetEditor.filterFields;
-            if (step) {
-                setTimeout(() => {
-                    step.next();
-                }, 0);
-            }
+    public join() {
+        const selectedColumns = _.filter(this.joinColumns, 'selected');
+        this.joinTransformation.config.joinColumns = selectedColumns.map(column => {
+            return {name: column.name, title: column.title};
         });
-    }
-
-    public finaliseJoin() {
-        const fields = _.map(_.filter(this.allColumns, 'selected'), column => {
-            return {title: column.title, name: column.name};
-        });
-        this.datasetEditor.evaluatedDatasource.transformationInstances.push({
-            type: 'columns',
-            config: {
-                columns: fields
-            }
-        });
-        this.datasetEditor.evaluateDatasource();
-        this.dialogRef.close(true);
+        this.dialogRef.close(this.joinTransformation);
     }
 
     private createParameterStructure(requiredParameters) {
@@ -258,7 +239,6 @@ export class DatasetAddJoinComponent implements OnInit {
                             duplicate
                         });
                     });
-                    this.allColumns = _.every(this.joinColumns, 'selected');
                 }
             });
     }

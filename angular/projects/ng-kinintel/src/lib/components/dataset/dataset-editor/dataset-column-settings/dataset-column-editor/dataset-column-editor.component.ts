@@ -21,7 +21,6 @@ export class DatasetColumnEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        console.log('HELLO', this.columns);
         this.columns.forEach(column => {
             const filterObject: any = {title: column.title};
             if (!this.titleOnly) {

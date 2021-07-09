@@ -138,6 +138,13 @@ export class DatasetEditorComponent implements OnInit {
         const dialogRef = this.dialog.open(DatasetCreateFormulaComponent, {
             width: '1000px',
             height: '800px',
+            data: {
+                allColumns: this.filterFields
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(formulaTransformation => {
+
         });
     }
 
@@ -161,8 +168,8 @@ export class DatasetEditorComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(joinTransformation => {
             if (joinTransformation) {
-                // this.evaluatedDatasource.transformationInstances.push(joinTransformation);
-                // this.evaluateDatasource();
+                this.evaluatedDatasource.transformationInstances.push(joinTransformation);
+                this.evaluateDatasource();
             }
         });
     }

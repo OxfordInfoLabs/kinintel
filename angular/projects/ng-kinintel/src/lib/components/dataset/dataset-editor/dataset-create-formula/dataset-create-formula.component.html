@@ -8,9 +8,39 @@
         </button>
     </div>
 
-    <div class="dialog-content" style="padding: 0 0 1rem 0">
+    <div class="dialog-content">
 
+        <p>Use expressions to create new derived columns from other columns. Use columns show below for calculations in
+            your expressions.</p>
 
+        <p><b>Available columns</b></p>
+
+        <p [innerText]="_.map(allColumns, 'title').join(', ')"></p>
+
+        <hr class="mt-8 mb-4">
+
+        <div class="formula-container" *ngFor="let formula of formulas; let i = index">
+            <div class="formula-fields">
+                <label>
+                    Column label
+                    <input type="text" [(ngModel)]="formula.fieldTitle">
+                </label>
+
+                <label>
+                    Expression
+                    <textarea name="" id="" cols="30" rows="5" [(ngModel)]="formula.expression"></textarea>
+                </label>
+            </div>
+
+            <button mat-icon-button color="warn" (click)="removeFormula(i)">
+                <mat-icon>remove_circle_outline</mat-icon>
+            </button>
+        </div>
+
+        <button mat-button color="primary" (click)="addFormula()">
+            <mat-icon>add_circle</mat-icon>
+            Formula
+        </button>
 
     </div>
 

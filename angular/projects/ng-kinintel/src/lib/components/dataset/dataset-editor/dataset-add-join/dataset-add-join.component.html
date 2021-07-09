@@ -108,7 +108,7 @@
 
             </mat-step>
 
-            <mat-step [completed]="false" label="Column definition">
+            <mat-step *ngIf="!requiredParameters || !requiredParameters.length" [completed]="false" label="Column definition">
 
                 <ng-template [ngIf]="!selectedSource">
                     <p>Please select either a Datasource or Dataset to join to.</p>
@@ -117,9 +117,22 @@
                 <ng-template [ngIf]="selectedSource">
                     <p>Select the columns you would like to view, and set a new column name if required.</p>
 
-                    <ki-dataset-column-editor *ngIf="allColumns.length" [(columns)]="allColumns" [titleOnly]="true"></ki-dataset-column-editor>
+                    <div class="column-definition align-center">
+                        <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
+                        <label class="mw">Column Name</label>
+                        <label class="mw">New Column Title</label>
+                    </div>
 
-
+                    <div class="column-definition align-center" *ngFor="let column of joinColumns">
+                        <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
+                        <label>
+                            <input type="text" [(ngModel)]="column.name" disabled>
+                        </label>
+                        <label>
+                            <input type="text" [(ngModel)]="column.title">
+                        </label>
+                        <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
+                    </div>
                 </ng-template>
 
             </mat-step>
@@ -138,7 +151,7 @@
         <!-- MIDDLE NEXT BUTTONS -->
         <ng-template [ngIf]="stepper.selectedIndex === 1">
             <ng-template [ngIf]="!requiredParameters || !requiredParameters.length">
-                <button mat-flat-button color="primary" (click)="join(stepper)"
+                <button mat-flat-button color="primary" (click)="stepper.next()"
                         [disabled]="(joinFilterFields && joinFilterFields.length) &&
                                 !(_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
                                    _.every(joinTransformation.config.joinFilters.filters, 'value'))">
@@ -148,12 +161,12 @@
 
             <ng-template [ngIf]="requiredParameters && requiredParameters.length">
                 <button mat-flat-button color="primary" (click)="getParameterValues()">
-                    Apply Parameters
+                    Create Join
                 </button>
             </ng-template>
         </ng-template>
         <!-- FINAL BUTTON -->
-        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 2" (click)="finaliseJoin()">
+        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 2" (click)="join()">
             Create Join
         </button>
     </div>
