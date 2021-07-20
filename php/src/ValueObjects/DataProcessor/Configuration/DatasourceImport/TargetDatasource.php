@@ -4,7 +4,6 @@
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport;
 
 
-use Kinintel\ValueObjects\Dataset\Field;
 
 class TargetDatasource {
 
@@ -18,7 +17,7 @@ class TargetDatasource {
 
 
     /**
-     * @var Field[]
+     * @var TargetField[]
      */
     private $fields;
 
@@ -48,14 +47,14 @@ class TargetDatasource {
     }
 
     /**
-     * @return Field[]
+     * @return TargetField[]
      */
     public function getFields() {
         return $this->fields;
     }
 
     /**
-     * @param Field[] $fields
+     * @param TargetField[] $fields
      */
     public function setFields($fields) {
         $this->fields = $fields;
