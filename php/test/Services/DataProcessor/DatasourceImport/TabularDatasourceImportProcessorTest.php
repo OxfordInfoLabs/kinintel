@@ -312,7 +312,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
         $this->processor->process($config);
 
-      
+
         $this->assertTrue($mockTarget->methodWasCalled("update", [
             new ArrayTabularDataset([new Field("name", "Title"),
                 new Field("date_of_birth"),

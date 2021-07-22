@@ -24,7 +24,7 @@ class TargetDatasource {
     /**
      * TargetDatasource constructor.
      * @param string $key
-     * @param Field[] $fields
+     * @param TargetField[] $fields
      */
     public function __construct($key, $fields = null) {
         $this->key = $key;
