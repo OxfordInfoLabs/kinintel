@@ -61,6 +61,7 @@ trait Dashboard {
      * Save a dashboard object
      *
      * @http POST
+     * @unsanitise dashboardSummary
      *
      * @param DashboardSummary $dashboardSummary
      * @param string $projectKey

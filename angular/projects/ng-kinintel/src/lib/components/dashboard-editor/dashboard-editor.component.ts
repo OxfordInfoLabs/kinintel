@@ -15,6 +15,9 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
 import {ActivatedRoute} from '@angular/router';
 import {DashboardService} from '../../services/dashboard.service';
+import * as _ from 'lodash';
+import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -28,21 +31,21 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
 
     public itemTypes: any = [
         {
-            type: 'lineChart',
+            type: 'line',
             label: 'Line Chart',
             icon: 'show_chart',
             width: 6,
             height: 4
         },
         {
-            type: 'barChart',
+            type: 'bar',
             label: 'Bar Chart',
             icon: 'stacked_bar_chart',
             width: 4,
             height: 3
         },
         {
-            type: 'pieChart',
+            type: 'pie',
             label: 'Pie Chart',
             icon: 'pie_chart',
             width: 6,
@@ -56,39 +59,35 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
             height: 7
         },
         {
-            type: 'donut',
-            label: 'Donut',
+            type: 'doughnut',
+            label: 'Doughnut',
             icon: 'donut_large',
             width: 6,
             height: 5
         }
     ];
     public dashboard: any = {};
+    public activeSidePanel: string = null;
+    public _ = _;
 
     private grid: GridStack;
+
+    private static myClone(event) {
+        return event.target.cloneNode(true);
+    }
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
                 private injector: Injector,
                 private route: ActivatedRoute,
-                private dashboardService: DashboardService) {
+                private dashboardService: DashboardService,
+                private dialog: MatDialog) {
     }
 
     ngOnInit(): void {
-        const dashboardId = this.route.snapshot.params.dashboard;
-        if (dashboardId) {
-            this.dashboardService.getDashboard(dashboardId).then(dashboard => {
-                this.dashboard = dashboard;
-            });
-        }
     }
 
     ngAfterViewInit() {
-        let items = [];
-        if (sessionStorage.getItem('grid')) {
-            items = JSON.parse(sessionStorage.getItem('grid'));
-        }
-
         const options = {
             minRow: 1, // don't collapse when empty
             float: false,
@@ -97,7 +96,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
                 revert: 'invalid',
                 scroll: false,
                 appendTo: 'body',
-                // helper: DashboardEditorComponent.myClone
+                helper: DashboardEditorComponent.myClone
             },
             acceptWidgets: (el) => {
                 el.className += ' grid-stack-item';
@@ -108,60 +107,131 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
 
         // If we are loading items from memory we need to add them manually
         // so the components get reloaded as part of the on 'added' functionality
-        setTimeout(() => {
-            items.forEach(item => {
-                this.grid.addWidget(item);
-            });
-        });
+        // setTimeout(() => {
+        //     items.forEach(item => {
+        //         this.grid.addWidget(item);
+        //     });
+        // });
 
         this.grid.on('added', (event: Event, newItems: GridStackNode[]) => {
             newItems.forEach((item) => {
-                let data = null;
+                let dashboardItemType = null;
+                let itemElement: any = item.el.firstChild;
+                let instanceId = null;
+
                 if (item.content) {
-                    const itemElement: any = document.createRange().createContextualFragment(item.content);
-                    data = itemElement.firstChild.dataset.itemData ? JSON.parse(itemElement.firstChild.dataset.itemData) : null;
+                    itemElement = document.createRange().createContextualFragment(item.content);
+                    dashboardItemType = itemElement.firstChild.dataset.dashboardItemType ?
+                        JSON.parse(itemElement.firstChild.dataset.dashboardItemType) : null;
+
+                    instanceId = itemElement.firstChild.id;
                 }
 
                 while (item.el.firstChild.firstChild) {
                     item.el.firstChild.firstChild.remove();
                 }
 
-                this.addComponentToGridItem(item.el.firstChild, data || this.itemTypes[item.el.dataset.index], !!data);
+                this.addComponentToGridItem(item.el.firstChild, instanceId,
+                    dashboardItemType || this.itemTypes[item.el.dataset.index], !!dashboardItemType);
             });
         });
 
+        const dashboardId = this.route.snapshot.params.dashboard;
+        if (dashboardId) {
+            this.dashboardService.getDashboard(dashboardId).then(dashboard => {
+                this.dashboard = dashboard;
+                if (this.dashboard.displaySettings && this.dashboard.displaySettings.grid.length) {
+                    this.grid.load(this.dashboard.displaySettings.grid);
+                }
+            });
+        }
+
+    }
+
+    public addParameter() {
+        const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
+            width: '600px',
+            height: '600px'
+        });
+        dialogRef.afterClosed().subscribe(parameter => {
+            if (parameter) {
+                if (!this.dashboard.displaySettings) {
+                    this.dashboard.displaySettings = {};
+                }
+                if (!this.dashboard.displaySettings.parameters) {
+                    this.dashboard.displaySettings.parameters = {};
+                }
+
+                parameter.value = parameter.defaultValue || '';
+                this.dashboard.displaySettings.parameters[parameter.name] = parameter;
+            }
+            this.dashboardService.saveDashboard(this.dashboard);
+        });
+    }
+
+    public removeParameter(parameter) {
+        const message = 'Are you sure you would like to remove this parameter. This may cause some dashboard items ' +
+            'to fail.';
+        if (window.confirm(message)) {
+            delete this.dashboard.displaySettings.parameters[parameter.name];
+            this.dashboardService.saveDashboard(this.dashboard);
+        }
+    }
+
+    public setParameterValue() {
+        const parameters = _.values(this.dashboard.displaySettings.parameters);
+        parameters.forEach(parameter => {
+            this.dashboard.datasetInstances.forEach(instance => {
+                if (!_.values(instance.parameterValues).length) {
+                    instance.parameterValues = {};
+                }
+                instance.parameterValues[parameter.name] = parameter.value;
+            });
+        });
+        this.dashboardService.saveDashboard(this.dashboard);
+        this.grid.removeAll();
+        this.grid.load(this.dashboard.displaySettings.grid);
     }
 
     public save() {
-        const grid = this.grid.save();
-        sessionStorage.setItem('grid', JSON.stringify(grid));
+        this.dashboard.displaySettings.grid = this.grid.save(true);
+        this.dashboardService.saveDashboard(this.dashboard);
     }
 
-    private static myClone(event) {
-        return event.target.cloneNode(true);
-    }
-
-    private addComponentToGridItem(element, itemData?, load?) {
-        //create a component reference
+    private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
+        if (!this.dashboard.displaySettings) {
+            this.dashboard.displaySettings = {};
+        }
+        // create a component reference
         const componentRef = this.componentFactoryResolver.resolveComponentFactory(ItemComponentComponent)
             .create(this.injector);
 
+        // get DOM element from component
+        const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+            .rootNodes[0] as HTMLElement;
+
+        domElem.dataset.dashboardItemType = JSON.stringify(dashboardItemType || {});
+
+        element.appendChild(domElem);
+
+        element.firstChild.id = instanceId ? instanceId : Date.now().toString();
+        instanceId = element.firstChild.id;
+
         componentRef.instance.grid = this.grid;
-        componentRef.instance.item = itemData || {};
+        componentRef.instance.dashboard = this.dashboard;
+        // componentRef.instance.dragItem = true;
+
+        const chartDetails = this.dashboard.displaySettings.charts ? this.dashboard.displaySettings.charts[instanceId] : null;
+
+        componentRef.instance.dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;
+        componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
+        componentRef.instance.itemInstanceKey = instanceId;
         if (load) {
             componentRef.instance.load();
         }
 
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
-
-        // get DOM element from component
-        const domElem = (componentRef.hostView as EmbeddedViewRef < any > )
-            .rootNodes[0] as HTMLElement;
-
-        domElem.dataset.itemData = JSON.stringify(itemData || {});
-
-        element.appendChild(domElem);
 
         return componentRef;
     }

@@ -62,15 +62,18 @@ export class DatasetCreateFormulaComponent implements OnInit {
 
     private matchColumnName() {
         this.formulas.map(formula => {
-            formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
-                const name = _.find(this.allColumns, column => {
-                    return `[[${column.title}]]` === exp;
+            if (formula.expression) {
+                formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
+                    const name = _.find(this.allColumns, column => {
+                        return `[[${column.title}]]` === exp;
+                    });
+                    if (name) {
+                        formula.expression = formula.expression.replace(exp, `[[${name.name}]]`);
+                    }
                 });
-                if (name) {
-                    formula.expression = formula.expression.replace(exp, `[[${name.name}]]`);
-                }
-            });
-            formula.expression = encodeURIComponent(formula.expression);
+                formula.expression = encodeURIComponent(formula.expression);
+            }
+
             return formula;
         });
     }

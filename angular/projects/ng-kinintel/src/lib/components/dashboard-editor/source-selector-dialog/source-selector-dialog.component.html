@@ -1,0 +1,94 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Select Data Source</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content" style="padding: 0 0 1rem 0">
+
+        <mat-horizontal-stepper #stepper>
+
+            <mat-step label="Select your data source">
+                <div class="mb-8 mt-4">
+                    <input class="full" type="text" placeholder="Search for a datasource or dataset"
+                           (keyup)="searchText.next($event.target.value)">
+                </div>
+
+                <table mat-table [dataSource]="datasources">
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="datasource">
+                        <th mat-header-cell *matHeaderCellDef> Datasources</th>
+                        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="explore">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="text-right">
+                            <button mat-button color="primary" (click)="select(element, 'datasource', stepper)">
+                                Select
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+                </table>
+
+
+                <table mat-table [dataSource]="datasets">
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="datasource">
+                        <th mat-header-cell *matHeaderCellDef> Datasets</th>
+                        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="explore">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element" class="text-right">
+                            <button mat-button color="primary" (click)="select(element, 'dataset', stepper)">
+                                Select
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+                </table>
+
+            </mat-step>
+
+            <mat-step label="Parameters required" *ngIf="requiredParameters.length">
+
+                <div class="parameter-values mt-4">
+                    <ki-dataset-parameter-values [parameterValues]="requiredParameters" [(evaluatedDatasource)]="dashboardDatasetInstance"
+                                                 [update]="updateParams"
+                                                 (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
+                </div>
+
+            </mat-step>
+
+        </mat-horizontal-stepper>
+
+
+
+    </div>
+
+    <div class="dialog-footer">
+
+        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+
+        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 1"
+            (click)="setParameters()">
+            Apply Parameters
+        </button>
+    </div>
+
+</div>
+
+

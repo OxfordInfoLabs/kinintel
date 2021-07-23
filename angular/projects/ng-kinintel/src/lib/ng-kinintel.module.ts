@@ -45,6 +45,9 @@ import {MatListModule} from '@angular/material/list';
 import { DatasetColumnSettingsComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-settings.component';
 import { DatasetColumnEditorComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-editor/dataset-column-editor.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SourceSelectorDialogComponent } from './components/dashboard-editor/source-selector-dialog/source-selector-dialog.component';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import { DashboardParameterComponent } from './components/dashboard-editor/dashboard-parameter/dashboard-parameter.component';
 
 
 @NgModule({
@@ -70,7 +73,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         DatasetAddJoinComponent,
         DatasetCreateFormulaComponent,
         DatasetColumnSettingsComponent,
-        DatasetColumnEditorComponent
+        DatasetColumnEditorComponent,
+        SourceSelectorDialogComponent,
+        DashboardParameterComponent
     ],
     imports: [
         BrowserModule,
@@ -96,7 +101,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         MatStepperModule,
         MatCheckboxModule,
         MatListModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatSidenavModule
     ],
     exports: [
         DashboardEditorComponent,

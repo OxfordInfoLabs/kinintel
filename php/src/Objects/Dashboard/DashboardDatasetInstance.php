@@ -9,6 +9,7 @@ use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dataset\BaseDatasetInstance;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
  * Class DashboardDatasetInstance
@@ -44,6 +45,8 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
      * DashboardDatasetInstance constructor.
      * @param string $instanceId
      * @param int $datasetInstanceId
+     * @param string $dataSourceInstanceKey
+     * @param TransformationInstance[] $transformationInstances
      */
     public function __construct($instanceId, $datasetInstanceId = null, $dataSourceInstanceKey = null, $transformationInstances = null) {
         $this->instanceKey = $instanceId;

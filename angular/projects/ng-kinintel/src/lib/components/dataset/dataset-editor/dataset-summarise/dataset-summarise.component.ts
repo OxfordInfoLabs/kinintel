@@ -64,7 +64,7 @@ export class DatasetSummariseComponent implements OnInit {
                 };
 
                 if (expression.expressionType !== 'CUSTOM') {
-                    summariseExpression.fieldName = expression.value;
+                    summariseExpression.fieldName = expression.name;
                 } else {
                     summariseExpression.customExpression = expression.customExpression;
                 }

@@ -1,58 +1,48 @@
-<button *ngIf="!dragItem" mat-icon-button color="warn" class="remove-widget" (click)="removeWidget($event)">
+<ng-template [ngIf]="dragItem">
+    <mat-icon>{{dashboardItemType.icon}}</mat-icon>
+    {{dashboardItemType.label}}
+</ng-template>
+<button *ngIf="!dragItem" mat-icon-button class="remove-widget" (click)="removeWidget($event)">
     <mat-icon>delete</mat-icon>
 </button>
-<ng-template [ngIf]="dragItem">
-    <mat-icon>{{item.icon}}</mat-icon>
-    {{item.label}}
-</ng-template>
-
-<ng-template [ngIf]="!dragItem && !data">
+<ng-template [ngIf]="!dragItem && !dashboardDatasetInstance">
     <button mat-stroked-button color="primary" (click)="configure()">
-        Configure {{item.label}}
+        Configure {{dashboardItemType.label}}
     </button>
 </ng-template>
 
-<ng-template [ngIf]="data">
-    <button *ngIf="!dragItem" mat-icon-button color="primary" class="edit-widget" (click)="configure()">
+<div class="loading-item" *ngIf="!dragItem && loadingItem">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading {{dashboardItemType.label}} ...</p>
+</div>
+
+<ng-template [ngIf]="!dragItem && !loadingItem && (chartData || dataset)">
+    <button mat-icon-button class="edit-widget" (click)="configure()">
         <mat-icon>edit</mat-icon>
     </button>
-    <div class="item-title">{{item.label}}</div>
+    <div class="item-title">{{dashboardItemType.label}}</div>
 
-    <ng-template [ngIf]="item.type === 'lineChart'">
-        <canvas baseChart style="height: 200px"
-                [datasets]="data"
-                [labels]="['December', 'January', 'February', 'March', 'April']"
-                [options]="{responsive: true}"
-                [colors]="[{borderColor: 'rgba(32,166,211,0.7)',backgroundColor: 'rgba(32,166,211,0.3)'}]"
-                [legend]="false"
-                [chartType]="'line'"
-                [plugins]="[]">
-        </canvas>
-    </ng-template>
+    <canvas baseChart *ngIf="chartData" style="height: 200px"
+            [datasets]="chartData"
+            [labels]="dashboardItemType.labels"
+            [options]="{responsive: true}"
+            [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+            [legend]="!!dashboardItemType.legend"
+            [chartType]="dashboardItemType.type"
+            [plugins]="[]">
+    </canvas>
 
-    <ng-template [ngIf]="item.type === 'barChart'">
-
-        <canvas baseChart [datasets]="data" [labels]="['']" [options]="barChartOptions"
-                [legend]="true" [chartType]="'bar'"
-                [colors]="barChartColor"></canvas>
-
-    </ng-template>
-
-    <ng-template [ngIf]="item.type === 'table'">
+    <ng-template [ngIf]="dashboardItemType.type === 'table'">
 
         <table>
             <thead>
             <tr>
-                <th>Name</th>
-                <th>Score</th>
-                <th>Date</th>
+                <th *ngFor="let column of dataset.columns">{{column.title}}</th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let itemData of data">
-                <td>{{itemData.domainName}}</td>
-                <td>{{itemData.score}}</td>
-                <td>{{itemData.registeredDate}}</td>
+            <tr *ngFor="let dataItem of dataset.allData">
+                <td *ngFor="let column of dataset.columns">{{dataItem[column.name]}}</td>
             </tr>
             </tbody>
         </table>

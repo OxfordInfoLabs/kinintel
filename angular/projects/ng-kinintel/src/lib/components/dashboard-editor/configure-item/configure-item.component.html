@@ -1,5 +1,5 @@
 <div class="configure-header">
-    Configure {{data.item.label}}
+    Configure {{dashboardItemType.label}}
     <button mat-icon-button mat-dialog-close>
         <mat-icon>close</mat-icon>
     </button>
@@ -11,28 +11,92 @@
 
         <rsz-layout class="cell left" [directions]="['right']" [rFlex]="true">
             <div class="cell-contents">
-                <ki-dataset-editor></ki-dataset-editor>
+                <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(evaluatedDatasource)]="dashboardDatasetInstance"
+                                   (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
             </div>
 
 
         </rsz-layout>
 
         <rsz-layout class="cell right" [directions]="['none']" [rFlex]="false">
-
             <div class="cell-contents">
-                <canvas baseChart style="height: 200px"
+
+                <label class="mb-4">
+                    Chart Type
+                    <select [(ngModel)]="dashboardItemType.type">
+                        <option value="line">Line</option>
+                        <option value="bar">Bar</option>
+                        <option value="pie">Pie</option>
+                        <option value="doughnut">Doughnut</option>
+                    </select>
+                </label>
+
+                <label class="mb-4">
+                    <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">X Axis Column</ng-template>
+                    <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">Labels Column</ng-template>
+                    <select [(ngModel)]="dashboardItemType.xAxis" (ngModelChange)="setChartData()">
+                        <option value="">-- Select
+                            <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">X Axis Column</ng-template>
+                            <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">Labels Column</ng-template>
+                            --
+                        </option>
+                        <option [value]="field.name" *ngFor="let field of filterFields">
+                            {{field.title}}
+                        </option>
+                    </select>
+                </label>
+
+                <label class="mb-4">
+                    <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">Y Axis Column</ng-template>
+                    <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">Values Column</ng-template>
+                    <select [(ngModel)]="dashboardItemType.yAxis" (ngModelChange)="setChartData()">
+                        <option value="">-- Select
+                            <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">Y Axis Column</ng-template>
+                            <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">Values Column</ng-template>
+                            --
+                        </option>
+                        <option [value]="field.name" *ngFor="let field of filterFields">
+                            {{field.title}}
+                        </option>
+                    </select>
+                </label>
+
+                <div class="align-center justify-between">
+                    <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend</mat-slide-toggle>
+                    <mat-slide-toggle *ngIf="dashboardItemType.type === 'line'" [(ngModel)]="dashboardItemType.fill"
+                                      (ngModelChange)="setChartData()" class="mb-4">Fill Background</mat-slide-toggle>
+                </div>
+
+
+                <canvas baseChart *ngIf="chartData" style="height: 200px"
                         [datasets]="chartData"
-                        [labels]="['December', 'January', 'February', 'March', 'April']"
+                        [labels]="dashboardItemType.labels"
                         [options]="{responsive: true}"
-                        [colors]="[{borderColor: 'rgba(32,166,211,0.7)',backgroundColor: 'rgba(32,166,211,0.3)'}]"
-                        [legend]="false"
-                        [chartType]="'line'"
+                        [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                        [legend]="!!dashboardItemType.legend"
+                        [chartType]="dashboardItemType.type"
                         [plugins]="[]">
                 </canvas>
+
+                <div class="mt-4 mb-4 align-center justify-between">
+                    <label class="flex-1">
+                        Border Colour
+                        <input type="color" [(ngModel)]="dashboardItemType.borderColor">
+                    </label>
+                </div>
+                <div class="mt-4 mb-4 align-center justify-between">
+                    <label class="flex-1">
+                        Background Colour <ng-template [ngIf]="dashboardItemType.type !== 'line'">Range</ng-template>
+                        <input type="color" [(ngModel)]="dashboardItemType.backgroundColorFrom"
+                               (ngModelChange)="backgroundColourUpdate()">
+                    </label>
+                    <label class="flex-1" *ngIf="dashboardItemType.type !== 'line'">
+                        &nbsp;
+                        <input type="color" [(ngModel)]="dashboardItemType.backgroundColorTo"
+                               (ngModelChange)="backgroundColourUpdate()">
+                    </label>
+                </div>
             </div>
-
-
-
         </rsz-layout>
     </rsz-layout>
 
@@ -42,7 +106,7 @@
     <button mat-stroked-button mat-dialog-close color="primary">
         Cancel
     </button>
-    <button mat-flat-button color="primary">
+    <button mat-flat-button color="primary" (click)="saveDashboard()">
         Save Changes
     </button>
 </div>

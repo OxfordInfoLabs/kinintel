@@ -2,6 +2,13 @@ ki-item-component
     display: flex
     align-items: center
     flex-direction: column
+    height: 100%
+    justify-content: center
+
+mat-drawer-container
+    height: 100%
+    background-color: transparent !important
+    padding: 1rem
 
 .configure-dialog
     display: flex
@@ -25,7 +32,9 @@ ki-item-component
         position: absolute
         right: -5px
         top: -5px
-
+    &:hover
+        .remove-widget, .edit-widget
+            display: block
 .draggable-toolbar
     width: 100%
     display: flex
@@ -47,3 +56,85 @@ ki-item-component
     justify-content: space-between
     padding: 1rem .5rem
 
+.dashboard-parameters
+    display: flex
+    align-items: center
+    margin: 0 0 .5rem .5rem
+    .divider
+        margin: 0 1rem
+        width: 2px
+        height: 36px
+        background-color: #e0e0e0
+        align-self: flex-end
+    button
+        align-self: flex-end
+        //background-color: #eaeaea
+        margin-left: .5rem
+    label
+        font-size: .8rem
+        .parameter-input
+            //background-color: #eaeaea
+            border-radius: 4px
+            //padding-left: .5rem
+            height: 36px
+            display: flex
+            align-items: center
+            button
+                color: #8e8e8e
+                &.mat-icon-button
+                    width: 30px
+                    height: 30px
+                    line-height: 30px
+                    align-self: center
+                    mat-icon
+                        font-size: 20px
+                        width: 20px
+                        height: 20px
+                        line-height: 20px
+            input
+                font-size: .8rem
+                padding: .25rem
+                width: 175px
+
+.dashboard-editor-panel
+    width: 300px
+    background-color: whitesmoke
+    .panel-head
+        display: flex
+        align-items: center
+        padding: .5rem .5rem .5rem 1rem
+        border-bottom: 1px solid #e8e8e8
+        margin-bottom: 1rem
+        justify-content: space-between
+        p
+            margin: 0
+            text-transform: uppercase
+            font-size: 1.1rem
+            font-weight: 300
+
+.badge-holder
+    display: flex
+    align-items: center
+    margin: .25rem 0
+    .badge-item
+        display: flex
+        align-items: center
+        background-color: #efefef
+        padding-left: 1rem
+        border-radius: 20px
+        &.outline
+            background-color: white
+            border: 1px solid #efefef
+        span
+            margin-right: .5rem
+            color: rgba(0,0,0,0.54)
+        button.mat-icon-button
+            width: 33px
+            height: 33px
+            line-height: 33px
+            mat-icon
+                font-size: 20px
+                height: 20px
+                width: 20px
+                line-height: 20px
+                color: rgba(0,0,0,0.54)

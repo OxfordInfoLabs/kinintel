@@ -4,6 +4,7 @@ namespace Kinintel\Services\Dashboard;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Objects\Dashboard\DashboardSearchResult;
@@ -106,7 +107,7 @@ class DashboardService {
      */
     public function saveDashboard($dashboardSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $dashboard = new Dashboard($dashboardSummary, $accountId, $projectKey);
-
+Logger::log($dashboardSummary);
         // Process tags
         if (sizeof($dashboardSummary->getTags())) {
             $tags = $this->metaDataService->getObjectTagsFromSummaries($dashboardSummary->getTags(), $accountId, $projectKey);

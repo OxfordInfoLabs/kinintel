@@ -1,15 +1,36 @@
 <h2>{{dashboard.title}}</h2>
+
+<div class="dashboard-parameters" *ngIf="dashboard.displaySettings">
+    <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.displaySettings.parameters)">
+        <label>
+            {{parameter.title}}
+            <div class="parameter-input">
+                <input [type]="parameter.type" [(ngModel)]="parameter.value" (keyup.enter)="setParameterValue()">
+                <button mat-icon-button style="margin-left: 0; background-color: transparent"
+                        (click)="removeParameter(parameter)">
+                    <mat-icon>highlight_off</mat-icon>
+                </button>
+            </div>
+
+        </label>
+
+        <div class="divider" *ngIf="_.values(dashboard.displaySettings.parameters).length > 1"></div>
+    </ng-template>
+    <button mat-button (click)="addParameter()">
+        <mat-icon>add</mat-icon>&nbsp;Add Parameter
+    </button>
+</div>
+
 <div class="draggable-toolbar">
 
     <ng-template ngFor let-item [ngForOf]="itemTypes" let-i=index>
         <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
              [attr.gs-h]="item.height" [attr.data-index]="i">
             <div class="grid-stack-item-content" draggable="true">
-                <ki-item-component [dragItem]="true" [item]="item"></ki-item-component>
+                <ki-item-component [dragItem]="true" [dashboardItemType]="item"></ki-item-component>
             </div>
         </div>
     </ng-template>
-
 
 </div>
 <div class="grid-stack"></div>
@@ -17,4 +38,3 @@
     <div></div>
     <button mat-flat-button color="primary" (click)="save()">Save</button>
 </div>
-

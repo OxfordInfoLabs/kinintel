@@ -54,7 +54,7 @@ export class DatasetEditorComponent implements OnInit {
 
     ngOnInit(): void {
         if (!this.datasource) {
-            this.datasource = this.data.datasource;
+            this.datasource = this.data ? this.data.datasource : {};
         }
 
         if (!this.evaluatedDatasource) {

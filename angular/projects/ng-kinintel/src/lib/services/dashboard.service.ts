@@ -29,4 +29,17 @@ export class DashboardService {
             }
         });
     }
+
+    public saveDashboard(dashboardSummary) {
+        const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+
+        const url = this.config.backendURL + '/account/dashboard?projectKey=' + projectKey + '&tagKey=' + tags;
+
+        return this.http.post(url, dashboardSummary).toPromise();
+    }
+
+    public getDashboardDatasetInstance() {
+
+    }
 }
