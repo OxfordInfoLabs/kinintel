@@ -13,6 +13,8 @@ use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetDatasource;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetField;
+use Kinintel\ValueObjects\Dataset\Field;
 
 
 class TabularDatasourceImportProcessor implements DataProcessor {
@@ -113,6 +115,35 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
             // Use fields on the target mapping object if set otherwise default to incoming fields
             $fields = $targetObject->getFields() ?? $fields;
+
+            // If explicit fields we need to do additional processing to map any fields.
+            if ($targetObject->getFields()) {
+                foreach ($chunkedResults as $index => $chunkedResult) {
+                    foreach ($targetObject->getFields() as $field) {
+                        if ($field instanceof TargetField) {
+                            $dataValue = $chunkedResult[$field->getName()] ?? null;
+
+                            // Remove original if target set
+                            if ($field->getTargetName()) {
+                                unset($chunkedResult[$field->getName()]);
+                            }
+
+                            $chunkedResult[$field->getTargetName() ?? $field->getName()] = $field->returnMappedValue($dataValue);
+                        }
+                    }
+                    $chunkedResults[$index] = $chunkedResult;
+                }
+
+                // Assemble new fields
+                $fields = [];
+                foreach ($targetObject->getFields() as $field){
+                    if ($field instanceof TargetField){
+                        $fields[] = new Field($field->getTargetName() ?? $field->getName());
+                    } else {
+                        $fields[] = $field;
+                    }
+                }
+            }
 
             // Create a new data set for this target transaction
             $dataset = new ArrayTabularDataset($fields, $chunkedResults);

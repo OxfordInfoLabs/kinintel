@@ -16,6 +16,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetDatasource;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetField;
 use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
@@ -261,6 +262,72 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                     "shoeSize" => 9
                 ]
             ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+
+    }
+
+    public function testIfTargetFieldsIncludedWithFieldMapperConfigTheseAreAppliedToDataValues() {
+
+
+        $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $mockSourceInstance->returnValue("returnDataSource", $mockSource);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSourceInstance, [
+            "source"
+        ]);
+
+        $dataSet = new ArrayTabularDataset([new Field("name"), new Field("dob"), new Field("shoeSize")], [
+            [
+                "name" => "Bobby",
+                "dob" => "01/12/1990",
+                "shoeSize" => 10
+            ],
+            [
+                "name" => "Mary",
+                "dob" => "23/05/1977",
+                "shoeSize" => 9
+            ]
+        ]);
+
+        $mockSource->returnValue("materialise", $dataSet);
+
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "target"
+        ]);
+
+        $config = new TabularDatasourceImportProcessorConfiguration("source", [
+            new TargetDatasource("target", [
+                new Field("name", "Title"),
+                new TargetField("dob", "date_of_birth", "date", [
+                    "sourceFormat" => "d/m/Y",
+                    "targetFormat" => "Y-m-d"
+                ]),
+                new Field("shoeSize")
+            ])
+        ]);
+
+        $this->processor->process($config);
+
+
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("name", "Title"),
+                new Field("date_of_birth"),
+                new Field("shoeSize")], [
+            [
+                "name" => "Bobby",
+                "date_of_birth" => "1990-12-01",
+                "shoeSize" => 10
+            ],
+            [
+                "name" => "Mary",
+                "date_of_birth" => "1977-05-23",
+                "shoeSize" => 9
+            ]
+        ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 

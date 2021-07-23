@@ -83,6 +83,8 @@ class SVStreamTabularDataSet extends TabularDataset {
         // Read header row
         if ($firstRowHeader) {
             $this->readHeaderRow();
+        } else {
+            $this->csvColumns = $columns;
         }
 
 
@@ -124,7 +126,6 @@ class SVStreamTabularDataSet extends TabularDataset {
 
                 while (sizeof($this->csvColumns) < sizeof($csvLine)) {
                     $this->csvColumns[] = new Field("column" . (sizeof($this->csvColumns) + 1));
-
                 }
 
                 $dataItem = [];
