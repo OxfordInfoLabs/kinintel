@@ -27,6 +27,24 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     public dashboardDatasetInstance: any;
     public loadingItem = false;
     public filterFields: any = [];
+    public metricData: any = {};
+    public currencies = [
+        {
+            name: 'British Pound (£)',
+            value: 'GBP',
+            symbol: '£'
+        },
+        {
+            name: 'US Dollar ($)',
+            value: 'USD',
+            symbol: '$'
+        },
+        {
+            name: 'Euro (€)',
+            value: 'EUR',
+            symbol: '€'
+        }
+    ];
 
     private itemGrid: GridStack;
 
@@ -39,7 +57,11 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-
+        if (this.dashboard &&
+            this.dashboard.displaySettings.heading &&
+            this.dashboard.displaySettings.heading[this.itemInstanceKey]) {
+            this.dashboardItemType.headingValue = this.dashboard.displaySettings.heading[this.itemInstanceKey];
+        }
     }
 
     ngAfterViewInit() {
@@ -62,44 +84,57 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     }
 
     public configure() {
-        const dialogRef = this.dialog.open(ConfigureItemComponent, {
-            width: '100vw',
-            height: '100vh',
-            maxWidth: '100vw',
-            maxHeight: '100vh',
-            hasBackdrop: false,
-            data: {
-                grid: this.grid,
-                dashboard: this.dashboard,
-                dashboardDatasetInstance: this.dashboardDatasetInstance,
-                itemInstanceKey: this.itemInstanceKey,
-                dashboardItemType: this.dashboardItemType
-            }
-        });
-        dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
-            this.dashboardDatasetInstance = dashboardDatasetInstance;
-            this.load();
-        });
+        if (this.dashboardItemType.type === 'heading') {
+            this.dashboardItemType._editing = true;
+        } else {
+            const dialogRef = this.dialog.open(ConfigureItemComponent, {
+                width: '100vw',
+                height: '100vh',
+                maxWidth: '100vw',
+                maxHeight: '100vh',
+                hasBackdrop: false,
+                data: {
+                    grid: this.grid,
+                    dashboard: this.dashboard,
+                    dashboardDatasetInstance: this.dashboardDatasetInstance,
+                    itemInstanceKey: this.itemInstanceKey,
+                    dashboardItemType: this.dashboardItemType
+                }
+            });
+            dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
+                if (dashboardDatasetInstance) {
+                    this.dashboardDatasetInstance = dashboardDatasetInstance;
+                    this.load();
+                }
+            });
+        }
+
     }
 
     public load() {
-        this.loadingItem = true;
-        return this.datasourceService.evaluateDatasource(
-            this.dashboardDatasetInstance.datasourceInstanceKey,
-            this.dashboardDatasetInstance.transformationInstances,
-            this.dashboardDatasetInstance.parameterValues)
-            .then(data => {
-                this.dataset = data;
-                this.filterFields = _.map(this.dataset.columns, column => {
-                    return {
-                        title: column.title,
-                        name: column.name
-                    };
+        if (this.dashboardDatasetInstance) {
+            this.loadingItem = true;
+            return this.datasourceService.evaluateDatasource(
+                this.dashboardDatasetInstance.datasourceInstanceKey,
+                this.dashboardDatasetInstance.transformationInstances,
+                this.dashboardDatasetInstance.parameterValues)
+                .then(data => {
+                    this.dataset = data;
+                    this.filterFields = _.map(this.dataset.columns, column => {
+                        return {
+                            title: column.title,
+                            name: column.name
+                        };
+                    });
+                    if (this.dashboard.displaySettings.metric) {
+                        this.metricData = this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
+                        this.updateMetricDataValues();
+                    }
+                    this.loadingItem = false;
+                    this.setChartData();
+                }).catch(err => {
                 });
-                this.loadingItem = false;
-                this.setChartData();
-            }).catch(err => {
-            });
+        }
     }
 
     public removeWidget(event) {
@@ -108,6 +143,15 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
             const widget = event.target.closest('.grid-stack-item');
             this.grid.removeWidget(widget);
         }
+    }
+
+    public updateHeading(event) {
+        if (!this.dashboard.displaySettings.heading) {
+            this.dashboard.displaySettings.heading = {};
+        }
+
+        this.dashboard.displaySettings.heading[this.itemInstanceKey] = this.dashboardItemType.headingValue;
+        this.dashboardItemType._editing = false;
     }
 
     public setChartData() {
@@ -134,6 +178,52 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
             this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
                 return item[this.dashboardItemType.xAxis];
             });
+        }
+    }
+
+    public updateMetricDataValues() {
+        if (this.metricData.main) {
+            this.metricData.mainValue = this.dataset.allData[0][this.metricData.main];
+        }
+
+        if (this.metricData.mainFormat) {
+            if (this.metricData.mainFormatDecimals) {
+                this.metricData.mainValue = Number(this.metricData.mainValue).toFixed(this.metricData.mainFormatDecimals);
+            }
+            if (this.metricData.mainFormat === 'Currency' && this.metricData.mainFormatCurrency) {
+                const currency = _.find(this.currencies, {value: this.metricData.mainFormatCurrency});
+                if (currency) {
+                    this.metricData.mainValue = currency.symbol + '' + this.metricData.mainValue;
+                }
+            }
+            if (this.metricData.mainFormat === 'Percentage') {
+                this.metricData.mainValue = this.metricData.mainValue + '%';
+            }
+        }
+
+        if (this.metricData.subMetric) {
+            this.metricData.subValue = this.dataset.allData[0][this.metricData.subMetric];
+        }
+
+        if (this.metricData.subMetricFormat) {
+            if (this.metricData.subMetricFormatDecimals) {
+                this.metricData.subValue = Number(this.metricData.subValue).toFixed(this.metricData.subMetricFormatDecimals);
+            }
+            if (this.metricData.subMetricFormat === 'Currency' && this.metricData.subMetricFormatCurrency) {
+                const currency = _.find(this.currencies, {value: this.metricData.subMetricFormatCurrency});
+                if (currency) {
+                    this.metricData.subValue = currency.symbol + '' + this.metricData.subValue;
+                }
+            }
+            if (this.metricData.subMetricFormat === 'Percentage') {
+                this.metricData.subValue = this.metricData.subValue + '%';
+            }
+        }
+
+        if (this.metricData.showSubChange) {
+            const changeClass = `${parseInt(this.metricData.subValue, 10) > 0 ? 'up' : 'down'}`;
+            const icon = `${parseInt(this.metricData.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
+            this.metricData.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metricData.subValue}</span>`;
         }
     }
 }

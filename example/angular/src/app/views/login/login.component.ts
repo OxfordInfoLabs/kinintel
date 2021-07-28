@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from 'ng-kiniauth';
+import {environment} from '../../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -7,6 +8,8 @@ import {AuthenticationService} from 'ng-kiniauth';
     styleUrls: ['./login.component.sass']
 })
 export class LoginComponent implements OnInit {
+
+    public environment = environment;
 
     constructor(private authService: AuthenticationService) {
     }

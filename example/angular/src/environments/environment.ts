@@ -5,7 +5,8 @@
 export const environment = {
     production: false,
     backendURL: 'http://webservices.kinintel.test:3050',
-    tagLabel: 'Tags'
+    tagLabel: 'Tags',
+    recaptchaKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 };
 
 /*

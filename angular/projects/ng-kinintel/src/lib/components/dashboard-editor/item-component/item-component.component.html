@@ -5,7 +5,8 @@
 <button *ngIf="!dragItem" mat-icon-button class="remove-widget" (click)="removeWidget($event)">
     <mat-icon>delete</mat-icon>
 </button>
-<ng-template [ngIf]="!dragItem && !dashboardDatasetInstance">
+<ng-template
+    [ngIf]="!dragItem && !dashboardDatasetInstance && !dashboardItemType.headingValue && !dashboardItemType._editing">
     <button mat-stroked-button color="primary" (click)="configure()">
         Configure {{dashboardItemType.label}}
     </button>
@@ -16,37 +17,61 @@
     <p>Loading {{dashboardItemType.label}} ...</p>
 </div>
 
+<ng-template [ngIf]="!dragItem && dashboardItemType.type === 'heading'">
+    <button mat-icon-button class="edit-widget" (click)="configure()">
+        <mat-icon>edit</mat-icon>
+    </button>
+    <div class="item-heading" *ngIf="!dashboardItemType._editing">
+        {{dashboardItemType.headingValue}}
+    </div>
+
+    <input type="text" *ngIf="dashboardItemType._editing" [(ngModel)]="dashboardItemType.headingValue"
+           (blur)="updateHeading($event)">
+
+</ng-template>
+
 <ng-template [ngIf]="!dragItem && !loadingItem && (chartData || dataset)">
     <button mat-icon-button class="edit-widget" (click)="configure()">
         <mat-icon>edit</mat-icon>
     </button>
     <div class="item-title">{{dashboardItemType.label}}</div>
 
-    <canvas baseChart *ngIf="chartData" style="height: 200px"
-            [datasets]="chartData"
-            [labels]="dashboardItemType.labels"
-            [options]="{responsive: true}"
-            [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
-            [legend]="!!dashboardItemType.legend"
-            [chartType]="dashboardItemType.type"
-            [plugins]="[]">
-    </canvas>
+    <div class="item-container">
 
-    <ng-template [ngIf]="dashboardItemType.type === 'table'">
+        <ng-template [ngIf]="dashboardItemType.type === 'metric'">
+            <div class="metric-item">
+                <div class="main">{{metricData.mainValue}}</div>
+                <div class="sub-metric" [innerHTML]="metricData.subValue"></div>
+            </div>
+        </ng-template>
 
-        <table>
-            <thead>
-            <tr>
-                <th *ngFor="let column of dataset.columns">{{column.title}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let dataItem of dataset.allData">
-                <td *ngFor="let column of dataset.columns">{{dataItem[column.name]}}</td>
-            </tr>
-            </tbody>
-        </table>
+        <canvas baseChart *ngIf="chartData" style="height: 200px"
+                [datasets]="chartData"
+                [labels]="dashboardItemType.labels"
+                [options]="{responsive: true}"
+                [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                [legend]="!!dashboardItemType.legend"
+                [chartType]="dashboardItemType.type"
+                [plugins]="[]">
+        </canvas>
 
-    </ng-template>
+        <ng-template [ngIf]="dashboardItemType.type === 'table'">
+
+            <table>
+                <thead>
+                <tr>
+                    <th *ngFor="let column of dataset.columns">{{column.title}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let dataItem of dataset.allData">
+                    <td *ngFor="let column of dataset.columns">{{dataItem[column.name]}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </ng-template>
+
+    </div>
 
 </ng-template>

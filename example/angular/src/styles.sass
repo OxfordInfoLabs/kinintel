@@ -22,3 +22,21 @@ td.nop
 
 .mat-drawer-backdrop.mat-drawer-shown
     background-color: transparent
+
+.metric-item
+    display: flex
+    align-items: center
+    justify-content: center
+    height: 100%
+    width: 100%
+    flex-direction: column
+    .main
+        font-size: 2rem
+    .sub-metric
+        margin-top: .5rem
+        font-size: 1.1rem
+        .sub-change
+            &.up
+                color: green
+            &.down
+                color: red

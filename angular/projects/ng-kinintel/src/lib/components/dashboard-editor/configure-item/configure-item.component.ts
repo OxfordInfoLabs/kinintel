@@ -16,10 +16,30 @@ export class ConfigureItemComponent implements OnInit {
 
     public grid;
     public chartData: any;
+    public metricData: any = {};
     public dashboard;
     public dashboardItemType;
     public dashboardDatasetInstance: any;
     public filterFields: any = [];
+    public chartTypes = ['line', 'bar', 'pie', 'doughnut'];
+    public metricFormats = ['Currency', 'Number', 'Percentage'];
+    public currencies = [
+        {
+            name: 'British Pound (£)',
+            value: 'GBP',
+            symbol: '£'
+        },
+        {
+            name: 'US Dollar ($)',
+            value: 'USD',
+            symbol: '$'
+        },
+        {
+            name: 'Euro (€)',
+            value: 'EUR',
+            symbol: '€'
+        }
+    ];
 
     private dataset: any;
 
@@ -38,6 +58,12 @@ export class ConfigureItemComponent implements OnInit {
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();
         }
+
+        if (this.dashboard.displaySettings &&
+            this.dashboard.displaySettings.metric) {
+            this.metricData = this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
+        }
+
     }
 
     public selectedDatasource() {
@@ -69,6 +95,7 @@ export class ConfigureItemComponent implements OnInit {
                 name: column.name
             };
         });
+        this.updateMetricDataValues();
         this.setChartData();
     }
 
@@ -95,6 +122,12 @@ export class ConfigureItemComponent implements OnInit {
         }
 
         this.dashboard.displaySettings.charts[this.dashboardDatasetInstance.instanceKey] = this.dashboardItemType;
+
+        if (!this.dashboard.displaySettings.metric) {
+            this.dashboard.displaySettings.metric = {};
+        }
+
+        this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] = this.metricData;
 
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});
@@ -140,6 +173,52 @@ export class ConfigureItemComponent implements OnInit {
             this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
                 return item[this.dashboardItemType.xAxis];
             });
+        }
+    }
+
+    public updateMetricDataValues() {
+        if (this.metricData.main) {
+            this.metricData.mainValue = this.dataset.allData[0][this.metricData.main];
+        }
+
+        if (this.metricData.mainFormat) {
+            if (this.metricData.mainFormatDecimals) {
+                this.metricData.mainValue = Number(this.metricData.mainValue).toFixed(this.metricData.mainFormatDecimals);
+            }
+            if (this.metricData.mainFormat === 'Currency' && this.metricData.mainFormatCurrency) {
+                const currency = _.find(this.currencies, {value: this.metricData.mainFormatCurrency});
+                if (currency) {
+                    this.metricData.mainValue = currency.symbol + '' + this.metricData.mainValue;
+                }
+            }
+            if (this.metricData.mainFormat === 'Percentage') {
+                this.metricData.mainValue = this.metricData.mainValue + '%';
+            }
+        }
+
+        if (this.metricData.subMetric) {
+            this.metricData.subValue = this.dataset.allData[0][this.metricData.subMetric];
+        }
+
+        if (this.metricData.subMetricFormat) {
+            if (this.metricData.subMetricFormatDecimals) {
+                this.metricData.subValue = Number(this.metricData.subValue).toFixed(this.metricData.subMetricFormatDecimals);
+            }
+            if (this.metricData.subMetricFormat === 'Currency' && this.metricData.subMetricFormatCurrency) {
+                const currency = _.find(this.currencies, {value: this.metricData.subMetricFormatCurrency});
+                if (currency) {
+                    this.metricData.subValue = currency.symbol + '' + this.metricData.subValue;
+                }
+            }
+            if (this.metricData.subMetricFormat === 'Percentage') {
+                this.metricData.subValue = this.metricData.subValue + '%';
+            }
+        }
+
+        if (this.metricData.showSubChange) {
+            const changeClass = `${parseInt(this.metricData.subValue, 10) > 0 ? 'up' : 'down'}`;
+            const icon = `${parseInt(this.metricData.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
+            this.metricData.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metricData.subValue}</span>`;
         }
     }
 }

@@ -64,6 +64,20 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
             icon: 'donut_large',
             width: 6,
             height: 5
+        },
+        {
+            type: 'metric',
+            label: 'Metric',
+            icon: 'trending_up',
+            width: 3,
+            height: 2
+        },
+        {
+            type: 'heading',
+            label: 'Heading',
+            icon: 'title',
+            width: 4,
+            height: 1
         }
     ];
     public dashboard: any = {};
@@ -91,6 +105,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
         const options = {
             minRow: 1, // don't collapse when empty
             float: false,
+            cellHeight: 50,
+            minW: 1024,
             dragIn: '.draggable-toolbar .grid-stack-item', // add draggable to class
             dragInOptions: {
                 revert: 'invalid',
@@ -104,14 +120,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
             }
         };
         this.grid = GridStack.init(options);
-
-        // If we are loading items from memory we need to add them manually
-        // so the components get reloaded as part of the on 'added' functionality
-        // setTimeout(() => {
-        //     items.forEach(item => {
-        //         this.grid.addWidget(item);
-        //     });
-        // });
 
         this.grid.on('added', (event: Event, newItems: GridStackNode[]) => {
             newItems.forEach((item) => {
@@ -219,7 +227,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
 
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
-        // componentRef.instance.dragItem = true;
 
         const chartDetails = this.dashboard.displaySettings.charts ? this.dashboard.displaySettings.charts[instanceId] : null;
 
