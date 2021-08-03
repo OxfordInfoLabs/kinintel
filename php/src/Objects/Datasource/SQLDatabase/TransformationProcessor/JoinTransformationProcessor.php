@@ -101,7 +101,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $this->datasetService = $this->datasetService ?? Container::instance()->get(DatasetService::class);
             $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
 
-
             // If parameters required for a data set, ensure we have mappings for them.
             $joinDataParameters = $this->datasetService->getEvaluatedParameters($transformation->getJoinedDataSetInstanceId());
         }
@@ -145,6 +144,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             );
 
 
+
         // If we need to convert the join datasource, do this now
         if ($joinDatasourceConversionRequired) {
 
@@ -169,7 +169,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 // Now materialise the join data set using column values from parent dataset
                 $newJoinData = [];
-                $aliasIndex = $this->aliasIndex;
                 while ($parentRow = $parentDataset->nextDataItem()) {
 
                     // Set any column parameters accordingly
@@ -180,7 +179,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                     // If we have a join data set, evaluate now.
                     if (isset($joinDataSet)) {
-                        $this->aliasIndex = $aliasIndex;
 
                         $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
                             $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
@@ -214,12 +212,16 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             } else {
 
                 if (isset($joinDataSet)) {
+
                     $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
                         $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
                 }
 
+
                 $joinDatasource = new DefaultDatasource($joinDatasource);
+
             }
+
 
             $joinDatasource->populate($joinDatasourceParameterValues);
 
@@ -241,6 +243,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         }
 
 
+
         // For a join transformation, if join columns are supplied we must have master datasource columns as well
         if ($transformation->getJoinColumns() && !$datasource->getConfig()->getColumns()) {
 
@@ -255,6 +258,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
+
+
 
         return $datasource;
 

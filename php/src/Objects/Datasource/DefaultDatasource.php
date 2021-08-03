@@ -85,6 +85,7 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         if ($this->populated)
             return;
 
+
         if ($this->sourceDataobject instanceof Datasource)
             // Firstly materialise the source datasource
             $sourceDataset = $this->sourceDataobject->materialise($parameterValues);

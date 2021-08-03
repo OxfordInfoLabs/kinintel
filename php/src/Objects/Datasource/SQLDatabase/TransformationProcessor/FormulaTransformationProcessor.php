@@ -13,29 +13,6 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
 
     /**
-     * Apply transformation
-     *
-     * @param FormulaTransformation $transformation
-     * @param SQLDatabaseDatasource $datasource
-     * @param mixed[] $parameterValues
-     * @return \Kinintel\Objects\Datasource\Datasource|void
-     */
-    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
-
-        // Update current set of columns if set
-//        $datasourceColumns = $datasource->getConfig()->getColumns();
-//        if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
-//            foreach ($transformation->getExpressions() as $expression) {
-//                $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
-//            }
-//            $datasource->getConfig()->setColumns($datasourceColumns);
-//        }
-
-        return $datasource;
-    }
-
-
-    /**
      * Update query with formula values
      *
      * @param FormulaTransformation $transformation
@@ -64,7 +41,6 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         }
 
         $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses));
-
 
 
         return $query;
