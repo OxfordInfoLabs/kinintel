@@ -319,7 +319,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
             "testjoindataset", [
                 new TestTransformation(), new TestTransformation()
-            ], ["passedTerm" => "Bingo"]
+            ], ["term" => "Bingo"]
         ]);
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
@@ -365,9 +365,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
-        $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource->returnValue("materialise", new ArrayTabularDataset([
+        $joinDatasource1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource1->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $joinDatasource1->returnValue("materialise", new ArrayTabularDataset([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -382,7 +382,16 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             "term" => "Bingo"
         ]]);
 
-        $joinDatasource->returnValue("materialise", new ArrayTabularDataset([
+        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource1, [
+            "testjoindataset", [
+                new TestTransformation(), new TestTransformation()
+            ], ["term" => "Bingo"]
+        ]);
+
+
+        $joinDatasource2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource2->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $joinDatasource2->returnValue("materialise", new ArrayTabularDataset([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -397,7 +406,16 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             "term" => "Bongo"
         ]]);
 
-        $joinDatasource->returnValue("materialise", new ArrayTabularDataset([
+        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource2, [
+            "testjoindataset", [
+                new TestTransformation(), new TestTransformation()
+            ], ["term" => "Bongo"]
+        ]);
+
+
+        $joinDatasource3= MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource3->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $joinDatasource3->returnValue("materialise", new ArrayTabularDataset([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -413,10 +431,10 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]]);
 
 
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
+        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource3, [
             "testjoindataset", [
                 new TestTransformation(), new TestTransformation()
-            ], []
+            ], ["term" => "Bango"]
         ]);
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
@@ -517,7 +535,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
             $sqlQuery);
 
 
@@ -533,7 +551,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 INNER JOIN (SELECT * FROM join_table) T4 ON T4.name = ?) S2", [
+        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 LEFT JOIN (SELECT * FROM join_table) T4 ON T4.name = ?) S2", [
             "bobby"
         ]),
             $sqlQuery);
@@ -581,7 +599,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 INNER JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON T2.name LIKE ?) S1",
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 LEFT JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON T2.name LIKE ?) S1",
             [
                 0, "swimming", 1, "%bob%"
             ]),
@@ -628,7 +646,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name alias_1,T2.category alias_2,T2.status alias_3 FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name alias_1,T2.category alias_2,T2.status alias_3 FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
             $sqlQuery);
 
 
