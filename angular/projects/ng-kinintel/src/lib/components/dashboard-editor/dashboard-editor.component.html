@@ -1,41 +1,93 @@
-<h2>{{dashboard.title}}</h2>
+<ng-template [ngIf]="true">
 
-<div class="dashboard-parameters" *ngIf="dashboard.displaySettings">
-    <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.displaySettings.parameters)">
-        <label>
-            {{parameter.title}}
-            <div class="parameter-input">
-                <input [type]="parameter.type" [(ngModel)]="parameter.value" (keyup.enter)="setParameterValue()">
-                <button mat-icon-button style="margin-left: 0; background-color: transparent"
-                        (click)="removeParameter(parameter)">
-                    <mat-icon>highlight_off</mat-icon>
-                </button>
-            </div>
-
-        </label>
-
-        <div class="divider" *ngIf="_.values(dashboard.displaySettings.parameters).length > 1"></div>
-    </ng-template>
-    <button mat-button (click)="addParameter()">
-        <mat-icon>add</mat-icon>&nbsp;Add Parameter
-    </button>
-</div>
-
-<div class="draggable-toolbar">
-
-    <ng-template ngFor let-item [ngForOf]="itemTypes" let-i=index>
-        <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
-             [attr.gs-h]="item.height" [attr.data-index]="i">
-            <div class="grid-stack-item-content" draggable="true">
-                <ki-item-component [dragItem]="true" [dashboardItemType]="item"
-                    style="justify-content: center"></ki-item-component>
-            </div>
+    <div class="align-center justify-between mb-4 flex-wrap">
+        <div *ngIf="editDashboardTitle" class="align-center ml-2">
+            <input type="text" class="title-input" [(ngModel)]="dashboard.title">&nbsp;
+            <button mat-icon-button (click)="save(); editDashboardTitle = false;">
+                <mat-icon>save</mat-icon>
+            </button>
         </div>
-    </ng-template>
 
-</div>
+        <div *ngIf="!editDashboardTitle" class="align-center ml-2">
+            <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
+            <button mat-icon-button (click)="editDashboardTitle = true;">
+                <mat-icon>edit</mat-icon>
+            </button>
+        </div>
+
+        <div class="data-actions">
+            <button mat-button color="primary" class="align-center" title="Set dashboard item spacing"
+                    [matMenuTriggerFor]="spacingMenu">
+                <mat-icon>grid_view</mat-icon>
+            </button>
+            <mat-menu #spacingMenu="matMenu">
+                <button mat-menu-item *ngFor="let space of gridSpaces" (click)="updateGridSpacing(space.value)">
+                    {{space.label}}
+                </button>
+            </mat-menu>
+<!--            <button mat-button color="primary" class="align-center" title="Open in full screen"-->
+<!--                    (click)="openFullScreen()">-->
+<!--                <mat-icon>open_in_full</mat-icon>-->
+<!--            </button>-->
+            <button mat-button color="primary" class="align-center" title="Toggle between light/dark mode"
+                    (click)="toggleDarkMode()">
+                <mat-icon *ngIf="darkMode">light_mode</mat-icon>
+                <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
+            </button>
+            <div class="divider"></div>
+            <button mat-button color="primary" class="align-center" (click)="save()" title="Save dashboard">
+                <mat-icon>save</mat-icon>
+            </button>
+        </div>
+    </div>
+
+
+    <div class="dashboard-parameters" *ngIf="dashboard.displaySettings">
+        <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.displaySettings.parameters)">
+            <label>
+                {{parameter.title}}
+                <div class="parameter-input">
+                    <input [type]="parameter.type" [(ngModel)]="parameter.value" (keyup.enter)="setParameterValue()">
+                    <button mat-icon-button style="margin-left: 0; background-color: transparent"
+                            (click)="removeParameter(parameter)">
+                        <mat-icon>highlight_off</mat-icon>
+                    </button>
+                </div>
+
+            </label>
+
+            <div class="divider" *ngIf="_.values(dashboard.displaySettings.parameters).length > 1"></div>
+        </ng-template>
+        <button mat-button (click)="addParameter()">
+            <mat-icon>add</mat-icon>&nbsp;Add Parameter
+        </button>
+    </div>
+
+    <div class="draggable-toolbar">
+
+        <ng-template ngFor let-item [ngForOf]="itemTypes" let-i=index>
+            <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
+                 [attr.gs-h]="item.height" [attr.data-index]="i">
+                <div class="grid-stack-item-content" draggable="true">
+                    <ki-item-component [dragItem]="true" [dashboardItemType]="item"
+                                       style="justify-content: center"></ki-item-component>
+                </div>
+            </div>
+        </ng-template>
+
+    </div>
+
+</ng-template>
+<ng-template [ngIf]="dashboard.displaySettings && dashboard.displaySettings.fullScreen">
+    <div class="align-center justify-between mb-4 flex-wrap">
+        <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
+
+        <div class="data-actions">
+            <button mat-button color="primary" class="align-center" (click)="backToEditor()"
+                    title="Back to dashboard editor">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+        </div>
+    </div>
+</ng-template>
 <div class="grid-stack"></div>
-<div class="action-toolbar">
-    <div></div>
-    <button mat-flat-button color="primary" (click)="save()">Save</button>
-</div>

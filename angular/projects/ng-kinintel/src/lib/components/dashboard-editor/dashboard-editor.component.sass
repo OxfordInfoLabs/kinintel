@@ -1,3 +1,27 @@
+h2.dashboard-title
+    margin-bottom: 0
+
+.title-input
+    min-width: 300px
+
+.data-actions
+    display: flex
+    align-items: center
+    button
+        margin-left: .5rem
+        background-color: white
+        min-width: 54px
+        mat-icon
+            font-size: 20px
+            width: 20px
+            height: 23px
+            line-height: 20px
+    .divider
+        margin: 0 .5rem 0 1rem
+        width: 2px
+        height: 32px
+        background-color: white
+
 ki-item-component
     display: flex
     align-items: center
@@ -20,6 +44,12 @@ mat-drawer-container
     border-radius: 6px
     position: relative
     box-shadow: 0 0 6px 0 rgba(0,0,0,0.05)
+    &::-webkit-scrollbar
+        width: 0.5em
+        height: 0.5em
+        background: transparent
+    &::-webkit-scrollbar-thumb
+        background: #d3d3d3
     .edit-widget
         position: absolute
         left: -5px
@@ -88,8 +118,8 @@ mat-drawer-container
                         height: 20px
                         line-height: 20px
             input
-                font-size: .8rem
-                padding: .25rem
+                font-size: .9rem
+                padding: .45rem
                 width: 175px
 
 .dashboard-editor-panel

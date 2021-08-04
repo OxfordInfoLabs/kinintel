@@ -7,36 +7,42 @@ import {DatasourceComponent} from './views/datasource/datasource.component';
 import {LoginComponent} from './views/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {DashboardsComponent} from './views/dashboards/dashboards.component';
+import {AppComponent} from './app.component';
 
 const routes: Routes = [
     {
         path: '',
-        redirectTo: '/home',
-        pathMatch: 'full'
+        component: AppComponent,
+        children: [
+            {
+                path: 'home',
+                component: HomeComponent
+            },
+            {
+                path: 'dashboards',
+                component: DashboardsComponent
+            },
+            {
+                path: 'dashboards/:dashboard',
+                component: DashboardComponent
+            },
+            {
+                path: 'dataset',
+                component: DatasetComponent
+            },
+            {
+                path: 'datasource',
+                component: DatasourceComponent
+            },
+            {
+                path: 'login',
+                component: LoginComponent
+            }
+        ]
     },
     {
-        path: 'home',
-        component: HomeComponent
-    },
-    {
-        path: 'dashboards',
-        component: DashboardsComponent
-    },
-    {
-        path: 'dashboards/:dashboard',
+        path: 'dashboards/:dashboard/full',
         component: DashboardComponent
-    },
-    {
-        path: 'dataset',
-        component: DatasetComponent
-    },
-    {
-        path: 'datasource',
-        component: DatasourceComponent
-    },
-    {
-        path: 'login',
-        component: LoginComponent
     }
 ];
 

@@ -1,8 +1,6 @@
 import {
     AfterViewInit, ApplicationRef,
-    ChangeDetectorRef,
-    Component, ComponentFactoryResolver, EmbeddedViewRef, Injector, Input,
-    NgZone,
+    Component, ComponentFactoryResolver, EmbeddedViewRef, HostBinding, Injector, Input, OnDestroy,
     OnInit,
     ViewChild,
     ViewContainerRef,
@@ -13,11 +11,12 @@ import {GridStack, GridStackNode} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../services/dashboard.service';
 import * as _ from 'lodash';
 import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -25,9 +24,13 @@ import {MatDialog} from '@angular/material/dialog';
     styleUrls: ['./dashboard-editor.component.sass'],
     encapsulation: ViewEncapsulation.None
 })
-export class DashboardEditorComponent implements OnInit, AfterViewInit {
+export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
+
+    @HostBinding('class.p-4') get t(){
+        return this.dashboard.displaySettings && this.dashboard.displaySettings.fullScreen;
+    }
 
     public itemTypes: any = [
         {
@@ -83,6 +86,23 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
     public dashboard: any = {};
     public activeSidePanel: string = null;
     public _ = _;
+    public editDashboardTitle = false;
+    public darkMode = false;
+    public fullScreen = false;
+    public gridSpaces = [
+        {
+            label: 'Small',
+            value: '2px'
+        },
+        {
+            label: 'Medium',
+            value: '5px'
+        },
+        {
+            label: 'Large',
+            value: '10px'
+        }
+    ];
 
     private grid: GridStack;
 
@@ -95,10 +115,15 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
                 private injector: Injector,
                 private route: ActivatedRoute,
                 private dashboardService: DashboardService,
-                private dialog: MatDialog) {
+                private dialog: MatDialog,
+                private snackBar: MatSnackBar,
+                private router: Router) {
     }
 
     ngOnInit(): void {
+        if (this.route.snapshot.queryParams.fullScreen) {
+
+        }
     }
 
     ngAfterViewInit() {
@@ -142,18 +167,63 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
                 this.addComponentToGridItem(item.el.firstChild, instanceId,
                     dashboardItemType || this.itemTypes[item.el.dataset.index], !!dashboardItemType);
             });
+            if (this.dashboard.displaySettings.inset) {
+                this.updateGridSpacing(this.dashboard.displaySettings.inset, false);
+            }
         });
 
         const dashboardId = this.route.snapshot.params.dashboard;
+
         if (dashboardId) {
             this.dashboardService.getDashboard(dashboardId).then(dashboard => {
                 this.dashboard = dashboard;
-                if (this.dashboard.displaySettings && this.dashboard.displaySettings.grid.length) {
-                    this.grid.load(this.dashboard.displaySettings.grid);
+                this.editDashboardTitle = !this.dashboard.title;
+                if (this.dashboard.displaySettings) {
+                    this.darkMode = !!this.dashboard.displaySettings.darkMode;
+                    this.setDarkModeOnBody();
+                    if (this.dashboard.displaySettings.fullScreen) {
+                        this.openFullScreen();
+                        this.fullScreen = true;
+                    }
+                    if (this.dashboard.displaySettings.grid.length) {
+                        this.grid.load(this.dashboard.displaySettings.grid);
+                    }
                 }
             });
         }
+    }
 
+    ngOnDestroy() {
+        document.body.classList.remove('dark');
+    }
+
+    public openFullScreen() {
+        this.dashboard.displaySettings.fullScreen = true;
+        this.save(false).then(() => {
+            this.router.navigate(['dashboards', this.dashboard.id, 'full']);
+        });
+    }
+
+    public backToEditor() {
+        this.dashboard.displaySettings.fullScreen = false;
+        this.save(false).then(() => {
+            this.router.navigate(['dashboards', this.dashboard.id]);
+        });
+    }
+
+    public toggleDarkMode() {
+        this.dashboard.displaySettings.darkMode = this.darkMode = !this.darkMode;
+        this.setDarkModeOnBody();
+        this.save(false);
+    }
+
+    public updateGridSpacing(space, save = true) {
+        this.dashboard.displaySettings.inset = space;
+        document.querySelectorAll('.grid-stack-item-content')
+            .forEach((el: any) => el.style.inset = space);
+        if (save) {
+            this.save(false);
+        }
     }
 
     public addParameter() {
@@ -201,9 +271,17 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
         this.grid.load(this.dashboard.displaySettings.grid);
     }
 
-    public save() {
+    public save(showSaved = true) {
         this.dashboard.displaySettings.grid = this.grid.save(true);
-        this.dashboardService.saveDashboard(this.dashboard);
+        return this.dashboardService.saveDashboard(this.dashboard).then(() => {
+            if (showSaved) {
+                this.snackBar.open('Dashboard successfully saved.', 'Close', {
+                    verticalPosition: 'top',
+                    duration: 3000
+                });
+            }
+            return this.dashboard;
+        });
     }
 
     private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
@@ -241,6 +319,14 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit {
         this.applicationRef.attachView(componentRef.hostView);
 
         return componentRef;
+    }
+
+    private setDarkModeOnBody() {
+        if (this.darkMode) {
+            document.body.classList.add('dark');
+        } else {
+            document.body.classList.remove('dark');
+        }
     }
 
 }

@@ -57,13 +57,12 @@ export class ConfigureItemComponent implements OnInit {
 
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();
+        } else {
+            if (this.dashboard.displaySettings &&
+                this.dashboard.displaySettings.metric) {
+                this.metricData = this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
+            }
         }
-
-        if (this.dashboard.displaySettings &&
-            this.dashboard.displaySettings.metric) {
-            this.metricData = this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
-        }
-
     }
 
     public selectedDatasource() {

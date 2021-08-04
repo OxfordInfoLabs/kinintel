@@ -22,6 +22,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { DashboardsComponent } from './views/dashboards/dashboards.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { RouterComponent } from './router/router.component';
 
 @NgModule({
     declarations: [
@@ -31,7 +32,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
         DatasetComponent,
         DatasourceComponent,
         LoginComponent,
-        DashboardsComponent
+        DashboardsComponent,
+        RouterComponent
     ],
     imports: [
         BrowserModule,
@@ -59,7 +61,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
             multi: true
         }
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [RouterComponent]
 })
 export class AppModule {
 }

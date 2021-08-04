@@ -1,5 +1,14 @@
 @import "../custom-theme"
 
+app-router
+    display: block
+    height: 100vh
+    width: 100vw
+
+ki-dashboard-editor
+    height: 100%
+    width: 100%
+
 #toolbar
     height: 64px
     position: fixed
@@ -23,7 +32,13 @@
     background-color: whitesmoke
     margin-top: 64px
     height: calc(100vh - 64px)
-    padding: 2rem 1rem
+    padding: 1rem
+    &::-webkit-scrollbar
+        width: 0.5em
+        height: 0.5em
+        background: transparent
+    &::-webkit-scrollbar-thumb
+        background: #777777
     .page-header
         display: flex
         align-items: center
