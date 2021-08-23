@@ -21,6 +21,16 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
+     * Layout settings
+     *
+     * @var mixed
+     * @json
+     * @sqlType LONGTEXT
+     */
+    protected $layoutSettings;
+
+
+    /**
      * Display settings
      *
      * @var mixed
@@ -63,6 +73,21 @@ class DashboardSummary extends DashboardSearchResult {
     public function setDatasetInstances($datasetInstances) {
         $this->datasetInstances = $datasetInstances;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLayoutSettings() {
+        return $this->layoutSettings;
+    }
+
+    /**
+     * @param mixed $layoutSettings
+     */
+    public function setLayoutSettings($layoutSettings) {
+        $this->layoutSettings = $layoutSettings;
+    }
+
 
     /**
      * @return mixed
