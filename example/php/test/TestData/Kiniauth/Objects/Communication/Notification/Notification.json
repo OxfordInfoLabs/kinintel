@@ -1,0 +1,31 @@
+[
+  {
+    "title": "Welcome to your account",
+    "content": "Welcome to your account from all of us at Kiniauth.  We appreciate your investment in our wonderful platform",
+    "accountId": 1,
+    "projectKey": "project2",
+    "level": {
+      "key": "info"
+    },
+    "initialState": "READ"
+  },
+  {
+    "title": "2FA strengthens your security",
+    "content": "Why not strengthen your security by activating 2FA on your account",
+    "accountId": 1,
+    "projectKey": "project2",
+    "level": {
+      "key": "warning"
+    }
+  },
+  {
+    "title": "Act now to prevent account suspension",
+    "content": "Your account has been flagged with suspicious behaviour and is at risk of being suspended.  Please rectify immediately",
+    "accountId": 1,
+    "projectKey": "project2",
+    "level": {
+      "key": "critical"
+    },
+    "initialState": "FLAGGED"
+  }
+]

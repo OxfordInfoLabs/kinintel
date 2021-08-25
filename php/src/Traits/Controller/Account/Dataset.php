@@ -79,7 +79,7 @@ trait Dataset {
     /**
      * Remove a dataset instance by id
      *
-     * @http DELETE /$id\
+     * @http DELETE /$id
      *
      * @param $id
      */
