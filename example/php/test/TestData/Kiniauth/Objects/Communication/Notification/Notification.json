@@ -5,7 +5,8 @@
     "accountId": 1,
     "projectKey": "project2",
     "level": {
-      "key": "info"
+      "key": "info",
+      "title": "Informational"
     },
     "initialState": "READ"
   },
@@ -15,7 +16,8 @@
     "accountId": 1,
     "projectKey": "project2",
     "level": {
-      "key": "warning"
+      "key": "warning",
+      "title": "Warning"
     }
   },
   {
@@ -24,7 +26,8 @@
     "accountId": 1,
     "projectKey": "project2",
     "level": {
-      "key": "critical"
+      "key": "critical",
+      "title": "Critical"
     },
     "initialState": "FLAGGED"
   }
