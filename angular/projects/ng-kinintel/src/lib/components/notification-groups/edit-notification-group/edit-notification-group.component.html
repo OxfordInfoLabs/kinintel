@@ -1,0 +1,82 @@
+<div class="container mx-auto max-w-screen-lg">
+
+    <h2>Notification Group</h2>
+
+
+    <label class="mb-4">
+        Name
+        <input type="text" [(ngModel)]="notification.name">
+    </label>
+
+    <label class="mb-4">
+        Type
+        <select [(ngModel)]="notification.communicationMethod">
+            <option value="email">Email</option>
+            <option value="internal">Internal</option>
+        </select>
+    </label>
+
+    <label class="mb-8">
+        Select Users
+        <input type="text" #userSearch class="mb-2"
+               placeholder="Search for a user"
+               [matAutocomplete]="auto"
+               (keyup)="search($event.target.value)">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="userSelected($event, userSearch)">
+            <mat-option *ngFor="let user of users" [value]="user">
+                {{user.name}}
+            </mat-option>
+        </mat-autocomplete>
+        <mat-chip-list>
+            <mat-chip *ngFor="let member of _.filter(notificationGroupMembers, 'user')"
+                      [removable]="true" (removed)="_.remove(notificationGroupMembers, {user: member})">
+                {{member.user.name}}
+                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+        </mat-chip-list>
+    </label>
+
+    <label class="mb-8">
+        External Recipients
+        <input type="text" class="mb-2"
+               placeholder="Enter recipient data"
+               (keyup.enter)="addExternalMember($event)">
+
+        <mat-chip-list>
+            <mat-chip *ngFor="let member of _.filter(notificationGroupMembers, 'memberData')"
+                      [removable]="true"
+                      (removed)="_.remove(notificationGroupMembers, {memberData: member.memberData})">
+                {{member.memberData}}
+                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+        </mat-chip-list>
+    </label>
+
+    <div class="test-sent" *ngIf="testSent">
+        <p>
+            <mat-icon>check_circle</mat-icon>
+        </p>
+        <p>Test {{notification.type}} has been sent to the following recipients:
+            <ng-template ngFor let-recipient let-i=index [ngForOf]="notification.recipients">
+                <span *ngIf="i > 0">,&nbsp;</span><b>{{recipient}}</b>
+            </ng-template>
+        </p>
+    </div>
+
+    <div class="py-4 align-center justify-between">
+        <button mat-stroked-button (click)="cancel()">
+            Cancel
+        </button>
+        <div>
+            <button mat-stroked-button class="send-test" color="primary" [disabled]="false">
+                Send Test
+            </button>
+            <button mat-flat-button color="primary" (click)="save()">
+                Save Changes
+            </button>
+        </div>
+
+    </div>
+
+
+</div>

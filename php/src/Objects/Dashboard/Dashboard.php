@@ -36,7 +36,7 @@ class Dashboard extends DashboardSummary {
      */
     public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
-            parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getId());
+            parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(), $dashboardSummary->getId());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -60,7 +60,7 @@ class Dashboard extends DashboardSummary {
      * Return a dashboard summary
      */
     public function returnSummary() {
-        return new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->id);
+        return new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings, $this->id);
     }
 
 }

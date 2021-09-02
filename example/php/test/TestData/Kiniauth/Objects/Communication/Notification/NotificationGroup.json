@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Support Group",
+    "communicationMethod": "email",
+    "accountId": 1,
+    "projectKey": "project2",
+    "members": [
+      {
+        "memberData": "support@tech.com"
+      },
+      {
+        "user": {
+          "id": 2
+        }
+      }
+    ]
+  },
+  {
+    "name": "Tech Group",
+    "communicationMethod": "email",
+    "accountId": 1,
+    "projectKey": "project2",
+    "members": [
+      {
+        "memberData": "tech@support.com"
+      },
+      {
+        "user": {
+          "id": 2
+        }
+      }
+    ]
+  }
+]

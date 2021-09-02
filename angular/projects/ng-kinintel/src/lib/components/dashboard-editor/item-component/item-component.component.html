@@ -34,7 +34,9 @@
     <button mat-icon-button class="edit-widget" (click)="configure()">
         <mat-icon>edit</mat-icon>
     </button>
-    <div class="item-title">{{dashboardItemType.label}}</div>
+    <div class="item-title" [ngClass]="{'mb-4': !general.description, 'mb-2': general.description}"
+         *ngIf="general.name">{{general.name}}</div>
+    <div class="item-description" *ngIf="general.description">{{general.description}}</div>
 
     <div class="item-container">
 
@@ -72,6 +74,13 @@
 
         </ng-template>
 
+    </div>
+
+    <div class="actions" *ngIf="general.cta">
+        <button mat-button color="primary" (click)="callToAction()">
+            {{general.cta.label}}
+            <mat-icon>chevron_right</mat-icon>
+        </button>
     </div>
 
 </ng-template>

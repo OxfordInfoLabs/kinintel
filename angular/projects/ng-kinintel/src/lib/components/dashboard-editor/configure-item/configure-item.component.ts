@@ -5,6 +5,8 @@ import {DashboardService} from '../../../services/dashboard.service';
 import {DatasetNameDialogComponent} from '../../dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import * as _ from 'lodash';
 import chroma from 'chroma-js';
+import {NotificationService} from '../../../services/notification.service';
+import {DatasetService} from '../../../services/dataset.service';
 
 @Component({
     selector: 'ki-configure-item',
@@ -17,9 +19,11 @@ export class ConfigureItemComponent implements OnInit {
     public grid;
     public chartData: any;
     public metricData: any = {};
+    public general: any = {};
     public dashboard;
     public dashboardItemType;
     public dashboardDatasetInstance: any;
+    public datasets: any = [];
     public filterFields: any = [];
     public chartTypes = ['line', 'bar', 'pie', 'doughnut'];
     public metricFormats = ['Currency', 'Number', 'Percentage'];
@@ -40,13 +44,25 @@ export class ConfigureItemComponent implements OnInit {
             symbol: '€'
         }
     ];
+    public filterJunction = {
+        logic: 'AND',
+        filters: [{
+            fieldName: '',
+            value: '',
+            filterType: ''
+        }],
+        filterJunctions: []
+    };
+    public notificationSettings: any = [];
 
     private dataset: any;
 
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
-                private dashboardService: DashboardService) {
+                private dashboardService: DashboardService,
+                private notificationService: NotificationService,
+                private datasetService: DatasetService) {
     }
 
     ngOnInit(): void {
@@ -55,14 +71,30 @@ export class ConfigureItemComponent implements OnInit {
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
         this.dashboardItemType = this.data.dashboardItemType;
 
+        this.notificationService.getNotificationGroups().then(settings => this.notificationSettings = settings);
+
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();
         } else {
-            if (this.dashboard.displaySettings &&
-                this.dashboard.displaySettings.metric) {
-                this.metricData = this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
+            if (this.dashboard.layoutSettings) {
+                if (this.dashboard.layoutSettings.metric) {
+                    this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
+                }
+                if (this.dashboard.layoutSettings.general) {
+                    this.general = this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] || {};
+                }
             }
+
         }
+
+        this.datasetService.getDatasets(
+            '',
+            '5',
+            '0'
+        ).toPromise().then(datasets => {
+            this.datasets = datasets;
+            console.log(datasets);
+        });
     }
 
     public selectedDatasource() {
@@ -98,6 +130,17 @@ export class ConfigureItemComponent implements OnInit {
         this.setChartData();
     }
 
+    public setCallToActionItem(d1: any, d2: any) {
+        if (!d2) {
+            return true;
+        }
+        if (d2.type === 'edit') {
+            return d1.type === 'edit';
+        } else if (d2.type === 'dataset') {
+            return d1.value === d2.value;
+        }
+    }
+
     public backgroundColourUpdate() {
         if (this.dashboardItemType.type === 'line') {
             this.dashboardItemType.backgroundColor = this.dashboardItemType.backgroundColorFrom || 'black';
@@ -111,22 +154,26 @@ export class ConfigureItemComponent implements OnInit {
 
     public saveDashboard() {
         const grid = this.grid.save(true);
-        if (!this.dashboard.displaySettings) {
-            this.dashboard.displaySettings = {};
+        if (!this.dashboard.layoutSettings) {
+            this.dashboard.layoutSettings = {};
         }
-        this.dashboard.displaySettings.grid = grid;
+        this.dashboard.layoutSettings.grid = grid;
 
-        if (!this.dashboard.displaySettings.charts) {
-            this.dashboard.displaySettings.charts = {};
-        }
-
-        this.dashboard.displaySettings.charts[this.dashboardDatasetInstance.instanceKey] = this.dashboardItemType;
-
-        if (!this.dashboard.displaySettings.metric) {
-            this.dashboard.displaySettings.metric = {};
+        if (!this.dashboard.layoutSettings.charts) {
+            this.dashboard.layoutSettings.charts = {};
         }
 
-        this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] = this.metricData;
+        this.dashboard.layoutSettings.charts[this.dashboardDatasetInstance.instanceKey] = this.dashboardItemType;
+
+        if (!this.dashboard.layoutSettings.metric) {
+            this.dashboard.layoutSettings.metric = {};
+        }
+        this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] = this.metricData;
+
+        if (!this.dashboard.layoutSettings.general) {
+            this.dashboard.layoutSettings.general = {};
+        }
+        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] = this.general;
 
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});

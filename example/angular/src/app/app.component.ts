@@ -6,7 +6,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ProjectPickerComponent, ProjectService, TagPickerComponent, TagService} from 'ng-kinintel';
 import {Subscription} from 'rxjs';
 import {environment} from '../environments/environment';
-import {AuthenticationService} from 'ng-kiniauth';
+import {AuthenticationService, NotificationService} from 'ng-kiniauth';
 import {Router} from '@angular/router';
 
 @Component({
@@ -15,7 +15,7 @@ import {Router} from '@angular/router';
     styleUrls: ['./app.component.sass']
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('snav', { static: false }) public snav: MatSidenav;
+    @ViewChild('snav', {static: false}) public snav: MatSidenav;
 
     public mobileQuery: MediaQueryList;
     public showFixedSidebar: boolean;
@@ -25,12 +25,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     public loggedIn = false;
     public sessionUser: any = {};
     public isLoading: boolean;
+    public notificationCount = 0;
+    public notifications: any = [];
 
     private readonly mobileQueryListener: () => void;
     private projectSub: Subscription;
     private tagSub: Subscription;
     private authSub: Subscription;
     private loadingSub: Subscription;
+    private notificationSub: Subscription;
 
     constructor(private changeDetectorRef: ChangeDetectorRef,
                 private media: MediaMatcher,
@@ -39,7 +42,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                 private projectService: ProjectService,
                 private tagService: TagService,
                 private authService: AuthenticationService,
-                private router: Router) {
+                private router: Router,
+                private notificationService: NotificationService) {
 
         this.mobileQuery = media.matchMedia('(max-width: 768px)');
         this.mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -65,6 +69,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingSub = this.authService.loadingRequests.subscribe(isLoading =>
             setTimeout(() => this.isLoading = isLoading, 0)
         );
+        this.notificationService.getUnreadNotificationCount();
+        this.notificationSub = this.notificationService.notificationCount
+            .subscribe(count => {
+                this.notificationCount = count;
+                this.notificationService.getUserNotifications(this.activeProject.key, '5', '0').then(notifications => {
+                    this.notifications = notifications;
+                });
+            });
     }
 
     ngAfterViewInit() {
@@ -91,7 +103,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     public selectProject(disableClose = false) {
         const dialogRef = this.dialog.open(ProjectPickerComponent, {
             width: '700px',
-            height:  '500px',
+            height: '500px',
             disableClose,
             data: {
                 projectService: this.projectService
@@ -102,7 +114,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     public selectTag() {
         const dialogRef = this.dialog.open(TagPickerComponent, {
             width: '700px',
-            height:  '500px',
+            height: '500px',
             data: {
                 tagService: this.tagService
             }

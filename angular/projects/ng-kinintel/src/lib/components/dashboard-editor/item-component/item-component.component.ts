@@ -1,12 +1,14 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, HostBinding, Input, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
 import 'gridstack/dist/gridstack.min.css';
-import {GridStack, GridStackNode} from 'gridstack';
+import {GridStack} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
 import * as _ from 'lodash';
+import {DataExplorerComponent} from '../../data-explorer/data-explorer.component';
+import {DatasetService} from '../../../services/dataset.service';
 
 @Component({
     selector: 'ki-item-component',
@@ -22,12 +24,15 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     @Input() dragItem: boolean;
     @Input() grid: any;
 
+    @HostBinding('class.justify-center') configureClass = false;
+
     public dataset: any;
     public chartData: any;
     public dashboardDatasetInstance: any;
     public loadingItem = false;
     public filterFields: any = [];
     public metricData: any = {};
+    public general: any = {};
     public currencies = [
         {
             name: 'British Pound (£)',
@@ -53,7 +58,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     }
 
     constructor(private dialog: MatDialog,
-                private datasourceService: DatasourceService) {
+                private datasourceService: DatasourceService,
+                private datasetService: DatasetService) {
     }
 
     ngOnInit(): void {
@@ -114,6 +120,7 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     public load() {
         if (this.dashboardDatasetInstance) {
             this.loadingItem = true;
+            this.configureClass = true;
             return this.datasourceService.evaluateDatasource(
                 this.dashboardDatasetInstance.datasourceInstanceKey,
                 this.dashboardDatasetInstance.transformationInstances,
@@ -126,11 +133,15 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
                             name: column.name
                         };
                     });
-                    if (this.dashboard.displaySettings.metric) {
-                        this.metricData = this.dashboard.displaySettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
+                    if (this.dashboard.layoutSettings.metric) {
+                        this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
                         this.updateMetricDataValues();
                     }
+                    if (this.dashboard.layoutSettings.general) {
+                        this.general = this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] || {};
+                    }
                     this.loadingItem = false;
+                    this.configureClass = false;
                     this.setChartData();
                 }).catch(err => {
                 });
@@ -152,6 +163,29 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
 
         this.dashboard.displaySettings.heading[this.itemInstanceKey] = this.dashboardItemType.headingValue;
         this.dashboardItemType._editing = false;
+    }
+
+    public callToAction() {
+        if (this.general.cta.type === 'edit') {
+            this.configure();
+        } else if (this.general.cta.type === 'dataset') {
+            this.datasetService.getDataset(this.general.cta.value).then(dataset => {
+                const dialogRef = this.dialog.open(DataExplorerComponent, {
+                    width: '100vw',
+                    height: '100vh',
+                    maxWidth: '100vw',
+                    maxHeight: '100vh',
+                    hasBackdrop: false,
+                    data: {
+                        dataset,
+                        showChart: false
+                    }
+                });
+                dialogRef.afterClosed().subscribe(res => {
+
+                });
+            });
+        }
     }
 
     public setChartData() {

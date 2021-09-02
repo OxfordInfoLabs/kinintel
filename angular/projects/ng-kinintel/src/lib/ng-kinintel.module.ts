@@ -48,6 +48,13 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { SourceSelectorDialogComponent } from './components/dashboard-editor/source-selector-dialog/source-selector-dialog.component';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import { DashboardParameterComponent } from './components/dashboard-editor/dashboard-parameter/dashboard-parameter.component';
+import {MatTabsModule} from '@angular/material/tabs';
+import {RouterModule} from '@angular/router';
+import {NotificationGroupsComponent} from './components/notification-groups/notification-groups.component';
+import {EditNotificationGroupComponent} from './components/notification-groups/edit-notification-group/edit-notification-group.component';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { AlertGroupsComponent } from './components/alert-groups/alert-groups.component';
+import { EditAlertGroupComponent } from './components/alert-groups/edit-alert-group/edit-alert-group.component';
 
 
 @NgModule({
@@ -75,7 +82,11 @@ import { DashboardParameterComponent } from './components/dashboard-editor/dashb
         DatasetColumnSettingsComponent,
         DatasetColumnEditorComponent,
         SourceSelectorDialogComponent,
-        DashboardParameterComponent
+        DashboardParameterComponent,
+        NotificationGroupsComponent,
+        EditNotificationGroupComponent,
+        AlertGroupsComponent,
+        EditAlertGroupComponent
     ],
     imports: [
         BrowserModule,
@@ -102,7 +113,10 @@ import { DashboardParameterComponent } from './components/dashboard-editor/dashb
         MatCheckboxModule,
         MatListModule,
         MatProgressSpinnerModule,
-        MatSidenavModule
+        MatSidenavModule,
+        MatTabsModule,
+        RouterModule,
+        MatAutocompleteModule
     ],
     exports: [
         DashboardEditorComponent,
@@ -118,7 +132,11 @@ import { DashboardParameterComponent } from './components/dashboard-editor/dashb
         DashboardsComponent,
         // DatasetFilterJunctionComponent,
         // DatasetNameDialogComponent,
-        // DatasetFiltersComponent
+        // DatasetFiltersComponent,
+        NotificationGroupsComponent,
+        EditNotificationGroupComponent,
+        AlertGroupsComponent,
+        EditAlertGroupComponent
     ]
 })
 export class NgKinintelModule {
