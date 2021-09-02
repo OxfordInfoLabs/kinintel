@@ -35,6 +35,7 @@ class AlertGroup extends ActiveRecord {
      * @var ScheduledTask
      * @manyToOne
      * @parentJoinColumns scheduled_task_id
+     * @saveCascade
      */
     protected $scheduledTask;
 

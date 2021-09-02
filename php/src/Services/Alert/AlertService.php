@@ -54,6 +54,14 @@ class AlertService {
             $alertGroup->save();
 
             // Now set up the subordinate objects
+            $alertGroup->setScheduledTask(new ScheduledTask(new ScheduledTaskSummary("alertgroup",
+                "Alert Group: " . $alertGroup->getTitle() . " (Account " . $accountId . ")",
+                [
+                    "alertGroupId" => $alertGroup->getId()
+                ], $alertGroupSummary->getTaskTimePeriods()), $projectKey, $accountId));
+
+            // Save again at the end.
+            $alertGroup->save();
 
         }
 
