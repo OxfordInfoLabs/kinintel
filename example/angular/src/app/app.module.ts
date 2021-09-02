@@ -23,6 +23,14 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { DashboardsComponent } from './views/dashboards/dashboards.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { RouterComponent } from './router/router.component';
+import { NotificationsComponent } from './views/notifications/notifications.component';
+import { NotificationGroupsComponent } from './views/notification-groups/notification-groups.component';
+import { EditNotificationGroupComponent } from './views/notification-groups/edit-notification-group/edit-notification-group.component';
+import { AlertGroupsComponent } from './views/alert-groups/alert-groups.component';
+import { EditAlertGroupComponent } from './views/alert-groups/edit-alert-group/edit-alert-group.component';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatMenuModule} from '@angular/material/menu';
+import { NotificationComponent } from './views/notifications/notification/notification.component';
 
 @NgModule({
     declarations: [
@@ -33,7 +41,13 @@ import { RouterComponent } from './router/router.component';
         DatasourceComponent,
         LoginComponent,
         DashboardsComponent,
-        RouterComponent
+        RouterComponent,
+        NotificationsComponent,
+        NotificationGroupsComponent,
+        EditNotificationGroupComponent,
+        AlertGroupsComponent,
+        EditAlertGroupComponent,
+        NotificationComponent
     ],
     imports: [
         BrowserModule,
@@ -52,7 +66,9 @@ import { RouterComponent } from './router/router.component';
         }),
         MatChipsModule,
         MatSnackBarModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        MatBadgeModule,
+        MatMenuModule
     ],
     providers: [
         {

@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss/base'
+@import 'tailwindcss/components'
+@import 'tailwindcss/utilities'
+
 @import "sass/colours"
 @import "sass/layout"
 @import "sass/widget"
@@ -31,13 +35,28 @@ td.nop
     height: 100%
     width: 100%
     flex-direction: column
+
     .main
         font-size: 2rem
+
     .sub-metric
         margin-top: .5rem
         font-size: 1.1rem
+
         .sub-change
             &.up
                 color: green
+
             &.down
                 color: red
+
+.rg-bottom
+    background-color: #e1e1e1 !important
+
+.alert-conditions
+    .top-filters
+        background-color: transparent !important
+
+ki-edit-notification-group
+    padding: 1rem
+    display: block

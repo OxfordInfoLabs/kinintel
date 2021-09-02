@@ -185,8 +185,11 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                         this.openFullScreen();
                         this.fullScreen = true;
                     }
-                    if (this.dashboard.displaySettings.grid.length) {
-                        this.grid.load(this.dashboard.displaySettings.grid);
+
+                }
+                if (this.dashboard.layoutSettings) {
+                    if (this.dashboard.layoutSettings.grid.length) {
+                        this.grid.load(this.dashboard.layoutSettings.grid);
                     }
                 }
             });
@@ -226,6 +229,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    public toggleNotifications() {
+
+    }
+
     public addParameter() {
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
             width: '600px',
@@ -233,15 +240,15 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         });
         dialogRef.afterClosed().subscribe(parameter => {
             if (parameter) {
-                if (!this.dashboard.displaySettings) {
-                    this.dashboard.displaySettings = {};
+                if (!this.dashboard.layoutSettings) {
+                    this.dashboard.layoutSettings = {};
                 }
-                if (!this.dashboard.displaySettings.parameters) {
-                    this.dashboard.displaySettings.parameters = {};
+                if (!this.dashboard.layoutSettings.parameters) {
+                    this.dashboard.layoutSettings.parameters = {};
                 }
 
                 parameter.value = parameter.defaultValue || '';
-                this.dashboard.displaySettings.parameters[parameter.name] = parameter;
+                this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
             this.dashboardService.saveDashboard(this.dashboard);
         });
@@ -251,13 +258,13 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         const message = 'Are you sure you would like to remove this parameter. This may cause some dashboard items ' +
             'to fail.';
         if (window.confirm(message)) {
-            delete this.dashboard.displaySettings.parameters[parameter.name];
+            delete this.dashboard.layoutSettings.parameters[parameter.name];
             this.dashboardService.saveDashboard(this.dashboard);
         }
     }
 
     public setParameterValue() {
-        const parameters = _.values(this.dashboard.displaySettings.parameters);
+        const parameters = _.values(this.dashboard.layoutSettings.parameters);
         parameters.forEach(parameter => {
             this.dashboard.datasetInstances.forEach(instance => {
                 if (!_.values(instance.parameterValues).length) {
@@ -268,11 +275,11 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         });
         this.dashboardService.saveDashboard(this.dashboard);
         this.grid.removeAll();
-        this.grid.load(this.dashboard.displaySettings.grid);
+        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public save(showSaved = true) {
-        this.dashboard.displaySettings.grid = this.grid.save(true);
+        this.dashboard.layoutSettings.grid = this.grid.save(true);
         return this.dashboardService.saveDashboard(this.dashboard).then(() => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {
@@ -285,6 +292,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
+        if (!this.dashboard.layoutSettings) {
+            this.dashboard.layoutSettings = {};
+        }
         if (!this.dashboard.displaySettings) {
             this.dashboard.displaySettings = {};
         }
@@ -306,11 +316,12 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
 
-        const chartDetails = this.dashboard.displaySettings.charts ? this.dashboard.displaySettings.charts[instanceId] : null;
+        const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
         componentRef.instance.dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
+        componentRef.instance.configureClass = !load;
         if (load) {
             componentRef.instance.load();
         }

@@ -16,6 +16,14 @@
         </div>
 
         <div class="data-actions">
+            <button mat-button color="primary" class="align-center" title="Edit default notification group">
+                <mat-icon>manage_accounts</mat-icon>
+            </button>
+            <button mat-button color="primary" class="align-center" title="Toggle notifications on/off"
+                (click)="toggleNotifications()">
+                <mat-icon>notifications_off</mat-icon>
+                <mat-icon>notifications_active</mat-icon>
+            </button>
             <button mat-button color="primary" class="align-center" title="Set dashboard item spacing"
                     [matMenuTriggerFor]="spacingMenu">
                 <mat-icon>grid_view</mat-icon>

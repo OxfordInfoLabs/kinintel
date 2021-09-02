@@ -18,6 +18,9 @@ export * from './lib/components/tag-picker/tag-picker.component';
 export * from './lib/components/dashboards/dashboards.component';
 // export * from './lib/components/dataset/dataset-editor/dataset-filters/dataset-filter-junction/dataset-filter-junction.component';
 // export * from './lib/components/dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
+export * from './lib/components/notification-groups/notification-groups.component';
+export * from './lib/components/notification-groups/edit-notification-group/edit-notification-group.component';
+export * from './lib/components/alert-groups/alert-groups.component';
+export * from './lib/components/alert-groups/edit-alert-group/edit-alert-group.component';
 
 export * from './lib/ng-kinintel.module';
-

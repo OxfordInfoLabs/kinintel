@@ -7,220 +7,307 @@
 
 <div class="configure-content">
 
-    <rsz-layout class="row" [directions]="['none']" [rFlex]="false">
+    <rsz-layout class="row top" [directions]="['bottom']" [rFlex]="true">
+        <div class="cell-contents">
+            <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(evaluatedDatasource)]="dashboardDatasetInstance"
+                               (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
+        </div>
+    </rsz-layout>
 
-        <rsz-layout class="cell left" [directions]="['right']" [rFlex]="dashboardItemType.type !== 'table'">
-            <div class="cell-contents">
-                <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(evaluatedDatasource)]="dashboardDatasetInstance"
-                                   (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
-            </div>
-
-
-        </rsz-layout>
-
-        <rsz-layout *ngIf="dashboardItemType.type !== 'table'" class="cell right configure-item-section" [directions]="['none']" [rFlex]="false">
-            <div class="cell-contents">
-
-                <ng-template [ngIf]="dashboardItemType.type === 'metric'">
-
-                    <label class="mb-4">
-                        Main Metric
-                        <select [(ngModel)]="metricData.main" (ngModelChange)="updateMetricDataValues()">
-                            <option value="">-- Select Main Metric --</option>
-                            <option [value]="field.name" *ngFor="let field of filterFields">
-                                {{field.title}}
-                            </option>
-                        </select>
-                    </label>
-                    <label class="mb-4">
-                        Main Metric Format
-                        <select [(ngModel)]="metricData.mainFormat" (ngModelChange)="updateMetricDataValues()">
-                            <option value="">Automatic</option>
-                            <option [value]="format" *ngFor="let format of metricFormats">
-                                {{format}}
-                            </option>
-                        </select>
-                    </label>
-                    <ng-template [ngIf]="metricData.mainFormat">
-                        <label class="mb-4">
-                            Decimals
-                            <input type="number" [(ngModel)]="metricData.mainFormatDecimals"
-                                   (ngModelChange)="updateMetricDataValues()">
+    <rsz-layout class="row bottom" [directions]="['none']" [rFlex]="false">
+        <mat-tab-group>
+            <mat-tab label="General">
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <label class="mb-2">
+                            Name
+                            <input type="text" [(ngModel)]="general.name">
+                            <p><small>Name of the item</small></p>
                         </label>
-                    </ng-template>
-                    <ng-template [ngIf]="metricData.mainFormat === 'Currency'">
+                        <label class="mb-2">
+                            Description
+                            <input type="text" [(ngModel)]="general.description">
+                            <p><small>Description of the data item.</small></p>
+                        </label>
+                        <label class="mb-2">
+                            Call to action
+                            <mat-select [(ngModel)]="general.cta" [compareWith]="setCallToActionItem">
+                                <mat-option value="">None</mat-option>
+                                <mat-option [value]="{type: 'edit', label: 'Edit Screen'}">Edit screen</mat-option>
+                                <mat-optgroup label="Datasets">
+                                    <mat-option *ngFor="let dataset of datasets"
+                                                [value]="{type: 'dataset', value: dataset.id, label: dataset.title}">{{dataset.title}}</mat-option>
+                                </mat-optgroup>
+                            </mat-select>
+                            <p><small>Select the destination for the action link</small></p>
+                        </label>
+                    </div>
+                </div>
+
+            </mat-tab>
+            <mat-tab label="Metric" *ngIf="dashboardItemType.type === 'metric'">
+                <div class="p-4 flex justify-between">
+                    <div class="flex-grow p-4">
                         <label class="mb-4">
-                            Currency
-                            <select [(ngModel)]="metricData.mainFormatCurrency" (ngModelChange)="updateMetricDataValues()">
-                                <option value="">-- Select Currency --</option>
-                                <option [value]="currency.value" *ngFor="let currency of currencies">
-                                    {{currency.name}}
+                            Main Metric
+                            <select [(ngModel)]="metricData.main" (ngModelChange)="updateMetricDataValues()">
+                                <option value="">-- Select Main Metric --</option>
+                                <option [value]="field.name" *ngFor="let field of filterFields">
+                                    {{field.title}}
                                 </option>
                             </select>
                         </label>
-                    </ng-template>
-
-                    <hr>
-
-                    <label class="mb-4">
-                        Sub Metric
-                        <select [(ngModel)]="metricData.subMetric" (ngModelChange)="updateMetricDataValues()">
-                            <option value="">-- Select Sub Metric --</option>
-                            <option [value]="field.name" *ngFor="let field of filterFields">
-                                {{field.title}}
-                            </option>
-                        </select>
-                    </label>
-                    <label class="mb-4">
-                        Sub Metric Format
-                        <select [(ngModel)]="metricData.subMetricFormat" (ngModelChange)="updateMetricDataValues()">
-                            <option value="">Automatic</option>
-                            <option [value]="format" *ngFor="let format of metricFormats">
-                                {{format}}
-                            </option>
-                        </select>
-                    </label>
-                    <ng-template [ngIf]="metricData.subMetricFormat">
                         <label class="mb-4">
-                            Decimals
-                            <input type="number" [(ngModel)]="metricData.subMetricFormatDecimals"
-                                   (ngModelChange)="updateMetricDataValues()">
-                        </label>
-                    </ng-template>
-                    <ng-template [ngIf]="metricData.subMetricFormat === 'Currency'">
-                        <label class="mb-4">
-                            Currency
-                            <select [(ngModel)]="metricData.subMetricFormatCurrency" (ngModelChange)="updateMetricDataValues()">
-                                <option value="">-- Select Currency --</option>
-                                <option [value]="currency.value" *ngFor="let currency of currencies">
-                                    {{currency.name}}
+                            Main Metric Format
+                            <select [(ngModel)]="metricData.mainFormat" (ngModelChange)="updateMetricDataValues()">
+                                <option value="">Automatic</option>
+                                <option [value]="format" *ngFor="let format of metricFormats">
+                                    {{format}}
                                 </option>
                             </select>
                         </label>
-                    </ng-template>
+                        <ng-template [ngIf]="metricData.mainFormat">
+                            <label class="mb-4">
+                                Decimals
+                                <input type="number" [(ngModel)]="metricData.mainFormatDecimals"
+                                       (ngModelChange)="updateMetricDataValues()">
+                            </label>
+                        </ng-template>
+                        <ng-template [ngIf]="metricData.mainFormat === 'Currency'">
+                            <label class="mb-4">
+                                Currency
+                                <select [(ngModel)]="metricData.mainFormatCurrency"
+                                        (ngModelChange)="updateMetricDataValues()">
+                                    <option value="">-- Select Currency --</option>
+                                    <option [value]="currency.value" *ngFor="let currency of currencies">
+                                        {{currency.name}}
+                                    </option>
+                                </select>
+                            </label>
+                        </ng-template>
 
-                    <mat-slide-toggle [(ngModel)]="metricData.showSubChange" class="mb-4"
-                                      (ngModelChange)="updateMetricDataValues()">
-                        Show Metric Change
-                    </mat-slide-toggle>
+                        <hr>
 
-                    <p><b>Preview</b></p>
+                        <label class="mb-4">
+                            Sub Metric
+                            <select [(ngModel)]="metricData.subMetric" (ngModelChange)="updateMetricDataValues()">
+                                <option value="">-- Select Sub Metric --</option>
+                                <option [value]="field.name" *ngFor="let field of filterFields">
+                                    {{field.title}}
+                                </option>
+                            </select>
+                        </label>
+                        <label class="mb-4">
+                            Sub Metric Format
+                            <select [(ngModel)]="metricData.subMetricFormat" (ngModelChange)="updateMetricDataValues()">
+                                <option value="">Automatic</option>
+                                <option [value]="format" *ngFor="let format of metricFormats">
+                                    {{format}}
+                                </option>
+                            </select>
+                        </label>
+                        <ng-template [ngIf]="metricData.subMetricFormat">
+                            <label class="mb-4">
+                                Decimals
+                                <input type="number" [(ngModel)]="metricData.subMetricFormatDecimals"
+                                       (ngModelChange)="updateMetricDataValues()">
+                            </label>
+                        </ng-template>
+                        <ng-template [ngIf]="metricData.subMetricFormat === 'Currency'">
+                            <label class="mb-4">
+                                Currency
+                                <select [(ngModel)]="metricData.subMetricFormatCurrency"
+                                        (ngModelChange)="updateMetricDataValues()">
+                                    <option value="">-- Select Currency --</option>
+                                    <option [value]="currency.value" *ngFor="let currency of currencies">
+                                        {{currency.name}}
+                                    </option>
+                                </select>
+                            </label>
+                        </ng-template>
 
-                    <div class="metric-preview">
+                        <mat-slide-toggle [(ngModel)]="metricData.showSubChange" class="mb-4"
+                                          (ngModelChange)="updateMetricDataValues()">
+                            Show Metric Change
+                        </mat-slide-toggle>
+                    </div>
 
-                        <div class="metric-item">
-                            <div class="main">{{metricData.mainValue}}</div>
-                            <div class="sub-metric" [innerHTML]="metricData.subValue"></div>
+                    <div class="w-6/12 p-4">
+                        <p><b>Preview</b></p>
+
+                        <div class="metric-preview">
+
+                            <div class="metric-item">
+                                <div class="main">{{metricData.mainValue}}</div>
+                                <div class="sub-metric" [innerHTML]="metricData.subValue"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </mat-tab>
+            <mat-tab label="Chart" *ngIf="chartTypes.indexOf(dashboardItemType.type) > -1">
+                <div class="p-4 flex justify-between">
+                    <div class="flex-grow p-4">
+                        <label class="mb-4">
+                            Chart Type
+                            <select [(ngModel)]="dashboardItemType.type">
+                                <option value="line">Line</option>
+                                <option value="bar">Bar</option>
+                                <option value="pie">Pie</option>
+                                <option value="doughnut">Doughnut</option>
+                            </select>
+                        </label>
+
+                        <label class="mb-4">
+                            <ng-template
+                                [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                                X Axis Column
+                            </ng-template>
+                            <ng-template
+                                [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
+                                Labels Column
+                            </ng-template>
+                            <select [(ngModel)]="dashboardItemType.xAxis" (ngModelChange)="setChartData()">
+                                <option value="">-- Select
+                                    <ng-template
+                                        [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                                        X
+                                        Axis Column
+                                    </ng-template>
+                                    <ng-template
+                                        [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
+                                        Labels Column
+                                    </ng-template>
+                                    --
+                                </option>
+                                <option [value]="field.name" *ngFor="let field of filterFields">
+                                    {{field.title}}
+                                </option>
+                            </select>
+                        </label>
+
+                        <label class="mb-4">
+                            <ng-template
+                                [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                                Y Axis Column
+                            </ng-template>
+                            <ng-template
+                                [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
+                                Values Column
+                            </ng-template>
+                            <select [(ngModel)]="dashboardItemType.yAxis" (ngModelChange)="setChartData()">
+                                <option value="">-- Select
+                                    <ng-template
+                                        [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                                        Y
+                                        Axis Column
+                                    </ng-template>
+                                    <ng-template
+                                        [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
+                                        Values Column
+                                    </ng-template>
+                                    --
+                                </option>
+                                <option [value]="field.name" *ngFor="let field of filterFields">
+                                    {{field.title}}
+                                </option>
+                            </select>
+                        </label>
+
+                        <div class="align-center justify-between">
+                            <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend
+                            </mat-slide-toggle>
+                            <mat-slide-toggle *ngIf="dashboardItemType.type === 'line'"
+                                              [(ngModel)]="dashboardItemType.fill"
+                                              (ngModelChange)="setChartData()" class="mb-4">Fill Background
+                            </mat-slide-toggle>
                         </div>
 
+                        <div class="mt-4 mb-4 align-center justify-between">
+                            <label class="flex-1">
+                                Border Colour
+                                <input type="color" [(ngModel)]="dashboardItemType.borderColor">
+                            </label>
+                        </div>
+                        <div class="mt-4 mb-4 align-center justify-between">
+                            <label class="flex-1">
+                                Background Colour
+                                <ng-template [ngIf]="dashboardItemType.type !== 'line'">Range</ng-template>
+                                <input type="color" [(ngModel)]="dashboardItemType.backgroundColorFrom"
+                                       (ngModelChange)="backgroundColourUpdate()">
+                            </label>
+                            <label class="flex-1" *ngIf="dashboardItemType.type !== 'line'">
+                                &nbsp;
+                                <input type="color" [(ngModel)]="dashboardItemType.backgroundColorTo"
+                                       (ngModelChange)="backgroundColourUpdate()">
+                            </label>
+                        </div>
                     </div>
 
-                </ng-template>
+                    <div class="w-6/12 p-4">
 
-                <ng-template [ngIf]="chartTypes.indexOf(dashboardItemType.type) > -1">
 
-                    <label class="mb-4">
-                        Chart Type
-                        <select [(ngModel)]="dashboardItemType.type">
-                            <option value="line">Line</option>
-                            <option value="bar">Bar</option>
-                            <option value="pie">Pie</option>
-                            <option value="doughnut">Doughnut</option>
-                        </select>
-                    </label>
-
-                    <label class="mb-4">
-                        <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
-                            X Axis Column
-                        </ng-template>
-                        <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
-                            Labels Column
-                        </ng-template>
-                        <select [(ngModel)]="dashboardItemType.xAxis" (ngModelChange)="setChartData()">
-                            <option value="">-- Select
-                                <ng-template
-                                    [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">X
-                                    Axis Column
-                                </ng-template>
-                                <ng-template
-                                    [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
-                                    Labels Column
-                                </ng-template>
-                                --
-                            </option>
-                            <option [value]="field.name" *ngFor="let field of filterFields">
-                                {{field.title}}
-                            </option>
-                        </select>
-                    </label>
-
-                    <label class="mb-4">
-                        <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
-                            Y Axis Column
-                        </ng-template>
-                        <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
-                            Values Column
-                        </ng-template>
-                        <select [(ngModel)]="dashboardItemType.yAxis" (ngModelChange)="setChartData()">
-                            <option value="">-- Select
-                                <ng-template
-                                    [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">Y
-                                    Axis Column
-                                </ng-template>
-                                <ng-template
-                                    [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
-                                    Values Column
-                                </ng-template>
-                                --
-                            </option>
-                            <option [value]="field.name" *ngFor="let field of filterFields">
-                                {{field.title}}
-                            </option>
-                        </select>
-                    </label>
-
-                    <div class="align-center justify-between">
-                        <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend
-                        </mat-slide-toggle>
-                        <mat-slide-toggle *ngIf="dashboardItemType.type === 'line'" [(ngModel)]="dashboardItemType.fill"
-                                          (ngModelChange)="setChartData()" class="mb-4">Fill Background
-                        </mat-slide-toggle>
+                        <canvas baseChart *ngIf="chartData"
+                                [datasets]="chartData"
+                                [labels]="dashboardItemType.labels"
+                                [options]="{responsive: true}"
+                                [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                                [legend]="!!dashboardItemType.legend"
+                                [chartType]="dashboardItemType.type"
+                                [plugins]="[]">
+                        </canvas>
                     </div>
 
+                </div>
+            </mat-tab>
+            <mat-tab label="Alert">
+                <div class="px-4 flex justify-between">
+                    <div class="flex-grow p-4 alert-conditions">
+                        <div><b>Conditions</b></div>
+                        <ki-dataset-filters [filterFields]="filterFields"
+                                            [filterJunction]="filterJunction"></ki-dataset-filters>
 
-                    <canvas baseChart *ngIf="chartData" style="height: 200px"
-                            [datasets]="chartData"
-                            [labels]="dashboardItemType.labels"
-                            [options]="{responsive: true}"
-                            [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
-                            [legend]="!!dashboardItemType.legend"
-                            [chartType]="dashboardItemType.type"
-                            [plugins]="[]">
-                    </canvas>
 
-                    <div class="mt-4 mb-4 align-center justify-between">
-                        <label class="flex-1">
-                            Border Colour
-                            <input type="color" [(ngModel)]="dashboardItemType.borderColor">
-                        </label>
                     </div>
-                    <div class="mt-4 mb-4 align-center justify-between">
-                        <label class="flex-1">
-                            Background Colour
-                            <ng-template [ngIf]="dashboardItemType.type !== 'line'">Range</ng-template>
-                            <input type="color" [(ngModel)]="dashboardItemType.backgroundColorFrom"
-                                   (ngModelChange)="backgroundColourUpdate()">
-                        </label>
-                        <label class="flex-1" *ngIf="dashboardItemType.type !== 'line'">
-                            &nbsp;
-                            <input type="color" [(ngModel)]="dashboardItemType.backgroundColorTo"
-                                   (ngModelChange)="backgroundColourUpdate()">
-                        </label>
+                    <div class="w-6/12 p-4">
+                        <div class="mb-2"><b>Matches</b></div>
+                        <div class="align-center mb-8">
+                            <select class="mr-2">
+                                <option value="exactly">Exactly</option>
+                                <option value="atLeast">At Least</option>
+                                <option value="above">Above</option>
+                            </select>
+                            <input class="mr-2" type="number">
+                            <div>Rows</div>
+                        </div>
+
+                        <div class="">
+                            <div class="mb-2"><b>Notifications</b></div>
+                            <div class="align-center">
+                                <div class="w-3/12">Send to:</div>
+                                <mat-select multiple>
+                                    <mat-option *ngFor="let setting of notificationSettings">
+                                        {{setting.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="align-center justify-between mt-4 px-8 pb-8">
+                    <button mat-stroked-button color="warn">Clear Alert</button>
+                    <div>
+                        <button mat-stroked-button style="margin-right: 1rem">Test Alert</button>
+                        <button mat-flat-button color="primary">Save Alert</button>
                     </div>
 
-                </ng-template>
-            </div>
-        </rsz-layout>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
     </rsz-layout>
 
 </div>

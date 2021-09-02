@@ -1,15 +1,24 @@
 <mat-progress-bar *ngIf="isLoading" color="primary" mode="indeterminate"></mat-progress-bar>
 
-<mat-toolbar id="toolbar" color="primary">
-    <button mat-icon-button>
-        <mat-icon>insights</mat-icon>
+<mat-toolbar id="toolbar" color="primary" class="justify-between">
+    <div>
+        <button mat-icon-button>
+            <mat-icon>insights</mat-icon>
+        </button>
+        <span>Kinintel</span>
+        <button mat-stroked-button (click)="selectProject()">
+            <ng-template [ngIf]="!activeProject">Select Project</ng-template>
+            <ng-template [ngIf]="activeProject">{{activeProject.name}}</ng-template>
+            <mat-icon>expand_more</mat-icon>
+        </button>
+    </div>
+    <button mat-icon-button [matMenuTriggerFor]="notificationMenu">
+        <mat-icon [matBadge]="notificationCount" [matBadgeHidden]="notificationCount < 1" matBadgeColor="warn">notifications</mat-icon>
     </button>
-    <span>Kinintel</span>
-    <button mat-stroked-button (click)="selectProject()">
-        <ng-template [ngIf]="!activeProject">Select Project</ng-template>
-        <ng-template [ngIf]="activeProject">{{activeProject.name}}</ng-template>
-        <mat-icon>expand_more</mat-icon>
-    </button>
+    <mat-menu #notificationMenu="matMenu">
+        <button mat-menu-item *ngFor="let notification of notifications" [routerLink]="['/notifications', notification.id]"
+            [ngClass]="{'bg-blue-50 border-l-4 border-blue-200': !notification.read}">{{notification.title}}</button>
+    </mat-menu>
 </mat-toolbar>
 
 <mat-sidenav-container>
@@ -50,6 +59,17 @@
                             <mat-icon matChipRemove>cancel</mat-icon>
                         </mat-chip>
                     </mat-chip-list>
+                </div>
+                <div class="menu-items">
+                    <p class="menu-title">Settings</p>
+                    <a [routerLink]="['/notifications']" routerLinkActive="active" class="menu-item">
+                        <mat-icon>notifications</mat-icon>
+                        <span>Notifications</span>
+                    </a>
+                    <a [routerLink]="['/alert-groups']" routerLinkActive="active" class="menu-item">
+                        <mat-icon>campaign</mat-icon>
+                        <span>Alert Groups</span>
+                    </a>
                 </div>
             </ng-template>
         </div>

@@ -1,0 +1,43 @@
+<div class="container mx-auto max-w-screen-lg">
+
+    <h2>Alert Group</h2>
+
+    <div class="bg-white p-6 content-wrapper">
+
+        <label class="mb-4">
+            Name
+            <input type="text" [(ngModel)]="alertGroup.title">
+        </label>
+
+        <p><b>Frequency</b></p>
+
+
+
+        <button mat-button color="primary" (click)="addScheduleTime()">
+            <mat-icon>more_time</mat-icon>&nbsp;Add scheduled time</button>
+
+
+
+        <label class="my-4">
+            Notification Groups
+            <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple>
+                <mat-option [value]="group" *ngFor="let group of notificationGroups">{{group.name}}</mat-option>
+            </mat-select>
+        </label>
+        <button mat-button color="primary" (click)="createNotificationGroup()">
+            <mat-icon>group_add</mat-icon>&nbsp;Create new notification group</button>
+
+        <div class="py-4 align-center justify-between">
+            <button mat-stroked-button [routerLink]="['/alert-groups']">
+                Cancel
+            </button>
+            <div>
+                <button mat-flat-button color="primary" (click)="save()">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
