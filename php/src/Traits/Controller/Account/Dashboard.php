@@ -51,7 +51,7 @@ trait Dashboard {
      *
      * @return DashboardSearchResult[]
      */
-    public function filterDatasetInstances($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
+    public function filterDashboards($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
         $tags = $tags ? explode(",", $tags) : [];
         return $this->dashboardService->filterDashboards($filterString, $tags, $projectKey, $offset, $limit);
     }
