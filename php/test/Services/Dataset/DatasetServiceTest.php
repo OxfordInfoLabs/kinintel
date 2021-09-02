@@ -310,7 +310,33 @@ class DatasetServiceTest extends TestBase {
 
     }
 
+
+    public function testCanGetFilteredSharedDatasetsWithAccountIdOfNull() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $sharedDataset = new DatasetInstanceSummary("Shared First Dataset", "test-json");
+        $this->datasetService->saveDataSetInstance($sharedDataset, null, null);
+
+        $sharedDataset = new DatasetInstanceSummary("Shared Second Dataset", "test-json");
+        $this->datasetService->saveDataSetInstance($sharedDataset, null, null);
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $filtered = $this->datasetService->filterDataSetInstances("", [], [], 0, 10, null);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertEquals("Shared First Dataset", $filtered[0]->getTitle());
+        $this->assertEquals("Shared Second Dataset", $filtered[1]->getTitle());
+
+
+    }
+
+
     public function testCanGetEvaluatedParametersContainingBothDatasourceAndDatasetParams() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
 
         $datasetSummary = new DatasetInstanceSummary("My Test", "test-json", [], [
             new Parameter("datasetParam1", "Dataset Param 1"), new Parameter("datasetParam2", "Dataset Param 2")

@@ -350,5 +350,34 @@ class DashboardServiceTest extends TestBase {
 
     }
 
+    public function testCanGetFilteredSharedDashboardsWithAccountIdOfNull() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $accountDashboard = new DashboardSummary("First Shared Dashboard");
+        $this->dashboardService->saveDashboard($accountDashboard, 1, null);
+
+        $accountDashboard = new DashboardSummary("Second Shared Dashboard");
+        $this->dashboardService->saveDashboard($accountDashboard, null, null);
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+
+        $filtered = $this->dashboardService->filterDashboards("", [], null, 0, 10, null);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("First Shared Dashboard", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
+        $this->assertEquals("Second Shared Dashboard", $filtered[1]->getTitle());
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+
+    }
+
 
 }

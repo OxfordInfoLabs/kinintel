@@ -68,8 +68,13 @@ class DatasetService {
      */
     public function filterDataSetInstances($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
-        $query = "WHERE accountId = ?";
-        $params = [$accountId];
+        $params = [];
+        if ($accountId === null) {
+            $query = "WHERE accountId IS NULL";
+        } else {
+            $query = "WHERE accountId = ?";
+            $params[] = $accountId;
+        }
 
         if ($filterString) {
             $query .= " AND title LIKE ?";
