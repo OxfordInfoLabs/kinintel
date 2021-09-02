@@ -14,6 +14,9 @@ import {KinintelModuleConfig} from '../../ng-kinintel.module';
 })
 export class DashboardsComponent implements OnInit {
 
+    @Input() headingLabel: string;
+    @Input() shared: boolean;
+
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
@@ -66,7 +69,8 @@ export class DashboardsComponent implements OnInit {
         return this.dashboardService.getDashboards(
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
-            this.offset.getValue().toString()
+            this.offset.getValue().toString(),
+            this.shared ? null : ''
         ).pipe(map((dashboards: any) => {
                 return dashboards;
             })

@@ -16,16 +16,16 @@ export class DashboardService {
     }
 
     public getDashboard(id) {
-        return this.http.get(`${this.config.backendURL}/account/dashboard/${id}`).toPromise();
+        return this.http.get(`${this.config.backendURL}/dashboard/${id}`).toPromise();
     }
 
-    public getDashboards(filterString = '', limit = '10', offset = '0') {
+    public getDashboards(filterString = '', limit = '10', offset = '0', accountId = '') {
         const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
-
-        return this.http.get(this.config.backendURL + '/account/dashboard', {
+        const suffix = this.config.backendURL.indexOf('/account') && accountId === null ? '/shared/all' : '';
+        return this.http.get(this.config.backendURL + '/dashboard' + suffix, {
             params: {
-                filterString, limit, offset, tags, projectKey
+                filterString, limit, offset, tags, projectKey, accountId
             }
         });
     }
@@ -34,7 +34,7 @@ export class DashboardService {
         const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        const url = this.config.backendURL + '/account/dashboard?projectKey=' + projectKey + '&tagKey=' + tags;
+        const url = this.config.backendURL + '/dashboard?projectKey=' + projectKey + '&tagKey=' + tags;
 
         return this.http.post(url, dashboardSummary).toPromise();
     }

@@ -1,6 +1,6 @@
 <div class="container mx-auto max-w-screen-lg">
 
-    <h2 class="flex align-center"><span class="">Dashboards</span>
+    <h2 class="flex align-center"><span class="">{{headingLabel || 'Dashboards'}}</span>
         <mat-chip-list *ngIf="activeTag" class="overflow-hidden">
             <mat-chip class="active-tag" [removable]="true" (removed)="removeActiveTag()">
                 <span><b>{{config.tagLabel || 'Tag'}}:&nbsp;</b>{{activeTag ? activeTag.tag : ''}}</span>

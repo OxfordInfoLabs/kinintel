@@ -23,7 +23,7 @@ export class TagService {
 
     public getTags(filterString = '') {
         const activeProject = this.projectService.activeProject.getValue();
-        return this.http.get(this.config.backendURL + '/account/metadata/tag', {
+        return this.http.get(this.config.backendURL + '/metadata/tag', {
             params: {
                 filterString,
                 projectKey: activeProject ? activeProject.projectKey : ''
@@ -34,7 +34,7 @@ export class TagService {
     public saveTag(tag, description) {
         const activeProject = this.projectService.activeProject.getValue();
         const key = activeProject ? activeProject.projectKey : '';
-        return this.http.post(this.config.backendURL + '/account/metadata/tag?projectKey=' + key, {
+        return this.http.post(this.config.backendURL + '/metadata/tag?projectKey=' + key, {
             tag, description
         }).toPromise();
     }
@@ -42,7 +42,7 @@ export class TagService {
     public removeTag(key) {
         const activeProject = this.projectService.activeProject.getValue();
         const projectKey = activeProject ? activeProject.projectKey : '';
-        return this.http.delete(this.config.backendURL + '/account/metadata/tag?projectKey=' + key, {
+        return this.http.delete(this.config.backendURL + '/metadata/tag?projectKey=' + key, {
             params: {
                 key, projectKey
             }

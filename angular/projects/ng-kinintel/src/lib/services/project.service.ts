@@ -20,23 +20,23 @@ export class ProjectService {
     }
 
     public getProjects(filterString = '') {
-        return this.http.get(this.config.backendURL + '/account/project', {
+        return this.http.get(this.config.backendURL + '/project', {
             params: {filterString}
         });
     }
 
     public getProject(key) {
-        return this.http.get(this.config.backendURL + '/account/project/' + key).toPromise();
+        return this.http.get(this.config.backendURL + '/project/' + key).toPromise();
     }
 
     public createProject(name, description) {
-        return this.http.post(this.config.backendURL + '/account/project', {
+        return this.http.post(this.config.backendURL + '/project', {
             name, description
         }).toPromise();
     }
 
     public removeProject(key) {
-        return this.http.delete(this.config.backendURL + '/account/project/' + key).toPromise();
+        return this.http.delete(this.config.backendURL + '/project/' + key).toPromise();
     }
 
     public setActiveProject(project) {

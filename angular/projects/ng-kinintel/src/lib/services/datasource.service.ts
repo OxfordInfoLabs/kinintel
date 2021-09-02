@@ -13,7 +13,7 @@ export class DatasourceService {
     }
 
     public getDatasources(filterString = '', limit = '10', offset = '0') {
-        return this.http.get(this.config.backendURL + '/account/datasource', {
+        return this.http.get(this.config.backendURL + '/datasource', {
             params: {
                 filterString, limit, offset
             }
@@ -21,11 +21,11 @@ export class DatasourceService {
     }
 
     public getDatasource(key) {
-        return this.http.get(this.config.backendURL + '/account/datasource/' + key).toPromise();
+        return this.http.get(this.config.backendURL + '/datasource/' + key).toPromise();
     }
 
     public getEvaluatedParameters(evaluatedDatasource) {
-        return this.http.get(this.config.backendURL + '/account/datasource/parameters/' +
+        return this.http.get(this.config.backendURL + '/datasource/parameters/' +
             (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey)).toPromise();
     }
 
@@ -36,13 +36,13 @@ export class DatasourceService {
                 transformationInstances.push(transformation);
             });
         }
-        return this.http.post(this.config.backendURL + '/account/datasource/evaluate', _.omit({
+        return this.http.post(this.config.backendURL + '/datasource/evaluate', _.omit({
             key, transformationInstances, parameterValues
         }, _.isNil)).toPromise();
     }
 
     public exportData(evaluatedDatasource) {
-        return this.http.post(this.config.backendURL + '/account/datasource/parameters/' +
+        return this.http.post(this.config.backendURL + '/datasource/parameters/' +
             (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey),
             {transformationInstances: evaluatedDatasource.transformationInstances}).toPromise();
     }

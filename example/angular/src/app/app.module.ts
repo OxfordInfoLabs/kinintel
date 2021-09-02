@@ -58,7 +58,7 @@ import { NotificationComponent } from './views/notifications/notification/notifi
         MatIconModule,
         MatButtonModule,
         NgKinintelModule.forRoot({
-            backendURL: environment.backendURL
+            backendURL: environment.accountURL
         }),
         NgKiniAuthModule.forRoot({
             guestHttpURL: `${environment.backendURL}/guest`,

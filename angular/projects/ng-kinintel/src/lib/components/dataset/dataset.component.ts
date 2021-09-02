@@ -15,6 +15,9 @@ import {KinintelModuleConfig} from '../../ng-kinintel.module';
 })
 export class DatasetComponent implements OnInit, OnDestroy {
 
+    @Input() headingLabel: string;
+    @Input() shared: boolean;
+
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
@@ -98,7 +101,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
-            this.offset.getValue().toString()
+            this.offset.getValue().toString(),
+            this.shared ? null : ''
         ).pipe(map((datasets: any) => {
                 return datasets;
             })

@@ -17,23 +17,23 @@ export class NotificationService {
     public getNotificationGroups(limit = '10', offset = '0') {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        return this.http.get(`${this.config.backendURL}/account/notification/group`, {
+        return this.http.get(`${this.config.backendURL}/notification/group`, {
             params: {projectKey, limit, offset}
         }).toPromise();
     }
 
     public getNotificationGroup(id) {
-        return this.http.get(`${this.config.backendURL}/account/notification/group/${id}`).toPromise();
+        return this.http.get(`${this.config.backendURL}/notification/group/${id}`).toPromise();
     }
 
     public removeNotificationGroup(id) {
-        return this.http.delete(`${this.config.backendURL}/account/notification/group/${id}`).toPromise();
+        return this.http.delete(`${this.config.backendURL}/notification/group/${id}`).toPromise();
     }
 
     public saveNotificationGroup(notification) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        return this.http.post(`${this.config.backendURL}/account/notification/group?projectKey=${projectKey}`, notification)
+        return this.http.post(`${this.config.backendURL}/notification/group?projectKey=${projectKey}`, notification)
             .toPromise();
     }
 }

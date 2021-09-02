@@ -16,35 +16,37 @@ export class DatasetService {
                 private projectService: ProjectService) {
     }
 
-    public getDatasets(filterString = '', limit = '10', offset = '0') {
+    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '') {
         const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
-        return this.http.get(this.config.backendURL + '/account/dataset', {
+        const suffix = this.config.backendURL.indexOf('/account') && accountId === null ? '/shared/all' : '';
+        return this.http.get(this.config.backendURL + '/dataset' + suffix, {
             params: {
-                filterString, limit, offset, tags, projectKey
+                filterString, limit, offset, tags, projectKey, accountId
             }
         });
     }
 
     public getDataset(id) {
-        return this.http.get(`${this.config.backendURL}/account/dataset/${id}`).toPromise();
+        return this.http.get(`${this.config.backendURL}/dataset/${id}`).toPromise();
     }
 
-    public saveDataset(datasetInstanceSummary) {
+    public saveDataset(datasetInstanceSummary, accountId = null) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const activeTag = this.tagService.activeTag.getValue() || null;
         if (activeTag) {
             datasetInstanceSummary.tags = [activeTag];
         }
-        return this.http.post(this.config.backendURL + '/account/dataset/?projectKey=' + projectKey, datasetInstanceSummary).toPromise();
+        return this.http.post(this.config.backendURL + '/dataset/?projectKey=' + projectKey + '&accountId=' + accountId,
+            datasetInstanceSummary).toPromise();
     }
 
     public removeDataset(id) {
-        return this.http.delete(this.config.backendURL + '/account/dataset/' + id).toPromise();
+        return this.http.delete(this.config.backendURL + '/dataset/' + id).toPromise();
     }
 
     public getEvaluatedParameters(datasetId) {
-        return this.http.get(this.config.backendURL + '/account/dataset/parameters/' + datasetId)
+        return this.http.get(this.config.backendURL + '/dataset/parameters/' + datasetId)
             .toPromise();
     }
 }
