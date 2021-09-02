@@ -51,8 +51,8 @@ trait Dashboard {
      *
      * @return DashboardSearchResult[]
      */
-    public function filterDatasetInstances($filterString = "", $accountId = 0, $offset = 0, $limit = 10) {
-        return $this->dashboardService->filterDashboards($filterString [], [], null, $offset, $limit, is_numeric($accountId) ? $accountId : null);
+    public function filterDashboards($filterString = "", $accountId = 0, $offset = 0, $limit = 10) {
+        return $this->dashboardService->filterDashboards($filterString, [], null, $offset, $limit, is_numeric($accountId) ? $accountId : null);
     }
 
 
