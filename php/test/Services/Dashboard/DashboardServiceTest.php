@@ -29,7 +29,7 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-include_once "autoloader.php"
+include_once "autoloader.php";
 
 class DashboardServiceTest extends TestBase {
 
