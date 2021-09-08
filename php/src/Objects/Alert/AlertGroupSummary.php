@@ -58,6 +58,22 @@ class AlertGroupSummary {
 
 
     /**
+     * @var string
+     */
+    protected $notificationTitle;
+
+    /**
+     * @var string
+     */
+    protected $notificationPrefixText;
+
+    /**
+     * @var string
+     */
+    protected $notificationSuffixText;
+
+
+    /**
      * @var NotificationGroupSummary[]
      */
     protected $notificationGroups;
@@ -74,7 +90,11 @@ class AlertGroupSummary {
      * @param string $nextStartTime
      * @param integer $id
      */
-    public function __construct($title, $taskTimePeriods = [], $notificationGroups = [], $taskStatus = null, $taskLastStartTime = null, $taskLastEndTime = null, $nextStartTime = null, $id = null) {
+    public function __construct($title, $taskTimePeriods = [], $notificationGroups = [], $notificationTitle = null,
+                                $notificationPrefixText = null,
+                                $notificationSuffixText = null, $taskStatus = null,
+                                $taskLastStartTime = null, $taskLastEndTime = null, $nextStartTime = null,
+                                $id = null) {
         $this->id = $id;
         $this->title = $title;
         $this->taskTimePeriods = $taskTimePeriods;
@@ -82,6 +102,9 @@ class AlertGroupSummary {
         $this->taskLastStartTime = $taskLastStartTime;
         $this->taskLastEndTime = $taskLastEndTime;
         $this->taskNextStartTime = $nextStartTime;
+        $this->notificationTitle = $notificationTitle;
+        $this->notificationPrefixText = $notificationPrefixText;
+        $this->notificationSuffixText = $notificationSuffixText;
         $this->notificationGroups = $notificationGroups;
     }
 
@@ -155,6 +178,49 @@ class AlertGroupSummary {
     public function setTaskTimePeriods($taskTimePeriods) {
         $this->taskTimePeriods = $taskTimePeriods;
     }
+
+    /**
+     * @return string
+     */
+    public function getNotificationTitle() {
+        return $this->notificationTitle;
+    }
+
+    /**
+     * @param string $notificationTitle
+     */
+    public function setNotificationTitle($notificationTitle) {
+        $this->notificationTitle = $notificationTitle;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotificationPrefixText() {
+        return $this->notificationPrefixText;
+    }
+
+    /**
+     * @param string $notificationPrefixText
+     */
+    public function setNotificationPrefixText($notificationPrefixText) {
+        $this->notificationPrefixText = $notificationPrefixText;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotificationSuffixText() {
+        return $this->notificationSuffixText;
+    }
+
+    /**
+     * @param string $notificationSuffixText
+     */
+    public function setNotificationSuffixText($notificationSuffixText) {
+        $this->notificationSuffixText = $notificationSuffixText;
+    }
+
 
     /**
      * @param NotificationGroupSummary[] $notificationGroups

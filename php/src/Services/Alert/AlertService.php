@@ -75,11 +75,17 @@ class AlertService {
         if ($alertGroupSummary->getId()) {
             $alertGroup = AlertGroup::fetch($alertGroupSummary->getId());
             $alertGroup->setTitle($alertGroupSummary->getTitle());
+            $alertGroup->setNotificationTitle($alertGroupSummary->getNotificationTitle());
+            $alertGroup->setNotificationPrefixText($alertGroupSummary->getNotificationPrefixText());
+            $alertGroup->setNotificationSuffixText($alertGroupSummary->getNotificationSuffixText());
+            $alertGroup->setTitle($alertGroupSummary->getTitle());
+
             $alertGroup->getScheduledTask()->setTimePeriods($alertGroupSummary->getTaskTimePeriods());
         } else {
 
             // Create a basic one firstly
-            $alertGroup = new AlertGroup($alertGroupSummary->getTitle(), null, [], $projectKey, $accountId);
+            $alertGroup = new AlertGroup($alertGroupSummary->getTitle(), null, [], $alertGroupSummary->getNotificationTitle(),
+                $alertGroupSummary->getNotificationPrefixText(), $alertGroupSummary->getNotificationSuffixText(), $projectKey, $accountId);
             $alertGroup->save();
 
             // Now set up the subordinate objects

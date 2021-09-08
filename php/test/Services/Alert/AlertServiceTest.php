@@ -49,7 +49,7 @@ class AlertServiceTest extends TestBase {
             new ScheduledTaskTimePeriod(6, null, 13, 30),
         ], [
             $notificationGroup->returnSummary()
-        ]);
+        ], "Daily Alerts", "Welcome to daily alerts", "Thanks for listening");
 
 
         $groupId = $this->alertService->saveAlertGroup($alertGroup, null, 1);
@@ -62,6 +62,9 @@ class AlertServiceTest extends TestBase {
         $alertGroup = AlertGroup::fetch($groupId);
 
         $this->assertEquals("My Alert Group", $alertGroup->getTitle());
+        $this->assertEquals("Daily Alerts", $alertGroup->getNotificationTitle());
+        $this->assertEquals("Welcome to daily alerts", $alertGroup->getNotificationPrefixText());
+        $this->assertEquals("Thanks for listening", $alertGroup->getNotificationSuffixText());
 
         $scheduledTask = $alertGroup->getScheduledTask();
         $this->assertEquals("alertgroup", $scheduledTask->getTaskIdentifier());
@@ -93,6 +96,9 @@ class AlertServiceTest extends TestBase {
 
 
         $reAlertGroup->setTitle("Updated Title");
+        $reAlertGroup->setNotificationTitle("Updated Daily Alerts");
+        $reAlertGroup->setNotificationPrefixText("Catch me if you can");
+        $reAlertGroup->setNotificationSuffixText("Another day in paradise");
 
         // Create new group
         $newGroup = new NotificationGroup(new NotificationGroupSummary("All Friends", [
@@ -104,6 +110,7 @@ class AlertServiceTest extends TestBase {
             $newGroup
         ]);
 
+
         $this->alertService->saveAlertGroup($reAlertGroup, null, 1);
 
         /**
@@ -112,6 +119,9 @@ class AlertServiceTest extends TestBase {
         $alertGroup = AlertGroup::fetch($groupId);
 
         $this->assertEquals("Updated Title", $alertGroup->getTitle());
+        $this->assertEquals("Updated Daily Alerts", $alertGroup->getNotificationTitle());
+        $this->assertEquals("Catch me if you can", $alertGroup->getNotificationPrefixText());
+        $this->assertEquals("Another day in paradise", $alertGroup->getNotificationSuffixText());
 
         $scheduledTask = $alertGroup->getScheduledTask();
         $this->assertEquals("alertgroup", $scheduledTask->getTaskIdentifier());

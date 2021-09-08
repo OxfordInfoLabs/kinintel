@@ -40,6 +40,22 @@ class AlertGroup extends ActiveRecord {
     protected $scheduledTask;
 
     /**
+     * @var string
+     */
+    protected $notificationTitle;
+
+    /**
+     * @var string
+     */
+    protected $notificationPrefixText;
+
+    /**
+     * @var string
+     */
+    protected $notificationSuffixText;
+
+
+    /**
      * @var NotificationGroup[]
      * @manyToMany
      * @linkTable ki_alert_group_notification_group
@@ -54,10 +70,15 @@ class AlertGroup extends ActiveRecord {
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function __construct($title, $scheduledTask = null, $notificationGroups = [], $projectKey = null, $accountId = null, $id = null) {
+    public function __construct($title, $scheduledTask = null, $notificationGroups = [],
+                                $notificationTitle = null, $notificationPrefixText = null, $notificationSuffixText = null,
+                                $projectKey = null, $accountId = null, $id = null) {
         $this->title = $title;
         $this->scheduledTask = $scheduledTask;
         $this->notificationGroups = $notificationGroups;
+        $this->notificationTitle = $notificationTitle;
+        $this->notificationSuffixText = $notificationSuffixText;
+        $this->notificationPrefixText = $notificationPrefixText;
         $this->projectKey = $projectKey;
         $this->accountId = $accountId;
         $this->id = $id;
@@ -99,6 +120,48 @@ class AlertGroup extends ActiveRecord {
     }
 
     /**
+     * @return string
+     */
+    public function getNotificationTitle() {
+        return $this->notificationTitle;
+    }
+
+    /**
+     * @param string $notificationTitle
+     */
+    public function setNotificationTitle($notificationTitle) {
+        $this->notificationTitle = $notificationTitle;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotificationPrefixText() {
+        return $this->notificationPrefixText;
+    }
+
+    /**
+     * @param string $notificationPrefixText
+     */
+    public function setNotificationPrefixText($notificationPrefixText) {
+        $this->notificationPrefixText = $notificationPrefixText;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotificationSuffixText() {
+        return $this->notificationSuffixText;
+    }
+
+    /**
+     * @param string $notificationSuffixText
+     */
+    public function setNotificationSuffixText($notificationSuffixText) {
+        $this->notificationSuffixText = $notificationSuffixText;
+    }
+
+    /**
      * @return NotificationGroup[]
      */
     public function getNotificationGroups() {
@@ -128,6 +191,7 @@ class AlertGroup extends ActiveRecord {
         }
 
         return new AlertGroupSummary($this->title, $this->scheduledTask->getTimePeriods(), $notificationGroupSummaries,
+            $this->notificationTitle, $this->notificationPrefixText, $this->notificationSuffixText,
             $this->scheduledTask->getStatus(), $this->scheduledTask->getLastStartTime(), $this->scheduledTask->getLastEndTime(),
             $this->scheduledTask->getNextStartTime(), $this->id);
     }
