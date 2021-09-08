@@ -47,6 +47,15 @@ class DashboardSummary extends DashboardSearchResult {
      */
     protected $tags = [];
 
+
+    /**
+     * Alerts enabled boolean
+     *
+     * @var bool
+     */
+    protected $alertsEnabled = true;
+
+
     /**
      * Dashboard constructor.
      *
@@ -116,6 +125,20 @@ class DashboardSummary extends DashboardSearchResult {
      */
     public function setTags($tags) {
         $this->tags = $tags;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAlertsEnabled() {
+        return $this->alertsEnabled;
+    }
+
+    /**
+     * @param bool $alertsEnabled
+     */
+    public function setAlertsEnabled($alertsEnabled) {
+        $this->alertsEnabled = $alertsEnabled;
     }
 
 }

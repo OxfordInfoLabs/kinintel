@@ -12,6 +12,7 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Objects\Dashboard\DashboardSearchResult;
@@ -21,10 +22,14 @@ use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Alert\MatchRule\RowCountAlertMatchRuleConfiguration;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+
+include_once "autoloader.php"
 
 class DashboardServiceTest extends TestBase {
 
@@ -108,6 +113,11 @@ class DashboardServiceTest extends TestBase {
                 new TransformationInstance("filter", new FilterTransformation([
                     new Filter("value", "bingo")
                 ]))
+            ], [
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 0)
+                    ]), "There are no rows when there should be", 7)
             ])
         ], [
             "color" => "green",
@@ -131,6 +141,17 @@ class DashboardServiceTest extends TestBase {
             "filterJunctions" => [],
             "sQLTransformationProcessorKey" => "filter"
         ])], $dashboardDatasetInstance->getTransformationInstances());
+
+
+        $this->assertEquals(1, sizeof($dashboardDatasetInstance->getAlerts()));
+        $firstAlert = $dashboardDatasetInstance->getAlerts()[0];
+        $this->assertEquals("There are no rows when there should be", $firstAlert->getTemplate());
+        $this->assertEquals("rowcount", $firstAlert->getMatchRuleType());
+        $this->assertEquals(["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5], $firstAlert->getMatchRuleConfiguration());
+        $this->assertEquals(new FilterTransformation([
+            new Filter("score", 0)
+        ]), $firstAlert->getFilterTransformation());
+        $this->assertEquals(7, $firstAlert->getAlertGroupId());
 
         $this->dashboardService->removeDashboard($id);
 
@@ -374,7 +395,6 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Second Shared Dashboard", $filtered[1]->getTitle());
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
-
 
 
     }

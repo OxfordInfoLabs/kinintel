@@ -7,6 +7,7 @@ namespace Kinintel\Objects\Dashboard;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Dataset\BaseDatasetInstance;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -41,6 +42,15 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
      */
     private $datasetInstanceId;
 
+
+    /**
+     * @var Alert[]
+     * @oneToMany
+     * @childJoinColumns dashboard_id,dashboard_dataset_instance_id
+     */
+    private $alerts;
+
+
     /**
      * DashboardDatasetInstance constructor.
      * @param string $instanceId
@@ -48,11 +58,12 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
      * @param string $dataSourceInstanceKey
      * @param TransformationInstance[] $transformationInstances
      */
-    public function __construct($instanceId, $datasetInstanceId = null, $dataSourceInstanceKey = null, $transformationInstances = null) {
+    public function __construct($instanceId, $datasetInstanceId = null, $dataSourceInstanceKey = null, $transformationInstances = null, $alerts = null) {
         $this->instanceKey = $instanceId;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->datasourceInstanceKey = $dataSourceInstanceKey;
         $this->transformationInstances = $transformationInstances;
+        $this->alerts = $alerts;
     }
 
 
@@ -97,6 +108,21 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
     public function setDatasetInstanceId($datasetInstanceId) {
         $this->datasetInstanceId = $datasetInstanceId;
     }
+
+    /**
+     * @return Alert[]
+     */
+    public function getAlerts() {
+        return $this->alerts;
+    }
+
+    /**
+     * @param Alert[] $alerts
+     */
+    public function setAlerts($alerts) {
+        $this->alerts = $alerts;
+    }
+
 
     /**
      * Override validate to also validate the dataset instance id if supplied

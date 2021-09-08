@@ -19,6 +19,8 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @var integer
      */
     protected $id;
+
+
     /**
      * Information title for this data set
      *
