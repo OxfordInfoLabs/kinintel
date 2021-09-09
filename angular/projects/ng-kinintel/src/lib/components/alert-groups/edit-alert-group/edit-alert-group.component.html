@@ -15,7 +15,9 @@
             <div class="align-center justify-between">
                 <div>
                     <ng-template ngFor let-key [ngForOf]="Object.keys(time)" let-i=index>
-                        <span *ngIf="i > 0">,&nbsp;</span><span class="capitalize"><b>{{_.startCase(key)}}:</b></span>&nbsp;<span>{{time[key]}}</span>
+                        <ng-template [ngIf]="key !== 'id' && time[key]">
+                            <span class="mr-2"><span class="capitalize"><b>{{_.startCase(key)}}:</b></span>&nbsp;<span>{{time[key]}}</span></span>
+                        </ng-template>
                     </ng-template>
                 </div>
                 <button mat-icon-button color="warn" (click)="removeTime(i)">

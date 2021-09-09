@@ -92,8 +92,8 @@ export class SourceSelectorDialogComponent implements OnInit {
     private createParameterStructure(requiredParameters, stepper?) {
         this.requiredParameters = requiredParameters;
         const availableGlobalParamValues = [];
-        if (this.dashboard.displaySettings.parameters) {
-            _.forEach(this.dashboard.displaySettings.parameters, parameter => {
+        if (this.dashboard.layoutSettings.parameters) {
+            _.forEach(this.dashboard.layoutSettings.parameters, parameter => {
                 if (parameter.value) {
                     availableGlobalParamValues.push({
                         name: parameter.name,

@@ -28,7 +28,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
-    @HostBinding('class.p-4') get t(){
+    @HostBinding('class.p-4') get t() {
         return this.dashboard.displaySettings && this.dashboard.displaySettings.fullScreen;
     }
 
@@ -174,26 +174,28 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         const dashboardId = this.route.snapshot.params.dashboard;
 
-        if (dashboardId) {
-            this.dashboardService.getDashboard(dashboardId).then(dashboard => {
-                this.dashboard = dashboard;
-                this.editDashboardTitle = !this.dashboard.title;
-                if (this.dashboard.displaySettings) {
-                    this.darkMode = !!this.dashboard.displaySettings.darkMode;
-                    this.setDarkModeOnBody();
-                    if (this.dashboard.displaySettings.fullScreen) {
-                        this.openFullScreen();
-                        this.fullScreen = true;
-                    }
+        this.dashboardService.getDashboard(dashboardId).then(dashboard => {
+            this.dashboard = dashboard;
+            this.editDashboardTitle = !this.dashboard.title;
+            if (this.dashboard.displaySettings) {
+                this.darkMode = !!this.dashboard.displaySettings.darkMode;
+                this.setDarkModeOnBody();
+                if (this.dashboard.displaySettings.fullScreen) {
+                    this.openFullScreen();
+                    this.fullScreen = true;
+                }
+            } else {
+                this.dashboard.displaySettings = {};
+            }
+            if (this.dashboard.layoutSettings) {
+                if (this.dashboard.layoutSettings.grid && this.dashboard.layoutSettings.grid.length) {
+                    this.grid.load(this.dashboard.layoutSettings.grid);
+                }
+            } else {
+                this.dashboard.layoutSettings = {};
+            }
+        });
 
-                }
-                if (this.dashboard.layoutSettings) {
-                    if (this.dashboard.layoutSettings.grid.length) {
-                        this.grid.load(this.dashboard.layoutSettings.grid);
-                    }
-                }
-            });
-        }
     }
 
     ngOnDestroy() {
@@ -273,7 +275,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 instance.parameterValues[parameter.name] = parameter.value;
             });
         });
-        this.dashboardService.saveDashboard(this.dashboard);
+
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }

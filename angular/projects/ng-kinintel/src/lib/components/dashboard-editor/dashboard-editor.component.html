@@ -2,10 +2,7 @@
 
     <div class="align-center justify-between mb-4 flex-wrap">
         <div *ngIf="editDashboardTitle" class="align-center ml-2">
-            <input type="text" class="title-input" [(ngModel)]="dashboard.title">&nbsp;
-            <button mat-icon-button (click)="save(); editDashboardTitle = false;">
-                <mat-icon>save</mat-icon>
-            </button>
+            <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title">&nbsp;
         </div>
 
         <div *ngIf="!editDashboardTitle" class="align-center ml-2">
@@ -50,8 +47,8 @@
     </div>
 
 
-    <div class="dashboard-parameters" *ngIf="dashboard.displaySettings">
-        <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.displaySettings.parameters)">
+    <div class="dashboard-parameters" *ngIf="dashboard.layoutSettings">
+        <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
             <label>
                 {{parameter.title}}
                 <div class="parameter-input">
@@ -64,7 +61,7 @@
 
             </label>
 
-            <div class="divider" *ngIf="_.values(dashboard.displaySettings.parameters).length > 1"></div>
+            <div class="divider" *ngIf="_.values(dashboard.layoutSettings.parameters).length > 1"></div>
         </ng-template>
         <button mat-button (click)="addParameter()">
             <mat-icon>add</mat-icon>&nbsp;Add Parameter

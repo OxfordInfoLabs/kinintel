@@ -16,6 +16,7 @@ export class DashboardsComponent implements OnInit {
 
     @Input() headingLabel: string;
     @Input() shared: boolean;
+    @Input() allowNew: boolean;
 
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');

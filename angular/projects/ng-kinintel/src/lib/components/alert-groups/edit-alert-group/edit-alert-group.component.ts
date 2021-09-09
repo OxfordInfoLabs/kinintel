@@ -4,6 +4,7 @@ import {AlertService} from '../../../../lib/services/alert.service';
 import {MatDialog} from '@angular/material/dialog';
 import {EditNotificationGroupComponent} from '../../notification-groups/edit-notification-group/edit-notification-group.component';
 import * as _ from 'lodash';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
     selector: 'ki-edit-alert-group',
@@ -21,17 +22,25 @@ export class EditAlertGroupComponent implements OnInit {
 
     constructor(private notificationService: NotificationService,
                 private alertService: AlertService,
-                private matDialog: MatDialog) {
+                private matDialog: MatDialog,
+                private router: Router,
+                private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
-        this.loadNotificationGroups();
-        if (!this.alertGroup.taskTimePeriods || !this.alertGroup.taskTimePeriods.length) {
-            if (!this.alertGroup.taskTimePeriods) {
-                this.alertGroup.taskTimePeriods = [];
+        const id = this.route.snapshot.params.id;
+        this.alertService.getAlertGroup(id).then(alertGroup => {
+            if (alertGroup) {
+                this.alertGroup = alertGroup;
             }
-            this.showNewTaskTimePeriod = true;
-        }
+            if (!this.alertGroup.taskTimePeriods || !this.alertGroup.taskTimePeriods.length) {
+                if (!this.alertGroup.taskTimePeriods) {
+                    this.alertGroup.taskTimePeriods = [];
+                }
+                this.showNewTaskTimePeriod = true;
+            }
+        });
+        this.loadNotificationGroups();
     }
 
     public addScheduleTime() {
@@ -72,7 +81,10 @@ export class EditAlertGroupComponent implements OnInit {
     }
 
     public save() {
-
+        console.log(this.alertGroup);
+        this.alertService.saveAlertGroup(this.alertGroup).then(() => {
+            this.router.navigate(['/alert-groups']);
+        });
     }
 
     private loadNotificationGroups() {
