@@ -6,14 +6,48 @@ namespace Kinintel\Services\Alert;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
+use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
+use Kiniauth\Services\Communication\Notification\NotificationService;
+use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;
+use Kinintel\Services\Dashboard\DashboardService;
 
 class AlertService {
 
+
+    /**
+     * @var DashboardService
+     */
+    private $dashboardService;
+
+    /**
+     * @var NotificationService
+     */
+    private $notificationService;
+
+
+    /**
+     * @var TemplateParser
+     */
+    private $templateParser;
+
+
+    /**
+     * AlertService constructor.
+     *
+     * @param DashboardService $dashboardService
+     * @param NotificationService $notificationService
+     * @param TemplateParser $templateParser
+     */
+    public function __construct($dashboardService, $notificationService, $templateParser) {
+        $this->dashboardService = $dashboardService;
+        $this->notificationService = $notificationService;
+        $this->templateParser = $templateParser;
+    }
 
     /**
      * List the alert groups for a specified project and account
@@ -85,7 +119,9 @@ class AlertService {
 
             // Create a basic one firstly
             $alertGroup = new AlertGroup($alertGroupSummary->getTitle(), null, [], $alertGroupSummary->getNotificationTitle(),
-                $alertGroupSummary->getNotificationPrefixText(), $alertGroupSummary->getNotificationSuffixText(), $projectKey, $accountId);
+                $alertGroupSummary->getNotificationPrefixText(), $alertGroupSummary->getNotificationSuffixText(),
+                $alertGroupSummary->getNotificationLevel(),
+                $projectKey, $accountId);
             $alertGroup->save();
 
             // Now set up the subordinate objects
@@ -124,5 +160,76 @@ class AlertService {
         $alertGroup->remove();
 
     }
+
+
+    /**
+     * Process all alerts for an alert group supplied by id.
+     *
+     * @param $alertGroupId
+     */
+    public function processAlertGroup($alertGroupId) {
+
+        // Grab the active alerts
+        $activeAlerts = $this->dashboardService->getActiveDashboardDatasetAlertsMatchingAlertGroup($alertGroupId);
+
+        // Loop through each active alert
+        $alertMessages = [];
+        foreach ($activeAlerts as $activeAlert) {
+
+            $dashboardDatasetInstance = $activeAlert->getDashboardDatasetInstance();
+
+            // Process each alert for the dataset
+            foreach ($activeAlert->getAlerts() as $alert) {
+
+                $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($dashboardDatasetInstance->getDashboardId(),
+                    $dashboardDatasetInstance->getInstanceKey(), []);
+
+                // If the rule matches, append the evaluated template
+                // To the list of messages.
+                if ($alert->evaluateMatchRule($evaluatedDataset)) {
+
+                    $dataSetData = $evaluatedDataset->getAllData();
+
+                    $templateData = [
+                        "rowCount" => sizeof($dataSetData),
+                        "data" => $dataSetData
+                    ];
+
+                    // Evaluate alert message using template parser
+                    $alertMessages[] = $this->templateParser->parseTemplateText($alert->getTemplate(), $templateData);
+                }
+
+            }
+
+        }
+
+        // If at least one alert message
+        if (sizeof($alertMessages)) {
+
+            /**
+             * @var AlertGroup $alertGroup
+             */
+            $alertGroup = AlertGroup::fetch($alertGroupId);
+
+            // If prefix text prepend it
+            if ($alertGroup->getNotificationPrefixText()) {
+                array_unshift($alertMessages, $alertGroup->getNotificationPrefixText());
+            }
+
+            // If suffix text append it
+            if ($alertGroup->getNotificationSuffixText()) {
+                $alertMessages[] = $alertGroup->getNotificationSuffixText();
+            }
+
+            $notificationSummary = new NotificationSummary($alertGroup->getNotificationTitle(),
+                join("\n", $alertMessages), null, $alertGroup->getNotificationGroups(), null,
+                $alertGroup->getNotificationLevel());
+
+            $this->notificationService->createNotification($notificationSummary, $alertGroup->getProjectKey(), $alertGroup->getAccountId());
+        }
+
+
+    }
+
 
 }

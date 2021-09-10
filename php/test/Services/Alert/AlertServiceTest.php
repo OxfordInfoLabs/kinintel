@@ -6,16 +6,30 @@ use GuzzleHttp\Handler\Proxy;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupMember;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
+use Kiniauth\Objects\Communication\Notification\NotificationLevel;
+use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Security\UserCommunicationData;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
+use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\TemplateParser;
+use Kinikit\Core\Testing\MockObject;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Objects\Alert\AlertGroupTimePeriod;
+use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
+use Kinintel\Objects\Dashboard\DashboardSummary;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Alert\AlertService;
+use Kinintel\Services\Dashboard\DashboardService;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
+use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
 
@@ -26,12 +40,31 @@ class AlertServiceTest extends TestBase {
      */
     private $alertService;
 
+    /**
+     * @var MockObject
+     */
+    private $dashboardService;
+
+
+    /**
+     * @var MockObject
+     */
+    private $notificationService;
+
+
+    /**
+     * @var MockObject
+     */
+    private $templateParser;
 
     /**
      * Setup function
      */
     public function setUp(): void {
-        $this->alertService = new AlertService();
+        $this->dashboardService = MockObjectProvider::instance()->getMockInstance(DashboardService::class);
+        $this->notificationService = MockObjectProvider::instance()->getMockInstance(NotificationService::class);
+        $this->templateParser = MockObjectProvider::instance()->getMockInstance(TemplateParser::class);
+        $this->alertService = new AlertService($this->dashboardService, $this->notificationService, $this->templateParser);
     }
 
 
@@ -49,7 +82,8 @@ class AlertServiceTest extends TestBase {
             new ScheduledTaskTimePeriod(6, null, 13, 30),
         ], [
             $notificationGroup->returnSummary()
-        ], "Daily Alerts", "Welcome to daily alerts", "Thanks for listening");
+        ], "Daily Alerts", "Welcome to daily alerts", "Thanks for listening",
+            NotificationLevel::fetch("warning"));
 
 
         $groupId = $this->alertService->saveAlertGroup($alertGroup, null, 1);
@@ -65,6 +99,7 @@ class AlertServiceTest extends TestBase {
         $this->assertEquals("Daily Alerts", $alertGroup->getNotificationTitle());
         $this->assertEquals("Welcome to daily alerts", $alertGroup->getNotificationPrefixText());
         $this->assertEquals("Thanks for listening", $alertGroup->getNotificationSuffixText());
+        $this->assertEquals(NotificationLevel::fetch("warning"), $alertGroup->getNotificationLevel());
 
         $scheduledTask = $alertGroup->getScheduledTask();
         $this->assertEquals("alertgroup", $scheduledTask->getTaskIdentifier());
@@ -223,6 +258,171 @@ class AlertServiceTest extends TestBase {
         $this->assertEquals(2, sizeof($limited));
         $this->assertEquals(AlertGroup::fetch($group2Id)->returnSummary(), $limited[0]);
         $this->assertEquals(AlertGroup::fetch($group3Id)->returnSummary(), $limited[1]);
+
+    }
+
+
+    public function testNotificationGeneratedWithCombinedTextWhenProcessingAlertGroupWithFiringAlerts() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup->save();
+
+        $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
+            $notificationGroup->returnSummary()
+        ], "Test Alert", "Please see alerts below",
+            "Thanks for your support", NotificationLevel::fetch("warning"));
+
+        $alertGroupId = $this->alertService->saveAlertGroup($alertGroup, null, 1);
+
+        $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [], 5);
+        $dashboardDataset2 = new DashboardDatasetInstance("testdataset2", null, null, [], [], 6);
+
+
+        $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
+            [
+                new ActiveDashboardDatasetAlerts($dashboardDataset1, [
+                    new Alert("rowcount", ["matchType" => "equals", "value" => 0], null,
+                        "No rows match", $alertGroupId),
+                    new Alert("rowcount", ["matchType" => "equals", "value" => 1], null,
+                        "Has matching rows", $alertGroupId)]),
+                new ActiveDashboardDatasetAlerts($dashboardDataset2, [
+                    new Alert("rowcount", ["matchType" => "equals", "value" => 0], null,
+                        "No other rows match", $alertGroupId),
+                    new Alert("rowcount", ["matchType" => "equals", "value" => 1], null,
+                        "Has other matching rows", $alertGroupId)]),
+
+            ], [$alertGroupId]);
+
+
+        // Program no results for both datasets
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+            new ArrayTabularDataset([new Field("Data")], []), [
+                5, "testdataset1", []
+            ]);
+
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+            new ArrayTabularDataset([new Field("Data")], []), [
+                6, "testdataset2", []
+            ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "No rows match", [
+            "No rows match", ["rowCount" => 0, "data" => []]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "No other rows match", [
+            "No other rows match", ["rowCount" => 0, "data" => []]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "Has matching rows", [
+            "Has matching rows", ["rowCount" => 1, "data" => [["data" => "Pingu"]]]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "Has other matching rows", [
+            "Has other matching rows", ["rowCount" => 1, "data" => [["data" => "Bing"]]]
+        ]);
+
+
+        // Process the group
+        $this->alertService->processAlertGroup($alertGroupId);
+
+        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nNo rows match\nNo other rows match\nThanks for your support", null,
+            [$notificationGroup], null, NotificationLevel::fetch("warning")
+        );
+
+        // Check notification was created with correct data
+        $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
+            $expectedNotification, null, 1
+        ]));
+
+
+        // Now change the return value and check other items fired
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+            new ArrayTabularDataset([new Field("data")], [
+                ["data" => "Pingu"]
+            ]), [
+                5, "testdataset1", []
+            ]);
+
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+            new ArrayTabularDataset([new Field("data")], [["data" => "Bing"]]), [
+                6, "testdataset2", []
+            ]);
+
+
+        // Process the group
+        $this->alertService->processAlertGroup($alertGroupId);
+
+        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nHas matching rows\nHas other matching rows\nThanks for your support", null,
+            [$notificationGroup], null, NotificationLevel::fetch("warning")
+        );
+
+
+        // Check notification was created with correct data
+        $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
+            $expectedNotification, null, 1
+        ]));
+
+    }
+
+
+    public function testTemplatedAlertMessagesAreEvaluatedUsingDatasetCountAndDataParams() {
+
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup->save();
+
+        $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
+            $notificationGroup->returnSummary()
+        ], "Test Alert", "Please see alerts below",
+            "Thanks for your support", NotificationLevel::fetch("warning"));
+
+        $alertGroupId = $this->alertService->saveAlertGroup($alertGroup, null, 1);
+
+        $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [], 5);
+
+        $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
+            [
+                new ActiveDashboardDatasetAlerts($dashboardDataset1, [
+                    new Alert("rowcount", ["matchType" => "greater", "value" => 1], null,
+                        "UNPARSED TEMPLATE", $alertGroupId)
+                ])
+            ]);
+
+
+        // Program no results for both datasets
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+            new ArrayTabularDataset([new Field("data")], [[
+                "data" => "My item"
+            ],
+                ["data" => "Your item"]]), [
+                5, "testdataset1", []
+            ]);
+
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
+            "UNPARSED TEMPLATE", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        // Process the group
+        $this->alertService->processAlertGroup($alertGroupId);
+
+        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nPARSED TEMPLATE\nThanks for your support", null,
+            [$notificationGroup], null, NotificationLevel::fetch("warning")
+        );
+
+
+        // Check notification was created with correct data
+        $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
+            $expectedNotification, null, 1
+        ]));
 
     }
 

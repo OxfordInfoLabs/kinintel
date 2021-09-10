@@ -12,6 +12,7 @@ use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
@@ -112,7 +113,7 @@ class DashboardService {
      */
     public function saveDashboard($dashboardSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $dashboard = new Dashboard($dashboardSummary, $accountId, $projectKey);
-Logger::log($dashboardSummary);
+        Logger::log($dashboardSummary);
         // Process tags
         if (sizeof($dashboardSummary->getTags())) {
             $tags = $this->metaDataService->getObjectTagsFromSummaries($dashboardSummary->getTags(), $accountId, $projectKey);
@@ -156,6 +157,39 @@ Logger::log($dashboardSummary);
             return $this->datasetService->getEvaluatedDataSetForDataSetInstance($dashboardDatasetInstance, $additionalTransformations);
         }
 
+    }
+
+
+    /**
+     * Get all dashboards containing alerts which match the supplied group id.
+     *
+     * @param $alertGroupId
+     * @return ActiveDashboardDatasetAlerts[]
+     */
+    public function getActiveDashboardDatasetAlertsMatchingAlertGroup($alertGroupId) {
+
+        /**
+         * Get all dashboards with dataset alerts which match the alert group
+         * @var Dashboard[] $matchingDashboards
+         */
+        $matchingDashboards = Dashboard::filter("WHERE alertsEnabled 
+                AND datasetInstances.alerts.alert_group_id = ?", $alertGroupId);
+
+        $activeDashboardDatasetAlerts = [];
+        foreach ($matchingDashboards as $dashboard) {
+            foreach ($dashboard->getDatasetInstances() as $datasetInstance) {
+                $activeAlerts = [];
+                foreach ($datasetInstance->getAlerts() as $alert) {
+                    if ($alert->isEnabled() && $alert->getAlertGroupId() == $alertGroupId)
+                        $activeAlerts[] = $alert;
+                }
+                if (sizeof($activeAlerts)) {
+                    $activeDashboardDatasetAlerts[] = new ActiveDashboardDatasetAlerts($datasetInstance, $activeAlerts);
+                }
+            }
+        }
+
+        return $activeDashboardDatasetAlerts;
     }
 
 

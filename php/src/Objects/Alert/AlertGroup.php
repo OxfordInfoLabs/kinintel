@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Alert;
 
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
+use Kiniauth\Objects\Communication\Notification\NotificationLevel;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kiniauth\Traits\Account\AccountProject;
@@ -56,6 +57,14 @@ class AlertGroup extends ActiveRecord {
 
 
     /**
+     * @var NotificationLevel
+     *
+     * @manyToOne
+     * @parentJoinColumns notification_level_key
+     */
+    protected $notificationLevel;
+
+    /**
      * @var NotificationGroup[]
      * @manyToMany
      * @linkTable ki_alert_group_notification_group
@@ -72,6 +81,7 @@ class AlertGroup extends ActiveRecord {
      */
     public function __construct($title, $scheduledTask = null, $notificationGroups = [],
                                 $notificationTitle = null, $notificationPrefixText = null, $notificationSuffixText = null,
+                                $notificationLevel = null,
                                 $projectKey = null, $accountId = null, $id = null) {
         $this->title = $title;
         $this->scheduledTask = $scheduledTask;
@@ -79,6 +89,7 @@ class AlertGroup extends ActiveRecord {
         $this->notificationTitle = $notificationTitle;
         $this->notificationSuffixText = $notificationSuffixText;
         $this->notificationPrefixText = $notificationPrefixText;
+        $this->notificationLevel = $notificationLevel;
         $this->projectKey = $projectKey;
         $this->accountId = $accountId;
         $this->id = $id;
@@ -162,6 +173,20 @@ class AlertGroup extends ActiveRecord {
     }
 
     /**
+     * @return NotificationLevel
+     */
+    public function getNotificationLevel() {
+        return $this->notificationLevel;
+    }
+
+    /**
+     * @param NotificationLevel $notificationLevel
+     */
+    public function setNotificationLevel($notificationLevel) {
+        $this->notificationLevel = $notificationLevel;
+    }
+
+    /**
      * @return NotificationGroup[]
      */
     public function getNotificationGroups() {
@@ -192,6 +217,7 @@ class AlertGroup extends ActiveRecord {
 
         return new AlertGroupSummary($this->title, $this->scheduledTask->getTimePeriods(), $notificationGroupSummaries,
             $this->notificationTitle, $this->notificationPrefixText, $this->notificationSuffixText,
+            $this->notificationLevel,
             $this->scheduledTask->getStatus(), $this->scheduledTask->getLastStartTime(), $this->scheduledTask->getLastEndTime(),
             $this->scheduledTask->getNextStartTime(), $this->id);
     }

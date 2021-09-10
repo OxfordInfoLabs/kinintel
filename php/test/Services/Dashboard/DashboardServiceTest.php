@@ -22,6 +22,7 @@ use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Alert\MatchRule\RowCountAlertMatchRuleConfiguration;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -395,6 +396,87 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Second Shared Dashboard", $filtered[1]->getTitle());
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+    }
+
+
+    public function testCanGetActiveDashboardDatasetAlertsMatchDatasetAlertsWithAlertGroup() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $dashboard1 = new DashboardSummary("Test Instance", [
+            new DashboardDatasetInstance("brandnew", null, "test-json", [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("value", "bingo")
+                ]))
+            ], [
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 0)
+                    ]), "There are no rows when there should be", 1),
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 1)
+                    ]), "There are rows when there should be none", 2),
+
+            ])
+        ], [
+            "color" => "green",
+            "font" => "Arial"
+        ]);
+
+        $dashboard1Id = $this->dashboardService->saveDashboard($dashboard1, 1, 2);
+
+
+        $dashboard2 = new DashboardSummary("Test Instance 2", [
+            new DashboardDatasetInstance("brandnew", null, "test-json", [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("value", "bingo")
+                ]))
+            ], [
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 0)
+                    ]), "There are no rows when there should be", 2),
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 1)
+                    ]), "There are rows when there should be none", 2),
+
+            ])
+        ], [
+            "color" => "green",
+            "font" => "Arial"
+        ]);
+
+        $dashboard2Id = $this->dashboardService->saveDashboard($dashboard2, 1, 2);
+
+
+        /**
+         * @var Dashboard $dashboard1
+         */
+        $dashboard1 = Dashboard::fetch($dashboard1Id);
+
+        /**
+         * @var Dashboard $dashboard2
+         */
+        $dashboard2 = Dashboard::fetch($dashboard2Id);
+
+
+        $matchingActiveAlerts = $this->dashboardService->getActiveDashboardDatasetAlertsMatchingAlertGroup(1);
+
+
+        $this->assertEquals([new ActiveDashboardDatasetAlerts($dashboard1->getDatasetInstances()[0],
+            [$dashboard1->getDatasetInstances()[0]->getAlerts()[0]])], $matchingActiveAlerts);
+
+        $matchingActiveAlerts = $this->dashboardService->getActiveDashboardDatasetAlertsMatchingAlertGroup(2);
+        $this->assertEquals([new ActiveDashboardDatasetAlerts($dashboard1->getDatasetInstances()[0],
+            [$dashboard1->getDatasetInstances()[0]->getAlerts()[1]]),
+            new ActiveDashboardDatasetAlerts($dashboard2->getDatasetInstances()[0],
+                $dashboard2->getDatasetInstances()[0]->getAlerts())], $matchingActiveAlerts);
 
 
     }

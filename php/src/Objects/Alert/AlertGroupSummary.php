@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Alert;
 
 
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
+use Kiniauth\Objects\Communication\Notification\NotificationLevel;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
@@ -74,6 +75,12 @@ class AlertGroupSummary {
 
 
     /**
+     * @var NotificationLevel
+     */
+    protected $notificationLevel;
+
+
+    /**
      * @var NotificationGroupSummary[]
      */
     protected $notificationGroups;
@@ -92,7 +99,9 @@ class AlertGroupSummary {
      */
     public function __construct($title, $taskTimePeriods = [], $notificationGroups = [], $notificationTitle = null,
                                 $notificationPrefixText = null,
-                                $notificationSuffixText = null, $taskStatus = null,
+                                $notificationSuffixText = null,
+                                $notificationLevel = null,
+                                $taskStatus = null,
                                 $taskLastStartTime = null, $taskLastEndTime = null, $nextStartTime = null,
                                 $id = null) {
         $this->id = $id;
@@ -105,6 +114,7 @@ class AlertGroupSummary {
         $this->notificationTitle = $notificationTitle;
         $this->notificationPrefixText = $notificationPrefixText;
         $this->notificationSuffixText = $notificationSuffixText;
+        $this->notificationLevel = $notificationLevel;
         $this->notificationGroups = $notificationGroups;
     }
 
@@ -219,6 +229,20 @@ class AlertGroupSummary {
      */
     public function setNotificationSuffixText($notificationSuffixText) {
         $this->notificationSuffixText = $notificationSuffixText;
+    }
+
+    /**
+     * @return NotificationLevel
+     */
+    public function getNotificationLevel() {
+        return $this->notificationLevel;
+    }
+
+    /**
+     * @param NotificationLevel $notificationLevel
+     */
+    public function setNotificationLevel($notificationLevel) {
+        $this->notificationLevel = $notificationLevel;
     }
 
 
