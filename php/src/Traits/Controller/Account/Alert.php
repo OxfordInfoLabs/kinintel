@@ -4,6 +4,7 @@
 namespace Kinintel\Traits\Controller\Account;
 
 
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Services\Alert\AlertService;
 
@@ -34,7 +35,11 @@ trait Alert {
      * @return AlertGroupSummary
      */
     public function getAlertGroup($id) {
-        return $this->alertService->getAlertGroup($id);
+        try {
+            return $this->alertService->getAlertGroup($id);
+        } catch (ObjectNotFoundException $e) {
+            return new AlertGroupSummary("");
+        }
     }
 
 

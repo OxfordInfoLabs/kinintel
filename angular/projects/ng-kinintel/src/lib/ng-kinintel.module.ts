@@ -55,6 +55,7 @@ import {EditNotificationGroupComponent} from './components/notification-groups/e
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { AlertGroupsComponent } from './components/alert-groups/alert-groups.component';
 import { EditAlertGroupComponent } from './components/alert-groups/edit-alert-group/edit-alert-group.component';
+import { EditDashboardAlertComponent } from './components/dashboard-editor/configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 
 
 @NgModule({
@@ -86,7 +87,8 @@ import { EditAlertGroupComponent } from './components/alert-groups/edit-alert-gr
         NotificationGroupsComponent,
         EditNotificationGroupComponent,
         AlertGroupsComponent,
-        EditAlertGroupComponent
+        EditAlertGroupComponent,
+        EditDashboardAlertComponent
     ],
     imports: [
         BrowserModule,

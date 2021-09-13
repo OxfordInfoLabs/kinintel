@@ -33,4 +33,9 @@ export class AlertService {
         return this.http.post(`${this.config.backendURL}/alert/group?projectKey=${projectKey}`, alertGroup)
             .toPromise();
     }
+
+    public deleteAlertGroup(id) {
+        return this.http.delete(`${this.config.backendURL}/alert/group/${id}`)
+            .toPromise();
+    }
 }

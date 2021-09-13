@@ -1,0 +1,58 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Edit Alert</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <div><b>Enable Alert</b></div>
+        <mat-slide-toggle class="mb-4" [(ngModel)]="alert.enabled">
+            <ng-template [ngIf]="alert.enabled">Alerts enabled</ng-template>
+            <ng-template [ngIf]="!alert.enabled">Alerts disabled</ng-template>
+        </mat-slide-toggle>
+
+        <div><b>Conditions</b></div>
+        <ki-dataset-filters [filterFields]="filterFields"
+                            [filterJunction]="alert.filterTransformation"></ki-dataset-filters>
+
+        <div class="my-2"><b>Matches</b></div>
+        <div class="align-center justify-between">
+            <mat-select class="mr-2 w-1/2" [(ngModel)]="alert.matchRuleConfiguration.matchType">
+                <mat-option value="equals">Equals</mat-option>
+                <mat-option value="greater">Greater than</mat-option>
+                <mat-option value="less">Less than</mat-option>
+            </mat-select>
+            <input class="mr-2 flex-1" type="number" [(ngModel)]="alert.matchRuleConfiguration.value">
+            <div>Rows</div>
+        </div>
+
+        <div class="my-2"><b>Alert Group</b></div>
+
+        <mat-select [(ngModel)]="alert.alertGroupId">
+            <mat-option *ngFor="let alertGroup of alertGroups" [value]="alertGroup.id">
+                {{alertGroup.title}}
+            </mat-option>
+        </mat-select>
+
+        <div class="my-2"><b>Template Text</b></div>
+
+        <textarea class="w-full" rows="5" [(ngModel)]="alert.template"></textarea>
+    </div>
+
+    <div class="dialog-footer">
+
+        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+
+        <button mat-flat-button color="primary" [mat-dialog-close]="alert">
+            Save Alert
+        </button>
+    </div>
+
+</div>
+
+
