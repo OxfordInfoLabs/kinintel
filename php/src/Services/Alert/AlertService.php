@@ -182,7 +182,7 @@ class AlertService {
             foreach ($activeAlert->getAlerts() as $alert) {
 
                 $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($dashboardDatasetInstance->getDashboardId(),
-                    $dashboardDatasetInstance->getInstanceKey(), []);
+                    $dashboardDatasetInstance->getInstanceKey(), $alert->getFilterTransformation() ? [$alert->getFilterTransformation()] : []);
 
                 // If the rule matches, append the evaluated template
                 // To the list of messages.
