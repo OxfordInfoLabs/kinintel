@@ -7,7 +7,9 @@ use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
@@ -55,7 +57,7 @@ class DashboardServiceTest extends TestBase {
     public function setUp(): void {
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->metaDataService = MockObjectProvider::instance()->getMockInstance(MetaDataService::class);
-        $this->dashboardService = new DashboardService($this->datasetService, $this->metaDataService);
+        $this->dashboardService = new DashboardService($this->datasetService, $this->metaDataService, Container::instance()->get(SecurityService::class));
     }
 
 
@@ -485,7 +487,45 @@ class DashboardServiceTest extends TestBase {
     public function testIfLoggedInAsAccountHolderWhenAccessingSummaryForSharedDashboardItIsReturnedAsNewCopy() {
 
 
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
 
+
+        $dashboard1 = new DashboardSummary("Test Instance", [
+            new DashboardDatasetInstance("brandnew", null, "test-json", [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("value", "bingo")
+                ]))
+            ], [
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 0)
+                    ]), "There are no rows when there should be", 1),
+                new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 1)
+                    ]), "There are rows when there should be none", 2),
+
+            ])
+        ], [
+            "color" => "green",
+            "font" => "Arial"
+        ]);
+
+        $dashboard1Id = $this->dashboardService->saveDashboard($dashboard1, null, null);
+
+        // Log in as a regular account
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dashboard = $this->dashboardService->getDashboardById($dashboard1Id);
+        $this->assertNull($dashboard->getId());
+        $this->assertEquals(1, sizeof($dashboard->getDatasetInstances()));
+        $this->assertEquals("brandnew", $dashboard->getDatasetInstances()[0]->getInstanceKey());
+        $this->assertEquals(2, sizeof($dashboard->getDatasetInstances()[0]->getAlerts()));
+        $this->assertNull($dashboard->getDatasetInstances()[0]->getAlerts()[0]->getId());
+        $this->assertNull($dashboard->getDatasetInstances()[0]->getAlerts()[0]->getAlertGroupId());
+        $this->assertNull($dashboard->getDatasetInstances()[0]->getAlerts()[1]->getId());
+        $this->assertNull($dashboard->getDatasetInstances()[0]->getAlerts()[1]->getAlertGroupId());
 
 
     }

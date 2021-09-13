@@ -4,6 +4,7 @@ namespace Kinintel\Services\Dashboard;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
@@ -33,15 +34,23 @@ class DashboardService {
      */
     private $metaDataService;
 
+
+    /**
+     * @var SecurityService
+     */
+    private $securityService;
+
     /**
      * DashboardService constructor.
      *
      * @param DatasetService $datasetService
      * @param MetaDataService $metaDataService
+     * @param SecurityService $securityService
      */
-    public function __construct($datasetService, $metaDataService) {
+    public function __construct($datasetService, $metaDataService, $securityService) {
         $this->datasetService = $datasetService;
         $this->metaDataService = $metaDataService;
+        $this->securityService = $securityService;
     }
 
 
@@ -52,7 +61,12 @@ class DashboardService {
      * @return DashboardSummary
      */
     public function getDashboardById($id) {
-        return Dashboard::fetch($id)->returnSummary();
+        $dashboard = Dashboard::fetch($id);
+
+        $returnCopy = $dashboard->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn();
+        $summary = $dashboard->returnSummary($returnCopy);
+
+        return $summary;
     }
 
 

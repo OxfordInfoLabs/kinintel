@@ -59,8 +59,22 @@ class Dashboard extends DashboardSummary {
     /**
      * Return a dashboard summary
      */
-    public function returnSummary() {
-        return new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings, $this->id);
+    public function returnSummary($returnCopy = false) {
+        $dashboardSummary = new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings,
+            $returnCopy ? null : $this->id);
+
+        // If returning a copy, nullify alert data too
+        if ($returnCopy) {
+            foreach ($dashboardSummary->getDatasetInstances() ?? [] as $instance) {
+                foreach ($instance->getAlerts() as $alert) {
+                    $alert->setAlertGroupId(null);
+                    $alert->setId(null);
+                }
+            }
+        }
+
+        return $dashboardSummary;
+
     }
 
 }
