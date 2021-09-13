@@ -98,13 +98,31 @@
 
         <label class="my-4">
             Notification Groups
-            <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple>
+            <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple [compareWith]="notificationGroupDisplay">
                 <mat-option [value]="group" *ngFor="let group of notificationGroups">{{group.name}}</mat-option>
             </mat-select>
         </label>
         <button mat-button color="primary" (click)="createNotificationGroup()">
             <mat-icon>group_add</mat-icon>&nbsp;Create new notification group
         </button>
+
+        <label class="mb-4">
+            Notification Title
+            <input type="text" [(ngModel)]="alertGroup.notificationTitle">
+            <small>Will be used as the subject for the notification</small>
+        </label>
+
+        <label class="my-4">
+            Notification Prefix Text
+            <textarea cols="30" rows="4" [(ngModel)]="alertGroup.notificationPrefixText"></textarea>
+            <small>Text to include at the beginning of the notification</small>
+        </label>
+
+        <label class="my-4">
+            Notification Suffix Text
+            <textarea cols="30" rows="4" [(ngModel)]="alertGroup.notificationSuffixText"></textarea>
+            <small>Text to include at the end of the notification</small>
+        </label>
 
         <div class="py-4 align-center justify-between">
             <button mat-stroked-button [routerLink]="['/alert-groups']">

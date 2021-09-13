@@ -19,6 +19,8 @@ export class AlertGroupsComponent implements OnInit {
     public projectSub = new Subject();
     public moment = moment;
 
+    private reload = new Subject();
+
     constructor(private projectService: ProjectService,
                 private alertService: AlertService) {
 
@@ -29,7 +31,7 @@ export class AlertGroupsComponent implements OnInit {
             this.projectSub = this.projectService.activeProject;
         }
 
-        merge(this.searchText, this.limit, this.offset, this.projectSub)
+        merge(this.searchText, this.limit, this.offset, this.projectSub, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -40,6 +42,15 @@ export class AlertGroupsComponent implements OnInit {
             this.alertGroups = alertGroups;
         });
 
+    }
+
+    public delete(id) {
+        const message = 'Are you sure you would like to delete this Alert Group?';
+        if (window.confirm(message)) {
+            this.alertService.deleteAlertGroup(id).then(() => {
+                this.reload.next(Date.now());
+            });
+        }
     }
 
     private getAlertGroups() {

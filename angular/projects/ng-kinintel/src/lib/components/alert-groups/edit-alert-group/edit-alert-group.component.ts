@@ -43,6 +43,10 @@ export class EditAlertGroupComponent implements OnInit {
         this.loadNotificationGroups();
     }
 
+    public notificationGroupDisplay(v1, v2) {
+        return v1 && v2 && (v2.id === v2.id);
+    }
+
     public addScheduleTime() {
         if (!this.alertGroup.taskTimePeriods) {
             this.alertGroup.taskTimePeriods = [];
@@ -81,7 +85,6 @@ export class EditAlertGroupComponent implements OnInit {
     }
 
     public save() {
-        console.log(this.alertGroup);
         this.alertService.saveAlertGroup(this.alertGroup).then(() => {
             this.router.navigate(['/alert-groups']);
         });

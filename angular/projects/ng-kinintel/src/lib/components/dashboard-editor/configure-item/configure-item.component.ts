@@ -5,8 +5,8 @@ import {DashboardService} from '../../../services/dashboard.service';
 import {DatasetNameDialogComponent} from '../../dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import * as _ from 'lodash';
 import chroma from 'chroma-js';
-import {NotificationService} from '../../../services/notification.service';
 import {DatasetService} from '../../../services/dataset.service';
+import {EditDashboardAlertComponent} from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 
 @Component({
     selector: 'ki-configure-item',
@@ -53,7 +53,6 @@ export class ConfigureItemComponent implements OnInit {
         }],
         filterJunctions: []
     };
-    public notificationSettings: any = [];
 
     private dataset: any;
 
@@ -61,7 +60,6 @@ export class ConfigureItemComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
                 private dashboardService: DashboardService,
-                private notificationService: NotificationService,
                 private datasetService: DatasetService) {
     }
 
@@ -71,8 +69,6 @@ export class ConfigureItemComponent implements OnInit {
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
         this.dashboardItemType = this.data.dashboardItemType;
 
-        this.notificationService.getNotificationGroups().then(settings => this.notificationSettings = settings);
-
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();
         } else {
@@ -81,10 +77,10 @@ export class ConfigureItemComponent implements OnInit {
                     this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
                 }
                 if (this.dashboard.layoutSettings.general) {
-                    this.general = this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] || {};
+                    this.general = _.isPlainObject(this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey]) ?
+                        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {};
                 }
             }
-
         }
 
         this.datasetService.getDatasets(
@@ -128,6 +124,32 @@ export class ConfigureItemComponent implements OnInit {
         });
         this.updateMetricDataValues();
         this.setChartData();
+    }
+
+    public editAlert(alert) {
+        const dialogRef = this.dialog.open(EditDashboardAlertComponent, {
+            width: '900px',
+            height: '750px',
+            data: {
+                alert,
+                filterFields: this.filterFields
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(alertItem => {
+            if (!this.dashboardDatasetInstance.alerts) {
+                this.dashboardDatasetInstance.alerts = [];
+            }
+            _.remove(this.dashboardDatasetInstance.alerts, {id: alertItem.id});
+            this.dashboardDatasetInstance.alerts.push(alertItem);
+        });
+    }
+
+    public deleteAlert(index) {
+        const message = 'Are you sure you would like to delete this alert?';
+        if (window.confirm(message)) {
+            this.dashboardDatasetInstance.alerts.splice(index, 1);
+        }
     }
 
     public setCallToActionItem(d1: any, d2: any) {
@@ -179,7 +201,7 @@ export class ConfigureItemComponent implements OnInit {
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});
         this.dashboard.datasetInstances.push(this.dashboardDatasetInstance);
 
-        if (!this.dashboard.title) {
+        if (!this.dashboard.title || !this.dashboard.id) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
                 width: '475px',
                 height: '150px',
