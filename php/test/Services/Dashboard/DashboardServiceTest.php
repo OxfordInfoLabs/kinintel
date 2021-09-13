@@ -482,4 +482,13 @@ class DashboardServiceTest extends TestBase {
     }
 
 
+    public function testIfLoggedInAsAccountHolderWhenAccessingSummaryForSharedDashboardItIsReturnedAsNewCopy() {
+
+
+
+
+
+    }
+
+
 }

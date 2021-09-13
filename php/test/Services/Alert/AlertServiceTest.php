@@ -30,6 +30,9 @@ use Kinintel\Services\Dashboard\DashboardService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 include_once "autoloader.php";
 
@@ -425,5 +428,70 @@ class AlertServiceTest extends TestBase {
         ]));
 
     }
+
+
+    public function testAlertsWithAdditionalFilterTransformationAreEvaluatedAsExpected() {
+
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup->save();
+
+        $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
+            $notificationGroup->returnSummary()
+        ], "Test Alert", "Please see alerts below",
+            "Thanks for your support", NotificationLevel::fetch("warning"));
+
+        $alertGroupId = $this->alertService->saveAlertGroup($alertGroup, null, 1);
+
+        $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [], 5);
+
+        $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
+            [
+                new ActiveDashboardDatasetAlerts($dashboardDataset1, [
+                    new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
+                        new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                    ]),
+                        "UNPARSED TEMPLATE", $alertGroupId)
+                ])
+            ]);
+
+
+        // Program no results for both datasets
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+            new ArrayTabularDataset([new Field("data")], [[
+                "data" => "My item"
+            ],
+                ["data" => "Your item"]]), [
+                5, "testdataset1", [new FilterTransformation([
+                    new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                ])]
+            ]);
+
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
+            "UNPARSED TEMPLATE", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        // Process the group
+        $this->alertService->processAlertGroup($alertGroupId);
+
+        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nPARSED TEMPLATE\nThanks for your support", null,
+            [$notificationGroup], null, NotificationLevel::fetch("warning")
+        );
+
+
+        // Check notification was created with correct data
+        $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
+            $expectedNotification, null, 1
+        ]));
+
+
+    }
+
 
 }
