@@ -71,6 +71,7 @@ class Alert extends ActiveRecord {
      *
      * @param string $matchRuleType
      * @param mixed $matchRuleConfiguration
+     * @param FilterTransformation $filterTransformation
      */
     public function __construct($matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $template = null, $alertGroupId = null) {
         $this->matchRuleType = $matchRuleType;

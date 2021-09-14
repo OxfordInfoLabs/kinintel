@@ -17,6 +17,7 @@ import * as _ from 'lodash';
 import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {AlertService} from '../../services/alert.service';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -117,7 +118,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 private dashboardService: DashboardService,
                 private dialog: MatDialog,
                 private snackBar: MatSnackBar,
-                private router: Router) {
+                private router: Router,
+                private alertService: AlertService) {
     }
 
     ngOnInit(): void {
@@ -232,7 +234,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     public toggleNotifications() {
-
+        this.dashboard.alertsEnabled = !this.dashboard.alertsEnabled;
+        this.save(false);
     }
 
     public addParameter() {
@@ -320,7 +323,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
-        componentRef.instance.dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;
+        const dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;
+        componentRef.instance.dashboardDatasetInstance = dashboardDatasetInstance;
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;
@@ -330,6 +334,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
+
+        if (this.dashboard.alertsEnabled) {
+            console.log(dashboardDatasetInstance);
+            if (dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length) {
+                this.alertService.processAlertsForDashboardDatasetInstance(dashboardDatasetInstance)
+                    .then(res => {
+                        console.log('RES', res);
+                    });
+            }
+        }
 
         return componentRef;
     }

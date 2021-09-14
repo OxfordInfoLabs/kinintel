@@ -38,4 +38,12 @@ export class AlertService {
         return this.http.delete(`${this.config.backendURL}/alert/group/${id}`)
             .toPromise();
     }
+
+    public processAlertsForDashboardDatasetInstance(dashboardDataSetInstance, index = null) {
+        let url = this.config.backendURL + '/alert/dashboardDataSetInstance';
+        if (index !== null) {
+            url = url + '?alertIndex=' + index;
+        }
+        return this.http.post(url, dashboardDataSetInstance).toPromise();
+    }
 }

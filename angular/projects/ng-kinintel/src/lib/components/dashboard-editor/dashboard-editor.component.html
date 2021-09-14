@@ -18,8 +18,8 @@
             </button>
             <button mat-button color="primary" class="align-center" title="Toggle notifications on/off"
                 (click)="toggleNotifications()">
-                <mat-icon>notifications_off</mat-icon>
-                <mat-icon>notifications_active</mat-icon>
+                <mat-icon *ngIf="!dashboard.alertsEnabled" title="Notifications for this dashboard are now off. Press to toggle on.">notifications_off</mat-icon>
+                <mat-icon *ngIf="dashboard.alertsEnabled" title="Notifications for this dashboard are on. Press to toggle off.">notifications_active</mat-icon>
             </button>
             <button mat-button color="primary" class="align-center" title="Set dashboard item spacing"
                     [matMenuTriggerFor]="spacingMenu">
