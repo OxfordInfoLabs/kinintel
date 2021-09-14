@@ -6,6 +6,7 @@ namespace Kinintel\Traits\Controller\Account;
 
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Alert\AlertGroupSummary;
+use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Services\Alert\AlertService;
 
 trait Alert {
@@ -78,10 +79,22 @@ trait Alert {
      *
      * @http DELETE /group/$id
      *
-     * @param integer$id
+     * @param integer $id
      */
     public function removeAlertGroup($id) {
         $this->alertService->deleteAlertGroup($id);
     }
+
+
+    /**
+     * @http POST /dashboardDataSetInstance
+     *
+     * @param DashboardDatasetInstance $dashboardDataSetInstance
+     * @param integer $alertIndex
+     */
+    public function processAlertsForDashboardDataset($dashboardDataSetInstance, $alertIndex = null) {
+        return $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataSetInstance, $alertIndex);
+    }
+
 
 }

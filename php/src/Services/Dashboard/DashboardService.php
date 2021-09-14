@@ -127,7 +127,6 @@ class DashboardService {
      */
     public function saveDashboard($dashboardSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $dashboard = new Dashboard($dashboardSummary, $accountId, $projectKey);
-        Logger::log($dashboardSummary);
         // Process tags
         if (sizeof($dashboardSummary->getTags())) {
             $tags = $this->metaDataService->getObjectTagsFromSummaries($dashboardSummary->getTags(), $accountId, $projectKey);
@@ -171,6 +170,16 @@ class DashboardService {
             return $this->datasetService->getEvaluatedDataSetForDataSetInstance($dashboardDatasetInstance, $additionalTransformations);
         }
 
+    }
+
+    /**
+     * Get evaluated data set for a dashboard data set object
+     *
+     * @param DashboardDatasetInstance $dashboardDataSet
+     * @param TransformationInstance[] $additionalTransformation
+     */
+    public function getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDataSetInstance, $additionalTransformations = []) {
+        return $this->datasetService->getEvaluatedDataSetForDataSetInstance($dashboardDataSetInstance, $additionalTransformations);
     }
 
 

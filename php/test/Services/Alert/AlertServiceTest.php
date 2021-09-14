@@ -301,14 +301,14 @@ class AlertServiceTest extends TestBase {
 
 
         // Program no results for both datasets
-        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("Data")], []), [
-                5, "testdataset1", []
+                $dashboardDataset1, []
             ]);
 
-        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("Data")], []), [
-                6, "testdataset2", []
+                $dashboardDataset2, []
             ]);
 
         $this->templateParser->returnValue("parseTemplateText", "No rows match", [
@@ -342,16 +342,16 @@ class AlertServiceTest extends TestBase {
 
 
         // Now change the return value and check other items fired
-        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("data")], [
                 ["data" => "Pingu"]
             ]), [
-                5, "testdataset1", []
+                $dashboardDataset1, []
             ]);
 
-        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("data")], [["data" => "Bing"]]), [
-                6, "testdataset2", []
+                $dashboardDataset2, []
             ]);
 
 
@@ -395,12 +395,12 @@ class AlertServiceTest extends TestBase {
 
 
         // Program no results for both datasets
-        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("data")], [[
                 "data" => "My item"
             ],
                 ["data" => "Your item"]]), [
-                5, "testdataset1", []
+                $dashboardDataset1, []
             ]);
 
 
@@ -456,12 +456,12 @@ class AlertServiceTest extends TestBase {
 
 
         // Program no results for both datasets
-        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstance",
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("data")], [[
                 "data" => "My item"
             ],
                 ["data" => "Your item"]]), [
-                5, "testdataset1", [new FilterTransformation([
+                $dashboardDataset1, [new FilterTransformation([
                     new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
                 ])]
             ]);
@@ -492,6 +492,133 @@ class AlertServiceTest extends TestBase {
 
 
     }
+
+    public function testCanEvaluateAllAlertsForADashboardDataSet() {
+
+        $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [
+            new Alert("rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
+                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+            ]),
+                "UNPARSED TEMPLATE"),
+            new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
+                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+            ]),
+                "UNPARSED TEMPLATE 2"),
+        ]);
+
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
+            "UNPARSED TEMPLATE", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE 2", [
+            "UNPARSED TEMPLATE 2", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
+            new ArrayTabularDataset([new Field("data")], [[
+                "data" => "My item"
+            ],
+                ["data" => "Your item"]]), [
+                $dashboardDataset1, [new FilterTransformation([
+                    new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                ])]
+            ]);
+
+
+        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1);
+
+
+        $this->assertEquals(2, sizeof($processedAlerts));
+        $this->assertEquals([
+            ["alertIndex" => 0, "message" => "PARSED TEMPLATE"],
+            ["alertIndex" => 1, "message" => "PARSED TEMPLATE 2"]
+        ], $processedAlerts);
+
+
+    }
+
+
+    public function testCanEvaluateAlertsForSingleAlertOnDashboardDataSet() {
+
+        $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [
+            new Alert("rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
+                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+            ]),
+                "UNPARSED TEMPLATE"),
+            new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
+                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+            ]),
+                "UNPARSED TEMPLATE 2"),
+        ]);
+
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
+            "UNPARSED TEMPLATE", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE 2", [
+            "UNPARSED TEMPLATE 2", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+
+        $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
+            new ArrayTabularDataset([new Field("data")], [[
+                "data" => "My item"
+            ],
+                ["data" => "Your item"]]), [
+                $dashboardDataset1, [new FilterTransformation([
+                    new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                ])]
+            ]);
+
+
+        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1,0);
+
+
+        $this->assertEquals(1, sizeof($processedAlerts));
+        $this->assertEquals([
+            ["alertIndex" => 0, "message" => "PARSED TEMPLATE"],
+        ], $processedAlerts);
+
+
+        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1,1);
+
+
+        $this->assertEquals(1, sizeof($processedAlerts));
+        $this->assertEquals([
+            ["alertIndex" => 1, "message" => "PARSED TEMPLATE 2"],
+        ], $processedAlerts);
+
+
+    }
+
+
 
 
 }

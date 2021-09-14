@@ -12,8 +12,10 @@ use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;
+use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Services\Dashboard\DashboardService;
 
 class AlertService {
@@ -181,22 +183,8 @@ class AlertService {
             // Process each alert for the dataset
             foreach ($activeAlert->getAlerts() as $alert) {
 
-                $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($dashboardDatasetInstance->getDashboardId(),
-                    $dashboardDatasetInstance->getInstanceKey(), $alert->getFilterTransformation() ? [$alert->getFilterTransformation()] : []);
-
-                // If the rule matches, append the evaluated template
-                // To the list of messages.
-                if ($alert->evaluateMatchRule($evaluatedDataset)) {
-
-                    $dataSetData = $evaluatedDataset->getAllData();
-
-                    $templateData = [
-                        "rowCount" => sizeof($dataSetData),
-                        "data" => $dataSetData
-                    ];
-
-                    // Evaluate alert message using template parser
-                    $alertMessages[] = $this->templateParser->parseTemplateText($alert->getTemplate(), $templateData);
+                if ($alertMessage = $this->processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert)) {
+                    $alertMessages[] = $alertMessage;
                 }
 
             }
@@ -229,6 +217,57 @@ class AlertService {
         }
 
 
+    }
+
+
+    /**
+     * Process alerts for a dashboard dataset instance - optionally limited to a single alert.
+     *
+     * @param DashboardDatasetInstance $dashboardDataSetInstance
+     * @param integer $alertIndex
+     */
+    public function processAlertsForDashboardDatasetInstance($dashboardDataSetInstance, $alertIndex = null) {
+
+        $alertObjects = [];
+        foreach ($dashboardDataSetInstance->getAlerts() as $index => $alert) {
+
+            if ($alertIndex === null || $index == $alertIndex) {
+                $alertMessage = $this->processAlertForDashboardDatasetInstance($dashboardDataSetInstance, $alert);
+
+                if ($alertMessage) {
+                    $alertObjects[] = ["alertIndex" => $index, "message" => $alertMessage];
+                }
+            }
+        }
+
+        return $alertObjects;
+
+    }
+
+
+    /**
+     * @param DashboardDatasetInstance $dashboardDatasetInstance
+     * @param Alert $alert
+     */
+    private function processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert) {
+        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance, $alert->getFilterTransformation() ? [$alert->getFilterTransformation()] : []);
+
+        // If the rule matches, append the evaluated template
+        // To the list of messages.
+        if ($alert->evaluateMatchRule($evaluatedDataset)) {
+
+            $dataSetData = $evaluatedDataset->getAllData();
+
+            $templateData = [
+                "rowCount" => sizeof($dataSetData),
+                "data" => $dataSetData
+            ];
+
+            // Evaluate alert message using template parser
+            return $this->templateParser->parseTemplateText($alert->getTemplate(), $templateData);
+        } else {
+            return false;
+        }
     }
 
 

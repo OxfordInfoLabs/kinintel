@@ -4,6 +4,7 @@
 namespace Kinintel\Services\DataProcessor;
 
 
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kiniauth\Test\TestBase;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -46,6 +47,8 @@ class DataProcessorDAOTest extends TestBase {
 
 
     public function testCanStoreRetrieveAndRemoveDatabaseStoredDataProcessorInstances() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
 
         $newInstance = new DataProcessorInstance("new-test", "New Test One", "datasourceimport");
 
