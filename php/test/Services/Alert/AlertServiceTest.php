@@ -33,6 +33,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 
@@ -461,9 +462,9 @@ class AlertServiceTest extends TestBase {
                 "data" => "My item"
             ],
                 ["data" => "Your item"]]), [
-                $dashboardDataset1, [new FilterTransformation([
+                $dashboardDataset1, [new TransformationInstance("filter", new FilterTransformation([
                     new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
-                ])]
+                ]))]
             ]);
 
 
@@ -533,9 +534,9 @@ class AlertServiceTest extends TestBase {
                 "data" => "My item"
             ],
                 ["data" => "Your item"]]), [
-                $dashboardDataset1, [new FilterTransformation([
+                $dashboardDataset1, [new TransformationInstance("filter", new FilterTransformation([
                     new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
-                ])]
+                ]))]
             ]);
 
 
@@ -592,13 +593,13 @@ class AlertServiceTest extends TestBase {
                 "data" => "My item"
             ],
                 ["data" => "Your item"]]), [
-                $dashboardDataset1, [new FilterTransformation([
+                $dashboardDataset1, [new TransformationInstance("filter", new FilterTransformation([
                     new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
-                ])]
+                ]))]
             ]);
 
 
-        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1,0);
+        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1, 0);
 
 
         $this->assertEquals(1, sizeof($processedAlerts));
@@ -607,7 +608,7 @@ class AlertServiceTest extends TestBase {
         ], $processedAlerts);
 
 
-        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1,1);
+        $processedAlerts = $this->alertService->processAlertsForDashboardDatasetInstance($dashboardDataset1, 1);
 
 
         $this->assertEquals(1, sizeof($processedAlerts));
@@ -617,8 +618,6 @@ class AlertServiceTest extends TestBase {
 
 
     }
-
-
 
 
 }

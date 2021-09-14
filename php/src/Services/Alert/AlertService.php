@@ -17,6 +17,7 @@ use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Services\Dashboard\DashboardService;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class AlertService {
 
@@ -250,7 +251,8 @@ class AlertService {
      * @param Alert $alert
      */
     private function processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert) {
-        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance, $alert->getFilterTransformation() ? [$alert->getFilterTransformation()] : []);
+        $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance,
+            $alert->getFilterTransformation() ? [new TransformationInstance("filter", $alert->getFilterTransformation())] : []);
 
         // If the rule matches, append the evaluated template
         // To the list of messages.
