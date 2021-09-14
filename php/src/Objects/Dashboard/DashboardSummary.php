@@ -62,12 +62,15 @@ class DashboardSummary extends DashboardSearchResult {
      * @param string $title
      * @param DashboardDatasetInstance[] $datasetInstances
      * @param mixed $displaySettings
+     * @param mixed $layoutSettings
+     * @param boolean $alertsEnabled
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $id = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $id = null) {
         parent::__construct($id, $title);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
+        $this->alertsEnabled = $alertsEnabled;
     }
 
     /**

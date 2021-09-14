@@ -428,7 +428,7 @@ class DashboardServiceTest extends TestBase {
         ], [
             "color" => "green",
             "font" => "Arial"
-        ]);
+        ], null, true);
 
         $dashboard1Id = $this->dashboardService->saveDashboard($dashboard1, 1, 2);
 
@@ -452,7 +452,7 @@ class DashboardServiceTest extends TestBase {
         ], [
             "color" => "green",
             "font" => "Arial"
-        ]);
+        ], null, true);
 
         $dashboard2Id = $this->dashboardService->saveDashboard($dashboard2, 1, 2);
 

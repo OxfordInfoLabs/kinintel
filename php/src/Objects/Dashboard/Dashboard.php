@@ -36,7 +36,8 @@ class Dashboard extends DashboardSummary {
      */
     public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
-            parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(), $dashboardSummary->getId());
+            parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(),
+                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->getId());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -61,6 +62,7 @@ class Dashboard extends DashboardSummary {
      */
     public function returnSummary($returnCopy = false) {
         $dashboardSummary = new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings,
+            $this->alertsEnabled,
             $returnCopy ? null : $this->id);
 
         // If returning a copy, nullify alert data too
