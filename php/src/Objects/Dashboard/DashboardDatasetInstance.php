@@ -57,6 +57,8 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
      * @param int $datasetInstanceId
      * @param string $dataSourceInstanceKey
      * @param TransformationInstance[] $transformationInstances
+     * @param Alert[] $alerts
+     * @param integer $dashboardId
      */
     public function __construct($instanceId, $datasetInstanceId = null, $dataSourceInstanceKey = null, $transformationInstances = null, $alerts = null, $dashboardId = null) {
         $this->instanceKey = $instanceId;
