@@ -36,6 +36,19 @@ class EvaluatedDataSource {
      */
     private $parameterValues;
 
+
+    /**
+     * @var integer
+     */
+    private $offset;
+
+
+    /**
+     * @var integer
+     */
+    private $limit;
+
+
     /**
      * @return string
      */
@@ -76,6 +89,34 @@ class EvaluatedDataSource {
      */
     public function setParameterValues($parameterValues) {
         $this->parameterValues = $parameterValues;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOffset() {
+        return $this->offset;
+    }
+
+    /**
+     * @param int $offset
+     */
+    public function setOffset($offset) {
+        $this->offset = $offset;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLimit() {
+        return $this->limit;
+    }
+
+    /**
+     * @param int $limit
+     */
+    public function setLimit($limit) {
+        $this->limit = $limit;
     }
 
 

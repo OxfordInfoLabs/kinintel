@@ -29,6 +29,7 @@ use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -264,7 +265,7 @@ class DatasourceServiceTest extends TestBase {
 
         $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
         $transformed1->returnValue("getSupportedTransformationClasses", [
-            Transformation::class
+            TestTransformation::class
         ]);
 
 
@@ -285,6 +286,59 @@ class DatasourceServiceTest extends TestBase {
 
 
         $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "Joe", "param2" => "Bloggs"], [$transformationInstance1]));
+
+
+    }
+
+
+    public function testOffsetAndLimitInputParametersAreAddedAsPagingTransformationIfNoPagingMarkerTransformationPresentAndPagingTransformationSupportedByTerminatingDatasource() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("getSupportedTransformationClasses", [
+            Transformation::class,
+            PagingTransformation::class
+        ]);
+
+
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+
+        $dataSource->returnValue("applyTransformation", $transformed1, [
+            $transformation1, []
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
+        $transformed1->returnValue("materialise", $dataSet);
+
+
+        // Expect a second transformation to occur
+        $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("applyTransformation", $transformed2, [
+            new PagingTransformation(50, 15), []
+        ]);
+
+        $pagedDataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
+        $transformed2->returnValue("materialise", $pagedDataSet);
+
+
+        $this->assertSame($pagedDataSet, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1], 15, 50));
 
 
     }
