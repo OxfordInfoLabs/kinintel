@@ -25,6 +25,7 @@ use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Paging\PagingMarkerTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -120,7 +121,7 @@ class DatasourceService {
      *
      * @return Dataset
      */
-    public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = [], $offset = 0, $limit = 25) {
+    public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = [], $offset = null, $limit = null) {
         $datasource = $this->getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues, $offset, $limit);
 
         // Return the evaluated data source
@@ -142,7 +143,7 @@ class DatasourceService {
      * @throws UnsupportedDatasourceTransformationException
      * @throws ValidationException
      */
-    public function getTransformedDataSource($datasourceInstanceKey, $transformations, &$parameterValues, $offset = 0, $limit = 25) {
+    public function getTransformedDataSource($datasourceInstanceKey, $transformations, &$parameterValues, $offset = null, $limit = null) {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
@@ -169,13 +170,19 @@ class DatasourceService {
      * @param Datasource $datasource
      * @param TransformationInstance[] $transformationInstances
      */
-    private function applyTransformationsToDatasource($datasource, $transformationInstances, $parameterValues, $offset = 0, $limit = 25) {
+    private function applyTransformationsToDatasource($datasource, $transformationInstances, $parameterValues, $offset = null, $limit = null) {
 
         $pagingMarkerFound = false;
         $pagingTransformation = new PagingTransformation($limit, $offset);
 
         foreach ($transformationInstances as $transformationInstance) {
             $transformation = $transformationInstance->returnTransformation();
+
+            // If a marker transformation, use a paging transformation instead
+            if ($transformation instanceof PagingMarkerTransformation) {
+                $pagingMarkerFound = true;
+                $transformation = new PagingTransformation($limit, $offset);
+            }
 
             if ($this->isTransformationSupported($datasource, $transformation)) {
                 $datasource = $datasource->applyTransformation($transformation, $parameterValues);
@@ -192,7 +199,7 @@ class DatasourceService {
         }
 
         // If no paging marker found and paging is supported as a transformation apply offset and limit
-        if (!$pagingMarkerFound && $this->isTransformationSupported($datasource, $pagingTransformation)) {
+        if (!$pagingMarkerFound && $this->isTransformationSupported($datasource, $pagingTransformation) && $offset !== null && $limit !== null) {
             $datasource = $datasource->applyTransformation($pagingTransformation, $parameterValues);
         }
 
