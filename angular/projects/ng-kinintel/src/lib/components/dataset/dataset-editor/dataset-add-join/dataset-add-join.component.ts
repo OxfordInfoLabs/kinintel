@@ -213,14 +213,7 @@ export class DatasetAddJoinComponent implements OnInit {
         this.datasourceService.evaluateDatasource(
             this.selectedSource.key || this.selectedSource.datasourceInstanceKey,
             this.selectedSource.transformationInstances || [],
-            this.selectedSource.parameterValues || [],
-            [{
-                type: 'paging',
-                config: {
-                    limit: '1',
-                    offset: '0'
-                }
-            }])
+            this.selectedSource.parameterValues || [])
             .then((data: any) => {
                 if (data.columns) {
                     this.joinFilterFields = [];

@@ -33,6 +33,7 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     public filterFields: any = [];
     public metricData: any = {};
     public general: any = {};
+    public alert = false;
     public currencies = [
         {
             name: 'British Pound (£)',

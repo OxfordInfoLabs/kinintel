@@ -2,8 +2,8 @@
     <mat-icon>{{dashboardItemType.icon}}</mat-icon>
     {{dashboardItemType.label}}
 </ng-template>
-<button *ngIf="!dragItem" mat-icon-button class="remove-widget" (click)="removeWidget($event)">
-    <mat-icon>delete</mat-icon>
+<button *ngIf="alert" mat-icon-button class="alert-widget" color="warn">
+    <mat-icon>notification_important</mat-icon>
 </button>
 <ng-template
     [ngIf]="!dragItem && !dashboardDatasetInstance && !dashboardItemType.headingValue && !dashboardItemType._editing">
@@ -17,10 +17,16 @@
     <p>Loading {{dashboardItemType.label}} ...</p>
 </div>
 
+<button *ngIf="!dragItem" mat-icon-button class="edit-widget" [matMenuTriggerFor]="editMenu">
+    <mat-icon>more_vert</mat-icon>
+</button>
+<mat-menu #editMenu="matMenu">
+    <button mat-menu-item (click)="configure()">Edit Item</button>
+    <button mat-menu-item (click)="removeWidget($event)">Delete Item</button>
+</mat-menu>
+
 <ng-template [ngIf]="!dragItem && dashboardItemType.type === 'heading'">
-    <button mat-icon-button class="edit-widget" (click)="configure()">
-        <mat-icon>edit</mat-icon>
-    </button>
+
     <div class="item-heading" *ngIf="!dashboardItemType._editing">
         {{dashboardItemType.headingValue}}
     </div>
@@ -31,9 +37,6 @@
 </ng-template>
 
 <ng-template [ngIf]="!dragItem && !loadingItem && (chartData || dataset)">
-    <button mat-icon-button class="edit-widget" (click)="configure()">
-        <mat-icon>edit</mat-icon>
-    </button>
     <div class="item-title" [ngClass]="{'mb-4': !general.description, 'mb-2': general.description}"
          *ngIf="general.name">{{general.name}}</div>
     <div class="item-description" *ngIf="general.description">{{general.description}}</div>

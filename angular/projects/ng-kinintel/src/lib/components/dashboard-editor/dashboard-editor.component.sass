@@ -27,6 +27,7 @@ ki-item-component
     align-items: center
     flex-direction: column
     height: 100%
+    padding-top: 1rem
 
 mat-drawer-container
     height: 100%
@@ -44,6 +45,8 @@ mat-drawer-container
     border-radius: 6px
     position: relative
     box-shadow: 0 0 6px 0 rgba(0,0,0,0.05)
+    &.alert
+        box-shadow: 0 0 6px 0 rgba(194, 13, 13)
     &::-webkit-scrollbar
         width: 0.5em
         height: 0.5em
@@ -52,12 +55,14 @@ mat-drawer-container
         background: #d3d3d3
     .edit-widget
         position: absolute
-        left: -5px
-        top: -5px
-    .remove-widget
-        position: absolute
         right: -5px
         top: -5px
+        z-index: 9999
+    .alert-widget
+        position: absolute
+        left: -5px
+        top: -5px
+        z-index: 9999
     &:hover
         .remove-widget, .edit-widget
             display: block

@@ -29,15 +29,10 @@ export class DatasourceService {
             (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey)).toPromise();
     }
 
-    public evaluateDatasource(key, transformationInstances, parameterValues?, additionalTransformations?) {
-        if (additionalTransformations) {
-            additionalTransformations.forEach(transformation => {
-                _.remove(transformationInstances, {type: transformation.type});
-                transformationInstances.push(transformation);
-            });
-        }
+    public evaluateDatasource(key, transformationInstances, parameterValues?, offset?, limit?) {
+
         return this.http.post(this.config.backendURL + '/datasource/evaluate', _.omit({
-            key, transformationInstances, parameterValues
+            key, transformationInstances, parameterValues, offset, limit
         }, _.isNil)).toPromise();
     }
 

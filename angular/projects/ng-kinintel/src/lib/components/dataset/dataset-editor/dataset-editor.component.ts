@@ -393,13 +393,9 @@ export class DatasetEditorComponent implements OnInit {
                     this.evaluatedDatasource.key || this.evaluatedDatasource.datasourceInstanceKey,
                     this.evaluatedDatasource.transformationInstances,
                     this.evaluatedDatasource.parameterValues,
-                    [{
-                        type: 'paging',
-                        config: {
-                            limit: this.limit,
-                            offset: this.offset
-                        }
-                    }]).then(dataset => {
+                    this.offset,
+                    this.limit
+                ).then(dataset => {
                     this.dataset = dataset;
                     return this.loadData();
                 }).catch(err => {

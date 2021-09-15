@@ -89,7 +89,6 @@ export class ConfigureItemComponent implements OnInit {
             '0'
         ).toPromise().then(datasets => {
             this.datasets = datasets;
-            console.log(datasets);
         });
     }
 
@@ -110,6 +109,7 @@ export class ConfigureItemComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
+            console.log('SELECTED', dashboardDatasetInstance);
             this.dashboardDatasetInstance = dashboardDatasetInstance;
         });
     }
@@ -199,6 +199,7 @@ export class ConfigureItemComponent implements OnInit {
 
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});
+        _.remove(this.dashboardDatasetInstance.transformationInstances, {type: 'paging'});
         this.dashboard.datasetInstances.push(this.dashboardDatasetInstance);
 
         if (!this.dashboard.title || !this.dashboard.id) {
