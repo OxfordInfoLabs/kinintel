@@ -154,10 +154,9 @@ class DatasourceService {
         // Grab the data source for this instance
         $datasource = $datasourceInstance->returnDataSource();
 
-        // If we have transformations, apply these now
-        if ($transformations ?? []) {
-            $datasource = $this->applyTransformationsToDatasource($datasource, $transformations, $parameterValues, $offset, $limit);
-        }
+        // Apply transformations
+        $datasource = $this->applyTransformationsToDatasource($datasource, $transformations ?? [], $parameterValues, $offset, $limit);
+
 
         return $datasource;
     }
@@ -191,7 +190,6 @@ class DatasourceService {
             }
 
         }
-
 
         // If no paging marker found and paging is supported as a transformation apply offset and limit
         if (!$pagingMarkerFound && $this->isTransformationSupported($datasource, $pagingTransformation)) {
