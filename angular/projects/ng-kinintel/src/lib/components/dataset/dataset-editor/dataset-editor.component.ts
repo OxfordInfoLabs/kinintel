@@ -17,6 +17,7 @@ export class DatasetEditorComponent implements OnInit {
     @Input() datasource: any = {};
     @Input() evaluatedDatasource: any;
     @Input() environment: any = {};
+    @Input() admin: boolean;
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() evaluatedDatasourceChange = new EventEmitter();
@@ -89,10 +90,10 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public removeTransformation(transformation) {
-        _.remove(this.evaluatedDatasource.transformationInstances, {
+        _.remove(this.evaluatedDatasource.transformationInstances, _.omitBy({
             type: transformation.type,
-            config: transformation.config
-        });
+            config: transformation.type !== 'pagingmarker' ? transformation.config : null
+        }, _.isNil));
         this.evaluateDatasource();
     }
 
@@ -236,6 +237,11 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDatasource();
     }
 
+    public addPagingMarker() {
+        this.evaluatedDatasource.transformationInstances.push({type: 'pagingmarker'});
+        this.evaluateDatasource();
+    }
+
     public sort(event) {
         const column = event.active;
         const direction = event.direction;
@@ -353,6 +359,12 @@ export class DatasetEditorComponent implements OnInit {
                 transformation._label = this.getOrdinal(join) + ' Join';
                 transformation._disable = join < joinTotal;
                 transformation._active = join === joinTotal;
+                return true;
+            }
+            if (transformation.type === 'pagingmarker') {
+                transformation._label = 'Paging Marker';
+                transformation._disable = false;
+                transformation._active = true;
                 return true;
             }
             return false;

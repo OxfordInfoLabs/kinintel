@@ -10,7 +10,7 @@
     <rsz-layout class="row top" [directions]="['bottom']" [rFlex]="true">
         <div class="cell-contents">
             <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(evaluatedDatasource)]="dashboardDatasetInstance"
-                               (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
+                               (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
         </div>
     </rsz-layout>
 
@@ -279,10 +279,8 @@
                         </ng-container>
 
                         <ng-container matColumnDef="info">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                            <td mat-cell *matCellDef="let element" class="text-right">
-
-                            </td>
+                            <th mat-header-cell *matHeaderCellDef>Configuration</th>
+                            <td mat-cell *matCellDef="let element" class="capitalize" [innerHTML]="getAlertDetails(element)"></td>
                         </ng-container>
 
                         <ng-container matColumnDef="actions">
@@ -291,7 +289,7 @@
                                 <div class="align-center justify-end">
                                     <button mat-button color="primary" (click)="editAlert(element)"> Edit</button>
                                     <div class="divider"></div>
-                                    <button mat-button color="primary" (click)="deleteAlert(i)"> Delete</button>
+                                    <button mat-button color="warn" (click)="deleteAlert(i)"> Delete</button>
                                 </div>
                             </td>
                         </ng-container>

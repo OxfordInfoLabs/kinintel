@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import chroma from 'chroma-js';
 import {DatasetService} from '../../../services/dataset.service';
 import {EditDashboardAlertComponent} from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
+import {DatasetFilterComponent} from '../../dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
 
 @Component({
     selector: 'ki-configure-item',
@@ -24,6 +25,7 @@ export class ConfigureItemComponent implements OnInit {
     public dashboardItemType;
     public dashboardDatasetInstance: any;
     public datasets: any = [];
+    public admin: boolean;
     public filterFields: any = [];
     public chartTypes = ['line', 'bar', 'pie', 'doughnut'];
     public metricFormats = ['Currency', 'Number', 'Percentage'];
@@ -68,6 +70,7 @@ export class ConfigureItemComponent implements OnInit {
         this.dashboard = this.data.dashboard;
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
         this.dashboardItemType = this.data.dashboardItemType;
+        this.admin = !!this.data.admin;
 
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();
@@ -150,6 +153,31 @@ export class ConfigureItemComponent implements OnInit {
         if (window.confirm(message)) {
             this.dashboardDatasetInstance.alerts.splice(index, 1);
         }
+    }
+
+    public getAlertDetails(alert) {
+        let details = '';
+        const filter = alert.filterTransformation.filters[0];
+        const filterType = DatasetFilterComponent.getFilterType(filter.filterType);
+
+        if (filter) {
+            details += `<b>Where</b> ${filter.fieldName} `;
+            details += filterType ? filterType.label : '';
+            details += ` ${filter.value}`;
+        }
+
+        const matchRule = alert.matchRuleConfiguration;
+        if (matchRule && alert.matchRuleType === 'rowcount') {
+            if (matchRule.matchType === 'equals') {
+                details += ` <b>And</b> exactly ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
+            } else if (matchRule.matchType === 'greater') {
+                details += ` <b>And</b> more than ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
+            } else if (matchRule.matchType === 'less') {
+                details += ` <b>And</b> less than ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
+            }
+        }
+
+        return details;
     }
 
     public setCallToActionItem(d1: any, d2: any) {

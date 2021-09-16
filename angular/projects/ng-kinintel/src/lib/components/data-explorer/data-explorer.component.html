@@ -18,7 +18,7 @@
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents">
                 <ki-dataset-editor [(evaluatedDatasource)]="datasetInstance" [datasource]="datasource"
-                                   (dataLoaded)="dataLoaded($event)"></ki-dataset-editor>
+                                   (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
             </div>
         </rsz-layout>
 
@@ -35,9 +35,6 @@
                         [plugins]="[]">
                 </canvas>
             </div>
-
-
-
         </rsz-layout>
     </rsz-layout>
 

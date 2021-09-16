@@ -90,6 +90,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     public editDashboardTitle = false;
     public darkMode = false;
     public fullScreen = false;
+    public admin: boolean;
     public gridSpaces = [
         {
             label: 'Small',
@@ -123,9 +124,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngOnInit(): void {
-        if (this.route.snapshot.queryParams.fullScreen) {
-
-        }
+        this.route.queryParams.subscribe(params => {
+            this.admin = !!params.a;
+        });
     }
 
     ngAfterViewInit() {
@@ -318,6 +319,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         element.firstChild.id = instanceId ? instanceId : Date.now().toString();
         instanceId = element.firstChild.id;
 
+        componentRef.instance.admin = this.admin;
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
 

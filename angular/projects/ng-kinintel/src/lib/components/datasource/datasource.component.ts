@@ -12,6 +12,8 @@ import {DatasourceService} from '../../services/datasource.service';
 })
 export class DatasourceComponent implements OnInit {
 
+    @Input() admin: boolean;
+
     public datasources: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
@@ -43,7 +45,8 @@ export class DatasourceComponent implements OnInit {
             hasBackdrop: false,
             data: {
                 datasource,
-                showChart: false
+                showChart: false,
+                admin: this.admin
             }
         });
         dialogRef.afterClosed().subscribe(res => {

@@ -6,7 +6,7 @@
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
         <mat-option value="">Condition</mat-option>
-        <mat-option [value]="filterType.value" *ngFor="let filterType of filterTypes">
+        <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{filterType.label}}
         </mat-option>
     </mat-select>
@@ -23,7 +23,7 @@
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
         <mat-option value="">Condition</mat-option>
-        <mat-option [value]="filterType.value" *ngFor="let filterType of filterTypes">
+        <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{filterType.label}}
         </mat-option>
     </mat-select>

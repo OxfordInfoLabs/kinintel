@@ -18,6 +18,7 @@ export class DataExplorerComponent implements OnInit {
     public dataset: any;
     public datasetInstance: any;
     public filters: any;
+    public admin: boolean;
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -30,6 +31,7 @@ export class DataExplorerComponent implements OnInit {
         this.chartData = !!this.data.showChart;
         this.datasource = this.data.datasource;
         this.datasetInstance = this.data.dataset;
+        this.admin = !!this.data.admin;
 
         this.chartData = [
             {data: [1000, 1400, 1999, 2500, 5000]},

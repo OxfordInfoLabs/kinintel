@@ -36,6 +36,7 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     public alert = false;
     public alertData: any = [];
     public showAlertData = false;
+    public admin: boolean;
     public currencies = [
         {
             name: 'British Pound (£)',
@@ -107,7 +108,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
                     dashboard: this.dashboard,
                     dashboardDatasetInstance: this.dashboardDatasetInstance,
                     itemInstanceKey: this.itemInstanceKey,
-                    dashboardItemType: this.dashboardItemType
+                    dashboardItemType: this.dashboardItemType,
+                    admin: this.admin
                 }
             });
             dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {

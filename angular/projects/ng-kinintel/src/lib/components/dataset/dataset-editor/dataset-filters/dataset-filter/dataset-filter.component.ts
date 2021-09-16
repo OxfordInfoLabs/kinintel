@@ -8,17 +8,7 @@ import * as _ from 'lodash';
 })
 export class DatasetFilterComponent implements OnInit {
 
-    @Input() filter: any;
-    @Input() filterIndex: any;
-    @Input() filterJunction: any;
-    @Input() filterFields: any = [];
-    @Input() joinFilterFields: any;
-    @Input() joinFieldsName: string;
-
-    @Output() filtersRemoved = new EventEmitter();
-
-    public customValue = false;
-    public filterTypes = [
+    public static readonly filterTypes = [
         {label: '(==) Equal To', value: 'eq'},
         {label: '(!=) Not Equal To', value: 'neq'},
         {label: 'Is Null', value: 'null'},
@@ -30,7 +20,22 @@ export class DatasetFilterComponent implements OnInit {
         {label: 'Like', value: 'like'},
     ];
 
+    @Input() filter: any;
+    @Input() filterIndex: any;
+    @Input() filterJunction: any;
+    @Input() filterFields: any = [];
+    @Input() joinFilterFields: any;
+    @Input() joinFieldsName: string;
+
+    @Output() filtersRemoved = new EventEmitter();
+
+    public customValue = false;
+
     constructor() {
+    }
+
+    public static getFilterType(filterType) {
+        return _.find(DatasetFilterComponent.filterTypes, {value: filterType}) || null;
     }
 
     ngOnInit(): void {
@@ -43,6 +48,10 @@ export class DatasetFilterComponent implements OnInit {
 
             this.filtersRemoved.emit(this.filterJunction);
         }
+    }
+
+    public getFilterTypes() {
+        return DatasetFilterComponent.filterTypes;
     }
 
 }

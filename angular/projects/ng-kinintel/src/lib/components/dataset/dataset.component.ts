@@ -17,6 +17,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     @Input() headingLabel: string;
     @Input() shared: boolean;
+    @Input() admin: boolean;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -75,7 +76,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 hasBackdrop: false,
                 data: {
                     dataset,
-                    showChart: false
+                    showChart: false,
+                    admin: this.admin
                 }
             });
             dialogRef.afterClosed().subscribe(res => {

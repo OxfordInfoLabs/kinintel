@@ -7,6 +7,9 @@
             <mat-icon>functions</mat-icon>&nbsp;Formulas
         </button>
         <div class="divider"></div>
+        <button *ngIf="admin" mat-button color="primary" class="align-center" (click)="addPagingMarker()">
+            <mat-icon>push_pin</mat-icon>&nbsp;Paging Marker
+        </button>
         <button mat-button color="primary" class="align-center" (click)="joinData()">
             <mat-icon>merge_type</mat-icon>&nbsp;Join Data
         </button>

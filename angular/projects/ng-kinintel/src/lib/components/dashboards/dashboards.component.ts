@@ -17,6 +17,7 @@ export class DashboardsComponent implements OnInit {
     @Input() headingLabel: string;
     @Input() shared: boolean;
     @Input() allowNew: boolean;
+    @Input() admin: boolean;
 
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');
@@ -59,7 +60,7 @@ export class DashboardsComponent implements OnInit {
     }
 
     public view(id) {
-        this.router.navigate(['dashboards', id]);
+        this.router.navigateByUrl(`dashboards/${id}${this.admin ? '?a=true' : ''}`);
     }
 
     public removeActiveTag() {

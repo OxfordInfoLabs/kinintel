@@ -16,11 +16,13 @@
             <ng-template [ngIf]="!alert.enabled">Alerts disabled</ng-template>
         </mat-slide-toggle>
 
-        <div class="my-2"><b>Alert Title</b></div>
+        <div class="my-2"><b>Alert Title<span class="ml-1 text-red-600">*</span></b></div>
 
-        <input type="text" class="w-full" [(ngModel)]="alert.title">
+        <input type="text" class="w-full" #alertTitle="ngModel"
+               [ngClass]="{'border border-red-600': alertTitle.invalid}"
+               [(ngModel)]="alert.title" required>
 
-        <div><b>Conditions</b></div>
+        <div class="mt-2"><b>Conditions</b></div>
         <ki-dataset-filters [filterFields]="filterFields"
                             [filterJunction]="alert.filterTransformation"></ki-dataset-filters>
 
@@ -43,14 +45,18 @@
             </mat-option>
         </mat-select>
 
-        <div class="my-2"><b>Summary Template</b></div>
+        <div class="my-2"><b>Summary Template<span class="ml-1 text-red-600">*</span></b></div>
 
-        <input type="text" class="w-full" [(ngModel)]="alert.summaryTemplate">
+        <input type="text" class="w-full" #summaryTemplate="ngModel"
+               [ngClass]="{'border border-red-600': summaryTemplate.invalid}"
+               [(ngModel)]="alert.summaryTemplate" required>
         <small>Used for display on dashboard</small>
 
-        <div class="my-2"><b>Notification Template</b></div>
+        <div class="my-2"><b>Notification Template<span class="ml-1 text-red-600">*</span></b></div>
 
-        <textarea class="w-full" rows="5" [(ngModel)]="alert.notificationTemplate"></textarea>
+        <textarea class="w-full" rows="5" #notificationTemplate="ngModel"
+                  [ngClass]="{'border border-red-600': notificationTemplate.invalid}"
+                  [(ngModel)]="alert.notificationTemplate" required></textarea>
         <small>Used for the notification</small>
     </div>
 
@@ -60,7 +66,7 @@
 
         <button mat-flat-button color="primary" [mat-dialog-close]="alert"
                 [disabled]="!alert.title || !alert.summaryTemplate || !alert.notificationTemplate">
-            Save Alert
+            {{alert.id ? 'Update' : 'Add'}} Alert
         </button>
     </div>
 
