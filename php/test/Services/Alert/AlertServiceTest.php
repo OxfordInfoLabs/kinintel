@@ -288,14 +288,14 @@ class AlertServiceTest extends TestBase {
         $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
             [
                 new ActiveDashboardDatasetAlerts($dashboardDataset1, [
-                    new Alert("rowcount", ["matchType" => "equals", "value" => 0], null,
+                    new Alert("First Alert", "rowcount", ["matchType" => "equals", "value" => 0], null,
                         "No rows match", $alertGroupId),
-                    new Alert("rowcount", ["matchType" => "equals", "value" => 1], null,
+                    new Alert("Second Alert", "rowcount", ["matchType" => "equals", "value" => 1], null,
                         "Has matching rows", $alertGroupId)]),
                 new ActiveDashboardDatasetAlerts($dashboardDataset2, [
-                    new Alert("rowcount", ["matchType" => "equals", "value" => 0], null,
+                    new Alert("Third Alert", "rowcount", ["matchType" => "equals", "value" => 0], null,
                         "No other rows match", $alertGroupId),
-                    new Alert("rowcount", ["matchType" => "equals", "value" => 1], null,
+                    new Alert("Fourth Alert", "rowcount", ["matchType" => "equals", "value" => 1], null,
                         "Has other matching rows", $alertGroupId)]),
 
             ], [$alertGroupId]);
@@ -389,7 +389,7 @@ class AlertServiceTest extends TestBase {
         $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
             [
                 new ActiveDashboardDatasetAlerts($dashboardDataset1, [
-                    new Alert("rowcount", ["matchType" => "greater", "value" => 1], null,
+                    new Alert("Test Alert", "rowcount", ["matchType" => "greater", "value" => 1], null,
                         "UNPARSED TEMPLATE", $alertGroupId)
                 ])
             ]);
@@ -448,7 +448,7 @@ class AlertServiceTest extends TestBase {
         $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
             [
                 new ActiveDashboardDatasetAlerts($dashboardDataset1, [
-                    new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
+                    new Alert("Test Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                         new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
                     ]),
                         "UNPARSED TEMPLATE", $alertGroupId)
@@ -497,11 +497,11 @@ class AlertServiceTest extends TestBase {
     public function testCanEvaluateAllAlertsForADashboardDataSet() {
 
         $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [
-            new Alert("rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
+            new Alert("First Alert", "rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
                 "UNPARSED TEMPLATE", "UNPARSED SUMMARY TEMPLATE"),
-            new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
+            new Alert("Second Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
                 "UNPARSED TEMPLATE 2", "UNPARSED SUMMARY TEMPLATE 2"),
@@ -576,11 +576,11 @@ class AlertServiceTest extends TestBase {
     public function testCanEvaluateAlertsForSingleAlertOnDashboardDataSet() {
 
         $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [
-            new Alert("rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
+            new Alert("First Alert", "rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
                 "UNPARSED TEMPLATE", "UNPARSED SUMMARY TEMPLATE"),
-            new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
+            new Alert("Second Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
                 "UNPARSED TEMPLATE 2", "UNPARSED SUMMARY TEMPLATE 2"),

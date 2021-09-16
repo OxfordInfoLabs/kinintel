@@ -26,7 +26,7 @@ class AlertTest extends \PHPUnit\Framework\TestCase {
             $dataset, new TestAlertMatchRuleConfiguration("Mark", "Jim")
         ]);
 
-        $alert = new Alert("test", ["property1" => "Mark", "property2" => "Jim"]);
+        $alert = new Alert("New Alert", "test", ["property1" => "Mark", "property2" => "Jim"]);
 
 
         $this->assertTrue($alert->evaluateMatchRule($dataset));

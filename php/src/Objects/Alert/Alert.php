@@ -33,6 +33,12 @@ class Alert extends ActiveRecord {
 
 
     /**
+     * @var string
+     * @required
+     */
+    private $title;
+
+    /**
      * @var FilterTransformation
      * @json
      */
@@ -54,6 +60,7 @@ class Alert extends ActiveRecord {
     /**
      * @var string
      * @sqlType LONGTEXT
+     * @required
      */
     private $notificationTemplate;
 
@@ -61,6 +68,7 @@ class Alert extends ActiveRecord {
     /**
      * @var string
      * @sqlType LONGTEXT
+     * @required
      */
     private $summaryTemplate;
 
@@ -80,9 +88,10 @@ class Alert extends ActiveRecord {
      * @param mixed $matchRuleConfiguration
      * @param FilterTransformation $filterTransformation
      */
-    public function __construct($matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $notificationTemplate = null,
+    public function __construct($title = null, $matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $notificationTemplate = null,
                                 $summaryTemplate = null,
                                 $alertGroupId = null) {
+        $this->title = $title;
         $this->matchRuleType = $matchRuleType;
         $this->matchRuleConfiguration = $matchRuleConfiguration;
         $this->filterTransformation = $filterTransformation;
@@ -118,6 +127,20 @@ class Alert extends ActiveRecord {
      */
     public function setAlertGroupId($alertGroupId) {
         $this->alertGroupId = $alertGroupId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle() {
+        return $this->title;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle($title) {
+        $this->title = $title;
     }
 
     /**
