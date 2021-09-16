@@ -339,7 +339,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                         console.log('RES', res);
                         if (res && res.length) {
                             componentRef.instance.alert = true;
-                            document.getElementById(instanceId).parentElement.classList.add('alert');
+                            componentRef.instance.alertData = res;
+                            const itemElement = document.getElementById(instanceId);
+                            itemElement.classList.add('alert');
+                            itemElement.parentElement.classList.add('alert');
                         }
                     });
             }

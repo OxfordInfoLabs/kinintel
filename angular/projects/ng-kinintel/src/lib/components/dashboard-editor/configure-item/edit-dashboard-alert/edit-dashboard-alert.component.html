@@ -16,6 +16,10 @@
             <ng-template [ngIf]="!alert.enabled">Alerts disabled</ng-template>
         </mat-slide-toggle>
 
+        <div class="my-2"><b>Alert Title</b></div>
+
+        <input type="text" class="w-full" [(ngModel)]="alert.title">
+
         <div><b>Conditions</b></div>
         <ki-dataset-filters [filterFields]="filterFields"
                             [filterJunction]="alert.filterTransformation"></ki-dataset-filters>
@@ -39,16 +43,23 @@
             </mat-option>
         </mat-select>
 
-        <div class="my-2"><b>Template Text</b></div>
+        <div class="my-2"><b>Summary Template</b></div>
 
-        <textarea class="w-full" rows="5" [(ngModel)]="alert.template"></textarea>
+        <input type="text" class="w-full" [(ngModel)]="alert.summaryTemplate">
+        <small>Used for display on dashboard</small>
+
+        <div class="my-2"><b>Notification Template</b></div>
+
+        <textarea class="w-full" rows="5" [(ngModel)]="alert.notificationTemplate"></textarea>
+        <small>Used for the notification</small>
     </div>
 
     <div class="dialog-footer">
 
         <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
 
-        <button mat-flat-button color="primary" [mat-dialog-close]="alert">
+        <button mat-flat-button color="primary" [mat-dialog-close]="alert"
+                [disabled]="!alert.title || !alert.summaryTemplate || !alert.notificationTemplate">
             Save Alert
         </button>
     </div>

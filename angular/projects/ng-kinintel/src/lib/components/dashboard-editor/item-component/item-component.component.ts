@@ -34,6 +34,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     public metricData: any = {};
     public general: any = {};
     public alert = false;
+    public alertData: any = [];
+    public showAlertData = false;
     public currencies = [
         {
             name: 'British Pound (£)',

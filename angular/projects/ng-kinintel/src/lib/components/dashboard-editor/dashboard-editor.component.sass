@@ -28,6 +28,8 @@ ki-item-component
     flex-direction: column
     height: 100%
     padding-top: 1rem
+    &.alert
+        padding-top: 2rem
 
 mat-drawer-container
     height: 100%
@@ -45,24 +47,38 @@ mat-drawer-container
     border-radius: 6px
     position: relative
     box-shadow: 0 0 6px 0 rgba(0,0,0,0.05)
+    .edit-widget
+        position: absolute
+        right: -5px
+        top: 0
+        z-index: 9999
+    .alert-widget
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        background-color: #d01212
+        display: flex
+        align-items: center
+        color: white
+        cursor: pointer
+        padding-right: 1.5rem
+        overflow: hidden
+        white-space: nowrap
+        .alert-summaries
+            overflow: hidden
+            text-overflow: ellipsis
     &.alert
         box-shadow: 0 0 6px 0 rgba(194, 13, 13)
+        .edit-widget
+            color: white
     &::-webkit-scrollbar
         width: 0.5em
         height: 0.5em
         background: transparent
     &::-webkit-scrollbar-thumb
         background: #d3d3d3
-    .edit-widget
-        position: absolute
-        right: -5px
-        top: -5px
-        z-index: 9999
-    .alert-widget
-        position: absolute
-        left: -5px
-        top: -5px
-        z-index: 9999
+
     &:hover
         .remove-widget, .edit-widget
             display: block

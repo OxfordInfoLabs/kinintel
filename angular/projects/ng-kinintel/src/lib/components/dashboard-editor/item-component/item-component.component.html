@@ -1,10 +1,29 @@
+<div class="alert-panel" *ngIf="showAlertData" (click)="showAlertData = false">
+    <div class="align-center flex-col w-3/4">
+        <mat-icon>notification_important</mat-icon>
+        <h2 class="mb-0">Alert Notification</h2>
+        <p class="text-center">The following alerts have been triggered based on the criteria set for this dashboard item...</p>
+        <div class="alert-item mb-2" *ngFor="let alertItem of alertData">
+            {{alertItem.notificationMessage}}
+        </div>
+    </div>
+</div>
+
 <ng-template [ngIf]="dragItem">
     <mat-icon>{{dashboardItemType.icon}}</mat-icon>
     {{dashboardItemType.label}}
 </ng-template>
-<button *ngIf="alert" mat-icon-button class="alert-widget" color="warn">
-    <mat-icon>notification_important</mat-icon>
-</button>
+<div class="alert-widget" *ngIf="alert" (click)="showAlertData = true;">
+    <button mat-icon-button>
+        <mat-icon>notification_important</mat-icon>
+    </button>
+    <div class="alert-summaries">
+        <span class="mr-2" *ngFor="let alertItem of alertData">
+            {{alertItem.summaryMessage}}
+        </span>
+    </div>
+</div>
+
 <ng-template
     [ngIf]="!dragItem && !dashboardDatasetInstance && !dashboardItemType.headingValue && !dashboardItemType._editing">
     <button mat-stroked-button color="primary" (click)="configure()">
