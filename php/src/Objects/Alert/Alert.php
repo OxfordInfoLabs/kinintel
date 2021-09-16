@@ -84,9 +84,13 @@ class Alert extends ActiveRecord {
     /**
      * Alert constructor.
      *
+     * @param string $title
      * @param string $matchRuleType
      * @param mixed $matchRuleConfiguration
      * @param FilterTransformation $filterTransformation
+     * @param string $notificationTemplate
+     * @param string $summaryTemplate
+     * @param integer $alertGroupId
      */
     public function __construct($title = null, $matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $notificationTemplate = null,
                                 $summaryTemplate = null,
