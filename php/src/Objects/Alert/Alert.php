@@ -55,7 +55,14 @@ class Alert extends ActiveRecord {
      * @var string
      * @sqlType LONGTEXT
      */
-    private $template;
+    private $notificationTemplate;
+
+
+    /**
+     * @var string
+     * @sqlType LONGTEXT
+     */
+    private $summaryTemplate;
 
 
     /**
@@ -73,11 +80,14 @@ class Alert extends ActiveRecord {
      * @param mixed $matchRuleConfiguration
      * @param FilterTransformation $filterTransformation
      */
-    public function __construct($matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $template = null, $alertGroupId = null) {
+    public function __construct($matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $notificationTemplate = null,
+                                $summaryTemplate = null,
+                                $alertGroupId = null) {
         $this->matchRuleType = $matchRuleType;
         $this->matchRuleConfiguration = $matchRuleConfiguration;
         $this->filterTransformation = $filterTransformation;
-        $this->template = $template;
+        $this->notificationTemplate = $notificationTemplate;
+        $this->summaryTemplate = $summaryTemplate;
         $this->alertGroupId = $alertGroupId;
     }
 
@@ -155,15 +165,29 @@ class Alert extends ActiveRecord {
     /**
      * @return string
      */
-    public function getTemplate() {
-        return $this->template;
+    public function getNotificationTemplate() {
+        return $this->notificationTemplate;
     }
 
     /**
-     * @param string $template
+     * @param string $notificationTemplate
      */
-    public function setTemplate($template) {
-        $this->template = $template;
+    public function setNotificationTemplate($notificationTemplate) {
+        $this->notificationTemplate = $notificationTemplate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSummaryTemplate() {
+        return $this->summaryTemplate;
+    }
+
+    /**
+     * @param string $summaryTemplate
+     */
+    public function setSummaryTemplate($summaryTemplate) {
+        $this->summaryTemplate = $summaryTemplate;
     }
 
     /**

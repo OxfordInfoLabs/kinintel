@@ -176,7 +176,7 @@ class AlertService {
         $activeAlerts = $this->dashboardService->getActiveDashboardDatasetAlertsMatchingAlertGroup($alertGroupId);
 
         // Loop through each active alert
-        $alertMessages = [];
+        $alertMessageStrings = [];
         foreach ($activeAlerts as $activeAlert) {
 
             $dashboardDatasetInstance = $activeAlert->getDashboardDatasetInstance();
@@ -184,8 +184,9 @@ class AlertService {
             // Process each alert for the dataset
             foreach ($activeAlert->getAlerts() as $alert) {
 
-                if ($alertMessage = $this->processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert)) {
-                    $alertMessages[] = $alertMessage;
+                $alertMessages = $this->processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert);
+                if ($alertMessages["notificationMessage"] ?? null) {
+                    $alertMessageStrings[] = $alertMessages["notificationMessage"];
                 }
 
             }
@@ -193,7 +194,7 @@ class AlertService {
         }
 
         // If at least one alert message
-        if (sizeof($alertMessages)) {
+        if (sizeof($alertMessageStrings)) {
 
             /**
              * @var AlertGroup $alertGroup
@@ -202,16 +203,16 @@ class AlertService {
 
             // If prefix text prepend it
             if ($alertGroup->getNotificationPrefixText()) {
-                array_unshift($alertMessages, $alertGroup->getNotificationPrefixText());
+                array_unshift($alertMessageStrings, $alertGroup->getNotificationPrefixText());
             }
 
             // If suffix text append it
             if ($alertGroup->getNotificationSuffixText()) {
-                $alertMessages[] = $alertGroup->getNotificationSuffixText();
+                $alertMessageStrings[] = $alertGroup->getNotificationSuffixText();
             }
 
             $notificationSummary = new NotificationSummary($alertGroup->getNotificationTitle(),
-                join("\n", $alertMessages), null, $alertGroup->getNotificationGroups(), null,
+                join("\n", $alertMessageStrings), null, $alertGroup->getNotificationGroups(), null,
                 $alertGroup->getNotificationLevel());
 
             $this->notificationService->createNotification($notificationSummary, $alertGroup->getProjectKey(), $alertGroup->getAccountId());
@@ -233,10 +234,10 @@ class AlertService {
         foreach ($dashboardDataSetInstance->getAlerts() as $index => $alert) {
 
             if ($alertIndex === null || $index == $alertIndex) {
-                $alertMessage = $this->processAlertForDashboardDatasetInstance($dashboardDataSetInstance, $alert);
+                $alertMessages = $this->processAlertForDashboardDatasetInstance($dashboardDataSetInstance, $alert);
 
-                if ($alertMessage) {
-                    $alertObjects[] = ["alertIndex" => $index, "message" => $alertMessage];
+                if ($alertMessages) {
+                    $alertObjects[] = array_merge($alertMessages, ["alertIndex" => $index]);
                 }
             }
         }
@@ -266,7 +267,10 @@ class AlertService {
             ];
 
             // Evaluate alert message using template parser
-            return $this->templateParser->parseTemplateText($alert->getTemplate(), $templateData);
+            return [
+                "notificationMessage" => $this->templateParser->parseTemplateText($alert->getNotificationTemplate(), $templateData),
+                "summaryMessage" => $this->templateParser->parseTemplateText($alert->getSummaryTemplate(), $templateData)
+            ];
         } else {
             return false;
         }

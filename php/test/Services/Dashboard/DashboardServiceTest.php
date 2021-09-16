@@ -120,7 +120,7 @@ class DashboardServiceTest extends TestBase {
                 new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
                     new FilterTransformation([
                         new Filter("score", 0)
-                    ]), "There are no rows when there should be", 7)
+                    ]), "There are no rows when there should be", "No rows", 7)
             ])
         ], [
             "color" => "green",
@@ -148,7 +148,7 @@ class DashboardServiceTest extends TestBase {
 
         $this->assertEquals(1, sizeof($dashboardDatasetInstance->getAlerts()));
         $firstAlert = $dashboardDatasetInstance->getAlerts()[0];
-        $this->assertEquals("There are no rows when there should be", $firstAlert->getTemplate());
+        $this->assertEquals("There are no rows when there should be", $firstAlert->getNotificationTemplate());
         $this->assertEquals("rowcount", $firstAlert->getMatchRuleType());
         $this->assertEquals(["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5], $firstAlert->getMatchRuleConfiguration());
         $this->assertEquals(new FilterTransformation([
@@ -418,11 +418,11 @@ class DashboardServiceTest extends TestBase {
                 new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
                     new FilterTransformation([
                         new Filter("score", 0)
-                    ]), "There are no rows when there should be", 1),
+                    ]), "There are no rows when there should be", "No Rows", 1),
                 new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
                     new FilterTransformation([
                         new Filter("score", 1)
-                    ]), "There are rows when there should be none", 2),
+                    ]), "There are rows when there should be none", "Rows", 2),
 
             ])
         ], [
@@ -442,11 +442,11 @@ class DashboardServiceTest extends TestBase {
                 new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
                     new FilterTransformation([
                         new Filter("score", 0)
-                    ]), "There are no rows when there should be", 2),
+                    ]), "There are no rows when there should be", "No Rows", 2),
                 new Alert("rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
                     new FilterTransformation([
                         new Filter("score", 1)
-                    ]), "There are rows when there should be none", 2),
+                    ]), "There are rows when there should be none", "Rows", 2),
 
             ])
         ], [

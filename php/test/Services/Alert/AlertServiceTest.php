@@ -500,11 +500,11 @@ class AlertServiceTest extends TestBase {
             new Alert("rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE"),
+                "UNPARSED TEMPLATE", "UNPARSED SUMMARY TEMPLATE"),
             new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE 2"),
+                "UNPARSED TEMPLATE 2", "UNPARSED SUMMARY TEMPLATE 2"),
         ]);
 
 
@@ -520,6 +520,26 @@ class AlertServiceTest extends TestBase {
 
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE 2", [
             "UNPARSED TEMPLATE 2", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE", [
+            "UNPARSED SUMMARY TEMPLATE", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE 2", [
+            "UNPARSED SUMMARY TEMPLATE 2", [
                 "rowCount" => 2,
                 "data" => [[
                     "data" => "My item"
@@ -545,8 +565,8 @@ class AlertServiceTest extends TestBase {
 
         $this->assertEquals(2, sizeof($processedAlerts));
         $this->assertEquals([
-            ["alertIndex" => 0, "message" => "PARSED TEMPLATE"],
-            ["alertIndex" => 1, "message" => "PARSED TEMPLATE 2"]
+            ["alertIndex" => 0, "notificationMessage" => "PARSED TEMPLATE", "summaryMessage" => "PARSED SUMMARY TEMPLATE"],
+            ["alertIndex" => 1, "notificationMessage" => "PARSED TEMPLATE 2", "summaryMessage" => "PARSED SUMMARY TEMPLATE 2"]
         ], $processedAlerts);
 
 
@@ -559,11 +579,11 @@ class AlertServiceTest extends TestBase {
             new Alert("rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE"),
+                "UNPARSED TEMPLATE", "UNPARSED SUMMARY TEMPLATE"),
             new Alert("rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE 2"),
+                "UNPARSED TEMPLATE 2", "UNPARSED SUMMARY TEMPLATE 2"),
         ]);
 
 
@@ -579,6 +599,26 @@ class AlertServiceTest extends TestBase {
 
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE 2", [
             "UNPARSED TEMPLATE 2", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE", [
+            "UNPARSED SUMMARY TEMPLATE", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE 2", [
+            "UNPARSED SUMMARY TEMPLATE 2", [
                 "rowCount" => 2,
                 "data" => [[
                     "data" => "My item"
@@ -604,7 +644,7 @@ class AlertServiceTest extends TestBase {
 
         $this->assertEquals(1, sizeof($processedAlerts));
         $this->assertEquals([
-            ["alertIndex" => 0, "message" => "PARSED TEMPLATE"],
+            ["alertIndex" => 0, "summaryMessage" => "PARSED SUMMARY TEMPLATE", "notificationMessage" => "PARSED TEMPLATE"],
         ], $processedAlerts);
 
 
@@ -613,7 +653,7 @@ class AlertServiceTest extends TestBase {
 
         $this->assertEquals(1, sizeof($processedAlerts));
         $this->assertEquals([
-            ["alertIndex" => 1, "message" => "PARSED TEMPLATE 2"],
+            ["alertIndex" => 1, "summaryMessage" => "PARSED SUMMARY TEMPLATE 2", "notificationMessage" => "PARSED TEMPLATE 2"],
         ], $processedAlerts);
 
 
