@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -99,6 +100,8 @@ class SQLFilterJunctionEvaluator {
         $fieldName = $filter->getFieldName();
         $filterValue = $filter->getValue();
 
+
+
         // Map any param values up front using the template mapper
         $newParams = [];
         foreach (is_array($filterValue) ? $filterValue : [$filterValue] as $param) {
@@ -109,9 +112,11 @@ class SQLFilterJunctionEvaluator {
                 $filterValue = $directParam;
             } else {
                 $newParam = $this->templateParser->parseTemplateText($param, $templateParameters);
+                if (is_numeric($newParam)) $newParam = floatval($newParam);
                 $newParams[] = $newParam;
             }
         }
+
 
         // Remap the filter value back if not an array
         $placeholder = "?";

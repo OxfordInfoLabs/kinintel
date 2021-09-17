@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinintel\ValueObjects\Dataset\Field;
 
@@ -43,6 +44,7 @@ class SQLResultSetTabularDataset extends TabularDataset {
      * @return Field[]
      */
     public function getColumns() {
+
         if (!$this->columns || sizeof($this->columns) == 0) {
             $this->columns = array_map(function ($columnName) {
                 return new Field($columnName);

@@ -10,12 +10,14 @@ use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\Communication\Notification\NotificationService;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Dashboard\DashboardService;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -242,6 +244,7 @@ class AlertService {
             }
         }
 
+
         return $alertObjects;
 
     }
@@ -255,11 +258,14 @@ class AlertService {
         $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance,
             $alert->getFilterTransformation() ? [new TransformationInstance("filter", $alert->getFilterTransformation())] : []);
 
+
+        $newDataset = new ArrayTabularDataset($evaluatedDataset->getColumns(), $evaluatedDataset->getAllData());
+
         // If the rule matches, append the evaluated template
         // To the list of messages.
-        if ($alert->evaluateMatchRule($evaluatedDataset)) {
+        if ($alert->evaluateMatchRule($newDataset)) {
 
-            $dataSetData = $evaluatedDataset->getAllData();
+            $dataSetData = $newDataset->getAllData();
 
             $templateData = [
                 "rowCount" => sizeof($dataSetData),
