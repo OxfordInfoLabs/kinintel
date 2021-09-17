@@ -296,4 +296,6 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         )));
     }
 
+
+
 }
