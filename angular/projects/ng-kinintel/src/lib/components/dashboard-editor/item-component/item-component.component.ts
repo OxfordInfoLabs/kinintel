@@ -9,6 +9,7 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import * as _ from 'lodash';
 import {DataExplorerComponent} from '../../data-explorer/data-explorer.component';
 import {DatasetService} from '../../../services/dataset.service';
+import {AlertService} from '../../../services/alert.service';
 
 @Component({
     selector: 'ki-item-component',
@@ -63,7 +64,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
 
     constructor(private dialog: MatDialog,
                 private datasourceService: DatasourceService,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private alertService: AlertService) {
     }
 
     ngOnInit(): void {
@@ -129,7 +131,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
             return this.datasourceService.evaluateDatasource(
                 this.dashboardDatasetInstance.datasourceInstanceKey,
                 this.dashboardDatasetInstance.transformationInstances,
-                this.dashboardDatasetInstance.parameterValues)
+                this.dashboardDatasetInstance.parameterValues,
+                '0', '10')
                 .then(data => {
                     this.dataset = data;
                     this.filterFields = _.map(this.dataset.columns, column => {
@@ -148,6 +151,39 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
                     this.loadingItem = false;
                     this.configureClass = false;
                     this.setChartData();
+
+                    const itemElement = document.getElementById(this.dashboardDatasetInstance.instanceKey);
+
+                    if (this.dashboard.alertsEnabled) {
+                        if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
+                            this.alertService.processAlertsForDashboardDatasetInstance(this.dashboardDatasetInstance)
+                                .then((res: any) => {
+                                    if (res && res.length) {
+                                        this.alert = true;
+                                        this.alertData = res;
+                                        if (itemElement) {
+                                            itemElement.classList.add('alert');
+                                            itemElement.parentElement.classList.add('alert');
+                                        }
+                                    }
+                                });
+                        } else {
+                            this.alert = false;
+                            this.alertData = [];
+                            if (itemElement) {
+                                itemElement.classList.remove('alert');
+                                itemElement.parentElement.classList.remove('alert');
+                            }
+                        }
+                    } else {
+                        this.alert = false;
+                        this.alertData = [];
+                        if (itemElement) {
+                            itemElement.classList.remove('alert');
+                            itemElement.parentElement.classList.remove('alert');
+                        }
+                    }
+
                 }).catch(err => {
                 });
         }
@@ -156,7 +192,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     public removeWidget(event) {
         const message = 'Are your sure you would like to remove this item from your dashboard?';
         if (window.confirm(message)) {
-            const widget = event.target.closest('.grid-stack-item');
+            const itemElement = document.getElementById(this.dashboardDatasetInstance.instanceKey);
+            const widget = itemElement.closest('.grid-stack-item');
             this.grid.removeWidget(widget);
         }
     }

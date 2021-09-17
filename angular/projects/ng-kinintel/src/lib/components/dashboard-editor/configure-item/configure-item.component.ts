@@ -112,7 +112,6 @@ export class ConfigureItemComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
-            console.log('SELECTED', dashboardDatasetInstance);
             this.dashboardDatasetInstance = dashboardDatasetInstance;
         });
     }
@@ -129,7 +128,7 @@ export class ConfigureItemComponent implements OnInit {
         this.setChartData();
     }
 
-    public editAlert(alert) {
+    public editAlert(alert, index?) {
         const dialogRef = this.dialog.open(EditDashboardAlertComponent, {
             width: '900px',
             height: '750px',
@@ -143,8 +142,11 @@ export class ConfigureItemComponent implements OnInit {
             if (!this.dashboardDatasetInstance.alerts) {
                 this.dashboardDatasetInstance.alerts = [];
             }
-            _.remove(this.dashboardDatasetInstance.alerts, {id: alertItem.id});
-            this.dashboardDatasetInstance.alerts.push(alertItem);
+            if (index >= 0) {
+                this.dashboardDatasetInstance.alerts[index] = alertItem;
+            } else {
+                this.dashboardDatasetInstance.alerts.push(alertItem);
+            }
         });
     }
 

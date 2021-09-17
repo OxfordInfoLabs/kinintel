@@ -237,6 +237,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     public toggleNotifications() {
         this.dashboard.alertsEnabled = !this.dashboard.alertsEnabled;
         this.save(false);
+        this.grid.removeAll();
+        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public addParameter() {
@@ -338,7 +340,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             if (dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length) {
                 this.alertService.processAlertsForDashboardDatasetInstance(dashboardDatasetInstance)
                     .then((res: any) => {
-                        console.log('RES', res);
                         if (res && res.length) {
                             componentRef.instance.alert = true;
                             componentRef.instance.alertData = res;

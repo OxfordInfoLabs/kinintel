@@ -267,36 +267,34 @@
                     <div class="py-4 flex justify-between">
                         <div><b>Alerts</b></div>
                         <button mat-flat-button color="primary" (click)="editAlert(null)">
-                            <mat-icon>add</mat-icon> New Alert
+                            <mat-icon>add</mat-icon>
+                            New Alert
                         </button>
                     </div>
-                    <table *ngIf="dashboardDatasetInstance" mat-table [dataSource]="dashboardDatasetInstance.alerts">
-
-                        <!-- Position Column -->
-                        <ng-container matColumnDef="alertGroup">
-                            <th mat-header-cell *matHeaderCellDef> Alert</th>
-                            <td mat-cell *matCellDef="let element">{{element.title}}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="info">
-                            <th mat-header-cell *matHeaderCellDef>Configuration</th>
-                            <td mat-cell *matCellDef="let element" class="capitalize" [innerHTML]="getAlertDetails(element)"></td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef></th>
-                            <td mat-cell *matCellDef="let element; let i = index" class="text-right">
+                    <table *ngIf="dashboardDatasetInstance && dashboardDatasetInstance.alerts &&
+                        dashboardDatasetInstance.alerts.length">
+                        <thead>
+                        <tr>
+                            <th>Alert</th>
+                            <th>Configuration</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let alert of dashboardDatasetInstance.alerts; let i = index">
+                            <td>{{alert.title}}</td>
+                            <td class="capitalize" [innerHTML]="getAlertDetails(alert)"></td>
+                            <td class="text-right">
                                 <div class="align-center justify-end">
-                                    <button mat-button color="primary" (click)="editAlert(element)"> Edit</button>
+                                    <button mat-button color="primary" (click)="editAlert(alert, i)"> Edit</button>
                                     <div class="divider"></div>
                                     <button mat-button color="warn" (click)="deleteAlert(i)"> Delete</button>
                                 </div>
                             </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="['alertGroup', 'info', 'actions']"></tr>
-                        <tr mat-row *matRowDef="let row; columns: ['alertGroup', 'info', 'actions'];"></tr>
+                        </tr>
+                        </tbody>
                     </table>
+
                 </div>
             </mat-tab>
         </mat-tab-group>
