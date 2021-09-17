@@ -109,6 +109,7 @@ class SQLFilterJunctionEvaluator {
                 $filterValue = $directParam;
             } else {
                 $newParam = $this->templateParser->parseTemplateText($param, $templateParameters);
+                if (is_numeric($newParam)) $newParam = floatval($newParam);
                 $newParams[] = $newParam;
             }
         }
