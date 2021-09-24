@@ -37,11 +37,13 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      * @param string $type
      * @param mixed $config
      */
-    public function __construct($key, $title, $type, $config = []) {
+    public function __construct($key, $title, $type, $config = [], $projectKey = null, $accountId = null) {
         parent::__construct($key, $title);
 
         $this->type = $type;
         $this->config = $config;
+        $this->projectKey = $projectKey;
+        $this->accountId = $accountId;
     }
 
 

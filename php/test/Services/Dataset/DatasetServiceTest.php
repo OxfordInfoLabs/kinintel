@@ -7,6 +7,7 @@ use Kiniauth\Objects\Account\Project;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Testing\MockObject;
@@ -16,6 +17,8 @@ use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
@@ -307,6 +310,96 @@ class DatasetServiceTest extends TestBase {
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Project Dataset", $filtered[0]->getTitle());
 
+
+    }
+
+
+    public function testCanCreateListUpdateAndRemoveSnapshotProfiles() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", [], [], []);
+        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
+
+        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
+            new ScheduledTaskTimePeriod(1, null, 0, 0)
+        ], "test-json", [
+            "test" => "hello"
+        ]);
+
+        $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
+        $this->assertNotNull($profileId);
+
+
+        /**
+         * @var DatasetInstanceSnapshotProfile $snapshotProfile
+         */
+        $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($profileId);
+        $this->assertEquals("Daily Snapshot", $snapshotProfile->getTitle());
+        $this->assertEquals($instanceId, $snapshotProfile->getDatasetInstanceId());
+
+        $this->assertNotNull($snapshotProfile->getScheduledTask());
+        $this->assertEquals(1, sizeof($snapshotProfile->getScheduledTask()->getTimePeriods()));
+
+
+        $this->assertNotNull($snapshotProfile->getDataProcessorInstance());
+        $processorInstance = $snapshotProfile->getDataProcessorInstance();
+        $this->assertEquals("Dataset Instance Snapshot: $instanceId - Daily Snapshot", $processorInstance->getTitle());
+
+        // Check we can list correctly
+        $profiles = $this->datasetService->listSnapshotProfilesForDataSetInstance($instanceId);
+        $this->assertEquals(1, sizeof($profiles));
+        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profileId)->returnSummary(), $profiles[0]);
+
+
+        // Create a couple more
+        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Older Daily Snapshot", [
+            new ScheduledTaskTimePeriod(1, null, 0, 0)
+        ], "test-json", [
+            "test" => "hello"
+        ]);
+
+        $profile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
+
+        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Another Daily Snapshot", [
+            new ScheduledTaskTimePeriod(1, null, 0, 0)
+        ], "test-json", [
+            "test" => "hello"
+        ]);
+
+        $profile3Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
+
+        // Check we can list correctly
+        $profiles = $this->datasetService->listSnapshotProfilesForDataSetInstance($instanceId);
+        $this->assertEquals(3, sizeof($profiles));
+        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profile3Id)->returnSummary(), $profiles[0]);
+        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profileId)->returnSummary(), $profiles[1]);
+        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profile2Id)->returnSummary(), $profiles[2]);
+
+
+        // Update a profile
+        $updateProfile = $profiles[1];
+        $updateProfile->setTitle("Updated title");
+        $updateProfile->setTaskTimePeriods([
+            new ScheduledTaskTimePeriod(null, 3, 15, 22)
+        ]);
+        $updateProfile->setProcessorConfig([
+            "updated" => "Bing"
+        ]);
+
+        $this->datasetService->saveSnapshotProfile($updateProfile, $instanceId);
+
+        $updated = DatasetInstanceSnapshotProfile::fetch($updateProfile->getId());
+
+        $this->assertEquals("Updated title", $updated->getTitle());
+        $this->assertEquals(1, sizeof($updated->getScheduledTask()->getTimePeriods()));
+        $this->assertEquals(new ScheduledTaskTimePeriod(null, 3, 15, 22, $updated->getScheduledTask()->getTimePeriods()[0]->getId()),
+            $updated->getScheduledTask()->getTimePeriods()[0]);
+        $this->assertEquals([
+            "updated" => "Bing"
+        ], $updated->getDataProcessorInstance()->getConfig());
 
     }
 

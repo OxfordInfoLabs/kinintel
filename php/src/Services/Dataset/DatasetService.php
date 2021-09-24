@@ -4,13 +4,18 @@ namespace Kinintel\Services\Dataset;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\MetaData\TagSummary;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
@@ -131,6 +136,88 @@ class DatasetService {
     public function removeDataSetInstance($id) {
         $dataSetInstance = DatasetInstance::fetch($id);
         $dataSetInstance->remove();
+    }
+
+
+    /**
+     * List all snapshots for a dataset instance
+     *
+     * @param $datasetInstanceId
+     * @return DatasetInstanceSnapshotProfileSummary[]
+     */
+    public function listSnapshotProfilesForDataSetInstance($datasetInstanceId) {
+
+        // Check we have access to the instance first
+        DatasetInstance::fetch($datasetInstanceId);
+
+        $profiles = DatasetInstanceSnapshotProfile::filter("WHERE datasetInstanceId = ? ORDER BY title", $datasetInstanceId);
+        return array_map(function ($profile) {
+            return $profile->returnSummary();
+        }, $profiles);
+    }
+
+
+    /**
+     * Save a snapshot profile for an instance
+     *
+     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
+     * @param integer $datasetInstanceId
+     */
+    public function saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId) {
+
+        // Security check to ensure we can access the parent instance
+        $datasetInstance = DatasetInstance::fetch($datasetInstanceId);
+
+        // If an existing profile we want to update the master one
+        if ($snapshotProfileSummary->getId()) {
+
+            $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileSummary->getId());
+            $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());
+            $snapshotProfile->getScheduledTask()->setTimePeriods($snapshotProfileSummary->getTaskTimePeriods());
+            $snapshotProfile->getDataProcessorInstance()->setConfig($snapshotProfileSummary->getProcessorConfig());
+
+
+        } // Otherwise create new
+        else {
+
+            $dataProcessorKey = "dataset-snapshot-" . date("U");
+
+            // Create a processor instance
+            $dataProcessorInstance = new DataProcessorInstance($dataProcessorKey,
+                "Dataset Instance Snapshot: " . $datasetInstance->getId() . " - " . $snapshotProfileSummary->getTitle(),
+                $snapshotProfileSummary->getProcessorType(), $snapshotProfileSummary->getProcessorConfig(),
+                $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
+
+
+            $snapshotProfile = new DatasetInstanceSnapshotProfile($datasetInstanceId, $snapshotProfileSummary->getTitle(),
+                new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
+                    [
+                        "dataProcessorKey" => $dataProcessorKey
+                    ], $snapshotProfileSummary->getTaskTimePeriods()), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId()),
+                $dataProcessorInstance);
+
+
+        }
+
+
+        // Save the profile
+        $snapshotProfile->save();
+
+
+        return $snapshotProfile->getId();
+
+
+    }
+
+
+    /**
+     * Remove a snapshot profile for an instance
+     *
+     * @param $datasetInstanceId
+     * @param $snapshotProfileId
+     */
+    public function removeSnapshotProfile($datasetInstanceId, $snapshotProfileId) {
+
     }
 
 

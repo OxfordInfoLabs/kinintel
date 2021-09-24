@@ -205,6 +205,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var DatabaseConnection $dbConnection
          */
         $dbConnection = $this->returnDatabaseConnection();
+
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
         // Return a tabular dataset
@@ -323,6 +324,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $processor = $this->getTransformationProcessor($processorKey);
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
         }
+
 
         return $query;
 

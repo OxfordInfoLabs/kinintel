@@ -22,6 +22,15 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     protected $tags;
 
+
+    /**
+     * @var DatasetInstanceSnapshotProfile[]
+     * @oneToMany
+     * @childJoinColumns dataset_instance_id
+     */
+    protected $snapshotProfiles;
+
+
     /**
      * DatasetInstance constructor - used to convert summaries
      *
@@ -33,7 +42,8 @@ class DatasetInstance extends DatasetInstanceSummary {
         if ($datasetInstanceSummary instanceof DatasetInstanceSummary)
             parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getTransformationInstances(),
                 $datasetInstanceSummary->getParameters(),
-                $datasetInstanceSummary->getParameterValues(), $datasetInstanceSummary->getId());
+                $datasetInstanceSummary->getParameterValues(),
+                $datasetInstanceSummary->getId());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -53,11 +63,14 @@ class DatasetInstance extends DatasetInstanceSummary {
     }
 
 
+
     /**
      * @return DatasetInstanceSummary
      */
     public function returnSummary() {
-        return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey, $this->transformationInstances, $this->parameters, $this->parameterValues, $this->id);
+
+        return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey,
+            $this->transformationInstances, $this->parameters, $this->parameterValues,  $this->id);
     }
 
 

@@ -235,7 +235,7 @@ class AlertService {
         $alertObjects = [];
         foreach ($dashboardDataSetInstance->getAlerts() as $index => $alert) {
 
-            if ($alertIndex === null || $index == $alertIndex) {
+            if ($alert->isEnabled() && ($alertIndex === null || $index == $alertIndex)) {
                 $alertMessages = $this->processAlertForDashboardDatasetInstance($dashboardDataSetInstance, $alert);
 
                 if ($alertMessages) {

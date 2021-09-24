@@ -45,6 +45,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      */
     protected $tags = [];
 
+
     /**
      * DatasetInstance constructor.
      * @param string $title
@@ -52,6 +53,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @param TransformationInstance[] $transformationInstances
      * @param array $parameters
      * @param mixed[] $parameterValues
+     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfiles
      * @param integer $id
      */
     public function __construct($title, $datasourceInstanceKey, $transformationInstances = [], $parameters = [],
