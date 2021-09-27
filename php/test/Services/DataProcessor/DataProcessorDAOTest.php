@@ -40,7 +40,7 @@ class DataProcessorDAOTest extends TestBase {
 
         $filesystemInstance = $this->dao->getDataProcessorInstanceByKey("test-import");
 
-        $this->assertEquals(new DataProcessorInstance("test-import", "Test import data processor", "datasourceimport"),
+        $this->assertEquals(new DataProcessorInstance("test-import", "Test import data processor", "tabulardatasourceimport"),
             $filesystemInstance);
 
     }
@@ -50,7 +50,12 @@ class DataProcessorDAOTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $newInstance = new DataProcessorInstance("new-test", "New Test One", "datasourceimport");
+        $newInstance = new DataProcessorInstance("new-test", "New Test One", "tabulardatasourceimport",[
+            "sourceDatasourceKey" => "test-datasource",
+            "targetDatasources" => [[
+                "key" => "test-target"
+            ]]
+        ]);
 
         // Save the processor instance
         $this->dao->saveProcessorInstance($newInstance);

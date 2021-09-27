@@ -30,9 +30,9 @@ class SQLFilterJunctionEvaluator {
 
 
     /**
-     * @var TemplateParser
+     * @var SQLFilterValueEvaluator
      */
-    private $templateParser;
+    private $sqlFilterValueEvaluator;
 
     /**
      * Construct optionally with a lhs and rhs table alias if required
@@ -45,7 +45,7 @@ class SQLFilterJunctionEvaluator {
     public function __construct($lhsTableAlias = null, $rhsTableAlias = null) {
         $this->lhsTableAlias = $lhsTableAlias;
         $this->rhsTableAlias = $rhsTableAlias;
-        $this->templateParser = Container::instance()->get(TemplateParser::class);
+        $this->sqlFilterValueEvaluator = new SQLFilterValueEvaluator();
     }
 
 
@@ -101,7 +101,6 @@ class SQLFilterJunctionEvaluator {
         $filterValue = $filter->getValue();
 
 
-
         // Map any param values up front using the template mapper
         $newParams = [];
         foreach (is_array($filterValue) ? $filterValue : [$filterValue] as $param) {
@@ -111,8 +110,7 @@ class SQLFilterJunctionEvaluator {
                 $newParams = array_merge($newParams, $directParam);
                 $filterValue = $directParam;
             } else {
-                $newParam = $this->templateParser->parseTemplateText($param, $templateParameters);
-                if (is_numeric($newParam)) $newParam = floatval($newParam);
+                $newParam = $this->sqlFilterValueEvaluator->evaluateFilterValue($param, $templateParameters);
                 $newParams[] = $newParam;
             }
         }

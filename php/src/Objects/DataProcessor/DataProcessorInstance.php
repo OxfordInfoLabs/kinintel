@@ -5,6 +5,13 @@ namespace Kinintel\Objects\DataProcessor;
 
 
 use Kiniauth\Traits\Account\AccountProject;
+use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
+use Kinikit\Core\Validation\FieldValidationError;
+use Kinikit\Core\Validation\ValidationException;
+use Kinikit\Core\Validation\Validator;
+use Kinintel\Services\DataProcessor\DataProcessor;
 
 /**
  * Data processor instance
@@ -88,6 +95,65 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      */
     public function setTitle($title) {
         $this->title = $title;
+    }
+
+
+    /**
+     * Validate particularly the configuration according to the related
+     * data processor
+     */
+    public function validate() {
+        try {
+            $this->returnProcessorAndConfig();
+            return [];
+        } catch (ValidationException $e) {
+            return $e->getValidationErrors();
+        }
+    }
+
+
+    /**
+     * Process using the underlying processor
+     */
+    public function process() {
+        list ($processor, $config) = $this->returnProcessorAndConfig();
+        $processor->process($config);
+    }
+
+
+    // Return processor and config
+    private function returnProcessorAndConfig() {
+        $validationErrors = [];
+        $dataProcessor = null;
+        $config = [];
+        try {
+
+            $dataProcessor = Container::instance()->getInterfaceImplementation(DataProcessor::class, $this->getType());
+            $objectBinder = Container::instance()->get(ObjectBinder::class);
+            $validator = Container::instance()->get(Validator::class);
+
+            // If a config class, map it and validate
+            if ($dataProcessor->getConfigClass()) {
+                $config = $objectBinder->bindFromArray($this->getConfig(), $dataProcessor->getConfigClass());
+
+                if ($validator->validateObject($config))
+                    $validationErrors["config"] = $validator->validateObject($config);
+            }
+
+
+        } catch (MissingInterfaceImplementationException $e) {
+            $validationErrors["type"] = [
+                "invalidtype" => new FieldValidationError("type", "invalidtype", "The data processor of type '{$this->type}' does not exists")
+            ];
+        }
+
+        if (sizeof($validationErrors)) {
+            throw new ValidationException($validationErrors);
+        } else {
+            return [$dataProcessor, $config];
+        }
+
+
     }
 
 

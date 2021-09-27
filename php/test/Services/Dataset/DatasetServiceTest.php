@@ -325,8 +325,13 @@ class DatasetServiceTest extends TestBase {
 
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ], "test-json", [
-            "test" => "hello"
+        ], "tabulardatasourceimport", [
+            "sourceDatasourceKey" => "source",
+            "targetDatasources" => [
+                [
+                    "key" => "target"
+                ]
+            ]
         ]);
 
         $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
@@ -357,16 +362,26 @@ class DatasetServiceTest extends TestBase {
         // Create a couple more
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Older Daily Snapshot", [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ], "test-json", [
-            "test" => "hello"
+        ], "tabulardatasourceimport", [
+            "sourceDatasourceKey" => "source",
+            "targetDatasources" => [
+                [
+                    "key" => "target"
+                ]
+            ]
         ]);
 
         $profile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
 
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Another Daily Snapshot", [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ], "test-json", [
-            "test" => "hello"
+        ], "tabulardatasourceimport", [
+            "sourceDatasourceKey" => "source",
+            "targetDatasources" => [
+                [
+                    "key" => "target"
+                ]
+            ]
         ]);
 
         $profile3Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
@@ -386,7 +401,12 @@ class DatasetServiceTest extends TestBase {
             new ScheduledTaskTimePeriod(null, 3, 15, 22)
         ]);
         $updateProfile->setProcessorConfig([
-            "updated" => "Bing"
+            "sourceDatasourceKey" => "source",
+            "targetDatasources" => [
+                [
+                    "key" => "target"
+                ]
+            ]
         ]);
 
         $this->datasetService->saveSnapshotProfile($updateProfile, $instanceId);
@@ -398,8 +418,24 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals(new ScheduledTaskTimePeriod(null, 3, 15, 22, $updated->getScheduledTask()->getTimePeriods()[0]->getId()),
             $updated->getScheduledTask()->getTimePeriods()[0]);
         $this->assertEquals([
-            "updated" => "Bing"
+            "sourceDatasourceKey" => "source",
+            "targetDatasources" => [
+                [
+                    "key" => "target"
+                ]
+            ]
         ], $updated->getDataProcessorInstance()->getConfig());
+
+
+        // Remove a snapshot profile
+        $this->datasetService->removeSnapshotProfile($instanceId, $profileId);
+
+        try {
+            DatasetInstanceSnapshotProfile::fetch($profileId);
+            $this->fail("Should have thrown here");
+        } catch (ObjectNotFoundException $e) {
+
+        }
 
     }
 

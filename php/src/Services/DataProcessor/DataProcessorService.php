@@ -7,6 +7,7 @@ namespace Kinintel\Services\DataProcessor;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
+use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Exception\InvalidDataProcessorTypeException;
@@ -53,28 +54,20 @@ class DataProcessorService {
         // Get the instance ready for evaluation
         $instance = $this->dataProcessorDAO->getDataProcessorInstanceByKey($instanceKey);
 
-        try {
-
-            /**
-             * @var DataProcessor $dataProcessor
-             */
-            $dataProcessor = Container::instance()->getInterfaceImplementation(DataProcessor::class, $instance->getType());
-
-            // If a config class, map it and validate
-            if ($dataProcessor->getConfigClass()) {
-                $config = $this->objectBinder->bindFromArray($instance->getConfig(), $dataProcessor->getConfigClass());
-                if ($validationErrors = $this->validator->validateObject($config)) {
-                    throw new InvalidDataProcessorConfigException($validationErrors);
-                }
+        // Validate the instance and throw more specific exceptions if required
+        $validationErrors = $instance->validate();
+        if (sizeof($validationErrors)) {
+            if (isset($validationErrors["type"]["invalidtype"])) {
+                throw new InvalidDataProcessorTypeException($instance->getType());
+            } else if (isset($validationErrors["config"])) {
+                throw new InvalidDataProcessorConfigException($instance->getConfig());
+            } else {
+                throw new ValidationException($validationErrors);
             }
-
-            // Actually process this data processor
-            $dataProcessor->process($config ?? null);
-
-
-        } catch (MissingInterfaceImplementationException $e) {
-            throw new InvalidDataProcessorTypeException($instance->getType());
         }
+
+
+        $instance->process();
     }
 
 

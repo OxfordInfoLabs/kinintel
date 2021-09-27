@@ -218,6 +218,17 @@ class DatasetService {
      */
     public function removeSnapshotProfile($datasetInstanceId, $snapshotProfileId) {
 
+        // Security check to ensure we can access the parent instance
+        DatasetInstance::fetch($datasetInstanceId);
+
+        // Grab the profile
+        $profile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
+
+        if ($profile->getDatasetInstanceId() == $datasetInstanceId) {
+            $profile->remove();
+        }
+
+
     }
 
 

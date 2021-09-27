@@ -46,7 +46,7 @@ class DataProcessorServiceTest extends TestBase {
     public function testInvalidDataProcessorTypeExceptionRaisedIfBadTypeSupplied() {
 
         $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
-            new DataProcessorInstance("bigone", "Big One", "testprocessor", [
+            new DataProcessorInstance("bigone", "Big One", "testbadprocessor", [
                 "property" => "TESTING"
             ]), [
                 "bigone"
