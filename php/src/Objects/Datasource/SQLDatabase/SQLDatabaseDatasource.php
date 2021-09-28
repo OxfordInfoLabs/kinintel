@@ -4,12 +4,17 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
+use Cassandra\Table;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
@@ -26,6 +31,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -64,15 +70,21 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
     /**
-     * @var DatasourceService
+     * @var TableDDLGenerator
      */
-    private $datasourceService;
+    private $tableDDLGenerator;
+
 
     /**
-     * @var DatasetService
+     *
      */
-    private $datasetService;
-
+    const FIELD_TYPE_SQL_TYPE_MAP = [
+        Field::TYPE_STRING => TableColumn::SQL_VARCHAR,
+        Field::TYPE_INTEGER => TableColumn::SQL_INTEGER,
+        Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
+        Field::TYPE_DATE => TableColumn::SQL_DATE,
+        Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME
+    ];
 
     /**
      * SQLDatabaseDatasource constructor.
@@ -81,13 +93,11 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param AuthenticationCredentials $authenticationCredentials
      * @param DatasourceUpdateConfig $updateConfig
      * @param Validator $validator
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
+     * @param TableDDLGenerator $tableDDLGenerator
      */
-    public function __construct($config, $authenticationCredentials, $updateConfig, $validator = null, $datasourceService = null, $datasetService = null) {
+    public function __construct($config, $authenticationCredentials, $updateConfig, $validator = null, $tableDDLGenerator = null) {
         parent::__construct($config, $authenticationCredentials, $updateConfig, $validator);
-        $this->datasetService = $datasetService;
-        $this->datasourceService = $datasourceService;
+        $this->tableDDLGenerator = $tableDDLGenerator ?? new TableDDLGenerator();
     }
 
 
@@ -276,6 +286,40 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             }
 
         }
+    }
+
+    /**
+     * Modify table structure according to passed fields and optionally keyFieldNames referencing items in
+     * the fields array for compiling a primary key
+     *
+     * @param Field[] $fields
+     * @param string[] $keyFieldNames
+     */
+    public function modifyTableStructure($fields, $keyFieldNames = []) {
+
+        // Construct the column array we need
+        $columns = [];
+        foreach ($fields as $field) {
+            $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
+            $columns[] = new TableColumn($field->getName(), $type, null, null, null, in_array($field->getName(), $keyFieldNames));
+        }
+
+        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
+
+        // Check to see whether the table already exists
+        $sql = "";
+        $databaseConnection = $this->returnDatabaseConnection();
+        try {
+            $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());
+            $sql = $this->tableDDLGenerator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+        } catch (SQLException $e) {
+            $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
+        }
+
+        if (trim($sql))
+            $databaseConnection->executeScript($sql);
+
+
     }
 
 

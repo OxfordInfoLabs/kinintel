@@ -75,9 +75,11 @@ class DatasourceService {
      * Save a datasource instance
      *
      * @param DatasourceInstance $dataSourceInstance
+     * @return DatasourceInstance
      */
     public function saveDataSourceInstance($dataSourceInstance) {
         $this->datasourceDAO->saveDataSourceInstance($dataSourceInstance);
+        return $dataSourceInstance;
     }
 
 

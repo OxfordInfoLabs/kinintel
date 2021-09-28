@@ -9,6 +9,10 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
+use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceNotUpdatableException;
@@ -456,6 +460,94 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
     }
 
+
+    public function testModifyTableStructureCreatesTableAccordingToPassedFieldsIfNoneExists() {
+
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+
+        // Throw an exception when getting table meta data
+        $this->databaseConnection->throwException("getTableMetaData", new SQLException("Table does not exist"), [
+            "mytable"
+        ]);
+
+        // Expect create table statement created using ddl generator
+        $newMetaData = new TableMetaData("mytable", [
+            new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
+        ]);
+
+        $ddlGenerator->returnValue("generateTableCreateSQL", "NEW TABLE CREATE", [
+            $newMetaData,
+            $this->databaseConnection
+        ]);
+
+
+        // Modify the table structure and ensure a create was made
+        $datasource->modifyTableStructure([
+            new Field("when", null, null, Field::TYPE_DATE),
+            new Field("why"),
+            new Field("how_many", null, null, Field::TYPE_INTEGER)
+        ], ["when", "why"]);
+
+
+        // Expect create to be issued
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
+            "NEW TABLE CREATE"
+        ]));
+
+    }
+
+
+    public function testModifyTableStructureModifiesTableAccordingToPassedFieldsIfTableAlreadyExists() {
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+
+        $existingMetaData = new TableMetaData("mytable", [
+            new TableColumn("which", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
+        ]);
+
+        // Return existing meta data from call
+        $this->databaseConnection->returnValue("getTableMetaData", $existingMetaData, [
+            "mytable"
+        ]);
+
+        // Expect create table statement created using ddl generator
+        $newMetaData = new TableMetaData("mytable", [
+            new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
+        ]);
+
+        $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
+            $existingMetaData,
+            $newMetaData,
+            $this->databaseConnection
+        ]);
+
+
+        // Modify the table structure and ensure a create was made
+        $datasource->modifyTableStructure([
+            new Field("when", null, null, Field::TYPE_DATE),
+            new Field("why"),
+            new Field("how_many", null, null, Field::TYPE_INTEGER)
+        ], ["when", "why"]);
+
+
+        // Expect create to be issued
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
+            "NEW TABLE MODIFY"
+        ]));
+    }
 
 
 }

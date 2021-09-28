@@ -296,12 +296,12 @@ class DatasetService {
      * @param TransformationInstance[] $additionalTransformations
      *
      */
-    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations = []) {
+    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations = [], $offset = 0, $limit = 25) {
 
         $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
 
-        return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), [],
-            $transformations);
+        return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), $dataSetInstance->getParameterValues(),
+            $transformations, $offset, $limit);
     }
 
 

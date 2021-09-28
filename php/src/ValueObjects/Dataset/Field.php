@@ -28,13 +28,27 @@ class Field {
      */
     private $staticValue;
 
+
+    /**
+     * @var string
+     */
+    private $type;
+
+
+    // Generic field types
+    const TYPE_STRING = "string";
+    const TYPE_INTEGER = "integer";
+    const TYPE_FLOAT = "float";
+    const TYPE_DATE = "date";
+    const TYPE_DATE_TIME = "datetime";
+
     /**
      * Field constructor.
      *
      * @param string $name
      * @param string $title
      */
-    public function __construct($name, $title = null, $staticValue = null) {
+    public function __construct($name, $title = null, $staticValue = null, $type = self::TYPE_STRING) {
         $this->name = $name;
 
         // If no title supplied, make one using the name
@@ -44,6 +58,7 @@ class Field {
 
         $this->title = $title;
         $this->staticValue = $staticValue;
+        $this->type = $type;
     }
 
 
@@ -66,6 +81,13 @@ class Field {
      */
     public function getStaticValue() {
         return $this->staticValue;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType() {
+        return $this->type;
     }
 
 
