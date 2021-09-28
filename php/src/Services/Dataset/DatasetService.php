@@ -9,6 +9,7 @@ use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
@@ -57,6 +58,17 @@ class DatasetService {
      */
     public function getDataSetInstance($id) {
         return DatasetInstance::fetch($id)->returnSummary();
+    }
+
+
+    /**
+     * Get a full data set instance
+     *
+     * @param $id
+     * @return mixed
+     */
+    public function getFullDataSetInstance($id) {
+        return DatasetInstance::fetch($id);
     }
 
 
@@ -168,13 +180,24 @@ class DatasetService {
         // Security check to ensure we can access the parent instance
         $datasetInstance = DatasetInstance::fetch($datasetInstanceId);
 
+        // Update the processor configuration object to include the datasetInstanceId
+        $processorConfig = $snapshotProfileSummary->getProcessorConfig() ?? [];
+        $processorConfig["datasetInstanceId"] = $datasetInstanceId;
+
+
         // If an existing profile we want to update the master one
         if ($snapshotProfileSummary->getId()) {
 
             $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileSummary->getId());
+            if ($snapshotProfile->getDatasetInstanceId() !== $datasetInstanceId)
+                throw new ObjectNotFoundException(DatasetInstanceSnapshotProfile::class, $snapshotProfileSummary->getId());
+
             $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());
             $snapshotProfile->getScheduledTask()->setTimePeriods($snapshotProfileSummary->getTaskTimePeriods());
-            $snapshotProfile->getDataProcessorInstance()->setConfig($snapshotProfileSummary->getProcessorConfig());
+
+
+            $processorConfig["snapshotIdentifier"] = $snapshotProfile->getDataProcessorInstance()->getKey();
+            $snapshotProfile->getDataProcessorInstance()->setConfig($processorConfig);
 
 
         } // Otherwise create new
@@ -182,10 +205,13 @@ class DatasetService {
 
             $dataProcessorKey = "dataset-snapshot-" . date("U");
 
+            $processorConfig["snapshotIdentifier"] = $dataProcessorKey;
+
+
             // Create a processor instance
             $dataProcessorInstance = new DataProcessorInstance($dataProcessorKey,
                 "Dataset Instance Snapshot: " . $datasetInstance->getId() . " - " . $snapshotProfileSummary->getTitle(),
-                $snapshotProfileSummary->getProcessorType(), $snapshotProfileSummary->getProcessorConfig(),
+                $snapshotProfileSummary->getProcessorType(), $processorConfig,
                 $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
 
 

@@ -5,6 +5,7 @@ namespace Kinintel\Services\DataProcessor;
 
 /**
  * @implementation tabulardatasourceimport \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceImportProcessor
+ * @implementation tabulardatasetsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor
  */
 interface DataProcessor {
 

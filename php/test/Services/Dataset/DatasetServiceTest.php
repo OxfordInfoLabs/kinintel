@@ -325,13 +325,7 @@ class DatasetServiceTest extends TestBase {
 
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ], "tabulardatasourceimport", [
-            "sourceDatasourceKey" => "source",
-            "targetDatasources" => [
-                [
-                    "key" => "target"
-                ]
-            ]
+        ], "tabulardatasetsnapshot", [
         ]);
 
         $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
@@ -423,7 +417,9 @@ class DatasetServiceTest extends TestBase {
                 [
                     "key" => "target"
                 ]
-            ]
+            ],
+            "datasetInstanceId" => $instanceId,
+            "snapshotIdentifier" => $updated->getDataProcessorInstance()->getKey()
         ], $updated->getDataProcessorInstance()->getConfig());
 
 
