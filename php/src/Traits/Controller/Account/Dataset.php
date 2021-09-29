@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
@@ -98,6 +99,44 @@ trait Dataset {
      */
     public function getEvaluatedParameters($id) {
         return $this->datasetService->getEvaluatedParameters($id);
+    }
+
+
+    /**
+     * List snapshot profiles for dataset instance by instance id
+     *
+     * @http GET /snapshotprofile/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     */
+    public function listSnapshotProfilesForDataSetInstance($datasetInstanceId) {
+        return $this->datasetService->listSnapshotProfilesForDataSetInstance($datasetInstanceId);
+    }
+
+
+    /**
+     * Save a snapshot profile for an instance
+     *
+     * @http POST /snapshotprofile/$datasetInstanceId
+     *
+     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
+     * @param integer $datasetInstanceId
+     */
+    public function saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId) {
+        $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId);
+    }
+
+
+    /**
+     * Remove a snapshot profile for an instance
+     *
+     * @http DELETE /snapshotprofile/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @param $snapshotProfileId
+     */
+    public function removeSnapshotProfile($snapshotProfileId, $datasetInstanceId) {
+        $this->datasetService->removeSnapshotProfile($datasetInstanceId, $snapshotProfileId);
     }
 
 
