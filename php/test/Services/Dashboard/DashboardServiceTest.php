@@ -531,4 +531,32 @@ class DashboardServiceTest extends TestBase {
     }
 
 
+    public function testReadOnlyFlagSetOnSummaryCorrectlyIfAccountIdNullAndLoggedInAsRegularUser() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSet = new Dashboard(new DashboardSummary("Hello"), 1, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertFalse($summary->isReadOnly());
+
+
+        $dataSet = new Dashboard(new DashboardSummary("Hello"), null, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertFalse($summary->isReadOnly());
+
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSet = new Dashboard(new DashboardSummary("Hello"), 1, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertFalse($summary->isReadOnly());
+
+
+        $dataSet = new Dashboard(new DashboardSummary("Hello"), null, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertTrue($summary->isReadOnly());
+
+    }
+
+
 }

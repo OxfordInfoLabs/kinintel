@@ -47,6 +47,12 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
 
 
     /**
+     * @var boolean
+     */
+    private $readOnly;
+
+
+    /**
      * DatasetInstance constructor.
      * @param string $title
      * @param $datasourceInstanceKey
@@ -57,13 +63,14 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @param integer $id
      */
     public function __construct($title, $datasourceInstanceKey, $transformationInstances = [], $parameters = [],
-                                $parameterValues = [], $id = null) {
+                                $parameterValues = [], $id = null, $readOnly = false) {
         $this->title = $title;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->transformationInstances = $transformationInstances;
         $this->parameters = $parameters;
         $this->parameterValues = $parameterValues;
         $this->id = $id;
+        $this->readOnly = $readOnly;
     }
 
     /**
@@ -99,6 +106,13 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      */
     public function setTags($tags) {
         $this->tags = $tags;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReadOnly() {
+        return $this->readOnly;
     }
 
 

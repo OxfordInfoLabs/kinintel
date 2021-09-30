@@ -57,6 +57,11 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
+     * @var boolean
+     */
+    private $readOnly;
+
+    /**
      * Dashboard constructor.
      *
      * @param string $title
@@ -65,12 +70,13 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $id = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $id = null, $readOnly = false) {
         parent::__construct($id, $title);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
         $this->alertsEnabled = $alertsEnabled;
+        $this->readOnly = $readOnly;
     }
 
     /**
@@ -142,6 +148,13 @@ class DashboardSummary extends DashboardSearchResult {
      */
     public function setAlertsEnabled($alertsEnabled) {
         $this->alertsEnabled = $alertsEnabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReadOnly() {
+        return $this->readOnly;
     }
 
 }

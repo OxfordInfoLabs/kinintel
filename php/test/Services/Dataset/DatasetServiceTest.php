@@ -487,4 +487,32 @@ class DatasetServiceTest extends TestBase {
     }
 
 
+    public function testReadOnlyFlagSetOnSummaryCorrectlyIfAccountIdNullAndLoggedInAsRegularUser() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), 1, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertFalse($summary->isReadOnly());
+
+
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), null, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertFalse($summary->isReadOnly());
+
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), 1, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertFalse($summary->isReadOnly());
+
+
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), null, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertTrue($summary->isReadOnly());
+
+    }
+
+
 }

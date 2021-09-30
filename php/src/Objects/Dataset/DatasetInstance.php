@@ -3,7 +3,9 @@
 namespace Kinintel\Objects\Dataset;
 
 use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
+use Kinikit\Core\DependencyInjection\Container;
 
 
 /**
@@ -63,14 +65,19 @@ class DatasetInstance extends DatasetInstanceSummary {
     }
 
 
-
     /**
      * @return DatasetInstanceSummary
      */
     public function returnSummary() {
 
+        /**
+         * @var SecurityService $securityService
+         */
+        $securityService = Container::instance()->get(SecurityService::class);
+        $readOnly = !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
+
         return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey,
-            $this->transformationInstances, $this->parameters, $this->parameterValues,  $this->id);
+            $this->transformationInstances, $this->parameters, $this->parameterValues, $this->id, $readOnly);
     }
 
 

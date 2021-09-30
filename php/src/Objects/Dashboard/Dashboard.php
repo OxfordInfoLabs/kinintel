@@ -3,7 +3,9 @@
 namespace Kinintel\Objects\Dashboard;
 
 use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
 /**
@@ -61,9 +63,16 @@ class Dashboard extends DashboardSummary {
      * Return a dashboard summary
      */
     public function returnSummary($returnCopy = false) {
+
+        /**
+         * @var SecurityService $securityService
+         */
+        $securityService = Container::instance()->get(SecurityService::class);
+        $readOnly = !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
+
         $dashboardSummary = new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings,
             $this->alertsEnabled,
-            $returnCopy ? null : $this->id);
+            $returnCopy ? null : $this->id, $readOnly);
 
         // If returning a copy, nullify alert data too
         if ($returnCopy) {
