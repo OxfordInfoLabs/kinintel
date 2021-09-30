@@ -1,0 +1,95 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Snapshot Profile</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content" *ngIf="snapshot">
+
+        <div class="my-2"><b>Snapshot Title<span class="ml-1 text-red-600">*</span></b></div>
+
+        <input type="text" class="w-full" #snapshotTitle="ngModel"
+               [ngClass]="{'border border-red-600': snapshotTitle.invalid}"
+               [(ngModel)]="snapshot.title" required>
+
+        <ki-task-time-periods class="block mt-4" [(taskTimePeriods)]="snapshot.taskTimePeriods"></ki-task-time-periods>
+
+        <div class="mt-4 mb-2">
+            <b>Key Fields</b>
+        </div>
+        <mat-select [(ngModel)]="snapshot.processorConfig.keyFieldNames" multiple>
+            <mat-option *ngFor="let column of columns" [value]="column.name">{{column.title}}</mat-option>
+        </mat-select>
+
+        <div class="mt-4 mb-2">
+            <b>Time Lapsed Fields</b>
+        </div>
+        <div class="time-lapsed-field" *ngFor="let timeLapse of snapshot.processorConfig.timeLapsedFields; let i = index">
+            <div>
+                <div class="mb-1"><b>Day Offsets:</b> {{timeLapse.dayOffsets.join(', ')}}</div>
+                <div><b>Field Names:</b> {{timeLapse.fieldNames.join(', ')}}</div>
+            </div>
+            <button mat-icon-button color="warn" (click)="removeTimeLapsedField(i)">
+                <mat-icon>clear</mat-icon>
+            </button>
+        </div>
+        <button mat-button color="primary" (click)="addTimeLapsedField()">
+            <mat-icon>date_range</mat-icon>&nbsp;Add time lapsed field
+        </button>
+
+        <div class="w-full bg-gray-50 p-4 mt-4" *ngIf="newTimeLapse">
+            <form #timeLapseForm="ngForm" class="w-1/2">
+                <label class="mb-4">
+                    Day Offsets
+                    <mat-select [(ngModel)]="newTimeLapse.dayOffsets"
+                                name="offsets" required multiple>
+                        <mat-option [value]="offset.value" *ngFor="let offset of defaultOffsets">{{offset.label}}</mat-option>
+                        <mat-option [value]="'CUSTOM'">Custom period</mat-option>
+                    </mat-select>
+                </label>
+
+                <label class="mb-4" *ngIf="newTimeLapse.dayOffsets && newTimeLapse.dayOffsets.indexOf('CUSTOM') > -1">
+                    Custom Offset
+                    <div class="mt-1 flex custom-offset shadow-sm">
+                        <input type="number" name="custom-offset" [(ngModel)]="newTimeLapse.customDayOffsets"
+                               class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full sm:text-sm border-gray-300">
+                        <span class="inline-flex items-center px-3 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        Days Ago
+                    </span>
+                    </div>
+                </label>
+
+                <label class="mb-4">
+                    Field Names
+                    <mat-select [(ngModel)]="newTimeLapse.fieldNames" multiple name="names">
+                        <mat-option *ngFor="let column of columns" [value]="column.name">{{column.title}}</mat-option>
+                    </mat-select>
+                </label>
+
+                <div class="align-center justify-between">
+                    <div></div>
+                    <button mat-flat-button color="primary" (click)="saveTimeLapse()"
+                            [disabled]="timeLapseForm.invalid">Save time lapse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="dialog-footer">
+
+        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+
+        <button *ngIf="snapshot" mat-flat-button color="primary" (click)="saveSnapshot()"
+                [disabled]="!snapshot.title">
+            {{snapshot.id ? 'Update' : 'Add'}} Snapshot Profile
+        </button>
+    </div>
+
+</div>
+
+

@@ -1,4 +1,4 @@
-import {Component, Inject, Input, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit, ViewChild} from '@angular/core';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DatasetService} from '../../../../services/dataset.service';
@@ -8,6 +8,7 @@ import {TagService} from '../../../../services/tag.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as _ from 'lodash';
 import {DatasetEditorComponent} from '../../dataset-editor/dataset-editor.component';
+import {MatStepper} from '@angular/material/stepper';
 
 @Component({
     selector: 'ki-dataset-add-join',
@@ -16,6 +17,8 @@ import {DatasetEditorComponent} from '../../dataset-editor/dataset-editor.compon
     host: {class: 'dialog-wrapper'}
 })
 export class DatasetAddJoinComponent implements OnInit {
+
+    @ViewChild('stepper') matStepper: MatStepper;
 
     public environment: any = {};
     public datasources: any = [];
@@ -83,18 +86,36 @@ export class DatasetAddJoinComponent implements OnInit {
             ).subscribe((sources: any) => {
             this.datasources = sources;
         });
+
+        if (this.data.joinTransformation) {
+            this.joinTransformation = this.data.joinTransformation;
+            const item = {
+                key: this.joinTransformation.config.joinedDataSourceInstanceKey,
+                id: this.joinTransformation.config.joinedDataSetInstanceId
+            };
+            const type = item.key ? 'datasource' : 'dataset';
+
+            setTimeout(() => {
+                console.log('existing join', this.joinTransformation, this.matStepper);
+                this.select(item, type, this.matStepper, false);
+            }, 200);
+        }
     }
 
-    public select(item, type, step) {
+    public select(item, type, step, reset = true) {
         this.joinFilterFields = null;
-        this.joinTransformation = {
-            type: 'join',
-            config: {
-                joinFilters: [],
-                joinColumns: [],
-                joinParameterMappings: []
-            }
-        };
+        // Reset if we are selecting an item again, not loading initially.
+        if (reset) {
+            this.joinTransformation = {
+                type: 'join',
+                config: {
+                    joinFilters: [],
+                    joinColumns: [],
+                    joinParameterMappings: []
+                }
+            };
+        }
+
 
         let promise: Promise<any>;
         if (type === 'datasource') {
@@ -121,7 +142,7 @@ export class DatasetAddJoinComponent implements OnInit {
 
         promise.then(() => {
             if (!this.requiredParameters || !this.requiredParameters.length) {
-                this.getJoinColumns();
+                this.getJoinColumns(reset);
             }
 
             setTimeout(() => {
@@ -200,16 +221,19 @@ export class DatasetAddJoinComponent implements OnInit {
         });
     }
 
-    private getJoinColumns() {
-        this.joinTransformation.config.joinFilters = {
-            logic: 'AND',
-            filters: [{
-                fieldName: '',
-                value: '',
-                filterType: ''
-            }],
-            filterJunctions: []
-        };
+    private getJoinColumns(reset = true) {
+        if (reset) {
+            this.joinTransformation.config.joinFilters = {
+                logic: 'AND',
+                filters: [{
+                    fieldName: '',
+                    value: '',
+                    filterType: ''
+                }],
+                filterJunctions: []
+            };
+        }
+
         this.datasourceService.evaluateDatasource(
             this.selectedSource.key || this.selectedSource.datasourceInstanceKey,
             this.selectedSource.transformationInstances || [],

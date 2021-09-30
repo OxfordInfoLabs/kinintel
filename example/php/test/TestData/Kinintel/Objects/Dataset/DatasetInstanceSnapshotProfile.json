@@ -1,0 +1,47 @@
+[
+  {
+    "datasetInstanceId": 5,
+    "title": "Daily Snapshot",
+    "scheduledTask": {
+      "accountId": 1,
+      "taskIdentifier": "dataprocessor",
+      "description": "",
+      "configuration": {
+        "dataProcessorKey": "dataset-snapshot-1"
+      },
+      "timePeriods": [
+        {
+          "hour": 8,
+          "minute": 0
+        }
+      ]
+    },
+    "dataProcessorInstance": {
+      "accountId": 1,
+      "key": "dataset-snapshot-1",
+      "title": "Dataset Instance Snapshot: 5 - dataset-snapshot-1",
+      "type": "tabulardatasetsnapshot",
+      "config": {
+        "datasetInstanceId": 5,
+        "snapshotIdentifier": "dataset-snapshot-1",
+        "keyFieldNames": [
+          "CustomerId"
+        ],
+        "timeLapsedFields": [
+          {
+            "dayOffsets": [1, 7],
+            "fieldNames": [
+              "Company", "State"
+            ]
+          },
+          {
+            "dayOffsets": [1],
+            "fieldNames": [
+              "FirstName", "LastName"
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

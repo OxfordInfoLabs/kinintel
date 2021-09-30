@@ -79,6 +79,21 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDatasource();
     }
 
+    public addFilter() {
+        this.evaluatedDatasource.transformationInstances.push({
+            type: 'filter',
+            config: {
+                logic: 'AND',
+                filters: [{
+                    fieldName: '',
+                    value: '',
+                    filterType: ''
+                }],
+                filterJunctions: []
+            },
+            hide: false
+        });
+    }
 
     public removeFilter(index) {
         const existingMultiSort = _.find(this.evaluatedDatasource.transformationInstances, {type: 'multisort'});
@@ -89,16 +104,54 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDatasource();
     }
 
-    public removeTransformation(transformation) {
-        _.remove(this.evaluatedDatasource.transformationInstances, _.omitBy({
+    public removeTransformation(transformation, confirm = false) {
+        const index = _.findIndex(this.evaluatedDatasource.transformationInstances, {
             type: transformation.type,
-            config: transformation.type !== 'pagingmarker' ? transformation.config : null
-        }, _.isNil));
-        this.evaluateDatasource();
+            config: transformation.config
+        });
+        if (confirm) {
+            const message = 'Are you sure you would like to remove this transformation?';
+            if (window.confirm(message)) {
+                this._removeTransformation(transformation, index);
+            }
+        } else {
+            this._removeTransformation(transformation, index);
+        }
     }
+
+
 
     public disableTransformation(transformation) {
 
+    }
+
+    public editTerminatingTransformation(transformation) {
+        console.log(transformation);
+        if (transformation.type === 'summarise') {
+            const clonedTransformation = _.clone(transformation);
+            // Grab the index of the current transformation - so we know which upstream transformations to exclude
+            const existingIndex = _.findIndex(this.evaluatedDatasource.transformationInstances, {
+                type: transformation.type,
+                config: transformation.config
+            });
+
+            // Exclude all upstream transformations from the evaluate
+            this.evaluatedDatasource.transformationInstances.forEach((instance, index) => {
+                if (index >= existingIndex) {
+                    instance.exclude = true;
+                }
+            });
+
+            this.evaluateDatasource().then(() => {
+                this.summariseData(clonedTransformation.config, existingIndex);
+            });
+        }
+        if (transformation.type === 'join') {
+            this.joinData(transformation);
+        }
+        if (transformation.type === 'formula') {
+            this.createFormula();
+        }
     }
 
     public exportData() {
@@ -161,7 +214,7 @@ export class DatasetEditorComponent implements OnInit {
         });
     }
 
-    public joinData() {
+    public joinData(transformation?) {
         const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
             width: '1200px',
             height: '800px',
@@ -175,7 +228,11 @@ export class DatasetEditorComponent implements OnInit {
                         currentValue: this.evaluatedDatasource.parameterValues[param.name]
                     };
                 }),
-                datasetEditor: this
+                datasetEditor: this,
+                joinTransformation: {
+                    type: 'join',
+                    config: transformation.config
+                }
             },
         });
 
@@ -188,35 +245,11 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public applyFilters() {
-        this.validateFilterJunction();
-        const filterTransformation = _.find(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
-        if (filterTransformation) {
-            filterTransformation.config = this.filterJunction;
-        } else {
-            this.evaluatedDatasource.transformationInstances.push({
-                type: 'filter',
-                config: this.filterJunction
-            });
-        }
+        const filterTransformations = _.filter(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
+        filterTransformations.forEach(transformation => {
+            this.validateFilterJunction(transformation.config);
+        });
 
-        this.evaluateDatasource();
-    }
-
-    public clearFilters() {
-        this.filterJunction = {
-            logic: 'AND',
-            filters: [{
-                fieldName: '',
-                value: '',
-                filterType: ''
-            }],
-            filterJunctions: []
-        };
-
-        const filterTransformation = _.findIndex(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
-        if (filterTransformation > -1) {
-            this.evaluatedDatasource.transformationInstances.splice(filterTransformation, 1);
-        }
         this.evaluateDatasource();
     }
 
@@ -276,22 +309,62 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDatasource();
     }
 
-    public summariseData() {
+    public summariseData(config?, existingIndex?) {
+        const clonedConfig = config ? _.clone(config) : null;
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
             width: '1200px',
             height: '675px',
             data: {
-                availableColumns: this.filterFields
+                availableColumns: this.filterFields,
+                config: config ? config : null
             }
         });
 
         summariseDialog.afterClosed().subscribe(summariseTransformation => {
             if (summariseTransformation) {
-                this.evaluatedDatasource.transformationInstances.push({
-                    type: 'summarise',
-                    config: summariseTransformation
-                });
-                this.evaluateDatasource();
+                if (existingIndex >= 0) {
+                    // Check if anything has changed
+                    if (!_.isEqual(clonedConfig, summariseTransformation) && (existingIndex + 1) < this.evaluatedDatasource.transformationInstances.length) {
+                        // Things have changed, ask user to confirm
+                        const message = 'You have made changes which may result in upstream transformations becoming incompatible, causing' +
+                            ' the evaluation to fail. In order to proceed we will need to remove the affected transformations. Do ' +
+                            'you want to proceed?';
+                        if (window.confirm(message)) {
+                            for (let i = existingIndex; i < this.evaluatedDatasource.transformationInstances.length; i++) {
+                                this.evaluatedDatasource.transformationInstances.splice(i, 1);
+                            }
+                            this.evaluatedDatasource.transformationInstances[existingIndex] = {
+                                type: 'summarise',
+                                config: summariseTransformation
+                            };
+                            this.evaluateDatasource();
+                        }
+                    } else {
+                        this.evaluatedDatasource.transformationInstances[existingIndex] = {
+                            type: 'summarise',
+                            config: summariseTransformation
+                        };
+                        this.evaluateDatasource();
+                    }
+                } else {
+                    this.evaluatedDatasource.transformationInstances.push({
+                        type: 'summarise',
+                        config: summariseTransformation
+                    });
+                    this.evaluateDatasource();
+                }
+            } else {
+                // If we get here then the summarise transformation was cancelled - restore if we have one
+                if (clonedConfig) {
+                    this.evaluatedDatasource.transformationInstances[existingIndex] = {
+                        type: 'summarise',
+                        config: clonedConfig
+                    };
+                    this.evaluatedDatasource.transformationInstances.forEach((instance, index) => {
+                        instance.exclude = false;
+                    });
+                    this.evaluateDatasource();
+                }
             }
         });
     }
@@ -312,7 +385,7 @@ export class DatasetEditorComponent implements OnInit {
         return n + (s[(v - 20) % 10] || s[v] || s[0]);
     }
 
-    private validateFilterJunction() {
+    private validateFilterJunction(filterConfig) {
 
         const check = (filterJunction) => {
             // tslint:disable-next-line:prefer-for-of
@@ -326,7 +399,7 @@ export class DatasetEditorComponent implements OnInit {
             }
         };
 
-        check(this.filterJunction);
+        check(filterConfig);
     }
 
     private loadData() {
@@ -346,12 +419,16 @@ export class DatasetEditorComponent implements OnInit {
         let join = 0;
         const summariseTotal = _.filter(this.evaluatedDatasource.transformationInstances, {type: 'summarise'}).length;
         const joinTotal = _.filter(this.evaluatedDatasource.transformationInstances, {type: 'join'}).length;
+
         this.terminatingTransformations = _.filter(this.evaluatedDatasource.transformationInstances, (transformation, index) => {
             if (transformation.type === 'summarise') {
                 summarise++;
                 transformation._label = this.getOrdinal(summarise) + ' Summarisation';
                 transformation._disable = summarise < summariseTotal;
                 transformation._active = summarise === summariseTotal;
+
+                this.hidePreTerminatingFilters(index);
+
                 return true;
             }
             if (transformation.type === 'join') {
@@ -359,10 +436,25 @@ export class DatasetEditorComponent implements OnInit {
                 transformation._label = this.getOrdinal(join) + ' Join';
                 transformation._disable = join < joinTotal;
                 transformation._active = join === joinTotal;
+
+                this.hidePreTerminatingFilters(index);
+
                 return true;
             }
             if (transformation.type === 'pagingmarker') {
                 transformation._label = 'Paging Marker';
+                transformation._disable = false;
+                transformation._active = true;
+                return true;
+            }
+            if (transformation.type === 'formula') {
+                transformation._label = 'Formula Expression';
+                transformation._disable = false;
+                transformation._active = true;
+                return true;
+            }
+            if (transformation.type === 'columns') {
+                transformation._label = 'Columns Updated';
                 transformation._disable = false;
                 transformation._active = true;
                 return true;
@@ -374,6 +466,14 @@ export class DatasetEditorComponent implements OnInit {
 
     private setParameterValues(values) {
 
+    }
+
+    private hidePreTerminatingFilters(terminatingIndex) {
+        this.evaluatedDatasource.transformationInstances.forEach((transformation, index) => {
+            if (transformation.type === 'filter') {
+                transformation.hide = transformation.exclude || terminatingIndex > index;
+            }
+        });
     }
 
     public evaluateDatasource() {
@@ -403,7 +503,9 @@ export class DatasetEditorComponent implements OnInit {
 
                 return this.datasourceService.evaluateDatasource(
                     this.evaluatedDatasource.key || this.evaluatedDatasource.datasourceInstanceKey,
-                    this.evaluatedDatasource.transformationInstances,
+                    _.filter(this.evaluatedDatasource.transformationInstances, transformation => {
+                        return !transformation.exclude;
+                    }),
                     this.evaluatedDatasource.parameterValues,
                     this.offset,
                     this.limit
@@ -414,6 +516,21 @@ export class DatasetEditorComponent implements OnInit {
                 });
             });
 
+    }
+
+    private _removeTransformation(transformation, index?) {
+        if (index >= 0) {
+            // If a current index has been supplied, reset all the pre transformation hidden fields prior to eval.
+            for (let i = 0; i < index; i++) {
+                this.evaluatedDatasource.transformationInstances[i].hide = false;
+            }
+        }
+
+        _.remove(this.evaluatedDatasource.transformationInstances, _.omitBy({
+            type: transformation.type,
+            config: transformation.type !== 'pagingmarker' ? transformation.config : null
+        }, _.isNil));
+        this.evaluateDatasource();
     }
 
 }

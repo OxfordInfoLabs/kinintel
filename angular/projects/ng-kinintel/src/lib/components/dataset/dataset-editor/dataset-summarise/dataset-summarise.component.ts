@@ -25,6 +25,17 @@ export class DatasetSummariseComponent implements OnInit {
 
     ngOnInit(): void {
         this.availableColumns = this.data.availableColumns;
+        if (this.data.config) {
+            this.summariseFields = this.data.config.summariseFieldNames.map(field => {
+                return _.find(this.availableColumns, {name: field});
+            });
+            this.summariseExpressions = this.data.config.expressions.map(expression => {
+                const field = _.find(this.availableColumns, {name: expression.fieldName}) ||
+                    _.find(this.availableColumns, {name: expression.expressionType + '(' + expression.fieldName + ')'});
+                field.expressionType = expression.expressionType;
+                return field;
+            });
+        }
     }
 
     drop(event: CdkDragDrop<string[]>) {
@@ -56,6 +67,7 @@ export class DatasetSummariseComponent implements OnInit {
     }
 
     public applySettings() {
+        console.log(this.summariseFields, this.summariseExpressions);
         const summariseTransformation: any = {
             summariseFieldNames: _.map(this.summariseFields, 'name'),
             expressions: _.map(this.summariseExpressions, expression => {

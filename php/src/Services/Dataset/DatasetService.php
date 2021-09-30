@@ -189,7 +189,7 @@ class DatasetService {
         if ($snapshotProfileSummary->getId()) {
 
             $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileSummary->getId());
-            if ($snapshotProfile->getDatasetInstanceId() !== $datasetInstanceId)
+            if ($snapshotProfile->getDatasetInstanceId() != $datasetInstanceId)
                 throw new ObjectNotFoundException(DatasetInstanceSnapshotProfile::class, $snapshotProfileSummary->getId());
 
             $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());

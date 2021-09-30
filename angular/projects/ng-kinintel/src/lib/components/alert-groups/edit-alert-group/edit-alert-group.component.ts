@@ -47,27 +47,6 @@ export class EditAlertGroupComponent implements OnInit {
         return v1 && v2 && (v2.id === v2.id);
     }
 
-    public addScheduleTime() {
-        if (!this.alertGroup.taskTimePeriods) {
-            this.alertGroup.taskTimePeriods = [];
-        }
-        this.showNewTaskTimePeriod = true;
-    }
-
-    public addTimePeriod() {
-        this.alertGroup.taskTimePeriods.push(this.newTaskTimePeriod);
-        this.showNewTaskTimePeriod = false;
-        this.newTaskTimePeriod = {};
-    }
-
-    public removeTime(index) {
-        this.alertGroup.taskTimePeriods.splice(index, 1);
-        if (!this.alertGroup.taskTimePeriods.length) {
-            this.showNewTaskTimePeriod = true;
-            this.newTaskTimePeriod = {};
-        }
-    }
-
     public createNotificationGroup() {
         const dialogRef = this.matDialog.open(EditNotificationGroupComponent, {
             width: '800px',

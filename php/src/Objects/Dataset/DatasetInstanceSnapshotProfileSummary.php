@@ -76,9 +76,9 @@ class DatasetInstanceSnapshotProfileSummary {
         $this->processorType = $processorType;
         $this->processorConfig = $processorConfig;
         $this->taskStatus = $taskStatus;
-        $this->taskLastStartTime = $taskLastStartTime;
-        $this->taskLastEndTime = $taskLastEndTime;
-        $this->taskNextStartTime = $taskNextStartTime;
+        $this->taskLastStartTime = $taskLastStartTime instanceof \DateTime ? $taskLastStartTime->format("d/m/Y H:i:s") : "";
+        $this->taskLastEndTime = $taskLastEndTime instanceof \DateTime ? $taskLastEndTime->format("d/m/Y H:i:s") : "";
+        $this->taskNextStartTime = $taskNextStartTime instanceof \DateTime ? $taskNextStartTime->format("d/m/Y H:i:s") : "";
         $this->id = $id;
     }
 

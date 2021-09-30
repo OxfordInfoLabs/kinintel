@@ -120,9 +120,9 @@ trait Dataset {
      * @http POST /snapshotprofile/$datasetInstanceId
      *
      * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
-     * @param integer $datasetInstanceId
+     * @param $datasetInstanceId
      */
-    public function saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId) {
+    public function saveSnapshotProfile($datasetInstanceId, $snapshotProfileSummary) {
         $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId);
     }
 

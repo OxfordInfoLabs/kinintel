@@ -19,8 +19,8 @@
         <button mat-button color="primary" class="align-center" (click)="summariseData()">
             <mat-icon>pivot_table_chart</mat-icon>&nbsp;Summarise Data
         </button>
-        <button mat-button color="primary" class="align-center" (click)="showFilters = !showFilters">
-            <mat-icon>filter_alt</mat-icon>&nbsp;Filter
+        <button mat-button color="primary" class="align-center" (click)="addFilter()">
+            <mat-icon>filter_alt</mat-icon>&nbsp;Add Filter
         </button>
     </div>
 </div>
@@ -28,12 +28,12 @@
     <div class="badge-holder">
         <div class="badge-item" *ngFor="let transformation of terminatingTransformations; let i = index"
             [ngClass]="{active: transformation._active}">
-            <span>{{transformation._label}}</span>
+            <span class="cursor-pointer" (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
 
             <button *ngIf="transformation._disable" mat-icon-button (click)="disableTransformation(i)">
                 <mat-icon>block</mat-icon>
             </button>
-            <button *ngIf="transformation._active" mat-icon-button color="primary" (click)="removeTransformation(transformation)">
+            <button *ngIf="transformation._active" mat-icon-button color="primary" (click)="removeTransformation(transformation, true)">
                 <mat-icon>cancel</mat-icon>
             </button>
         </div>
@@ -45,13 +45,22 @@
                                  [(evaluatedDatasource)]="evaluatedDatasource" [showNewOnOpen]="true"
                                  (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
 </div>
-<div class="filters mt-4" *ngIf="showFilters">
+<div class="filters mt-4">
 
-    <ki-dataset-filters [filterFields]="filterFields" [filterJunction]="filterJunction"></ki-dataset-filters>
+    <ng-template ngFor let-filterTransformation [ngForOf]="_.filter(evaluatedDatasource.transformationInstances, {type: 'filter', hide: false})">
+        <ki-dataset-filters [filterFields]="filterFields"
+                            [filterJunction]="filterTransformation.config"></ki-dataset-filters>
+        <div class="flex items-center justify-end">
+            <button mat-stroked-button style="margin-top: -3rem" class="mr-2 bg-white" color="primary"
+                    (click)="removeTransformation(filterTransformation, true)">
+                Remove Filter
+            </button>
+        </div>
 
-    <div class="flex align-center justify-end mt-4">
-        <button mat-stroked-button color="primary" style="margin-right: .5rem" (click)="clearFilters()">Clear filters
-        </button>
+    </ng-template>
+
+    <div *ngIf="_.filter(evaluatedDatasource.transformationInstances, {type: 'filter', hide: false}).length"
+        class="flex align-center justify-end mt-4">
         <button mat-flat-button color="primary" (click)="applyFilters()"
                 [disabled]="!filterJunction.filters.length">Apply filters
         </button>

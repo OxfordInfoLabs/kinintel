@@ -49,4 +49,21 @@ export class DatasetService {
         return this.http.get(this.config.backendURL + '/dataset/parameters/' + datasetId)
             .toPromise();
     }
+
+    public getSnapshotProfilesForDataset(datasetInstanceId) {
+        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId)
+            .toPromise();
+    }
+
+    public saveSnapshotProfile(snapshotProfileSummary, datasetInstanceId) {
+        return this.http.post(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
+            snapshotProfileSummary)
+            .toPromise();
+    }
+
+    public removeSnapshotProfile(snapshotProfileId, datasetInstanceId) {
+        return this.http.delete(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
+            {params: {snapshotProfileId}})
+            .toPromise();
+    }
 }

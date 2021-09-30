@@ -6,7 +6,7 @@ db.provider = sqlite3
 db.filename = DB/kinintel-example.db
 db.logFile = DB/db.log
 
-login.max.attempts = 5
+login.max.attempts = 500
 login.single.session = false
 
 recaptcha.secret.key = 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe

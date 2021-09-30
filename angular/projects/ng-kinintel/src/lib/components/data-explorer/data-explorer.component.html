@@ -12,7 +12,8 @@
 
 <div class="configure-content">
 
-    <rsz-layout class="row" [directions]="['none']" [rFlex]="false">
+    <rsz-layout class="row top" [directions]="showSnapshots ? ['bottom'] : ['none']"
+                [rFlex]="showSnapshots">
 
         <rsz-layout class="cell left" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
@@ -38,6 +39,44 @@
         </rsz-layout>
     </rsz-layout>
 
+    <rsz-layout *ngIf="showSnapshots" class="row bottom" [directions]="['none']" [rFlex]="false">
+        <div class="p-4">
+            <div class="py-4 flex justify-between">
+                <div><b>Snapshot Profiles</b></div>
+                <button mat-flat-button color="primary" (click)="editSnapshot(null)">
+                    <mat-icon>add</mat-icon>
+                    New Snapshot Profile
+                </button>
+            </div>
+            <table *ngIf="snapshotProfiles.length">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Last Started</th>
+                    <th>Next Start Time</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let snapshot of snapshotProfiles; let i = index">
+                    <td>{{snapshot.title}}</td>
+                    <td class="capitalize">{{snapshot.taskStatus}}</td>
+                    <td>{{snapshot.taskLastStartTime}}</td>
+                    <td>{{snapshot.taskNextStartTime}}</td>
+                    <td class="text-right">
+                        <div class="align-center justify-end">
+                            <button mat-button color="primary" (click)="editSnapshot(snapshot)"> Edit</button>
+                            <div class="divider"></div>
+                            <button mat-button color="warn" (click)="deleteSnapshot(snapshot)"> Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </rsz-layout>
 </div>
 
 <div class="configure-footer">
@@ -45,7 +84,11 @@
         Cancel
     </button>
     <div class="align-center">
-        <button mat-stroked-button color="primary" style="margin-right: .5rem; background-color: white">
+        <button mat-stroked-button color="primary" class="mr-2 bg-white"
+                *ngIf="data && data.dataset" (click)="viewSnapshots()">
+            View Snapshots
+        </button>
+        <button mat-stroked-button color="primary" class="mr-2 bg-white">
             Export Data
         </button>
         <button mat-flat-button color="primary" (click)="saveChanges()">

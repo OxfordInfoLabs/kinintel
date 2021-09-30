@@ -3,6 +3,7 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {DatasetNameDialogComponent} from '../dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import {DatasetService} from '../../services/dataset.service';
 import {Router} from '@angular/router';
+import {SnapshotProfileDialogComponent} from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 
 @Component({
     selector: 'ki-data-explorer',
@@ -19,6 +20,10 @@ export class DataExplorerComponent implements OnInit {
     public datasetInstance: any;
     public filters: any;
     public admin: boolean;
+    public showSnapshots = false;
+    public snapshotProfiles: any = [];
+
+    private columns: any = [];
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -40,7 +45,40 @@ export class DataExplorerComponent implements OnInit {
     }
 
     public dataLoaded(data) {
-        console.log('Data loaded', data);
+        console.log('Data loaded explorer', data);
+        this.columns = data.columns;
+    }
+
+    public viewSnapshots() {
+        this.showSnapshots = true;
+        this.loadSnapshotProfiles();
+    }
+
+    public editSnapshot(snapshot) {
+        const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
+            width: '900px',
+            height: '750px',
+            data: {
+                snapshot,
+                datasetInstanceId: this.datasetInstance.id,
+                columns: this.columns
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                this.loadSnapshotProfiles();
+            }
+        });
+    }
+
+    public deleteSnapshot(snapshot) {
+        const message = 'Are you sure you would like to remove this snapshot?';
+        if (window.confirm(message)) {
+            this.datasetService.removeSnapshotProfile(snapshot.id, this.datasetInstance.id)
+                .then(() => {
+                    this.loadSnapshotProfiles();
+                });
+        }
     }
 
     public saveChanges() {
@@ -65,6 +103,14 @@ export class DataExplorerComponent implements OnInit {
             this.dialogRef.close();
             this.router.navigate(['/dataset']);
         });
+    }
+
+    private loadSnapshotProfiles() {
+        this.datasetService.getSnapshotProfilesForDataset(this.datasetInstance.id)
+            .then(snapshots => {
+                console.log(snapshots);
+                this.snapshotProfiles = snapshots;
+            });
     }
 
 }

@@ -20,9 +20,28 @@
     flex: 1
     background-color: whitesmoke
     overflow: hidden
+    display: flex
+    width: 100%
+    height: 100%
+    flex-direction: column
     rsz-layout.row
         height: 100%
         background-color: transparent
+        &.top
+            width: 100%
+            display: flex
+            flex-basis: 65%
+            position: relative
+            background-color: white
+        .rg-bottom
+            background-color: #dadada
+        &.bottom
+            width: 100%
+            flex-basis: 35%
+            display: flex
+            flex-direction: column
+            position: relative
+            overflow: hidden
         .cell
             border-bottom: none
             border-top: none

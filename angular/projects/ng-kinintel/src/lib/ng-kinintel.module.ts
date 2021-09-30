@@ -56,6 +56,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { AlertGroupsComponent } from './components/alert-groups/alert-groups.component';
 import { EditAlertGroupComponent } from './components/alert-groups/edit-alert-group/edit-alert-group.component';
 import { EditDashboardAlertComponent } from './components/dashboard-editor/configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
+import { SnapshotProfileDialogComponent } from './components/data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
+import { TaskTimePeriodsComponent } from './components/task-time-periods/task-time-periods.component';
 
 
 @NgModule({
@@ -88,7 +90,9 @@ import { EditDashboardAlertComponent } from './components/dashboard-editor/confi
         EditNotificationGroupComponent,
         AlertGroupsComponent,
         EditAlertGroupComponent,
-        EditDashboardAlertComponent
+        EditDashboardAlertComponent,
+        SnapshotProfileDialogComponent,
+        TaskTimePeriodsComponent
     ],
     imports: [
         BrowserModule,
