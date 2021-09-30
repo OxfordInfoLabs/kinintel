@@ -18,7 +18,8 @@ class AlertGroupTask implements Task {
      * Construct with an alert service instance
      *
      * AlertGroupTask constructor.
-     * @param $alertService
+     *
+     * @param AlertService $alertService
      */
     public function __construct($alertService) {
         $this->alertService = $alertService;
