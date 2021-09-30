@@ -312,10 +312,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         try {
             $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());
             $sql = $this->tableDDLGenerator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
-        } catch (SQLException $e) {
+        } catch (\Exception $e) {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
-
 
 
         if (trim($sql))
