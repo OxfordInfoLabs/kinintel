@@ -203,7 +203,7 @@ class DatasetService {
         } // Otherwise create new
         else {
 
-            $dataProcessorKey = "dataset-snapshot-" . date("U");
+            $dataProcessorKey = "dataset_snapshot_" . date("U");
 
             $processorConfig["snapshotIdentifier"] = $dataProcessorKey;
 
