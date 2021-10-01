@@ -144,7 +144,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             );
 
 
-
         // If we need to convert the join datasource, do this now
         if ($joinDatasourceConversionRequired) {
 
@@ -188,7 +187,12 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
 
                     while ($joinRow = $materialisedJoinSet->nextDataItem()) {
-                        $newJoinData[] = array_merge($columnValues, $joinRow);
+
+                        foreach (array_values($joinRow) as $index => $joinRowItem) {
+                            $columnValues["join_" . $this->tableIndex . "_column_" . $index] = $joinRowItem;
+                        }
+
+                        $newJoinData[] = $columnValues;
                     }
 
 
@@ -201,11 +205,14 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     foreach ($aliasFields as $aliasField) {
                         $newColumns[] = new Field($aliasField);
                     }
-                    $newColumns = array_merge($newColumns, $materialisedJoinSet->getColumns());
+                    foreach ($materialisedJoinSet->getColumns() as $index => $column) {
+                        $newColumns[] = new Field("join_" . $this->tableIndex . "_column_" . $index, $column->getTitle(), $column->getStaticValue(), $column->getType());
+                    }
                 }
 
                 // Create new join dataset.
                 $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
+
 
                 $joinDatasource = new DefaultDatasource($newJoinDataset);
 
@@ -243,7 +250,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         }
 
 
-
         // For a join transformation, if join columns are supplied we must have master datasource columns as well
         if ($transformation->getJoinColumns() && !$datasource->getConfig()->getColumns()) {
 
@@ -258,7 +264,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
-
 
 
         return $datasource;
