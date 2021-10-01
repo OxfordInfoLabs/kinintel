@@ -31,6 +31,7 @@ import { EditAlertGroupComponent } from './views/alert-groups/edit-alert-group/e
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatMenuModule} from '@angular/material/menu';
 import { NotificationComponent } from './views/notifications/notification/notification.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
     declarations: [
@@ -68,7 +69,8 @@ import { NotificationComponent } from './views/notifications/notification/notifi
         MatSnackBarModule,
         MatProgressBarModule,
         MatBadgeModule,
-        MatMenuModule
+        MatMenuModule,
+        MatDialogModule
     ],
     providers: [
         {

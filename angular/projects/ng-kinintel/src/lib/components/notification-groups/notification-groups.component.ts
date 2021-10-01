@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NotificationService} from '../../services/notification.service';
+import {EditNotificationGroupComponent} from '../notification-groups/edit-notification-group/edit-notification-group.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-notification-groups',
@@ -12,7 +14,8 @@ export class NotificationGroupsComponent implements OnInit {
     public notificationGroups = [];
 
     constructor(private notificationService: NotificationService,
-                private router: Router) {
+                private router: Router,
+                private matDialog: MatDialog) {
     }
 
     ngOnInit(): void {
@@ -20,7 +23,19 @@ export class NotificationGroupsComponent implements OnInit {
     }
 
     public editNotification(id) {
-        this.router.navigate(['/notification-groups', id]);
+        const dialogRef = this.matDialog.open(EditNotificationGroupComponent, {
+            width: '800px',
+            height: '575px',
+            data: {
+                groupId: id
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                this.loadNotificationGroups();
+            }
+        });
     }
 
     public removeNotification(id) {

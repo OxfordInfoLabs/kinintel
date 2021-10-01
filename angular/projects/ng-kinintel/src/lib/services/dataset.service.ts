@@ -28,7 +28,14 @@ export class DatasetService {
     }
 
     public getDataset(id) {
-        return this.http.get(`${this.config.backendURL}/dataset/${id}`).toPromise();
+        return this.http.get(`${this.config.backendURL}/dataset/${id}`).toPromise()
+            .then((dataset: any) => {
+                if (dataset.readOnly) {
+                    dataset.id = dataset.title = null;
+                    return dataset;
+                }
+                return dataset;
+            });
     }
 
     public saveDataset(datasetInstanceSummary, accountId = null) {

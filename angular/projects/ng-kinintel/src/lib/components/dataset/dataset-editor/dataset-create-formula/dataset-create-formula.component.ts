@@ -24,7 +24,9 @@ export class DatasetCreateFormulaComponent implements OnInit {
         this.formulas.map(formula => {
             if (formula.expression) {
                 formula.expression = decodeURIComponent(formula.expression);
+                console.log('FORMULA', formula);
                 const matches = formula.expression.match(/\[\[(.*?)\]\]/g) || [];
+                console.log('MATHCES', matches);
                 matches.forEach(exp => {
                     const name = _.find(this.allColumns, column => {
                         return `[[${column.name}]]` === exp;
@@ -64,7 +66,8 @@ export class DatasetCreateFormulaComponent implements OnInit {
     private matchColumnName() {
         this.formulas.map(formula => {
             if (formula.expression) {
-                formula.expression.match(/\[\[(.*?)\]\]/g).forEach(exp => {
+                const matches = formula.expression.match(/\[\[(.*?)\]\]/g) || [];
+                matches.forEach(exp => {
                     const name = _.find(this.allColumns, column => {
                         return `[[${column.title}]]` === exp;
                     });

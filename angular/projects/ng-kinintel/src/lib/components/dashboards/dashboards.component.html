@@ -16,11 +16,10 @@
                     </mat-chip>
                 </mat-chip-list>
             </div>
-<!--            <button mat-flat-button color="primary" [routerLink]="['/dashboards', 0]" *ngIf="allowNew">-->
-<!--                Add New Dashboard-->
-<!--            </button>-->
+            <button mat-flat-button color="primary" [routerLink]="['/dashboards', 0]">
+                Add New Dashboard
+            </button>
         </div>
-
 
         <div class="mb-8">
             <input class="full" type="text" placeholder="Search for a dashboard" (keyup)="searchText.next($event.target.value)">

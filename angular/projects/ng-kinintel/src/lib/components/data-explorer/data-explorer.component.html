@@ -85,7 +85,7 @@
     </button>
     <div class="align-center">
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="data && data.dataset" (click)="viewSnapshots()">
+                *ngIf="data && data.dataset && data.dataset.id" (click)="viewSnapshots()">
             View Snapshots
         </button>
         <button mat-stroked-button color="primary" class="mr-2 bg-white">

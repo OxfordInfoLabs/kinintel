@@ -27,6 +27,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     public isLoading: boolean;
     public notificationCount = 0;
     public notifications: any = [];
+    public settingsOpen = false;
 
     private readonly mobileQueryListener: () => void;
     private projectSub: Subscription;

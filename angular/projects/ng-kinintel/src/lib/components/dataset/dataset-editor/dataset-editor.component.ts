@@ -215,25 +215,28 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public joinData(transformation?) {
+        const data: any = {
+            environment: this.environment,
+            filterFields: this.filterFields,
+            parameterValues: _.map(this.parameterValues, param => {
+                return {
+                    title: param.title,
+                    name: param.name,
+                    currentValue: this.evaluatedDatasource.parameterValues[param.name]
+                };
+            }),
+            datasetEditor: this,
+        };
+        if (transformation) {
+            data.joinTransformation = {
+                type: 'join',
+                config: transformation.config
+            };
+        }
         const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
             width: '1200px',
             height: '800px',
-            data: {
-                environment: this.environment,
-                filterFields: this.filterFields,
-                parameterValues: _.map(this.parameterValues, param => {
-                    return {
-                        title: param.title,
-                        name: param.name,
-                        currentValue: this.evaluatedDatasource.parameterValues[param.name]
-                    };
-                }),
-                datasetEditor: this,
-                joinTransformation: {
-                    type: 'join',
-                    config: transformation.config
-                }
-            },
+            data,
         });
 
         dialogRef.afterClosed().subscribe(joinTransformation => {
