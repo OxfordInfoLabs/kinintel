@@ -126,7 +126,6 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public editTerminatingTransformation(transformation) {
-        console.log(transformation);
         if (transformation.type === 'summarise') {
             const clonedTransformation = _.clone(transformation);
             // Grab the index of the current transformation - so we know which upstream transformations to exclude
