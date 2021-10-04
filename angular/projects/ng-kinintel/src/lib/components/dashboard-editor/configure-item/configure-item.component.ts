@@ -8,6 +8,7 @@ import chroma from 'chroma-js';
 import {DatasetService} from '../../../services/dataset.service';
 import {EditDashboardAlertComponent} from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 import {DatasetFilterComponent} from '../../dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'ki-configure-item',
@@ -62,7 +63,8 @@ export class ConfigureItemComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
                 private dashboardService: DashboardService,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private router: Router) {
     }
 
     ngOnInit(): void {
@@ -239,8 +241,13 @@ export class ConfigureItemComponent implements OnInit {
             });
             dialogRef.afterClosed().subscribe(title => {
                 this.dashboard.title = title;
-                this.dashboardService.saveDashboard(this.dashboard);
-                this.dialogRef.close();
+                this.dashboardService.saveDashboard(this.dashboard).then(dashboardId => {
+                    if (!this.dashboard.id) {
+                        this.router.navigate([`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`]);
+                    } else {
+                        this.dialogRef.close();
+                    }
+                });
             });
         } else {
             this.dashboardService.saveDashboard(this.dashboard);

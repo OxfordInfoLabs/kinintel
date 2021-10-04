@@ -43,8 +43,9 @@ export class DatasetEditorComponent implements OnInit {
     public parameterValues: any = [];
     public focusParams = false;
     public terminatingTransformations = [];
+    public datasetInstance: any;
 
-    private limit = 25;
+    public limit = 25;
     private offset = 0;
 
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
@@ -58,6 +59,13 @@ export class DatasetEditorComponent implements OnInit {
             this.datasource = this.data ? this.data.datasource : {};
         }
 
+        let limit = null;
+
+        this.datasetInstance = this.data ? this.data.dataset : null;
+        if (this.datasetInstance) {
+            limit = localStorage.getItem('datasetInstanceLimit' + this.datasetInstance.id);
+        }
+
         if (!this.evaluatedDatasource) {
             this.evaluatedDatasource = {
                 key: this.datasource.key,
@@ -67,6 +75,12 @@ export class DatasetEditorComponent implements OnInit {
                 parameters: []
             };
         }
+
+        if (this.evaluatedDatasource && !limit) {
+            limit = localStorage.getItem('datasetInstanceLimit' + this.evaluatedDatasource.instanceKey);
+        }
+
+        this.limit = limit ? Number(limit) : 25;
 
         if (this.evaluatedDatasource.transformationInstances.length) {
             const filter = _.find(this.evaluatedDatasource.transformationInstances, {type: 'filter'});
@@ -118,7 +132,6 @@ export class DatasetEditorComponent implements OnInit {
             this._removeTransformation(transformation, index);
         }
     }
-
 
 
     public disableTransformation(transformation) {
@@ -513,6 +526,11 @@ export class DatasetEditorComponent implements OnInit {
                     this.limit
                 ).then(dataset => {
                     this.dataset = dataset;
+                    if (this.datasetInstance && this.datasetInstance.id) {
+                        localStorage.setItem('datasetInstanceLimit' + this.datasetInstance.id, (this.limit).toString());
+                    } else if (this.evaluatedDatasource.instanceKey) {
+                        localStorage.setItem('datasetInstanceLimit' + this.evaluatedDatasource.instanceKey, (this.limit).toString());
+                    }
                     return this.loadData();
                 }).catch(err => {
                 });

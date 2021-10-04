@@ -73,7 +73,7 @@ trait Dashboard {
      * @param string $projectKey
      */
     public function saveDashboard($dashboardSummary, $projectKey = null) {
-        $this->dashboardService->saveDashboard($dashboardSummary, $projectKey);
+        return $this->dashboardService->saveDashboard($dashboardSummary, $projectKey);
     }
 
 

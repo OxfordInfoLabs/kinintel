@@ -288,12 +288,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public save(showSaved = true) {
         this.dashboard.layoutSettings.grid = this.grid.save(true);
-        return this.dashboardService.saveDashboard(this.dashboard).then(() => {
+        return this.dashboardService.saveDashboard(this.dashboard).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {
                     verticalPosition: 'top',
                     duration: 3000
                 });
+            }
+            if (!this.dashboard.id) {
+                this.dashboard.id = dashboardId;
+                this.router.navigate([`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`]);
             }
             return this.dashboard;
         });

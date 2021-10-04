@@ -42,17 +42,6 @@ export class SourceSelectorDialogComponent implements OnInit {
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
         });
-
-        merge(this.searchText)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getDatasources()
-                )
-            ).subscribe((sources: any) => {
-            this.datasources = sources;
-        });
     }
 
     public setEvaluatedParameters(parameterValues, evaluate?) {
@@ -76,6 +65,7 @@ export class SourceSelectorDialogComponent implements OnInit {
         } else {
             this.datasetService.getDataset(item.id).then(dataset => {
                 this.dashboardDatasetInstance.datasetInstanceId = item.id;
+                this.dashboardDatasetInstance.datasourceInstanceKey = dataset.datasourceInstanceKey;
                 return this.datasetService.getEvaluatedParameters(item.id).then((requiredParams: any) => {
                     this.createParameterStructure(requiredParams, stepper);
                     return requiredParams;
@@ -131,17 +121,6 @@ export class SourceSelectorDialogComponent implements OnInit {
             '0'
         ).pipe(map((datasets: any) => {
                 return datasets;
-            })
-        );
-    }
-
-    private getDatasources() {
-        return this.datasourceService.getDatasources(
-            this.searchText.getValue() || '',
-            '5',
-            '0'
-        ).pipe(map((sources: any) => {
-                return sources;
             })
         );
     }
