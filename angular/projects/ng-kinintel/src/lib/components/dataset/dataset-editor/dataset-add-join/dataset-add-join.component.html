@@ -3,12 +3,6 @@
     <div class="dialog-title" cdkDragHandle>
         <h2 mat-dialog-title>Join Data</h2>
 
-        <div>
-            <b>Project:</b> {{activeProject.name}}
-            <ng-template [ngIf]="activeTag"><b>Active {{environment.tagLabel || 'Tag'}}:</b> {{activeTag.tag}}
-            </ng-template>
-        </div>
-
         <button mat-icon-button mat-dialog-close>
             <mat-icon>clear</mat-icon>
         </button>
