@@ -81,7 +81,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 }
             });
             dialogRef.afterClosed().subscribe(res => {
-
+                this.reload.next(Date.now());
             });
         });
     }

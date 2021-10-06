@@ -96,7 +96,6 @@ export class DatasetAddJoinComponent implements OnInit {
             const type = item.key ? 'datasource' : 'dataset';
 
             setTimeout(() => {
-                console.log('existing join', this.joinTransformation, this.matStepper);
                 this.select(item, type, this.matStepper, false);
             }, 200);
         }

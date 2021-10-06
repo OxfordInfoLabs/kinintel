@@ -227,6 +227,13 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public joinData(transformation?) {
+        let existingIndex = -1;
+        if (transformation) {
+            existingIndex = _.findIndex(this.evaluatedDatasource.transformationInstances, {
+                config: transformation.config,
+                type: 'join'
+            });
+        }
         const data: any = {
             environment: this.environment,
             filterFields: this.filterFields,
@@ -253,7 +260,11 @@ export class DatasetEditorComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(joinTransformation => {
             if (joinTransformation) {
-                this.evaluatedDatasource.transformationInstances.push(joinTransformation);
+                if (existingIndex >= 0) {
+                    this.evaluatedDatasource.transformationInstances[existingIndex] = joinTransformation;
+                } else {
+                    this.evaluatedDatasource.transformationInstances.push(joinTransformation);
+                }
                 this.evaluateDatasource();
             }
         });

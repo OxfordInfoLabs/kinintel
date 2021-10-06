@@ -22,6 +22,7 @@ export class DataExplorerComponent implements OnInit {
     public admin: boolean;
     public showSnapshots = false;
     public snapshotProfiles: any = [];
+    public editTitle = false;
 
     private columns: any = [];
 

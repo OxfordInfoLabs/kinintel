@@ -1,6 +1,10 @@
 <div class="configure-header">
-    <ng-template [ngIf]="datasetInstance && datasetInstance.title">
-        {{datasetInstance.title}}
+    <ng-template [ngIf]="datasetInstance && datasetInstance.title && !editTitle">
+        <div (click)="editTitle = !editTitle">{{datasetInstance.title}}</div>
+    </ng-template>
+    <ng-template [ngIf]="datasetInstance && editTitle">
+        <input type="text" class="w-1/4 text-sm"
+               [(ngModel)]="datasetInstance.title" (blur)="editTitle = false">
     </ng-template>
     <ng-template [ngIf]="!datasetInstance || !datasetInstance.title">
         Data Explorer
