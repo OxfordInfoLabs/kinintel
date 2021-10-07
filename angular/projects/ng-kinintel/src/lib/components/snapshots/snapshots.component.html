@@ -1,0 +1,52 @@
+<div class="container mx-auto max-w-screen-lg mb-4">
+
+    <div class="bg-white p-6 content-wrapper">
+        <div class="pb-6 flex align-center justify-between">
+            <div class="flex justify-between">
+                <div>
+                    <h3 class="mb-0 text-lg leading-6 font-medium text-gray-900">
+                        {{headingLabel || 'Snapshots'}}
+                    </h3>
+                </div>
+                <mat-chip-list *ngIf="activeTag" class="overflow-hidden">
+                    <mat-chip class="active-tag" [removable]="true" (removed)="removeActiveTag()">
+                        <span><b>{{config.tagLabel || 'Tag'}}:&nbsp;</b>{{activeTag ? activeTag.tag : ''}}</span>
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <input class="full" type="text" placeholder="Search for a snapshot" (keyup)="searchText.next($event.target.value)">
+        </div>
+
+        <table mat-table [dataSource]="datasets">
+
+            <!-- Position Column -->
+            <ng-container matColumnDef="datasource">
+                <th mat-header-cell *matHeaderCellDef> Snapshot </th>
+                <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="explore">
+                <th mat-header-cell *matHeaderCellDef>  </th>
+                <td mat-cell *matCellDef="let element" class="text-right nop">
+                    <div class="align-center justify-end">
+                        <button mat-button color="primary" (click)="view(element.id)"> View</button>
+                        <div class="divider"></div>
+                        <button mat-button color="primary" (click)="delete(element.id)"> Delete</button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+        </table>
+        <mat-paginator [length]="datasets.length"
+                       [pageSize]="10"
+                       [pageSizeOptions]="[5, 10, 25, 100]">
+        </mat-paginator>
+    </div>
+
+</div>

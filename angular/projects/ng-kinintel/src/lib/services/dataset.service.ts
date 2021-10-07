@@ -16,13 +16,13 @@ export class DatasetService {
                 private projectService: ProjectService) {
     }
 
-    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '') {
+    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '', type = '') {
         const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const suffix = this.config.backendURL.indexOf('/account') && accountId === null ? '/shared/all' : '';
         return this.http.get(this.config.backendURL + '/dataset' + suffix, {
             params: {
-                filterString, limit, offset, tags, projectKey, accountId
+                filterString, limit, offset, tags, projectKey, accountId, type
             }
         });
     }

@@ -32,6 +32,7 @@ import {MatBadgeModule} from '@angular/material/badge';
 import {MatMenuModule} from '@angular/material/menu';
 import { NotificationComponent } from './views/notifications/notification/notification.component';
 import {MatDialogModule} from '@angular/material/dialog';
+import { SnapshotsComponent } from './views/snapshots/snapshots.component';
 
 @NgModule({
     declarations: [
@@ -48,7 +49,8 @@ import {MatDialogModule} from '@angular/material/dialog';
         EditNotificationGroupComponent,
         AlertGroupsComponent,
         EditAlertGroupComponent,
-        NotificationComponent
+        NotificationComponent,
+        SnapshotsComponent
     ],
     imports: [
         BrowserModule,

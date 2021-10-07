@@ -6,7 +6,21 @@
     "url": "https://jsonplaceholder.typicode.com/posts/{{postId}}",
     "resultFormatConfig": {
       "singleResult": true
-    }
+    },
+    "columns": [
+      {
+        "name": "id",
+        "title": "ID"
+      },
+      {
+        "name": "title",
+        "title": "Title"
+      },
+      {
+        "name": "body",
+        "title": "Body"
+      }
+    ]
   },
   "parameters": [
     {

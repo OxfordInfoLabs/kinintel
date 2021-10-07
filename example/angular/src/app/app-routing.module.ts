@@ -13,6 +13,7 @@ import {EditNotificationGroupComponent} from './views/notification-groups/edit-n
 import {AlertGroupsComponent} from './views/alert-groups/alert-groups.component';
 import {EditAlertGroupComponent} from './views/alert-groups/edit-alert-group/edit-alert-group.component';
 import {NotificationComponent} from './views/notifications/notification/notification.component';
+import {SnapshotsComponent} from './views/snapshots/snapshots.component';
 
 const routes: Routes = [
     {
@@ -34,6 +35,10 @@ const routes: Routes = [
             {
                 path: 'dataset',
                 component: DatasetComponent
+            },
+            {
+                path: 'snapshots',
+                component: SnapshotsComponent
             },
             {
                 path: 'datasource',

@@ -46,11 +46,15 @@
                     </a>
                     <a [routerLink]="['/datasource']" routerLinkActive="active" class="menu-item">
                         <mat-icon>storage</mat-icon>
-                        <span>Datasource</span>
+                        <span>Datasources</span>
                     </a>
                     <a [routerLink]="['/dataset']" routerLinkActive="active" class="menu-item">
                         <mat-icon>table_chart</mat-icon>
-                        <span>Dataset</span>
+                        <span>Datasets</span>
+                    </a>
+                    <a [routerLink]="['/snapshots']" routerLinkActive="active" class="menu-item">
+                        <mat-icon>history</mat-icon>
+                        <span>Snapshots</span>
                     </a>
                     <a href="javascript:void(0)" routerLinkActive="active" class="menu-item"
                        (click)="selectTag()">

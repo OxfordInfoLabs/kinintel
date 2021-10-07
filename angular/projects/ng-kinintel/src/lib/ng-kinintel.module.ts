@@ -58,6 +58,7 @@ import { EditAlertGroupComponent } from './components/alert-groups/edit-alert-gr
 import { EditDashboardAlertComponent } from './components/dashboard-editor/configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 import { SnapshotProfileDialogComponent } from './components/data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 import { TaskTimePeriodsComponent } from './components/task-time-periods/task-time-periods.component';
+import { SnapshotsComponent } from './components/snapshots/snapshots.component';
 
 
 @NgModule({
@@ -92,7 +93,8 @@ import { TaskTimePeriodsComponent } from './components/task-time-periods/task-ti
         EditAlertGroupComponent,
         EditDashboardAlertComponent,
         SnapshotProfileDialogComponent,
-        TaskTimePeriodsComponent
+        TaskTimePeriodsComponent,
+        SnapshotsComponent
     ],
     imports: [
         BrowserModule,
@@ -142,7 +144,8 @@ import { TaskTimePeriodsComponent } from './components/task-time-periods/task-ti
         NotificationGroupsComponent,
         EditNotificationGroupComponent,
         AlertGroupsComponent,
-        EditAlertGroupComponent
+        EditAlertGroupComponent,
+        SnapshotsComponent
     ]
 })
 export class NgKinintelModule {
