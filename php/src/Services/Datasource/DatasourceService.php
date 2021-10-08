@@ -178,6 +178,7 @@ class DatasourceService {
         $pagingTransformation = new PagingTransformation($limit, $offset);
 
         foreach ($transformationInstances as $transformationInstance) {
+
             $transformation = $transformationInstance->returnTransformation();
 
             // If a marker transformation, use a paging transformation instead

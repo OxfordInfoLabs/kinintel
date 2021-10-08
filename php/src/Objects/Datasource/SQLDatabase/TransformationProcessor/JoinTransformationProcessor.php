@@ -150,8 +150,14 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             // If we have column parameters we need to do a more advanced evaluation
             if ($columnParameters) {
 
+                // Pre-columns
+                $preColumns = $datasource->getConfig()->getColumns();
+
                 // Materialise the parent data set
                 $parentDataset = $datasource->materialise($parameterValues);
+
+                // Reset columns
+                $datasource->getConfig()->setColumns($preColumns);
 
                 $aliasFields = [];
                 $joinFilters = [];
@@ -166,6 +172,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     ? [$transformation->getJoinFilters()] : []);
                 $transformation->setJoinFilters($joinFilterJunction);
 
+
                 // Now materialise the join data set using column values from parent dataset
                 $newJoinData = [];
                 while ($parentRow = $parentDataset->nextDataItem()) {
@@ -179,42 +186,39 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     // If we have a join data set, evaluate now.
                     if (isset($joinDataSet)) {
 
+
                         $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
                             $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
 
+
                     }
+
 
                     $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
 
                     while ($joinRow = $materialisedJoinSet->nextDataItem()) {
-
-                        foreach (array_values($joinRow) as $index => $joinRowItem) {
-                            $columnValues["join_" . $this->tableIndex . "_column_" . $index] = $joinRowItem;
-                        }
-
-                        $newJoinData[] = $columnValues;
+                        $newJoinData[] = array_merge($columnValues, $joinRow);
                     }
-
 
                 }
 
 
-                // Derive new columns for join dataset
+                // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
-                if (sizeof($newJoinData)) {
+                if (isset($materialisedJoinSet) && sizeof($materialisedJoinSet->getColumns())) {
                     foreach ($aliasFields as $aliasField) {
                         $newColumns[] = new Field($aliasField);
                     }
-                    foreach ($materialisedJoinSet->getColumns() as $index => $column) {
-                        $newColumns[] = new Field("join_" . $this->tableIndex . "_column_" . $index, $column->getTitle(), $column->getStaticValue(), $column->getType());
-                    }
+                    $newColumns = array_merge($newColumns, $materialisedJoinSet->getColumns());
+
+
+                    // Create new join dataset.
+                    $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
+
+                    $joinDatasource = new DefaultDatasource($newJoinDataset);
+                } else {
+                    return $datasource;
                 }
-
-                // Create new join dataset.
-                $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
-
-
-                $joinDatasource = new DefaultDatasource($newJoinDataset);
 
             } else {
 
@@ -245,8 +249,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         // If we are not a default datasource already, return a new instance
         if (($joinDatasource->getAuthenticationCredentials() != $datasource->getAuthenticationCredentials()) && !($datasource instanceof DefaultDatasource)) {
             $newDataSource = new DefaultDatasource($datasource);
-            $newDataSource->applyTransformation($transformation, $parameterValues);
-            $datasource = $newDataSource;
+            $datasource = $newDataSource->applyTransformation($transformation, $parameterValues);
         }
 
 
@@ -264,7 +267,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
-
 
         return $datasource;
 
@@ -313,16 +315,33 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             // If join columns supplied, change the select query for selection
             $childSelectColumns = $childTableAlias . ".*";
 
+
             if ($transformation->getJoinColumns()) {
 
                 $newColumns = $dataSource->getConfig()->getColumns() ?? [];
 
+                // Get column names
+                $indexedColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $newColumns);
+
                 // Create the SQL fragments and new column mappings.
                 $joinColumnStrings = [];
                 foreach ($transformation->getJoinColumns() as $joinColumn) {
-                    $joinColumnStrings[] = $childTableAlias . "." . $joinColumn->getName() . " alias_" . ++$this->aliasIndex;
-                    $newColumns[] = new Field("alias_" . $this->aliasIndex, $joinColumn->getTitle());
+
+                    if (isset($indexedColumns[$joinColumn->getName()])) {
+                        $i = 2;
+                        while (isset($indexedColumns[$joinColumn->getName() . "_$i"])) $i++;
+                        $columnName = $joinColumn->getName() . "_$i";
+                        $columnSpec = $joinColumn->getName() . " " . $joinColumn->getName() . "_$i";
+                    } else {
+                        $columnName = $joinColumn->getName();
+                        $columnSpec = $columnName;
+                    }
+
+
+                    $joinColumnStrings[] = $childTableAlias . "." . $columnSpec;
+                    $newColumns[] = new Field($columnName, $joinColumn->getTitle());
                 }
+
 
                 $childSelectColumns = join(",", $joinColumnStrings);
                 $dataSource->getConfig()->setColumns($newColumns);

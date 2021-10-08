@@ -85,12 +85,12 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         if ($this->populated)
             return;
 
-
-        if ($this->sourceDataobject instanceof Datasource)
+        if ($this->sourceDataobject instanceof Datasource) {
             // Firstly materialise the source datasource
             $sourceDataset = $this->sourceDataobject->materialise($parameterValues);
-        else
+        } else
             $sourceDataset = $this->sourceDataobject;
+
 
         /**
          * @var SQLite3DatabaseConnection $dbConnection
@@ -99,6 +99,7 @@ class DefaultDatasource extends SQLDatabaseDatasource {
 
         // Create a create string
         $columns = $sourceDataset->getColumns();
+
         $createColumns = [];
         foreach ($columns as $column) {
             $createColumns[] = $column->getName() . " INTEGER";
@@ -108,6 +109,7 @@ class DefaultDatasource extends SQLDatabaseDatasource {
 
         // Update this data set with the source dataset.
         $this->update($sourceDataset);
+
 
         // Match columns in configuration with those from the source dataset
         $this->getConfig()->setColumns($columns);

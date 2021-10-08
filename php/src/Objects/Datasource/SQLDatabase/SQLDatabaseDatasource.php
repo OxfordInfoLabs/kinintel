@@ -179,7 +179,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $processor = $this->getTransformationProcessor($processorKey);
             $dataSource = $processor->applyTransformation($transformation, $dataSource, $parameterValues);
 
-            $this->transformations[] = $transformation;
+            // If same datasource apply the transformation
+            if ($dataSource === $this) {
+                $this->transformations[] = $transformation;
+            }
         }
         return $dataSource;
     }
@@ -215,6 +218,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var DatabaseConnection $dbConnection
          */
         $dbConnection = $this->returnDatabaseConnection();
+
 
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
@@ -358,13 +362,13 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $query = new SQLQuery("*", "(" . $queryString . ") A");
         }
 
-
         /**
          * Process each transformation
          *
          * @var $transformation SQLDatabaseTransformation
          */
         foreach ($this->transformations as $transformation) {
+
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);

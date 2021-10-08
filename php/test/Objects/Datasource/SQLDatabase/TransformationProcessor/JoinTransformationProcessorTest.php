@@ -413,7 +413,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
 
-        $joinDatasource3= MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $joinDatasource3->returnValue("getAuthenticationCredentials", $this->authCredentials);
         $joinDatasource3->returnValue("materialise", new ArrayTabularDataset([
             new Field("column1"), new Field("column2")
@@ -449,6 +449,8 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $mainDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $mainDatasource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table"));
 
         $mainDatasource->returnValue("materialise", new ArrayTabularDataset([
             new Field("title", "Title"),
@@ -646,15 +648,15 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name alias_1,T2.category alias_2,T2.status alias_3 FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name,T2.category,T2.status FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
             $sqlQuery);
 
 
         // Check the columns were added as expected
         $this->assertTrue($mainDataSourceConfig->methodWasCalled("setColumns", [[
             new Field("otherName"), new Field("notes"),
-            new Field("alias_1", "Name"),
-            new Field("alias_2", "Category"), new Field("alias_3", "Status")
+            new Field("name", "Name"),
+            new Field("category", "Category"), new Field("status", "Status")
         ]]));
 
     }
