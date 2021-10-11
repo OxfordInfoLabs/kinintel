@@ -97,18 +97,25 @@ class SQLFilterJunctionEvaluator {
      */
     private function createFilterStatement($filter, &$parameters, $templateParameters = []) {
 
-        $fieldName = $filter->getFieldName();
-        $filterValue = $filter->getValue();
+        $lhsExpression = $filter->getLhsExpression();
+        $rhsExpression = $filter->getRhsExpression();
 
+
+        // Map any square brackets to direct columns with table alias or assume whole string is single column
+        $evaluatedLHS = preg_replace("/\[\[(.*?)\]\]/", ($this->lhsTableAlias ? $this->lhsTableAlias . "." : "") . "$1", $lhsExpression);
+        if ($this->lhsTableAlias && $lhsExpression == $evaluatedLHS) {
+            $evaluatedLHS = $this->lhsTableAlias . "." . $lhsExpression;
+        }
+        $lhsExpression = $evaluatedLHS;
 
         // Map any param values up front using the template mapper
         $newParams = [];
-        foreach (is_array($filterValue) ? $filterValue : [$filterValue] as $param) {
+        foreach (is_array($rhsExpression) ? $rhsExpression : [$rhsExpression] as $param) {
 
             $directParam = $templateParameters[trim($param, "{}")] ?? null;
             if (is_array($directParam)) {
                 $newParams = array_merge($newParams, $directParam);
-                $filterValue = $directParam;
+                $rhsExpression = $directParam;
             } else {
                 $newParam = $this->sqlFilterValueEvaluator->evaluateFilterValue($param, $templateParameters);
                 $newParams[] = $newParam;
@@ -118,12 +125,12 @@ class SQLFilterJunctionEvaluator {
 
         // Remap the filter value back if not an array
         $placeholder = "?";
-        if (!is_array($filterValue)) {
-            $filterValue = $newParams[0];
+        if (!is_array($rhsExpression)) {
+            $rhsExpression = $newParams[0];
 
             // Check for [[]] column syntax
-            $columnReplaced = preg_replace("/\[\[(.*?)\]\]/", ($this->rhsTableAlias ? $this->rhsTableAlias . "." : "") . "$1", $filterValue);
-            if ($columnReplaced !== $filterValue) {
+            $columnReplaced = preg_replace("/\[\[(.*?)\]\]/", ($this->rhsTableAlias ? $this->rhsTableAlias . "." : "") . "$1", $rhsExpression);
+            if ($columnReplaced !== $rhsExpression) {
                 $placeholder = $columnReplaced;
                 $newParams = [];
             }
@@ -134,61 +141,57 @@ class SQLFilterJunctionEvaluator {
         $expectArray = false;
         switch ($filter->getFilterType()) {
             case Filter::FILTER_TYPE_NOT_EQUALS:
-                $clause = "$fieldName <> $placeholder";
+                $clause = "$lhsExpression <> $placeholder";
                 break;
             case Filter::FILTER_TYPE_NULL:
-                $clause = "$fieldName IS NULL";
+                $clause = "$lhsExpression IS NULL";
                 $newParams = [];
                 break;
             case Filter::FILTER_TYPE_NOT_NULL:
-                $clause = "$fieldName IS NOT NULL";
+                $clause = "$lhsExpression IS NOT NULL";
                 $newParams = [];
                 break;
             case Filter::FILTER_TYPE_GREATER_THAN:
-                $clause = "$fieldName > $placeholder";
+                $clause = "$lhsExpression > $placeholder";
                 break;
             case Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO:
-                $clause = "$fieldName >= $placeholder";
+                $clause = "$lhsExpression >= $placeholder";
                 break;
             case Filter::FILTER_TYPE_LESS_THAN:
-                $clause = "$fieldName < $placeholder";
+                $clause = "$lhsExpression < $placeholder";
                 break;
             case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
-                $clause = "$fieldName <= $placeholder";
+                $clause = "$lhsExpression <= $placeholder";
                 break;
             case Filter::FILTER_TYPE_LIKE:
-                $clause = "$fieldName LIKE $placeholder";
-                $newParams = [str_replace("*", "%", $filterValue)];
+                $clause = "$lhsExpression LIKE $placeholder";
+                $newParams = [str_replace("*", "%", $rhsExpression)];
                 break;
             case Filter::FILTER_TYPE_BETWEEN:
-                if (!is_array($filterValue) || sizeof($filterValue) !== 2) {
-                    throw new DatasourceTransformationException("Filter value for $fieldName must be a two valued array");
+                if (!is_array($rhsExpression) || sizeof($rhsExpression) !== 2) {
+                    throw new DatasourceTransformationException("Filter value for $lhsExpression must be a two valued array");
                 }
                 $expectArray = true;
-                $clause = "$fieldName BETWEEN ? AND ?";
+                $clause = "$lhsExpression BETWEEN ? AND ?";
                 break;
             case Filter::FILTER_TYPE_IN:
                 $expectArray = true;
-                $clause = "$fieldName IN (" . str_repeat("?,", sizeof($filterValue) - 1) . "?)";
+                $clause = "$lhsExpression IN (" . str_repeat("?,", sizeof($rhsExpression) - 1) . "?)";
                 break;
             case Filter::FILTER_TYPE_NOT_IN:
                 $expectArray = true;
-                $clause = "$fieldName NOT IN (" . str_repeat("?,", sizeof($filterValue) - 1) . "?)";
+                $clause = "$lhsExpression NOT IN (" . str_repeat("?,", sizeof($rhsExpression) - 1) . "?)";
                 break;
             default:
-                $clause = "$fieldName = $placeholder";
+                $clause = "$lhsExpression = $placeholder";
                 break;
         }
 
-        // If a LHS table alias passed through this is pre-pended to the clause
-        if ($clause && $this->lhsTableAlias) {
-            $clause = $this->lhsTableAlias . "." . $clause;
-        }
 
-        if ($expectArray && !is_array($filterValue)) {
-            throw new DatasourceTransformationException("Filter value for $fieldName must be an array");
-        } else if (!$expectArray && is_array($filterValue)) {
-            throw new DatasourceTransformationException("Filter value for $fieldName should not be an array");
+        if ($expectArray && !is_array($rhsExpression)) {
+            throw new DatasourceTransformationException("Filter value for $lhsExpression must be an array");
+        } else if (!$expectArray && is_array($rhsExpression)) {
+            throw new DatasourceTransformationException("Filter value for $lhsExpression should not be an array");
         }
 
         array_splice($parameters, sizeof($parameters), 0, $newParams);

@@ -136,8 +136,8 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("test-json", $dashboardDatasetInstance->getDatasourceInstanceKey());
         $this->assertEquals([new TransformationInstance("filter", [
             "filters" => [[
-                "fieldName" => "value",
-                "value" => "bingo",
+                "lhsExpression" => "value",
+                "rhsExpression" => "bingo",
                 "filterType" => "eq"
             ]],
             "logic" => "AND",

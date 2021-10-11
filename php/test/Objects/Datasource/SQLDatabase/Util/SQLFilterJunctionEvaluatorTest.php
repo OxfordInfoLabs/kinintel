@@ -241,6 +241,38 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfExpressionWithSquareBracketsSuppliedToLHSTheSquareBracketsAreRemovedAndPrefixedAsRequired() {
+
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator("T");
+
+        // Default AND junction
+        $this->assertEquals([
+            "sql" => "SUBSTRING(T.dob, 0, 10) > ? OR (CONCAT('Me:', T.name) = ? AND T.age * 10 IN (?,?,?,?))",
+            "parameters" => [
+                '2000-01-01',
+                "Joe Bloggs",
+                5,
+                7,
+                9,
+                11
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
+            [
+                new Filter("SUBSTRING([[dob]], 0, 10)", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+            ],
+            [
+                new FilterJunction([
+                    new Filter("CONCAT('Me:', [[name]])", "Joe Bloggs"),
+                    new Filter("[[age]] * 10", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                ])
+            ],
+            FilterJunction::LOGIC_OR
+        )));
+
+
+    }
+
+
     public function testIfColumnsSuppliedUsingSquareBracketsTheseAreIncludedLiterallyInLieuOfPlaceholders() {
 
         $filterJunctionEvaluator = new SQLFilterJunctionEvaluator();
@@ -295,7 +327,6 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             FilterJunction::LOGIC_OR
         )));
     }
-
 
 
 }

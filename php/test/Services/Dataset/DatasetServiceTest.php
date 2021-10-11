@@ -127,8 +127,8 @@ class DatasetServiceTest extends TestBase {
         $transformationInstance = $reSet->getTransformationInstances()[0];
         $this->assertEquals(new TransformationInstance("filter",
             [
-                "filters" => [["fieldName" => "property",
-                    "value" => "foobar",
+                "filters" => [["lhsExpression" => "property",
+                    "rhsExpression" => "foobar",
                     "filterType" => "eq"]],
                 "logic" => "AND",
                 "filterJunctions" => [],

@@ -9,19 +9,19 @@ use Kinikit\Core\Util\Primitive;
 class Filter {
 
     /**
-     * Name of field to filter
-     *
-     * @var string
-     */
-    private $fieldName;
-
-
-    /**
-     * Filter value (depending on filter type)
+     * LHS expression for filter
      *
      * @var mixed
      */
-    private $value;
+    private $lhsExpression;
+
+
+    /**
+     * RHS expression for filter
+     *
+     * @var mixed
+     */
+    private $rhsExpression;
 
 
     /**
@@ -51,18 +51,18 @@ class Filter {
     /**
      * Filter constructor.
      *
-     * @param string $fieldName
-     * @param mixed $value
+     * @param string $lhsExpression
+     * @param mixed $rhsExpression
      * @param string $filterType
      */
-    public function __construct($fieldName, $value, $filterType = null) {
-        $this->fieldName = $fieldName;
-        $this->value = $value;
+    public function __construct($lhsExpression, $rhsExpression, $filterType = null) {
+        $this->lhsExpression = $lhsExpression;
+        $this->rhsExpression = $rhsExpression;
 
         if (!$filterType) {
-            if (Primitive::isPrimitive($value)) {
-                $filterType = is_numeric(strpos($value, "*")) ? self::FILTER_TYPE_LIKE : self::FILTER_TYPE_EQUALS;
-            } else if (is_array($value)) {
+            if (Primitive::isPrimitive($rhsExpression)) {
+                $filterType = is_numeric(strpos($rhsExpression, "*")) ? self::FILTER_TYPE_LIKE : self::FILTER_TYPE_EQUALS;
+            } else if (is_array($rhsExpression)) {
                 $filterType = self::FILTER_TYPE_IN;
             }
         }
@@ -72,17 +72,17 @@ class Filter {
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getFieldName() {
-        return $this->fieldName;
+    public function getLhsExpression() {
+        return $this->lhsExpression;
     }
 
     /**
      * @return mixed
      */
-    public function getValue() {
-        return $this->value;
+    public function getRhsExpression() {
+        return $this->rhsExpression;
     }
 
     /**
