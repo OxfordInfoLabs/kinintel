@@ -106,7 +106,7 @@ class SQLFilterJunctionEvaluator {
         if ($this->lhsTableAlias && $lhsExpression == $evaluatedLHS) {
             $evaluatedLHS = $this->lhsTableAlias . "." . $lhsExpression;
         }
-        $lhsExpression = $evaluatedLHS;
+        $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($evaluatedLHS, $templateParameters);
 
         // Map any param values up front using the template mapper
         $newParams = [];

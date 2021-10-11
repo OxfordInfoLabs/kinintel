@@ -312,7 +312,27 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testIfParameterValuesPassedThroughTheseAreSubstitutedWhereDoubleBracesSuppliedInFilterValues() {
+
+    public function testIfParameterValuesPassedThroughTheseAreSubstitutedInLHS(){
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+
+        $sourceQuery = new SQLQuery("*", "test_data");
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("'{{jobTitle}}'", "Bobby Brown")
+        ]), $sourceQuery, [
+            "jobTitle" => "Company Director"
+        ], null);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE 'Company Director' = ?", $query->getSQL());
+        $this->assertEquals([
+            "Bobby Brown"
+        ], $query->getParameters());
+
+    }
+
+    public function testIfParameterValuesPassedThroughTheseAreSubstitutedWhereDoubleBracesSuppliedInRHS() {
         $processor = new FilterTransformationProcessor($this->templateParser);
 
         $sourceQuery = new SQLQuery("*", "test_data");
