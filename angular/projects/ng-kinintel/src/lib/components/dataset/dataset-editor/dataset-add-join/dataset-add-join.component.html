@@ -84,8 +84,8 @@
             </mat-step>
             <mat-step *ngIf="!requiredParameters || !requiredParameters.length"
                       [completed]="(!joinFilterFields || !joinFilterFields.length) ||
-                        (_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
-                                   _.every(joinTransformation.config.joinFilters.filters, 'value'))"
+                        (_.every(joinTransformation.config.joinFilters.filters, 'lhsExpression') &&
+                                   _.every(joinTransformation.config.joinFilters.filters, 'rhsExpression'))"
                       label="Join criteria">
 
                 <ng-template [ngIf]="!selectedSource">
@@ -147,8 +147,8 @@
             <ng-template [ngIf]="!requiredParameters || !requiredParameters.length">
                 <button mat-flat-button color="primary" (click)="stepper.next()"
                         [disabled]="(joinFilterFields && joinFilterFields.length) &&
-                                !(_.every(joinTransformation.config.joinFilters.filters, 'fieldName') &&
-                                   _.every(joinTransformation.config.joinFilters.filters, 'value'))">
+                                !(_.every(joinTransformation.config.joinFilters.filters, 'lhsExpression') &&
+                                   _.every(joinTransformation.config.joinFilters.filters, 'rhsExpression'))">
                     Next
                 </button>
             </ng-template>

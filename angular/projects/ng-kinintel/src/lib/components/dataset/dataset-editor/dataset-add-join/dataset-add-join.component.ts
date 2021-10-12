@@ -225,8 +225,8 @@ export class DatasetAddJoinComponent implements OnInit {
             this.joinTransformation.config.joinFilters = {
                 logic: 'AND',
                 filters: [{
-                    fieldName: '',
-                    value: '',
+                    lhsExpression: '',
+                    rhsExpression: '',
                     filterType: ''
                 }],
                 filterJunctions: []

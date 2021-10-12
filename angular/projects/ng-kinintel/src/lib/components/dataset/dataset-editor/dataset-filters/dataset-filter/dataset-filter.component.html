@@ -1,44 +1,67 @@
 <ng-template [ngIf]="!joinFilterFields">
-    <mat-select [(value)]="filter.fieldName" class="mr-4" name="fieldName">
-        <mat-option value="">Column Name</mat-option>
-        <mat-option *ngFor="let field of filterFields" [value]="field.name">{{field.title}}</mat-option>
-    </mat-select>
+    <div class="w-full mr-4">
+        <div>
+            <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="mr-4" name="fieldName">
+                <mat-option value="">-- Select Column Name --</mat-option>
+                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+            </mat-select>
+
+            <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
+                   name="lhsExpression" placeholder="Custom expression" class="mr-4 full">
+        </div>
+        <p class="mt-2 custom-checkbox">
+            <mat-checkbox [(ngModel)]="customLhs"></mat-checkbox>Custom expression
+        </p>
+    </div>
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
-        <mat-option value="">Condition</mat-option>
+        <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{filterType.label}}
         </mat-option>
     </mat-select>
 
-    <input type="text" [(ngModel)]="filter.value" name="filterValue" placeholder="Value" class="mr-4 full">
+    <input type="text" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value" class="mr-4 full">
 </ng-template>
 
 
 <ng-template [ngIf]="joinFilterFields">
-    <mat-select [(value)]="filter.fieldName" class="mr-4" >
-        <mat-option value="">{{joinFieldsName}} Column Name</mat-option>
-        <mat-option *ngFor="let field of joinFilterFields" [value]="field.name">{{field.title}}</mat-option>
-    </mat-select>
+    <div class="w-full mr-4">
+        <div>
+            <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="mr-4" name="fieldName">
+                <mat-option value="">-- Select Column Name --</mat-option>
+                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+            </mat-select>
+
+            <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
+                   name="lhsExpression" placeholder="Custom expression" class="mr-4 full">
+        </div>
+        <p class="mt-2 custom-checkbox">
+            <mat-checkbox [(ngModel)]="customLhs"></mat-checkbox>Custom expression
+        </p>
+    </div>
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
-        <mat-option value="">Condition</mat-option>
+        <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{filterType.label}}
         </mat-option>
     </mat-select>
 
-    <mat-select *ngIf="!customValue" [(value)]="filter.value" class="mr-4" >
-        <mat-option value="">Column Name</mat-option>
-        <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
-    </mat-select>
+    <div class="w-full">
+        <div>
+            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression" class="mr-4" >
+                <mat-option value="">-- Select Column Name --</mat-option>
+                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+            </mat-select>
 
-    <input *ngIf="customValue" type="text" [(ngModel)]="filter.value"
-           name="filterValue" placeholder="Custom value" class="mr-4 full">
-
-    <p class="custom-checkbox">
-        <mat-checkbox [(ngModel)]="customValue"></mat-checkbox>Custom value
-    </p>
+            <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression"
+                   name="filterValue" placeholder="Custom value" class="mr-4 full">
+        </div>
+        <p class="mt-2 custom-checkbox">
+            <mat-checkbox [(ngModel)]="customValue"></mat-checkbox>Custom value
+        </p>
+    </div>
 
 </ng-template>
 

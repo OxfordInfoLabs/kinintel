@@ -50,8 +50,8 @@ export class ConfigureItemComponent implements OnInit {
     public filterJunction = {
         logic: 'AND',
         filters: [{
-            fieldName: '',
-            value: '',
+            lhsExpression: '',
+            rhsExpression: '',
             filterType: ''
         }],
         filterJunctions: []
@@ -165,9 +165,9 @@ export class ConfigureItemComponent implements OnInit {
         const filterType = DatasetFilterComponent.getFilterType(filter.filterType);
 
         if (filter) {
-            details += `<b>Where</b> ${filter.fieldName} `;
+            details += `<b>Where</b> ${filter.lhsExpression} `;
             details += filterType ? filterType.label : '';
-            details += ` ${filter.value}`;
+            details += ` ${filter.rhsExpression}`;
         }
 
         const matchRule = alert.matchRuleConfiguration;

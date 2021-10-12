@@ -30,6 +30,7 @@ export class DatasetFilterComponent implements OnInit {
     @Output() filtersRemoved = new EventEmitter();
 
     public customValue = false;
+    public customLhs = false;
 
     constructor() {
     }

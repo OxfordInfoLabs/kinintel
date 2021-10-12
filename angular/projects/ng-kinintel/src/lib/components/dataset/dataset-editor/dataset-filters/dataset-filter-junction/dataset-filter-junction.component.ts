@@ -25,16 +25,16 @@ export class DatasetFilterJunctionComponent implements OnInit {
     public addFilter(type) {
         if (type === 'single') {
             this.filterJunction.filters.push({
-                fieldName: '',
-                value: '',
+                lhsExpression: '',
+                rhsExpression: '',
                 filterType: ''
             });
         } else if (type === 'group') {
             this.filterJunction.filterJunctions.push({
                 logic: 'AND',
                 filters: [{
-                    fieldName: '',
-                    value: '',
+                    lhsExpression: '',
+                    rhsExpression: '',
                     filterType: ''
                 }],
                 filterJunctions: []

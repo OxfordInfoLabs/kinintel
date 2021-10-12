@@ -26,14 +26,16 @@
 </div>
 <div class="cell-header">
     <div class="badge-holder">
-        <div class="badge-item" *ngFor="let transformation of terminatingTransformations; let i = index"
-            [ngClass]="{active: transformation._active}">
+        <div class="badge-item bg-gray-200 border border-gray-200 mr-1" *ngFor="let transformation of terminatingTransformations; let i = index"
+            [ngClass]="{active: transformation._active, 'bg-opacity-30': !!transformation.exclude}">
             <span class="cursor-pointer" (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
 
-            <button *ngIf="transformation._disable" mat-icon-button (click)="disableTransformation(i)">
-                <mat-icon>block</mat-icon>
+            <button [title]="transformation.exclude ? 'Re-enable this transformation' : 'Disable this transformation'"
+                    mat-icon-button (click)="disableTransformation(transformation)">
+                <mat-icon *ngIf="!transformation.exclude">block</mat-icon>
+                <mat-icon *ngIf="transformation.exclude">replay</mat-icon>
             </button>
-            <button *ngIf="transformation._active" mat-icon-button color="primary" (click)="removeTransformation(transformation, true)">
+            <button title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary" (click)="removeTransformation(transformation, true)">
                 <mat-icon>cancel</mat-icon>
             </button>
         </div>

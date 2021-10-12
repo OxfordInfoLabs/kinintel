@@ -28,8 +28,8 @@ export class EditDashboardAlertComponent implements OnInit {
             filterTransformation: {
                 logic: 'AND',
                 filters: [{
-                    fieldName: '',
-                    value: '',
+                    lhsExpression: '',
+                    rhsExpression: '',
                     filterType: ''
                 }],
                 filterJunctions: []

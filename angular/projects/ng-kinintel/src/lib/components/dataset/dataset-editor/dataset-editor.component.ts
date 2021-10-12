@@ -32,8 +32,8 @@ export class DatasetEditorComponent implements OnInit {
     public filterJunction = {
         logic: 'AND',
         filters: [{
-            fieldName: '',
-            value: '',
+            lhsExpression: '',
+            rhsExpression: '',
             filterType: ''
         }],
         filterJunctions: []
@@ -99,8 +99,8 @@ export class DatasetEditorComponent implements OnInit {
             config: {
                 logic: 'AND',
                 filters: [{
-                    fieldName: '',
-                    value: '',
+                    lhsExpression: '',
+                    rhsExpression: '',
                     filterType: ''
                 }],
                 filterJunctions: []
@@ -133,9 +133,9 @@ export class DatasetEditorComponent implements OnInit {
         }
     }
 
-
     public disableTransformation(transformation) {
-
+        transformation.exclude = !transformation.exclude;
+        this.evaluateDatasource();
     }
 
     public editTerminatingTransformation(transformation) {
