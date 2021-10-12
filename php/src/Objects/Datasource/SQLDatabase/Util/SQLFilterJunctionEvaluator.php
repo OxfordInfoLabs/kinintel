@@ -97,104 +97,75 @@ class SQLFilterJunctionEvaluator {
      */
     private function createFilterStatement($filter, &$parameters, $templateParameters = []) {
 
-        $lhsExpression = $filter->getLhsExpression();
-        $rhsExpression = $filter->getRhsExpression();
-
+        $lhsParams = [];
+        $rhsParams = [];
 
         // Map any square brackets to direct columns with table alias or assume whole string is single column
-        $evaluatedLHS = preg_replace("/\[\[(.*?)\]\]/", ($this->lhsTableAlias ? $this->lhsTableAlias . "." : "") . "$1", $lhsExpression);
-        if ($this->lhsTableAlias && $lhsExpression == $evaluatedLHS) {
-            $evaluatedLHS = $this->lhsTableAlias . "." . $lhsExpression;
-        }
-        $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($evaluatedLHS, $templateParameters);
+        $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getLhsExpression(), $templateParameters, $this->lhsTableAlias, $lhsParams);
+        $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getRhsExpression(), $templateParameters, $this->rhsTableAlias, $rhsParams);
 
-        // Map any param values up front using the template mapper
-        $newParams = [];
-        foreach (is_array($rhsExpression) ? $rhsExpression : [$rhsExpression] as $param) {
-
-            $directParam = $templateParameters[trim($param, "{}")] ?? null;
-            if (is_array($directParam)) {
-                $newParams = array_merge($newParams, $directParam);
-                $rhsExpression = $directParam;
-            } else {
-                $newParam = $this->sqlFilterValueEvaluator->evaluateFilterValue($param, $templateParameters);
-                $newParams[] = $newParam;
-            }
-        }
-
-
-        // Remap the filter value back if not an array
-        $placeholder = "?";
-        if (!is_array($rhsExpression)) {
-            $rhsExpression = $newParams[0];
-
-            // Check for [[]] column syntax
-            $columnReplaced = preg_replace("/\[\[(.*?)\]\]/", ($this->rhsTableAlias ? $this->rhsTableAlias . "." : "") . "$1", $rhsExpression);
-            if ($columnReplaced !== $rhsExpression) {
-                $placeholder = $columnReplaced;
-                $newParams = [];
-            }
-
-        }
 
         $clause = "";
         $expectArray = false;
         switch ($filter->getFilterType()) {
             case Filter::FILTER_TYPE_NOT_EQUALS:
-                $clause = "$lhsExpression <> $placeholder";
+                $clause = "$lhsExpression <> $rhsExpression";
                 break;
             case Filter::FILTER_TYPE_NULL:
                 $clause = "$lhsExpression IS NULL";
-                $newParams = [];
+                $rhsParams = [];
                 break;
             case Filter::FILTER_TYPE_NOT_NULL:
                 $clause = "$lhsExpression IS NOT NULL";
-                $newParams = [];
+                $rhsParams = [];
                 break;
             case Filter::FILTER_TYPE_GREATER_THAN:
-                $clause = "$lhsExpression > $placeholder";
+                $clause = "$lhsExpression > $rhsExpression";
                 break;
             case Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO:
-                $clause = "$lhsExpression >= $placeholder";
+                $clause = "$lhsExpression >= $rhsExpression";
                 break;
             case Filter::FILTER_TYPE_LESS_THAN:
-                $clause = "$lhsExpression < $placeholder";
+                $clause = "$lhsExpression < $rhsExpression";
                 break;
             case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
-                $clause = "$lhsExpression <= $placeholder";
+                $clause = "$lhsExpression <= $rhsExpression";
                 break;
             case Filter::FILTER_TYPE_LIKE:
-                $clause = "$lhsExpression LIKE $placeholder";
-                $newParams = [str_replace("*", "%", $rhsExpression)];
+                $clause = "$lhsExpression LIKE $rhsExpression";
+                $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
                 break;
             case Filter::FILTER_TYPE_BETWEEN:
-                if (!is_array($rhsExpression) || sizeof($rhsExpression) !== 2) {
-                    throw new DatasourceTransformationException("Filter value for $lhsExpression must be a two valued array");
-                }
                 $expectArray = true;
+                if (!is_array($rhsParams) || sizeof($rhsParams) !== 2) {
+                    throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array");
+                }
                 $clause = "$lhsExpression BETWEEN ? AND ?";
                 break;
             case Filter::FILTER_TYPE_IN:
                 $expectArray = true;
-                $clause = "$lhsExpression IN (" . str_repeat("?,", sizeof($rhsExpression) - 1) . "?)";
+                $clause = "$lhsExpression IN (" . $rhsExpression . ")";
                 break;
             case Filter::FILTER_TYPE_NOT_IN:
                 $expectArray = true;
-                $clause = "$lhsExpression NOT IN (" . str_repeat("?,", sizeof($rhsExpression) - 1) . "?)";
+                $clause = "$lhsExpression NOT IN (" . $rhsExpression . ")";
                 break;
             default:
-                $clause = "$lhsExpression = $placeholder";
+                $clause = "$lhsExpression = $rhsExpression";
                 break;
         }
 
 
-        if ($expectArray && !is_array($rhsExpression)) {
-            throw new DatasourceTransformationException("Filter value for $lhsExpression must be an array");
-        } else if (!$expectArray && is_array($rhsExpression)) {
-            throw new DatasourceTransformationException("Filter value for $lhsExpression should not be an array");
+        if (!$expectArray && sizeof($rhsParams) > 1) {
+            throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} should not be an array");
         }
 
-        array_splice($parameters, sizeof($parameters), 0, $newParams);
+
+        // Add both lhs and rhs params
+        array_splice($parameters, sizeof($parameters), 0, $lhsParams);
+        array_splice($parameters, sizeof($parameters), 0, $rhsParams);
+
+
         return $clause;
     }
 

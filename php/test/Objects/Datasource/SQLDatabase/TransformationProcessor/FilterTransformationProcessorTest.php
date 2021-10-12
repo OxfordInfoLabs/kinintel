@@ -30,7 +30,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         try {
             $processor->updateQuery(new FilterTransformation([
-                new Filter("name", ["hello"], Filter::FILTER_TYPE_EQUALS)
+                new Filter("[[name]]", ["hello", "test"], Filter::FILTER_TYPE_EQUALS)
             ]), new SQLQuery("*", "test_data"), [], null);
             $this->fail("Should have thrown here");
         } catch (DatasourceTransformationException $e) {
@@ -38,7 +38,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         }
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "Jeeves")
+            new Filter("[[name]]", "Jeeves")
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name = ?", $query->getSQL());
@@ -52,7 +52,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         try {
             $processor->updateQuery(new FilterTransformation([
-                new Filter("name", ["hello"], Filter::FILTER_TYPE_NOT_EQUALS)
+                new Filter("name", ["hello", "test"], Filter::FILTER_TYPE_NOT_EQUALS)
             ]), new SQLQuery("*", "test_data"), [], null);
             $this->fail("Should have thrown here");
         } catch (DatasourceTransformationException $e) {
@@ -60,7 +60,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         }
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "Jeeves", Filter::FILTER_TYPE_NOT_EQUALS)
+            new Filter("[[name]]", "Jeeves", Filter::FILTER_TYPE_NOT_EQUALS)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name <> ?", $query->getSQL());
@@ -73,7 +73,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testNullFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "", Filter::FILTER_TYPE_NULL)
+            new Filter("[[name]]", "", Filter::FILTER_TYPE_NULL)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name IS NULL", $query->getSQL());
@@ -82,7 +82,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testNotNullFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "", Filter::FILTER_TYPE_NOT_NULL)
+            new Filter("[[name]]", "", Filter::FILTER_TYPE_NOT_NULL)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name IS NOT NULL", $query->getSQL());
@@ -91,7 +91,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testGreaterThanFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", 25, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", 25, Filter::FILTER_TYPE_GREATER_THAN)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age > ?", $query->getSQL());
@@ -103,7 +103,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testGreaterThanEqualFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", 25, Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)
+            new Filter("[[age]]", 25, Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age >= ?", $query->getSQL());
@@ -115,7 +115,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testLessThanFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", 25, Filter::FILTER_TYPE_LESS_THAN)
+            new Filter("[[age]]", 25, Filter::FILTER_TYPE_LESS_THAN)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age < ?", $query->getSQL());
@@ -127,7 +127,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testLessThanEqualFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", 25, Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO)
+            new Filter("[[age]]", 25, Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age <= ?", $query->getSQL());
@@ -142,7 +142,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // Straight like (effectively equals)
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "mark", Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", "mark", Filter::FILTER_TYPE_LIKE)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name LIKE ?", $query->getSQL());
@@ -153,7 +153,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // Wilcarded like using *
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "m*", Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", "m*", Filter::FILTER_TYPE_LIKE)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name LIKE ?", $query->getSQL());
@@ -162,7 +162,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ], $query->getParameters());
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("name", "*m*", Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", "*m*", Filter::FILTER_TYPE_LIKE)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE name LIKE ?", $query->getSQL());
@@ -180,7 +180,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         try {
             $processor->updateQuery(new FilterTransformation([
-                new Filter("age", 18, Filter::FILTER_TYPE_BETWEEN)
+                new Filter("[[age]]", 18, Filter::FILTER_TYPE_BETWEEN)
             ]), new SQLQuery("*", "test_data"), [], null);
             $this->fail("Should have thrown here");
         } catch (DatasourceTransformationException $e) {
@@ -189,7 +189,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         try {
             $processor->updateQuery(new FilterTransformation([
-                new Filter("age", [18], Filter::FILTER_TYPE_BETWEEN)
+                new Filter("[[age]]", [18], Filter::FILTER_TYPE_BETWEEN)
             ]), new SQLQuery("*", "test_data"), [], null);
             $this->fail("Should have thrown here");
         } catch (DatasourceTransformationException $e) {
@@ -198,7 +198,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [18, 65], Filter::FILTER_TYPE_BETWEEN)
+            new Filter("[[age]]", [18, 65], Filter::FILTER_TYPE_BETWEEN)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age BETWEEN ? AND ?", $query->getSQL());
@@ -213,7 +213,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $processor = new FilterTransformationProcessor($this->templateParser);
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_IN)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age IN (?,?,?,?,?,?,?,?,?,?)", $query->getSQL());
@@ -228,7 +228,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $processor = new FilterTransformationProcessor($this->templateParser);
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN)
+            new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?)", $query->getSQL());
@@ -245,8 +245,8 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // And one
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
-            new Filter("weight", 10, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
         ]), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?) AND weight > ?", $query->getSQL());
@@ -257,8 +257,8 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // Or one
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
-            new Filter("weight", 10, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
         ], [], FilterJunction::LOGIC_OR), new SQLQuery("*", "test_data"), [], null);
 
         $this->assertEquals("SELECT * FROM test_data WHERE age NOT IN (?,?,?,?,?,?,?,?,?,?) OR weight > ?", $query->getSQL());
@@ -276,12 +276,12 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // And one
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
-            new Filter("weight", 10, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
         ], [
             new FilterJunction([
-                new Filter("name", "bob%", Filter::FILTER_TYPE_LIKE),
-                new Filter("name", "mary%", Filter::FILTER_TYPE_LIKE),
+                new Filter("[[name]]", "bob%", Filter::FILTER_TYPE_LIKE),
+                new Filter("[[name]]", "mary%", Filter::FILTER_TYPE_LIKE),
             ], [], FilterJunction::LOGIC_OR)
         ]), new SQLQuery("*", "test_data"), [], null);
 
@@ -302,7 +302,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $sourceQuery->setGroupByClause("age, count(*)", "age");
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_IN)
         ]), $sourceQuery, [], null);
 
         $this->assertEquals("SELECT age, count(*) FROM test_data WHERE category = 'tech' GROUP BY age HAVING age IN (?,?,?,?,?,?,?,?,?,?)", $query->getSQL());
@@ -313,20 +313,21 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfParameterValuesPassedThroughTheseAreSubstitutedInLHS(){
+    public function testIfParameterValuesPassedThroughTheseAreSubstitutedInLHSAsPlaceholders() {
 
         $processor = new FilterTransformationProcessor($this->templateParser);
 
         $sourceQuery = new SQLQuery("*", "test_data");
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("'{{jobTitle}}'", "Bobby Brown")
+            new Filter("{{jobTitle}}", "Bobby Brown")
         ]), $sourceQuery, [
             "jobTitle" => "Company Director"
         ], null);
 
-        $this->assertEquals("SELECT * FROM test_data WHERE 'Company Director' = ?", $query->getSQL());
+        $this->assertEquals("SELECT * FROM test_data WHERE ? = ?", $query->getSQL());
         $this->assertEquals([
+            "Company Director",
             "Bobby Brown"
         ], $query->getParameters());
 
@@ -338,7 +339,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $sourceQuery = new SQLQuery("*", "test_data");
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("job", "{{jobTitle}}")
+            new Filter("[[job]]", "{{jobTitle}}")
         ]), $sourceQuery, [
             "jobTitle" => "Company Director"
         ], null);
@@ -351,7 +352,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // Check an array one
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("age", "{{ages}}", Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", "{{ages}}", Filter::FILTER_TYPE_IN)
         ]), $query, [
             "ages" => [10, 11, 12, 13, 14, 15]
         ], null);
@@ -372,7 +373,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $sourceQuery->setGroupByClause("age, count(*)", "age");
 
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("job", "{{jobTitle}}")
+            new Filter("[[job]]", "{{jobTitle}}")
         ]), $sourceQuery, [
             "jobTitle" => "Company Director"
         ], null);
