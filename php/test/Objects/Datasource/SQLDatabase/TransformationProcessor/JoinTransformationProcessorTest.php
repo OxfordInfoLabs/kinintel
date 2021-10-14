@@ -537,7 +537,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T1.name = T2.otherName) S1"),
             $sqlQuery);
 
 
@@ -553,7 +553,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 LEFT JOIN (SELECT * FROM join_table) T4 ON T4.name = ?) S2", [
+        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 LEFT JOIN (SELECT * FROM join_table) T4 ON T3.name = ?) S2", [
             "bobby"
         ]),
             $sqlQuery);
@@ -589,7 +589,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try a simple column based join
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("[[name]]", "*bob*", Filter::FILTER_TYPE_LIKE)]));
+                new Filter("bob", "[[name]]", Filter::FILTER_TYPE_LIKE)]));
 
         $joinTransformation->setEvaluatedDataSource($joinDatasource);
 
@@ -601,9 +601,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 LEFT JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON T2.name LIKE ?) S1",
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 LEFT JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON ? LIKE T2.name) S1",
             [
-                0, "swimming", 1, "%bob%"
+                0, "swimming", 1, "bob"
             ]),
             $sqlQuery);
 
@@ -648,7 +648,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name,T2.category,T2.status FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T2.name = T1.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name,T2.category,T2.status FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T1.name = T2.otherName) S1"),
             $sqlQuery);
 
 

@@ -97,6 +97,7 @@ class SQLFilterJunctionEvaluator {
      */
     private function createFilterStatement($filter, &$parameters, $templateParameters = []) {
 
+
         $lhsParams = [];
         $rhsParams = [];
 
@@ -133,7 +134,10 @@ class SQLFilterJunctionEvaluator {
                 break;
             case Filter::FILTER_TYPE_LIKE:
                 $clause = "$lhsExpression LIKE $rhsExpression";
-                $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
+                if (sizeof($rhsParams))
+                    $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
+                if (sizeof($lhsParams))
+                    $lhsParams[sizeof($lhsParams) - 1] = str_replace("*", "%", $lhsParams[sizeof($lhsParams) - 1]);
                 break;
             case Filter::FILTER_TYPE_BETWEEN:
                 $expectArray = true;
@@ -162,8 +166,12 @@ class SQLFilterJunctionEvaluator {
 
 
         // Add both lhs and rhs params
-        array_splice($parameters, sizeof($parameters), 0, $lhsParams);
-        array_splice($parameters, sizeof($parameters), 0, $rhsParams);
+        if (sizeof($lhsParams))
+            array_splice($parameters, sizeof($parameters), 0, $lhsParams);
+
+
+        if (sizeof($rhsParams))
+            array_splice($parameters, sizeof($parameters), 0, $rhsParams);
 
 
         return $clause;

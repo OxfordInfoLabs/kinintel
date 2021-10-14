@@ -21,7 +21,6 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      * @return \Kinintel\Objects\Datasource\Datasource|void
      */
     public function applyTransformation($transformation, $datasource, $parameterValues = []) {
-        //$datasource->getConfig()->setColumns($transformation->getColumns());
         return $datasource;
     }
 
