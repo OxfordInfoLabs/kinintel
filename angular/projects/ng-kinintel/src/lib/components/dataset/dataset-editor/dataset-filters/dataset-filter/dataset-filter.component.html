@@ -52,7 +52,7 @@
         <div>
             <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression" class="mr-4" >
                 <mat-option value="">-- Select Column Name --</mat-option>
-                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+                <mat-option *ngFor="let field of joinFilterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
             </mat-select>
 
             <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression"
