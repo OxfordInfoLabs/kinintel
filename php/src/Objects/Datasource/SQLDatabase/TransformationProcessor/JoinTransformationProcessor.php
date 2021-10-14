@@ -164,13 +164,14 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 foreach ($columnParameters as $parameterName => $columnName) {
                     $aliasField = "alias_" . ++$this->aliasIndex;
                     $aliasFields[$parameterName] = $aliasField;
-                    $joinFilters[] = new Filter($aliasField, "[[$columnName]]");
+                    $joinFilters[] = new Filter("[[$columnName]]", $aliasField);
                 }
 
                 $joinFilterJunction = new FilterJunction($joinFilters, $transformation->getJoinFilters()
                 && (sizeof($transformation->getJoinFilters()->getFilterJunctions()) || sizeof($transformation->getJoinFilters()->getFilters()))
                     ? [$transformation->getJoinFilters()] : []);
                 $transformation->setJoinFilters($joinFilterJunction);
+
 
 
                 // Now materialise the join data set using column values from parent dataset
@@ -302,6 +303,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $joinCriteria = "1 = 1";
             $joinParameters = [];
             if ($transformation->getJoinFilters() && (sizeof($transformation->getJoinFilters()->getFilters()) || sizeof($transformation->getJoinFilters()->getFilterJunctions()))) {
+
                 $evaluator = new SQLFilterJunctionEvaluator($mainTableAlias, $childTableAlias);
                 $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation->getJoinFilters(), $parameterValues);
                 $joinCriteria = $evaluated["sql"];
