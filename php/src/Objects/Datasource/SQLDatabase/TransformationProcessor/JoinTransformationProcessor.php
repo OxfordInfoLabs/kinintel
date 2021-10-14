@@ -164,14 +164,13 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 foreach ($columnParameters as $parameterName => $columnName) {
                     $aliasField = "alias_" . ++$this->aliasIndex;
                     $aliasFields[$parameterName] = $aliasField;
-                    $joinFilters[] = new Filter("[[$columnName]]", $aliasField);
+                    $joinFilters[] = new Filter("[[$columnName]]", "[[" . $aliasField . "]]");
                 }
 
                 $joinFilterJunction = new FilterJunction($joinFilters, $transformation->getJoinFilters()
                 && (sizeof($transformation->getJoinFilters()->getFilterJunctions()) || sizeof($transformation->getJoinFilters()->getFilters()))
                     ? [$transformation->getJoinFilters()] : []);
                 $transformation->setJoinFilters($joinFilterJunction);
-
 
 
                 // Now materialise the join data set using column values from parent dataset
