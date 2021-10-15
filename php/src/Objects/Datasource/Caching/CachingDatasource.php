@@ -12,6 +12,7 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;

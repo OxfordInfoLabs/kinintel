@@ -69,6 +69,7 @@ class CachingDatasourceConfig {
 
     /**
      * CachingDatasourceConfig constructor.
+     *
      * @param string $sourceDatasourceKey
      * @param DatasourceInstance $sourceDatasource
      * @param string $cachingDatasourceKey
