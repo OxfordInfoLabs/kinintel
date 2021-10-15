@@ -159,6 +159,8 @@ abstract class BaseDatasource implements Datasource {
     /**
      * Materialise the dataset having first checked any validation stuff
      * @param array $parameterValues
+     *
+     * @return Dataset
      */
     public function materialise($parameterValues = []) {
 
