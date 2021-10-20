@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\Caching;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -106,10 +107,10 @@ class CachingDatasource extends BaseDatasource {
         // Check the cache by doing a very limited query based upon
         // cache limits
         $now = (new \DateTime())->format("Y-m-d H:i:s");
-        $cacheThreshold = new \DateTime();
-        if ($config->getCacheExpiryDays()) $cacheThreshold->sub(new \DateInterval("P" . $config->getCacheExpiryDays() . "D"));
-        if ($config->getCacheExpiryHours()) $cacheThreshold->sub(new \DateInterval("PT" . $config->getCacheExpiryHours() . "H"));
-        $cacheThreshold = $cacheThreshold->format("Y-m-d H:i:s");
+        $cacheThresholdObj = new \DateTime();
+        if ($config->getCacheExpiryDays()) $cacheThresholdObj->sub(new \DateInterval("P" . $config->getCacheExpiryDays() . "D"));
+        if ($config->getCacheExpiryHours()) $cacheThresholdObj->sub(new \DateInterval("PT" . $config->getCacheExpiryHours() . "H"));
+        $cacheThreshold = $cacheThresholdObj->format("Y-m-d H:i:s");
 
         // Encode parameters
         $encodedParameters = json_encode($parameterValues);
@@ -130,7 +131,10 @@ class CachingDatasource extends BaseDatasource {
 
         // If no rows returned from cache, materialise the source dataset
         // And store in cache
+        $noSourceResults = false;
         if (!$cacheCheckDataset->nextDataItem()) {
+
+            $noSourceResults = true;
 
             // Materialise the source data set using parameters
             $sourceDatasource = $sourceDatasourceInstance->returnDataSource();
@@ -145,6 +149,7 @@ class CachingDatasource extends BaseDatasource {
             // Insert in batches of 50
             $batch = [];
             while ($sourceItem = $sourceDataset->nextDataItem()) {
+                $noSourceResults = false;
                 $batch[] = array_merge([$config->getCacheDatasourceParametersField() => $encodedParameters,
                     $config->getCacheDatasourceCachedTimeField() => $now], $sourceItem);
                 if (sizeof($batch) == 50) {
@@ -156,6 +161,15 @@ class CachingDatasource extends BaseDatasource {
                 $cacheDatasource->update(new ArrayTabularDataset($fields, $batch));
             }
 
+        }
+
+
+        // if no source results and we have a fallback to older rule in place, move the cache threshold back to the
+        // previous timeframe to allow previous results to flow through if they exist
+        if ($noSourceResults && $config->isFallbackToOlder()) {
+            if ($config->getCacheExpiryDays()) $cacheThresholdObj->sub(new \DateInterval("P" . $config->getCacheExpiryDays() . "D"));
+            if ($config->getCacheExpiryHours()) $cacheThresholdObj->sub(new \DateInterval("PT" . $config->getCacheExpiryHours() . "H"));
+            $cacheThreshold = $cacheThresholdObj->format("Y-m-d H:i:s");
         }
 
 

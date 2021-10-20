@@ -56,6 +56,15 @@ class CachingDatasourceConfig {
 
 
     /**
+     * Flag indicating whether older results should be returned if available
+     * in the case that no results are returned from the source datasource.
+     *
+     * @var bool
+     */
+    private $fallbackToOlder = false;
+
+
+    /**
      * @var string
      * @required
      */
@@ -76,16 +85,18 @@ class CachingDatasourceConfig {
      * @param DatasourceInstance $cachingDatasource
      * @param int $cacheExpiryDays
      * @param int $cacheHours
+     * @poram bool $fallbackToOlder
      */
     public function __construct($sourceDatasourceKey = null, $sourceDatasource = null,
                                 $cachingDatasourceKey = null, $cachingDatasource = null,
-                                $cacheExpiryDays = null, $cacheHours = null) {
+                                $cacheExpiryDays = null, $cacheHours = null, $fallbackToOlder = false) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->sourceDatasource = $sourceDatasource;
         $this->cacheDatasourceKey = $cachingDatasourceKey;
         $this->cacheDatasource = $cachingDatasource;
         $this->cacheExpiryDays = $cacheExpiryDays;
         $this->cacheExpiryHours = $cacheHours;
+        $this->fallbackToOlder = $fallbackToOlder;
     }
 
 
@@ -199,6 +210,20 @@ class CachingDatasourceConfig {
      */
     public function setCacheDatasourceCachedTimeField($cacheDatasourceCachedTimeField) {
         $this->cacheDatasourceCachedTimeField = $cacheDatasourceCachedTimeField;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFallbackToOlder() {
+        return $this->fallbackToOlder;
+    }
+
+    /**
+     * @param bool $fallbackToOlder
+     */
+    public function setFallbackToOlder($fallbackToOlder) {
+        $this->fallbackToOlder = $fallbackToOlder;
     }
 
 

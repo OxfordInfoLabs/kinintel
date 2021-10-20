@@ -245,6 +245,70 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         // Check source data returned directly
         $this->assertEquals($enhancedData, $results);
 
+    }
+
+
+    public function testIfFallbackToOlderConfigSetOlderResultsWillBeReturnedIfTheyExistOnBlankSourceResults() {
+
+        $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
+            new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
+                null, $this->cacheDatasourceInstance, 7, null, true));
+
+        $sevenDaysAgo = (new \DateTime())->sub(new \DateInterval("P7D"));
+
+        $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
+
+        $this->cacheDatasource->returnValue("applyTransformation", $this->cacheDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams),
+                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+            ]);
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+
+        // Return no data from the source
+        $expectedData = new ArrayTabularDataset([], []);
+        $this->sourceDatasource->returnValue("materialise", $expectedData, [
+            ["param1" => "Joe", "param2" => "Bloggs"]
+        ]);
+
+
+        $enhancedData = new ArrayTabularDataset([
+            new Field("parameters"),
+            new Field("cached_time"),
+            new Field("id"),
+            new Field("data")
+        ], [
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 1, "data" => "Hello World"],
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 2, "data" => "Goodbye Jeeves"],
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 3, "data" => "Welcome Bobby"]
+        ]);
+
+        $previousCachedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $previousCachedDatasource->returnValue("materialise", $enhancedData);
+
+        // Look at previous entries (twice as long ago)
+        $fourteenDaysAgo = (new \DateTime())->sub(new \DateInterval("P14D"));
+        $this->cacheDatasource->returnValue("applyTransformation", $previousCachedDatasource, [
+            new FilterTransformation([
+                new Filter("[[parameters]]", $encodedParams),
+                new Filter("[[cached_time]]", $fourteenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)
+            ])
+        ]);
+
+        // Execute and check we got enhanced data back
+        $dataSource = $cachingDatasourceInstance->returnDataSource();
+        $results = $dataSource->materialise(["param1" => "Joe", "param2" => "Bloggs"]);
+        $this->assertEquals($enhancedData, $results);
 
     }
 
