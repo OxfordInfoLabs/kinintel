@@ -118,7 +118,7 @@ class Field {
                 return $fieldMatches[1] ?? $fieldMatches[0] ?? null;
             }
         }, $expression);
-        return $expression;
+        return $expression !== "" ? $expression : null;
     }
 
 
