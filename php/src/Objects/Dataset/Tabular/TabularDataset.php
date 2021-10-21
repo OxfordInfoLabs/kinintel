@@ -74,8 +74,8 @@ abstract class TabularDataset implements Dataset {
             foreach ($this->getColumns() as $column) {
                 $columnName = $column->getName();
 
-                if ($column->getStaticValue()) {
-                    $value = $column->getStaticValue();
+                if ($column->hasValueExpression()) {
+                    $value = $column->evaluateValueExpression($dataItem);
                 } else {
                     $value = $dataItem[$columnName] ?? null;
                 }
