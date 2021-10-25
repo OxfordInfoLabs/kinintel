@@ -16,11 +16,13 @@ export class SourceSelectorDialogComponent implements OnInit {
 
     public datasources: any = [];
     public datasets: any = [];
+    public sharedDatasets: any = [];
     public searchText = new BehaviorSubject('');
     public dashboardDatasetInstance: any;
     public requiredParameters: any = [];
     public updateParams = new Subject();
     public dashboard: any;
+    public admin: boolean;
 
     constructor(public dialogRef: MatDialogRef<SourceSelectorDialogComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -31,17 +33,43 @@ export class SourceSelectorDialogComponent implements OnInit {
     ngOnInit(): void {
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
         this.dashboard = this.data.dashboard;
+        this.admin = this.data.admin;
 
         merge(this.searchText)
             .pipe(
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getDatasets()
+                    this.getDatasets(false)
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
         });
+
+        if (this.admin) {
+            merge(this.searchText)
+                .pipe(
+                    debounceTime(300),
+                    distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getDatasources()
+                    )
+                ).subscribe((sources: any) => {
+                this.datasources = sources;
+            });
+        } else {
+            merge(this.searchText)
+                .pipe(
+                    debounceTime(300),
+                    distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getDatasets(true)
+                    )
+                ).subscribe((datasets: any) => {
+                this.sharedDatasets = datasets;
+            });
+        }
+
     }
 
     public setEvaluatedParameters(parameterValues, evaluate?) {
@@ -114,13 +142,25 @@ export class SourceSelectorDialogComponent implements OnInit {
         }
     }
 
-    private getDatasets() {
+    private getDatasets(shared) {
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
             '5',
-            '0'
+            '0',
+            shared ? null : ''
         ).pipe(map((datasets: any) => {
                 return datasets;
+            })
+        );
+    }
+
+    private getDatasources() {
+        return this.datasourceService.getDatasources(
+            this.searchText.getValue() || '',
+            '5',
+            '0'
+        ).pipe(map((sources: any) => {
+                return sources;
             })
         );
     }

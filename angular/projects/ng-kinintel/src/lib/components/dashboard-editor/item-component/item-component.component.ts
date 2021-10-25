@@ -84,7 +84,7 @@ export class ItemComponentComponent {
         if (!this.alertService) {
             this.alertService = this.kiAlertService;
         }
-console.log('INIT', this.datasourceService);
+
         if (this.dashboard &&
             this.dashboard.displaySettings.heading &&
             this.dashboard.displaySettings.heading[this.itemInstanceKey]) {

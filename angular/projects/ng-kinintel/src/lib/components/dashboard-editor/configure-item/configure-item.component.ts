@@ -109,7 +109,8 @@ export class ConfigureItemComponent implements OnInit {
                     transformationInstances: [],
                     parameterValues: {},
                     parameters: []
-                }
+                },
+                admin: this.admin
             }
         });
 
