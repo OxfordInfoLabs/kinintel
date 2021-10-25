@@ -4,6 +4,7 @@
 namespace Kinintel\Traits\Controller\Admin;
 
 
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Services\Dashboard\DashboardService;
@@ -34,7 +35,11 @@ trait Dashboard {
      * @return DashboardSummary
      */
     public function getDashboard($id) {
-        return $this->dashboardService->getDashboardById($id);
+        try {
+            return $this->dashboardService->getDashboardById($id);
+        } catch (ObjectNotFoundException $e) {
+            return new DashboardSummary("");
+        }
     }
 
 
