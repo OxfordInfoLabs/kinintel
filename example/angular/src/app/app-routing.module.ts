@@ -14,6 +14,7 @@ import {AlertGroupsComponent} from './views/alert-groups/alert-groups.component'
 import {EditAlertGroupComponent} from './views/alert-groups/edit-alert-group/edit-alert-group.component';
 import {NotificationComponent} from './views/notifications/notification/notification.component';
 import {SnapshotsComponent} from './views/snapshots/snapshots.component';
+import {ViewDashboardComponent} from './views/dashboards/view-dashboard/view-dashboard.component';
 
 const routes: Routes = [
     {
@@ -31,6 +32,10 @@ const routes: Routes = [
             {
                 path: 'dashboards/:dashboard',
                 component: DashboardComponent
+            },
+            {
+                path: 'dashboards/view/:dashboard',
+                component: ViewDashboardComponent
             },
             {
                 path: 'dataset',

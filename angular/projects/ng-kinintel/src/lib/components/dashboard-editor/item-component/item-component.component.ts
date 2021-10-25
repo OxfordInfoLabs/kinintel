@@ -16,7 +16,7 @@ import {AlertService} from '../../../services/alert.service';
     templateUrl: './item-component.component.html',
     styleUrls: ['./item-component.component.sass']
 })
-export class ItemComponentComponent implements OnInit, AfterViewInit {
+export class ItemComponentComponent {
 
     @Input() dashboardItemType: any;
     @Input() itemInstanceKey: any;
@@ -26,6 +26,10 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     @Input() grid: any;
 
     @HostBinding('class.justify-center') configureClass = false;
+
+    public datasourceService: any;
+    public datasetService: any;
+    public alertService: any;
 
     public dataset: any;
     public chartData: any;
@@ -63,36 +67,29 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     }
 
     constructor(private dialog: MatDialog,
-                private datasourceService: DatasourceService,
-                private datasetService: DatasetService,
-                private alertService: AlertService) {
+                private kiDatasourceService: DatasourceService,
+                private kiDatasetService: DatasetService,
+                private kiAlertService: AlertService) {
     }
 
-    ngOnInit(): void {
+    public init(): void {
+        if (!this.datasourceService) {
+            this.datasourceService = this.kiDatasourceService;
+        }
+
+        if (!this.datasetService) {
+            this.datasetService = this.kiDatasetService;
+        }
+
+        if (!this.alertService) {
+            this.alertService = this.kiAlertService;
+        }
+console.log('INIT', this.datasourceService);
         if (this.dashboard &&
             this.dashboard.displaySettings.heading &&
             this.dashboard.displaySettings.heading[this.itemInstanceKey]) {
             this.dashboardItemType.headingValue = this.dashboard.displaySettings.heading[this.itemInstanceKey];
         }
-    }
-
-    ngAfterViewInit() {
-        const options = {
-            minRow: 1, // don't collapse when empty
-            float: false,
-            dragIn: '.draggable-toolbar .grid-stack-item', // add draggable to class
-            dragInOptions: {
-                revert: 'invalid',
-                scroll: false,
-                appendTo: 'body',
-                helper: ItemComponentComponent.myClone
-            },
-            acceptWidgets: (el) => {
-                el.className += ' grid-stack-item';
-                return true;
-            }
-        };
-        this.grid = GridStack.init(options);
     }
 
     public configure() {
@@ -125,6 +122,8 @@ export class ItemComponentComponent implements OnInit, AfterViewInit {
     }
 
     public load() {
+        this.init();
+
         if (this.dashboardDatasetInstance) {
             this.loadingItem = true;
             this.configureClass = true;

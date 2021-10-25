@@ -1,0 +1,189 @@
+h2.dashboard-title
+    margin-bottom: 0
+
+.title-input
+    min-width: 300px
+
+.data-actions
+    display: flex
+    align-items: center
+    button
+        margin-left: .5rem
+        background-color: white
+        min-width: 54px
+        mat-icon
+            font-size: 20px
+            width: 20px
+            height: 23px
+            line-height: 20px
+    .divider
+        margin: 0 .5rem 0 1rem
+        width: 2px
+        height: 32px
+        background-color: white
+
+ki-item-component
+    display: flex
+    align-items: center
+    flex-direction: column
+    height: 100%
+    padding-top: 1rem
+    &.alert
+        padding-top: 2rem
+
+mat-drawer-container
+    height: 100%
+    background-color: transparent !important
+    padding: 1rem
+
+.configure-dialog
+    display: flex
+    height: 100vh
+    flex-direction: column
+
+.grid-stack-item-content
+    background-color: white
+    //border: 1px solid #e8e8e8
+    border-radius: 6px
+    position: relative
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.05)
+    .edit-widget
+        position: absolute
+        right: -5px
+        top: 0
+        z-index: 9999
+    .alert-widget
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        background-color: #d01212
+        display: flex
+        align-items: center
+        color: white
+        cursor: pointer
+        padding-right: 1.5rem
+        overflow: hidden
+        white-space: nowrap
+        .alert-summaries
+            overflow: hidden
+            text-overflow: ellipsis
+    &.alert
+        box-shadow: 0 0 6px 0 rgba(194, 13, 13)
+        .edit-widget
+            color: white
+    &::-webkit-scrollbar
+        width: 0.5em
+        height: 0.5em
+        background: transparent
+    &::-webkit-scrollbar-thumb
+        background: #d3d3d3
+
+    &:hover
+        .remove-widget, .edit-widget
+            display: block
+.draggable-toolbar
+    width: 100%
+    display: flex
+    padding: 1rem .5rem
+    cursor: default
+    .grid-stack-item
+        margin-right: .5rem
+        .grid-stack-item-content
+            display: flex
+            align-items: center
+            justify-content: center
+            width: 100px
+            height: 78px
+            flex-direction: column
+
+.action-toolbar
+    display: flex
+    align-items: center
+    justify-content: space-between
+    padding: 1rem .5rem
+
+.dashboard-parameters
+    display: flex
+    align-items: center
+    margin: 0 0 .5rem .5rem
+    .divider
+        margin: 0 1rem
+        width: 2px
+        height: 36px
+        background-color: #e0e0e0
+        align-self: flex-end
+    button
+        align-self: flex-end
+        //background-color: #eaeaea
+        margin-left: .5rem
+    label
+        font-size: .8rem
+        .parameter-input
+            //background-color: #eaeaea
+            border-radius: 4px
+            //padding-left: .5rem
+            height: 36px
+            display: flex
+            align-items: center
+            button
+                color: #8e8e8e
+                &.mat-icon-button
+                    width: 30px
+                    height: 30px
+                    line-height: 30px
+                    align-self: center
+                    mat-icon
+                        font-size: 20px
+                        width: 20px
+                        height: 20px
+                        line-height: 20px
+            input
+                font-size: .9rem
+                padding: .45rem
+                width: 175px
+
+.dashboard-editor-panel
+    width: 300px
+    background-color: whitesmoke
+    .panel-head
+        display: flex
+        align-items: center
+        padding: .5rem .5rem .5rem 1rem
+        border-bottom: 1px solid #e8e8e8
+        margin-bottom: 1rem
+        justify-content: space-between
+        p
+            margin: 0
+            text-transform: uppercase
+            font-size: 1.1rem
+            font-weight: 300
+
+.badge-holder
+    display: flex
+    align-items: center
+    margin: .25rem 0
+    .badge-item
+        display: flex
+        align-items: center
+        background-color: #efefef
+        padding-left: 1rem
+        border-radius: 20px
+        &.outline
+            background-color: white
+            border: 1px solid #efefef
+        span
+            margin-right: .5rem
+            color: rgba(0,0,0,0.54)
+        button.mat-icon-button
+            width: 33px
+            height: 33px
+            line-height: 33px
+            mat-icon
+                font-size: 20px
+                height: 20px
+                width: 20px
+                line-height: 20px
+                color: rgba(0,0,0,0.54)
+
+
