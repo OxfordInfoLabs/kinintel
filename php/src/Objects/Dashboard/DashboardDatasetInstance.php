@@ -36,14 +36,6 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
 
 
     /**
-     * Instance id for the referenced data set if using
-     *
-     * @var integer
-     */
-    private $datasetInstanceId;
-
-
-    /**
      * @var Alert[]
      * @oneToMany
      * @childJoinColumns dashboard_id,dashboard_dataset_instance_id
@@ -98,19 +90,6 @@ class DashboardDatasetInstance extends BaseDatasetInstance {
         $this->instanceKey = $instanceKey;
     }
 
-    /**
-     * @return int
-     */
-    public function getDatasetInstanceId() {
-        return $this->datasetInstanceId;
-    }
-
-    /**
-     * @param int $datasetInstanceId
-     */
-    public function setDatasetInstanceId($datasetInstanceId) {
-        $this->datasetInstanceId = $datasetInstanceId;
-    }
 
     /**
      * @return Alert[]

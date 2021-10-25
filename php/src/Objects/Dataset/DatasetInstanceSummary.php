@@ -30,12 +30,20 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
     protected $title;
 
     /**
-     * Redeclared instance key with required validation
+     * Key for datasource this dataset builds upon if not based on a dataset
      *
      * @var string
-     * @required
+     * @requiredEither datasetInstanceId
      */
     protected $datasourceInstanceKey;
+
+
+    /**
+     * Parent dataset instance which this dataset builds upon if not built from a data source directly.
+     *
+     * @var string
+     */
+    protected $datasetInstanceId;
 
 
     /**
@@ -47,30 +55,26 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
 
 
     /**
-     * @var boolean
-     */
-    private $readOnly;
-
-
-    /**
      * DatasetInstance constructor.
      * @param string $title
-     * @param $datasourceInstanceKey
+     * @param null $datasourceInstanceKey
+     * @param null $datasetInstanceId
      * @param TransformationInstance[] $transformationInstances
      * @param array $parameters
      * @param mixed[] $parameterValues
-     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfiles
      * @param integer $id
+     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfiles
      */
-    public function __construct($title, $datasourceInstanceKey, $transformationInstances = [], $parameters = [],
-                                $parameterValues = [], $id = null, $readOnly = false) {
+    public function __construct($title, $datasourceInstanceKey = null, $datasetInstanceId = null, $transformationInstances = [], $parameters = [],
+                                $parameterValues = [], $id = null) {
         $this->title = $title;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
+        $this->datasetInstanceId = $datasetInstanceId;
         $this->transformationInstances = $transformationInstances;
         $this->parameters = $parameters;
         $this->parameterValues = $parameterValues;
         $this->id = $id;
-        $this->readOnly = $readOnly;
+        $this->datasetInstanceId = $datasetInstanceId;
     }
 
     /**
@@ -106,13 +110,6 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      */
     public function setTags($tags) {
         $this->tags = $tags;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isReadOnly() {
-        return $this->readOnly;
     }
 
 

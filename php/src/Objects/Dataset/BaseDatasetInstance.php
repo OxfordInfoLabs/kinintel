@@ -9,6 +9,7 @@ use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -21,6 +22,16 @@ class BaseDatasetInstance extends ActiveRecord {
      * @var string
      */
     protected $datasourceInstanceKey;
+
+
+    /**
+     * Instance id for the referenced data set if using
+     *
+     * @var integer
+     */
+    protected $datasetInstanceId;
+
+
     /**
      * Array of transformation instances applied in sequence
      * to get to the final data set
@@ -111,6 +122,20 @@ class BaseDatasetInstance extends ActiveRecord {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
 
+    /**
+     * @return int
+     */
+    public function getDatasetInstanceId() {
+        return $this->datasetInstanceId;
+    }
+
+    /**
+     * @param int $datasetInstanceId
+     */
+    public function setDatasetInstanceId($datasetInstanceId) {
+        $this->datasetInstanceId = $datasetInstanceId;
+    }
+
 
     /**
      * Implement validate method to perform additional validation as required
@@ -132,6 +157,20 @@ class BaseDatasetInstance extends ActiveRecord {
                 $validationErrors["datasourceInstanceKey"] = new FieldValidationError("datasourceInstanceKey", "notfound", "Data source with instance key '{$this->datasourceInstanceKey}' does not exist");
             }
 
+        }
+
+        // Confirm that the dataset instance exists if an id supplied.
+        if ($this->datasetInstanceId) {
+            /**
+             * @var DatasetService $dataSetService
+             */
+            $dataSetService = Container::instance()->get(DatasetService::class);
+
+            try {
+                $dataSetService->getDataSetInstance($this->datasetInstanceId);
+            } catch (ObjectNotFoundException $e) {
+                $validationErrors["datasetInstanceId"] = new FieldValidationError("datasetInstanceId", "notfound", "Data set with instance id '{$this->datasetInstanceId}' does not exist");
+            }
         }
 
 

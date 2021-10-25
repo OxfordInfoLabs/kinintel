@@ -42,7 +42,7 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     public function __construct($datasetInstanceSummary = null, $accountId = null, $projectKey = null) {
         if ($datasetInstanceSummary instanceof DatasetInstanceSummary)
-            parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getTransformationInstances(),
+            parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getDatasetInstanceId(), $datasetInstanceSummary->getTransformationInstances(),
                 $datasetInstanceSummary->getParameters(),
                 $datasetInstanceSummary->getParameterValues(),
                 $datasetInstanceSummary->getId());
@@ -76,8 +76,12 @@ class DatasetInstance extends DatasetInstanceSummary {
         $securityService = Container::instance()->get(SecurityService::class);
         $readOnly = !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
 
-        return new DatasetInstanceSummary($this->title, $this->datasourceInstanceKey,
-            $this->transformationInstances, $this->parameters, $this->parameterValues, $this->id, $readOnly);
+        return new DatasetInstanceSummary($this->title, $readOnly ? null : $this->datasourceInstanceKey,
+            $readOnly ? $this->id : $this->datasetInstanceId,
+            $readOnly ? [] : $this->transformationInstances,
+            $readOnly ? [] : $this->parameters,
+            $readOnly ? [] : $this->parameterValues,
+            $readOnly ? null : $this->id, $readOnly);
     }
 
 

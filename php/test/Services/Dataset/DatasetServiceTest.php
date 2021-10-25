@@ -10,6 +10,9 @@ use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
+use Kinikit\Core\Serialisation\JSON\ObjectToJSONConverter;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
@@ -28,6 +31,7 @@ use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -60,8 +64,9 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testDataSourceAndTransformationsAreValidatedOnDataSetSave() {
+    public function testDataSourceDatasetAndTransformationsAreValidatedOnDataSetSave() {
 
+        // Bad datasource
         $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "badsource");
 
         try {
@@ -72,7 +77,18 @@ class DatasetServiceTest extends TestBase {
         }
 
 
-        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
+        // Bad dataset
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", null, 500);
+
+        try {
+            $this->datasetService->saveDataSetInstance($dataSetInstance, null, Account::LOGGED_IN_ACCOUNT);
+            $this->fail("Should have thrown here");
+        } catch (ValidationException $e) {
+            $this->assertTrue(isset($e->getValidationErrors()["datasetInstanceId"]));
+        }
+
+
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
             new TransformationInstance("badtrans")
         ]);
 
@@ -84,7 +100,7 @@ class DatasetServiceTest extends TestBase {
         }
 
 
-        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
             new TransformationInstance("Kinintel\ValueObjects\Transformation\TestTransformation", new TestTransformation())
         ]);
 
@@ -102,7 +118,7 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
-        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
             new TransformationInstance("filter", new FilterTransformation([
                 new Filter("property", "foobar")
             ])),
@@ -170,7 +186,7 @@ class DatasetServiceTest extends TestBase {
         // Log in as a person with projects and tags
         AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
 
-        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", [
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
             new TransformationInstance("filter", new FilterTransformation([
                 new Filter("property", "foobar")
             ]))
@@ -320,7 +336,7 @@ class DatasetServiceTest extends TestBase {
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
 
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", [], [], []);
+        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
         $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
 
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
@@ -463,7 +479,7 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $datasetSummary = new DatasetInstanceSummary("My Test", "test-json", [], [
+        $datasetSummary = new DatasetInstanceSummary("My Test", "test-json", null, [], [
             new Parameter("datasetParam1", "Dataset Param 1"), new Parameter("datasetParam2", "Dataset Param 2")
         ]);
 
@@ -487,30 +503,139 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testReadOnlyFlagSetOnSummaryCorrectlyIfAccountIdNullAndLoggedInAsRegularUser() {
+    public function testCanEvaluateDatasourceBasedDatasetUsingSuppliedParamsAndAdditionalTransformations() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), 1, null);
-        $summary = $dataSet->returnSummary();
-        $this->assertFalse($summary->isReadOnly());
+
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "foobar")
+            ]))
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
+        ]);
+
+        $this->datasetService->getEvaluatedDataSetForDataSetInstance($dataSetInstance, ["customParam" => "Hello"], [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "bingo")
+            ]))
+        ], 10, 30);
 
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), null, null);
+        // Check data is merged together and evaluated on data source
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+            "test-json",
+            ["param1" => "Test",
+                "param2" => 44,
+                "param3" => true, "customParam" => "Hello"], [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("property", "foobar")
+                ])),
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("property", "bingo")
+                ]))
+            ], 10, 30
+        ]));
+
+    }
+
+
+    public function testCanEvaluateDatasetBasedDatasetUsingSuppliedParametersAndAdditionalTransformations() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "foobar")
+            ]))
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
+        ]);
+        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstance, null, null);
+
+
+        $extendedDataSetInstance = new DatasetInstanceSummary("Extended Dataset", null, $instanceId, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "pickle")
+            ]))
+        ], [
+            new Parameter("extendedParam", "Extended Parameter")
+        ], [
+            "extendedParam" => 33
+        ]);
+
+
+        $this->datasetService->getEvaluatedDataSetForDataSetInstance($extendedDataSetInstance, ["customParam" => "Hello"], [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "bingo")
+            ]))
+        ], 10, 30);
+
+
+        $converter = Container::instance()->get(ObjectToJSONConverter::class);
+        $unconverter = Container::instance()->get(JSONToObjectConverter::class);
+
+        // Check data is merged together and evaluated on data source
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+            "test-json",
+            ["param1" => "Test",
+                "param2" => 44,
+                "param3" => true, "extendedParam" => 33, "customParam" => "Hello"],
+            [
+                new TransformationInstance("filter", $unconverter->convert($converter->convert(new FilterTransformation([
+                    new Filter("property", "foobar")
+                ])))),
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("property", "pickle")
+                ])),
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("property", "bingo")
+                ]))
+            ], 10, 30
+        ]));
+
+    }
+
+
+    public function testSummaryReturnedReferencingOriginalDatasetIdIfAccountIdNullAndLoggedInAsRegularUser() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], 25), 1, null);
         $summary = $dataSet->returnSummary();
-        $this->assertFalse($summary->isReadOnly());
+        $this->assertEquals("test", $summary->getDatasourceInstanceKey());
+        $this->assertEquals(25, $summary->getId());
+
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], 25), null, null);
+        $summary = $dataSet->returnSummary();
+        $this->assertEquals("test", $summary->getDatasourceInstanceKey());
+        $this->assertEquals(25, $summary->getId());
 
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), 1, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], 25), 1, null);
         $summary = $dataSet->returnSummary();
-        $this->assertFalse($summary->isReadOnly());
+        $this->assertEquals("test", $summary->getDatasourceInstanceKey());
+        $this->assertEquals(25, $summary->getId());
 
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test"), null, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [new TransformationInstance("test", ["bingo" => "hello"])], [new Parameter("customParam", "Custom Parameter")], ["customParam" => "Bob"], 25), null, null);
         $summary = $dataSet->returnSummary();
-        $this->assertTrue($summary->isReadOnly());
+        $this->assertNull($summary->getDatasourceInstanceKey());
+        $this->assertEquals(25, $summary->getDatasetInstanceId());
+        $this->assertEquals(null, $summary->getId());
+        $this->assertEquals([], $summary->getTransformationInstances());
+        $this->assertEquals([], $summary->getParameters());
+        $this->assertEquals([], $summary->getParameterValues());
 
     }
 

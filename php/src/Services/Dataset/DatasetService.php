@@ -281,9 +281,9 @@ class DatasetService {
      * @param $dataSetInstanceId
      * @param TransformationInstance[] $additionalTransformations
      */
-    public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $additionalTransformations = []) {
+    public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
         $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId);
-        return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations);
+        return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
 
 
@@ -296,12 +296,19 @@ class DatasetService {
      * @param TransformationInstance[] $additionalTransformations
      *
      */
-    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $additionalTransformations = [], $offset = 0, $limit = 25) {
+    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
 
+        // Aggregate transformations and parameter values.
         $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
+        $parameterValues = array_merge($dataSetInstance->getParameterValues() ?? [], $parameterValues ?? []);
 
-        return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), $dataSetInstance->getParameterValues(),
-            $transformations, $offset, $limit);
+        // Call the appropriate function depending whether a datasource / dataset was being targeted.
+        if ($dataSetInstance->getDatasourceInstanceKey()) {
+            return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), $parameterValues,
+                $transformations, $offset, $limit);
+        } else if ($dataSetInstance->getDatasetInstanceId()) {
+            return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(),$parameterValues,$transformations, $offset, $limit);
+        }
     }
 
 

@@ -7,6 +7,8 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
+use Kinintel\ValueObjects\Dataset\EvaluatedDataset;
+use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
@@ -99,6 +101,20 @@ trait Dataset {
      */
     public function getEvaluatedParameters($id) {
         return $this->datasetService->getEvaluatedParameters($id);
+    }
+
+
+    /**
+     * Evaluate a dataset and return a dataset
+     *
+     * @http POST /evaluate
+     *
+     * @param EvaluatedDataset $evaluatedDataset
+     * @return \Kinintel\Objects\Dataset\Dataset
+     */
+    public function evaluateDataset($evaluatedDataset) {
+        return $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($evaluatedDataset->getInstanceId(), $evaluatedDataset->getParameterValues(), $evaluatedDataset->getTransformationInstances(),
+            $evaluatedDataset->getOffset() ?? 0, $evaluatedDataset->getLimit() ?? 25);
     }
 
 
