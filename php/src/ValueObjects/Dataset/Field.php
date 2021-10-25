@@ -24,9 +24,11 @@ class Field {
 
 
     /**
+     * A static value for this field
+     *
      * @var mixed
      */
-    private $staticValue;
+    private $valueExpression;
 
 
     /**
@@ -47,8 +49,10 @@ class Field {
      *
      * @param string $name
      * @param string $title
+     * @param string $valueExpression
+     * @param string $type
      */
-    public function __construct($name, $title = null, $staticValue = null, $type = self::TYPE_STRING) {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING) {
         $this->name = $name;
 
         // If no title supplied, make one using the name
@@ -57,7 +61,7 @@ class Field {
         }
 
         $this->title = $title;
-        $this->staticValue = $staticValue;
+        $this->valueExpression = $valueExpression;
         $this->type = $type;
     }
 
@@ -79,8 +83,16 @@ class Field {
     /**
      * @return mixed
      */
-    public function getStaticValue() {
-        return $this->staticValue;
+    public function getValueExpression() {
+        return $this->valueExpression;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function hasValueExpression() {
+        return $this->valueExpression ? true : false;
     }
 
     /**
@@ -88,6 +100,25 @@ class Field {
      */
     public function getType() {
         return $this->type;
+    }
+
+
+    /**
+     * Evaluate the value expression defined using a supplied data item
+     *
+     * @param $dataItem
+     */
+    public function evaluateValueExpression($dataItem) {
+        $expression = $this->valueExpression;
+        $expression = preg_replace_callback("/\\[\\[(.*?)(:.*?)*\\]\\]/", function ($matches) use ($dataItem) {
+            if (sizeof($matches) == 2) {
+                return $dataItem[$matches[1]] ?? null;
+            } else if (sizeof($matches) == 3) {
+                preg_match(substr($matches[2], 1), $dataItem[$matches[1]] ?? "", $fieldMatches);
+                return $fieldMatches[1] ?? $fieldMatches[0] ?? null;
+            }
+        }, $expression);
+        return $expression !== "" ? $expression : null;
     }
 
 

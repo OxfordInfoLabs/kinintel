@@ -49,7 +49,7 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
         $evaluatedColumns = [];
         foreach ($this->columns ?? [] as $column) {
             $evaluatedColumns[] = new Field($column->getName(), $column->getTitle(),
-                $templateParser->parseTemplateText($column->getStaticValue(), $parameterValues));
+                $templateParser->parseTemplateText($column->getValueExpression(), $parameterValues));
         }
         return $evaluatedColumns;
     }

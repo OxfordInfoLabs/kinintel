@@ -59,6 +59,7 @@ import { EditDashboardAlertComponent } from './components/dashboard-editor/confi
 import { SnapshotProfileDialogComponent } from './components/data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 import { TaskTimePeriodsComponent } from './components/task-time-periods/task-time-periods.component';
 import { SnapshotsComponent } from './components/snapshots/snapshots.component';
+import { ViewDashboardComponent } from './components/dashboards/view-dashboard/view-dashboard.component';
 
 
 @NgModule({
@@ -94,7 +95,8 @@ import { SnapshotsComponent } from './components/snapshots/snapshots.component';
         EditDashboardAlertComponent,
         SnapshotProfileDialogComponent,
         TaskTimePeriodsComponent,
-        SnapshotsComponent
+        SnapshotsComponent,
+        ViewDashboardComponent
     ],
     imports: [
         BrowserModule,
@@ -145,7 +147,8 @@ import { SnapshotsComponent } from './components/snapshots/snapshots.component';
         EditNotificationGroupComponent,
         AlertGroupsComponent,
         EditAlertGroupComponent,
-        SnapshotsComponent
+        SnapshotsComponent,
+        ViewDashboardComponent
     ]
 })
 export class NgKinintelModule {

@@ -33,6 +33,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import { NotificationComponent } from './views/notifications/notification/notification.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import { SnapshotsComponent } from './views/snapshots/snapshots.component';
+import { ViewDashboardComponent } from './views/dashboards/view-dashboard/view-dashboard.component';
 
 @NgModule({
     declarations: [
@@ -50,7 +51,8 @@ import { SnapshotsComponent } from './views/snapshots/snapshots.component';
         AlertGroupsComponent,
         EditAlertGroupComponent,
         NotificationComponent,
-        SnapshotsComponent
+        SnapshotsComponent,
+        ViewDashboardComponent
     ],
     imports: [
         BrowserModule,

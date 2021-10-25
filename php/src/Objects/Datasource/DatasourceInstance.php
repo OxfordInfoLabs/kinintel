@@ -311,7 +311,10 @@ class DatasourceInstance extends DatasourceInstanceSummary {
             $dataSource = Container::instance()->new($dataSourceClass);
 
             if ($dataSource->getConfigClass()) {
-                $config = $objectBinder->bindFromArray($this->config ?? [], $dataSource->getConfigClass());
+                if (is_a($this->config, $dataSource->getConfigClass()))
+                    $config = $this->config;
+                else
+                    $config = $objectBinder->bindFromArray($this->config ?? [], $dataSource->getConfigClass());
                 $dataSource->setConfig($config);
             }
 

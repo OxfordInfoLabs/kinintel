@@ -23,5 +23,6 @@ export * from './lib/components/notification-groups/edit-notification-group/edit
 export * from './lib/components/alert-groups/alert-groups.component';
 export * from './lib/components/alert-groups/edit-alert-group/edit-alert-group.component';
 export * from './lib/components/snapshots/snapshots.component';
+export * from './lib/components/dashboards/view-dashboard/view-dashboard.component';
 
 export * from './lib/ng-kinintel.module';

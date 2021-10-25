@@ -10,22 +10,21 @@ import 'gridstack/dist/gridstack.min.css';
 import {GridStack, GridStackNode} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
-import {ItemComponentComponent} from './item-component/item-component.component';
+import {ItemComponentComponent} from '../../dashboard-editor/item-component/item-component.component';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DashboardService} from '../../services/dashboard.service';
+import {DashboardService} from '../../../services/dashboard.service';
 import * as _ from 'lodash';
-import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {AlertService} from '../../services/alert.service';
+import {AlertService} from '../../../services/alert.service';
 
 @Component({
-    selector: 'ki-dashboard-editor',
-    templateUrl: './dashboard-editor.component.html',
-    styleUrls: ['./dashboard-editor.component.sass'],
+    selector: 'ki-view-dashboard',
+    templateUrl: './view-dashboard.component.html',
+    styleUrls: ['./view-dashboard.component.sass'],
     encapsulation: ViewEncapsulation.None
 })
-export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -33,57 +32,11 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         return this.dashboard.displaySettings && this.dashboard.displaySettings.fullScreen;
     }
 
-    public itemTypes: any = [
-        {
-            type: 'line',
-            label: 'Line Chart',
-            icon: 'show_chart',
-            width: 6,
-            height: 4
-        },
-        {
-            type: 'bar',
-            label: 'Bar Chart',
-            icon: 'stacked_bar_chart',
-            width: 4,
-            height: 3
-        },
-        {
-            type: 'pie',
-            label: 'Pie Chart',
-            icon: 'pie_chart',
-            width: 6,
-            height: 5
-        },
-        {
-            type: 'table',
-            label: 'Table',
-            icon: 'table_chart',
-            width: 5,
-            height: 7
-        },
-        {
-            type: 'doughnut',
-            label: 'Doughnut',
-            icon: 'donut_large',
-            width: 6,
-            height: 5
-        },
-        {
-            type: 'metric',
-            label: 'Metric',
-            icon: 'trending_up',
-            width: 3,
-            height: 2
-        },
-        {
-            type: 'heading',
-            label: 'Heading',
-            icon: 'title',
-            width: 4,
-            height: 1
-        }
-    ];
+    @Input() dashboardService: any;
+    @Input() alertService: any;
+    @Input() datasetService: any;
+    @Input() datasourceService: any;
+
     public dashboard: any = {};
     public activeSidePanel: string = null;
     public _ = _;
@@ -108,22 +61,28 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     private grid: GridStack;
 
-    public static myClone(event) {
-        return event.target.cloneNode(true);
-    }
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
                 private injector: Injector,
                 private route: ActivatedRoute,
-                private dashboardService: DashboardService,
+                private kiDashboardService: DashboardService,
                 private dialog: MatDialog,
                 private snackBar: MatSnackBar,
                 private router: Router,
-                private alertService: AlertService) {
+                private kiAlertService: AlertService) {
     }
 
     ngOnInit(): void {
+        if (!this.dashboardService) {
+            this.dashboardService = this.kiDashboardService;
+        }
+
+        if (!this.alertService) {
+            this.alertService = this.kiAlertService;
+        }
+
+
         this.route.queryParams.subscribe(params => {
             this.admin = !!params.a;
         });
@@ -132,20 +91,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
-            float: false,
+            float: true,
             cellHeight: 50,
             minW: 1024,
-            dragIn: '.draggable-toolbar .grid-stack-item', // add draggable to class
-            dragInOptions: {
-                revert: 'invalid',
-                scroll: false,
-                appendTo: 'body',
-                helper: DashboardEditorComponent.myClone
-            },
-            acceptWidgets: (el) => {
-                el.className += ' grid-stack-item';
-                return true;
-            }
+            disableOneColumnMode: true
         };
         this.grid = GridStack.init(options);
 
@@ -168,7 +117,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 this.addComponentToGridItem(item.el.firstChild, instanceId,
-                    dashboardItemType || this.itemTypes[item.el.dataset.index], !!dashboardItemType);
+                    dashboardItemType, !!dashboardItemType);
             });
             if (this.dashboard.displaySettings.inset) {
                 this.updateGridSpacing(this.dashboard.displaySettings.inset, false);
@@ -241,36 +190,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
-    public addParameter() {
-        const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
-            width: '600px',
-            height: '600px'
-        });
-        dialogRef.afterClosed().subscribe(parameter => {
-            if (parameter) {
-                if (!this.dashboard.layoutSettings) {
-                    this.dashboard.layoutSettings = {};
-                }
-                if (!this.dashboard.layoutSettings.parameters) {
-                    this.dashboard.layoutSettings.parameters = {};
-                }
-
-                parameter.value = parameter.defaultValue || '';
-                this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
-            }
-            this.dashboardService.saveDashboard(this.dashboard);
-        });
-    }
-
-    public removeParameter(parameter) {
-        const message = 'Are you sure you would like to remove this parameter. This may cause some dashboard items ' +
-            'to fail.';
-        if (window.confirm(message)) {
-            delete this.dashboard.layoutSettings.parameters[parameter.name];
-            this.dashboardService.saveDashboard(this.dashboard);
-        }
-    }
-
     public setParameterValue() {
         const parameters = _.values(this.dashboard.layoutSettings.parameters);
         parameters.forEach(parameter => {
@@ -328,6 +247,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         componentRef.instance.admin = this.admin;
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
+        componentRef.instance.datasetService = this.datasetService;
+        componentRef.instance.datasourceService = this.datasourceService;
+        componentRef.instance.alertService = this.alertService;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
@@ -370,4 +292,3 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
 }
-
