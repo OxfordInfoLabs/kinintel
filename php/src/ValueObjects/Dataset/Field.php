@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\StringUtils;
 
 class Field {
@@ -112,13 +113,24 @@ class Field {
         $expression = $this->valueExpression;
         $expression = preg_replace_callback("/\\[\\[(.*?)(:.*?)*\\]\\]/", function ($matches) use ($dataItem) {
             if (sizeof($matches) == 2) {
-                return $dataItem[$matches[1]] ?? null;
+                return $this->expandMemberExpression($matches[1], $dataItem);
             } else if (sizeof($matches) == 3) {
-                preg_match(substr($matches[2], 1), $dataItem[$matches[1]] ?? "", $fieldMatches);
+                preg_match(substr($matches[2], 1), $this->expandMemberExpression($matches[1], $dataItem), $fieldMatches);
                 return $fieldMatches[1] ?? $fieldMatches[0] ?? null;
             }
         }, $expression);
         return $expression !== "" ? $expression : null;
+    }
+
+
+    // Expand member expression
+    private function expandMemberExpression($expression, $dataItem) {
+
+        $explodedExpression = explode(".", $expression);
+        foreach ($explodedExpression as $expression) {
+            $dataItem = $dataItem[$expression] ?? null;
+        }
+        return $dataItem;
     }
 
 

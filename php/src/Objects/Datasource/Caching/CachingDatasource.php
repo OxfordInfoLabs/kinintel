@@ -141,10 +141,14 @@ class CachingDatasource extends BaseDatasource {
             $sourceDataset = $sourceDatasource->materialise($parameterValues);
 
             // Create merged fields ready for insert
-            $fields = array_merge([
+            $targetFields = [
                 new Field($config->getCacheDatasourceParametersField()),
                 new Field($config->getCacheDatasourceCachedTimeField())
-            ], $sourceDataset->getColumns());
+            ];
+            // Recreate target fields to ensure we remove any mapping rules to avoid strangeness.
+            foreach ($sourceDataset->getColumns() as $column) {
+                $targetFields[] = new Field($column->getName(), $column->getTitle());
+            }
 
             // Insert in batches of 50
             $batch = [];
@@ -153,12 +157,12 @@ class CachingDatasource extends BaseDatasource {
                 $batch[] = array_merge([$config->getCacheDatasourceParametersField() => $encodedParameters,
                     $config->getCacheDatasourceCachedTimeField() => $now], $sourceItem);
                 if (sizeof($batch) == 50) {
-                    $cacheDatasource->update(new ArrayTabularDataset($fields, $batch));
+                    $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch));
                     $batch = [];
                 }
             }
             if (sizeof($batch)) {
-                $cacheDatasource->update(new ArrayTabularDataset($fields, $batch));
+                $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch));
             }
 
         }

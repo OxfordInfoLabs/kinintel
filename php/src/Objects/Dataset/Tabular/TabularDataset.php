@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Dataset\Tabular;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Dataset\Field;

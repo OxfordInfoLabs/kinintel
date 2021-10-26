@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\ResultFormatter;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Util\Primitive;
 use Kinintel\Objects\Dataset\Dataset;

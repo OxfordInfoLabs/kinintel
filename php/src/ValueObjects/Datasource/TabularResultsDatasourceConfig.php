@@ -5,6 +5,7 @@ namespace Kinintel\ValueObjects\Datasource;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\ValueObjects\Dataset\Field;
 
@@ -45,12 +46,18 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
      * @param array $parameterValues
      */
     public function returnEvaluatedColumns($parameterValues = []) {
-        $templateParser = Container::instance()->get(TemplateParser::class);
         $evaluatedColumns = [];
         foreach ($this->columns ?? [] as $column) {
+
+            $valueExpression = preg_replace_callback("/{{(.*?)}}/", function ($matches) use ($parameterValues) {
+                return $parameterValues[$matches[1]] ?? "";
+            }, $column->getValueExpression());
+
             $evaluatedColumns[] = new Field($column->getName(), $column->getTitle(),
-                $templateParser->parseTemplateText($column->getValueExpression(), $parameterValues));
+                $valueExpression);
+
         }
+
         return $evaluatedColumns;
     }
 

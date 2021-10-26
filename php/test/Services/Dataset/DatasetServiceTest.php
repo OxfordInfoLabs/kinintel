@@ -483,8 +483,6 @@ class DatasetServiceTest extends TestBase {
             new Parameter("datasetParam1", "Dataset Param 1"), new Parameter("datasetParam2", "Dataset Param 2")
         ]);
 
-        $newId = $this->datasetService->saveDataSetInstance($datasetSummary, null, null);
-
         $this->datasourceService->returnValue("getEvaluatedParameters", [
             new Parameter("datasourceParam1", "Datasource Param 1"), new Parameter("datasourceParam2", "Datasource Param 2")
         ], [
@@ -492,7 +490,7 @@ class DatasetServiceTest extends TestBase {
         ]);
 
 
-        $parameters = $this->datasetService->getEvaluatedParameters($newId);
+        $parameters = $this->datasetService->getEvaluatedParameters($datasetSummary);
 
         $this->assertEquals([
             new Parameter("datasourceParam1", "Datasource Param 1"), new Parameter("datasourceParam2", "Datasource Param 2"),
