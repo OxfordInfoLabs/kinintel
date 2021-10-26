@@ -132,9 +132,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
-            float: false,
+            float: true,
             cellHeight: 50,
             minW: 1024,
+            disableOneColumnMode: true,
             dragIn: '.draggable-toolbar .grid-stack-item', // add draggable to class
             dragInOptions: {
                 revert: 'invalid',
