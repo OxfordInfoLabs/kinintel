@@ -86,12 +86,12 @@ trait Dataset {
      * Get the evaluated parameters for the supplied dataset instance by id.
      * The array of transformation instances can be supplied as payload.
      *
-     * @http GET /parameters/$id
+     * @http POST /parameters
      *
-     * @param integer $id
+     * @param DatasetInstanceSummary $datasetInstanceSummary
      */
-    public function getEvaluatedParameters($id) {
-        return $this->datasetService->getEvaluatedParameters($id);
+    public function getEvaluatedParameters($datasetInstanceSummary) {
+        return $this->datasetService->getEvaluatedParameters($datasetInstanceSummary);
     }
 
 
@@ -100,12 +100,12 @@ trait Dataset {
      *
      * @http POST /evaluate
      *
-     * @param EvaluatedDataset $evaluatedDataset
+     * @param DatasetInstanceSummary $datasetInstanceSummary
      * @return \Kinintel\Objects\Dataset\Dataset
      */
-    public function evaluateDataset($evaluatedDataset) {
-        return $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($evaluatedDataset->getInstanceId(), $evaluatedDataset->getParameterValues(), $evaluatedDataset->getTransformationInstances(),
-            $evaluatedDataset->getOffset() ?? 0, $evaluatedDataset->getLimit() ?? 25);
+    public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25) {
+        return $this->datasetService->getEvaluatedDataSetForDataSetInstance($datasetInstanceSummary, [], [],
+            $offset, $limit);
     }
 
 

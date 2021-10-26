@@ -15,9 +15,7 @@ export class DataExplorerComponent implements OnInit {
 
     public showChart = false;
     public chartData;
-    public datasource: any;
     public datasetInstanceSummary: any;
-    public datasetInstance: any;
     public filters: any;
     public admin: boolean;
     public showSnapshots = false;
@@ -35,7 +33,6 @@ export class DataExplorerComponent implements OnInit {
 
     ngOnInit(): void {
         this.chartData = !!this.data.showChart;
-        this.datasource = this.data.datasource;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
 
@@ -61,7 +58,7 @@ export class DataExplorerComponent implements OnInit {
             height: '750px',
             data: {
                 snapshot,
-                datasetInstanceId: this.datasetInstance.id,
+                datasetInstanceId: this.datasetInstanceSummary.id,
                 columns: this.columns
             }
         });
@@ -75,7 +72,7 @@ export class DataExplorerComponent implements OnInit {
     public deleteSnapshot(snapshot) {
         const message = 'Are you sure you would like to remove this snapshot?';
         if (window.confirm(message)) {
-            this.datasetService.removeSnapshotProfile(snapshot.id, this.datasetInstance.id)
+            this.datasetService.removeSnapshotProfile(snapshot.id, this.datasetInstanceSummary.id)
                 .then(() => {
                     this.loadSnapshotProfiles();
                 });
@@ -83,14 +80,14 @@ export class DataExplorerComponent implements OnInit {
     }
 
     public saveChanges() {
-        if (!this.datasetInstance.title) {
+        if (!this.datasetInstanceSummary.id) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
                 width: '475px',
                 height: '150px',
             });
             dialogRef.afterClosed().subscribe(res => {
                 if (res) {
-                    this.datasetInstance.title = res;
+                    this.datasetInstanceSummary.title = res;
                     this.saveDataset();
                 }
             });
@@ -100,14 +97,14 @@ export class DataExplorerComponent implements OnInit {
     }
 
     private saveDataset() {
-        this.datasetService.saveDataset(this.datasetInstance).then(() => {
+        this.datasetService.saveDataset(this.datasetInstanceSummary).then(() => {
             this.dialogRef.close();
             this.router.navigate(['/dataset']);
         });
     }
 
     private loadSnapshotProfiles() {
-        this.datasetService.getSnapshotProfilesForDataset(this.datasetInstance.id)
+        this.datasetService.getSnapshotProfilesForDataset(this.datasetInstanceSummary.id)
             .then(snapshots => {
                 console.log(snapshots);
                 this.snapshotProfiles = snapshots;

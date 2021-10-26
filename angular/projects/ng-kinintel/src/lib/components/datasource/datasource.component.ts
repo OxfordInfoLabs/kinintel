@@ -37,6 +37,13 @@ export class DatasourceComponent implements OnInit {
     }
 
     public explore(datasource) {
+        const datasetInstanceSummary = {
+            datasetInstanceId: null,
+            datasourceInstanceKey: datasource.key,
+            transformationInstances: [],
+            parameterValues: {},
+            parameters: []
+        };
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',
             height:  '100vh',
@@ -44,7 +51,7 @@ export class DatasourceComponent implements OnInit {
             maxHeight: '100vh',
             hasBackdrop: false,
             data: {
-                datasource,
+                datasetInstanceSummary,
                 showChart: false,
                 admin: this.admin
             }

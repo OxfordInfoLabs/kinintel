@@ -59,10 +59,11 @@ export class DatasetEditorComponent implements OnInit {
         this.limit = limit ? Number(limit) : 25;
 
         if (this.datasetInstanceSummary.transformationInstances.length) {
-            const filter = _.find(this.datasetInstanceSummary.transformationInstances, {type: 'filter'});
-            if (filter) {
-                this.filterJunction = filter.config;
-                this.showFilters = true;
+            const filters = _.filter(this.datasetInstanceSummary.transformationInstances, {type: 'filter'});
+            if (filters.length) {
+                filters.forEach(filter => {
+                    filter.hide = false;
+                });
             }
         }
 
