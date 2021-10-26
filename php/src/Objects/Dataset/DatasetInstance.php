@@ -76,11 +76,21 @@ class DatasetInstance extends DatasetInstanceSummary {
         $securityService = Container::instance()->get(SecurityService::class);
         $readOnly = $enforceReadOnly && !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
 
+        if ($readOnly) {
+            $parameterValues = [];
+            foreach ($this->parameterValues as $parameterKey => $parameterValue) {
+                $parameterValues[$parameterKey] = null;
+            }
+        } else {
+            $parameterValues = $this->parameterValues;
+        }
+
+
         return new DatasetInstanceSummary($this->title, $readOnly ? null : $this->datasourceInstanceKey,
             $readOnly ? $this->id : $this->datasetInstanceId,
             $readOnly ? [] : $this->transformationInstances,
             $readOnly ? [] : $this->parameters,
-            $readOnly ? [] : $this->parameterValues,
+            $parameterValues,
             $readOnly ? null : $this->id, $readOnly);
     }
 
