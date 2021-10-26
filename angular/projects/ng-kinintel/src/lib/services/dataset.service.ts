@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
-
+import * as _ from 'lodash';
 
 @Injectable({
     providedIn: 'root'
@@ -52,9 +52,14 @@ export class DatasetService {
         return this.http.delete(this.config.backendURL + '/dataset/' + id).toPromise();
     }
 
-    public getEvaluatedParameters(datasetId) {
-        return this.http.get(this.config.backendURL + '/dataset/parameters/' + datasetId)
+    public getEvaluatedParameters(datasetInstanceSummary) {
+        return this.http.post(this.config.backendURL + '/dataset/parameters', datasetInstanceSummary)
             .toPromise();
+    }
+
+    public evaluateDataset(datasetInstanceSummary, offset?, limit?) {
+        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}`,
+            datasetInstanceSummary).toPromise();
     }
 
     public getSnapshotProfilesForDataset(datasetInstanceId) {

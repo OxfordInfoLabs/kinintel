@@ -36,6 +36,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() alertService: any;
     @Input() datasetService: any;
     @Input() datasourceService: any;
+    @Input() editAlerts: boolean;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -97,6 +98,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             disableOneColumnMode: true
         };
         this.grid = GridStack.init(options);
+        this.grid.enableMove(false);
+        this.grid.enableResize(false);
 
         this.grid.on('added', (event: Event, newItems: GridStackNode[]) => {
             newItems.forEach((item) => {
@@ -250,6 +253,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         componentRef.instance.datasetService = this.datasetService;
         componentRef.instance.datasourceService = this.datasourceService;
         componentRef.instance.alertService = this.alertService;
+        componentRef.instance.viewOnly = true;
+        componentRef.instance.editAlerts = this.editAlerts;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 

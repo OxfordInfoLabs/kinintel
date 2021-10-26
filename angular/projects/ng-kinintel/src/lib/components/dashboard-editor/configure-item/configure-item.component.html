@@ -9,7 +9,7 @@
 
     <rsz-layout class="row top" [directions]="['bottom']" [rFlex]="true">
         <div class="cell-contents">
-            <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(evaluatedDatasource)]="dashboardDatasetInstance"
+            <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(datasetInstanceSummary)]="dashboardDatasetInstance"
                                (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
         </div>
     </rsz-layout>

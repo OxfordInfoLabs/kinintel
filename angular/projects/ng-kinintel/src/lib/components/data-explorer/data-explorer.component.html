@@ -22,7 +22,7 @@
         <rsz-layout class="cell left" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents">
-                <ki-dataset-editor [(evaluatedDatasource)]="datasetInstance" [datasource]="datasource"
+                <ki-dataset-editor [(datasetInstanceSummary)]="datasetInstanceSummary"
                                    (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
             </div>
         </rsz-layout>

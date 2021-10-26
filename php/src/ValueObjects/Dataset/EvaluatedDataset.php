@@ -13,7 +13,7 @@ class EvaluatedDataset {
      *
      * @var integer
      */
-    private $instanceId;
+    private $dataSet;
 
 
     /**

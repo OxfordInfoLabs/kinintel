@@ -67,7 +67,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     public view(datasetId) {
-        this.datasetService.getDataset(datasetId).then(dataset => {
+        this.datasetService.getDataset(datasetId).then(datasetInstanceSummary => {
             const dialogRef = this.dialog.open(DataExplorerComponent, {
                 width: '100vw',
                 height: '100vh',
@@ -75,7 +75,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 maxHeight: '100vh',
                 hasBackdrop: false,
                 data: {
-                    dataset,
+                    datasetInstanceSummary,
                     showChart: false,
                     admin: this.admin
                 }

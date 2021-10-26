@@ -42,6 +42,8 @@ export class ItemComponentComponent {
     public alertData: any = [];
     public showAlertData = false;
     public admin: boolean;
+    public viewOnly: boolean;
+    public editAlerts: boolean;
     public currencies = [
         {
             name: 'British Pound (£)',

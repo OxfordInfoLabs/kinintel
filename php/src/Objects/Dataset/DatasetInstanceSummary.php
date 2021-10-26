@@ -57,8 +57,8 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
     /**
      * DatasetInstance constructor.
      * @param string $title
-     * @param null $datasourceInstanceKey
-     * @param null $datasetInstanceId
+     * @param string $datasourceInstanceKey
+     * @param string $datasetInstanceId
      * @param TransformationInstance[] $transformationInstances
      * @param array $parameters
      * @param mixed[] $parameterValues

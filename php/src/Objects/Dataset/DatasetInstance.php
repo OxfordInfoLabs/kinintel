@@ -68,13 +68,13 @@ class DatasetInstance extends DatasetInstanceSummary {
     /**
      * @return DatasetInstanceSummary
      */
-    public function returnSummary() {
+    public function returnSummary($enforceReadOnly = true) {
 
         /**
          * @var SecurityService $securityService
          */
         $securityService = Container::instance()->get(SecurityService::class);
-        $readOnly = !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
+        $readOnly = $enforceReadOnly && !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
 
         return new DatasetInstanceSummary($this->title, $readOnly ? null : $this->datasourceInstanceKey,
             $readOnly ? $this->id : $this->datasetInstanceId,

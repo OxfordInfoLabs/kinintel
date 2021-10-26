@@ -56,8 +56,8 @@ class DatasetService {
      * @param $id
      * @return DatasetInstanceSummary
      */
-    public function getDataSetInstance($id) {
-        return DatasetInstance::fetch($id)->returnSummary();
+    public function getDataSetInstance($id, $enforceReadOnly = true) {
+        return DatasetInstance::fetch($id)->returnSummary($enforceReadOnly);
     }
 
 
@@ -262,14 +262,21 @@ class DatasetService {
      * Get evaluated parameters for the passed datasource by id - this includes parameters from both
      * the dataset and datasource concatenated.
      *
-     * @param string $datasourceInstanceKey
+     * @param DatasetInstanceSummary $datasourceInstanceSummary
      *
      * @return Parameter[]
      */
-    public function getEvaluatedParameters($datasetInstanceId) {
-        $dataset = $this->getDataSetInstance($datasetInstanceId);
-        $params = $this->datasourceService->getEvaluatedParameters($dataset->getDatasourceInstanceKey());
-        $params = array_merge($params, $dataset->getParameters() ?? []);
+    public function getEvaluatedParameters($datasetInstanceSummary) {
+
+
+        if ($datasetInstanceSummary->getDatasourceInstanceKey()) {
+            $params = $this->datasourceService->getEvaluatedParameters($datasetInstanceSummary->getDatasourceInstanceKey());
+        } else if ($datasetInstanceSummary->getDatasetInstanceId()) {
+            $parentDatasetInstanceSummary = $this->getDataSetInstance($datasetInstanceSummary->getDatasetInstanceId(), false);
+            $params = $this->getEvaluatedParameters($parentDatasetInstanceSummary);
+        }
+
+        $params = array_merge($params, $datasetInstanceSummary->getParameters() ?? []);
         return $params;
     }
 
@@ -282,7 +289,7 @@ class DatasetService {
      * @param TransformationInstance[] $additionalTransformations
      */
     public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
-        $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId);
+        $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId, false);
         return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
 
@@ -307,7 +314,7 @@ class DatasetService {
             return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), $parameterValues,
                 $transformations, $offset, $limit);
         } else if ($dataSetInstance->getDatasetInstanceId()) {
-            return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(),$parameterValues,$transformations, $offset, $limit);
+            return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(), $parameterValues, $transformations, $offset, $limit);
         }
     }
 

@@ -2,7 +2,8 @@
     <div class="align-center flex-col w-3/4 m-auto">
         <mat-icon>notification_important</mat-icon>
         <h2 class="mb-0">Alert Notification</h2>
-        <p class="text-center">The following alerts have been triggered based on the criteria set for this dashboard item...</p>
+        <p class="text-center">The following alerts have been triggered based on the criteria set for this dashboard
+            item...</p>
         <div class="alert-item mb-2" *ngFor="let alertItem of alertData"
              [innerHTML]="alertItem.notificationMessage">
         </div>
@@ -36,12 +37,17 @@
     <p>Loading {{dashboardItemType.label}} ...</p>
 </div>
 
-<button *ngIf="!dragItem" mat-icon-button class="edit-widget" [matMenuTriggerFor]="editMenu">
+<button *ngIf="!dragItem && (!viewOnly || viewOnly && editAlerts)" mat-icon-button class="edit-widget" [matMenuTriggerFor]="editMenu">
     <mat-icon>more_vert</mat-icon>
 </button>
 <mat-menu #editMenu="matMenu">
-    <button mat-menu-item (click)="configure()">Edit Item</button>
-    <button mat-menu-item (click)="removeWidget($event)">Delete Item</button>
+    <ng-template [ngIf]="viewOnly && editAlerts">
+        <button mat-menu-item (click)="configure()">Edit Alerts</button>
+    </ng-template>
+    <ng-template [ngIf]="!viewOnly">
+        <button mat-menu-item (click)="configure()">Edit Item</button>
+        <button mat-menu-item (click)="removeWidget($event)">Delete Item</button>
+    </ng-template>
 </mat-menu>
 
 <ng-template [ngIf]="!dragItem && dashboardItemType.type === 'heading'">

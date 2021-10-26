@@ -16,7 +16,7 @@ export class DataExplorerComponent implements OnInit {
     public showChart = false;
     public chartData;
     public datasource: any;
-    public dataset: any;
+    public datasetInstanceSummary: any;
     public datasetInstance: any;
     public filters: any;
     public admin: boolean;
@@ -36,7 +36,7 @@ export class DataExplorerComponent implements OnInit {
     ngOnInit(): void {
         this.chartData = !!this.data.showChart;
         this.datasource = this.data.datasource;
-        this.datasetInstance = this.data.dataset;
+        this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
 
         this.chartData = [

@@ -44,12 +44,12 @@
 
 <div class="parameter-values mt-4" *ngIf="showParameters || parameterValues.length">
     <ki-dataset-parameter-values [parameterValues]="parameterValues" [focusParameters]="focusParams"
-                                 [(evaluatedDatasource)]="evaluatedDatasource" [showNewOnOpen]="true"
+                                 [(evaluatedDatasource)]="datasetInstanceSummary" [showNewOnOpen]="true"
                                  (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
 </div>
 <div class="filters mt-4">
 
-    <ng-template ngFor let-filterTransformation [ngForOf]="_.filter(evaluatedDatasource.transformationInstances, {type: 'filter', hide: false})">
+    <ng-template ngFor let-filterTransformation [ngForOf]="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
         <ki-dataset-filters [filterFields]="filterFields"
                             [filterJunction]="filterTransformation.config"></ki-dataset-filters>
         <div class="flex items-center justify-end">
@@ -61,7 +61,7 @@
 
     </ng-template>
 
-    <div *ngIf="_.filter(evaluatedDatasource.transformationInstances, {type: 'filter', hide: false}).length"
+    <div *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
         class="flex align-center justify-end mt-4">
         <button mat-flat-button color="primary" (click)="applyFilters()"
                 [disabled]="!filterJunction.filters.length">Apply filters
@@ -70,8 +70,8 @@
 
 </div>
 <div class="cell-header sorting">
-    <div class="badge-holder" *ngIf="_.find(evaluatedDatasource.transformationInstances, {type: 'multisort'})">
-        <div class="badge-item outline" *ngFor="let sort of _.find(evaluatedDatasource.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
+    <div class="badge-holder" *ngIf="_.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'})">
+        <div class="badge-item outline" *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
             <span>{{sort.fieldName}}&nbsp;{{sort.direction}}</span>
             <button mat-icon-button (click)="removeFilter(i)">
                 <mat-icon>cancel</mat-icon>
