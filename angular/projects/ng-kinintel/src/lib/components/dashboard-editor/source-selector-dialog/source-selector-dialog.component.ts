@@ -79,27 +79,24 @@ export class SourceSelectorDialogComponent implements OnInit {
         });
     }
 
-    public select(item, type, stepper?) {
+    public async select(item, type, stepper?) {
         if (type === 'datasource') {
-            this.datasourceService.getDatasource(item.key).then(datasource => {
-                this.dashboardDatasetInstance.datasourceInstanceKey = item.key;
-                return this.datasourceService.getEvaluatedParameters({
-                    key: item.key
-                }).then(requiredParams => {
-                    this.createParameterStructure(requiredParams, stepper);
-                    return requiredParams;
-                });
-            });
+            const datasource: any = await this.datasourceService.getDatasource(item.key);
+            this.dashboardDatasetInstance = {
+                datasetInstanceId: null,
+                datasourceInstanceKey: datasource.key,
+                transformationInstances: [],
+                parameterValues: {},
+                parameters: []
+            };
         } else {
-            this.datasetService.getDataset(item.id).then(dataset => {
-                this.dashboardDatasetInstance.datasetInstanceId = item.id;
-                this.dashboardDatasetInstance.datasourceInstanceKey = dataset.datasourceInstanceKey;
-                return this.datasetService.getEvaluatedParameters(item.id).then((requiredParams: any) => {
-                    this.createParameterStructure(requiredParams, stepper);
-                    return requiredParams;
-                });
-            });
+            this.dashboardDatasetInstance = await this.datasetService.getDataset(item.id);
         }
+
+        return this.datasetService.getEvaluatedParameters(this.dashboardDatasetInstance).then((requiredParams: any) => {
+            this.createParameterStructure(requiredParams, stepper);
+            return requiredParams;
+        });
     }
 
     public setParameters() {
