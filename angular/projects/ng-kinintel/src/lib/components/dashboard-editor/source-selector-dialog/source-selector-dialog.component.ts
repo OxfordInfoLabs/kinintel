@@ -93,6 +93,10 @@ export class SourceSelectorDialogComponent implements OnInit {
             this.dashboardDatasetInstance = await this.datasetService.getDataset(item.id);
         }
 
+        if (this.data.dashboardItemInstanceKey) {
+            this.dashboardDatasetInstance.instanceKey = this.data.dashboardItemInstanceKey;
+        }
+
         return this.datasetService.getEvaluatedParameters(this.dashboardDatasetInstance).then((requiredParams: any) => {
             this.createParameterStructure(requiredParams, stepper);
             return requiredParams;

@@ -103,6 +103,7 @@ export class ConfigureItemComponent implements OnInit {
             height: '800px',
             data: {
                 dashboard: this.dashboard,
+                dashboardItemInstanceKey: this.data.itemInstanceKey,
                 dashboardDatasetInstance: this.dashboardDatasetInstance || {
                     dashboardId: this.dashboard.id,
                     instanceKey: this.data.itemInstanceKey,
