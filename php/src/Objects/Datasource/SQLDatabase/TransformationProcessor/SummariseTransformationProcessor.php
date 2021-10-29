@@ -40,6 +40,8 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
+        $dataSource->getConfig()->setColumns([]);
+
         if ($transformation instanceof SummariseTransformation) {
             $groupByClauses = $transformation->getSummariseFieldNames();
             $evaluatedExpressions = [];

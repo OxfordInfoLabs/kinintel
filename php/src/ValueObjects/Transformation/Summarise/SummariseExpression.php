@@ -129,7 +129,7 @@ class SummariseExpression {
      */
     public function getFunctionString() {
         if ($this->expressionType == self::EXPRESSION_TYPE_CUSTOM) {
-            $function = $this->customExpression;
+            $function = str_replace(array("[", "]"), array("",""), $this->customExpression);
         } else if ($this->expressionType == self::EXPRESSION_TYPE_COUNT) {
             $function = "COUNT(*)";
         } else {

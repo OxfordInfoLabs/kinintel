@@ -27,11 +27,11 @@ class SQLFilterValueEvaluator {
             $value = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . "$1", $valueEntry);
 
             // Replace any template parameters
-            $value = preg_replace_callback("/{{(.*?)}}/", function ($matches) use (&$outputParameters, $templateParameters) {
-                $matchingParamValue = $templateParameters[$matches[1]] ?? null;
+            $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $templateParameters) {
+                $matchingParamValue = $templateParameters[$matches[2]] ?? null;
                 $valueArray = is_array($matchingParamValue) ? $matchingParamValue : [$matchingParamValue];
                 foreach ($valueArray as $matchingParamValueElement) {
-                    $outputParameters[] = $matchingParamValueElement;
+                    $outputParameters[] = ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "");
                 }
                 return str_repeat("?,", sizeof($valueArray) - 1) . "?";
             }, $value);

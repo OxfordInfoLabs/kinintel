@@ -69,6 +69,7 @@ abstract class TabularDataset implements Dataset {
         // Grab data item
         $dataItem = $this->nextRawDataItem();
 
+
         if (is_array($dataItem)) {
 
             $newDataItem = [];

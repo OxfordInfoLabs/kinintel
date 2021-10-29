@@ -385,5 +385,25 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testLikeExpressionsInvolvingParametersAreSupportedCorrectly(){
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+
+        $sourceQuery = new SQLQuery("*", "test_data");
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[job]]", "*{{jobTitle}}*",Filter::FILTER_TYPE_LIKE)
+        ]), $sourceQuery, [
+            "jobTitle" => "Company Director"
+        ], null);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE job LIKE ?", $query->getSQL());
+        $this->assertEquals([
+            "%Company Director%"
+        ], $query->getParameters());
+
+
+    }
+
 }
 

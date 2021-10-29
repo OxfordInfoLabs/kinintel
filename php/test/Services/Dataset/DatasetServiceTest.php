@@ -633,7 +633,7 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals(null, $summary->getId());
         $this->assertEquals([], $summary->getTransformationInstances());
         $this->assertEquals([], $summary->getParameters());
-        $this->assertEquals([], $summary->getParameterValues());
+        $this->assertEquals(["customParam" => null], $summary->getParameterValues());
 
     }
 
