@@ -87,6 +87,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
         $read = 0;
         $dataItems = [];
         while ($dataItem = $sourceDataset->nextDataItem()) {
+
             $dataItems[] = $dataItem;
             $read++;
             if ($read % $this->chunkSize == 0) {
