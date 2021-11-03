@@ -60,6 +60,7 @@ import { SnapshotProfileDialogComponent } from './components/data-explorer/snaps
 import { TaskTimePeriodsComponent } from './components/task-time-periods/task-time-periods.component';
 import { SnapshotsComponent } from './components/snapshots/snapshots.component';
 import { ViewDashboardComponent } from './components/dashboards/view-dashboard/view-dashboard.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -126,7 +127,8 @@ import { ViewDashboardComponent } from './components/dashboards/view-dashboard/v
         MatSidenavModule,
         MatTabsModule,
         RouterModule,
-        MatAutocompleteModule
+        MatAutocompleteModule,
+        MatSnackBarModule
     ],
     exports: [
         DashboardEditorComponent,

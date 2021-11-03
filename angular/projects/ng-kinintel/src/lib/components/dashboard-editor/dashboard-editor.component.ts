@@ -107,6 +107,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ];
 
     private grid: GridStack;
+    private queryParams: any = {};
 
     public static myClone(event) {
         return event.target.cloneNode(true);
@@ -125,7 +126,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     ngOnInit(): void {
         this.route.queryParams.subscribe(params => {
-            this.admin = !!params.a;
+            const cloned = _.clone(params);
+            this.admin = !!cloned.a;
+            delete cloned.a;
+            this.queryParams = cloned;
         });
     }
 
@@ -180,6 +184,23 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         this.dashboardService.getDashboard(dashboardId).then(dashboard => {
             this.dashboard = dashboard;
+
+            // If we have any query params, check if they match any set out in the dashboard
+            Object.keys(this.queryParams).forEach(key => {
+                if (Object.keys(this.dashboard.layoutSettings.parameters).length) {
+                    if (this.dashboard.layoutSettings.parameters[key]) {
+                        this.dashboard.layoutSettings.parameters[key].value = this.queryParams[key];
+                    }
+                }
+
+                this.dashboard.datasetInstances.forEach(instance => {
+                    if (!_.values(instance.parameterValues).length) {
+                        instance.parameterValues = {};
+                    }
+                    instance.parameterValues[key] = this.queryParams[key];
+                });
+            });
+
             this.editDashboardTitle = !this.dashboard.title;
             if (this.dashboard.displaySettings) {
                 this.darkMode = !!this.dashboard.displaySettings.darkMode;

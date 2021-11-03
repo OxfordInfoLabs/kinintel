@@ -6,6 +6,7 @@ import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.compo
 import {DatasetCreateFormulaComponent} from './dataset-create-formula/dataset-create-formula.component';
 import {DatasetColumnSettingsComponent} from './dataset-column-settings/dataset-column-settings.component';
 import {DatasetService} from '../../../services/dataset.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -49,7 +50,8 @@ export class DatasetEditorComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private snackBar: MatSnackBar) {
     }
 
     ngOnInit(): void {
@@ -417,7 +419,15 @@ export class DatasetEditorComponent implements OnInit {
         });
         this.dataLoaded.emit(this.dataset);
         this.evaluatedDatasourceChange.emit(this.datasetInstanceSummary);
+        this.setTerminatingTransformations();
+        return true;
+    }
 
+    private setParameterValues(values) {
+
+    }
+
+    private setTerminatingTransformations() {
         let summarise = 0;
         let join = 0;
         const summariseTotal = _.filter(this.datasetInstanceSummary.transformationInstances, {type: 'summarise'}).length;
@@ -464,11 +474,6 @@ export class DatasetEditorComponent implements OnInit {
             }
             return false;
         });
-        return true;
-    }
-
-    private setParameterValues(values) {
-
     }
 
     private hidePreTerminatingFilters(terminatingIndex) {
@@ -504,19 +509,33 @@ export class DatasetEditorComponent implements OnInit {
                 this.parameterValues = _.values(parameterValues);
                 this.setEvaluatedParameters(this.parameterValues);
 
+                if (this.datasetInstanceSummary && this.datasetInstanceSummary.id) {
+                    localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, (this.limit).toString());
+                } else if (this.datasetInstanceSummary.instanceKey) {
+                    localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.instanceKey, (this.limit).toString());
+                }
+
+                // Clone the current instance object so we can remove any excluded transformations, without affecting
+                // the original object which the gui uses to draw transformation items.
+                const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
+                _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
+
                 return this.datasetService.evaluateDataset(
-                    this.datasetInstanceSummary,
+                    clonedDatasetInstance,
                     this.offset,
                     this.limit
                 ).then(dataset => {
                     this.dataset = dataset;
-                    if (this.datasetInstanceSummary && this.datasetInstanceSummary.id) {
-                        localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, (this.limit).toString());
-                    } else if (this.datasetInstanceSummary.instanceKey) {
-                        localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.instanceKey, (this.limit).toString());
-                    }
                     return this.loadData();
                 }).catch(err => {
+                    if (err.error && err.error.message) {
+                        this.snackBar.open(err.error.message, 'Close', {
+                            verticalPosition: 'top'
+                        });
+                    }
+                    // If the evaluate fails we still want to publish the instance and set the terminating transformations
+                    this.evaluatedDatasourceChange.emit(this.datasetInstanceSummary);
+                    this.setTerminatingTransformations();
                 });
             });
 

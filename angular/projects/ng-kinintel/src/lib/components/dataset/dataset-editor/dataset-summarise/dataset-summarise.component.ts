@@ -32,8 +32,12 @@ export class DatasetSummariseComponent implements OnInit {
             this.summariseExpressions = this.data.config.expressions.map(expression => {
                 const field = _.find(this.availableColumns, {name: expression.fieldName}) ||
                     _.find(this.availableColumns, {name: expression.expressionType + '(' + expression.fieldName + ')'});
-                field.expressionType = expression.expressionType;
-                return field;
+
+                if (field) {
+                    field.expressionType = expression.expressionType;
+                    return field;
+                }
+                return expression;
             });
         }
     }
