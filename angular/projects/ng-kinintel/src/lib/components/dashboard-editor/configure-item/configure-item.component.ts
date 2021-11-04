@@ -21,11 +21,13 @@ export class ConfigureItemComponent implements OnInit {
     public grid;
     public chartData: any;
     public metricData: any = {};
-    public general: any = {};
+    public general: any = {cta: {parameters: {}}};
     public dashboard;
     public dashboardItemType;
     public dashboardDatasetInstance: any;
-    public datasets: any = [];
+    public dashboards: any = [];
+    public dashboardParameters: any = [];
+    public dashboardParamValues: any = [];
     public admin: boolean;
     public filterFields: any = [];
     public chartTypes = ['line', 'bar', 'pie', 'doughnut'];
@@ -78,22 +80,31 @@ export class ConfigureItemComponent implements OnInit {
             this.selectedDatasource();
         } else {
             if (this.dashboard.layoutSettings) {
+                if (this.dashboard.layoutSettings.parameters) {
+                    this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
+                        .filter('value')
+                        .map('value')
+                        .valueOf();
+                }
                 if (this.dashboard.layoutSettings.metric) {
                     this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
                 }
                 if (this.dashboard.layoutSettings.general) {
                     this.general = _.isPlainObject(this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey]) ?
                         this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {};
+                    if (this.general.cta) {
+                        this.ctaUpdate(this.general.cta);
+                    }
                 }
             }
         }
 
-        this.datasetService.getDatasets(
+        this.dashboardService.getDashboards(
             '',
-            '5',
+            '50',
             '0'
-        ).toPromise().then(datasets => {
-            this.datasets = datasets;
+        ).toPromise().then(dashboards => {
+            this.dashboards = dashboards;
         });
     }
 
@@ -130,6 +141,27 @@ export class ConfigureItemComponent implements OnInit {
         });
         this.updateMetricDataValues();
         this.setChartData();
+    }
+
+    public async ctaUpdate(cta) {
+        this.dashboardParameters = [];
+        if (cta.type && cta.type === 'dashboard') {
+            if (!cta.parameters) {
+                cta.parameters = {};
+            }
+
+            const dashboard: any = await this.dashboardService.getDashboard(cta.value);
+            if (dashboard.layoutSettings.parameters) {
+                this.dashboardParameters = _.values(dashboard.layoutSettings.parameters);
+
+                setTimeout(() => {
+                    document.getElementsByClassName('dashboard-param-pick').item(0)
+                        .scrollIntoView();
+                }, 0);
+            }
+        } else {
+            cta.parameters = {};
+        }
     }
 
     public editAlert(alert, index?) {
@@ -190,11 +222,15 @@ export class ConfigureItemComponent implements OnInit {
         if (!d2) {
             return true;
         }
-        if (d2.type === 'edit') {
-            return d1.type === 'edit';
-        } else if (d2.type === 'dataset') {
+        if (d2.type === 'custom') {
+            return d1.type === 'custom';
+        } else if (d2.type === 'dashboard') {
             return d1.value === d2.value;
         }
+    }
+
+    public ctaSelectOption(c1: any, c2: any) {
+        return c1 === c2;
     }
 
     public backgroundColourUpdate() {

@@ -22,25 +22,68 @@
                         <label class="mb-2">
                             Name
                             <input type="text" [(ngModel)]="general.name">
-                            <p><small>Name of the item</small></p>
+                            <small class="font-normal">Name of the item</small>
                         </label>
                         <label class="mb-2">
                             Description
                             <input type="text" [(ngModel)]="general.description">
-                            <p><small>Description of the data item.</small></p>
+                            <small class="font-normal">Description of the data item.</small>
                         </label>
                         <label class="mb-2">
                             Call to action
-                            <mat-select [(ngModel)]="general.cta" [compareWith]="setCallToActionItem">
-                                <mat-option value="">None</mat-option>
-                                <mat-option [value]="{type: 'edit', label: 'Edit Screen'}">Edit screen</mat-option>
-                                <mat-optgroup label="Datasets">
-                                    <mat-option *ngFor="let dataset of datasets"
-                                                [value]="{type: 'dataset', value: dataset.id, label: dataset.title}">{{dataset.title}}</mat-option>
-                                </mat-optgroup>
-                            </mat-select>
-                            <p><small>Select the destination for the action link</small></p>
+                            <select matNativeControl [(ngModel)]="general.cta" [compareWith]="setCallToActionItem"
+                                        (ngModelChange)="ctaUpdate($event)">
+                                <option value="">None</option>
+                                <option [ngValue]="{type: 'custom'}">Custom Link</option>
+                                <optgroup label="Dashboards">
+                                    <option *ngFor="let dashboard of dashboards"
+                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                </optgroup>
+                            </select>
+                            <small class="font-normal">Select the destination for the action link</small>
                         </label>
+                        <ng-template [ngIf]="general.cta.type === 'custom'">
+                            <p>Please enter the link for this call to action.</p>
+
+                            <label class="mb-2">
+                                Link
+                                <input type="text" [(ngModel)]="general.cta.link">
+                            </label>
+
+                        </ng-template>
+
+                        <label class="mb-2">
+                            Set action label
+                            <input type="text" [(ngModel)]="general.cta.label">
+                        </label>
+
+                        <ng-template [ngIf]="dashboardParameters.length">
+                            <p>Please enter the following parameters to use with this dashboard</p>
+
+                            <ng-template ngFor let-param [ngForOf]="dashboardParameters">
+                                <label>{{param.title}}</label>
+                                <label *ngIf="!general.cta.parameters['custom-'+param.name]" class="mb-2 dashboard-param-pick">
+                                    <select matNativeControl [(ngModel)]="general.cta.parameters[param.name]"
+                                        [compareWith]="ctaSelectOption">
+                                        <option [value]="undefined">-- Select Value --</option>
+                                        <option *ngFor="let paramValue of dashboardParamValues"
+                                                    [value]="paramValue">
+                                            {{paramValue}}
+                                        </option>
+                                    </select>
+                                </label>
+                                <div class="mb-2 flex items-center">
+                                    <mat-checkbox class="mr-1" [(ngModel)]="general.cta.parameters['custom-'+param.name]"></mat-checkbox>
+                                    <p class="mb-0 mt-1">Use custom value</p>
+                                </div>
+                                <label class="mb-2 dashboard-param-pick">
+                                    <input type="text" *ngIf="general.cta.parameters['custom-'+param.name]" placeholder="Enter custom parameter value"
+                                           [(ngModel)]="general.cta.parameters[param.name]">
+                                </label>
+                            </ng-template>
+
+
+                        </ng-template>
                     </div>
                 </div>
 

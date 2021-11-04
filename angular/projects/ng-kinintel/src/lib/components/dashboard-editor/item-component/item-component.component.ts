@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import {DataExplorerComponent} from '../../data-explorer/data-explorer.component';
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'ki-item-component',
@@ -71,7 +72,8 @@ export class ItemComponentComponent {
     constructor(private dialog: MatDialog,
                 private kiDatasourceService: DatasourceService,
                 private kiDatasetService: DatasetService,
-                private kiAlertService: AlertService) {
+                private kiAlertService: AlertService,
+                private router: Router) {
     }
 
     public init(): void {
@@ -211,23 +213,31 @@ export class ItemComponentComponent {
     public callToAction() {
         if (this.general.cta.type === 'edit') {
             this.configure();
-        } else if (this.general.cta.type === 'dataset') {
-            this.datasetService.getDataset(this.general.cta.value).then(dataset => {
-                const dialogRef = this.dialog.open(DataExplorerComponent, {
-                    width: '100vw',
-                    height: '100vh',
-                    maxWidth: '100vw',
-                    maxHeight: '100vh',
-                    hasBackdrop: false,
-                    data: {
-                        dataset,
-                        showChart: false
+        } else if (this.general.cta.type === 'dashboard') {
+            const params = _.pickBy(this.general.cta.parameters, (value, key) => {
+                return !_.startsWith(key, 'custom-');
+            });
+            Object.keys(params).forEach(paramKey => {
+                const matches = params[paramKey].match(/(?<=\[\[).+?(?=\]\])/g) || [];
+                matches.forEach(exp => {
+                    const parameter = this.dashboard.layoutSettings.parameters ? this.dashboard.layoutSettings.parameters[exp] : null;
+                    if (parameter) {
+                        params[paramKey] = params[paramKey].replace(`[[${exp}]]`, parameter.value);
                     }
                 });
-                dialogRef.afterClosed().subscribe(res => {
-
-                });
             });
+            const urlParams = new URLSearchParams(params).toString();
+            window.location.href = `/dashboards/${this.general.cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
+        } else if (this.general.cta.type === 'custom') {
+            let url = this.general.cta.link;
+            const matches = this.general.cta.link.match(/(?<=\[\[).+?(?=\]\])/g) || [];
+            matches.forEach(exp => {
+                const parameter = this.dashboard.layoutSettings.parameters ? this.dashboard.layoutSettings.parameters[exp] : null;
+                if (parameter) {
+                    url = url.replace(`[[${exp}]]`, parameter.value);
+                }
+            });
+            window.location.href = url;
         }
     }
 
