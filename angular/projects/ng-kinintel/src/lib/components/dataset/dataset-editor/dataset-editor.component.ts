@@ -540,9 +540,12 @@ export class DatasetEditorComponent implements OnInit {
                     return this.loadData();
                 }).catch(err => {
                     if (err.error && err.error.message) {
-                        this.snackBar.open(err.error.message, 'Close', {
-                            verticalPosition: 'top'
-                        });
+                        const message = err.error.message.toLowerCase();
+                        if (!message.includes('parameter') && !message.includes('required')) {
+                            this.snackBar.open(err.error.message, 'Close', {
+                                verticalPosition: 'top'
+                            });
+                        }
                     }
                     // If the evaluate fails we still want to publish the instance and set the terminating transformations
                     this.evaluatedDatasourceChange.emit(this.datasetInstanceSummary);

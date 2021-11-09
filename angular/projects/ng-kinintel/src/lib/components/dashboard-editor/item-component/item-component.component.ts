@@ -32,12 +32,15 @@ export class ItemComponentComponent {
     public datasetService: any;
     public alertService: any;
 
+    public imageError = false;
+    public Object = Object;
     public dataset: any;
     public chartData: any;
     public dashboardDatasetInstance: any;
     public loadingItem = false;
     public filterFields: any = [];
     public metricData: any = {};
+    public imageData: any = {};
     public tabularData: any = {};
     public general: any = {};
     public alert = false;
@@ -152,6 +155,9 @@ export class ItemComponentComponent {
                     if (this.dashboard.layoutSettings.general) {
                         this.general = this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] || {};
                     }
+                    if (this.dashboard.layoutSettings.imageData) {
+                        this.imageData = this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] || {};
+                    }
 
                     if (this.dashboard.layoutSettings.tabular) {
                         this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {};
@@ -200,7 +206,7 @@ export class ItemComponentComponent {
     public removeWidget(event) {
         const message = 'Are your sure you would like to remove this item from your dashboard?';
         if (window.confirm(message)) {
-            const itemElement = document.getElementById(this.dashboardDatasetInstance.instanceKey);
+            const itemElement = document.getElementById(this.itemInstanceKey);
             const widget = itemElement.closest('.grid-stack-item');
             this.grid.removeWidget(widget);
         }
@@ -213,6 +219,22 @@ export class ItemComponentComponent {
 
         this.dashboard.displaySettings.heading[this.itemInstanceKey] = this.dashboardItemType.headingValue;
         this.dashboardItemType._editing = false;
+    }
+
+    public setHeader(value) {
+        let returnString = value;
+        if (value) {
+            const matches = value.match(/(?<=\[\[).+?(?=\]\])/g) || [];
+            const data = this.dashboard.layoutSettings.parameters;
+            matches.forEach(exp => {
+                const parameter = data ? data[exp] : null;
+                if (parameter) {
+                    returnString = value.replace(`[[${exp}]]`, parameter.value);
+                }
+            });
+        }
+
+        return returnString;
     }
 
     public setChartData() {

@@ -87,11 +87,11 @@
         <ng-container [matColumnDef]="column.name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.title}} </th>
             <td mat-cell *matCellDef="let element">
-                <ng-template [ngIf]="element[column.name] && element[column.name].length <= 40">
+                <ng-template [ngIf]="element[column.name] && element[column.name].length <= 100">
                     {{element[column.name]}}
                 </ng-template>
-                <ng-template [ngIf]="element[column.name] && element[column.name].length > 40">
-                    <div>{{element[column.name].substring(0, 40)+'...'}}</div>
+                <ng-template [ngIf]="element[column.name] && element[column.name].length > 100">
+                    <div>{{element[column.name].substring(0, 100)+'...'}}</div>
                     <a href="javascript:void(0)" (click)="viewFullItemData(element[column.name], column.name)"
                        class="flex items-center text-sm text-indigo-600">
                         view more

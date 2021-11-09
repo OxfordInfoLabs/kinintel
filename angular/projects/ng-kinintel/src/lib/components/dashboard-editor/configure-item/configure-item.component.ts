@@ -21,8 +21,9 @@ export class ConfigureItemComponent implements OnInit {
     public grid;
     public chartData: any;
     public metricData: any = {};
-    public tabularData: any = {cta: {parameters: {}}};
-    public general: any = {cta: {parameters: {}}};
+    public imageData: any = {};
+    public tabularData: any = {cta: {}};
+    public general: any = {cta: {}};
     public dashboard;
     public dashboardItemType;
     public dashboardDatasetInstance: any;
@@ -90,15 +91,18 @@ export class ConfigureItemComponent implements OnInit {
                 if (this.dashboard.layoutSettings.metric) {
                     this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
                 }
+                if (this.dashboard.layoutSettings.imageData) {
+                    this.imageData = this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] || {};
+                }
                 if (this.dashboard.layoutSettings.tabular) {
-                    this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {cta: {parameters: {}}};
+                    this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {};
                     if (this.tabularData.cta) {
                         this.ctaUpdate(this.tabularData.cta);
                     }
                 }
                 if (this.dashboard.layoutSettings.general) {
                     this.general = _.isPlainObject(this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey]) ?
-                        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {cta: {parameters: {}}};
+                        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {};
                     if (this.general.cta) {
                         this.ctaUpdate(this.general.cta);
                     }
@@ -152,25 +156,31 @@ export class ConfigureItemComponent implements OnInit {
 
     public async ctaUpdate(cta) {
         this.dashboardParameters = [];
-        if (cta.type && cta.type === 'dashboard') {
-            if (!cta.parameters) {
+        if (cta) {
+            if (cta.type && cta.type === 'dashboard') {
+                if (!cta.parameters) {
+                    cta.parameters = {};
+                }
+
+                const dashboard: any = await this.dashboardService.getDashboard(cta.value);
+                if (dashboard.layoutSettings.parameters) {
+                    this.dashboardParameters = _.values(dashboard.layoutSettings.parameters);
+
+                    setTimeout(() => {
+                        const el = document.getElementsByClassName('dashboard-param-pick').item(0);
+                        if (el) {
+                            el.scrollIntoView();
+                        }
+                    }, 0);
+                }
+            } else {
                 cta.parameters = {};
             }
-
-            const dashboard: any = await this.dashboardService.getDashboard(cta.value);
-            if (dashboard.layoutSettings.parameters) {
-                this.dashboardParameters = _.values(dashboard.layoutSettings.parameters);
-
-                setTimeout(() => {
-                    const el = document.getElementsByClassName('dashboard-param-pick').item(0);
-                    if (el) {
-                        el.scrollIntoView();
-                    }
-                }, 0);
-            }
-        } else {
-            cta.parameters = {};
         }
+    }
+
+    public setImageData(column) {
+        this.imageData.source = column ? this.dataset.allData[0][column] : null;
     }
 
     public editAlert(alert, index?) {
@@ -280,6 +290,11 @@ export class ConfigureItemComponent implements OnInit {
             this.dashboard.layoutSettings.general = {};
         }
         this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] = this.general;
+
+        if (!this.dashboard.layoutSettings.imageData) {
+            this.dashboard.layoutSettings.imageData = {};
+        }
+        this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] = this.imageData;
 
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});

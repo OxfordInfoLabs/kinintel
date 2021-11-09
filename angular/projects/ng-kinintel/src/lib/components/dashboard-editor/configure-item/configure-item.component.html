@@ -91,6 +91,24 @@
                 </div>
 
             </mat-tab>
+            <mat-tab label="Image" *ngIf="dashboardItemType.type === 'image'">
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <label class="mb-2">
+                            Select the column that corresponds to the desired image
+                            <select matNativeControl [(ngModel)]="imageData.column" (ngModelChange)="setImageData($event)">
+                                <option [value]="undefined">-- Select Column --</option>
+                                <ng-template [ngIf]="dataset">
+                                    <option *ngFor="let column of dataset.columns"
+                                            [value]="column.name">
+                                        {{column.title}}
+                                    </option>
+                                </ng-template>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </mat-tab>
             <mat-tab label="Table" *ngIf="dashboardItemType.type === 'table'">
                 <div class="w-1/2">
                     <div class="p-4">

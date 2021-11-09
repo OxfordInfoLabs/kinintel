@@ -11,7 +11,11 @@ module.exports = {
     },
     darkMode: 'class', // or 'media' or 'class'
     theme: {
-        extend: {},
+        extend: {
+            blur: {
+                xs: '2px',
+            }
+        },
         colors: {
             transparent: 'transparent',
             current: 'currentColor',

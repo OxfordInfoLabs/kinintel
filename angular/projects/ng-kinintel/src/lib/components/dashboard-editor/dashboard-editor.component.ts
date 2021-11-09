@@ -81,7 +81,21 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             label: 'Heading',
             icon: 'title',
             width: 4,
-            height: 1
+            height: 2
+        },
+        // {
+        //     type: 'text',
+        //     label: 'Text',
+        //     icon: 'text_fields',
+        //     width: 4,
+        //     height: 4
+        // },
+        {
+            type: 'image',
+            label: 'Image',
+            icon: 'image',
+            width: 3,
+            height: 5
         }
     ];
     public dashboard: any = {};
@@ -202,7 +216,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             });
 
             this.editDashboardTitle = !this.dashboard.title;
-            if (this.dashboard.displaySettings) {
+            if (this.dashboard.displaySettings.length || Object.keys(this.dashboard.displaySettings).length) {
                 this.darkMode = !!this.dashboard.displaySettings.darkMode;
                 this.setDarkModeOnBody();
                 if (this.dashboard.displaySettings.fullScreen) {
@@ -310,6 +324,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public save(showSaved = true) {
         this.dashboard.layoutSettings.grid = this.grid.save(true);
+        console.log(this.dashboard);
         return this.dashboardService.saveDashboard(this.dashboard).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {

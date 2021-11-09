@@ -1,6 +1,6 @@
 <ng-template [ngIf]="true">
 
-    <div class="align-center justify-between mb-4 flex-wrap">
+    <div class="align-center justify-between flex-wrap bg-gray-200 bg-opacity-70 p-2">
         <div *ngIf="editDashboardTitle" class="align-center ml-2">
             <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title">&nbsp;
         </div>
@@ -47,7 +47,7 @@
     </div>
 
 
-    <div class="dashboard-parameters" *ngIf="dashboard.layoutSettings">
+    <div class="dashboard-parameters bg-white px-4 py-2 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
         <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
             <label>
                 {{parameter.title}}
