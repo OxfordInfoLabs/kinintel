@@ -38,6 +38,7 @@ export class ItemComponentComponent {
     public loadingItem = false;
     public filterFields: any = [];
     public metricData: any = {};
+    public tabularData: any = {};
     public general: any = {};
     public alert = false;
     public alertData: any = [];
@@ -151,6 +152,10 @@ export class ItemComponentComponent {
                     if (this.dashboard.layoutSettings.general) {
                         this.general = this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] || {};
                     }
+
+                    if (this.dashboard.layoutSettings.tabular) {
+                        this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {};
+                    }
                     this.loadingItem = false;
                     this.configureClass = false;
                     this.setChartData();
@@ -208,37 +213,6 @@ export class ItemComponentComponent {
 
         this.dashboard.displaySettings.heading[this.itemInstanceKey] = this.dashboardItemType.headingValue;
         this.dashboardItemType._editing = false;
-    }
-
-    public callToAction() {
-        if (this.general.cta.type === 'edit') {
-            this.configure();
-        } else if (this.general.cta.type === 'dashboard') {
-            const params = _.pickBy(this.general.cta.parameters, (value, key) => {
-                return !_.startsWith(key, 'custom-');
-            });
-            Object.keys(params).forEach(paramKey => {
-                const matches = params[paramKey].match(/(?<=\[\[).+?(?=\]\])/g) || [];
-                matches.forEach(exp => {
-                    const parameter = this.dashboard.layoutSettings.parameters ? this.dashboard.layoutSettings.parameters[exp] : null;
-                    if (parameter) {
-                        params[paramKey] = params[paramKey].replace(`[[${exp}]]`, parameter.value);
-                    }
-                });
-            });
-            const urlParams = new URLSearchParams(params).toString();
-            window.location.href = `/dashboards/${this.general.cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
-        } else if (this.general.cta.type === 'custom') {
-            let url = this.general.cta.link;
-            const matches = this.general.cta.link.match(/(?<=\[\[).+?(?=\]\])/g) || [];
-            matches.forEach(exp => {
-                const parameter = this.dashboard.layoutSettings.parameters ? this.dashboard.layoutSettings.parameters[exp] : null;
-                if (parameter) {
-                    url = url.replace(`[[${exp}]]`, parameter.value);
-                }
-            });
-            window.location.href = url;
-        }
     }
 
     public setChartData() {
@@ -311,6 +285,43 @@ export class ItemComponentComponent {
             const changeClass = `${parseInt(this.metricData.subValue, 10) > 0 ? 'up' : 'down'}`;
             const icon = `${parseInt(this.metricData.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
             this.metricData.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metricData.subValue}</span>`;
+        }
+    }
+
+    public callToActionLink(cta, dataItem?) {
+        if (cta.type === 'dashboard') {
+            const params = _.pickBy(cta.parameters, (value, key) => {
+                return !_.startsWith(key, 'custom-');
+            });
+
+            const data = dataItem || this.dashboard.layoutSettings.parameters;
+
+            Object.keys(params).forEach(paramKey => {
+                const matches = params[paramKey].match(/(?<=\[\[).+?(?=\]\])/g) || [];
+                matches.forEach(exp => {
+                    const parameter = data ? data[exp] : null;
+                    if (parameter) {
+                        const value = _.isPlainObject(parameter) ? parameter.value : parameter;
+                        params[paramKey] = params[paramKey].replace(`[[${exp}]]`, value);
+                    }
+                });
+            });
+            const urlParams = new URLSearchParams(params).toString();
+            window.location.href = `/dashboards/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
+        } else if (cta.type === 'custom') {
+            let url = cta.link;
+            const matches = cta.link.match(/(?<=\[\[).+?(?=\]\])/g) || [];
+
+            const data = dataItem || this.dashboard.layoutSettings.parameters;
+
+            matches.forEach(exp => {
+                const parameter = data ? data[exp] : null;
+                if (parameter) {
+                    const value = _.isPlainObject(parameter) ? parameter.value : parameter;
+                    url = url.replace(`[[${exp}]]`, value);
+                }
+            });
+            window.location.href = url;
         }
     }
 }

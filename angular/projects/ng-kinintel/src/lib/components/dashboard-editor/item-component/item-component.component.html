@@ -94,7 +94,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let dataItem of dataset.allData">
+                <tr *ngFor="let dataItem of dataset.allData"
+                    [ngClass]="{'hover:bg-gray-50 cursor-pointer': tabularData.actionRows}"
+                    (click)="tabularData.actionRows ? callToActionLink(tabularData.cta, dataItem) : null">
                     <td *ngFor="let column of dataset.columns">{{dataItem[column.name]}}</td>
                 </tr>
                 </tbody>
@@ -105,7 +107,7 @@
     </div>
 
     <div class="actions" *ngIf="general.cta">
-        <button mat-button color="primary" (click)="callToAction()">
+        <button mat-button color="primary" (click)="callToActionLink(general.cta)">
             {{general.cta.label}}
             <mat-icon>chevron_right</mat-icon>
         </button>

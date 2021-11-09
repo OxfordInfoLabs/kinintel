@@ -21,6 +21,7 @@ export class ConfigureItemComponent implements OnInit {
     public grid;
     public chartData: any;
     public metricData: any = {};
+    public tabularData: any = {cta: {parameters: {}}};
     public general: any = {cta: {parameters: {}}};
     public dashboard;
     public dashboardItemType;
@@ -59,7 +60,7 @@ export class ConfigureItemComponent implements OnInit {
         filterJunctions: []
     };
 
-    private dataset: any;
+    public dataset: any;
 
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -89,9 +90,15 @@ export class ConfigureItemComponent implements OnInit {
                 if (this.dashboard.layoutSettings.metric) {
                     this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
                 }
+                if (this.dashboard.layoutSettings.tabular) {
+                    this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {cta: {parameters: {}}};
+                    if (this.tabularData.cta) {
+                        this.ctaUpdate(this.tabularData.cta);
+                    }
+                }
                 if (this.dashboard.layoutSettings.general) {
                     this.general = _.isPlainObject(this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey]) ?
-                        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {};
+                        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {cta: {parameters: {}}};
                     if (this.general.cta) {
                         this.ctaUpdate(this.general.cta);
                     }
@@ -155,8 +162,10 @@ export class ConfigureItemComponent implements OnInit {
                 this.dashboardParameters = _.values(dashboard.layoutSettings.parameters);
 
                 setTimeout(() => {
-                    document.getElementsByClassName('dashboard-param-pick').item(0)
-                        .scrollIntoView();
+                    const el = document.getElementsByClassName('dashboard-param-pick').item(0);
+                    if (el) {
+                        el.scrollIntoView();
+                    }
                 }, 0);
             }
         } else {
@@ -261,6 +270,11 @@ export class ConfigureItemComponent implements OnInit {
             this.dashboard.layoutSettings.metric = {};
         }
         this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] = this.metricData;
+
+        if (!this.dashboard.layoutSettings.tabular) {
+            this.dashboard.layoutSettings.tabular = {};
+        }
+        this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] = this.tabularData;
 
         if (!this.dashboard.layoutSettings.general) {
             this.dashboard.layoutSettings.general = {};

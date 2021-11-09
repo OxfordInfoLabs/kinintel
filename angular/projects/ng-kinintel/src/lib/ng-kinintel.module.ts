@@ -16,7 +16,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatChipsModule} from '@angular/material/chips';
 import {DatasourceComponent} from './components/datasource/datasource.component';
 import {DatasetComponent} from './components/dataset/dataset.component';
-import {DatasetEditorComponent} from './components/dataset/dataset-editor/dataset-editor.component';
+import {DatasetEditorComponent, DatasetEditorPopupComponent} from './components/dataset/dataset-editor/dataset-editor.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
@@ -97,7 +97,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
         SnapshotProfileDialogComponent,
         TaskTimePeriodsComponent,
         SnapshotsComponent,
-        ViewDashboardComponent
+        ViewDashboardComponent,
+        DatasetEditorPopupComponent
     ],
     imports: [
         BrowserModule,

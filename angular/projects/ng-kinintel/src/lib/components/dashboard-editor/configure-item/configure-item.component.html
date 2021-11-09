@@ -32,12 +32,12 @@
                         <label class="mb-2">
                             Call to action
                             <select matNativeControl [(ngModel)]="general.cta" [compareWith]="setCallToActionItem"
-                                        (ngModelChange)="ctaUpdate($event)">
+                                    (ngModelChange)="ctaUpdate($event)">
                                 <option value="">None</option>
                                 <option [ngValue]="{type: 'custom'}">Custom Link</option>
                                 <optgroup label="Dashboards">
                                     <option *ngFor="let dashboard of dashboards"
-                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                            [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
                                 </optgroup>
                             </select>
                             <small class="font-normal">Select the destination for the action link</small>
@@ -57,27 +57,30 @@
                             <input type="text" [(ngModel)]="general.cta.label">
                         </label>
 
-                        <ng-template [ngIf]="dashboardParameters.length">
+                        <ng-template [ngIf]="general.cta && dashboardParameters.length">
                             <p>Please enter the following parameters to use with this dashboard</p>
 
                             <ng-template ngFor let-param [ngForOf]="dashboardParameters">
                                 <label>{{param.title}}</label>
-                                <label *ngIf="!general.cta.parameters['custom-'+param.name]" class="mb-2 dashboard-param-pick">
+                                <label *ngIf="!general.cta.parameters['custom-'+param.name]"
+                                       class="mb-2 dashboard-param-pick">
                                     <select matNativeControl [(ngModel)]="general.cta.parameters[param.name]"
-                                        [compareWith]="ctaSelectOption">
+                                            [compareWith]="ctaSelectOption">
                                         <option [value]="undefined">-- Select Value --</option>
                                         <option *ngFor="let paramValue of dashboardParamValues"
-                                                    [value]="paramValue">
+                                                [value]="paramValue">
                                             {{paramValue}}
                                         </option>
                                     </select>
                                 </label>
                                 <div class="mb-2 flex items-center">
-                                    <mat-checkbox class="mr-1" [(ngModel)]="general.cta.parameters['custom-'+param.name]"></mat-checkbox>
+                                    <mat-checkbox class="mr-1"
+                                                  [(ngModel)]="general.cta.parameters['custom-'+param.name]"></mat-checkbox>
                                     <p class="mb-0 mt-1">Use custom value</p>
                                 </div>
                                 <label class="mb-2 dashboard-param-pick">
-                                    <input type="text" *ngIf="general.cta.parameters['custom-'+param.name]" placeholder="Enter custom parameter value"
+                                    <input type="text" *ngIf="general.cta.parameters['custom-'+param.name]"
+                                           placeholder="Enter custom parameter value"
                                            [(ngModel)]="general.cta.parameters[param.name]">
                                 </label>
                             </ng-template>
@@ -86,6 +89,76 @@
                         </ng-template>
                     </div>
                 </div>
+
+            </mat-tab>
+            <mat-tab label="Table" *ngIf="dashboardItemType.type === 'table'">
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <div class="mb-4 flex items-center">
+                            <mat-checkbox class="mr-2" [(ngModel)]="tabularData.actionRows"></mat-checkbox>
+                            <p class="mb-0 mt-1">Make table rows clickable</p>
+                        </div>
+
+                        <ng-template [ngIf]="tabularData.actionRows">
+                            <label class="mb-2">
+                                Call to action
+                                <select matNativeControl [(ngModel)]="tabularData.cta"
+                                        [compareWith]="setCallToActionItem"
+                                        (ngModelChange)="ctaUpdate($event)">
+                                    <option value="">None</option>
+                                    <option [ngValue]="{type: 'custom'}">Custom Link</option>
+                                    <optgroup label="Dashboards">
+                                        <option *ngFor="let dashboard of dashboards"
+                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                    </optgroup>
+                                </select>
+                                <small class="font-normal">Select the destination for the action link</small>
+                            </label>
+                            <ng-template [ngIf]="tabularData.cta.type === 'custom'">
+                                <p>Please enter the link for this call to action.</p>
+
+                                <label class="mb-2">
+                                    Link
+                                    <input type="text" [(ngModel)]="tabularData.cta.link">
+                                </label>
+
+                            </ng-template>
+
+                            <ng-template [ngIf]="tabularData.cta && dashboardParameters.length">
+                                <p>Please enter the following parameters to use with this dashboard</p>
+
+                                <ng-template ngFor let-param [ngForOf]="dashboardParameters">
+                                    <label>{{param.title}}</label>
+                                    <label *ngIf="!tabularData.cta.parameters['custom-'+param.name]"
+                                           class="mb-2 dashboard-param-pick">
+                                        <select matNativeControl [(ngModel)]="tabularData.cta.parameters[param.name]"
+                                                [compareWith]="ctaSelectOption">
+                                            <option [value]="undefined">-- Select Value --</option>
+                                            <ng-template [ngIf]="dataset">
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="'[['+column.name+']]'">
+                                                    {{column.title}}
+                                                </option>
+                                            </ng-template>
+                                        </select>
+                                    </label>
+                                    <div class="mb-2 flex items-center">
+                                        <mat-checkbox class="mr-2"
+                                                      [(ngModel)]="tabularData.cta.parameters['custom-'+param.name]"></mat-checkbox>
+                                        <p class="mb-0 mt-1">Use custom value</p>
+                                    </div>
+                                    <label class="mb-2 dashboard-param-pick">
+                                        <input type="text" *ngIf="tabularData.cta.parameters['custom-'+param.name]"
+                                               placeholder="Enter custom parameter value"
+                                               [(ngModel)]="tabularData.cta.parameters[param.name]">
+                                    </label>
+                                </ng-template>
+                            </ng-template>
+                        </ng-template>
+                    </div>
+
+                </div>
+
 
             </mat-tab>
             <mat-tab label="Metric" *ngIf="dashboardItemType.type === 'metric'">

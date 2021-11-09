@@ -390,6 +390,17 @@ export class DatasetEditorComponent implements OnInit {
         return n + (s[(v - 20) % 10] || s[v] || s[0]);
     }
 
+    public viewFullItemData(data, columnName) {
+        this.dialog.open(DatasetEditorPopupComponent, {
+            width: '800px',
+            height: '400px',
+            data: {
+                fullData: data,
+                columnName
+            }
+        });
+    }
+
     private validateFilterJunction(filterConfig) {
 
         const check = (filterJunction) => {
@@ -554,6 +565,24 @@ export class DatasetEditorComponent implements OnInit {
             config: transformation.type !== 'pagingmarker' ? transformation.config : null
         }, _.isNil));
         this.evaluateDataset();
+    }
+
+}
+
+@Component({
+    selector: 'ki-dataset-editor-popup',
+    templateUrl: 'dataset-editor-popup.html',
+    host: {class: 'dialog-wrapper'}
+})
+export class DatasetEditorPopupComponent {
+
+    public fullData: string;
+    public columnName: string;
+
+    constructor(@Inject(MAT_DIALOG_DATA) public data: DatasetEditorPopupComponent) {
+
+        this.fullData = this.data.fullData;
+        this.columnName = this.data.columnName;
     }
 
 }
