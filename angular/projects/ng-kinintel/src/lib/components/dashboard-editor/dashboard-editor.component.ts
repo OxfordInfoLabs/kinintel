@@ -198,6 +198,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         this.dashboardService.getDashboard(dashboardId).then(dashboard => {
             this.dashboard = dashboard;
+            if (!this.dashboard.title) {
+                this.dashboard.title = 'New Dashboard';
+                this.editDashboardTitle = true;
+            }
 
             // If we have any query params, check if they match any set out in the dashboard
             Object.keys(this.queryParams).forEach(key => {
@@ -215,8 +219,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 });
             });
 
-            this.editDashboardTitle = !this.dashboard.title;
-            if (this.dashboard.displaySettings.length || Object.keys(this.dashboard.displaySettings).length) {
+            if (this.dashboard.displaySettings && (this.dashboard.displaySettings.length || Object.keys(this.dashboard.displaySettings).length)) {
                 this.darkMode = !!this.dashboard.displaySettings.darkMode;
                 this.setDarkModeOnBody();
                 if (this.dashboard.displaySettings.fullScreen) {
@@ -294,7 +297,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 parameter.value = parameter.defaultValue || '';
                 this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
-            this.dashboardService.saveDashboard(this.dashboard);
+            console.log(this.dashboard);
+            this.save(false);
         });
     }
 
@@ -303,7 +307,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             'to fail.';
         if (window.confirm(message)) {
             delete this.dashboard.layoutSettings.parameters[parameter.name];
-            this.dashboardService.saveDashboard(this.dashboard);
+            this.save(false);
         }
     }
 

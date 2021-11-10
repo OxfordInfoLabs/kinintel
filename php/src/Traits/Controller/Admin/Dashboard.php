@@ -71,7 +71,7 @@ trait Dashboard {
      * @param string $projectKey
      */
     public function saveDashboard($dashboardSummary, $projectKey = null, $accountId = 0) {
-        $this->dashboardService->saveDashboard($dashboardSummary, $projectKey, is_numeric($accountId) ? $accountId : null);
+        return $this->dashboardService->saveDashboard($dashboardSummary, $projectKey, is_numeric($accountId) ? $accountId : null);
     }
 
 

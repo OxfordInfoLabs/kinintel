@@ -16,7 +16,7 @@
                     </mat-chip>
                 </mat-chip-list>
             </div>
-            <button mat-flat-button color="primary" [routerLink]="['/dashboards', 0]">
+            <button mat-flat-button color="primary" (click)="view(0)">
                 Add New Dashboard
             </button>
         </div>

@@ -131,7 +131,7 @@ export class ItemComponentComponent {
 
     public load() {
         this.init();
-
+        console.log('LOADING', this.dashboard);
         if (this.dashboardDatasetInstance) {
             this.loadingItem = true;
             this.configureClass = true;
@@ -157,6 +157,7 @@ export class ItemComponentComponent {
                     }
                     if (this.dashboard.layoutSettings.imageData) {
                         this.imageData = this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] || {};
+                        this.updateImageData();
                     }
 
                     if (this.dashboard.layoutSettings.tabular) {
@@ -262,6 +263,10 @@ export class ItemComponentComponent {
                 return item[this.dashboardItemType.xAxis];
             });
         }
+    }
+
+    public updateImageData() {
+        this.imageData.source = this.imageData.column ? this.dataset.allData[0][this.imageData.column] : null;
     }
 
     public updateMetricDataValues() {
