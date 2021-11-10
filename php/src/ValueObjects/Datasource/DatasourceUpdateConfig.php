@@ -20,13 +20,21 @@ class DatasourceUpdateConfig {
      */
     private $keyFieldNames;
 
+
+    /**
+     * @var UpdatableMappedField[]
+     */
+    private $mappedFields = [];
+
     /**
      * DatasourceUpdateConfig constructor.
      *
      * @param string[] $keyFieldNames
+     * @param UpdatableMappedField[] $mappedFields
      */
-    public function __construct($keyFieldNames = []) {
+    public function __construct($keyFieldNames = [], $mappedFields = []) {
         $this->keyFieldNames = $keyFieldNames;
+        $this->mappedFields = $mappedFields;
     }
 
 
@@ -42,6 +50,20 @@ class DatasourceUpdateConfig {
      */
     public function setKeyFieldNames($keyFieldNames) {
         $this->keyFieldNames = $keyFieldNames;
+    }
+
+    /**
+     * @return UpdatableMappedField[]
+     */
+    public function getMappedFields() {
+        return $this->mappedFields;
+    }
+
+    /**
+     * @param UpdatableMappedField[] $mappedFields
+     */
+    public function setMappedFields($mappedFields) {
+        $this->mappedFields = $mappedFields;
     }
 
 

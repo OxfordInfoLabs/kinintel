@@ -18,6 +18,7 @@ use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -219,8 +220,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $dbConnection = $this->returnDatabaseConnection();
 
-        Logger::log($query->getSQL());
-
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
         // Return a tabular dataset
@@ -267,6 +266,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Get all data from the dataset
         $allData = $dataset->getAllData();
 
+        // Update mapped field data
+        $dataset = $this->updateMappedFieldData(new ArrayTabularDataset($dataset->getColumns(), $allData), $updateMode);
 
         // Only continue if some data to process
         if (sizeof($allData) > 0) {
