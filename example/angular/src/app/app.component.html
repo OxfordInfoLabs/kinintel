@@ -135,7 +135,7 @@
 
         <ng-template [ngIf]="loggedIn">
             <div class="menu-items">
-                <p class="menu-title">Com..</p>
+                <p class="menu-title"></p>
                 <a [routerLink]="['/dashboards']" routerLinkActive="active" class="menu-item">
                     <mat-icon>dashboard</mat-icon>
                 </a>
@@ -184,7 +184,6 @@
     <div>
         <div class="menu-items">
             <p *ngIf="loggedIn && sessionUser" class="menu-title">
-                &nbsp;
             </p>
             <a *ngIf="!loggedIn" [routerLink]="['/login']" routerLinkActive="active" class="menu-item">
                 <mat-icon>login</mat-icon>
