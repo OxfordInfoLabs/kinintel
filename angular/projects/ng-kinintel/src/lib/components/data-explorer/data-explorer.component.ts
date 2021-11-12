@@ -106,7 +106,6 @@ export class DataExplorerComponent implements OnInit {
     private loadSnapshotProfiles() {
         this.datasetService.getSnapshotProfilesForDataset(this.datasetInstanceSummary.id)
             .then(snapshots => {
-                console.log(snapshots);
                 this.snapshotProfiles = snapshots;
             });
     }

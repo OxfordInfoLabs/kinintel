@@ -18,6 +18,7 @@ export class DatasetEditorComponent implements OnInit {
     @Input() datasetInstanceSummary: any;
     @Input() environment: any = {};
     @Input() admin: boolean;
+    @Input() dashboardParameters: any;
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() evaluatedDatasourceChange = new EventEmitter();
@@ -530,6 +531,20 @@ export class DatasetEditorComponent implements OnInit {
                 // the original object which the gui uses to draw transformation items.
                 const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
                 _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
+
+                this.parameterValues.forEach(param => {
+                    let value = param.value;
+                    if (_.isString(param.value) && param.value.includes('{{')) {
+                        if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
+                            const paramKey = param.value.replace('{{', '').replace('}}', '');
+                            if (this.dashboardParameters[paramKey]) {
+                                value = this.dashboardParameters[paramKey].value;
+                            }
+                        }
+                    }
+
+                    clonedDatasetInstance.parameterValues[param.name] = value;
+                });
 
                 return this.datasetService.evaluateDataset(
                     clonedDatasetInstance,

@@ -71,7 +71,6 @@ export class DatasetSummariseComponent implements OnInit {
     }
 
     public applySettings() {
-        console.log(this.summariseFields, this.summariseExpressions);
         const summariseTransformation: any = {
             summariseFieldNames: _.map(this.summariseFields, 'name'),
             expressions: _.map(this.summariseExpressions, expression => {

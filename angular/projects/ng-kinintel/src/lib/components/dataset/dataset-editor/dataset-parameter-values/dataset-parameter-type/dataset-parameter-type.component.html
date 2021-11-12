@@ -3,7 +3,7 @@
 
     <ng-template [ngIf]="parameter.type === 'text'">
         <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus [disabled]="parameter.value.includes('{{')">
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'numeric'">
         <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
@@ -52,7 +52,7 @@
             <mat-select [(value)]="parameter.value" class="mr-4">
                 <mat-option value="">-- Select Value --</mat-option>
                 <mat-option *ngFor="let field of parameter.values"
-                            [value]="field.value">{{field.title}} ({{field.value}})</mat-option>
+                            [value]="'{{'+field.name+'}}'">{{field.title}} ({{field.value}})</mat-option>
             </mat-select>
         </ng-template>
 
@@ -75,6 +75,4 @@
             </ng-template>
         </ng-template>
     </ng-template>
-
-    <!--    <small>Description</small>-->
 </div>

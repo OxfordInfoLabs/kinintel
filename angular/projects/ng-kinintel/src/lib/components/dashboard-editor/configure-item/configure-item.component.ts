@@ -21,9 +21,11 @@ export class ConfigureItemComponent implements OnInit {
     public grid;
     public chartData: any;
     public metricData: any = {};
+    public textData: any = {};
     public imageData: any = {};
-    public tabularData: any = {cta: {}};
-    public general: any = {cta: {}};
+    public tabularData: any = {};
+    public general: any = {};
+    public callToAction: any = {};
     public dashboard;
     public dashboardItemType;
     public dashboardDatasetInstance: any;
@@ -91,6 +93,9 @@ export class ConfigureItemComponent implements OnInit {
                 if (this.dashboard.layoutSettings.metric) {
                     this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
                 }
+                if (this.dashboard.layoutSettings.textData) {
+                    this.textData = this.dashboard.layoutSettings.textData[this.dashboardDatasetInstance.instanceKey] || {};
+                }
                 if (this.dashboard.layoutSettings.imageData) {
                     this.imageData = this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] || {};
                 }
@@ -103,9 +108,9 @@ export class ConfigureItemComponent implements OnInit {
                 if (this.dashboard.layoutSettings.general) {
                     this.general = _.isPlainObject(this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey]) ?
                         this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {};
-                    if (this.general.cta) {
-                        this.ctaUpdate(this.general.cta);
-                    }
+                }
+                if (this.dashboard.layoutSettings.callToAction) {
+                    this.callToAction = this.dashboard.layoutSettings.callToAction[this.dashboardDatasetInstance.instanceKey] || {};
                 }
             }
         }
@@ -295,6 +300,16 @@ export class ConfigureItemComponent implements OnInit {
             this.dashboard.layoutSettings.imageData = {};
         }
         this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] = this.imageData;
+
+        if (!this.dashboard.layoutSettings.textData) {
+            this.dashboard.layoutSettings.textData = {};
+        }
+        this.dashboard.layoutSettings.textData[this.dashboardDatasetInstance.instanceKey] = this.textData;
+
+        if (!this.dashboard.layoutSettings.callToAction) {
+            this.dashboard.layoutSettings.callToAction = {};
+        }
+        this.dashboard.layoutSettings.callToAction[this.dashboardDatasetInstance.instanceKey] = this.callToAction;
 
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});

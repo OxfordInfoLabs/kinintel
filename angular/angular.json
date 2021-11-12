@@ -35,7 +35,9 @@
                             "projects/example/src/styles.sass",
                             "./node_modules/gridstack/dist/gridstack.min.css"
                         ],
-                        "scripts": []
+                        "scripts": [
+                            "./node_modules/kinibind/dist/kinibind.js"
+                        ]
                     },
                     "configurations": {
                         "production": {

@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, HostBinding, Input, OnInit} from '@angular/core';
+import {
+    AfterViewInit, Compiler,
+    Component, ElementRef,
+    HostBinding, Injector,
+    Input,
+    NgModule, NgModuleRef,
+    OnInit,
+    ViewChild,
+    ViewContainerRef
+} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
@@ -11,13 +20,14 @@ import {DataExplorerComponent} from '../../data-explorer/data-explorer.component
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
 import {Router} from '@angular/router';
+declare var window: any;
 
 @Component({
     selector: 'ki-item-component',
     templateUrl: './item-component.component.html',
     styleUrls: ['./item-component.component.sass']
 })
-export class ItemComponentComponent {
+export class ItemComponentComponent implements AfterViewInit {
 
     @Input() dashboardItemType: any;
     @Input() itemInstanceKey: any;
@@ -27,6 +37,8 @@ export class ItemComponentComponent {
     @Input() grid: any;
 
     @HostBinding('class.justify-center') configureClass = false;
+
+    @ViewChild('textTemplate') textTemplate: ElementRef;
 
     public datasourceService: any;
     public datasetService: any;
@@ -40,9 +52,11 @@ export class ItemComponentComponent {
     public loadingItem = false;
     public filterFields: any = [];
     public metricData: any = {};
+    public textData: any = {};
     public imageData: any = {};
     public tabularData: any = {};
     public general: any = {};
+    public callToAction: any = {};
     public alert = false;
     public alertData: any = [];
     public showAlertData = false;
@@ -76,8 +90,10 @@ export class ItemComponentComponent {
     constructor(private dialog: MatDialog,
                 private kiDatasourceService: DatasourceService,
                 private kiDatasetService: DatasetService,
-                private kiAlertService: AlertService,
-                private router: Router) {
+                private kiAlertService: AlertService) {
+    }
+
+    ngAfterViewInit() {
     }
 
     public init(): void {
@@ -131,14 +147,26 @@ export class ItemComponentComponent {
 
     public load() {
         this.init();
-        console.log('LOADING', this.dashboard);
         if (this.dashboardDatasetInstance) {
             this.loadingItem = true;
             this.configureClass = true;
+
+            const mappedParams = {};
+            _.forEach(this.dashboardDatasetInstance.parameterValues, (value, key) => {
+                if (_.isString(value) && value.includes('{{')) {
+                    const globalKey = value.replace('{{', '').replace('}}', '');
+                    if (this.dashboard.layoutSettings.parameters && this.dashboard.layoutSettings.parameters[globalKey]) {
+                        mappedParams[key] = this.dashboard.layoutSettings.parameters[globalKey].value;
+                    }
+                } else {
+                    mappedParams[key] = value;
+                }
+            });
+
             return this.datasourceService.evaluateDatasource(
                 this.dashboardDatasetInstance.datasourceInstanceKey,
                 this.dashboardDatasetInstance.transformationInstances,
-                this.dashboardDatasetInstance.parameterValues,
+                mappedParams,
                 '0', '10')
                 .then(data => {
                     this.dataset = data;
@@ -162,6 +190,17 @@ export class ItemComponentComponent {
 
                     if (this.dashboard.layoutSettings.tabular) {
                         this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {};
+                    }
+
+                    if (this.dashboard.layoutSettings.textData) {
+                        this.textData = this.dashboard.layoutSettings.textData[this.dashboardDatasetInstance.instanceKey] || {};
+                        if (Object.keys(this.textData).length) {
+                            this.evaluateTextData();
+                        }
+                    }
+
+                    if (this.dashboard.layoutSettings.callToAction) {
+                        this.callToAction = this.dashboard.layoutSettings.callToAction[this.dashboardDatasetInstance.instanceKey] || {};
                     }
                     this.loadingItem = false;
                     this.configureClass = false;
@@ -210,6 +249,7 @@ export class ItemComponentComponent {
             const itemElement = document.getElementById(this.itemInstanceKey);
             const widget = itemElement.closest('.grid-stack-item');
             this.grid.removeWidget(widget);
+
         }
     }
 
@@ -222,20 +262,23 @@ export class ItemComponentComponent {
         this.dashboardItemType._editing = false;
     }
 
-    public setHeader(value) {
-        let returnString = value;
-        if (value) {
-            const matches = value.match(/(?<=\[\[).+?(?=\]\])/g) || [];
-            const data = this.dashboard.layoutSettings.parameters;
-            matches.forEach(exp => {
-                const parameter = data ? data[exp] : null;
-                if (parameter) {
-                    returnString = value.replace(`[[${exp}]]`, parameter.value);
-                }
+    public evaluateTextData() {
+        setTimeout(() => {
+            const element = document.getElementById(this.dashboardItemType.type + this.itemInstanceKey);
+            const data: any = {
+                dataSet: this.dataset.allData
+            };
+            _.forEach(this.dataset.allData[0] || [], (value, key) => {
+                data[key] = value;
             });
-        }
 
-        return returnString;
+            const Kinibind = window.Kinibind;
+            Kinibind.config = {
+                prefix: 'd',
+                templateDelimiters: ['[[', ']]']
+            };
+            const bind = new Kinibind(element, data);
+        }, 0);
     }
 
     public setChartData() {
@@ -324,31 +367,35 @@ export class ItemComponentComponent {
             const data = dataItem || this.dashboard.layoutSettings.parameters;
 
             Object.keys(params).forEach(paramKey => {
-                const matches = params[paramKey].match(/(?<=\[\[).+?(?=\]\])/g) || [];
-                matches.forEach(exp => {
-                    const parameter = data ? data[exp] : null;
-                    if (parameter) {
-                        const value = _.isPlainObject(parameter) ? parameter.value : parameter;
-                        params[paramKey] = params[paramKey].replace(`[[${exp}]]`, value);
-                    }
-                });
+                params[paramKey] = this.bindParametersInString(params[paramKey], data);
             });
             const urlParams = new URLSearchParams(params).toString();
             window.location.href = `/dashboards/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
         } else if (cta.type === 'custom') {
             let url = cta.link;
-            const matches = cta.link.match(/(?<=\[\[).+?(?=\]\])/g) || [];
 
             const data = dataItem || this.dashboard.layoutSettings.parameters;
 
+            url = this.bindParametersInString(url, data);
+            window.location.href = url;
+        }
+    }
+
+    public bindParametersInString(searchString, data?) {
+        if (!data) {
+            data = this.dashboard.layoutSettings.parameters;
+        }
+        if (searchString) {
+            const matches = searchString.match(/(?<=\{\{).+?(?=\}\})/g) || [];
             matches.forEach(exp => {
                 const parameter = data ? data[exp] : null;
                 if (parameter) {
                     const value = _.isPlainObject(parameter) ? parameter.value : parameter;
-                    url = url.replace(`[[${exp}]]`, value);
+                    searchString = searchString.replace(`{{${exp}}}`, value);
                 }
             });
-            window.location.href = url;
         }
+
+        return searchString;
     }
 }

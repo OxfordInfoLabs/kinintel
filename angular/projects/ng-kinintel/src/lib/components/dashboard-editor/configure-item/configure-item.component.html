@@ -10,7 +10,8 @@
     <rsz-layout class="row top" [directions]="['bottom']" [rFlex]="true">
         <div class="cell-contents">
             <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(datasetInstanceSummary)]="dashboardDatasetInstance"
-                               (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
+                               (dataLoaded)="dataLoaded($event)" [admin]="admin"
+                               [dashboardParameters]="dashboard.layoutSettings.parameters"></ki-dataset-editor>
         </div>
     </rsz-layout>
 
@@ -31,7 +32,7 @@
                         </label>
                         <label class="mb-2">
                             Call to action
-                            <select matNativeControl [(ngModel)]="general.cta" [compareWith]="setCallToActionItem"
+                            <select matNativeControl [(ngModel)]="callToAction" [compareWith]="setCallToActionItem"
                                     (ngModelChange)="ctaUpdate($event)">
                                 <option value="">None</option>
                                 <option [ngValue]="{type: 'custom'}">Custom Link</option>
@@ -42,29 +43,29 @@
                             </select>
                             <small class="font-normal">Select the destination for the action link</small>
                         </label>
-                        <ng-template [ngIf]="general.cta.type === 'custom'">
+                        <ng-template [ngIf]="callToAction.type === 'custom'">
                             <p>Please enter the link for this call to action.</p>
 
                             <label class="mb-2">
                                 Link
-                                <input type="text" [(ngModel)]="general.cta.link">
+                                <input type="text" [(ngModel)]="callToAction.link">
                             </label>
 
                         </ng-template>
 
                         <label class="mb-2">
                             Set action label
-                            <input type="text" [(ngModel)]="general.cta.label">
+                            <input type="text" [(ngModel)]="callToAction.label">
                         </label>
 
-                        <ng-template [ngIf]="general.cta && dashboardParameters.length">
+                        <ng-template [ngIf]="callToAction && dashboardParameters.length">
                             <p>Please enter the following parameters to use with this dashboard</p>
 
                             <ng-template ngFor let-param [ngForOf]="dashboardParameters">
                                 <label>{{param.title}}</label>
-                                <label *ngIf="!general.cta.parameters['custom-'+param.name]"
+                                <label *ngIf="!callToAction.parameters['custom-'+param.name]"
                                        class="mb-2 dashboard-param-pick">
-                                    <select matNativeControl [(ngModel)]="general.cta.parameters[param.name]"
+                                    <select matNativeControl [(ngModel)]="callToAction.parameters[param.name]"
                                             [compareWith]="ctaSelectOption">
                                         <option [value]="undefined">-- Select Value --</option>
                                         <option *ngFor="let paramValue of dashboardParamValues"
@@ -75,13 +76,13 @@
                                 </label>
                                 <div class="mb-2 flex items-center">
                                     <mat-checkbox class="mr-1"
-                                                  [(ngModel)]="general.cta.parameters['custom-'+param.name]"></mat-checkbox>
+                                                  [(ngModel)]="callToAction.parameters['custom-'+param.name]"></mat-checkbox>
                                     <p class="mb-0 mt-1">Use custom value</p>
                                 </div>
                                 <label class="mb-2 dashboard-param-pick">
-                                    <input type="text" *ngIf="general.cta.parameters['custom-'+param.name]"
+                                    <input type="text" *ngIf="callToAction.parameters['custom-'+param.name]"
                                            placeholder="Enter custom parameter value"
-                                           [(ngModel)]="general.cta.parameters[param.name]">
+                                           [(ngModel)]="callToAction.parameters[param.name]">
                                 </label>
                             </ng-template>
 
@@ -90,6 +91,17 @@
                     </div>
                 </div>
 
+            </mat-tab>
+            <mat-tab label="Text" *ngIf="dashboardItemType.type === 'text'">
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <label class="mb-2">
+                            Enter the HTML/Text for this item
+                            <textarea class="font-mono"
+                                cols="30" rows="10" [(ngModel)]="textData.value"></textarea>
+                        </label>
+                    </div>
+                </div>
             </mat-tab>
             <mat-tab label="Image" *ngIf="dashboardItemType.type === 'image'">
                 <div class="w-1/2">

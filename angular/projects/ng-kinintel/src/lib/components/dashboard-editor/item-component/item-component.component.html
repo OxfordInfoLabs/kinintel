@@ -53,7 +53,7 @@
 <ng-template [ngIf]="!dragItem && dashboardItemType.type === 'heading'">
 
     <div class="item-heading" *ngIf="!dashboardItemType._editing">
-        {{setHeader(dashboardItemType.headingValue)}}
+        {{bindParametersInString(dashboardItemType.headingValue)}}
     </div>
 
     <input type="text" *ngIf="dashboardItemType._editing" [(ngModel)]="dashboardItemType.headingValue"
@@ -67,6 +67,9 @@
     <div class="item-description" *ngIf="general.description">{{general.description}}</div>
 
     <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image'}">
+
+        <div [id]="dashboardItemType.type + itemInstanceKey" *ngIf="dashboardItemType.type === 'text'"
+            [innerHTML]="bindParametersInString(textData.value)"></div>
 
         <ng-template [ngIf]="dashboardItemType.type === 'metric'">
             <div class="metric-item">
@@ -117,9 +120,9 @@
 
     </div>
 
-    <div class="actions" *ngIf="general.cta && Object.keys(general.cta).length">
-        <button mat-button color="primary" (click)="callToActionLink(general.cta)">
-            {{general.cta.label}}
+    <div class="actions" *ngIf="callToAction && Object.keys(callToAction).length">
+        <button mat-button color="primary" (click)="callToActionLink(callToAction)">
+            {{callToAction.label}}
             <mat-icon>chevron_right</mat-icon>
         </button>
     </div>

@@ -113,13 +113,11 @@ export class SourceSelectorDialogComponent implements OnInit {
         const availableGlobalParamValues = [];
         if (this.dashboard.layoutSettings.parameters) {
             _.forEach(this.dashboard.layoutSettings.parameters, parameter => {
-                if (parameter.value) {
-                    availableGlobalParamValues.push({
-                        name: parameter.name,
-                        title: parameter.title,
-                        value: parameter.value
-                    });
-                }
+                availableGlobalParamValues.push({
+                    name: parameter.name,
+                    title: parameter.title,
+                    value: parameter.value
+                });
             });
         }
 

@@ -34,9 +34,14 @@
                         "styles": [
                             "src/custom-theme.scss",
                             "src/styles.sass",
-                            "./node_modules/gridstack/dist/gridstack.min.css"
+                            "./node_modules/gridstack/dist/gridstack.min.css",
+                            "./node_modules/codemirror/lib/codemirror.css"
                         ],
-                        "scripts": []
+                        "scripts": [
+                            "./node_modules/kinibind/dist/kinibind.js",
+                            "./node_modules/codemirror/lib/codemirror.js",
+                            "./node_modules/codemirror/mode/javascript.js"
+                        ]
                     },
                     "configurations": {
                         "production": {

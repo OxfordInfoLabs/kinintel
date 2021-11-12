@@ -10,7 +10,7 @@ ki-dashboard-editor
     width: 100%
 
 #toolbar
-    height: 64px
+    height: 50px
     position: fixed
     top: 0
     z-index: 99
@@ -19,10 +19,11 @@ ki-dashboard-editor
 
 #sidebar
     width: 250px
-    background-color: whitesmoke
-    border-right: none
+    background-color: white
+    //border-right: none
     position: fixed
     padding-bottom: 3rem
+    height: calc(100vh - 50px)
     .mat-drawer-inner-container
         display: flex
         flex-direction: column
@@ -30,8 +31,8 @@ ki-dashboard-editor
 
 #main
     background-color: whitesmoke
-    margin-top: 64px
-    height: calc(100vh - 64px)
+    margin-top: 50px
+    height: calc(100vh - 50px)
     //padding: 1rem
     margin-left: 250px !important
     &::-webkit-scrollbar
@@ -53,8 +54,8 @@ ki-dashboard-editor
         display: flex
         flex-wrap: wrap
     &.small-sidebar
-        margin-left: 50px !important
-        width: calc(100% - 50px)
+        margin-left: 55px !important
+        width: calc(100% - 55px)
     .content
         display: flex
         align-items: flex-start
@@ -64,7 +65,7 @@ ki-dashboard-editor
         min-height: 100vh
         flex-direction: column
 mat-sidenav
-    margin-top: 64px
+    margin-top: 50px
 
 mat-sidenav-container
     min-height: 100vh

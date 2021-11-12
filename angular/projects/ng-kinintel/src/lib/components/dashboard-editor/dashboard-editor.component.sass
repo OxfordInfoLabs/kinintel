@@ -4,12 +4,15 @@ h2.dashboard-title
 .title-input
     min-width: 300px
 
+.whitesmoke
+    background-color: whitesmoke
+
 .data-actions
     display: flex
     align-items: center
     button
         margin-left: .5rem
-        background-color: white
+        background-color: whitesmoke
         min-width: 54px
         mat-icon
             font-size: 20px
@@ -82,20 +85,33 @@ mat-drawer-container
     &:hover
         .remove-widget, .edit-widget
             display: block
-.draggable-toolbar
-    width: 100%
-    display: flex
-    padding: 1rem .5rem
-    cursor: default
-    .grid-stack-item
-        margin-right: .5rem
-        .grid-stack-item-content
+
+.grid-container
+    height: calc(100%  - 109px)
+    .right-panel
+        width: 250px
+        background-color: white
+        display: none
+        &.show
+            display: block
+        .draggable-toolbar
+            width: 100%
             display: flex
-            align-items: center
-            justify-content: center
-            width: 100px
-            height: 78px
-            flex-direction: column
+            padding: 1rem
+            cursor: default
+            flex-wrap: wrap
+            justify-content: space-between
+            .grid-stack-item
+                margin-bottom: 1rem
+                .grid-stack-item-content
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    width: 100px
+                    height: 78px
+                    flex-direction: column
+                    background-color: whitesmoke
+                    box-shadow: none
 
 .action-toolbar
     display: flex
@@ -140,7 +156,7 @@ mat-drawer-container
                         line-height: 20px
             input
                 font-size: .9rem
-                padding: .45rem
+                padding: .25rem .45rem
                 width: 175px
 
 .dashboard-editor-panel

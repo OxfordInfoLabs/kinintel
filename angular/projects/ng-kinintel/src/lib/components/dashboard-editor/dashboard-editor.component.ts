@@ -18,6 +18,7 @@ import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-pa
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -26,6 +27,8 @@ import {AlertService} from '../../services/alert.service';
     encapsulation: ViewEncapsulation.None
 })
 export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+
+    @Input() sidenavService: any;
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -83,13 +86,13 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             width: 4,
             height: 2
         },
-        // {
-        //     type: 'text',
-        //     label: 'Text',
-        //     icon: 'text_fields',
-        //     width: 4,
-        //     height: 4
-        // },
+        {
+            type: 'text',
+            label: 'Text',
+            icon: 'text_fields',
+            width: 4,
+            height: 4
+        },
         {
             type: 'image',
             label: 'Image',
@@ -102,9 +105,11 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     public activeSidePanel: string = null;
     public _ = _;
     public editDashboardTitle = false;
+    public dashboardParameters = new BehaviorSubject(null);
     public darkMode = false;
     public fullScreen = false;
     public admin: boolean;
+    public showEditPanel = false;
     public gridSpaces = [
         {
             label: 'Small',
@@ -236,12 +241,26 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             } else {
                 this.dashboard.layoutSettings = {};
             }
-        });
 
+            setTimeout(() => {
+                this.showEditPanel = true;
+                this.sidenavService.close();
+            }, 0);
+        });
     }
 
     ngOnDestroy() {
         document.body.classList.remove('dark');
+        this.sidenavService.open();
+    }
+
+    public editDashboardItems() {
+        this.showEditPanel = !this.showEditPanel;
+        if (this.showEditPanel) {
+            this.sidenavService.close();
+        } else {
+            this.sidenavService.open();
+        }
     }
 
     public openFullScreen() {
@@ -297,7 +316,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 parameter.value = parameter.defaultValue || '';
                 this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
-            console.log(this.dashboard);
             this.save(false);
         });
     }
@@ -311,24 +329,26 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    public setParameterValue() {
-        const parameters = _.values(this.dashboard.layoutSettings.parameters);
-        parameters.forEach(parameter => {
-            this.dashboard.datasetInstances.forEach(instance => {
-                if (!_.values(instance.parameterValues).length) {
-                    instance.parameterValues = {};
-                }
-                instance.parameterValues[parameter.name] = parameter.value;
-            });
-        });
+    public setParameterValue(parameter, value) {
+        // const parameters = _.values(this.dashboard.layoutSettings.parameters);
+        // parameters.forEach(parameter => {
+        //     this.dashboard.datasetInstances.forEach(instance => {
+        //         if (!_.values(instance.parameterValues).length) {
+        //             instance.parameterValues = {};
+        //         }
+        //         instance.parameterValues[parameter.name] = parameter.value;
+        //     });
+        // });
 
+        parameter.value = value;
+
+        this.save(false);
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public save(showSaved = true) {
         this.dashboard.layoutSettings.grid = this.grid.save(true);
-        console.log(this.dashboard);
         return this.dashboardService.saveDashboard(this.dashboard).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {
@@ -338,7 +358,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
             if (!this.dashboard.id) {
                 this.dashboard.id = dashboardId;
-                this.router.navigate([`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`]);
+                this.router.navigateByUrl(`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`);
+                // this.router.navigate([]);
             }
             return this.dashboard;
         });

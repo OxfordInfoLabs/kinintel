@@ -75,7 +75,6 @@ export class SnapshotProfileDialogComponent implements OnInit {
         }
 
         this.snapshot.processorConfig.timeLapsedFields.push(cloned);
-        console.log(this.snapshot);
     }
 
     public saveSnapshot() {
