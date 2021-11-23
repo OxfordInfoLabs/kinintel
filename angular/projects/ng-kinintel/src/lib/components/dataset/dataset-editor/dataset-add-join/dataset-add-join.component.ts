@@ -23,6 +23,7 @@ export class DatasetAddJoinComponent implements OnInit {
     public environment: any = {};
     public datasources: any = [];
     public datasets: any = [];
+    public sharedDatasets: any = [];
     public searchText = new BehaviorSubject('');
     public selectedSource: any;
     public filterFields: any;
@@ -36,7 +37,7 @@ export class DatasetAddJoinComponent implements OnInit {
             joinParameterMappings: []
         }
     };
-
+    public admin: boolean;
     public allColumns = true;
     public activeProject: any;
     public activeTag: any;
@@ -57,6 +58,7 @@ export class DatasetAddJoinComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.admin = !!this.data.admin;
         this.environment = this.data.environment || {};
         this.filterFields = this.data.filterFields;
         this.parameterValues = this.data.parameterValues;
@@ -70,22 +72,35 @@ export class DatasetAddJoinComponent implements OnInit {
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getDatasets()
+                    this.getDatasets(false)
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
         });
 
-        merge(this.searchText)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getDatasources()
-                )
-            ).subscribe((sources: any) => {
-            this.datasources = sources;
-        });
+        if (this.admin) {
+            merge(this.searchText)
+                .pipe(
+                    debounceTime(300),
+                    distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getDatasources()
+                    )
+                ).subscribe((sources: any) => {
+                this.datasources = sources;
+            });
+        } else {
+            merge(this.searchText)
+                .pipe(
+                    debounceTime(300),
+                    distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getDatasets(true)
+                    )
+                ).subscribe((datasets: any) => {
+                this.sharedDatasets = datasets;
+            });
+        }
 
         if (this.data.joinTransformation) {
             this.joinTransformation = this.data.joinTransformation;
@@ -260,11 +275,12 @@ export class DatasetAddJoinComponent implements OnInit {
             });
     }
 
-    private getDatasets() {
+    private getDatasets(shared) {
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
             '5',
-            '0'
+            '0',
+            shared ? null : ''
         ).pipe(map((datasets: any) => {
                 return datasets;
             })

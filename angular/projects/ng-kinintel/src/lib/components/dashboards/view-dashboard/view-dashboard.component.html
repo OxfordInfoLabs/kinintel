@@ -1,6 +1,6 @@
 <ng-template [ngIf]="true">
 
-    <div class="align-center justify-between mb-4 flex-wrap">
+    <div class="align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
         <div *ngIf="editDashboardTitle" class="align-center ml-2">
             <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title">&nbsp;
         </div>
@@ -39,11 +39,31 @@
                 <mat-icon *ngIf="darkMode">light_mode</mat-icon>
                 <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
             </button>
+            <button mat-button color="primary" class="align-center" title="Add/Edit dashboard items"
+                    (click)="editDashboardItems()">
+                <mat-icon>library_add</mat-icon>
+            </button>
             <div class="divider"></div>
             <button mat-button color="primary" class="align-center" (click)="save()" title="Save dashboard">
                 <mat-icon>save</mat-icon>
             </button>
         </div>
+    </div>
+
+    <div class="dashboard-parameters bg-white px-4 py-1 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
+        <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
+            <label>
+                {{parameter.title}}
+                <div class="parameter-input">
+                    <input [type]="parameter.type" [value]="parameter.value"
+                           (blur)="setParameterValue(parameter, $event.target.value)"
+                           (keyup.enter)="setParameterValue(parameter, $event.target.value)">
+                </div>
+
+            </label>
+
+            <div class="divider" *ngIf="_.values(dashboard.layoutSettings.parameters).length > 1"></div>
+        </ng-template>
     </div>
 
 </ng-template>

@@ -61,6 +61,7 @@ import { TaskTimePeriodsComponent } from './components/task-time-periods/task-ti
 import { SnapshotsComponent } from './components/snapshots/snapshots.component';
 import { ViewDashboardComponent } from './components/dashboards/view-dashboard/view-dashboard.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatRadioModule} from '@angular/material/radio';
 
 
 @NgModule({
@@ -129,7 +130,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
         MatTabsModule,
         RouterModule,
         MatAutocompleteModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatRadioModule
     ],
     exports: [
         DashboardEditorComponent,

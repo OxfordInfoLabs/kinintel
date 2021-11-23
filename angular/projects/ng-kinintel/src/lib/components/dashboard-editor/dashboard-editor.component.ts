@@ -18,7 +18,7 @@ import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-pa
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Subscription} from 'rxjs';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -88,8 +88,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         },
         {
             type: 'text',
-            label: 'Text',
-            icon: 'text_fields',
+            label: 'Template',
+            icon: 'wysiwyg',
             width: 4,
             height: 4
         },
@@ -155,10 +155,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
-            float: true,
-            cellHeight: 50,
-            minW: 1024,
-            disableOneColumnMode: true,
+            float: false,
+            cellHeight: 20,
+            minW: 768,
+            disableOneColumnMode: false,
             dragIn: '.draggable-toolbar .grid-stack-item', // add draggable to class
             dragInOptions: {
                 revert: 'invalid',
@@ -330,16 +330,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     public setParameterValue(parameter, value) {
-        // const parameters = _.values(this.dashboard.layoutSettings.parameters);
-        // parameters.forEach(parameter => {
-        //     this.dashboard.datasetInstances.forEach(instance => {
-        //         if (!_.values(instance.parameterValues).length) {
-        //             instance.parameterValues = {};
-        //         }
-        //         instance.parameterValues[parameter.name] = parameter.value;
-        //     });
-        // });
-
         parameter.value = value;
 
         this.save(false);
@@ -359,7 +349,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             if (!this.dashboard.id) {
                 this.dashboard.id = dashboardId;
                 this.router.navigateByUrl(`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`);
-                // this.router.navigate([]);
             }
             return this.dashboard;
         });
@@ -384,7 +373,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         element.appendChild(domElem);
 
-        element.firstChild.id = instanceId ? instanceId : Date.now().toString();
+        element.firstChild.id = instanceId ? instanceId : 'i' + Date.now().toString();
         instanceId = element.firstChild.id;
 
         componentRef.instance.admin = this.admin;
@@ -398,8 +387,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;
+        componentRef.instance.init();
         if (load) {
-            componentRef.instance.load();
+            if (this.dashboard.layoutSettings.dependencies) {
+                const dependencies = this.dashboard.layoutSettings.dependencies[instanceId] || {};
+                if (!dependencies.instanceKeys || !dependencies.instanceKeys.length) {
+                    componentRef.instance.load();
+                }
+            } else {
+                componentRef.instance.load();
+            }
         }
 
         if (this.dashboard.alertsEnabled) {

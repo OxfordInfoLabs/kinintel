@@ -3,11 +3,14 @@ import {HttpClient} from '@angular/common/http';
 import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
+import {BehaviorSubject} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DashboardService {
+
+    public dashboardItems = new BehaviorSubject({});
 
     constructor(private config: KinintelModuleConfig,
                 private http: HttpClient,

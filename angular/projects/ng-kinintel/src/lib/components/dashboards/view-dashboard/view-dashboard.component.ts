@@ -37,6 +37,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() datasetService: any;
     @Input() datasourceService: any;
     @Input() editAlerts: boolean;
+    @Input() sidenavService: any;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -149,12 +150,24 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             } else {
                 this.dashboard.layoutSettings = {};
             }
-        });
 
+            if (this.sidenavService) {
+                setTimeout(() => {
+                    this.sidenavService.close();
+                }, 0);
+            }
+        });
     }
 
     ngOnDestroy() {
         document.body.classList.remove('dark');
+        if (this.sidenavService) {
+            this.sidenavService.open();
+        }
+    }
+
+    public editDashboardItems() {
+        window.location.href = `/dashboards/${this.dashboard.id}`;
     }
 
     public openFullScreen() {
@@ -193,17 +206,10 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
-    public setParameterValue() {
-        const parameters = _.values(this.dashboard.layoutSettings.parameters);
-        parameters.forEach(parameter => {
-            this.dashboard.datasetInstances.forEach(instance => {
-                if (!_.values(instance.parameterValues).length) {
-                    instance.parameterValues = {};
-                }
-                instance.parameterValues[parameter.name] = parameter.value;
-            });
-        });
+    public setParameterValue(parameter, value) {
+        parameter.value = value;
 
+        this.save(false);
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }

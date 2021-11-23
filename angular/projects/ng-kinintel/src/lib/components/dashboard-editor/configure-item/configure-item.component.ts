@@ -9,6 +9,7 @@ import {DatasetService} from '../../../services/dataset.service';
 import {EditDashboardAlertComponent} from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 import {DatasetFilterComponent} from '../../dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
 import {Router} from '@angular/router';
+import {DatasourceService} from '../../../services/datasource.service';
 
 @Component({
     selector: 'ki-configure-item',
@@ -23,8 +24,9 @@ export class ConfigureItemComponent implements OnInit {
     public metricData: any = {};
     public textData: any = {};
     public imageData: any = {};
-    public tabularData: any = {};
+    public tabular: any = {};
     public general: any = {};
+    public dependencies: any = {};
     public callToAction: any = {};
     public dashboard;
     public dashboardItemType;
@@ -64,12 +66,14 @@ export class ConfigureItemComponent implements OnInit {
     };
 
     public dataset: any;
+    public _ = _;
 
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
                 private dashboardService: DashboardService,
                 private datasetService: DatasetService,
+                private datasourceService: DatasourceService,
                 private router: Router) {
     }
 
@@ -84,33 +88,28 @@ export class ConfigureItemComponent implements OnInit {
             this.selectedDatasource();
         } else {
             if (this.dashboard.layoutSettings) {
+                this.mapLayoutSettingsToComponentData();
+
                 if (this.dashboard.layoutSettings.parameters) {
                     this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
                         .filter('value')
                         .map('value')
                         .valueOf();
                 }
-                if (this.dashboard.layoutSettings.metric) {
-                    this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
-                }
-                if (this.dashboard.layoutSettings.textData) {
-                    this.textData = this.dashboard.layoutSettings.textData[this.dashboardDatasetInstance.instanceKey] || {};
-                }
-                if (this.dashboard.layoutSettings.imageData) {
-                    this.imageData = this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] || {};
-                }
-                if (this.dashboard.layoutSettings.tabular) {
-                    this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {};
-                    if (this.tabularData.cta) {
-                        this.ctaUpdate(this.tabularData.cta);
+
+                const matchDependencies = _.filter(this.dependencies, (dep, key) => {
+                    if (dep.type === 'MATCH') {
+                        dep.key = key;
+                        return true;
                     }
-                }
-                if (this.dashboard.layoutSettings.general) {
-                    this.general = _.isPlainObject(this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey]) ?
-                        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] : {};
-                }
-                if (this.dashboard.layoutSettings.callToAction) {
-                    this.callToAction = this.dashboard.layoutSettings.callToAction[this.dashboardDatasetInstance.instanceKey] || {};
+                    return false;
+                });
+                matchDependencies.forEach(dep => {
+                    this.updateInstanceFilterFields(dep, dep.key);
+                });
+
+                if (this.tabular.cta) {
+                    this.ctaUpdate(this.tabular.cta);
                 }
             }
         }
@@ -257,6 +256,13 @@ export class ConfigureItemComponent implements OnInit {
         return c1 === c2;
     }
 
+    public depSelection(c1: any, c2: any) {
+        if (!c2) {
+            return true;
+        }
+        return c1.type === c2.type;
+    }
+
     public backgroundColourUpdate() {
         if (this.dashboardItemType.type === 'line') {
             this.dashboardItemType.backgroundColor = this.dashboardItemType.backgroundColorFrom || 'black';
@@ -265,6 +271,40 @@ export class ConfigureItemComponent implements OnInit {
                 this.dashboardItemType.backgroundColorFrom || 'black',
                 this.dashboardItemType.backgroundColorTo || 'black']
             ).colors(this.dashboardItemType.labels.length);
+        }
+    }
+
+    public updateInstanceFilterFields(change, instanceKey) {
+        if (change.type === 'MATCH') {
+            const selectedDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey});
+            if (selectedDatasetInstance) {
+                const mappedParams = {};
+                _.forEach(selectedDatasetInstance.parameterValues, (value, key) => {
+                    if (_.isString(value) && value.includes('{{')) {
+                        const globalKey = value.replace('{{', '').replace('}}', '');
+                        if (this.dashboard.layoutSettings.parameters && this.dashboard.layoutSettings.parameters[globalKey]) {
+                            mappedParams[key] = this.dashboard.layoutSettings.parameters[globalKey].value;
+                        }
+                    } else {
+                        mappedParams[key] = value;
+                    }
+                });
+                this.datasourceService.evaluateDatasource(
+                    selectedDatasetInstance.datasourceInstanceKey,
+                    selectedDatasetInstance.transformationInstances,
+                    mappedParams,
+                    '0', '10')
+                    .then(data => {
+                        this.dataset = data;
+                        this.dependencies[instanceKey].filterFields = _.map(this.dataset.columns, column => {
+                            return {
+                                title: column.title,
+                                name: column.name
+                            };
+                        });
+                    });
+            }
+
         }
     }
 
@@ -281,35 +321,7 @@ export class ConfigureItemComponent implements OnInit {
 
         this.dashboard.layoutSettings.charts[this.dashboardDatasetInstance.instanceKey] = this.dashboardItemType;
 
-        if (!this.dashboard.layoutSettings.metric) {
-            this.dashboard.layoutSettings.metric = {};
-        }
-        this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] = this.metricData;
-
-        if (!this.dashboard.layoutSettings.tabular) {
-            this.dashboard.layoutSettings.tabular = {};
-        }
-        this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] = this.tabularData;
-
-        if (!this.dashboard.layoutSettings.general) {
-            this.dashboard.layoutSettings.general = {};
-        }
-        this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] = this.general;
-
-        if (!this.dashboard.layoutSettings.imageData) {
-            this.dashboard.layoutSettings.imageData = {};
-        }
-        this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] = this.imageData;
-
-        if (!this.dashboard.layoutSettings.textData) {
-            this.dashboard.layoutSettings.textData = {};
-        }
-        this.dashboard.layoutSettings.textData[this.dashboardDatasetInstance.instanceKey] = this.textData;
-
-        if (!this.dashboard.layoutSettings.callToAction) {
-            this.dashboard.layoutSettings.callToAction = {};
-        }
-        this.dashboard.layoutSettings.callToAction[this.dashboardDatasetInstance.instanceKey] = this.callToAction;
+        this.mapComponentDataToDashboardInstance();
 
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});
@@ -408,5 +420,27 @@ export class ConfigureItemComponent implements OnInit {
             const icon = `${parseInt(this.metricData.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
             this.metricData.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metricData.subValue}</span>`;
         }
+    }
+
+    private mapLayoutSettingsToComponentData() {
+        _.forEach(this.dashboard.layoutSettings, (data, key) => {
+            if (key !== 'grid') {
+                const defaultValue = _.isPlainObject(this[key]) ? {} : [];
+                this[key] = Object.keys(data).length ?
+                    (data[this.dashboardDatasetInstance.instanceKey] && Object.keys(data[this.dashboardDatasetInstance.instanceKey]).length ?
+                        data[this.dashboardDatasetInstance.instanceKey] : defaultValue) : defaultValue;
+            }
+        });
+    }
+
+    private mapComponentDataToDashboardInstance() {
+        const layoutSettings = ['metric', 'dependencies', 'tabular', 'general', 'imageData', 'textData', 'callToAction'];
+        layoutSettings.forEach(setting => {
+            if (!this.dashboard.layoutSettings[setting]) {
+                this.dashboard.layoutSettings[setting] = {};
+            }
+            const defaultData = _.isPlainObject(this[setting]) ? {} : [];
+            this.dashboard.layoutSettings[setting][this.dashboardDatasetInstance.instanceKey] = this[setting] || defaultData;
+        });
     }
 }

@@ -92,13 +92,66 @@
                 </div>
 
             </mat-tab>
+            <mat-tab label="Dependencies">
+                <div class="flex justify-between">
+                    <div class="w-1/2">
+                        <div class="p-4">
+                            <label class="mb-2">
+                                Select the dashboard item(s) this depends on
+                                <mat-select [(ngModel)]="dependencies.instanceKeys" multiple>
+                                    <mat-option *ngFor="let instance of dashboard.datasetInstances"
+                                                [value]="instance.instanceKey">
+                                        {{dashboard.layoutSettings.general ? (dashboard.layoutSettings.general[instance.instanceKey] ? dashboard.layoutSettings.general[instance.instanceKey].name || instance.instanceKey : instance.instanceKey) : instance.instanceKey }}
+                                    </mat-option>
+                                </mat-select>
+                            </label>
+
+                            <ng-template ngFor let-instanceKey [ngForOf]="dependencies.instanceKeys">
+                                <label class="mb-2">
+                                    Dependency result type for
+                                    {{dashboard.layoutSettings.general ? (dashboard.layoutSettings.general[instanceKey] ? dashboard.layoutSettings.general[instanceKey].name || instanceKey : instanceKey) : instanceKey }}
+                                    <mat-select [(ngModel)]="dependencies[instanceKey]" [compareWith]="depSelection"
+                                                (ngModelChange)="updateInstanceFilterFields($event, instanceKey)">
+                                        <mat-option [value]="{type: 'LOADED'}">Loaded</mat-option>
+                                        <mat-option [value]="{type: 'MATCH', filterJunction: _.clone(filterJunction), key: instanceKey}">
+                                            Matches Criteria
+                                        </mat-option>
+                                    </mat-select>
+                                </label>
+
+                                <ng-template
+                                    [ngIf]="dependencies[instanceKey] && dependencies[instanceKey].type === 'MATCH'">
+                                    <div class="w-full flex items-center" *ngIf="!dependencies[instanceKey].filterFields">
+                                        Loading filter component...
+                                    </div>
+                                    <ki-dataset-filters *ngIf="dependencies[instanceKey].filterFields" class="ml-0"
+                                                        [filterJunction]="dependencies[instanceKey].filterJunction"
+                                                        [filterFields]="dependencies[instanceKey].filterFields"></ki-dataset-filters>
+                                </ng-template>
+
+                            </ng-template>
+
+                        </div>
+                    </div>
+                    <div class="w-1/2">
+                        <div class="p-4">
+                            <label class="mb-2">
+                                No data notice message
+                                <input type="text" [(ngModel)]="dependencies.notice">
+                                <small class="font-normal">Enter the message to display when no data is returned from dependency.</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </mat-tab>
             <mat-tab label="Text" *ngIf="dashboardItemType.type === 'text'">
                 <div class="w-1/2">
                     <div class="p-4">
                         <label class="mb-2">
                             Enter the HTML/Text for this item
                             <textarea class="font-mono"
-                                cols="30" rows="10" [(ngModel)]="textData.value"></textarea>
+                                      cols="30" rows="10" [(ngModel)]="textData.value"></textarea>
                         </label>
                     </div>
                 </div>
@@ -108,7 +161,8 @@
                     <div class="p-4">
                         <label class="mb-2">
                             Select the column that corresponds to the desired image
-                            <select matNativeControl [(ngModel)]="imageData.column" (ngModelChange)="setImageData($event)">
+                            <select matNativeControl [(ngModel)]="imageData.column"
+                                    (ngModelChange)="setImageData($event)">
                                 <option [value]="undefined">-- Select Column --</option>
                                 <ng-template [ngIf]="dataset">
                                     <option *ngFor="let column of dataset.columns"
@@ -125,14 +179,14 @@
                 <div class="w-1/2">
                     <div class="p-4">
                         <div class="mb-4 flex items-center">
-                            <mat-checkbox class="mr-2" [(ngModel)]="tabularData.actionRows"></mat-checkbox>
+                            <mat-checkbox class="mr-2" [(ngModel)]="tabular.actionRows"></mat-checkbox>
                             <p class="mb-0 mt-1">Make table rows clickable</p>
                         </div>
 
-                        <ng-template [ngIf]="tabularData.actionRows">
+                        <ng-template [ngIf]="tabular.actionRows">
                             <label class="mb-2">
                                 Call to action
-                                <select matNativeControl [(ngModel)]="tabularData.cta"
+                                <select matNativeControl [(ngModel)]="tabular.cta"
                                         [compareWith]="setCallToActionItem"
                                         (ngModelChange)="ctaUpdate($event)">
                                     <option value="">None</option>
@@ -144,24 +198,24 @@
                                 </select>
                                 <small class="font-normal">Select the destination for the action link</small>
                             </label>
-                            <ng-template [ngIf]="tabularData.cta.type === 'custom'">
+                            <ng-template [ngIf]="tabular.cta.type === 'custom'">
                                 <p>Please enter the link for this call to action.</p>
 
                                 <label class="mb-2">
                                     Link
-                                    <input type="text" [(ngModel)]="tabularData.cta.link">
+                                    <input type="text" [(ngModel)]="tabular.cta.link">
                                 </label>
 
                             </ng-template>
 
-                            <ng-template [ngIf]="tabularData.cta && dashboardParameters.length">
+                            <ng-template [ngIf]="tabular.cta && dashboardParameters.length">
                                 <p>Please enter the following parameters to use with this dashboard</p>
 
                                 <ng-template ngFor let-param [ngForOf]="dashboardParameters">
                                     <label>{{param.title}}</label>
-                                    <label *ngIf="!tabularData.cta.parameters['custom-'+param.name]"
+                                    <label *ngIf="!tabular.cta.parameters['custom-'+param.name]"
                                            class="mb-2 dashboard-param-pick">
-                                        <select matNativeControl [(ngModel)]="tabularData.cta.parameters[param.name]"
+                                        <select matNativeControl [(ngModel)]="tabular.cta.parameters[param.name]"
                                                 [compareWith]="ctaSelectOption">
                                             <option [value]="undefined">-- Select Value --</option>
                                             <ng-template [ngIf]="dataset">
@@ -174,13 +228,13 @@
                                     </label>
                                     <div class="mb-2 flex items-center">
                                         <mat-checkbox class="mr-2"
-                                                      [(ngModel)]="tabularData.cta.parameters['custom-'+param.name]"></mat-checkbox>
+                                                      [(ngModel)]="tabular.cta.parameters['custom-'+param.name]"></mat-checkbox>
                                         <p class="mb-0 mt-1">Use custom value</p>
                                     </div>
                                     <label class="mb-2 dashboard-param-pick">
-                                        <input type="text" *ngIf="tabularData.cta.parameters['custom-'+param.name]"
+                                        <input type="text" *ngIf="tabular.cta.parameters['custom-'+param.name]"
                                                placeholder="Enter custom parameter value"
-                                               [(ngModel)]="tabularData.cta.parameters[param.name]">
+                                               [(ngModel)]="tabular.cta.parameters[param.name]">
                                     </label>
                                 </ng-template>
                             </ng-template>

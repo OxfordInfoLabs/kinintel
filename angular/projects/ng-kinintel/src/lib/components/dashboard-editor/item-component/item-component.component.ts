@@ -1,25 +1,13 @@
-import {
-    AfterViewInit, Compiler,
-    Component, ElementRef,
-    HostBinding, Injector,
-    Input,
-    NgModule, NgModuleRef,
-    OnInit,
-    ViewChild,
-    ViewContainerRef
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
-import 'gridstack/dist/gridstack.min.css';
-import {GridStack} from 'gridstack';
-// THEN to get HTML5 drag&drop
-import 'gridstack/dist/h5/gridstack-dd-native';
 import * as _ from 'lodash';
-import {DataExplorerComponent} from '../../data-explorer/data-explorer.component';
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
-import {Router} from '@angular/router';
+import {Subscription} from 'rxjs';
+import {DashboardService} from '../../../services/dashboard.service';
+
 declare var window: any;
 
 @Component({
@@ -51,10 +39,11 @@ export class ItemComponentComponent implements AfterViewInit {
     public dashboardDatasetInstance: any;
     public loadingItem = false;
     public filterFields: any = [];
+    public dependencies: any = {};
     public metricData: any = {};
     public textData: any = {};
     public imageData: any = {};
-    public tabularData: any = {};
+    public tabular: any = {};
     public general: any = {};
     public callToAction: any = {};
     public alert = false;
@@ -81,22 +70,21 @@ export class ItemComponentComponent implements AfterViewInit {
         }
     ];
 
-    private itemGrid: GridStack;
-
-    private static myClone(event) {
-        return event.target.cloneNode(true);
-    }
+    private itemLoadedSub: Subscription;
 
     constructor(private dialog: MatDialog,
                 private kiDatasourceService: DatasourceService,
                 private kiDatasetService: DatasetService,
-                private kiAlertService: AlertService) {
+                private kiAlertService: AlertService,
+                private dashboardService: DashboardService) {
     }
 
     ngAfterViewInit() {
     }
 
-    public init(): void {
+    public async init(evaluate = false) {
+        this.mapLayoutSettingsToComponentData();
+
         if (!this.datasourceService) {
             this.datasourceService = this.kiDatasourceService;
         }
@@ -113,6 +101,58 @@ export class ItemComponentComponent implements AfterViewInit {
             this.dashboard.displaySettings.heading &&
             this.dashboard.displaySettings.heading[this.itemInstanceKey]) {
             this.dashboardItemType.headingValue = this.dashboard.displaySettings.heading[this.itemInstanceKey];
+        }
+        this.configureClass = true;
+        if (this.dependencies.instanceKeys && this.dependencies.instanceKeys.length) {
+            this.loadingItem = true;
+
+            this.itemLoadedSub = this.dashboardService.dashboardItems.subscribe(async loaded => {
+                const loadedInstances = Object.keys(loaded);
+                const dependent = _.filter(loadedInstances, key => {
+                    return this.dependencies.instanceKeys.indexOf(key) > -1;
+                });
+                if (dependent.length === this.dependencies.instanceKeys.length) {
+                    if (this.itemLoadedSub) {
+                        this.itemLoadedSub.unsubscribe();
+                    }
+
+                    const allLoaded = _.every(this.dependencies.instanceKeys, key => {
+                        return this.dependencies[key].type === 'LOADED';
+                    });
+                    if (allLoaded) {
+                        this.evaluate();
+                    } else {
+                        const matches = _.filter(this.dependencies, {type: 'MATCH'});
+                        const allMatched = [];
+                        for (const dep of matches) {
+                            const selectedDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: dep.key});
+                            if (selectedDatasetInstance) {
+                                const mappedParams = this.getMappedParams(selectedDatasetInstance);
+
+                                const transformations = _.clone(selectedDatasetInstance.transformationInstances);
+                                transformations.push({type: 'filter', config: dep.filterJunction});
+
+                                const data = await this.datasourceService.evaluateDatasource(
+                                    selectedDatasetInstance.datasourceInstanceKey,
+                                    transformations,
+                                    mappedParams,
+                                    '0', '1');
+
+                                allMatched.push(data.allData.length === 1);
+                            }
+                        }
+                        if (_.every(allMatched)) {
+                            this.evaluate();
+                        } else {
+                            this.loadingItem = false;
+                            const itemElement: any = document.getElementById(this.itemInstanceKey).closest('.grid-stack-item');
+                            itemElement.classList.add('item-disabled');
+                        }
+                    }
+                }
+            });
+        } else if (evaluate) {
+            this.evaluate();
         }
     }
 
@@ -138,7 +178,7 @@ export class ItemComponentComponent implements AfterViewInit {
             dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
                 if (dashboardDatasetInstance) {
                     this.dashboardDatasetInstance = dashboardDatasetInstance;
-                    this.load();
+                    this.init(true);
                 }
             });
         }
@@ -146,110 +186,19 @@ export class ItemComponentComponent implements AfterViewInit {
     }
 
     public load() {
-        this.init();
         if (this.dashboardDatasetInstance) {
-            this.loadingItem = true;
-            this.configureClass = true;
-
-            const mappedParams = {};
-            _.forEach(this.dashboardDatasetInstance.parameterValues, (value, key) => {
-                if (_.isString(value) && value.includes('{{')) {
-                    const globalKey = value.replace('{{', '').replace('}}', '');
-                    if (this.dashboard.layoutSettings.parameters && this.dashboard.layoutSettings.parameters[globalKey]) {
-                        mappedParams[key] = this.dashboard.layoutSettings.parameters[globalKey].value;
-                    }
-                } else {
-                    mappedParams[key] = value;
-                }
-            });
-
-            return this.datasourceService.evaluateDatasource(
-                this.dashboardDatasetInstance.datasourceInstanceKey,
-                this.dashboardDatasetInstance.transformationInstances,
-                mappedParams,
-                '0', '10')
-                .then(data => {
-                    this.dataset = data;
-                    this.filterFields = _.map(this.dataset.columns, column => {
-                        return {
-                            title: column.title,
-                            name: column.name
-                        };
-                    });
-                    if (this.dashboard.layoutSettings.metric) {
-                        this.metricData = this.dashboard.layoutSettings.metric[this.dashboardDatasetInstance.instanceKey] || {};
-                        this.updateMetricDataValues();
-                    }
-                    if (this.dashboard.layoutSettings.general) {
-                        this.general = this.dashboard.layoutSettings.general[this.dashboardDatasetInstance.instanceKey] || {};
-                    }
-                    if (this.dashboard.layoutSettings.imageData) {
-                        this.imageData = this.dashboard.layoutSettings.imageData[this.dashboardDatasetInstance.instanceKey] || {};
-                        this.updateImageData();
-                    }
-
-                    if (this.dashboard.layoutSettings.tabular) {
-                        this.tabularData = this.dashboard.layoutSettings.tabular[this.dashboardDatasetInstance.instanceKey] || {};
-                    }
-
-                    if (this.dashboard.layoutSettings.textData) {
-                        this.textData = this.dashboard.layoutSettings.textData[this.dashboardDatasetInstance.instanceKey] || {};
-                        if (Object.keys(this.textData).length) {
-                            this.evaluateTextData();
-                        }
-                    }
-
-                    if (this.dashboard.layoutSettings.callToAction) {
-                        this.callToAction = this.dashboard.layoutSettings.callToAction[this.dashboardDatasetInstance.instanceKey] || {};
-                    }
-                    this.loadingItem = false;
-                    this.configureClass = false;
-                    this.setChartData();
-
-                    const itemElement = document.getElementById(this.dashboardDatasetInstance.instanceKey);
-
-                    if (this.dashboard.alertsEnabled) {
-                        if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
-                            this.alertService.processAlertsForDashboardDatasetInstance(this.dashboardDatasetInstance)
-                                .then((res: any) => {
-                                    if (res && res.length) {
-                                        this.alert = true;
-                                        this.alertData = res;
-                                        if (itemElement) {
-                                            itemElement.classList.add('alert');
-                                            itemElement.parentElement.classList.add('alert');
-                                        }
-                                    }
-                                });
-                        } else {
-                            this.alert = false;
-                            this.alertData = [];
-                            if (itemElement) {
-                                itemElement.classList.remove('alert');
-                                itemElement.parentElement.classList.remove('alert');
-                            }
-                        }
-                    } else {
-                        this.alert = false;
-                        this.alertData = [];
-                        if (itemElement) {
-                            itemElement.classList.remove('alert');
-                            itemElement.parentElement.classList.remove('alert');
-                        }
-                    }
-
-                }).catch(err => {
-                });
+            return this.evaluate();
         }
+        return Promise.resolve(true);
     }
 
     public removeWidget(event) {
         const message = 'Are your sure you would like to remove this item from your dashboard?';
         if (window.confirm(message)) {
             const itemElement = document.getElementById(this.itemInstanceKey);
+            _.remove(this.dashboard.datasetInstances, {instanceKey: this.itemInstanceKey});
             const widget = itemElement.closest('.grid-stack-item');
             this.grid.removeWidget(widget);
-
         }
     }
 
@@ -265,19 +214,21 @@ export class ItemComponentComponent implements AfterViewInit {
     public evaluateTextData() {
         setTimeout(() => {
             const element = document.getElementById(this.dashboardItemType.type + this.itemInstanceKey);
-            const data: any = {
-                dataSet: this.dataset.allData
-            };
-            _.forEach(this.dataset.allData[0] || [], (value, key) => {
-                data[key] = value;
-            });
+            if (element) {
+                const data: any = {
+                    dataSet: this.dataset.allData
+                };
+                _.forEach(this.dataset.allData[0] || [], (value, key) => {
+                    data[key] = value;
+                });
 
-            const Kinibind = window.Kinibind;
-            Kinibind.config = {
-                prefix: 'd',
-                templateDelimiters: ['[[', ']]']
-            };
-            const bind = new Kinibind(element, data);
+                const Kinibind = window.Kinibind;
+                Kinibind.config = {
+                    prefix: 'd',
+                    templateDelimiters: ['[[', ']]']
+                };
+                const bind = new Kinibind(element, data);
+            }
         }, 0);
     }
 
@@ -397,5 +348,110 @@ export class ItemComponentComponent implements AfterViewInit {
         }
 
         return searchString;
+    }
+
+    private evaluate() {
+        const itemElement = document.getElementById(this.itemInstanceKey);
+        const parentElement = itemElement.closest('.grid-stack-item');
+        parentElement.classList.remove('item-disabled');
+        if (this.grid && _.isFunction(this.grid.makeElement)) {
+            setTimeout(() => {
+                this.grid.makeElement(itemElement);
+            }, 0);
+        }
+
+        this.loadingItem = true;
+
+        const mappedParams = this.getMappedParams(this.dashboardDatasetInstance);
+
+        return this.datasourceService.evaluateDatasource(
+            this.dashboardDatasetInstance.datasourceInstanceKey,
+            this.dashboardDatasetInstance.transformationInstances,
+            mappedParams,
+            '0', '10')
+            .then(data => {
+                this.dataset = data;
+                this.filterFields = _.map(this.dataset.columns, column => {
+                    return {
+                        title: column.title,
+                        name: column.name
+                    };
+                });
+                if (this.dashboard.layoutSettings.metric) {
+                    this.updateMetricDataValues();
+                }
+
+                if (this.dashboard.layoutSettings.imageData) {
+                    this.updateImageData();
+                }
+
+                if (Object.keys(this.textData).length) {
+                    this.evaluateTextData();
+                }
+
+                this.loadingItem = false;
+                this.configureClass = false;
+                this.setChartData();
+
+                if (this.dashboard.alertsEnabled) {
+                    if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
+                        this.alertService.processAlertsForDashboardDatasetInstance(this.dashboardDatasetInstance)
+                            .then((res: any) => {
+                                if (res && res.length) {
+                                    this.alert = true;
+                                    this.alertData = res;
+                                    if (itemElement) {
+                                        itemElement.classList.add('alert');
+                                        itemElement.parentElement.classList.add('alert');
+                                    }
+                                }
+                            });
+                    } else {
+                        this.resetAlertData(itemElement);
+                    }
+                } else {
+                    this.resetAlertData(itemElement);
+                }
+
+                const existing = this.dashboardService.dashboardItems.getValue();
+                existing[this.itemInstanceKey] = true;
+                this.dashboardService.dashboardItems.next(existing);
+
+                return Promise.resolve(true);
+            }).catch(err => {
+            });
+    }
+
+    private getMappedParams(dashboardDatasetInstance) {
+        const mappedParams = {};
+        _.forEach(dashboardDatasetInstance.parameterValues, (value, key) => {
+            if (_.isString(value) && value.includes('{{')) {
+                const globalKey = value.replace('{{', '').replace('}}', '');
+                if (this.dashboard.layoutSettings.parameters && this.dashboard.layoutSettings.parameters[globalKey]) {
+                    mappedParams[key] = this.dashboard.layoutSettings.parameters[globalKey].value;
+                }
+            } else {
+                mappedParams[key] = value;
+            }
+        });
+        return mappedParams;
+    }
+
+    private resetAlertData(itemElement) {
+        this.alert = false;
+        this.alertData = [];
+        if (itemElement) {
+            itemElement.classList.remove('alert');
+            itemElement.parentElement.classList.remove('alert');
+        }
+    }
+
+    private mapLayoutSettingsToComponentData() {
+        _.forEach(this.dashboard.layoutSettings, (data, key) => {
+            if (key !== 'grid') {
+                const defaultValue = _.isPlainObject(this[key]) ? {} : [];
+                this[key] = Object.keys(data).length ? data[this.itemInstanceKey] || defaultValue : defaultValue;
+            }
+        });
     }
 }

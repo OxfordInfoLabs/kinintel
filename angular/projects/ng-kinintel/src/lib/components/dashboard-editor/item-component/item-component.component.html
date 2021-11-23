@@ -10,6 +10,12 @@
     </div>
 </div>
 
+<div class="item-disabled">
+    <p>{{general.name || dashboardItemType.label}}</p>
+    <mat-icon>block</mat-icon>
+    <p class="disabled-notice">{{dependencies.notice || 'No Data Available'}}</p>
+</div>
+
 <ng-template [ngIf]="dragItem">
     <mat-icon>{{dashboardItemType.icon}}</mat-icon>
     {{dashboardItemType.label}}
@@ -27,14 +33,14 @@
 
 <ng-template
     [ngIf]="!dragItem && !dashboardDatasetInstance && !dashboardItemType.headingValue && !dashboardItemType._editing">
-    <button mat-stroked-button color="primary" (click)="configure()">
+    <button mat-stroked-button color="primary" class="config-button" (click)="configure()">
         Configure {{dashboardItemType.label}}
     </button>
 </ng-template>
 
 <div class="loading-item" *ngIf="!dragItem && loadingItem">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading {{dashboardItemType.label}} ...</p>
+    <p>Loading {{general.name || dashboardItemType.label}} ...</p>
 </div>
 
 <button *ngIf="!dragItem && (!viewOnly || viewOnly && editAlerts)" mat-icon-button class="edit-widget" [matMenuTriggerFor]="editMenu">
@@ -109,8 +115,8 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let dataItem of dataset.allData"
-                    [ngClass]="{'hover:bg-gray-50 cursor-pointer': tabularData.actionRows}"
-                    (click)="tabularData.actionRows ? callToActionLink(tabularData.cta, dataItem) : null">
+                    [ngClass]="{'hover:bg-gray-50 cursor-pointer': tabular.actionRows}"
+                    (click)="tabular.actionRows ? callToActionLink(tabular.cta, dataItem) : null">
                     <td *ngFor="let column of dataset.columns">{{dataItem[column.name]}}</td>
                 </tr>
                 </tbody>

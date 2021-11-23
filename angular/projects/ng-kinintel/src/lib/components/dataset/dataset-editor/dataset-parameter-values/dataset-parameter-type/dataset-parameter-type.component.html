@@ -3,7 +3,7 @@
 
     <ng-template [ngIf]="parameter.type === 'text'">
         <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus [disabled]="parameter.value.includes('{{')">
+               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus [disabled]="parameter.value && parameter.value.includes('{{')">
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'numeric'">
         <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"

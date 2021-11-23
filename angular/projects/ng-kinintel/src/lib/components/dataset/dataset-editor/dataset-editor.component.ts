@@ -215,6 +215,7 @@ export class DatasetEditorComponent implements OnInit {
             });
         }
         const data: any = {
+            admin: this.admin,
             environment: this.environment,
             filterFields: this.filterFields,
             parameterValues: _.map(this.parameterValues, param => {
