@@ -121,6 +121,16 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     }
 
 
+    /**
+     * Return config
+     *
+     * @return mixed
+     */
+    public function returnConfig() {
+        list ($processor, $config) = $this->returnProcessorAndConfig();
+        return $config;
+    }
+
     // Return processor and config
     private function returnProcessorAndConfig() {
         $validationErrors = [];

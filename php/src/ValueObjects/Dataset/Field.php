@@ -123,6 +123,18 @@ class Field {
     }
 
 
+    /**
+     * Convert an array of fields to plain fields (remove any value expression)
+     *
+     * @param Field[] $fields
+     */
+    public static function toPlainFields($fields) {
+        return array_map(function ($field) {
+            return new Field($field->getName(), $field->getTitle(), null, $field->getType());
+        }, $fields);
+    }
+
+
     // Expand member expression
     private function expandMemberExpression($expression, $dataItem) {
 

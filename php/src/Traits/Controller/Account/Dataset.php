@@ -118,6 +118,22 @@ trait Dataset {
             $offset, $limit);
     }
 
+    /**
+     * Filter snapshot profiles optionally by a string, project and tags
+     *
+     * @http GET /snapshotprofile
+     *
+     * @param string $filterString
+     * @param string $projectKey
+     * @param string $tags
+     * @param int $offset
+     * @param int $limit
+     * @return \Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult[]
+     */
+    public function filterSnapshotProfiles($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
+        $tags = $tags ? explode(",", $tags) : [];
+        return $this->datasetService->filterSnapshotProfiles($filterString, $tags, $projectKey, $offset, $limit);
+    }
 
     /**
      * List snapshot profiles for dataset instance by instance id

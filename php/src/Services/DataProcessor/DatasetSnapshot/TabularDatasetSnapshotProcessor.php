@@ -38,6 +38,10 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     private $tableMapper;
 
 
+    // Data limit
+    const DATA_LIMIT = 10000;
+
+
     /**
      * TabularDatasetSnapshotProcessor constructor.
      *
@@ -99,11 +103,12 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         $offset = 0;
         $now = date("Y-m-d");
         do {
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, [], $offset, 10);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, [], [], $offset, self::DATA_LIMIT);
 
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
-                $fields = $this->updateDatasourceTableStructure($dataset->getColumns(), $config->getKeyFieldNames(), $columnTimeLapses, $dataSource);
+                $columns = Field::toPlainFields($dataset->getColumns());
+                $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSource);
             }
 
             // Grab all data
@@ -117,8 +122,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $dataSource->update($updateDataSet);
 
 
-            $offset += 10;
-        } while (sizeof($sourceData) == 10);
+            $offset += self::DATA_LIMIT;
+        } while (sizeof($sourceData) == self::DATA_LIMIT);
 
 
     }

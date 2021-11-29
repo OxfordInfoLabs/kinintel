@@ -51,6 +51,16 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
      */
     private $dataProcessorInstance;
 
+
+    /**
+     * @var DatasetInstanceLabel
+     * @manyToOne
+     * @readOnly
+     * @parentJoinColumns dataset_instance_id
+     */
+    private $datasetInstanceLabel;
+
+
     /**
      * DatasetInstanceSnapshotProfile constructor.
      * @param integer $datasetInstanceId
@@ -129,6 +139,15 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
     public function setDataProcessorInstance($dataProcessorInstance) {
         $this->dataProcessorInstance = $dataProcessorInstance;
     }
+
+    /**
+     * @return DatasetInstanceLabel
+     */
+    public function getDatasetInstanceLabel() {
+        return $this->datasetInstanceLabel;
+    }
+
+
 
     /**
      * Return a summary object

@@ -10,6 +10,7 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Authentication\DefaultDatasourceCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 
@@ -97,8 +98,8 @@ class DefaultDatasource extends SQLDatabaseDatasource {
          */
         $dbConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
 
-        // Create a create string
-        $columns = $sourceDataset->getColumns();
+        // Convert columns to plain fields to avoid double evaluations
+        $columns = Field::toPlainFields($sourceDataset->getColumns());
 
         $createColumns = [];
         foreach ($columns as $column) {

@@ -21,7 +21,7 @@ class ColumnsTransformation implements Transformation, SQLDatabaseTransformation
      * @param Field[] $columns
      */
     public function __construct($columns = []) {
-        $this->columns = $columns;
+        $this->columns = Field::toPlainFields($columns);
     }
 
 

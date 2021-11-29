@@ -91,7 +91,7 @@ class DatasetInstance extends DatasetInstanceSummary {
             $readOnly ? [] : $this->transformationInstances,
             $readOnly ? [] : $this->parameters,
             $parameterValues,
-            $readOnly ? null : $this->id, $readOnly);
+            $readOnly ? null : $this->id);
     }
 
 

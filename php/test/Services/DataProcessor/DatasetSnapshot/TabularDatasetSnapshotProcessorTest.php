@@ -74,7 +74,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("score")
             ], [
             ]), [
-                $datasetInstance, [], 0, 10
+                $datasetInstance, [], [], 0, TabularDatasetSnapshotProcessor::DATA_LIMIT
             ]);
 
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [25]);
@@ -139,24 +139,18 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $datasetInstance = new DatasetInstance(null, 1, null);
 
+        $firstDataset = [];
+        for ($i = 0; $i < TabularDatasetSnapshotProcessor::DATA_LIMIT; $i++) {
+            $firstDataset[] = ["title" => "Item $i", "metric" => $i + 1, "score" => $i + 1];
+        }
+
         $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance",
             new ArrayTabularDataset([
                 new Field("title"),
                 new Field("metric"),
                 new Field("score")
-            ], [
-                ["title" => "Item 1", "metric" => 1, "score" => 1],
-                ["title" => "Item 2", "metric" => 2, "score" => 2],
-                ["title" => "Item 3", "metric" => 3, "score" => 3],
-                ["title" => "Item 4", "metric" => 4, "score" => 4],
-                ["title" => "Item 5", "metric" => 5, "score" => 5],
-                ["title" => "Item 6", "metric" => 6, "score" => 6],
-                ["title" => "Item 7", "metric" => 7, "score" => 7],
-                ["title" => "Item 8", "metric" => 8, "score" => 8],
-                ["title" => "Item 9", "metric" => 9, "score" => 9],
-                ["title" => "Item 10", "metric" => 10, "score" => 10]
-            ]), [
-                $datasetInstance, [], 0, 10
+            ], $firstDataset), [
+                $datasetInstance, [], [], 0, TabularDatasetSnapshotProcessor::DATA_LIMIT
             ]);
 
 
@@ -171,7 +165,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["title" => "Item 13", "metric" => 13, "score" => 13],
 
             ]), [
-                $datasetInstance, [], 10, 10
+                $datasetInstance, [], [], TabularDatasetSnapshotProcessor::DATA_LIMIT, TabularDatasetSnapshotProcessor::DATA_LIMIT
             ]);
 
 
@@ -214,6 +208,11 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $now = date("Y-m-d");
 
+
+        for ($i = 0; $i < sizeof($firstDataset); $i++) {
+            $firstDataset[$i]["snapshot_date"] = $now;
+        }
+
         // Check all data was updated as expected
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
@@ -221,18 +220,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("title"),
                 new Field("metric"),
                 new Field("score")
-            ], [
-                ["snapshot_date" => $now, "title" => "Item 1", "metric" => 1, "score" => 1],
-                ["snapshot_date" => $now, "title" => "Item 2", "metric" => 2, "score" => 2],
-                ["snapshot_date" => $now, "title" => "Item 3", "metric" => 3, "score" => 3],
-                ["snapshot_date" => $now, "title" => "Item 4", "metric" => 4, "score" => 4],
-                ["snapshot_date" => $now, "title" => "Item 5", "metric" => 5, "score" => 5],
-                ["snapshot_date" => $now, "title" => "Item 6", "metric" => 6, "score" => 6],
-                ["snapshot_date" => $now, "title" => "Item 7", "metric" => 7, "score" => 7],
-                ["snapshot_date" => $now, "title" => "Item 8", "metric" => 8, "score" => 8],
-                ["snapshot_date" => $now, "title" => "Item 9", "metric" => 9, "score" => 9],
-                ["snapshot_date" => $now, "title" => "Item 10", "metric" => 10, "score" => 10]
-            ])
+            ], $firstDataset)
         ]));
 
 
@@ -265,7 +253,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["title" => "Item 1", "metric" => 1, "score" => 1],
                 ["title" => "Item 2", "metric" => 2, "score" => 2],
             ]), [
-                $datasetInstance, [], 0, 10
+                $datasetInstance, [], [], 0, TabularDatasetSnapshotProcessor::DATA_LIMIT
             ]);
 
 

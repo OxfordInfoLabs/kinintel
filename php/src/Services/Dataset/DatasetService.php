@@ -7,6 +7,7 @@ use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -16,6 +17,7 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -152,6 +154,64 @@ class DatasetService {
 
 
     /**
+     * Filter snapshot profiles for accounts, optionally by project key and tags.
+     *
+     * @param string $filterString
+     * @param array $tags
+     * @param string $projectKey
+     * @param int $offset
+     * @param int $limit
+     * @param string $accountId
+     */
+    public function filterSnapshotProfiles($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $clauses = [];
+        $params = [];
+        if ($accountId) {
+            $clauses[] = "datasetInstanceLabel.account_id = ?";
+            $params[] = $accountId;
+        }
+        if ($projectKey) {
+            $clauses[] = "datasetInstanceLabel.project_key = ?";
+            $params[] = $projectKey;
+        }
+
+        if ($tags && sizeof($tags) > 0) {
+            $clauses[] = "datasetInstanceLabel.tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+            $params = array_merge($params, $tags);
+        }
+
+        if ($filterString) {
+            $clauses[] = "(title LIKE ? OR datasetInstanceLabel.title LIKE ?)";
+            $params[] = "%$filterString%";
+            $params[] = "%$filterString%";
+        }
+
+        $query = sizeof($clauses) ? "WHERE " . join(" AND ", $clauses) : "";
+        $query .= " ORDER BY datasetInstanceLabel.title, title";
+
+        if ($limit) {
+            $query .= " LIMIT ?";
+            $params[] = $limit;
+        }
+        if ($offset) {
+            $query .= " OFFSET ?";
+            $params[] = $offset;
+        }
+
+
+        $snapshotProfiles = DatasetInstanceSnapshotProfile::filter($query, $params);
+
+
+        return array_map(function ($snapshotProfile) {
+            return new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile);
+        }, $snapshotProfiles);
+
+
+    }
+
+
+    /**
      * List all snapshots for a dataset instance
      *
      * @param $datasetInstanceId
@@ -203,7 +263,7 @@ class DatasetService {
         } // Otherwise create new
         else {
 
-            $dataProcessorKey = "dataset_snapshot_" . date("U");
+            $dataProcessorKey = "dataset_snapshot_" . (new \DateTime())->format("Uv");
 
             $processorConfig["snapshotIdentifier"] = $dataProcessorKey;
 

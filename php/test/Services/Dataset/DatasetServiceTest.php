@@ -21,6 +21,7 @@ use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -449,6 +450,139 @@ class DatasetServiceTest extends TestBase {
 
         }
 
+    }
+
+
+    public function testCanGetFilteredDatasetSnapshotProfiles() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $this->metaDataService->returnValue("getObjectTagsFromSummaries", [
+            new ObjectTag(new Tag(new TagSummary("Project", "My Project", "project"), 2, "soapSuds")),
+            new ObjectTag(new Tag(new TagSummary("Account2", "My Account", "account2"), 2, "soapSuds"))
+        ], [
+            [
+                new TagSummary("Project", "My Project", "project"),
+                new TagSummary("Account2", "My Account", "account2")
+            ], 2, "soapSuds"
+        ]);
+
+
+        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
+        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 2);
+
+        $dataSetInstanceSummary = new DatasetInstanceSummary("Another dataset", "test-json", null, [], [], []);
+        $instance2Id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, "soapSuds", 2);
+
+        $dataSetInstanceSummary = new DatasetInstanceSummary("Yet Another dataset", "test-json", null, [], [], []);
+        $dataSetInstanceSummary->setTags(
+            [new TagSummary("Project", "My Project", "project"),
+                new TagSummary("Account2", "My Account", "account2")]
+        );
+        $instance3Id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, "soapSuds", 2);
+
+
+        $snapshotProfile1 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
+            new ScheduledTaskTimePeriod(null, null, 0, 0)
+        ], "tabulardatasetsnapshot", [
+        ]);
+
+        $snapshotProfile1Id = $this->datasetService->saveSnapshotProfile($snapshotProfile1, $instanceId);
+
+
+        $snapshotProfile2 = new DatasetInstanceSnapshotProfileSummary("Weekly Snapshot", [
+            new ScheduledTaskTimePeriod(null, 1, 0, 0)
+        ], "tabulardatasetsnapshot", [
+        ]);
+
+
+        $snapshotProfile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile2, $instanceId);
+
+
+        $snapshotProfile3 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
+            new ScheduledTaskTimePeriod(null, null, 0, 0)
+        ], "tabulardatasetsnapshot", [
+        ]);
+
+        $snapshotProfile3Id = $this->datasetService->saveSnapshotProfile($snapshotProfile3, $instance2Id);
+
+
+        $snapshotProfile4 = new DatasetInstanceSnapshotProfileSummary("Weekly Snapshot", [
+            new ScheduledTaskTimePeriod(null, 1, 0, 0)
+        ], "tabulardatasetsnapshot", [
+        ]);
+
+
+        $snapshotProfile4Id = $this->datasetService->saveSnapshotProfile($snapshotProfile4, $instance2Id);
+
+
+        $snapshotProfile5 = new DatasetInstanceSnapshotProfileSummary("Tagged Snapshot", [
+            new ScheduledTaskTimePeriod(null, 1, 0, 0)
+        ], "tabulardatasetsnapshot", [
+        ]);
+
+
+        $snapshotProfile5Id = $this->datasetService->saveSnapshotProfile($snapshotProfile5, $instance3Id);
+
+
+        $snapshotProfile1 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile1Id);
+        $snapshotProfile2 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile2Id);
+        $snapshotProfile3 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile3Id);
+        $snapshotProfile4 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile4Id);
+        $snapshotProfile5 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile5Id);
+
+
+        // Now check we get back what we are expecting in alphabetical order for an account only query
+        $matches = $this->datasetService->filterSnapshotProfiles("", [], null, 0, 10, 2);
+        $this->assertEquals(5, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[2]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile2), $matches[3]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[4]);
+
+
+        // Limit to project
+        $matches = $this->datasetService->filterSnapshotProfiles("", [], "soapSuds", 0, 10, 2);
+        $this->assertEquals(3, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[2]);
+
+
+        // Limit to project and tags
+        $matches = $this->datasetService->filterSnapshotProfiles("", ["project"], "soapSuds", 0, 10, 2);
+        $this->assertEquals(1, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[0]);
+
+        // Limit to filter string
+        $matches = $this->datasetService->filterSnapshotProfiles("another", [], null, 0, 10, 2);
+        $this->assertEquals(3, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[2]);
+
+        $matches = $this->datasetService->filterSnapshotProfiles("daily", [], null, 0, 10, 2);
+        $this->assertEquals(2, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[1]);
+
+
+        // Offset and limit
+        $matches = $this->datasetService->filterSnapshotProfiles("", [], null, 0, 3, 2);
+        $this->assertEquals(3, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[2]);
+
+
+        $matches = $this->datasetService->filterSnapshotProfiles("", [], null, 1, 3, 2);
+        $this->assertEquals(3, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[1]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile2), $matches[2]);
     }
 
 

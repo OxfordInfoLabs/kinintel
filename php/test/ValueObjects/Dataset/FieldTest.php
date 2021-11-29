@@ -40,4 +40,19 @@ class FieldTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testCanGetPlainFieldsFromArrayOfFields() {
+
+        $field1 = new Field("name", "Name", "Hello [[object.text]] World", Field::TYPE_INTEGER);
+        $field2 = new Field("address", "Address", "[[object.address]]", Field::TYPE_STRING);
+        $field3 = new Field("phone", "Phone", "[[object.phone]]", Field::TYPE_INTEGER);
+
+        $plainFields = Field::toPlainFields([$field1, $field2, $field3]);
+        $this->assertEquals([new Field("name", "Name", null, Field::TYPE_INTEGER),
+            new Field("address", "Address", null, Field::TYPE_STRING),
+            new Field("phone", "Phone", null, Field::TYPE_INTEGER)], $plainFields);
+
+
+    }
+
 }
