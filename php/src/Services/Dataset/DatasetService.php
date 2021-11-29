@@ -24,6 +24,7 @@ use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -378,5 +379,20 @@ class DatasetService {
         }
     }
 
+
+    /**
+     * Export a dataset using a defined exporter and configuration
+     *
+     * @param DatasetInstanceSummary $datasetInstance
+     * @param string $exporterKey
+     * @param DatasetExporterConfiguration $exporterConfiguration
+     * @param array $parameterValues
+     * @param TransformationInstance[] $additionalTransformations
+     * @param int $offset
+     * @param int $limit
+     */
+    public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
+
+    }
 
 }
