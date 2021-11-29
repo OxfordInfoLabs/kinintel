@@ -164,6 +164,14 @@ class DatasetInstanceSnapshotProfileSearchResult {
         $this->snapshotProfileTitle = $snapshotProfileTitle;
     }
 
+
+    /**
+     * Get full title
+     */
+    public function getFullTitle() {
+        return $this->parentDatasetTitle . ": " . $this->snapshotProfileTitle;
+    }
+
     /**
      * @return string
      */
