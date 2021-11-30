@@ -3,10 +3,12 @@
 
 namespace Kinintel\Services\Dataset\Exporter;
 
+use Kinikit\MVC\ContentSource\ContentSource;
+use Kinikit\MVC\ContentSource\StringContentSource;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 
-class JSONDatasetExporter implements DatasetExporter {
+class JSONDatasetExporter extends DatasetExporter {
 
     /**
      * No config class required for JSON as simply relaying raw results
@@ -18,13 +20,28 @@ class JSONDatasetExporter implements DatasetExporter {
     }
 
     /**
+     * Get download file extension
+     *
+     * @param DatasetExporterConfiguration $exportConfiguration
+     * @return string|void
+     */
+    public function getDownloadFileExtension($exportConfiguration = null) {
+        return "json";
+    }
+
+
+    /**
      * Export dataset in JSON format
      *
      * @param TabularDataset $dataset
      * @param DatasetExporterConfiguration $exportConfiguration
+     *
+     * @return ContentSource
      */
     public function exportDataset($dataset, $exportConfiguration = null) {
         $allData = $dataset->getAllData();
-        print(json_encode($allData));
+        return new StringContentSource(json_encode($allData), "application/json");
     }
+
+
 }

@@ -8,8 +8,11 @@ use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinikit\MVC\ContentSource\ContentSource;
+use Kinikit\MVC\Response\Download;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
@@ -23,6 +26,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
+use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -385,13 +389,37 @@ class DatasetService {
      *
      * @param DatasetInstanceSummary $datasetInstance
      * @param string $exporterKey
-     * @param DatasetExporterConfiguration $exporterConfiguration
+     * @param mixed $exporterConfiguration
      * @param array $parameterValues
      * @param TransformationInstance[] $additionalTransformations
      * @param int $offset
      * @param int $limit
+     *
+     * @return Download
+     *
      */
     public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
+
+        /**
+         * Get an exporter instance
+         *
+         * @var DatasetExporter $exporter
+         */
+        $exporter = Container::instance()->getInterfaceImplementation(DatasetExporter::class, $exporterKey);
+
+        // Validate configuration
+        $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
+
+
+        // Grab the dataset.
+        $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+
+
+        // Create export filename
+        $filename = str_replace(" ", "_", strtolower($datasetInstance->getTitle())) . "-" . date("U") . "." . $exporter->getDownloadFileExtension($exporterConfiguration);
+
+        // Return a new download
+        return new Download($exporter->exportDataset($dataset, $exporterConfiguration), $filename);
 
     }
 

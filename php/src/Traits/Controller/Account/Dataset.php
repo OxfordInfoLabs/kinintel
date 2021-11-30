@@ -4,11 +4,15 @@
 namespace Kinintel\Traits\Controller\Account;
 
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\StringUtils;
+use Kinikit\MVC\Response\Download;
+use Kinikit\MVC\Response\SimpleResponse;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
 use Kinintel\ValueObjects\Dataset\EvaluatedDataset;
+use Kinintel\ValueObjects\Dataset\ExportDataset;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -117,6 +121,23 @@ trait Dataset {
         return $this->datasetService->getEvaluatedDataSetForDataSetInstance($datasetInstanceSummary, [], [],
             $offset, $limit);
     }
+
+
+    /**
+     * Export a dataset, streaming results directly
+     *
+     * @http POST /export
+     *
+     * @param ExportDataset $exportDataset
+     */
+    public function exportDataset($exportDataset) {
+
+        return $this->datasetService->exportDatasetInstance($exportDataset->getDataSetInstanceSummary(),
+            $exportDataset->getExporterKey(), $exportDataset->getExporterConfiguration(),
+            $exportDataset->getParameterValues(), $exportDataset->getTransformationInstances(),
+            $exportDataset->getOffset(), $exportDataset->getLimit());
+    }
+
 
     /**
      * Filter snapshot profiles optionally by a string, project and tags

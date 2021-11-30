@@ -4,17 +4,17 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class EvaluatedDataset {
 
     /**
-     * Dataset instance id
+     * Dataset instance summary
      *
-     * @var integer
+     * @var DatasetInstanceSummary
      */
-    private $dataSet;
-
+    private $dataSetInstanceSummary;
 
     /**
      * Transformation instances
@@ -44,18 +44,19 @@ class EvaluatedDataset {
     private $limit;
 
     /**
-     * @return int
+     * @return DatasetInstanceSummary
      */
-    public function getInstanceId() {
-        return $this->instanceId;
+    public function getDataSetInstanceSummary() {
+        return $this->dataSetInstanceSummary;
     }
 
     /**
-     * @param int $instanceId
+     * @param DatasetInstanceSummary $dataSetInstanceSummary
      */
-    public function setInstanceId($instanceId) {
-        $this->instanceId = $instanceId;
+    public function setDataSetInstanceSummary($dataSetInstanceSummary) {
+        $this->dataSetInstanceSummary = $dataSetInstanceSummary;
     }
+
 
     /**
      * @return TransformationInstance[]

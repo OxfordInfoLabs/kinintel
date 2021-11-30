@@ -3,6 +3,8 @@
 
 namespace Kinintel\Test\Services\Dataset\Exporter;
 
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\MVC\ContentSource\StringContentSource;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Dataset\Exporter\JSONDatasetExporter;
 use Kinintel\TestBase;
@@ -14,7 +16,7 @@ class JSONDatasetExporterTest extends TestBase {
 
     public function testDatasetIsEvaluatedAndConvertedToJSON() {
 
-        $jsonExporter = new JSONDatasetExporter();
+        $jsonExporter = Container::instance()->get(JSONDatasetExporter::class);
 
         $data = [
             ["name" => "Bob", "age" => 33],
@@ -27,12 +29,9 @@ class JSONDatasetExporterTest extends TestBase {
             new Field("age")
         ], $data);
 
-        ob_start();
-        $jsonExporter->exportDataset($dataset);
-        $result = ob_get_contents();
-        ob_end_clean();
 
-        $this->assertEquals(json_encode($data), $result);
+        $contentSource = $jsonExporter->exportDataset($dataset);
+        $this->assertEquals(new StringContentSource(json_encode($data), "application/json"), $contentSource);
 
 
     }

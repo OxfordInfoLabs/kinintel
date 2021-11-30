@@ -13,9 +13,12 @@ use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Core\Serialisation\JSON\ObjectToJSONConverter;
+use Kinikit\Core\Testing\ConcreteClassGenerator;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
+use Kinikit\MVC\ContentSource\StringContentSource;
+use Kinikit\MVC\Response\Download;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -24,12 +27,17 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
+use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Test\Services\Dataset\Exporter\TestExporterConfig;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -771,8 +779,99 @@ class DatasetServiceTest extends TestBase {
 
     }
 
+    public function testCanExportDatasetUsingSuppliedExporterKeyAndValidConfiguration() {
 
-   
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $dataSetInstance = new DatasetInstanceSummary("Test Dataset", "test-json", null, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "foobar")
+            ]))
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)]);
+        $this->datasetService->saveDataSetInstance($dataSetInstance, null, null);
+
+
+        $dataset = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Bob", "age" => 22],
+            ["name" => "Mary", "age" => 32],
+            ["name" => "Jane", "age" => 45]
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource",
+            $dataset,
+            [
+                "test-json",
+                ["param1" => "Test",
+                    "param2" => 44,
+                    "param3" => true],
+                [
+                    new TransformationInstance("filter", new FilterTransformation([
+                        new Filter("property", "foobar")
+                    ])),
+                    new TransformationInstance("filter", new FilterTransformation([
+                        new Filter("property", "pickle")
+                    ]))
+                ], 10, 30
+            ]);
+
+        $exportConfig = new TestExporterConfig("Test", 11);
+        $mockExporter = MockObjectProvider::instance()->getMockInstance(DatasetExporter::class);
+        Container::instance()->addInterfaceImplementation(DatasetExporter::class, "test", get_class($mockExporter));
+        Container::instance()->set(get_class($mockExporter), $mockExporter);
+
+        $mockExporter->returnValue("getConfigClass", TestExporterConfig::class);
+        $mockExporter->returnValue("getDownloadFileExtension", "test", [$exportConfig]);
+        $mockExporter->returnValue("validateConfig", $exportConfig, [$exportConfig]);
+
+        $mockExporter->returnValue("exportDataset",
+            new StringContentSource("HELLO WORLD"),
+            [
+                $dataset, $exportConfig
+            ]);
+
+
+        $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
+            "test",
+            $exportConfig,
+            [
+                "param1" => "Test",
+                "param2" => 44,
+                "param3" => true
+            ], [new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "pickle")]))], 10, 30);
+
+
+        $this->assertEquals(new Download(new StringContentSource("HELLO WORLD"), "test_dataset-" . date("U") . ".test"), $response);
+
+    }
+
+
+    public function testIfInvalidExportConfigurationSuppliedExceptionRaised() {
+
+        $mockExporter = MockObjectProvider::instance()->getMockInstance(DatasetExporter::class);
+        Container::instance()->addInterfaceImplementation(DatasetExporter::class, "test", get_class($mockExporter));
+        Container::instance()->set(get_class($mockExporter), $mockExporter);
+
+        $mockExporter->returnValue("getConfigClass", TestExporterConfig::class);
+
+
+        $mockExporter->throwException("validateConfig", new ValidationException([]), [new TestExporterConfig()]);
+
+        try {
+            $this->datasetService->exportDatasetInstance(null, "test", new TestExporterConfig());
+            $this->fail("should have thrown here");
+        } catch (ValidationException $e) {
+            $this->assertTrue(true);
+        }
+
+
+    }
 
 
 }

@@ -3,7 +3,9 @@
 
 namespace Kinintel\Test\Services\Dataset\Exporter;
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Services\Dataset\Exporter\SVContentSource;
 use Kinintel\Services\Dataset\Exporter\SVDatasetExporter;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Dataset\Exporter\SVDatasetExporterConfiguration;
@@ -11,11 +13,11 @@ use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
 
-class SVDatasetExporterTest extends TestBase {
+class SVContentSourceTest extends TestBase {
 
     public function testCanExportDatasetAsSV() {
 
-        $svExporter = new SVDatasetExporter();
+        $svExporter =  Container::instance()->get(SVDatasetExporter::class);
 
         $data = [
             ["name" => "Bob", "age" => 33],
@@ -31,7 +33,8 @@ class SVDatasetExporterTest extends TestBase {
 
         // Default configuration
         ob_start();
-        $svExporter->exportDataset($dataset);
+        $svContentSource = new SVContentSource($dataset, new SVDatasetExporterConfiguration());
+        $svContentSource->streamContent();
         $results = ob_get_contents();
         ob_end_clean();
 
@@ -46,7 +49,8 @@ class SVDatasetExporterTest extends TestBase {
 
         // Default configuration
         ob_start();
-        $svExporter->exportDataset($dataset, new SVDatasetExporterConfiguration(false));
+        $svContentSource = new SVContentSource($dataset, new SVDatasetExporterConfiguration(false));
+        $svContentSource->streamContent();
         $results = ob_get_contents();
         ob_end_clean();
 
@@ -61,7 +65,8 @@ class SVDatasetExporterTest extends TestBase {
 
         // Default configuration
         ob_start();
-        $svExporter->exportDataset($dataset, new SVDatasetExporterConfiguration(false, "\t"));
+        $svContentSource = new SVContentSource($dataset, new SVDatasetExporterConfiguration(false, "\t"));
+        $svContentSource->streamContent();
         $results = ob_get_contents();
         ob_end_clean();
 
