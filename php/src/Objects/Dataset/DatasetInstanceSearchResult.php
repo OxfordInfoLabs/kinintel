@@ -3,7 +3,9 @@
 
 namespace Kinintel\Objects\Dataset;
 
-
+/**
+ * @table ki_dataset_instance
+ */
 class DatasetInstanceSearchResult {
 
     /**
