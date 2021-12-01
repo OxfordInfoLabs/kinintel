@@ -1,0 +1,10 @@
+[
+  {
+    "path": "allcustomers",
+    "datasetInstanceId": 5,
+    "exposedParameterNames": [],
+    "exporterKey": "json",
+    "accountId": 1,
+    "projectKey": "project2"
+  }
+]
