@@ -5,13 +5,21 @@ namespace Kinintel\Test\Services\Feed;
 
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Exception\ItemNotFoundException;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
+use Kinikit\MVC\ContentSource\StringContentSource;
+use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Controllers\Account\Dataset;
+use Kinintel\Exception\FeedNotFoundException;
+use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Feed\FeedService;
 use Kinintel\TestBase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
 
@@ -24,8 +32,15 @@ class FeedServiceTest extends TestBase {
     private $feedService;
 
 
+    /**
+     * @var MockObject
+     */
+    private $datasetService;
+
     public function setUp(): void {
-        $this->feedService = new FeedService();
+
+        $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
+        $this->feedService = new FeedService($this->datasetService);
     }
 
 
@@ -159,17 +174,66 @@ class FeedServiceTest extends TestBase {
         $this->assertEquals(Feed::fetch($feed3Id)->returnSummary(), $filteredFeeds[0]);
 
         // Offset and limits
-        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 1,10, null);
+        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 1, 10, null);
         $this->assertEquals(2, sizeof($filteredFeeds));
         $this->assertEquals(Feed::fetch($feed2Id)->returnSummary(), $filteredFeeds[0]);
         $this->assertEquals(Feed::fetch($feed3Id)->returnSummary(), $filteredFeeds[1]);
 
-        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 0, 2,null);
+        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 0, 2, null);
         $this->assertEquals(2, sizeof($filteredFeeds));
         $this->assertEquals(Feed::fetch($feed1Id)->returnSummary(), $filteredFeeds[0]);
         $this->assertEquals(Feed::fetch($feed2Id)->returnSummary(), $filteredFeeds[1]);
 
+    }
+
+
+    public function testFeedNotFoundExceptionThrownIfNoFeedFoundMatchingUrl() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        try {
+            $this->feedService->evaluateFeed("bad/feed");
+            $this->fail("Should have thrown here");
+        } catch (FeedNotFoundException $e) {
+            $this->assertEquals(new FeedNotFoundException("bad/feed"), $e);
+        }
 
     }
+
+
+    public function testCanEvaluateFeedWithBlankParametersAndTheseAreSetToBlankStrings() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $feedSummary = new FeedSummary("filter/feed3", 2, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            ["param1" => "",
+                "param2" => ""],
+            [],
+            0,
+            50,
+            false
+        ]);
+
+        $response = $this->feedService->evaluateFeed("filter/feed3");
+        $this->assertEquals($expectedResponse, $response);
+
+    }
+
 
 }

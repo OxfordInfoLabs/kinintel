@@ -5,10 +5,27 @@ namespace Kinintel\Services\Feed;
 
 
 use Kiniauth\Objects\Account\Account;
+use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Services\Dataset\DatasetService;
 
 class FeedService {
+
+    /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+
+    /**
+     * FeedService constructor.
+     *
+     * @param DatasetService $datasetService
+     */
+    public function __construct($datasetService) {
+        $this->datasetService = $datasetService;
+    }
 
 
     /**
@@ -114,12 +131,36 @@ class FeedService {
 
 
     /**
-     * Evaluate a feed by id, passing parameter values as supplied from call
+     * Evaluate a feed by path, passing parameter values as supplied from call
      *
-     * @param $feedId
+     * @param string $feedPath
      * @param array $parameterValues
      */
-    public function evaluateFeed($feedId, $parameterValues = []) {
+    public function evaluateFeed($feedPath, $parameterValues = [], $offset = 0, $limit = 50) {
+
+        // Check matching feeds
+        $matchingFeeds = Feed::filter("WHERE path = ?", $feedPath);
+        if (sizeof($matchingFeeds) == 0) {
+            throw new FeedNotFoundException($feedPath);
+        }
+
+        /**
+         * @var Feed $feed
+         */
+        $feed = $matchingFeeds[0];
+
+        // Grab the data set instance summary for this feed
+        $datasetInstanceSummary = $this->datasetService->getDataSetInstance($feed->getDatasetInstanceId());
+
+        // Ensure we fill all parameter values with exposed parameter values
+        foreach ($feed->getExposedParameterNames() as $exposedParameterName) {
+            if (!isset($parameterValues[$exposedParameterName])) {
+                $parameterValues[$exposedParameterName] = "";
+            }
+        }
+
+        // Export and return result directly
+        return $this->datasetService->exportDatasetInstance($datasetInstanceSummary, $feed->getExporterKey(), $feed->getExporterConfiguration(), $parameterValues, [], $offset, $limit, false);
 
     }
 

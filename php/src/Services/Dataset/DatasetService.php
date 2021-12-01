@@ -13,6 +13,8 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\ContentSource\ContentSource;
 use Kinikit\MVC\Response\Download;
+use Kinikit\MVC\Response\Response;
+use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
@@ -396,10 +398,10 @@ class DatasetService {
      * @param int $offset
      * @param int $limit
      *
-     * @return Download
+     * @return Response
      *
      */
-    public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
+    public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25, $streamAsDownload = true) {
 
         /**
          * Get an exporter instance
@@ -415,13 +417,16 @@ class DatasetService {
         // Grab the dataset.
         $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
 
+        // Export the dataset using exporter
+        $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);
 
-        // Create export filename
-        $filename = str_replace(" ", "_", strtolower($datasetInstance->getTitle())) . "-" . date("U") . "." . $exporter->getDownloadFileExtension($exporterConfiguration);
-
-        // Return a new download
-        return new Download($exporter->exportDataset($dataset, $exporterConfiguration), $filename);
-
+        // Return a new download or regular response depending upon then
+        if ($streamAsDownload) {
+            $filename = str_replace(" ", "_", strtolower($datasetInstance->getTitle())) . "-" . date("U") . "." . $exporter->getDownloadFileExtension($exporterConfiguration);
+            return new Download($contentSource, $filename);
+        } else {
+            return new SimpleResponse($contentSource);
+        }
     }
 
 }

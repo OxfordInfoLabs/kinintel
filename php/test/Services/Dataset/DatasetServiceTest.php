@@ -19,6 +19,7 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
 use Kinikit\MVC\Response\Download;
+use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -848,6 +849,22 @@ class DatasetServiceTest extends TestBase {
 
 
         $this->assertEquals(new Download(new StringContentSource("HELLO WORLD"), "test_dataset-" . date("U") . ".test"), $response);
+
+
+        // Check none download one.
+        $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
+            "test",
+            $exportConfig,
+            [
+                "param1" => "Test",
+                "param2" => 44,
+                "param3" => true
+            ], [new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "pickle")]))], 10, 30, false);
+
+
+        $this->assertEquals(new SimpleResponse(new StringContentSource("HELLO WORLD")), $response);
+
 
     }
 
