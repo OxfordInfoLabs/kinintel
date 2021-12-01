@@ -170,6 +170,7 @@ class DatasetService {
      */
     public function filterSnapshotProfiles($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
+
         $clauses = [];
         $params = [];
         if ($accountId) {

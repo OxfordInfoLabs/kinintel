@@ -34,6 +34,42 @@ class FeedService {
      */
     public function filterFeeds($filterString = "", $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
+        $whereClauses = [];
+        $params = [];
+
+        if ($filterString) {
+            $whereClauses[] = "(path LIKE ? OR datasetLabel.title LIKE ?)";
+            $params[] = "%$filterString%";
+            $params[] = "%$filterString%";
+        }
+
+        if ($accountId) {
+            $whereClauses[] = "accountId = ?";
+            $params[] = $accountId;
+        }
+
+        if ($projectKey) {
+            $whereClauses[] = "projectKey = ?";
+            $params[] = $projectKey;
+        }
+
+        $query = (sizeof($whereClauses) ? "WHERE " : "") . join(" AND ", $whereClauses) . " ORDER BY path";
+
+        if ($limit) {
+            $query .= " LIMIT ?";
+            $params[] = $limit;
+        }
+
+        if ($offset) {
+            $query .= " OFFSET ?";
+            $params[] = $offset;
+        }
+
+        $results = Feed::filter($query, $params);
+        return array_map(function ($item) {
+            return $item->returnSummary();
+        }, $results);
+
     }
 
 

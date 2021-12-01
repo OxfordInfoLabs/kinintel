@@ -8,6 +8,7 @@ use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
+use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Services\Feed\FeedService;
 use Kinintel\TestBase;
@@ -106,6 +107,68 @@ class FeedServiceTest extends TestBase {
         } catch (ValidationException $e) {
             $this->assertTrue(isset($e->getValidationErrors()["path"]["duplicatePath"]));
         }
+
+    }
+
+    public function testCanGetFilteredFeeds() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $feedSummary = new FeedSummary("/filter/feed3", 2, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $feed3Id = $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+
+        $feedSummary = new FeedSummary("/filter/feed2", 2, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $feed2Id = $this->feedService->saveFeed($feedSummary, null, 2);
+
+
+        $feedSummary = new FeedSummary("/filter/feed1", 3, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $feed1Id = $this->feedService->saveFeed($feedSummary, null, 1);
+
+
+        // Check a path based filter
+        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 0, 10, null);
+        $this->assertEquals(3, sizeof($filteredFeeds));
+        $this->assertEquals(Feed::fetch($feed1Id)->returnSummary(), $filteredFeeds[0]);
+        $this->assertEquals(Feed::fetch($feed2Id)->returnSummary(), $filteredFeeds[1]);
+        $this->assertEquals(Feed::fetch($feed3Id)->returnSummary(), $filteredFeeds[2]);
+
+        // Dataset title based filter
+        $filteredFeeds = $this->feedService->filterFeeds("Account", null, 0, 10, null);
+        $this->assertEquals(1, sizeof($filteredFeeds));
+        $this->assertEquals(Feed::fetch($feed1Id)->returnSummary(), $filteredFeeds[0]);
+
+        // Account filter
+        $filteredFeeds = $this->feedService->filterFeeds("", null, 0, 10, 1);
+        $this->assertEquals(1, sizeof($filteredFeeds));
+        $this->assertEquals(Feed::fetch($feed1Id)->returnSummary(), $filteredFeeds[0]);
+
+        // Project filter
+        $filteredFeeds = $this->feedService->filterFeeds("", "wiperBlades", 0, 10, 2);
+        $this->assertEquals(1, sizeof($filteredFeeds));
+        $this->assertEquals(Feed::fetch($feed3Id)->returnSummary(), $filteredFeeds[0]);
+
+        // Offset and limits
+        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 1,10, null);
+        $this->assertEquals(2, sizeof($filteredFeeds));
+        $this->assertEquals(Feed::fetch($feed2Id)->returnSummary(), $filteredFeeds[0]);
+        $this->assertEquals(Feed::fetch($feed3Id)->returnSummary(), $filteredFeeds[1]);
+
+        $filteredFeeds = $this->feedService->filterFeeds("/filter", null, 0, 2,null);
+        $this->assertEquals(2, sizeof($filteredFeeds));
+        $this->assertEquals(Feed::fetch($feed1Id)->returnSummary(), $filteredFeeds[0]);
+        $this->assertEquals(Feed::fetch($feed2Id)->returnSummary(), $filteredFeeds[1]);
+
 
     }
 
