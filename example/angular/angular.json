@@ -34,13 +34,10 @@
                         "styles": [
                             "src/custom-theme.scss",
                             "src/styles.sass",
-                            "./node_modules/gridstack/dist/gridstack.min.css",
-                            "./node_modules/codemirror/lib/codemirror.css"
+                            "./node_modules/gridstack/dist/gridstack.min.css"
                         ],
                         "scripts": [
-                            "./node_modules/kinibind/dist/kinibind.js",
-                            "./node_modules/codemirror/lib/codemirror.js",
-                            "./node_modules/codemirror/mode/javascript.js"
+                            "./node_modules/kinibind/dist/kinibind.js"
                         ]
                     },
                     "configurations": {

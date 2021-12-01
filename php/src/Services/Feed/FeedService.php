@@ -5,6 +5,8 @@ namespace Kinintel\Services\Feed;
 
 
 use Kiniauth\Objects\Account\Account;
+use Kinikit\Core\Logging\Logger;
+use Kinikit\MVC\Session\Session;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
@@ -153,14 +155,13 @@ class FeedService {
         $datasetInstanceSummary = $this->datasetService->getDataSetInstance($feed->getDatasetInstanceId());
 
         // Ensure we fill all parameter values with exposed parameter values
+        $exportParameters = [];
         foreach ($feed->getExposedParameterNames() as $exposedParameterName) {
-            if (!isset($parameterValues[$exposedParameterName])) {
-                $parameterValues[$exposedParameterName] = "";
-            }
+            $exportParameters[$exposedParameterName] = $parameterValues[$exposedParameterName] ?? "";
         }
 
         // Export and return result directly
-        return $this->datasetService->exportDatasetInstance($datasetInstanceSummary, $feed->getExporterKey(), $feed->getExporterConfiguration(), $parameterValues, [], $offset, $limit, false);
+        return $this->datasetService->exportDatasetInstance($datasetInstanceSummary, $feed->getExporterKey(), $feed->getExporterConfiguration(), $exportParameters, [], $offset, $limit, false);
 
     }
 
