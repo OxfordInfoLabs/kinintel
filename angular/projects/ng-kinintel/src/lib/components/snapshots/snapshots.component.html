@@ -24,9 +24,24 @@
         <table mat-table [dataSource]="datasets">
 
             <!-- Position Column -->
-            <ng-container matColumnDef="datasource">
-                <th mat-header-cell *matHeaderCellDef> Snapshot </th>
+            <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef> Title </th>
                 <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element"> {{element.taskStatus}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="lastStarted">
+                <th mat-header-cell *matHeaderCellDef> Last Started </th>
+                <td mat-cell *matCellDef="let element"> {{element.taskLastStartTime}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="nextStart">
+                <th mat-header-cell *matHeaderCellDef> Next Start Time </th>
+                <td mat-cell *matCellDef="let element"> {{element.taskNextStartTime}} </td>
             </ng-container>
 
             <ng-container matColumnDef="explore">
@@ -40,8 +55,8 @@
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+            <tr mat-header-row *matHeaderRowDef="['title', 'status', 'lastStarted', 'nextStart', 'explore']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['title', 'status', 'lastStarted', 'nextStart', 'explore'];"></tr>
         </table>
         <mat-paginator [length]="datasets.length"
                        [pageSize]="10"

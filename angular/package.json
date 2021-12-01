@@ -6,8 +6,8 @@
         "start": "ng serve",
         "build": "ng build",
         "test": "ng test",
-        "lint": "ng lint",
         "e2e": "ng e2e",
+        "lint": "ng lint",
         "build:lib": "ng build ng-kinintel",
         "build:lib-p": "ng build ng-kinintel --prod",
         "watch:lib": "ng build ng-kinintel --watch"

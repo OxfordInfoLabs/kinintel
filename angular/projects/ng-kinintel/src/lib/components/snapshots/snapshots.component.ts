@@ -53,7 +53,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 debounceTime(300),
                 // distinctUntilChanged(),
                 switchMap(() =>
-                    this.getDatasets()
+                    this.getSnapshots()
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
@@ -99,13 +99,11 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         }
     }
 
-    private getDatasets() {
-        return this.datasetService.getDatasets(
+    private getSnapshots() {
+        return this.datasetService.listSnapshotProfiles(
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
-            this.offset.getValue().toString(),
-            this.shared ? null : '',
-            'snapshot'
+            this.offset.getValue().toString()
         ).pipe(map((datasets: any) => {
                 return datasets;
             })

@@ -62,6 +62,15 @@ export class DatasetService {
             datasetInstanceSummary).toPromise();
     }
 
+    public listSnapshotProfiles(filterString = '', limit = '10', offset = '0') {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        const activeTag = this.tagService.activeTag.getValue() || null;
+
+        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile', {
+            params: _.omitBy({filterString, limit, offset, tags: activeTag, projectKey}, _.isNil)
+        });
+    }
+
     public getSnapshotProfilesForDataset(datasetInstanceId) {
         return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId)
             .toPromise();
