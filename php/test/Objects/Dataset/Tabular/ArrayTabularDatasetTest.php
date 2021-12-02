@@ -84,7 +84,7 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
             new Field("type", "Type", "Person"),
             new Field("name", "Name"),
             new Field("age", "Age"),
-            new Field("date", "Date", "[[date:/^.{8}(.{2})/]]/[[date:/^.{5}(.{2})/]]/[[date:/^.{0,4}/]]"),
+            new Field("date", "Date", "[[date | /^.{8}(.{2})/]]/[[date | /^.{5}(.{2})/]]/[[date | /^.{0,4}/]]"),
             new Field("otherName", "Other Name", "[[name]]")
         ], [
             ["name" => "Mark", "age" => 30, "telephone" => "07546 787878", "date" => "2020-01-01"],
