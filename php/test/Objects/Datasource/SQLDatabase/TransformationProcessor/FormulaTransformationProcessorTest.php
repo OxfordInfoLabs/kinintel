@@ -32,7 +32,7 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $query = new SQLQuery("*", "sample_table");
 
-        $formulaTransformationProcessor->updateQuery($transformation, $query, [], $dataSource);
+        $query = $formulaTransformationProcessor->updateQuery($transformation, $query, [], $dataSource);
 
 
         $this->assertEquals([
@@ -40,7 +40,7 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             new Field("derivedColumn", "Derived Column")
         ], $dataSource->getConfig()->getColumns());
 
-        $this->assertEquals("SELECT *, column1 + column2 computed, column3 + 5 / column2 derivedColumn FROM sample_table",
+        $this->assertEquals("SELECT * FROM (SELECT *, column1 + column2 computed, column3 + 5 / column2 derivedColumn FROM sample_table) F1",
             $query->getSQL());
 
 
