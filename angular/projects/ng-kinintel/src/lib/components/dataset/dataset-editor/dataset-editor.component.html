@@ -104,7 +104,7 @@
                         </svg>
                     </a>
                 </ng-template>
-                <ng-template [ngIf]="!element[column.name]">
+                <ng-template [ngIf]="Number.isInteger(element[column.name])">
                     {{element[column.name]}}
                 </ng-template>
             </td>
