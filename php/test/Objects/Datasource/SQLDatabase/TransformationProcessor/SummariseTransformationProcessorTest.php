@@ -141,4 +141,34 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testDoubleSummarisationCorrectlyWrapsInnerQuery() {
+
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+
+
+        $summariseTransformation = new SummariseTransformation(["category", "dept"], [
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
+
+        $query = new SQLQuery("name,category,dept", "my_table");
+
+        $transformationProcessor = new SummariseTransformationProcessor();
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
+
+        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept", $query->getSQL());
+
+
+        // Second summarisation
+        $secondSummariseTransformation = new SummariseTransformation(["category"], [
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_SUM, "customMetric")
+        ]);
+
+        $query = $transformationProcessor->updateQuery($secondSummariseTransformation, $query, [], $dataSource);
+        $this->assertEquals("SELECT category, SUM(customMetric) FROM (SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept) S1 GROUP BY category", $query->getSQL());
+
+
+    }
+
+
 }
