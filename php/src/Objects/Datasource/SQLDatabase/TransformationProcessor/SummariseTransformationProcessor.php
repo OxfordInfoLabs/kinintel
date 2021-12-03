@@ -11,6 +11,13 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 
 class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
+    /**
+     * Alias index
+     *
+     * @var int
+     */
+    private $aliasIndex = 0;
+
 
     /**
      * Unset any columns
@@ -43,6 +50,12 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
         $dataSource->getConfig()->setColumns([]);
 
         if ($transformation instanceof SummariseTransformation) {
+
+            // If we already have a group by clause we need to create a query wrapper
+            if ($query->hasGroupByClause()) {
+                $query = new SQLQuery("*", "(" . $query->getSQL() . ") S" . ++$this->aliasIndex);
+            }
+
             $groupByClauses = $transformation->getSummariseFieldNames();
             $evaluatedExpressions = [];
             foreach ($transformation->getExpressions() as $expression) {
