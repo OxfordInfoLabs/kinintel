@@ -44,7 +44,7 @@ export class DatasetEditorComponent implements OnInit {
     public parameterValues: any = [];
     public focusParams = false;
     public terminatingTransformations = [];
-    public Number = Number;
+    public String = String;
 
     public limit = 25;
     private offset = 0;
