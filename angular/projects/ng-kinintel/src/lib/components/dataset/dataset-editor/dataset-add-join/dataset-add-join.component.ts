@@ -116,7 +116,7 @@ export class DatasetAddJoinComponent implements OnInit {
         }
     }
 
-    public select(item, type, step, reset = true) {
+    public async select(item, type, step, reset = true) {
         this.joinFilterFields = null;
         // Reset if we are selecting an item again, not loading initially.
         if (reset) {
@@ -130,39 +130,38 @@ export class DatasetAddJoinComponent implements OnInit {
             };
         }
 
+        let requiredParams: any = [];
 
-        let promise: Promise<any>;
         if (type === 'datasource') {
-            promise = this.datasourceService.getDatasource(item.key).then(datasource => {
-                this.selectedSource = datasource;
-                this.joinTransformation.config.joinedDataSourceInstanceKey = item.key;
-                return this.datasourceService.getEvaluatedParameters({
-                    key: item.key
-                }).then(requiredParams => {
-                    this.createParameterStructure(requiredParams);
-                    return requiredParams;
-                });
+            const datasource: any = await this.datasourceService.getDatasource(item.key);
+            this.selectedSource = {
+                datasetInstanceId: null,
+                datasourceInstanceKey: datasource.key,
+                transformationInstances: [],
+                parameterValues: {},
+                parameters: []
+            };
+            this.joinTransformation.config.joinedDataSourceInstanceKey = item.key;
+
+            requiredParams = await this.datasourceService.getEvaluatedParameters({
+                key: item.key
             });
         } else {
-            promise = this.datasetService.getDataset(item.id).then(dataset => {
-                this.selectedSource = dataset;
-                this.joinTransformation.config.joinedDataSetInstanceId = item.id;
-                return this.datasetService.getEvaluatedParameters(item.id).then((requiredParams: any) => {
-                    this.createParameterStructure(requiredParams);
-                    return requiredParams;
-                });
-            });
+            this.selectedSource = await this.datasetService.getDataset(item.id);
+            this.joinTransformation.config.joinedDataSetInstanceId = item.id;
+
+            requiredParams = await this.datasetService.getEvaluatedParameters(this.selectedSource);
         }
 
-        promise.then(() => {
-            if (!this.requiredParameters || !this.requiredParameters.length) {
-                this.getJoinColumns(reset);
-            }
+        this.createParameterStructure(requiredParams);
 
-            setTimeout(() => {
-                step.next();
-            }, 0);
-        });
+        if (!this.requiredParameters || !this.requiredParameters.length) {
+            this.getJoinColumns(reset);
+        }
+
+        setTimeout(() => {
+            step.next();
+        }, 0);
     }
 
     public toggleAllColumns(event) {
@@ -191,13 +190,6 @@ export class DatasetAddJoinComponent implements OnInit {
             }
             parameterMappings.push(mapping);
         });
-        // if (!this.selectedSource.parameterValues) {
-        //     this.selectedSource.parameterValues = {};
-        // }
-        // requiredParameters.forEach(param => {
-        //     this.selectedSource.parameterValues[param.name] = param.value;
-        // });
-        // this.getJoinColumns();
         this.joinTransformation.config.joinParameterMappings = parameterMappings;
 
         this.dialogRef.close(this.joinTransformation);
@@ -235,7 +227,7 @@ export class DatasetAddJoinComponent implements OnInit {
         });
     }
 
-    private getJoinColumns(reset = true) {
+    private async getJoinColumns(reset = true) {
         if (reset) {
             this.joinTransformation.config.joinFilters = {
                 logic: 'AND',
@@ -248,31 +240,26 @@ export class DatasetAddJoinComponent implements OnInit {
             };
         }
 
-        this.datasourceService.evaluateDatasource(
-            this.selectedSource.key || this.selectedSource.datasourceInstanceKey,
-            this.selectedSource.transformationInstances || [],
-            this.selectedSource.parameterValues || [])
-            .then((data: any) => {
-                if (data.columns) {
-                    this.joinFilterFields = [];
-                    this.joinColumns = [];
-                    data.columns.forEach(column => {
-                        this.joinFilterFields.push(
-                            {
-                                title: column.title,
-                                name: column.name
-                            }
-                        );
-                        const duplicate = !!_.find(this.filterFields, {name: column.name, title: column.title});
-                        this.joinColumns.push({
-                            selected: !duplicate,
-                            name: column.name,
-                            title: column.title,
-                            duplicate
-                        });
-                    });
-                }
+        const data: any = await this.datasetService.evaluateDataset(this.selectedSource, '0', '10');
+        if (data.columns) {
+            this.joinFilterFields = [];
+            this.joinColumns = [];
+            data.columns.forEach(column => {
+                this.joinFilterFields.push(
+                    {
+                        title: column.title,
+                        name: column.name
+                    }
+                );
+                const duplicate = !!_.find(this.filterFields, {name: column.name, title: column.title});
+                this.joinColumns.push({
+                    selected: !duplicate,
+                    name: column.name,
+                    title: column.title,
+                    duplicate
+                });
             });
+        }
     }
 
     private getDatasets(shared) {

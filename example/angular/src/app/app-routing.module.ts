@@ -15,6 +15,7 @@ import {EditAlertGroupComponent} from './views/alert-groups/edit-alert-group/edi
 import {NotificationComponent} from './views/notifications/notification/notification.component';
 import {SnapshotsComponent} from './views/snapshots/snapshots.component';
 import {ViewDashboardComponent} from './views/dashboards/view-dashboard/view-dashboard.component';
+import {FeedsComponent} from './views/feeds/feeds.component';
 
 const routes: Routes = [
     {
@@ -76,6 +77,10 @@ const routes: Routes = [
             {
                 path: 'login',
                 component: LoginComponent
+            },
+            {
+                path: 'feeds',
+                component: FeedsComponent
             }
         ]
     },

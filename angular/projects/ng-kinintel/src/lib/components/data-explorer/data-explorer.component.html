@@ -92,7 +92,7 @@
                 *ngIf="datasetInstanceSummary && datasetInstanceSummary.id" (click)="viewSnapshots()">
             View Snapshots
         </button>
-        <button mat-stroked-button color="primary" class="mr-2 bg-white">
+        <button mat-stroked-button color="primary" class="mr-2 bg-white" (click)="exportData()">
             Export Data
         </button>
         <button mat-flat-button color="primary" (click)="saveChanges()">

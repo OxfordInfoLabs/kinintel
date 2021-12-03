@@ -59,6 +59,10 @@
                         <mat-icon>history</mat-icon>
                         <span>Snapshots</span>
                     </a>
+                    <a [routerLink]="['/feeds']" routerLinkActive="active" class="menu-item">
+                        <mat-icon>rss_feed</mat-icon>
+                        <span>Feeds</span>
+                    </a>
                     <a href="javascript:void(0)" routerLinkActive="active" class="menu-item"
                        (click)="selectTag()">
                         <mat-icon>style</mat-icon>
@@ -147,6 +151,9 @@
                 </a>
                 <a [routerLink]="['/snapshots']" routerLinkActive="active" class="menu-item">
                     <mat-icon>history</mat-icon>
+                </a>
+                <a [routerLink]="['/feeds']" routerLinkActive="active" class="menu-item">
+                    <mat-icon>rss_feed</mat-icon>
                 </a>
                 <a href="javascript:void(0)" routerLinkActive="active" class="menu-item"
                    (click)="selectTag()">

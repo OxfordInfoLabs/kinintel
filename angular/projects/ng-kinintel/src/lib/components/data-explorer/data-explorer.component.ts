@@ -47,9 +47,15 @@ export class DataExplorerComponent implements OnInit {
         this.columns = data.columns;
     }
 
+    public exportData() {
+
+    }
+
     public viewSnapshots() {
-        this.showSnapshots = true;
-        this.loadSnapshotProfiles();
+        this.showSnapshots = !this.showSnapshots;
+        if (this.showSnapshots) {
+            this.loadSnapshotProfiles();
+        }
     }
 
     public editSnapshot(snapshot) {

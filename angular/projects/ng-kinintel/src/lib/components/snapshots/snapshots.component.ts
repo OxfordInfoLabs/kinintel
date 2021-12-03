@@ -7,6 +7,7 @@ import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DatasetService} from '../../services/dataset.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'ki-snapshots',
@@ -55,8 +56,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 switchMap(() =>
                     this.getSnapshots()
                 )
-            ).subscribe((datasets: any) => {
-            this.datasets = datasets;
+            ).subscribe((snapshots: any) => {
+            this.datasets = snapshots;
         });
     }
 
@@ -66,8 +67,33 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         }
     }
 
-    public view(datasetId) {
-        this.datasetService.getDataset(datasetId).then(dataset => {
+    public view(datasourceKey) {
+        const datasetInstanceSummary = {
+            datasetInstanceId: null,
+            datasourceInstanceKey: datasourceKey,
+            transformationInstances: [],
+            parameterValues: {},
+            parameters: []
+        };
+        const dialogRef = this.dialog.open(DataExplorerComponent, {
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            hasBackdrop: false,
+            data: {
+                datasetInstanceSummary,
+                showChart: false,
+                admin: this.admin
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+
+        });
+    }
+
+    public viewParent(parentDatasetInstanceId) {
+        this.datasetService.getDataset(parentDatasetInstanceId).then(datasetInstanceSummary => {
             const dialogRef = this.dialog.open(DataExplorerComponent, {
                 width: '100vw',
                 height: '100vh',
@@ -75,7 +101,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 maxHeight: '100vh',
                 hasBackdrop: false,
                 data: {
-                    dataset,
+                    datasetInstanceSummary,
                     showChart: false,
                     admin: this.admin
                 }
@@ -104,8 +130,10 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
             this.offset.getValue().toString()
-        ).pipe(map((datasets: any) => {
-                return datasets;
+        ).pipe(map((snapshots: any) => {
+                return _.filter(snapshots, snapshot => {
+                    return snapshot.taskStatus !== 'PENDING';
+                });
             })
         );
     }

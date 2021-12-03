@@ -62,6 +62,8 @@ import { SnapshotsComponent } from './components/snapshots/snapshots.component';
 import { ViewDashboardComponent } from './components/dashboards/view-dashboard/view-dashboard.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatRadioModule} from '@angular/material/radio';
+import { FeedsComponent } from './components/feeds/feeds.component';
+import { FeedComponent } from './components/feeds/feed/feed.component';
 
 
 @NgModule({
@@ -99,7 +101,9 @@ import {MatRadioModule} from '@angular/material/radio';
         TaskTimePeriodsComponent,
         SnapshotsComponent,
         ViewDashboardComponent,
-        DatasetEditorPopupComponent
+        DatasetEditorPopupComponent,
+        FeedsComponent,
+        FeedComponent
     ],
     imports: [
         BrowserModule,
@@ -153,7 +157,8 @@ import {MatRadioModule} from '@angular/material/radio';
         AlertGroupsComponent,
         EditAlertGroupComponent,
         SnapshotsComponent,
-        ViewDashboardComponent
+        ViewDashboardComponent,
+        FeedsComponent
     ]
 })
 export class NgKinintelModule {

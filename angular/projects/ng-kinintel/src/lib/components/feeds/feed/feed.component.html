@@ -1,0 +1,85 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>
+            {{feed.id ? 'Edit Feed' : 'Create Feed'}}
+        </h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+        <label class="mb-2">
+            Path
+            <div class="flex">
+                  <span
+                      class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    {{feedUrl}}
+                  </span>
+                <input type="text" class="w-full rounded-l-none"
+                       placeholder="my-new-data-feed" [(ngModel)]="feed.path">
+            </div>
+            <small class="font-normal">The path used to identify this feed</small>
+        </label>
+
+        <label class="mb-4">
+            Dataset
+
+            <input type="text" [matAutocomplete]="autoDatasets"
+                   [value]="feed.datasetLabel ? feed.datasetLabel.title : ''"
+                   (keyup)="searchText.next($event.target.value)" placeholder="Search for a dataset">
+            <mat-autocomplete #autoDatasets="matAutocomplete" [displayWith]="displayFn">
+                <mat-option *ngFor="let dataset of datasets" [value]="dataset"
+                            (onSelectionChange)="updateFeedDataset($event)">
+                    {{dataset.title}}
+                </mat-option>
+            </mat-autocomplete>
+            <small class="font-normal">Start typing name to view available datasets</small>
+        </label>
+
+        <label class="mb-4">
+            Export Type
+            <select [(ngModel)]="feed.exporterKey">
+                <option value="sv">Separated Value</option>
+                <option value="bar">JSON</option>
+            </select>
+        </label>
+
+        <ng-template [ngIf]="feed.exporterKey === 'sv'">
+            <mat-checkbox class="mb-2"
+                          [(ngModel)]="feed.exporterConfiguration.includeHeaderRow">
+                Include header row
+            </mat-checkbox>
+            <label class="mb-2">
+                Separator
+                <input type="text" [(ngModel)]="feed.exporterConfiguration.separator">
+                <small class="font-normal">Enter the character used to separate the values.</small>
+            </label>
+        </ng-template>
+
+        <ng-template [ngIf]="feedDataset && feedDataset.parameters.length">
+            <label class="">Exposed Parameters</label>
+            <mat-selection-list [(ngModel)]="feed.exposedParameterNames">
+                <mat-list-option checkboxPosition="before" [value]="param.name"
+                                 *ngFor="let param of feedDataset.parameters">
+                    {{param.title}}
+                </mat-list-option>
+            </mat-selection-list>
+        </ng-template>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+
+        <button mat-button mat-flat-button color="primary" type="button"
+                (click)="saveFeed()"
+                [disabled]="!feed.path || !feed.datasetInstanceId || !feed.exporterKey">Save Feed
+        </button>
+    </div>
+
+</div>
+
+

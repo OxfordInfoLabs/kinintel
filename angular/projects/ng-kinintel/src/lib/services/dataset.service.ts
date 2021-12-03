@@ -54,10 +54,10 @@ export class DatasetService {
 
     public getEvaluatedParameters(datasetInstanceSummary) {
         return this.http.post(this.config.backendURL + '/dataset/parameters', datasetInstanceSummary)
-            .toPromise();
+            .toPromise().catch(err => []);
     }
 
-    public evaluateDataset(datasetInstanceSummary, offset?, limit?) {
+    public evaluateDataset(datasetInstanceSummary, offset = '0', limit = '25') {
         return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}`,
             datasetInstanceSummary).toPromise();
     }

@@ -34,6 +34,7 @@ import { NotificationComponent } from './views/notifications/notification/notifi
 import {MatDialogModule} from '@angular/material/dialog';
 import { SnapshotsComponent } from './views/snapshots/snapshots.component';
 import { ViewDashboardComponent } from './views/dashboards/view-dashboard/view-dashboard.component';
+import { FeedsComponent } from './views/feeds/feeds.component';
 
 @NgModule({
     declarations: [
@@ -52,7 +53,8 @@ import { ViewDashboardComponent } from './views/dashboards/view-dashboard/view-d
         EditAlertGroupComponent,
         NotificationComponent,
         SnapshotsComponent,
-        ViewDashboardComponent
+        ViewDashboardComponent,
+        FeedsComponent
     ],
     imports: [
         BrowserModule,

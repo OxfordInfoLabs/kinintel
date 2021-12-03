@@ -7,7 +7,8 @@ export const environment = {
     backendURL: 'http://webservices.kinintel.test:3050',
     accountURL: 'http://webservices.kinintel.test:3050/account',
     tagLabel: 'Tags',
-    recaptchaKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+    recaptchaKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+    feedUrl: 'http://webservices.kinintel.test:3050/feed/'
 };
 
 /*

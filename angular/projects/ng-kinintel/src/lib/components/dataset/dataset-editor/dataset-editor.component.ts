@@ -550,8 +550,8 @@ export class DatasetEditorComponent implements OnInit {
 
                 return this.datasetService.evaluateDataset(
                     clonedDatasetInstance,
-                    this.offset,
-                    this.limit
+                    String(this.offset),
+                    String(this.limit)
                 ).then(dataset => {
                     this.dataset = dataset;
                     return this.loadData();
