@@ -87,7 +87,7 @@ class DatasetInstance extends DatasetInstanceSummary {
 
 
         return new DatasetInstanceSummary($this->title, $readOnly ? null : $this->datasourceInstanceKey,
-            $this->datasetInstanceId,
+            $readOnly ? $this->id : $this->datasetInstanceId,
             $readOnly ? [] : $this->transformationInstances,
             $readOnly ? [] : $this->parameters,
             $parameterValues,

@@ -336,7 +336,7 @@ class DatasetService {
      */
     public function getEvaluatedParameters($datasetInstanceSummary) {
 
-
+        $params = [];
         if ($datasetInstanceSummary->getDatasourceInstanceKey()) {
             $params = $this->datasourceService->getEvaluatedParameters($datasetInstanceSummary->getDatasourceInstanceKey());
         } else if ($datasetInstanceSummary->getDatasetInstanceId()) {

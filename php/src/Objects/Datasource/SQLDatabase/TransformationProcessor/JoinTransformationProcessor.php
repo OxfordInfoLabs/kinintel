@@ -187,11 +187,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     // If we have a join data set, evaluate now.
                     if (isset($joinDataSet)) {
 
-
-                        $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
-                            $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
-
-
+                        $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet,
+                            [], $joinDatasourceParameterValues);
                     }
 
 
@@ -225,8 +222,9 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 if (isset($joinDataSet)) {
 
-                    $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
-                        $joinDataSet->getTransformationInstances(), $joinDatasourceParameterValues);
+                    $joinDatasource = $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet,
+                        [], $joinDatasourceParameterValues);
+
                 }
 
 
