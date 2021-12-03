@@ -20,16 +20,6 @@ class FieldTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testCanEvaluateValueExpressionsIncorporatingRegularExpressionsUsingColonSyntax() {
-
-        $field = new Field("name", "Name", "Hello [[text:/([y])/]] World");
-        $this->assertEquals("Hello y World", $field->evaluateValueExpression([
-            "text" => "My World"
-        ]));
-
-    }
-
-
     public function testCanEvaluateValueExpressionIncorporatingNestedFieldValuesFromDataSet() {
 
         $field = new Field("name", "Name", "Hello [[object.text]] World");
@@ -39,6 +29,19 @@ class FieldTest extends \PHPUnit\Framework\TestCase {
         ]));
 
     }
+
+
+    public function testCanEvaluateValueExpressionsIncorporatingRegularExpressionsUsingColonSyntax() {
+
+        $field = new Field("name", "Name", "Hello [[text | /([y])/]] World");
+        $this->assertEquals("Hello y World", $field->evaluateValueExpression([
+            "text" => "My World"
+        ]));
+
+    }
+
+
+
 
 
     public function testCanGetPlainFieldsFromArrayOfFields() {

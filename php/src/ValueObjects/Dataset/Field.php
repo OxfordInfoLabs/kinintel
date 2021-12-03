@@ -4,8 +4,10 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Services\Dataset\FieldValueFunctionEvaluator;
 
 class Field {
 
@@ -111,13 +113,23 @@ class Field {
      */
     public function evaluateValueExpression($dataItem) {
         $expression = $this->valueExpression;
-        $expression = preg_replace_callback("/\\[\\[(.*?)(:.*?)*\\]\\]/", function ($matches) use ($dataItem) {
-            if (sizeof($matches) == 2) {
-                return $this->expandMemberExpression($matches[1], $dataItem);
-            } else if (sizeof($matches) == 3) {
-                preg_match(substr($matches[2], 1), $this->expandMemberExpression($matches[1], $dataItem), $fieldMatches);
-                return $fieldMatches[1] ?? $fieldMatches[0] ?? null;
+
+        $expression = preg_replace_callback("/\\[\\[(.*?)\\]\\]/", function ($matches) use ($dataItem) {
+
+            $exploded = explode(" | ", $matches[1]);
+
+            // Initialise value to member expression
+            $value = $this->expandMemberExpression($exploded[0], $dataItem);
+
+            if (sizeof($exploded) > 1) {
+                $evaluator = Container::instance()->get(FieldValueFunctionEvaluator::class);
+                for ($i = 1; $i < sizeof($exploded); $i++) {
+                    $value = $evaluator->evaluateFieldValueFunction(trim($exploded[$i]), $value);
+                }
             }
+
+            return $value;
+
         }, $expression);
         return $expression !== "" ? $expression : null;
     }

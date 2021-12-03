@@ -7,9 +7,18 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 
 class FormulaTransformationProcessor extends SQLTransformationProcessor {
+
+
+    /**
+     * Table aliases for formula expressions
+     *
+     * @var int
+     */
+    private $aliasIndex = 0;
 
 
     /**
@@ -42,8 +51,7 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
         $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses));
 
-
-        return $query;
+        return new SQLQuery("*", "(" . $query->getSQL() . ") F" . ++$this->aliasIndex);
 
     }
 }
