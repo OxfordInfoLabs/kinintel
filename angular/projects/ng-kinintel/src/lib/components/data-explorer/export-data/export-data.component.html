@@ -1,0 +1,69 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>
+            Export Data
+        </h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+        <label class="mb-4">
+            Export Type
+            <select [(ngModel)]="exportDataset.exporterKey">
+                <option value="sv">Separated Value</option>
+                <option value="json">JSON</option>
+            </select>
+        </label>
+
+        <ng-template [ngIf]="exportDataset.exporterKey === 'sv'">
+            <mat-checkbox class="mb-2"
+                          [(ngModel)]="exportDataset.exporterConfiguration.includeHeaderRow">
+                Include header row
+            </mat-checkbox>
+            <label class="mb-2">
+                Separator
+                <input type="text" [(ngModel)]="exportDataset.exporterConfiguration.separator">
+                <small class="font-normal">Enter the character used to separate the values.</small>
+            </label>
+        </ng-template>
+
+        <label class="mb-4">
+            Limit Results
+            <select [(ngModel)]="exportDataset.limit">
+                <option value="1">1</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="250">250</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="5000">5000</option>
+                <option value="10000">10000</option>
+            </select>
+        </label>
+
+        <label class="mb-4">
+            Offset Results
+            <input type="number" [(ngModel)]="exportDataset.offset">
+        </label>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+
+        <button mat-button mat-flat-button color="primary" type="button"
+                (click)="exportData()"
+                [disabled]="!exportDataset.exporterKey">Export Data
+        </button>
+    </div>
+
+</div>
+
+

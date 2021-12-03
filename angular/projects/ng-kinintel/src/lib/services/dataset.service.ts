@@ -62,6 +62,12 @@ export class DatasetService {
             datasetInstanceSummary).toPromise();
     }
 
+    public exportDataset(exportDataset) {
+        return this.http.post(this.config.backendURL + `/dataset/export`, exportDataset,
+            {responseType: 'blob'})
+            .toPromise();
+    }
+
     public listSnapshotProfiles(filterString = '', limit = '10', offset = '0') {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const activeTag = this.tagService.activeTag.getValue() || null;

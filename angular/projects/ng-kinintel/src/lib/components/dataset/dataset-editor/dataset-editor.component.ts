@@ -21,7 +21,7 @@ export class DatasetEditorComponent implements OnInit {
     @Input() dashboardParameters: any;
 
     @Output() dataLoaded = new EventEmitter<any>();
-    @Output() evaluatedDatasourceChange = new EventEmitter();
+    @Output() datasetInstanceSummaryChange = new EventEmitter();
 
     public dataset: any;
     public tableData = [];
@@ -432,7 +432,7 @@ export class DatasetEditorComponent implements OnInit {
             };
         });
         this.dataLoaded.emit(this.dataset);
-        this.evaluatedDatasourceChange.emit(this.datasetInstanceSummary);
+        this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
         this.setTerminatingTransformations();
         return true;
     }
@@ -565,7 +565,7 @@ export class DatasetEditorComponent implements OnInit {
                         }
                     }
                     // If the evaluate fails we still want to publish the instance and set the terminating transformations
-                    this.evaluatedDatasourceChange.emit(this.datasetInstanceSummary);
+                    this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
                     this.setTerminatingTransformations();
                 });
             });

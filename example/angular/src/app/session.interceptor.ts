@@ -51,7 +51,7 @@ export class SessionInterceptor implements HttpInterceptor {
                     },
                     error => {
                         if (error instanceof HttpErrorResponse) {
-                            if (error.error && error.error.message.includes('No CSRF token supplied for user authenticated request')) {
+                            if (error.error && error.error.message &&  error.error.message.includes('No CSRF token supplied for user authenticated request')) {
                                 this.authService.logout().then(() => {
                                     this.router.navigate(['/login']);
                                 });

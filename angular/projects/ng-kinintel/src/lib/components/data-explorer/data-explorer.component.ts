@@ -4,6 +4,7 @@ import {DatasetNameDialogComponent} from '../dataset/dataset-editor/dataset-name
 import {DatasetService} from '../../services/dataset.service';
 import {Router} from '@angular/router';
 import {SnapshotProfileDialogComponent} from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
+import {ExportDataComponent} from './export-data/export-data.component';
 
 @Component({
     selector: 'ki-data-explorer',
@@ -48,7 +49,18 @@ export class DataExplorerComponent implements OnInit {
     }
 
     public exportData() {
-
+        const dialogRef = this.dialog.open(ExportDataComponent, {
+            width: '600px',
+            height: '530px',
+            data: {
+                datasetInstanceSummary: Object.assign({}, this.datasetInstanceSummary)
+            }
+        });
+        dialogRef.afterClosed().subscribe(exportDataset => {
+            if (exportDataset) {
+                this.loadSnapshotProfiles();
+            }
+        });
     }
 
     public viewSnapshots() {

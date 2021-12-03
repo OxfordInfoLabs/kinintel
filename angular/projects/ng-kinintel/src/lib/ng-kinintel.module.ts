@@ -64,6 +64,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatRadioModule} from '@angular/material/radio';
 import { FeedsComponent } from './components/feeds/feeds.component';
 import { FeedComponent } from './components/feeds/feed/feed.component';
+import { ExportDataComponent } from './components/data-explorer/export-data/export-data.component';
 
 
 @NgModule({
@@ -103,7 +104,8 @@ import { FeedComponent } from './components/feeds/feed/feed.component';
         ViewDashboardComponent,
         DatasetEditorPopupComponent,
         FeedsComponent,
-        FeedComponent
+        FeedComponent,
+        ExportDataComponent
     ],
     imports: [
         BrowserModule,

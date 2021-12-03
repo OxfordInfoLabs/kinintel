@@ -30,6 +30,7 @@
         "chart.js": "^2.9.3",
         "chroma-js": "^2.1.2",
         "codemirror": "^5.63.3",
+        "file-saver": "^2.0.5",
         "gridstack": "^4.2.1",
         "js-sha512": "^0.8.0",
         "kinibind": "0.0.104",
