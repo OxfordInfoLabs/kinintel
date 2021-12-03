@@ -87,6 +87,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      */
     public function applyTransformation($transformation, $datasource, $parameterValues = []) {
 
+
         $joinDataParameters = [];
 
         // Triage to see whether we can read the evaluated data source
@@ -102,7 +103,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $joinDataSet = $this->datasetService->getDataSetInstance($transformation->getJoinedDataSetInstanceId());
 
             // If parameters required for a data set, ensure we have mappings for them.
-            $joinDataParameters = $this->datasetService->getEvaluatedParameters($transformation->getJoinedDataSetInstanceId());
+            $joinDataParameters = $this->datasetService->getEvaluatedParameters($joinDataSet);
+
         }
 
         // If we have join data parameters, evaluate now.
@@ -126,9 +128,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
         } else {
             if (isset($joinDataSet)) {
-                $joinDatasource = $this->datasourceService->getTransformedDataSource($joinDataSet->getDatasourceInstanceKey(),
-                    $joinDataSet->getTransformationInstances(), $parameterValues);
-
+                $joinDatasource = $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet,
+                    [], $parameterValues);
             }
             // Update the transformation with the evaluated data source.
             $transformation->setEvaluatedDataSource($joinDatasource);

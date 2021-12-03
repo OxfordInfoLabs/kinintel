@@ -388,6 +388,29 @@ class DatasetService {
 
 
     /**
+     * Get transformed datasource for a data set instance, calling recursively as required for datasets
+     *
+     * @param DatasetInstanceSummary $dataSetInstance
+     * @param mixed[] $parameterValues
+     * @param TransformationInstance[] $additionalTransformations
+     */
+    public function getTransformedDatasourceForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = []) {
+
+
+        // Aggregate transformations and parameter values.
+        $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
+        $parameterValues = array_merge($dataSetInstance->getParameterValues() ?? [], $parameterValues ?? []);
+
+        if ($dataSetInstance->getDatasourceInstanceKey()) {
+            return $this->datasourceService->getTransformedDataSource($dataSetInstance->getDatasourceInstanceKey(), $parameterValues, $transformations);
+        } else if ($dataSetInstance->getDatasetInstanceId()) {
+            $dataset = $this->getDataSetInstance($dataSetInstance->getDatasetInstanceId(), false);
+            return $this->getTransformedDatasourceForDataSetInstance($dataset, $parameterValues, $transformations);
+        }
+
+    }
+
+    /**
      * Export a dataset using a defined exporter and configuration
      *
      * @param DatasetInstanceSummary $datasetInstance
