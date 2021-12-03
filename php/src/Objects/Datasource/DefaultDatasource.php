@@ -101,7 +101,6 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         // Convert columns to plain fields to avoid double evaluations
         $columns = Field::toPlainFields($sourceDataset->getColumns());
 
-        Logger::log($columns);
 
         $createColumns = [];
         foreach ($columns as $column) {

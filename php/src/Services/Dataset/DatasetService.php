@@ -402,7 +402,7 @@ class DatasetService {
         $parameterValues = array_merge($dataSetInstance->getParameterValues() ?? [], $parameterValues ?? []);
 
         if ($dataSetInstance->getDatasourceInstanceKey()) {
-            return $this->datasourceService->getTransformedDataSource($dataSetInstance->getDatasourceInstanceKey(), $parameterValues, $transformations);
+            return $this->datasourceService->getTransformedDataSource($dataSetInstance->getDatasourceInstanceKey(), $transformations, $parameterValues);
         } else if ($dataSetInstance->getDatasetInstanceId()) {
             $dataset = $this->getDataSetInstance($dataSetInstance->getDatasetInstanceId(), false);
             return $this->getTransformedDatasourceForDataSetInstance($dataset, $parameterValues, $transformations);
