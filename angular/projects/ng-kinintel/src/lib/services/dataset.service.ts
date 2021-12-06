@@ -40,7 +40,7 @@ export class DatasetService {
 
     public saveDataset(datasetInstanceSummary, accountId = null) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
-        const activeTag = this.tagService.activeTag.getValue() || null;
+        const activeTag = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
         if (activeTag) {
             datasetInstanceSummary.tags = [activeTag];
         }
@@ -70,7 +70,7 @@ export class DatasetService {
 
     public listSnapshotProfiles(filterString = '', limit = '10', offset = '0') {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
-        const activeTag = this.tagService.activeTag.getValue() || null;
+        const activeTag = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
 
         return this.http.get(this.config.backendURL + '/dataset/snapshotprofile', {
             params: _.omitBy({filterString, limit, offset, tags: activeTag, projectKey}, _.isNil)

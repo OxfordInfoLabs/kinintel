@@ -121,21 +121,7 @@ export class DatasetEditorComponent implements OnInit {
 
     public editTerminatingTransformation(transformation) {
         if (transformation.type === 'summarise') {
-            const clonedTransformation = _.clone(transformation);
-            // Grab the index of the current transformation - so we know which upstream transformations to exclude
-            const existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
-                type: transformation.type,
-                config: transformation.config
-            });
-
-            // Exclude all upstream transformations from the evaluate
-            this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
-                if (index >= existingIndex) {
-                    instance.exclude = true;
-                }
-            });
-
-            this.evaluateDataset().then(() => {
+            this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
                 this.summariseData(clonedTransformation.config, existingIndex);
             });
         }
@@ -143,7 +129,9 @@ export class DatasetEditorComponent implements OnInit {
             this.joinData(transformation);
         }
         if (transformation.type === 'formula') {
-            this.createFormula();
+            this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
+                this.createFormula(clonedTransformation, existingIndex);
+            });
         }
     }
 
@@ -181,28 +169,49 @@ export class DatasetEditorComponent implements OnInit {
         });
     }
 
-    public createFormula() {
-        const existingFormulas = _.find(this.datasetInstanceSummary.transformationInstances, {type: 'formula'});
-
+    public createFormula(existingTransformation?, existingIndex?) {
+        const clonedExpressions = existingTransformation ? _.clone(existingTransformation.config.expressions) : null;
         const dialogRef = this.dialog.open(DatasetCreateFormulaComponent, {
-            width: '1000px',
+            width: '900px',
             height: '800px',
             data: {
                 allColumns: this.filterFields,
-                formulas: existingFormulas ? existingFormulas.config.expressions : [{}]
+                formulas: existingTransformation ? existingTransformation.config.expressions : [{}]
             }
         });
 
-        dialogRef.afterClosed().subscribe(formulas => {
-            if (formulas) {
-                _.remove(this.datasetInstanceSummary.transformationInstances, {type: 'formula'});
-                this.datasetInstanceSummary.transformationInstances.push({
-                    type: 'formula',
-                    config: {
-                        expressions: formulas
-                    }
-                });
+        dialogRef.afterClosed().subscribe(formula => {
+            if (formula) {
+                if (existingIndex) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = {
+                        type: 'formula',
+                        config: {
+                            expressions: formula
+                        }
+                    };
+                } else {
+                    this.datasetInstanceSummary.transformationInstances.push({
+                        type: 'formula',
+                        config: {
+                            expressions: formula
+                        }
+                    });
+                }
+
                 this.evaluateDataset();
+            } else {
+                if (clonedExpressions) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = {
+                        type: 'formula',
+                        config: {
+                            expressions: clonedExpressions
+                        }
+                    };
+                    this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
+                        instance.exclude = false;
+                    });
+                    this.evaluateDataset();
+                }
             }
         });
     }
@@ -401,6 +410,26 @@ export class DatasetEditorComponent implements OnInit {
                 fullData: data,
                 columnName
             }
+        });
+    }
+
+    private excludeUpstreamTransformations(transformation) {
+        const clonedTransformation = _.clone(transformation);
+        // Grab the index of the current transformation - so we know which upstream transformations to exclude
+        const existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
+            type: transformation.type,
+            config: transformation.config
+        });
+
+        // Exclude all upstream transformations from the evaluate
+        this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
+            if (index >= existingIndex) {
+                instance.exclude = true;
+            }
+        });
+
+        return this.evaluateDataset().then(() => {
+            return [clonedTransformation, existingIndex];
         });
     }
 

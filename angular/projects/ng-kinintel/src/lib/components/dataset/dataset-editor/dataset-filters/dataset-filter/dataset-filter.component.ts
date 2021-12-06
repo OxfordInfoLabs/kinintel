@@ -40,6 +40,15 @@ export class DatasetFilterComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.customLhs = String(this.filter.lhsExpression).length &&
+            !_.find(this.filterFields, field => {
+                return `[[${field.name}]]` === this.filter.lhsExpression;
+            });
+
+        this.customValue = String(this.filter.rhsExpression).length &&
+            !_.find(this.joinFilterFields, field => {
+                return `[[${field.name}]]` === this.filter.rhsExpression;
+            });
     }
 
     public removeFilter() {

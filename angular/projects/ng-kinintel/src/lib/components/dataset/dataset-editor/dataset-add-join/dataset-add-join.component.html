@@ -113,6 +113,12 @@
                 </ng-template>
 
                 <ng-template [ngIf]="selectedSource">
+
+                    <div class="my-4">
+                        <mat-checkbox [(ngModel)]="joinTransformation.config.strictJoin">Strict Join?</mat-checkbox>
+                        <p><small>If turned on, data will be pruned to only return rows that match.</small></p>
+                    </div>
+
                     <ki-dataset-filters *ngIf="joinFilterFields" [filterFields]="filterFields"
                                         [joinFilterFields]="joinFilterFields"
                                         [joinFieldsName]="selectedSource.title || selectedSource.name"

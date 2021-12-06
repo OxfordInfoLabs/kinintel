@@ -34,7 +34,8 @@ export class DatasetAddJoinComponent implements OnInit {
         config: {
             joinFilters: [],
             joinColumns: [],
-            joinParameterMappings: []
+            joinParameterMappings: [],
+            strictJoin: false
         }
     };
     public admin: boolean;
@@ -113,6 +114,8 @@ export class DatasetAddJoinComponent implements OnInit {
             setTimeout(() => {
                 this.select(item, type, this.matStepper, false);
             }, 200);
+
+            console.log('JOIN', this.joinTransformation);
         }
     }
 
@@ -125,7 +128,8 @@ export class DatasetAddJoinComponent implements OnInit {
                 config: {
                     joinFilters: [],
                     joinColumns: [],
-                    joinParameterMappings: []
+                    joinParameterMappings: [],
+                    strictJoin: false
                 }
             };
         }
