@@ -84,8 +84,10 @@ class DatasetInstanceSnapshotProfileSearchResult {
         $this->snapshotProfileDatasourceInstanceKey = $snapshotProfile->getDataProcessorInstance()->getKey();
 
         $this->taskStatus = $snapshotProfile->getScheduledTask()->getStatus();
-        $this->taskLastStartTime = $snapshotProfile->getScheduledTask()->getLastStartTime();
-        $this->taskNextStartTime = $snapshotProfile->getScheduledTask()->getNextStartTime();
+        $this->taskLastStartTime = $snapshotProfile->getScheduledTask()->getLastStartTime() ?
+            $snapshotProfile->getScheduledTask()->getLastStartTime()->format("d/m/Y H:i:s") : "";
+        $this->taskNextStartTime = $snapshotProfile->getScheduledTask()->getNextStartTime() ?
+            $snapshotProfile->getScheduledTask()->getNextStartTime()->format("d/m/Y H:i:s") : "";
 
         // Grab parent properties
         $this->parentDatasetInstanceId = $snapshotProfile->getDatasetInstanceId();
