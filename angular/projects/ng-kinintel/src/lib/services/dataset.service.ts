@@ -40,7 +40,7 @@ export class DatasetService {
 
     public saveDataset(datasetInstanceSummary, accountId = null) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
-        const activeTag = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
+        const activeTag = this.tagService.activeTag.getValue() || null;
         if (activeTag) {
             datasetInstanceSummary.tags = [activeTag];
         }
