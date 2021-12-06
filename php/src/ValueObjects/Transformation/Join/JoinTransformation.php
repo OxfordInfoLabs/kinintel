@@ -48,6 +48,14 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
 
 
     /**
+     * Strict join
+     *
+     * @var bool
+     */
+    private $strictJoin = false;
+
+
+    /**
      * Which columns are to be included - here is also an opportunity to rename them.
      *
      * @var Field[]
@@ -73,12 +81,13 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      * @param Field[] $joinColumns
      */
     public function __construct($joinedDataSourceKey = null, $joinedDataSetId = null, $joinParameterMappings = [],
-                                $joinFilters = null, $joinColumns = []) {
+                                $joinFilters = null, $joinColumns = [], $strictJoin = false) {
         $this->joinedDataSourceInstanceKey = $joinedDataSourceKey;
         $this->joinedDataSetInstanceId = $joinedDataSetId;
         $this->joinParameterMappings = $joinParameterMappings;
         $this->joinFilters = $joinFilters;
         $this->joinColumns = $joinColumns;
+        $this->strictJoin = $strictJoin;
     }
 
     /**
@@ -135,6 +144,20 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      */
     public function setJoinFilters($joinFilters) {
         $this->joinFilters = $joinFilters;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStrictJoin() {
+        return $this->strictJoin;
+    }
+
+    /**
+     * @param bool $strictJoin
+     */
+    public function setStrictJoin($strictJoin) {
+        $this->strictJoin = $strictJoin;
     }
 
     /**

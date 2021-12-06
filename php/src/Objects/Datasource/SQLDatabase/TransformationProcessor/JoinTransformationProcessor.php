@@ -351,7 +351,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
 
             // Create the join query
-            $joinQuery = new SQLQuery("*", "(SELECT $mainTableAlias.*,$childSelectColumns FROM ({$query->getSQL()}) $mainTableAlias LEFT JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}) S$subQueryIndex", $allParameters);
+            $joinType = $transformation->isStrictJoin() ? "INNER" : "LEFT";
+            $joinQuery = new SQLQuery("*", "(SELECT $mainTableAlias.*,$childSelectColumns FROM ({$query->getSQL()}) $mainTableAlias $joinType JOIN ({$childQuery->getSQL()}) $childTableAlias ON {$joinCriteria}) S$subQueryIndex", $allParameters);
 
             return $joinQuery;
         } else {

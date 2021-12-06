@@ -562,6 +562,40 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfStrictJoinSetAnInnerJoinClauseIsWrittenInsteadOfLeftJoin() {
+
+        // Create set of authentication credentials
+        $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
+
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $joinDatasource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $joinDatasource->returnValue("buildQuery", new SQLQuery("*", "join_table"), [
+            []
+        ]);
+
+        $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
+        $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
+        $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
+
+
+        // Try a simple column based join
+        $joinTransformation = new JoinTransformation("testsource", null, [],
+            new FilterJunction([
+                new Filter("[[name]]", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]),[], true);
+
+        $joinTransformation->setEvaluatedDataSource($joinDatasource);
+
+        $sqlQuery = $this->processor->updateQuery($joinTransformation, new SQLQuery("*", "test_table"), [],
+            $mainDataSource);
+
+
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T1.name = T2.otherName) S1"),
+            $sqlQuery);
+
+    }
+
+
     public function testExistingQueryParametersAreMergedIntoParametersForDatasourceJoinQuery() {
 
         // Create set of authentication credentials
