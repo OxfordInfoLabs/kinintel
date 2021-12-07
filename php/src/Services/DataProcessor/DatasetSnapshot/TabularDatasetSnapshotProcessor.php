@@ -39,7 +39,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
 
     // Data limit
-    const DATA_LIMIT = 10000;
+    const DATA_LIMIT = 50000;
 
 
     /**
