@@ -102,9 +102,10 @@
         </div>
         <div>
             <div class="menu-items">
-                <p *ngIf="loggedIn && sessionUser" class="menu-title">
-                    {{sessionUser.name}}
-                </p>
+                <div *ngIf="loggedIn && sessionUser" class="session-user">
+                    <p>{{sessionUser.name}}</p>
+                    <span>{{sessionUser.emailAddress}}</span>
+                </div>
                 <a *ngIf="!loggedIn" [routerLink]="['/login']" routerLinkActive="active" class="menu-item">
                     <mat-icon>login</mat-icon>
                     <span>Login</span>
@@ -190,8 +191,8 @@
     </div>
     <div>
         <div class="menu-items">
-            <p *ngIf="loggedIn && sessionUser" class="menu-title">
-            </p>
+            <div *ngIf="loggedIn && sessionUser" class="session-user">
+            </div>
             <a *ngIf="!loggedIn" [routerLink]="['/login']" routerLinkActive="active" class="menu-item">
                 <mat-icon>login</mat-icon>
             </a>

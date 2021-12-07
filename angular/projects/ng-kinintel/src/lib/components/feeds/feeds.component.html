@@ -11,7 +11,7 @@
         </div>
 
         <div class="mb-8">
-            <input class="full" type="text" placeholder="Search for a snapshot"
+            <input class="full" type="text" placeholder="Search for a feed"
                    (keyup)="searchText.next($event.target.value)">
         </div>
 
@@ -20,7 +20,7 @@
             <!-- Position Column -->
             <ng-container matColumnDef="path">
                 <th mat-header-cell *matHeaderCellDef> Path</th>
-                <td mat-cell *matCellDef="let element"> {{element.path}} </td>
+                <td mat-cell *matCellDef="let element"> {{feedUrl}}{{element.path}} </td>
             </ng-container>
 
             <ng-container matColumnDef="dataset">

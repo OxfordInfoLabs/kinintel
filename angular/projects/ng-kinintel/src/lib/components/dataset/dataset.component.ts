@@ -18,6 +18,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() headingLabel: string;
     @Input() shared: boolean;
     @Input() admin: boolean;
+    @Input() reload: Subject<any>;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -29,7 +30,6 @@ export class DatasetComponent implements OnInit, OnDestroy {
     public activeTag: any;
 
     private tagSub: Subscription;
-    private reload = new Subject();
 
     constructor(private dialog: MatDialog,
                 private tagService: TagService,
@@ -39,6 +39,10 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        if (!this.reload) {
+            this.reload = new Subject();
+        }
+
         if (this.tagService) {
             this.activeTagSub = this.tagService.activeTag;
             this.tagSub = this.tagService.activeTag.subscribe(tag => this.activeTag = tag);
