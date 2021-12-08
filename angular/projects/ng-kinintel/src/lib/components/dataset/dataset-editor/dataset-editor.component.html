@@ -54,7 +54,7 @@
 <div class="filters mt-4">
 
     <ng-template ngFor let-filterTransformation [ngForOf]="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
-        <ki-dataset-filters [filterFields]="filterFields"
+        <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
                             [filterJunction]="filterTransformation.config"></ki-dataset-filters>
         <div class="flex items-center justify-end">
             <button mat-stroked-button style="margin-top: -3rem" class="mr-2 bg-white" color="primary"

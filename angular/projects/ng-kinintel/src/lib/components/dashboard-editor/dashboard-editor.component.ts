@@ -41,64 +41,64 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             type: 'line',
             label: 'Line Chart',
             icon: 'show_chart',
-            width: 6,
-            height: 4
+            width: 4,
+            height: 16
         },
         {
             type: 'bar',
             label: 'Bar Chart',
             icon: 'stacked_bar_chart',
             width: 4,
-            height: 3
+            height: 16
         },
         {
             type: 'pie',
             label: 'Pie Chart',
             icon: 'pie_chart',
-            width: 6,
-            height: 5
+            width: 4,
+            height: 16
         },
         {
             type: 'table',
             label: 'Table',
             icon: 'table_chart',
-            width: 5,
-            height: 7
+            width: 4,
+            height: 20
         },
         {
             type: 'doughnut',
             label: 'Doughnut',
             icon: 'donut_large',
-            width: 6,
-            height: 5
+            width: 4,
+            height: 16
         },
         {
             type: 'metric',
             label: 'Metric',
             icon: 'trending_up',
             width: 3,
-            height: 2
+            height: 10
         },
         {
             type: 'heading',
             label: 'Heading',
             icon: 'title',
             width: 4,
-            height: 2
+            height: 8
         },
         {
             type: 'text',
             label: 'Template',
             icon: 'wysiwyg',
             width: 4,
-            height: 4
+            height: 16
         },
         {
             type: 'image',
             label: 'Image',
             icon: 'image',
             width: 3,
-            height: 5
+            height: 20
         }
     ];
     public dashboard: any = {};
@@ -155,7 +155,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
-            float: false,
+            float: true,
             cellHeight: 20,
             minW: 768,
             disableOneColumnMode: false,

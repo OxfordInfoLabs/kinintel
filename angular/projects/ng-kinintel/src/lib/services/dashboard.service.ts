@@ -34,10 +34,14 @@ export class DashboardService {
     }
 
     public saveDashboard(dashboardSummary, accountId = null) {
-        const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
+        const tags = this.tagService.activeTag.getValue() || null;
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        const url = this.config.backendURL + '/dashboard?projectKey=' + projectKey + '&tagKey=' + tags + '&accountId=' + accountId;
+        if (tags) {
+            dashboardSummary.tags = [tags];
+        }
+
+        const url = this.config.backendURL + '/dashboard?projectKey=' + projectKey + '&accountId=' + accountId;
 
         return this.http.post(url, dashboardSummary).toPromise();
     }

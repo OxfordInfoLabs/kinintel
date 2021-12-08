@@ -250,7 +250,7 @@
                     <div class="flex-grow p-4">
                         <label class="mb-4">
                             Main Metric
-                            <select [(ngModel)]="metricData.main" (ngModelChange)="updateMetricDataValues()">
+                            <select [(ngModel)]="metric.main" (ngModelChange)="updateMetricDataValues()">
                                 <option value="">-- Select Main Metric --</option>
                                 <option [value]="field.name" *ngFor="let field of filterFields">
                                     {{field.title}}
@@ -259,24 +259,24 @@
                         </label>
                         <label class="mb-4">
                             Main Metric Format
-                            <select [(ngModel)]="metricData.mainFormat" (ngModelChange)="updateMetricDataValues()">
+                            <select [(ngModel)]="metric.mainFormat" (ngModelChange)="updateMetricDataValues()">
                                 <option value="">Automatic</option>
                                 <option [value]="format" *ngFor="let format of metricFormats">
                                     {{format}}
                                 </option>
                             </select>
                         </label>
-                        <ng-template [ngIf]="metricData.mainFormat">
+                        <ng-template [ngIf]="metric.mainFormat">
                             <label class="mb-4">
                                 Decimals
-                                <input type="number" [(ngModel)]="metricData.mainFormatDecimals"
+                                <input type="number" [(ngModel)]="metric.mainFormatDecimals"
                                        (ngModelChange)="updateMetricDataValues()">
                             </label>
                         </ng-template>
-                        <ng-template [ngIf]="metricData.mainFormat === 'Currency'">
+                        <ng-template [ngIf]="metric.mainFormat === 'Currency'">
                             <label class="mb-4">
                                 Currency
-                                <select [(ngModel)]="metricData.mainFormatCurrency"
+                                <select [(ngModel)]="metric.mainFormatCurrency"
                                         (ngModelChange)="updateMetricDataValues()">
                                     <option value="">-- Select Currency --</option>
                                     <option [value]="currency.value" *ngFor="let currency of currencies">
@@ -290,7 +290,7 @@
 
                         <label class="mb-4">
                             Sub Metric
-                            <select [(ngModel)]="metricData.subMetric" (ngModelChange)="updateMetricDataValues()">
+                            <select [(ngModel)]="metric.subMetric" (ngModelChange)="updateMetricDataValues()">
                                 <option value="">-- Select Sub Metric --</option>
                                 <option [value]="field.name" *ngFor="let field of filterFields">
                                     {{field.title}}
@@ -299,24 +299,24 @@
                         </label>
                         <label class="mb-4">
                             Sub Metric Format
-                            <select [(ngModel)]="metricData.subMetricFormat" (ngModelChange)="updateMetricDataValues()">
+                            <select [(ngModel)]="metric.subMetricFormat" (ngModelChange)="updateMetricDataValues()">
                                 <option value="">Automatic</option>
                                 <option [value]="format" *ngFor="let format of metricFormats">
                                     {{format}}
                                 </option>
                             </select>
                         </label>
-                        <ng-template [ngIf]="metricData.subMetricFormat">
+                        <ng-template [ngIf]="metric.subMetricFormat">
                             <label class="mb-4">
                                 Decimals
-                                <input type="number" [(ngModel)]="metricData.subMetricFormatDecimals"
+                                <input type="number" [(ngModel)]="metric.subMetricFormatDecimals"
                                        (ngModelChange)="updateMetricDataValues()">
                             </label>
                         </ng-template>
-                        <ng-template [ngIf]="metricData.subMetricFormat === 'Currency'">
+                        <ng-template [ngIf]="metric.subMetricFormat === 'Currency'">
                             <label class="mb-4">
                                 Currency
-                                <select [(ngModel)]="metricData.subMetricFormatCurrency"
+                                <select [(ngModel)]="metric.subMetricFormatCurrency"
                                         (ngModelChange)="updateMetricDataValues()">
                                     <option value="">-- Select Currency --</option>
                                     <option [value]="currency.value" *ngFor="let currency of currencies">
@@ -326,7 +326,7 @@
                             </label>
                         </ng-template>
 
-                        <mat-slide-toggle [(ngModel)]="metricData.showSubChange" class="mb-4"
+                        <mat-slide-toggle [(ngModel)]="metric.showSubChange" class="mb-4"
                                           (ngModelChange)="updateMetricDataValues()">
                             Show Metric Change
                         </mat-slide-toggle>
@@ -338,8 +338,8 @@
                         <div class="metric-preview">
 
                             <div class="metric-item">
-                                <div class="main">{{metricData.mainValue}}</div>
-                                <div class="sub-metric" [innerHTML]="metricData.subValue"></div>
+                                <div class="main">{{metric.mainValue}}</div>
+                                <div class="sub-metric" [innerHTML]="metric.subValue"></div>
                             </div>
 
                         </div>

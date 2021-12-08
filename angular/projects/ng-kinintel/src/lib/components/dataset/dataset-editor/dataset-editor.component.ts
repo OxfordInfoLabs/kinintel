@@ -133,13 +133,32 @@ export class DatasetEditorComponent implements OnInit {
                 this.createFormula(clonedTransformation, existingIndex);
             });
         }
+        if (transformation.type === 'columns') {
+            this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
+                this.editColumnSettings(clonedTransformation, existingIndex);
+            });
+        }
+        console.log(transformation);
     }
 
     public exportData() {
 
     }
 
-    public editColumnSettings() {
+    public async editColumnSettings(existingTransformation?, existingIndex?) {
+        if (!existingTransformation) {
+            for (const transformation of this.datasetInstanceSummary.transformationInstances.reverse()) {
+                if (transformation.type === 'columns') {
+                    const [clone, index] = await this.excludeUpstreamTransformations(transformation);
+                    existingTransformation = clone;
+                    existingIndex = index;
+                    break;
+                }
+            }
+        }
+
+        const clonedColumns = existingTransformation ? _.clone(existingTransformation.config.columns) : null;
+
         const dialogRef = this.dialog.open(DatasetColumnSettingsComponent, {
             width: '1000px',
             height: '800px',
@@ -155,16 +174,36 @@ export class DatasetEditorComponent implements OnInit {
                     return {title: column.title, name: column.name};
                 });
 
-                _.remove(this.datasetInstanceSummary.transformationInstances, {type: 'columns'});
-
-                this.datasetInstanceSummary.transformationInstances.push({
-                    type: 'columns',
-                    config: {
-                        columns: fields
-                    }
-                });
+                if (existingIndex && existingIndex > -1) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = {
+                        type: 'columns',
+                        config: {
+                            columns: fields
+                        }
+                    };
+                } else {
+                    this.datasetInstanceSummary.transformationInstances.push({
+                        type: 'columns',
+                        config: {
+                            columns: fields
+                        }
+                    });
+                }
 
                 this.evaluateDataset();
+            } else {
+                if (clonedColumns) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = {
+                        type: 'columns',
+                        config: {
+                            columns: clonedColumns
+                        }
+                    };
+                    this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
+                        instance.exclude = false;
+                    });
+                    this.evaluateDataset();
+                }
             }
         });
     }
@@ -182,7 +221,7 @@ export class DatasetEditorComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(formula => {
             if (formula) {
-                if (existingIndex) {
+                if (existingIndex && existingIndex > -1) {
                     this.datasetInstanceSummary.transformationInstances[existingIndex] = {
                         type: 'formula',
                         config: {

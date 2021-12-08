@@ -40,7 +40,7 @@ export class ItemComponentComponent implements AfterViewInit {
     public loadingItem = false;
     public filterFields: any = [];
     public dependencies: any = {};
-    public metricData: any = {};
+    public metric: any = {};
     public textData: any = {};
     public imageData: any = {};
     public tabular: any = {};
@@ -264,48 +264,48 @@ export class ItemComponentComponent implements AfterViewInit {
     }
 
     public updateMetricDataValues() {
-        if (this.metricData.main) {
-            this.metricData.mainValue = this.dataset.allData[0][this.metricData.main];
+        if (this.metric.main) {
+            this.metric.mainValue = this.dataset.allData[0][this.metric.main];
         }
 
-        if (this.metricData.mainFormat) {
-            if (this.metricData.mainFormatDecimals) {
-                this.metricData.mainValue = Number(this.metricData.mainValue).toFixed(this.metricData.mainFormatDecimals);
+        if (this.metric.mainFormat) {
+            if (this.metric.mainFormatDecimals) {
+                this.metric.mainValue = Number(this.metric.mainValue).toFixed(this.metric.mainFormatDecimals);
             }
-            if (this.metricData.mainFormat === 'Currency' && this.metricData.mainFormatCurrency) {
-                const currency = _.find(this.currencies, {value: this.metricData.mainFormatCurrency});
+            if (this.metric.mainFormat === 'Currency' && this.metric.mainFormatCurrency) {
+                const currency = _.find(this.currencies, {value: this.metric.mainFormatCurrency});
                 if (currency) {
-                    this.metricData.mainValue = currency.symbol + '' + this.metricData.mainValue;
+                    this.metric.mainValue = currency.symbol + '' + this.metric.mainValue;
                 }
             }
-            if (this.metricData.mainFormat === 'Percentage') {
-                this.metricData.mainValue = this.metricData.mainValue + '%';
+            if (this.metric.mainFormat === 'Percentage') {
+                this.metric.mainValue = this.metric.mainValue + '%';
             }
         }
 
-        if (this.metricData.subMetric) {
-            this.metricData.subValue = this.dataset.allData[0][this.metricData.subMetric];
+        if (this.metric.subMetric) {
+            this.metric.subValue = this.dataset.allData[0][this.metric.subMetric];
         }
 
-        if (this.metricData.subMetricFormat) {
-            if (this.metricData.subMetricFormatDecimals) {
-                this.metricData.subValue = Number(this.metricData.subValue).toFixed(this.metricData.subMetricFormatDecimals);
+        if (this.metric.subMetricFormat) {
+            if (this.metric.subMetricFormatDecimals) {
+                this.metric.subValue = Number(this.metric.subValue).toFixed(this.metric.subMetricFormatDecimals);
             }
-            if (this.metricData.subMetricFormat === 'Currency' && this.metricData.subMetricFormatCurrency) {
-                const currency = _.find(this.currencies, {value: this.metricData.subMetricFormatCurrency});
+            if (this.metric.subMetricFormat === 'Currency' && this.metric.subMetricFormatCurrency) {
+                const currency = _.find(this.currencies, {value: this.metric.subMetricFormatCurrency});
                 if (currency) {
-                    this.metricData.subValue = currency.symbol + '' + this.metricData.subValue;
+                    this.metric.subValue = currency.symbol + '' + this.metric.subValue;
                 }
             }
-            if (this.metricData.subMetricFormat === 'Percentage') {
-                this.metricData.subValue = this.metricData.subValue + '%';
+            if (this.metric.subMetricFormat === 'Percentage') {
+                this.metric.subValue = this.metric.subValue + '%';
             }
         }
 
-        if (this.metricData.showSubChange) {
-            const changeClass = `${parseInt(this.metricData.subValue, 10) > 0 ? 'up' : 'down'}`;
-            const icon = `${parseInt(this.metricData.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
-            this.metricData.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metricData.subValue}</span>`;
+        if (this.metric.showSubChange && this.metric.subValue) {
+            const changeClass = `${parseInt(this.metric.subValue, 10) > 0 ? 'up' : 'down'}`;
+            const icon = `${parseInt(this.metric.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
+            this.metric.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metric.subValue}</span>`;
         }
     }
 

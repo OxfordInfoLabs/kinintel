@@ -79,8 +79,8 @@
 
         <ng-template [ngIf]="dashboardItemType.type === 'metric'">
             <div class="metric-item">
-                <div class="main">{{metricData.mainValue}}</div>
-                <div class="sub-metric" [innerHTML]="metricData.subValue"></div>
+                <div class="main">{{metric.mainValue}}</div>
+                <div class="sub-metric" [innerHTML]="metric.subValue"></div>
             </div>
         </ng-template>
 

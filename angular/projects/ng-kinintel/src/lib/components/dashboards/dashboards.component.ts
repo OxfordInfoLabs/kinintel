@@ -63,6 +63,10 @@ export class DashboardsComponent implements OnInit {
         this.router.navigateByUrl(`dashboards/${id}${this.admin ? '?a=true' : ''}`);
     }
 
+    public delete(id) {
+
+    }
+
     public removeActiveTag() {
         this.tagService.resetActiveTag();
     }

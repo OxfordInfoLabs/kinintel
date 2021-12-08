@@ -17,6 +17,7 @@ export class SourceSelectorDialogComponent implements OnInit {
     public datasources: any = [];
     public datasets: any = [];
     public sharedDatasets: any = [];
+    public snapshots: any = [];
     public searchText = new BehaviorSubject('');
     public dashboardDatasetInstance: any;
     public requiredParameters: any = [];
@@ -44,6 +45,17 @@ export class SourceSelectorDialogComponent implements OnInit {
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
+        });
+
+        merge(this.searchText)
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                switchMap(() =>
+                    this.getSnapshots(false)
+                )
+            ).subscribe((snapshots: any) => {
+            this.snapshots = snapshots;
         });
 
         if (this.admin) {
@@ -89,8 +101,16 @@ export class SourceSelectorDialogComponent implements OnInit {
                 parameterValues: {},
                 parameters: []
             };
+        } else if (type === 'snapshot') {
+            this.dashboardDatasetInstance = {
+                datasetInstanceId: null,
+                datasourceInstanceKey: item.snapshotProfileDatasourceInstanceKey,
+                transformationInstances: [],
+                parameterValues: {},
+                parameters: []
+            };
         } else {
-            this.dashboardDatasetInstance = await this.datasetService.getDataset(item.id);
+            this.dashboardDatasetInstance = await this.datasetService.getExtendedDataset(item.id);
         }
 
         if (this.data.dashboardItemInstanceKey) {
@@ -160,6 +180,19 @@ export class SourceSelectorDialogComponent implements OnInit {
             '0'
         ).pipe(map((sources: any) => {
                 return sources;
+            })
+        );
+    }
+
+    private getSnapshots(shared) {
+        return this.datasetService.listSnapshotProfiles(
+            this.searchText.getValue() || '',
+            '5',
+            '0'
+        ).pipe(map((snapshots: any) => {
+                return _.filter(snapshots, snapshot => {
+                    return snapshot.taskStatus !== 'PENDING';
+                });
             })
         );
     }

@@ -38,6 +38,10 @@ export class DatasetService {
             });
     }
 
+    public getExtendedDataset(id) {
+        return this.http.get(`${this.config.backendURL}/dataset/extended/${id}`).toPromise();
+    }
+
     public saveDataset(datasetInstanceSummary, accountId = null) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const activeTag = this.tagService.activeTag.getValue() || null;
