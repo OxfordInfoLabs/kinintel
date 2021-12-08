@@ -920,4 +920,56 @@ class DatasetServiceTest extends TestBase {
     }
 
 
+    public function testSavingDatasetPreservesExistingSnapshots() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSetInstance = new DatasetInstanceSummary("New Dataset For Snapshot", "test-json", null, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "foobar")
+            ])),
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
+        ]);
+
+        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstance, 5, 1);
+
+
+        // Create and save a snapshot for the new instance.
+        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", [
+            new ScheduledTaskTimePeriod(1, null, 0, 0)
+        ], "tabulardatasetsnapshot", [
+        ]);
+
+
+        $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
+
+
+        /**
+         * Sanity check profile saved
+         *
+         * @var DatasetInstance $reInstance
+         */
+        $reInstance = DatasetInstance::fetch($instanceId);
+        $this->assertEquals(1, sizeof($reInstance->getSnapshotProfiles()));
+        $this->assertEquals($profileId, $reInstance->getSnapshotProfiles()[0]->getId());
+
+
+        // Now resave the dataset
+        $reSummary = DatasetInstance::fetch($instanceId)->returnSummary();
+        $this->datasetService->saveDataSetInstance($reSummary, null, 1);
+
+        /**
+         * @var DatasetInstance $reInstance
+         */
+        $reInstance = DatasetInstance::fetch($instanceId);
+        $this->assertEquals(1, sizeof($reInstance->getSnapshotProfiles()));
+        $this->assertEquals($profileId, $reInstance->getSnapshotProfiles()[0]->getId());
+
+    }
+
+
 }

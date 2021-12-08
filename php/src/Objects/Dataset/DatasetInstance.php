@@ -64,6 +64,20 @@ class DatasetInstance extends DatasetInstanceSummary {
         $this->tags = $tags;
     }
 
+    /**
+     * @return DatasetInstanceSnapshotProfile[]
+     */
+    public function getSnapshotProfiles() {
+        return $this->snapshotProfiles;
+    }
+
+    /**
+     * @param DatasetInstanceSnapshotProfile[] $snapshotProfiles
+     */
+    public function setSnapshotProfiles($snapshotProfiles) {
+        $this->snapshotProfiles = $snapshotProfiles;
+    }
+
 
     /**
      * @return DatasetInstanceSummary

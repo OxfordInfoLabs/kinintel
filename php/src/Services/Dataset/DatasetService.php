@@ -147,7 +147,14 @@ class DatasetService {
      * @param DatasetInstanceSummary $dataSetInstanceSummary
      */
     public function saveDataSetInstance($dataSetInstanceSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
         $dataSetInstance = new DatasetInstance($dataSetInstanceSummary, $accountId, $projectKey);
+
+        // If existing summary, ensure we sync snapshot profiles.
+        if ($dataSetInstanceSummary->getId()) {
+            $existingDataSetInstance = DatasetInstance::fetch($dataSetInstanceSummary->getId());
+            $dataSetInstance->setSnapshotProfiles($existingDataSetInstance->getSnapshotProfiles());
+        }
 
         // Process tags
         if (sizeof($dataSetInstanceSummary->getTags())) {
