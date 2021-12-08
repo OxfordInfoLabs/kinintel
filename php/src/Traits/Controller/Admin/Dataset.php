@@ -40,6 +40,19 @@ trait Dataset {
 
 
     /**
+     * Get an extended dataset instance summary by id
+     *
+     * @http GET /extended/$id
+     *
+     * @param $id
+     * @return DatasetInstanceSummary
+     */
+    public function getExtendedDatasetInstance($id) {
+        return $this->datasetService->getExtendedDatasetInstance($id);
+    }
+
+
+    /**
      * Filter dataset instances, optionally by title, project key, tags and limited by offset and limit.
      *
      * @http GET /

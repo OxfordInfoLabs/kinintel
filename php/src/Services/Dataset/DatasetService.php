@@ -71,6 +71,18 @@ class DatasetService {
 
 
     /**
+     * Get an extended version of a dataset instance
+     *
+     * @param $originalDatasetId
+     * @return DatasetInstanceSummary
+     */
+    public function getExtendedDatasetInstance($originalDatasetId) {
+        $originalDataset = $this->getDataSetInstance($originalDatasetId, false);
+        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId);
+    }
+
+
+    /**
      * Get a full data set instance
      *
      * @param $id

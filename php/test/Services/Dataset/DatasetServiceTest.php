@@ -890,5 +890,34 @@ class DatasetServiceTest extends TestBase {
 
     }
 
+    public function testCanGetExtendedDatasetInstanceBasedUponOriginalDatasetInstance() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSetInstance = new DatasetInstanceSummary("Original Dataset", "test-json", null, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "foobar")
+            ])),
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
+        ]);
+
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstance, 5, 1);
+
+        $extended = $this->datasetService->getExtendedDatasetInstance($id);
+        $this->assertInstanceOf(DatasetInstanceSummary::class, $extended);
+        $this->assertNull($extended->getId());
+        $this->assertEquals("Original Dataset Extended", $extended->getTitle());
+        $this->assertNull($extended->getDatasourceInstanceKey());
+        $this->assertEquals($id, $extended->getDatasetInstanceId());
+        $this->assertEquals([], $extended->getParameters());
+        $this->assertEquals([], $extended->getTransformationInstances());
+        $this->assertEquals([], $extended->getParameterValues());
+
+    }
+
 
 }
