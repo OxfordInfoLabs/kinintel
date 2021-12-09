@@ -415,7 +415,7 @@ export class ConfigureItemComponent implements OnInit {
             }
         }
 
-        if (this.metric.showSubChange && this.metric.subValue) {
+        if (this.metric.showSubChange && !_.isNil(this.metric.subValue) && String(this.metric.subValue).length) {
             const changeClass = `${parseInt(this.metric.subValue, 10) > 0 ? 'up' : 'down'}`;
             const icon = `${parseInt(this.metric.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
             this.metric.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metric.subValue}</span>`;

@@ -72,21 +72,13 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public view(datasetId) {
         this.datasetService.getDataset(datasetId).then(datasetInstanceSummary => {
-            const dialogRef = this.dialog.open(DataExplorerComponent, {
-                width: '100vw',
-                height: '100vh',
-                maxWidth: '100vw',
-                maxHeight: '100vh',
-                hasBackdrop: false,
-                data: {
-                    datasetInstanceSummary,
-                    showChart: false,
-                    admin: this.admin
-                }
-            });
-            dialogRef.afterClosed().subscribe(res => {
-                this.reload.next(Date.now());
-            });
+            this.viewDataset(datasetInstanceSummary);
+        });
+    }
+
+    public extend(id) {
+        this.datasetService.getExtendedDataset(id).then(datasetInstanceSummary => {
+            this.viewDataset(datasetInstanceSummary);
         });
     }
 
@@ -101,6 +93,24 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 this.reload.next(Date.now());
             });
         }
+    }
+
+    private viewDataset(datasetInstanceSummary) {
+        const dialogRef = this.dialog.open(DataExplorerComponent, {
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            hasBackdrop: false,
+            data: {
+                datasetInstanceSummary,
+                showChart: false,
+                admin: this.admin
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            this.reload.next(Date.now());
+        });
     }
 
     private getDatasets() {
