@@ -74,8 +74,7 @@
 
     <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image'}">
 
-        <div [id]="dashboardItemType.type + itemInstanceKey" *ngIf="dashboardItemType.type === 'text'"
-            [innerHTML]="bindParametersInString(textData.value)"></div>
+        <div [id]="dashboardItemType.type + itemInstanceKey" *ngIf="dashboardItemType.type === 'text' && textData.value"></div>
 
         <ng-template [ngIf]="dashboardItemType.type === 'metric'">
             <div class="metric-item">
@@ -117,7 +116,17 @@
                 <tr *ngFor="let dataItem of dataset.allData"
                     [ngClass]="{'hover:bg-gray-50 cursor-pointer': tabular.actionRows}"
                     (click)="tabular.actionRows ? callToActionLink(tabular.cta, dataItem) : null">
-                    <td *ngFor="let column of dataset.columns">{{dataItem[column.name]}}</td>
+                    <td *ngFor="let column of dataset.columns">
+                        <ng-template [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
+                            {{dataItem[column.name]}}
+                        </ng-template>
+                        <ng-template [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
+                            <div [title]="dataItem[column.name]">{{dataItem[column.name].substring(0, 100)+'...'}}</div>
+                        </ng-template>
+                        <ng-template [ngIf]="!dataItem[column.name]">
+                            {{dataItem[column.name]}}
+                        </ng-template>
+                    </td>
                 </tr>
                 </tbody>
             </table>

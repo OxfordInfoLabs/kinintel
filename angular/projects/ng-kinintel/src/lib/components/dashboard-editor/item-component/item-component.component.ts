@@ -7,6 +7,7 @@ import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
 import {Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
+import {DomSanitizer} from '@angular/platform-browser';
 
 declare var window: any;
 
@@ -34,6 +35,7 @@ export class ItemComponentComponent implements AfterViewInit {
 
     public imageError = false;
     public Object = Object;
+    public String = String;
     public dataset: any;
     public chartData: any;
     public dashboardDatasetInstance: any;
@@ -76,7 +78,8 @@ export class ItemComponentComponent implements AfterViewInit {
                 private kiDatasourceService: DatasourceService,
                 private kiDatasetService: DatasetService,
                 private kiAlertService: AlertService,
-                private dashboardService: DashboardService) {
+                private dashboardService: DashboardService,
+                private sanitizer: DomSanitizer) {
     }
 
     ngAfterViewInit() {
@@ -132,11 +135,16 @@ export class ItemComponentComponent implements AfterViewInit {
                                 const transformations = _.clone(selectedDatasetInstance.transformationInstances);
                                 transformations.push({type: 'filter', config: dep.filterJunction});
 
-                                const data = await this.datasourceService.evaluateDatasource(
-                                    selectedDatasetInstance.datasourceInstanceKey,
-                                    transformations,
-                                    mappedParams,
-                                    '0', '1');
+                                const datasetInstanceSummary = {
+                                    datasetInstanceId: selectedDatasetInstance.datasetInstanceId,
+                                    datasourceInstanceKey: selectedDatasetInstance.datasourceInstanceKey,
+                                    transformationInstances: transformations,
+                                    parameterValues: mappedParams,
+                                    parameters: selectedDatasetInstance.parameters
+                                };
+
+                                const data = await this.datasetService.evaluateDataset(
+                                    datasetInstanceSummary, '0', '1');
 
                                 allMatched.push(data.allData.length === 1);
                             }
@@ -213,8 +221,10 @@ export class ItemComponentComponent implements AfterViewInit {
 
     public evaluateTextData() {
         setTimeout(() => {
-            const element = document.getElementById(this.dashboardItemType.type + this.itemInstanceKey);
+            const element: any = document.getElementById(this.dashboardItemType.type + this.itemInstanceKey);
             if (element) {
+                element.innerHTML = this.bindParametersInString(this.textData.value);
+
                 const data: any = {
                     dataSet: this.dataset.allData
                 };
@@ -364,10 +374,24 @@ export class ItemComponentComponent implements AfterViewInit {
 
         const mappedParams = this.getMappedParams(this.dashboardDatasetInstance);
 
-        return this.datasourceService.evaluateDatasource(
-            this.dashboardDatasetInstance.datasourceInstanceKey,
-            this.dashboardDatasetInstance.transformationInstances,
-            mappedParams,
+        const datasetInstanceSummary = {
+            datasetInstanceId: this.dashboardDatasetInstance.datasetInstanceId,
+            datasourceInstanceKey: this.dashboardDatasetInstance.datasourceInstanceKey,
+            transformationInstances: this.dashboardDatasetInstance.transformationInstances,
+            parameterValues: mappedParams,
+            parameters: this.dashboardDatasetInstance.parameters
+        };
+
+        if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+            _.forEach(this.dashboard.layoutSettings.parameters, (param, name) => {
+                if (!datasetInstanceSummary.parameterValues[name]) {
+                    datasetInstanceSummary.parameterValues[name] = param.value;
+                }
+            });
+        }
+
+        return this.datasetService.evaluateDataset(
+            datasetInstanceSummary,
             '0', '10')
             .then(data => {
                 this.dataset = data;

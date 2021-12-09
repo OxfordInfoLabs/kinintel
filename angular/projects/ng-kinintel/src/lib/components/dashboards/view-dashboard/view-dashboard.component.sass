@@ -4,6 +4,9 @@ h2.dashboard-title
 .title-input
     min-width: 300px
 
+.whitesmoke
+    background-color: whitesmoke
+
 .data-actions
     display: flex
     align-items: center
@@ -41,62 +44,103 @@ mat-drawer-container
     height: 100vh
     flex-direction: column
 
-.grid-stack-item-content
-    background-color: white
-    //border: 1px solid #e8e8e8
-    border-radius: 6px
-    position: relative
-    box-shadow: 0 0 6px 0 rgba(0,0,0,0.05)
-    .edit-widget
-        position: absolute
-        right: -5px
-        top: 0
-        z-index: 9999
-    .alert-widget
-        position: absolute
-        top: 0
-        left: 0
-        right: 0
-        background-color: #d01212
-        display: flex
-        align-items: center
-        color: white
-        cursor: pointer
-        padding-right: 1.5rem
-        overflow: hidden
-        white-space: nowrap
-        .alert-summaries
-            overflow: hidden
-            text-overflow: ellipsis
-    &.alert
-        box-shadow: 0 0 6px 0 rgba(194, 13, 13)
+.grid-stack-item
+    .grid-stack-item-content
+        background-color: white
+        //border: 1px solid #e8e8e8
+        border-radius: 6px
+        position: relative
+        box-shadow: 0 0 6px 0 rgba(0,0,0,0.05)
+        .item-disabled
+            display: none
         .edit-widget
-            color: white
-    &::-webkit-scrollbar
-        width: 0.5em
-        height: 0.5em
-        background: transparent
-    &::-webkit-scrollbar-thumb
-        background: #d3d3d3
-
-    &:hover
-        .remove-widget, .edit-widget
-            display: block
-.draggable-toolbar
-    width: 100%
-    display: flex
-    padding: 1rem .5rem
-    cursor: default
-    .grid-stack-item
-        margin-right: .5rem
-        .grid-stack-item-content
+            position: absolute
+            right: -5px
+            top: 0
+            z-index: 9999
+        .alert-widget
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            background-color: #d01212
             display: flex
             align-items: center
-            justify-content: center
-            width: 100px
-            height: 78px
-            flex-direction: column
+            color: white
+            cursor: pointer
+            padding-right: 1.5rem
+            overflow: hidden
+            white-space: nowrap
+            .alert-summaries
+                overflow: hidden
+                text-overflow: ellipsis
+        &.alert
+            box-shadow: 0 0 6px 0 rgba(194, 13, 13)
+            .edit-widget
+                color: white
+        &::-webkit-scrollbar
+            width: 0.5em
+            height: 0.5em
+            background: transparent
+        &::-webkit-scrollbar-thumb
+            background: #d3d3d3
+        &:hover
+            .remove-widget, .edit-widget
+                display: block
+    &.item-disabled
+        .grid-stack-item-content
+            background-color: #e1e1e1
+            .config-button
+                display: none
+            .item-disabled
+                margin-top: -1rem
+                display: block
+                width: 75%
+                color: #b1b1b1
+                font-size: 1.2rem
+                font-weight: 500
+                text-align: center
+                mat-icon
+                    font-size: 40px
+                    width: 40px
+                    height: 40px
+                p
+                    margin: 0
+                .disabled-notice
+                    font-weight: 400
+                    font-size: 1.1rem
+            .item-container, .item-title
+                display: none
 
+
+.grid-container
+    height: calc(100%  - 109px)
+    .right-panel
+        width: 250px
+        background-color: white
+        display: none
+        &.show
+            display: block
+        .draggable-toolbar
+            width: 100%
+            display: flex
+            padding: 1rem
+            cursor: default
+            flex-wrap: wrap
+            justify-content: space-between
+            .grid-stack-item
+                margin-bottom: 1rem
+                .grid-stack-item-content
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    width: 100px
+                    height: 78px
+                    flex-direction: column
+                    background-color: whitesmoke
+                    box-shadow: none
+                    .item-disabled
+                        display: none
 .action-toolbar
     display: flex
     align-items: center
@@ -185,5 +229,3 @@ mat-drawer-container
                 width: 20px
                 line-height: 20px
                 color: rgba(0,0,0,0.54)
-
-

@@ -61,8 +61,7 @@
                 {{parameter.title}}
                 <div class="parameter-input">
                     <input [type]="parameter.type" [value]="parameter.value"
-                           (blur)="setParameterValue(parameter, $event.target.value)"
-                           (keyup.enter)="setParameterValue(parameter, $event.target.value)">
+                           (change)="setParameterValue(parameter, $event.target.value)">
                     <button mat-icon-button style="margin-left: 0; background-color: transparent"
                             (click)="removeParameter(parameter)">
                         <mat-icon>highlight_off</mat-icon>

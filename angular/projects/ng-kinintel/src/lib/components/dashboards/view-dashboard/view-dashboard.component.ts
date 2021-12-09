@@ -94,9 +94,9 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         const options = {
             minRow: 1, // don't collapse when empty
             float: true,
-            cellHeight: 50,
-            minW: 1024,
-            disableOneColumnMode: true
+            cellHeight: 20,
+            minW: 768,
+            disableOneColumnMode: false
         };
         this.grid = GridStack.init(options);
         this.grid.enableMove(false);
@@ -250,17 +250,12 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         element.appendChild(domElem);
 
-        element.firstChild.id = instanceId ? instanceId : Date.now().toString();
+        element.firstChild.id = instanceId ? instanceId : 'i' + Date.now().toString();
         instanceId = element.firstChild.id;
 
         componentRef.instance.admin = this.admin;
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
-        componentRef.instance.datasetService = this.datasetService;
-        componentRef.instance.datasourceService = this.datasourceService;
-        componentRef.instance.alertService = this.alertService;
-        componentRef.instance.viewOnly = true;
-        componentRef.instance.editAlerts = this.editAlerts;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
@@ -269,8 +264,16 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;
+        componentRef.instance.init();
         if (load) {
-            componentRef.instance.load();
+            if (this.dashboard.layoutSettings.dependencies) {
+                const dependencies = this.dashboard.layoutSettings.dependencies[instanceId] || {};
+                if (!dependencies.instanceKeys || !dependencies.instanceKeys.length) {
+                    componentRef.instance.load();
+                }
+            } else {
+                componentRef.instance.load();
+            }
         }
 
         if (this.dashboard.alertsEnabled) {

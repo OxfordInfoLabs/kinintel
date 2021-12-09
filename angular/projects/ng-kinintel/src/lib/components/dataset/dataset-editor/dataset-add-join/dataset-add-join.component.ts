@@ -114,8 +114,6 @@ export class DatasetAddJoinComponent implements OnInit {
             setTimeout(() => {
                 this.select(item, type, this.matStepper, false);
             }, 200);
-
-            console.log('JOIN', this.joinTransformation);
         }
     }
 

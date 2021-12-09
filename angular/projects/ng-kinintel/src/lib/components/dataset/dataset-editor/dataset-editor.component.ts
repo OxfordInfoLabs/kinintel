@@ -71,6 +71,10 @@ export class DatasetEditorComponent implements OnInit {
             }
         }
 
+        if (Array.isArray(this.datasetInstanceSummary.parameterValues)) {
+            this.datasetInstanceSummary.parameterValues = {};
+        }
+
         this.evaluateDataset();
     }
 
@@ -138,7 +142,6 @@ export class DatasetEditorComponent implements OnInit {
                 this.editColumnSettings(clonedTransformation, existingIndex);
             });
         }
-        console.log(transformation);
     }
 
     public exportData() {
@@ -615,6 +618,15 @@ export class DatasetEditorComponent implements OnInit {
 
                     clonedDatasetInstance.parameterValues[param.name] = value;
                 });
+
+                // Merge in global dashboard params
+                if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
+                    _.forEach(this.dashboardParameters, (param, name) => {
+                        if (!clonedDatasetInstance.parameterValues[name]) {
+                            clonedDatasetInstance.parameterValues[name] = param.value;
+                        }
+                    });
+                }
 
                 return this.datasetService.evaluateDataset(
                     clonedDatasetInstance,

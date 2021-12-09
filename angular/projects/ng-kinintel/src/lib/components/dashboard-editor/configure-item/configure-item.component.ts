@@ -274,7 +274,7 @@ export class ConfigureItemComponent implements OnInit {
         }
     }
 
-    public updateInstanceFilterFields(change, instanceKey) {
+    public async updateInstanceFilterFields(change, instanceKey) {
         if (change.type === 'MATCH') {
             const selectedDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey});
             if (selectedDatasetInstance) {
@@ -289,20 +289,23 @@ export class ConfigureItemComponent implements OnInit {
                         mappedParams[key] = value;
                     }
                 });
-                this.datasourceService.evaluateDatasource(
-                    selectedDatasetInstance.datasourceInstanceKey,
-                    selectedDatasetInstance.transformationInstances,
-                    mappedParams,
-                    '0', '10')
-                    .then(data => {
-                        this.dataset = data;
-                        this.dependencies[instanceKey].filterFields = _.map(this.dataset.columns, column => {
-                            return {
-                                title: column.title,
-                                name: column.name
-                            };
-                        });
-                    });
+
+                const datasetInstanceSummary = {
+                    datasetInstanceId: selectedDatasetInstance.datasetInstanceId,
+                    datasourceInstanceKey: selectedDatasetInstance.datasourceInstanceKey,
+                    transformationInstances: selectedDatasetInstance.transformationInstances,
+                    parameterValues: mappedParams,
+                    parameters: selectedDatasetInstance.parameters
+                };
+
+                this.dataset = await this.datasetService.evaluateDataset(datasetInstanceSummary, '0', '10');
+
+                this.dependencies[instanceKey].filterFields = _.map(this.dataset.columns, column => {
+                    return {
+                        title: column.title,
+                        name: column.name
+                    };
+                });
             }
 
         }
