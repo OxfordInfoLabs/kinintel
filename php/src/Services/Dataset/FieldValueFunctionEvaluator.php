@@ -6,6 +6,7 @@ namespace Kinintel\Services\Dataset;
 
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\DateFormatFieldValueFunction;
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\FieldValueFunction;
+use Kinintel\ValueObjects\Dataset\FieldValueFunction\LogicFieldValueFunction;
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\RegExFieldValueFunction;
 
 class FieldValueFunctionEvaluator {
@@ -26,7 +27,8 @@ class FieldValueFunctionEvaluator {
         // Add built in evaluators
         $this->functions = [
             new RegExFieldValueFunction(),
-            new DateFormatFieldValueFunction()
+            new DateFormatFieldValueFunction(),
+            new LogicFieldValueFunction()
         ];
     }
 
@@ -47,10 +49,10 @@ class FieldValueFunctionEvaluator {
      * @param $functionString
      * @param $fieldValue
      */
-    public function evaluateFieldValueFunction($functionString, $fieldValue) {
+    public function evaluateFieldValueFunction($functionString, $fieldValue, $itemData) {
         foreach ($this->functions as $function) {
             if ($function->doesFunctionApply($functionString)) {
-                return $function->applyFunction($functionString, $fieldValue);
+                return $function->applyFunction($functionString, $fieldValue, $itemData);
             }
         }
         return $fieldValue;

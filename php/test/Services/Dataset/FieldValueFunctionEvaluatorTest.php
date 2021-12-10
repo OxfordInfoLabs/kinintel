@@ -21,12 +21,12 @@ class FieldValueFunctionEvaluatorTest extends TestBase {
 
     public function testCanResolveFieldValueForBuiltInEvaluators() {
 
-        $this->assertEquals("cde", $this->evaluator->evaluateFieldValueFunction("/.*(cde).*/", "abcdefg"));
-        $this->assertEquals("March", $this->evaluator->evaluateFieldValueFunction("monthName", "2020-03-02"));
+        $this->assertEquals("cde", $this->evaluator->evaluateFieldValueFunction("/.*(cde).*/", "abcdefg", ["test" => "abcdefg"]));
+        $this->assertEquals("March", $this->evaluator->evaluateFieldValueFunction("monthName", "2020-03-02", ["test" => "abcdefg"]));
     }
 
     public function testIfNoEvaluatorResolvedValueReturnedIntact() {
-        $this->assertEquals("Bingo", $this->evaluator->evaluateFieldValueFunction("test", "Bingo"));
+        $this->assertEquals("Bingo", $this->evaluator->evaluateFieldValueFunction("test", "Bingo", ["test" => "abcdefg"]));
     }
 
 }

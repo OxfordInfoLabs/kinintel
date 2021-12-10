@@ -19,7 +19,7 @@ class RegExFieldValueFunction implements FieldValueFunction {
      * @param string $value
      * @return string
      */
-    public function applyFunction($functionString, $value) {
+    public function applyFunction($functionString, $value, $dataItem) {
         preg_match($functionString, $value, $fieldMatches);
         return $fieldMatches[1] ?? $fieldMatches[0] ?? null;
     }

@@ -18,8 +18,8 @@ class RegExFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($function->doesFunctionApply("/valid/"));
 
 
-        $this->assertEquals("cde", $function->applyFunction("/c.*?e/", "abcdefg"));
-        $this->assertEquals("01", $function->applyFunction("/^.{3}(.{2})/", "03/01/2022"));
+        $this->assertEquals("cde", $function->applyFunction("/c.*?e/", "abcdefg", []));
+        $this->assertEquals("01", $function->applyFunction("/^.{3}(.{2})/", "03/01/2022", []));
     }
 
 

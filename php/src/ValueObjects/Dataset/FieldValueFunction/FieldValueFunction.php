@@ -22,6 +22,6 @@ interface FieldValueFunction {
      * @param string $value
      * @return string
      */
-    public function applyFunction($functionString, $value);
+    public function applyFunction($functionString, $value, $dataItem);
 
 }

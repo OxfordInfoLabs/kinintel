@@ -124,7 +124,7 @@ class Field {
             if (sizeof($exploded) > 1) {
                 $evaluator = Container::instance()->get(FieldValueFunctionEvaluator::class);
                 for ($i = 1; $i < sizeof($exploded); $i++) {
-                    $value = $evaluator->evaluateFieldValueFunction(trim($exploded[$i]), $value);
+                    $value = $evaluator->evaluateFieldValueFunction(trim($exploded[$i]), $value, $dataItem);
                 }
             }
 

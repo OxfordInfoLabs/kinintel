@@ -34,7 +34,7 @@ class DateFormatFieldValueFunction extends FieldValueFunctionWithArguments {
      * @param $value
      * @return mixed|void
      */
-    protected function applyFunctionWithArgs($functionName, $functionArgs, $value) {
+    protected function applyFunctionWithArgs($functionName, $functionArgs, $value, $dataItem) {
 
         $standardDate = date_create_from_format("Y-m-d", substr($value, 0, 10));
 

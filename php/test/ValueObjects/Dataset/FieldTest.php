@@ -42,8 +42,6 @@ class FieldTest extends \PHPUnit\Framework\TestCase {
 
 
 
-
-
     public function testCanGetPlainFieldsFromArrayOfFields() {
 
         $field1 = new Field("name", "Name", "Hello [[object.text]] World", Field::TYPE_INTEGER);

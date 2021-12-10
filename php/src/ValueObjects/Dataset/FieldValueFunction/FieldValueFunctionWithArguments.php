@@ -21,7 +21,7 @@ abstract class FieldValueFunctionWithArguments implements FieldValueFunction {
      */
     public function doesFunctionApply($functionString) {
 
-        $functionName = explode("(", $functionString)[0];
+        $functionName = explode(" ", $functionString)[0];
 
         return in_array($functionName, $this->getSupportedFunctionNames());
     }
@@ -33,12 +33,14 @@ abstract class FieldValueFunctionWithArguments implements FieldValueFunction {
      * @param string $value
      * @return string|void
      */
-    public function applyFunction($functionString, $value) {
+    public function applyFunction($functionString, $value, $dataItem) {
 
-        $functionName = explode("(", $functionString)[0];
-        preg_match_all("/'(.*?)'/", $functionString, $matches);
+        $params = explode(" ", $functionString);
+        $functionName = array_shift($params);
 
-        return $this->applyFunctionWithArgs($functionName, $matches[1] ?? [], $value);
+        $params = str_replace("'", "", $params);
+
+        return $this->applyFunctionWithArgs($functionName, $params ?? [], $value, $dataItem);
 
     }
 
@@ -58,7 +60,7 @@ abstract class FieldValueFunctionWithArguments implements FieldValueFunction {
      * @param $value
      * @return mixed
      */
-    protected abstract function applyFunctionWithArgs($functionName, $functionArgs, $value);
+    protected abstract function applyFunctionWithArgs($functionName, $functionArgs, $value, $dataItem);
 
 
 }
