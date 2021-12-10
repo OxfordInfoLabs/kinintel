@@ -9,7 +9,9 @@ use Kinikit\Core\Logging\Logger;
 class LogicFieldValueFunction extends FieldValueFunctionWithArguments {
 
     const supportedFunctions = [
-        "ifNot"
+        "ifNot",
+        "add",
+        "subtract"
     ];
 
 
@@ -40,6 +42,13 @@ class LogicFieldValueFunction extends FieldValueFunctionWithArguments {
                     return $this->expandMemberExpression($functionArgs[0] ?? "", $dataItem);
                 }
                 break;
+            case "add":
+                $addition = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                return is_numeric($value) && is_numeric($addition) ? $value + $addition : null;
+
+            case "subtract":
+                $subtraction = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                return is_numeric($value) && is_numeric($subtraction) ? $value - $subtraction : null;
         }
 
         return $value;

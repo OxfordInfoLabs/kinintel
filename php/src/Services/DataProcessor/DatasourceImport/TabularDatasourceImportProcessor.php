@@ -57,8 +57,13 @@ class TabularDatasourceImportProcessor implements DataProcessor {
      */
     public function process($config = null) {
 
-        // Check all is well
-        $sourceDatasource = $this->datasourceService->getDataSourceInstanceByKey($config->getSourceDatasourceKey())->returnDataSource();
+        $sourceDatasourceKeys = $config->getSourceDatasourceKey() ? [$config->getSourceDatasourceKey()] : $config->getSourceDatasourceKeys();
+
+        // Grab all data sources
+        $sourceDatasources = [];
+        foreach ($sourceDatasourceKeys as $datasourceKey) {
+            $sourceDatasources[] = $this->datasourceService->getDataSourceInstanceByKey($datasourceKey)->returnDataSource();
+        }
 
         /**
          * Loop through each target datasource and ensure we can update first up
@@ -72,34 +77,38 @@ class TabularDatasourceImportProcessor implements DataProcessor {
             $targetDatasources[] = [$targetDatasourceObj, $targetDatasource];
         }
 
-        /**
-         * @var TabularDataset $sourceDataset
-         */
-        $sourceDataset = $sourceDatasource->materialise();
+        // Process all applicable data sources
+        foreach ($sourceDatasources as $sourceDatasource) {
 
-        if (!($sourceDataset instanceof TabularDataset)) {
-            throw new UnsupportedDatasetException("The source datasource supplied to the processor must materialise to a tabular data set");
-        }
+            /**
+             * @var TabularDataset $sourceDataset
+             */
+            $sourceDataset = $sourceDatasource->materialise();
 
-        $fields = $sourceDataset->getColumns();
-
-        // Chunk the results according to chunk size for scalability.
-        $read = 0;
-        $dataItems = [];
-        while ($dataItem = $sourceDataset->nextDataItem()) {
-
-            $dataItems[] = $dataItem;
-            $read++;
-            if ($read % $this->chunkSize == 0) {
-                $this->processTargetChunkResults($targetDatasources, $fields, $dataItems);
-                $dataItems = [];
+            if (!($sourceDataset instanceof TabularDataset)) {
+                throw new UnsupportedDatasetException("The source datasource supplied to the processor must materialise to a tabular data set");
             }
+
+            $fields = $sourceDataset->getColumns();
+
+            // Chunk the results according to chunk size for scalability.
+            $read = 0;
+            $dataItems = [];
+            while ($dataItem = $sourceDataset->nextDataItem()) {
+
+                $dataItems[] = $dataItem;
+                $read++;
+                if ($read % $this->chunkSize == 0) {
+                    $this->processTargetChunkResults($targetDatasources, $fields, $dataItems);
+                    $dataItems = [];
+                }
+            }
+
+            // Process remainder if required
+            if (sizeof($dataItems))
+                $this->processTargetChunkResults($targetDatasources, $fields, $dataItems);
+
         }
-
-        // Process remainder if required
-        if (sizeof($dataItems))
-            $this->processTargetChunkResults($targetDatasources, $fields, $dataItems);
-
 
     }
 
@@ -137,8 +146,8 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                 // Assemble new fields
                 $fields = [];
-                foreach ($targetObject->getFields() as $field){
-                    if ($field instanceof TargetField){
+                foreach ($targetObject->getFields() as $field) {
+                    if ($field instanceof TargetField) {
                         $fields[] = new Field($field->getTargetName() ?? $field->getName());
                     } else {
                         $fields[] = $field;

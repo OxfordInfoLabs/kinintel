@@ -27,4 +27,17 @@ class LogicFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testAddAndSubtractFunctionsEvaluateCorrectlyForMemberAndLiteralValues() {
+
+        $function = new LogicFieldValueFunction();
+        $this->assertEquals(40, $function->applyFunction("add 10", 30, []));
+        $this->assertEquals(40, $function->applyFunction("add hello", 20, ["hello" => 20]));
+
+        $this->assertEquals(20, $function->applyFunction("subtract 10", 30, []));
+        $this->assertEquals(0, $function->applyFunction("subtract hello", 20, ["hello" => 20]));
+
+
+    }
+
 }

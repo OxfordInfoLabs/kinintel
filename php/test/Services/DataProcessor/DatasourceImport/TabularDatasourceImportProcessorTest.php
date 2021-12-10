@@ -153,6 +153,84 @@ class TabularDatasourceImportProcessorTest extends TestBase {
     }
 
 
+    public function testMultipleSourceAndTargetImportResultsInAReplaceUpdateOnTargetDatasetForAllSources() {
+
+        $mockFirstSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockFirstSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $mockFirstSourceInstance->returnValue("returnDataSource", $mockFirstSource);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockFirstSourceInstance, [
+            "source1"
+        ]);
+
+        $dataSet1 = new ArrayTabularDataset([new Field("bong")], [
+            [
+                "bong" => "bing"
+            ],
+            [
+                "bong" => "bong"
+            ]
+        ]);
+
+        $mockFirstSource->returnValue("materialise", $dataSet1);
+
+
+        $mockSecondSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockSecondSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $mockSecondSourceInstance->returnValue("returnDataSource", $mockSecondSource);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSecondSourceInstance, [
+            "source2"
+        ]);
+
+        $dataSet2 = new ArrayTabularDataset([new Field("bong")], [
+            [
+                "bong" => "hello"
+            ],
+            [
+                "bong" => "world"
+            ]
+        ]);
+
+        $mockSecondSource->returnValue("materialise", $dataSet2);
+
+
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "target"
+        ]);
+
+        $config = new TabularDatasourceImportProcessorConfiguration(null, [
+            new TargetDatasource("target")
+        ], ["source1", "source2"]);
+
+        $this->processor->process($config);
+
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("bong")], [
+                [
+                    "bong" => "bing"
+                ],
+                [
+                    "bong" => "bong"
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("bong")], [
+                [
+                    "bong" => "hello"
+                ],
+                [
+                    "bong" => "world"
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+    }
+
+
     public function testChunkSizeIsObservedAndMultipleCallsMadeIfNecessary() {
 
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -317,17 +395,17 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             new ArrayTabularDataset([new Field("name", "Title"),
                 new Field("date_of_birth"),
                 new Field("shoeSize")], [
-            [
-                "name" => "Bobby",
-                "date_of_birth" => "1990-12-01",
-                "shoeSize" => 10
-            ],
-            [
-                "name" => "Mary",
-                "date_of_birth" => "1977-05-23",
-                "shoeSize" => 9
-            ]
-        ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+                [
+                    "name" => "Bobby",
+                    "date_of_birth" => "1990-12-01",
+                    "shoeSize" => 10
+                ],
+                [
+                    "name" => "Mary",
+                    "date_of_birth" => "1977-05-23",
+                    "shoeSize" => 9
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
