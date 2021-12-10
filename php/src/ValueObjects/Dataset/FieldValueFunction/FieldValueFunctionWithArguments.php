@@ -39,8 +39,11 @@ abstract class FieldValueFunctionWithArguments implements FieldValueFunction {
         $functionName = array_shift($paramsRaw);
 
         // Match all arguments and return the final match group
-        preg_match_all("/[^\s\"']+|\"([^\"]*)\"|'([^']*)'/", $paramsRaw[0], $matches);
-        $params = $matches[2];
+        preg_match_all("/[^\s\"']+|\"([^\"]*)\"|'([^']*)'/", $paramsRaw[0] ?? "", $matches);
+        $params = $matches[0] ?? [];
+        foreach ($matches[2] ?? [] as $index => $match) {
+            if ($match) $params[$index] = $match;
+        }
 
 
         return $this->applyFunctionWithArgs($functionName, $params ?? [], $value, $dataItem);

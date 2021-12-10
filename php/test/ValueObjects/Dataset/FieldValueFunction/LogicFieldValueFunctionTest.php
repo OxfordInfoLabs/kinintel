@@ -19,7 +19,7 @@ class LogicFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("hello", $function->applyFunction("ifNot text", "hello", ["text" => "Buffalo"]));
 
         // Check reset of no text set
-        $this->assertEquals("Buffalo", $function->applyFunction("ifNot text", "", ["text" => "Buffalo"]));
+        $this->assertEquals("Buffalo", $function->applyFunction("ifNot text 'hello' new", "", ["text" => "Buffalo"]));
 
         // Check nested one
         $this->assertEquals("Buffalo", $function->applyFunction("ifNot text.nested", "", ["text" => ["nested" => "Buffalo"]]));
