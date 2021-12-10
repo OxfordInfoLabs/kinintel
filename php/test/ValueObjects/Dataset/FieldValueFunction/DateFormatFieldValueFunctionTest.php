@@ -18,6 +18,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertFalse($function->doesFunctionApply("test"));
 
         $this->assertTrue($function->doesFunctionApply("dateConvert 'd/m/y' 'Y-m-d'"));
+        $this->assertTrue($function->doesFunctionApply("ensureDateFormat 'd/m/Y'"));
         $this->assertTrue($function->doesFunctionApply("dayOfMonth"));
         $this->assertTrue($function->doesFunctionApply("dayOfWeek"));
         $this->assertTrue($function->doesFunctionApply("dayName"));
@@ -27,6 +28,12 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testCanEnsureDateFormat(){
+        $function = new DateFormatFieldValueFunction();
+        $this->assertEquals('2020-01-01', $function->applyFunction("ensureDateFormat 'Y-m-d'", "2020-01-01", []));
+        $this->assertNull($function->applyFunction("ensureDateFormat 'Y-m-d'", "01/01/2020", []));
+    }
 
     public function testCanConvertDatesUsingDateConvert() {
         $function = new DateFormatFieldValueFunction();

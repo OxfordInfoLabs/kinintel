@@ -9,6 +9,7 @@ use Kinikit\Core\Logging\Logger;
 class DateFormatFieldValueFunction extends FieldValueFunctionWithArguments {
 
     const supportedFunctions = [
+        "ensureDateFormat",
         "dateConvert",
         "dayOfMonth",
         "dayOfWeek",
@@ -41,6 +42,9 @@ class DateFormatFieldValueFunction extends FieldValueFunctionWithArguments {
         $standardDate = date_create_from_format("Y-m-d", substr($value, 0, 10));
 
         switch ($functionName) {
+            case "ensureDateFormat":
+                $date = date_create_from_format($functionArgs[0] ?? "", $value);
+                return $date ? $value : null;
             case "dateConvert":
                 $date = date_create_from_format($functionArgs[0] ?? "", $value);
                 return $date && ($functionArgs[1] ?? null) ? $date->format($functionArgs[1]) : null;
