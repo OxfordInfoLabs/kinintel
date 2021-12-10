@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
 
 
+use Kinikit\Core\Logging\Logger;
+
 class DateFormatFieldValueFunction extends FieldValueFunctionWithArguments {
 
     const supportedFunctions = [

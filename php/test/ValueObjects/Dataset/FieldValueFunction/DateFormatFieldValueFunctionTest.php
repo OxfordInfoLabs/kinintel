@@ -6,6 +6,9 @@ namespace Kinintel\Test\ValueObjects\Dataset\FieldValueFunction;
 
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\DateFormatFieldValueFunction;
 
+
+include_once "autoloader.php";
+
 class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testFunctionIsResolvedForKnownFunctionNames() {
@@ -28,6 +31,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
     public function testCanConvertDatesUsingDateConvert() {
         $function = new DateFormatFieldValueFunction();
         $this->assertEquals('01/01/2020', $function->applyFunction("dateConvert 'Y-m-d' 'd/m/Y'", "2020-01-01", []));
+        $this->assertEquals('01/01/2020 10:44:33', $function->applyFunction("dateConvert 'Y-m-d H:i:s' 'd/m/Y H:i:s'", "2020-01-01 10:44:33", []));
         $this->assertNull($function->applyFunction("dateConvert 'Y-m-d' 'd/m/Y'", "Invalid", []));
     }
 
