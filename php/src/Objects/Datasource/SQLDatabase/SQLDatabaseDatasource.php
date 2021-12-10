@@ -215,6 +215,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $query = $this->buildQuery($parameterValues);
 
+
         /**
          * @var DatabaseConnection $dbConnection
          */
@@ -276,6 +277,12 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $updateColumns = null;
             if ($dataset->getColumns()) {
                 $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
+            }
+
+            // Ensure we don't exceed the batch size.
+            if ($updateColumns) {
+                $batchSize = 50 / ceil(sizeof($updateColumns) / 15);
+                $bulkDataManager->setBatchSize($batchSize);
             }
 
             switch ($updateMode) {
