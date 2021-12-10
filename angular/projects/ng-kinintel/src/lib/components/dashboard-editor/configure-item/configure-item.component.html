@@ -9,6 +9,18 @@
 
     <rsz-layout class="row top" [directions]="['bottom']" [rFlex]="true">
         <div class="cell-contents">
+            <div *ngIf="!dashboardDatasetInstance" class="flex items-center justify-center h-full w-full">
+                <div class="flex items-center flex-col">
+                    <button mat-stroked-button color="primary" class="config-button"
+                            (click)="selectedDatasource()">
+                        Configure {{dashboardItemType.label}}
+                    </button>
+                    <p class="font-light w-3/4 text-center mt-4">
+                        Please configure this {{dashboardItemType.label}} with a Datasource or Dataset.
+                    </p>
+                </div>
+            </div>
+
             <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(datasetInstanceSummary)]="dashboardDatasetInstance"
                                (dataLoaded)="dataLoaded($event)" [admin]="admin"
                                [dashboardParameters]="dashboard.layoutSettings.parameters"></ki-dataset-editor>
