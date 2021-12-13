@@ -3,6 +3,8 @@
 
 namespace Kinintel\Services\Datasource;
 
+use Kiniauth\Objects\Security\User;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\ItemNotFoundException;
@@ -15,16 +17,19 @@ use Kinintel\Exception\InvalidParametersException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DatasourceUpdater;
 use Kinintel\Objects\Datasource\DefaultDatasource;
+use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\TestUpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -48,14 +53,23 @@ class DatasourceServiceTest extends TestBase {
     /**
      * @var MockObject
      */
+    private $securityService;
+
+
+    /**
+     * @var MockObject
+     */
     private $datasourceDAO;
+
 
     /**
      * Set up
      */
     public function setUp(): void {
         $this->datasourceDAO = MockObjectProvider::instance()->getMockInstance(DatasourceDAO::class);
-        $this->dataSourceService = new DatasourceService($this->datasourceDAO);
+        $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
+        $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService);
+
     }
 
 
@@ -450,6 +464,114 @@ class DatasourceServiceTest extends TestBase {
             $this->assertTrue(true);
         }
 
+
+    }
+
+
+    public function testObjectNotFoundExceptionRaisedIfLoggedInUserAttemptsToAccessDatasourceWithNullAccountId() {
+
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+        $dataSourceInstance->returnValue("getAccountId", null);
+
+        // This should be fine as super user
+        $this->dataSourceService->updateDatasourceInstance("test", new ArrayTabularDataset([], []));
+
+        // Set explicit account
+        $dataSourceInstance->returnValue("getAccountId", 1);
+
+        // This should be fine as super user
+        $this->dataSourceService->updateDatasourceInstance("test", new ArrayTabularDataset([], []));
+
+        // Now login as regular user
+        $this->securityService->returnValue("isSuperUserLoggedIn", false);
+
+        $dataSourceInstance->returnValue("getAccountId", null);
+
+        // This should fail
+        try {
+            $this->dataSourceService->updateDatasourceInstance("test", new ArrayTabularDataset([], []));
+            $this->fail("Should have thrown here");
+        } catch (ObjectNotFoundException $e) {
+            // Success
+        }
+
+        $this->assertTrue(true);
+
+    }
+
+
+    public function testNotUpdatableExceptionRaisedIfDatasourceNotUpdatableAndAttemptToUpdateIt() {
+
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataset = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Joe Bloggs", 12],
+            ["name" => "Mary Jane", 7]
+        ]);
+
+        try {
+            $this->dataSourceService->updateDatasourceInstance("test", $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $this->fail("Should have thrown here");
+        } catch (DatasourceNotUpdatableException $e) {
+            $this->assertTrue(true);
+        }
+
+    }
+
+
+    public function testCanUpdateDatasourceInstanceWithDatasetAndSetIsPassedDirectlyToDatasource() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataset = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Joe Bloggs", 12],
+            ["name" => "Mary Jane", 7]
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstance("test", $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
 
     }
 

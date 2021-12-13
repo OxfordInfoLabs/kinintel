@@ -4,8 +4,11 @@
 namespace Kinintel\Traits\Controller\Account;
 
 use Kinikit\Core\Logging\Logger;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -81,6 +84,31 @@ trait Datasource {
     public function evaluateDatasource($evaluatedDataSource) {
         return $this->datasourceService->getEvaluatedDataSource($evaluatedDataSource->getKey(), $evaluatedDataSource->getParameterValues(), $evaluatedDataSource->getTransformationInstances(),
             $evaluatedDataSource->getOffset() ?? 0, $evaluatedDataSource->getLimit() ?? 25);
+    }
+
+
+    /**
+     * Update a datasource instance with the supplied data
+     *
+     *
+     * @http PUT /
+     *
+     * @param string $datasourceInstanceKey
+     * @param array $data
+     * @param string $updateMode
+     */
+    public function updateDatasourceInstance($datasourceInstanceKey, $data, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
+
+        if (sizeof($data) > 0) {
+            $fields = array_map(function ($key) {
+                return new Field($key);
+            }, array_keys($data[0]));
+
+            $dataset = new ArrayTabularDataset($fields, $data);
+            $this->datasourceService->updateDatasourceInstance($datasourceInstanceKey, $dataset, $updateMode);
+        }
+
+
     }
 
 

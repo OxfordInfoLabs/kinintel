@@ -4,6 +4,7 @@
 namespace Kinintel\Services\Datasource;
 
 
+use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Logging\Logger;
@@ -38,12 +39,20 @@ class DatasourceService {
     private $datasourceDAO;
 
     /**
+     * @var SecurityService
+     */
+    private $securityService;
+
+    /**
      * DatasourceService constructor.
      *
      * @param DatasourceDAO $datasourceDAO
+     * @param SecurityService $securityService
      */
-    public function __construct($datasourceDAO) {
+    public function __construct($datasourceDAO, $securityService) {
         $this->datasourceDAO = $datasourceDAO;
+        $this->securityService = $securityService;
+
     }
 
 
@@ -162,6 +171,35 @@ class DatasourceService {
 
 
         return $datasource;
+    }
+
+
+    /**
+     * Update a datasource instance using a passed dataset and update mode.
+     *
+     * @param string $datasourceInstanceKey
+     * @param Dataset $updateDataset
+     * @param string $updateMode
+     */
+    public function updateDatasourceInstance($datasourceInstanceKey, $updateDataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
+
+        // Grab the instance
+        $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        if ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn()) {
+            throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstanceKey);
+        }
+
+        // Grab the datasource.
+        $datasource = $datasourceInstance->returnDataSource();
+
+        if (!($datasource instanceof UpdatableDatasource)) {
+            throw new DatasourceNotUpdatableException($datasource);
+        }
+
+        // Perform the update
+        $datasource->update($updateDataset, $updateMode);
+
     }
 
 
