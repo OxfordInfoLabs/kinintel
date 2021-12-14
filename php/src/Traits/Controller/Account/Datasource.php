@@ -91,7 +91,7 @@ trait Datasource {
      * Update a datasource instance with the supplied data
      *
      *
-     * @http PUT /
+     * @http PUT /$datasourceInstanceKey
      *
      * @param string $datasourceInstanceKey
      * @param array $data
