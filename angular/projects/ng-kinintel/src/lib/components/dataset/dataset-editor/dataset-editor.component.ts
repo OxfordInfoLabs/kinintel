@@ -150,7 +150,7 @@ export class DatasetEditorComponent implements OnInit {
 
     public async editColumnSettings(existingTransformation?, existingIndex?) {
         if (!existingTransformation) {
-            for (const transformation of this.datasetInstanceSummary.transformationInstances.reverse()) {
+            for (const transformation of this.datasetInstanceSummary.transformationInstances.slice().reverse()) {
                 if (transformation.type === 'columns') {
                     const [clone, index] = await this.excludeUpstreamTransformations(transformation);
                     existingTransformation = clone;
