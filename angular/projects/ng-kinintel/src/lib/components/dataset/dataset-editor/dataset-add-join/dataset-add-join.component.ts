@@ -23,6 +23,7 @@ export class DatasetAddJoinComponent implements OnInit {
     public environment: any = {};
     public datasources: any = [];
     public datasets: any = [];
+    public snapshots: any = [];
     public sharedDatasets: any = [];
     public searchText = new BehaviorSubject('');
     public selectedSource: any;
@@ -77,6 +78,17 @@ export class DatasetAddJoinComponent implements OnInit {
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
+        });
+
+        merge(this.searchText)
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                switchMap(() =>
+                    this.getSnapshots(false)
+                )
+            ).subscribe((snapshots: any) => {
+            this.snapshots = snapshots;
         });
 
         if (this.admin) {
@@ -148,7 +160,15 @@ export class DatasetAddJoinComponent implements OnInit {
             requiredParams = await this.datasourceService.getEvaluatedParameters({
                 key: item.key
             });
-        } else {
+        } else if (type === 'snapshot') {
+            this.selectedSource = {
+                datasetInstanceId: null,
+                datasourceInstanceKey: item.snapshotProfileDatasourceInstanceKey,
+                transformationInstances: [],
+                parameterValues: {},
+                parameters: []
+            };
+        }else {
             this.selectedSource = await this.datasetService.getDataset(item.id);
             this.joinTransformation.config.joinedDataSetInstanceId = item.id;
 
@@ -283,6 +303,19 @@ export class DatasetAddJoinComponent implements OnInit {
             '0'
         ).pipe(map((sources: any) => {
                 return sources;
+            })
+        );
+    }
+
+    private getSnapshots(shared) {
+        return this.datasetService.listSnapshotProfiles(
+            this.searchText.getValue() || '',
+            '5',
+            '0'
+        ).pipe(map((snapshots: any) => {
+                return _.filter(snapshots, snapshot => {
+                    return snapshot.taskStatus !== 'PENDING';
+                });
             })
         );
     }
