@@ -44,11 +44,12 @@ class LogicFieldValueFunction extends FieldValueFunctionWithArguments {
                 break;
             case "add":
                 $addition = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
-                return is_numeric($value) && is_numeric($addition) ? $value + $addition : null;
+                return is_numeric($value) && is_numeric($addition) ? gmp_strval(gmp_add("$value", "$addition")) : null;
+
 
             case "subtract":
                 $subtraction = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
-                return is_numeric($value) && is_numeric($subtraction) ? $value - $subtraction : null;
+                return is_numeric($value) && is_numeric($subtraction) ? gmp_strval(gmp_sub("$value", "$subtraction")) : null;
         }
 
         return $value;
