@@ -92,7 +92,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                 $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources);
                 $offset += $this->chunkSize;
-            } while (sizeof($allData) == $this->chunkSize);
+            } while (sizeof($allData) > 0);
 
 
         } else {
