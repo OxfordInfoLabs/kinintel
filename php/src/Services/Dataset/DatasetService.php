@@ -389,6 +389,8 @@ class DatasetService {
      * @param DatasetInstanceSummary $dataSetInstance
      * @param TransformationInstance[] $additionalTransformations
      *
+     * @return Dataset
+     *
      */
     public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
 

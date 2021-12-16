@@ -8,10 +8,12 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
@@ -34,10 +36,16 @@ class TabularDatasourceImportProcessorTest extends TestBase {
      */
     private $datasourceService;
 
+    /**
+     * @var MockObject
+     */
+    private $datasetService;
+
 
     public function setUp(): void {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-        $this->processor = new TabularDatasourceImportProcessor($this->datasourceService);
+        $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
+        $this->processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService);
 
     }
 
@@ -230,11 +238,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
     }
 
-    public function testExplicitSourceDatasourceInstanceAndTargetImportResultsInAReplaceUpdateOnTargetDataset() {
+    public function testExplicitSourceDatasetInstanceAndTargetImportResultsInAReplaceUpdateOnTargetDataset() {
 
-        $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $mockSourceInstance->returnValue("returnDataSource", $mockSource);
+        $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
 
         $dataSet = new ArrayTabularDataset([new Field("bong")], [
             [
@@ -245,7 +251,10 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockSource->returnValue("materialise", $dataSet);
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", $dataSet, [
+            $mockSourceInstance, null, null, 0, 500
+        ]);
+
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
@@ -256,7 +265,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
-        ],[], $mockSourceInstance);
+        ], [], $mockSourceInstance);
 
         $this->processor->process($config);
 
@@ -306,7 +315,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
 
-        $processor = new TabularDatasourceImportProcessor($this->datasourceService, 1);
+        $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService, 1);
         $processor->process($config);
 
         // Expect 2 independent calls
