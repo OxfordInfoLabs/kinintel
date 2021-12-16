@@ -57,6 +57,29 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
 
 
     /**
+     * Response codes which if received will trigger a retry
+     * for the retry interval specified separately.
+     *
+     * @var array
+     */
+    protected $retryResponseCodes = [];
+
+    /**
+     * Retry interval in seconds (defaults to 1)
+     *
+     * @var float
+     */
+    protected $retryInterval = 1;
+
+
+    /**
+     * Max retries (defaults to 10)
+     *
+     * @var int
+     */
+    protected $maxRetries = 10;
+
+    /**
      * WebserviceDataSourceConfig constructor.
      * @param string $url
      * @param string $method
@@ -144,6 +167,48 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     public function setCompressionConfig($compressionConfig) {
         $this->compressionConfig = $compressionConfig;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRetryResponseCodes() {
+        return $this->retryResponseCodes;
+    }
+
+    /**
+     * @param array $retryResponseCodes
+     */
+    public function setRetryResponseCodes($retryResponseCodes) {
+        $this->retryResponseCodes = $retryResponseCodes;
+    }
+
+    /**
+     * @return float
+     */
+    public function getRetryInterval() {
+        return $this->retryInterval;
+    }
+
+    /**
+     * @param float $retryInterval
+     */
+    public function setRetryInterval($retryInterval) {
+        $this->retryInterval = $retryInterval;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxRetries() {
+        return $this->maxRetries;
+    }
+
+    /**
+     * @param int $maxRetries
+     */
+    public function setMaxRetries($maxRetries) {
+        $this->maxRetries = $maxRetries;
     }
 
 

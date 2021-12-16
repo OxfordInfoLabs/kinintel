@@ -230,6 +230,49 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
     }
 
+    public function testExplicitSourceDatasourceInstanceAndTargetImportResultsInAReplaceUpdateOnTargetDataset() {
+
+        $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $mockSourceInstance->returnValue("returnDataSource", $mockSource);
+
+        $dataSet = new ArrayTabularDataset([new Field("bong")], [
+            [
+                "bong" => "bing"
+            ],
+            [
+                "bong" => "bong"
+            ]
+        ]);
+
+        $mockSource->returnValue("materialise", $dataSet);
+
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "target"
+        ]);
+
+        $config = new TabularDatasourceImportProcessorConfiguration(null, [
+            new TargetDatasource("target")
+        ],[], $mockSourceInstance);
+
+        $this->processor->process($config);
+
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("bong")], [
+                [
+                    "bong" => "bing"
+                ],
+                [
+                    "bong" => "bong"
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+    }
+
 
     public function testChunkSizeIsObservedAndMultipleCallsMadeIfNecessary() {
 

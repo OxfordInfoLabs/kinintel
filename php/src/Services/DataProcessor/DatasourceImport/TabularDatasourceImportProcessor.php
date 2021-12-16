@@ -57,12 +57,16 @@ class TabularDatasourceImportProcessor implements DataProcessor {
      */
     public function process($config = null) {
 
-        $sourceDatasourceKeys = $config->getSourceDatasourceKey() ? [$config->getSourceDatasourceKey()] : $config->getSourceDatasourceKeys();
-
         // Grab all data sources
         $sourceDatasources = [];
-        foreach ($sourceDatasourceKeys as $datasourceKey) {
-            $sourceDatasources[] = $this->datasourceService->getDataSourceInstanceByKey($datasourceKey)->returnDataSource();
+        if ($config->getSourceDatasource()) {
+            $sourceDatasources[] = $config->getSourceDatasource()->returnDataSource();
+        } else {
+            $sourceDatasourceKeys = $config->getSourceDatasourceKey() ? [$config->getSourceDatasourceKey()] : $config->getSourceDatasourceKeys();
+
+            foreach ($sourceDatasourceKeys as $datasourceKey) {
+                $sourceDatasources[] = $this->datasourceService->getDataSourceInstanceByKey($datasourceKey)->returnDataSource();
+            }
         }
 
         /**
