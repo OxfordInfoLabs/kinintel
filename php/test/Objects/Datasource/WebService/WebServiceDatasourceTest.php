@@ -59,6 +59,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]), $response);
 
     }
+    
 
     public function testCanMaterialiseDatasourceWithCompression() {
 

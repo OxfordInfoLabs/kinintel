@@ -4,6 +4,9 @@
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport;
 
 
+use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Datasource\DatasourceInstance;
+
 /**
  *
  *
@@ -16,7 +19,7 @@ class TabularDatasourceImportProcessorConfiguration {
      * The key of the datasource to use as the seed for this import operation
      *
      * @var string
-     * @requiredEither sourceDatasourceKeys
+     * @requiredEither sourceDatasourceKeys,sourceDataset
      */
     private $sourceDatasourceKey;
 
@@ -29,6 +32,13 @@ class TabularDatasourceImportProcessorConfiguration {
      */
     private $sourceDatasourceKeys;
 
+
+    /**
+     * @var DatasetInstance
+     */
+    private $sourceDataset;
+
+
     /**
      * An array of target datasources being fed by the source datasource.
      *
@@ -37,16 +47,20 @@ class TabularDatasourceImportProcessorConfiguration {
      */
     private $targetDatasources;
 
+
     /**
      * DatasourceImportProcessorConfiguration constructor.
      *
      * @param string $sourceDatasourceKey
      * @param TargetDatasource[] $targetDatasources
+     * @param string[] $sourceDatasourceKeys
+     * @param DatasetInstance $sourceDataset
      */
-    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = []) {
+    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->targetDatasources = $targetDatasources;
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
+        $this->sourceDataset = $sourceDataset;
     }
 
 
@@ -76,6 +90,20 @@ class TabularDatasourceImportProcessorConfiguration {
      */
     public function setSourceDatasourceKeys($sourceDatasourceKeys) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
+    }
+
+    /**
+     * @return DatasetInstance
+     */
+    public function getSourceDataset() {
+        return $this->sourceDataset;
+    }
+
+    /**
+     * @param DatasetInstance $sourceDataset
+     */
+    public function setSourceDataset($sourceDataset) {
+        $this->sourceDataset = $sourceDataset;
     }
 
 
