@@ -34,7 +34,7 @@
         "gridstack": "^4.2.1",
         "js-sha512": "^0.8.0",
         "kinibind": "0.0.108",
-        "ng-kiniauth": "0.0.139",
+        "ng-kiniauth": "0.0.161",
         "ng-kinibind": "0.0.8",
         "ng-kinintel": "file:../../angular/dist/ng-kinintel",
         "ng-recaptcha": "^6.0.2",
