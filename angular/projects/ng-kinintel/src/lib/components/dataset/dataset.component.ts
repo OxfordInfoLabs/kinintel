@@ -24,9 +24,11 @@ export class DatasetComponent implements OnInit, OnDestroy {
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
     public offset = new BehaviorSubject(0);
+    public page = 1;
+    public endOfResults = false;
+
     public activeTagSub = new Subject();
     public projectSub = new Subject();
-
     public activeTag: any;
 
     private tagSub: Subscription;
@@ -95,6 +97,20 @@ export class DatasetComponent implements OnInit, OnDestroy {
         }
     }
 
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public pageSizeChange(value) {
+        this.limit.next(value);
+    }
+
     private viewDataset(datasetInstanceSummary) {
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',
@@ -120,6 +136,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.offset.getValue().toString(),
             this.shared ? null : ''
         ).pipe(map((datasets: any) => {
+                this.endOfResults = datasets.length < this.limit.getValue();
                 return datasets;
             })
         );

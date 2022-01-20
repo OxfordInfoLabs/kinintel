@@ -24,9 +24,11 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
     public offset = new BehaviorSubject(0);
+    public page = 1;
+    public endOfResults = false;
+
     public activeTagSub = new Subject();
     public projectSub = new Subject();
-
     public activeTag: any;
 
     private tagSub: Subscription;
@@ -57,6 +59,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                     this.getSnapshots()
                 )
             ).subscribe((snapshots: any) => {
+            this.endOfResults = snapshots.length < this.limit.getValue();
             this.datasets = snapshots;
         });
     }
@@ -123,6 +126,20 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 this.reload.next(Date.now());
             });
         }
+    }
+
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public pageSizeChange(value) {
+        this.limit.next(value);
     }
 
     private getSnapshots() {
