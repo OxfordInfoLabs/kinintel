@@ -3,18 +3,16 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
-use Kinikit\Core\Logging\Logger;
+use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
+use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kinikit\Core\Util\StringUtils;
-use Kinikit\MVC\Response\Download;
-use Kinikit\MVC\Response\SimpleResponse;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
-use Kinintel\ValueObjects\Dataset\EvaluatedDataset;
 use Kinintel\ValueObjects\Dataset\ExportDataset;
-use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
-use Kinintel\ValueObjects\Transformation\TransformationInstance;
+
 
 /**
  * Dataset service, acts on both in process and saved datasets
@@ -30,12 +28,20 @@ trait Dataset {
     private $datasetService;
 
     /**
+     * @var LongRunningTaskService
+     */
+    private $longRunningTaskService;
+
+
+    /**
      * Dataset constructor.
      *
      * @param DatasetService $datasetService
+     * @param LongRunningTaskService $longRunningTaskService
      */
-    public function __construct($datasetService) {
+    public function __construct($datasetService, $longRunningTaskService) {
         $this->datasetService = $datasetService;
+        $this->longRunningTaskService = $longRunningTaskService;
     }
 
 
@@ -128,11 +134,38 @@ trait Dataset {
      * @http POST /evaluate
      *
      * @param DatasetInstanceSummary $datasetInstanceSummary
+     * @param $offset
+     * @param $limit
+     * @param string $trackingKey
+     * @param string $projectKey
+     *
      * @return \Kinintel\Objects\Dataset\Dataset
      */
-    public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25) {
-        return $this->datasetService->getEvaluatedDataSetForDataSetInstance($datasetInstanceSummary, [], [],
-            $offset, $limit);
+    public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25, $trackingKey = null, $projectKey = null) {
+
+        if (!$trackingKey) {
+            $trackingKey = date("U") . StringUtils::generateRandomString(5);
+        }
+
+        // Create a long running task for this dataset
+        $longRunningTask = new DatasetEvaluatorLongRunningTask($this->datasetService, $datasetInstanceSummary, $offset, $limit);
+
+        // Start the task and return results
+        return $this->longRunningTaskService->startTask("Dataset", $longRunningTask, $trackingKey, $projectKey);
+    }
+
+
+    /**
+     * Retrieve results for the supplied tracking key
+     *
+     * @http GET /results/$trackingKey
+     *
+     * @param $trackingKey
+     *
+     * @return StoredLongRunningTaskSummary
+     */
+    public function retrieveDatasetResults($trackingKey) {
+        return $this->longRunningTaskService->getStoredTaskByTaskKey($trackingKey);
     }
 
 
