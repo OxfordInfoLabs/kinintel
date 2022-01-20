@@ -2,7 +2,7 @@
 
     <div class="dialog-title" cdkDragHandle>
         <h2 mat-dialog-title>Projects</h2>
-        <button mat-stroked-button color="primary" (click)="addNew = !addNew">
+        <button *ngIf="isAdmin" mat-stroked-button color="primary" (click)="addNew = !addNew">
             <mat-icon>add</mat-icon>
             New Project
         </button>
@@ -43,6 +43,13 @@
 
                 </tbody>
             </table>
+
+            <p *ngIf="isAdmin && !projects.length" class="m-4 font-light text-lg text-center">
+                Please create a new project to begin.
+            </p>
+            <p *ngIf="!isAdmin && !projects.length" class="m-4 font-light text-lg text-center">
+                You have not been granted access to any projects. Please contact the account administrator.
+            </p>
         </ng-template>
 
         <ng-template [ngIf]="addNew">

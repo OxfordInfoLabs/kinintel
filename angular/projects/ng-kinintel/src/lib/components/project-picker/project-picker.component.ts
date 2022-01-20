@@ -20,7 +20,7 @@ export class ProjectPickerComponent implements OnInit {
     public searchText = new BehaviorSubject<string>('');
     public reload = new Subject();
     public activeProject: any = {};
-
+    public isAdmin = false;
 
     constructor(public dialogRef: MatDialogRef<ProjectPickerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -29,7 +29,7 @@ export class ProjectPickerComponent implements OnInit {
     }
 
     ngOnInit(): void {
-
+        this.isAdmin = !!this.data.isAdmin;
         this.activeProject = this.projectService.activeProject.getValue();
 
         merge(this.searchText, this.reload).pipe(
