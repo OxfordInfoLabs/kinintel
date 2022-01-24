@@ -347,12 +347,13 @@ export class ItemComponentComponent implements AfterViewInit {
             data = this.dashboard.layoutSettings.parameters;
         }
         if (searchString) {
-            const matches = searchString.match(/(?<=\{\{).+?(?=\}\})/g) || [];
+            const matches = searchString.match(/\{\{(.*?)\}\}/g) || [];
             matches.forEach(exp => {
-                const parameter = data ? data[exp] : null;
+                const expValue = exp.replace('{{', '').replace('}}', '');
+                const parameter = data ? data[expValue] : null;
                 if (parameter) {
                     const value = _.isPlainObject(parameter) ? parameter.value : parameter;
-                    searchString = searchString.replace(`{{${exp}}}`, value);
+                    searchString = searchString.replace(exp, value);
                 }
             });
         }

@@ -6,7 +6,7 @@
                (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'numeric'">
-        <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+        <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
     </ng-template>
     <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">

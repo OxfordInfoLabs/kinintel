@@ -162,12 +162,28 @@ export class DatasetEditorComponent implements OnInit {
 
         const clonedColumns = existingTransformation ? _.clone(existingTransformation.config.columns) : null;
 
+        const columnSettings = [];
+
+        if (clonedColumns) {
+            clonedColumns.forEach(column => {
+                column.selected = true;
+                columnSettings.push(column);
+            });
+        }
+
+        this.filterFields.forEach(field => {
+            if (!_.find(columnSettings, {name: field.name})) {
+                columnSettings.push(field);
+            }
+        });
+
         const dialogRef = this.dialog.open(DatasetColumnSettingsComponent, {
             width: '1000px',
             height: '800px',
             data: {
-                columns: this.filterFields,
-                reset: !!_.find(this.datasetInstanceSummary.transformationInstances, {type: 'columns'})
+                columns: columnSettings,
+                reset: !!_.find(this.datasetInstanceSummary.transformationInstances, {type: 'columns'}),
+                resetFields: _.clone(this.filterFields)
             }
         });
 
@@ -177,7 +193,7 @@ export class DatasetEditorComponent implements OnInit {
                     return {title: column.title, name: column.name};
                 });
 
-                if (existingIndex && existingIndex > -1) {
+                if (existingIndex > -1) {
                     this.datasetInstanceSummary.transformationInstances[existingIndex] = {
                         type: 'columns',
                         config: {
@@ -224,7 +240,7 @@ export class DatasetEditorComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(formula => {
             if (formula) {
-                if (existingIndex && existingIndex > -1) {
+                if (existingIndex > -1) {
                     this.datasetInstanceSummary.transformationInstances[existingIndex] = {
                         type: 'formula',
                         config: {
@@ -600,7 +616,7 @@ export class DatasetEditorComponent implements OnInit {
                     localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.instanceKey, (this.limit).toString());
                 }
 
-                // Clone the current instance object so we can remove any excluded transformations, without affecting
+                // Clone the current instance object, so we can remove any excluded transformations, without affecting
                 // the original object which the gui uses to draw transformation items.
                 const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
                 _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});

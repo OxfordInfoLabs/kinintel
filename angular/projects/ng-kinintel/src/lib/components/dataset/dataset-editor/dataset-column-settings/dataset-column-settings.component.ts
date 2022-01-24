@@ -1,6 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as _ from 'lodash';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-column-settings',
@@ -12,6 +13,8 @@ export class DatasetColumnSettingsComponent implements OnInit {
 
     public columns: any = [];
     public reset = false;
+    public resetFields = [];
+    public resetTrigger = new Subject();
 
     constructor(public dialogRef: MatDialogRef<DatasetColumnSettingsComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -20,6 +23,7 @@ export class DatasetColumnSettingsComponent implements OnInit {
     ngOnInit(): void {
         this.columns = this.data.columns;
         this.reset = this.data.reset;
+        this.resetFields = this.data.resetFields;
     }
 
     public updateSettings() {
@@ -27,7 +31,10 @@ export class DatasetColumnSettingsComponent implements OnInit {
     }
 
     public resetColumns() {
-        this.dialogRef.close([]);
+        this.columns = this.resetFields;
+        setTimeout(() => {
+            this.resetTrigger.next(Date.now());
+        }, 0);
     }
 
 }
