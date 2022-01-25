@@ -124,6 +124,7 @@
                                     {{dashboard.layoutSettings.general ? (dashboard.layoutSettings.general[instanceKey] ? dashboard.layoutSettings.general[instanceKey].name || instanceKey : instanceKey) : instanceKey }}
                                     <mat-select [(ngModel)]="dependencies[instanceKey]" [compareWith]="depSelection"
                                                 (ngModelChange)="updateInstanceFilterFields($event, instanceKey)">
+                                        <mat-option [value]="{type: null}">-- Select Type --</mat-option>
                                         <mat-option [value]="{type: 'LOADED'}">Loaded</mat-option>
                                         <mat-option [value]="{type: 'MATCH', filterJunction: _.clone(filterJunction), key: instanceKey}">
                                             Matches Criteria
