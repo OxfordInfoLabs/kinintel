@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Dashboard;
 
 
+use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
@@ -69,9 +70,12 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $displaySettings
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
+     * @param string $summary
+     * @param string $description
+     * @param CategorySummary[] $categories
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $id = null, $readOnly = false) {
-        parent::__construct($id, $title);
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false) {
+        parent::__construct($id, $title, $summary, $description, $categories);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
@@ -135,6 +139,7 @@ class DashboardSummary extends DashboardSearchResult {
     public function setTags($tags) {
         $this->tags = $tags;
     }
+
 
     /**
      * @return bool

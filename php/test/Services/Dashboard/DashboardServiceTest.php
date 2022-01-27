@@ -3,6 +3,9 @@
 namespace Kinintel\Services\Dashboard;
 
 use Kiniauth\Objects\Account\Project;
+use Kiniauth\Objects\MetaData\Category;
+use Kiniauth\Objects\MetaData\CategorySummary;
+use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
@@ -111,6 +114,10 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Johnny 5", $reDashboard->getTitle());
 
 
+        $categories = [
+            new CategorySummary("Account2", "An account wide category available to account 2", "account2")
+        ];
+
         $dashboard = new DashboardSummary("Test Instance", [
             new DashboardDatasetInstance("brandnew", null, "test-json", [
                 new TransformationInstance("filter", new FilterTransformation([
@@ -125,12 +132,23 @@ class DashboardServiceTest extends TestBase {
         ], [
             "color" => "green",
             "font" => "Arial"
+        ], null, null, "My Brand new Test Dashboard", "A longer description of my brand new test dashboard",
+            $categories);
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 2", "Account 2", "account2"), 2)),
+        ], [
+            $categories, 2, "soapSuds"
         ]);
 
-        $id = $this->dashboardService->saveDashboard($dashboard, 1, 2);
+        $id = $this->dashboardService->saveDashboard($dashboard, "soapSuds", 2);
 
         $reDashboard = $this->dashboardService->getDashboardById($id);
         $this->assertEquals("Test Instance", $reDashboard->getTitle());
+        $this->assertEquals("My Brand new Test Dashboard", $reDashboard->getSummary());
+        $this->assertEquals("A longer description of my brand new test dashboard", $reDashboard->getDescription());
+        $this->assertEquals($categories, $reDashboard->getCategories());
+
         $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[0];
         $this->assertEquals("brandnew", $dashboardDatasetInstance->getInstanceKey());
         $this->assertEquals("test-json", $dashboardDatasetInstance->getDatasourceInstanceKey());
@@ -267,14 +285,23 @@ class DashboardServiceTest extends TestBase {
 
     }
 
-    public function testCanGetFilteredDashboardsForAccountsOptionallyFilteredByProjectAndTag() {
+    public function testCanGetFilteredDashboardsForAccountsOptionallyFilteredByProjectTagAndCategories() {
 
         // Log in as a person with projects and tags
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
 
-        $accountDashboard = new DashboardSummary("Account Dashboard");
-        $this->dashboardService->saveDashboard($accountDashboard, 1, 1);
+        $categories = [
+            new CategorySummary("Account1", "An account wide category available to account 1", "account1")
+        ];
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 1", "Account 1", "account1"), 1)),
+        ], [
+            $categories, 1, "soapSuds"
+        ]);
+
+        $accountDashboard = new DashboardSummary("Account Dashboard", [], null, null, null, "Account Dashboard Summary", "Account Dashboard Description", $categories);
+        $this->dashboardService->saveDashboard($accountDashboard, "soapSuds", 1);
 
         $accountDashboard = new DashboardSummary("Second Account Dashboard");
         $this->dashboardService->saveDashboard($accountDashboard, null, 1);
@@ -316,10 +343,15 @@ class DashboardServiceTest extends TestBase {
         $this->dashboardService->saveDashboard($projectDashboard, "datasetProject", 1);
 
 
-        $filtered = $this->dashboardService->filterDashboards("", [], null, 0, 10, 1);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], null, 0, 10, 1);
         $this->assertEquals(4, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
+        $this->assertEquals("Account Dashboard Summary", $filtered[0]->getSummary());
+        $this->assertEquals("Account Dashboard Description", $filtered[0]->getDescription());
+        $this->assertEquals($categories, $filtered[0]->getCategories());
+
+
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
         $this->assertEquals("Project Dashboard", $filtered[1]->getTitle());
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[2]);
@@ -329,7 +361,7 @@ class DashboardServiceTest extends TestBase {
 
 
         // Filter on title
-        $filtered = $this->dashboardService->filterDashboards("econd", [], null, 0, 10, 1);
+        $filtered = $this->dashboardService->filterDashboards("econd", [], [], null, 0, 10, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Account Dashboard", $filtered[0]->getTitle());
@@ -337,8 +369,13 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
 
 
+        // Filter on categories
+        $filtered = $this->dashboardService->filterDashboards("", ["account1"], [], null, 0, 10, 1);
+        $this->assertEquals(1, sizeof($filtered));
+        $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
+
         // Filter on project key
-        $filtered = $this->dashboardService->filterDashboards("", [], "datasetProject", 0, 10, 1);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], "datasetProject", 0, 10, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
@@ -346,27 +383,27 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
 
         // Filter on tags
-        $filtered = $this->dashboardService->filterDashboards("", ["general"], "datasetProject", 0, 10, 1);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], "datasetProject", 0, 10, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
         $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
 
-        $filtered = $this->dashboardService->filterDashboards("", ["special"], "datasetProject", 0, 10, 1);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["special"], "datasetProject", 0, 10, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
 
 
         // Offsets and limits
-        $filtered = $this->dashboardService->filterDashboards("", ["general"], "datasetProject", 0, 1, 1);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], "datasetProject", 0, 1, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
 
 
-        $filtered = $this->dashboardService->filterDashboards("", ["general"], "datasetProject", 1, 10, 1);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], "datasetProject", 1, 10, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Project Dashboard", $filtered[0]->getTitle());
@@ -390,7 +427,7 @@ class DashboardServiceTest extends TestBase {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
 
-        $filtered = $this->dashboardService->filterDashboards("", [], null, 0, 10, null);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], null, 0, 10, null);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("First Shared Dashboard", $filtered[0]->getTitle());
@@ -399,6 +436,51 @@ class DashboardServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
+
+    }
+
+
+    public function testCanGetInUseDashboardCategories() {
+
+        $accountCategories = [
+            new CategorySummary("Account2", "An account wide category available to account 2", "account2")
+        ];
+
+        $projectCategories = [
+            new CategorySummary("Project", "A project level category available to just one project", "project"),
+        ];
+
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 2", "Account 2", "account2"), 2)),
+        ], [
+            $accountCategories, 2, null
+        ]);
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Project", "Project", "project"), 2, "soapSuds")),
+        ], [
+            $projectCategories, 2, "soapSuds"
+        ]);
+
+
+        $accountDashboard = new DashboardSummary("Account Dashboard", [], null, null, null, "Account Dashboard Summary", "Account Dashboard Description", $accountCategories);
+        $this->dashboardService->saveDashboard($accountDashboard, null, 2);
+
+        $projectDashboard = new DashboardSummary("Project Dashboard", [], null, null, null, "Project Dashboard Summary", "Project Dashboard Description", $projectCategories);
+        $this->dashboardService->saveDashboard($projectDashboard, "soapSuds", 2);
+
+        $this->metaDataService->returnValue("getMultipleCategoriesByKey", array_merge($accountCategories, $projectCategories), [
+            ["", "account2", "project"], null, 2
+        ]);
+
+        $this->metaDataService->returnValue("getMultipleCategoriesByKey", $projectCategories, [
+            ["", "project"], "soapSuds", 2
+        ]);
+
+
+        $this->assertEquals(array_merge($accountCategories, $projectCategories), $this->dashboardService->getInUseDashboardCategories([], null, 2));
+        $this->assertEquals($projectCategories, $this->dashboardService->getInUseDashboardCategories([], "soapSuds", 2));
 
     }
 

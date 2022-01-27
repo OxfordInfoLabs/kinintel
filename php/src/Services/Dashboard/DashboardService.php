@@ -74,6 +74,7 @@ class DashboardService {
      * Filter dashboards optionally by title, tags, project key and limiting as required
      *
      * @param string $filterString
+     * @param array $categories
      * @param array $tags
      * @param string $projectKey
      * @param int $offset
@@ -82,7 +83,7 @@ class DashboardService {
      *
      * @return DashboardSearchResult[]
      */
-    public function filterDashboards($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function filterDashboards($filterString = "", $categories = [], $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         $params = [];
         if ($accountId === null) {
@@ -107,16 +108,54 @@ class DashboardService {
             $params = array_merge($params, $tags);
         }
 
+        if ($categories && sizeof($categories) > 0) {
+            $query .= " AND categories.category_key IN (" . str_repeat("?", sizeof($categories)) . ")";
+            $params = array_merge($params, $categories);
+        }
+
 
         $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
 
         // Return a summary array
         return array_map(function ($instance) {
-            return new DashboardSearchResult($instance->getId(), $instance->getTitle());
+            $instance = $instance->returnSummary();
+            return new DashboardSearchResult($instance->getId(), $instance->getTitle(), $instance->getSummary(), $instance->getDescription(), $instance->getCategories());
         },
             Dashboard::filter($query, $params));
 
 
+    }
+
+    /**
+     * Get in use dashboard categories for the supplied account and project and optionally limited to tags.
+     *
+     * @param string[] $tags
+     * @param string $projectKey
+     * @param string $accountId
+     */
+    public function getInUseDashboardCategories($tags = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $params = [];
+        if ($accountId === null) {
+            $query = "WHERE accountId IS NULL";
+        } else {
+            $query = "WHERE accountId = ?";
+            $params[] = $accountId;
+        }
+
+        if ($projectKey) {
+            $query .= " AND project_key = ?";
+            $params[] = $projectKey;
+        }
+
+        if ($tags && sizeof($tags) > 0) {
+            $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+            $params = array_merge($params, $tags);
+        }
+
+        $categoryKeys = Dashboard::values("DISTINCT(categories.category_key)", $query, $params);
+
+        return $this->metaDataService->getMultipleCategoriesByKey($categoryKeys,$projectKey, $accountId);
     }
 
 
@@ -127,10 +166,17 @@ class DashboardService {
      */
     public function saveDashboard($dashboardSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $dashboard = new Dashboard($dashboardSummary, $accountId, $projectKey);
+
         // Process tags
         if (sizeof($dashboardSummary->getTags())) {
             $tags = $this->metaDataService->getObjectTagsFromSummaries($dashboardSummary->getTags(), $accountId, $projectKey);
             $dashboard->setTags($tags);
+        }
+
+        // Process categories
+        if (sizeof($dashboardSummary->getCategories())) {
+            $categories = $this->metaDataService->getObjectCategoriesFromSummaries($dashboardSummary->getCategories(), $accountId, $projectKey);
+            $dashboard->setCategories($categories);
         }
 
         $dashboard->save();

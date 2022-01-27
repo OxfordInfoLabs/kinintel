@@ -2,7 +2,9 @@
 
 namespace Kinintel\Objects\Dashboard;
 
+use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\MetaData\ObjectTag;
+use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
@@ -29,6 +31,14 @@ class Dashboard extends DashboardSummary {
      */
     protected $tags = [];
 
+
+    /**
+     * @var ObjectCategory[]
+     * @oneToMany
+     * @childJoinColumns object_id, object_type=KiDashboard
+     */
+    protected $categories = [];
+
     /**
      * Dashboard constructor.
      *
@@ -39,7 +49,7 @@ class Dashboard extends DashboardSummary {
     public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
             parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(),
-                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->getId());
+                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -60,6 +70,21 @@ class Dashboard extends DashboardSummary {
     }
 
     /**
+     * @return ObjectCategory[]
+     */
+    public function getCategories() {
+        return $this->categories;
+    }
+
+    /**
+     * @param ObjectCategory[] $categories
+     */
+    public function setCategories($categories) {
+        $this->categories = $categories;
+    }
+
+
+    /**
      * Return a dashboard summary
      */
     public function returnSummary($returnCopy = false) {
@@ -70,8 +95,20 @@ class Dashboard extends DashboardSummary {
         $securityService = Container::instance()->get(SecurityService::class);
         $readOnly = !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
 
+
+        // Map categories to summary objects
+        $newCategories = [];
+        foreach ($this->categories as $category) {
+            if ($category instanceof ObjectCategory) {
+                $newCategories[] = new CategorySummary($category->getCategory()->getCategory(), $category->getCategory()->getDescription(), $category->getCategory()->getKey());
+            } else if ($category instanceof CategorySummary) {
+                $newCategories[] = $category;
+            }
+        }
+
         $dashboardSummary = new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings,
             $this->alertsEnabled,
+            $this->summary, $this->description, $newCategories,
             $returnCopy ? null : $this->id, $readOnly);
 
         // If returning a copy, nullify alert data too

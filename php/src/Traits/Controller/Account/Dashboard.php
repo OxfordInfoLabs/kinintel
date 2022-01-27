@@ -4,6 +4,7 @@
 namespace Kinintel\Traits\Controller\Account;
 
 
+use Kiniauth\Objects\MetaData\CategorySummary;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
@@ -50,6 +51,7 @@ trait Dashboard {
      * @http GET /
      *
      * @param string $filterString
+     * @param string $categories
      * @param string $projectKey
      * @param string $tags
      * @param int $offset
@@ -57,9 +59,25 @@ trait Dashboard {
      *
      * @return DashboardSearchResult[]
      */
-    public function filterDashboards($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
+    public function filterDashboards($filterString = "", $categories = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
         $tags = $tags ? explode(",", $tags) : [];
-        return $this->dashboardService->filterDashboards($filterString, $tags, $projectKey, $offset, $limit);
+        $categories = $categories ? explode(",", $categories) : [];
+        return $this->dashboardService->filterDashboards($filterString, $categories, $tags, $projectKey, $offset, $limit);
+    }
+
+
+    /**
+     * Filter in use dashboard categories optionally for a project and tags
+     *
+     * @http GET /inUseCategories
+     *
+     * @param string $projectKey
+     * @param string $tags
+     *
+     * @return CategorySummary[]
+     */
+    public function getInUseDashboardCategories($projectKey = null, $tags = "") {
+        return $this->dashboardService->getInUseDashboardCategories($tags, $projectKey);
     }
 
 
