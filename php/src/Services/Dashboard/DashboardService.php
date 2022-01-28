@@ -155,7 +155,7 @@ class DashboardService {
 
         $categoryKeys = Dashboard::values("DISTINCT(categories.category_key)", $query, $params);
 
-        return $this->metaDataService->getMultipleCategoriesByKey($categoryKeys,$projectKey, $accountId);
+        return $this->metaDataService->getMultipleCategoriesByKey($categoryKeys, $projectKey, $accountId);
     }
 
 
@@ -183,6 +183,21 @@ class DashboardService {
         return $dashboard->getId();
     }
 
+
+    /**
+     * Update dashboard meta data
+     *
+     * @param DashboardSearchResult $dashboardSearchResult
+     */
+    public function updateDashboardMetaData($dashboardSearchResult) {
+
+        $dashboard = Dashboard::fetch($dashboardSearchResult->getId());
+        $dashboard->setTitle($dashboardSearchResult->getTitle());
+        $dashboard->setSummary($dashboardSearchResult->getSummary());
+        $dashboard->setDescription($dashboardSearchResult->getDescription());
+        $dashboard->setCategories($this->metaDataService->getObjectCategoriesFromSummaries($dashboardSearchResult->getCategories(), $dashboard->getAccountId(), $dashboard->getProjectKey()));
+        $dashboard->save();
+    }
 
     /**
      * Remove a dashboard by id

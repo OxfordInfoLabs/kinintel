@@ -641,4 +641,32 @@ class DashboardServiceTest extends TestBase {
     }
 
 
+    public function testCanUpdateDashboardMetaData() {
+
+        AuthenticationHelper::login("simon@peterjonescarwash.com", "password");
+
+        $dashboard = new DashboardSummary("Johnny 5");
+        $id = $this->dashboardService->saveDashboard($dashboard, null, 2);
+
+        $searchResult = new DashboardSearchResult($id, "Updated Title", "My special summary", "My description", [new CategorySummary("Account 2", "Account 2", "account2")]);
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 2", "Account 2", "account2"), 2)),
+        ], [
+            [new CategorySummary("Account 2", "Account 2", "account2")], 2, null
+        ]);
+
+
+        $this->dashboardService->updateDashboardMetaData($searchResult);
+
+
+        $dashboard = $this->dashboardService->getDashboardById($id);
+        $this->assertEquals("Updated Title", $dashboard->getTitle());
+        $this->assertEquals("My special summary", $dashboard->getSummary());
+        $this->assertEquals("My description", $dashboard->getDescription());
+        $this->assertEquals([new CategorySummary("Account2", "An account wide category available to account 2", "account2")], $dashboard->getCategories());
+
+    }
+
+
 }

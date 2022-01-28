@@ -96,6 +96,19 @@ trait Dashboard {
 
 
     /**
+     * Update meta data for a dashboard
+     *
+     * @http PATCH
+     * @unsanitise dashboardSearchResult
+     *
+     * @param DashboardSearchResult $dashboardSearchResult
+     */
+    public function updateDashboardMetaData($dashboardSearchResult) {
+        $this->dashboardService->updateDashboardMetaData($dashboardSearchResult);
+    }
+
+
+    /**
      * Remove a dashboard by id
      *
      * @param $id
