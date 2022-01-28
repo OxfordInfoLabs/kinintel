@@ -52,6 +52,9 @@ class DashboardSearchResult extends ActiveRecord {
      * DashboardSearchResult constructor.
      * @param int $id
      * @param string $title
+     * @param string $summary
+     * @param string $description
+     * @param CategorySummary[] $categories
      */
     public function __construct($id, $title, $summary, $description, $categories) {
         $this->id = $id;

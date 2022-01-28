@@ -142,7 +142,7 @@ class DatasetService {
         // Return a summary array
         return array_map(function ($instance) {
             $summary = $instance->returnSummary();
-            return new DatasetInstanceSearchResult($summary->getId(), $summary->getTitle(), $summary->getSummary(), $summary->getDescription(),
+            return new DatasetInstanceSearchResult($instance->getId(), $summary->getTitle(), $summary->getSummary(), $summary->getDescription(),
                 $summary->getCategories());
         },
             DatasetInstance::filter($query, $params));

@@ -118,8 +118,8 @@ class DashboardService {
 
         // Return a summary array
         return array_map(function ($instance) {
-            $instance = $instance->returnSummary();
-            return new DashboardSearchResult($instance->getId(), $instance->getTitle(), $instance->getSummary(), $instance->getDescription(), $instance->getCategories());
+            $summary = $instance->returnSummary();
+            return new DashboardSearchResult($instance->getId(), $instance->getTitle(), $instance->getSummary(), $instance->getDescription(), $summary->getCategories());
         },
             Dashboard::filter($query, $params));
 
