@@ -84,15 +84,17 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * Title for the origin data item
      *
      * @var string
+     * @unmapped
      */
     protected $originDataItemTitle;
 
 
     /**
      * DatasetInstance constructor.
+     *
      * @param string $title
      * @param string $datasourceInstanceKey
-     * @param string $datasetInstanceId
+     * @param integer $datasetInstanceId
      * @param TransformationInstance[] $transformationInstances
      * @param array $parameters
      * @param mixed[] $parameterValues

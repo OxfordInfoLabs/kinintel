@@ -79,7 +79,7 @@ class DatasetService {
      */
     public function getExtendedDatasetInstance($originalDatasetId) {
         $originalDataset = $this->getDataSetInstance($originalDatasetId, false);
-        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId);
+        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId,[],[],[],null,null,[], $originalDataset->getTitle());
     }
 
 
@@ -210,6 +210,8 @@ class DatasetService {
             $dataSetInstance->setCategories($categories);
         }
 
+
+        Logger::log($dataSetInstance);
 
         $dataSetInstance->save();
         return $dataSetInstance->getId();

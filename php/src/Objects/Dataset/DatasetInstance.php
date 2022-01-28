@@ -8,6 +8,7 @@ use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinintel\Services\Datasource\DatasourceService;
 
 
 /**
@@ -46,6 +47,7 @@ class DatasetInstance extends DatasetInstanceSummary {
      * @var DatasetInstanceSearchResult
      * @manyToOne
      * @parentJoinColumns dataset_instance_id
+     * @readOnly
      */
     protected $originDatasetSummary;
 
@@ -59,7 +61,10 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     public function __construct($datasetInstanceSummary = null, $accountId = null, $projectKey = null) {
         if ($datasetInstanceSummary instanceof DatasetInstanceSummary)
-            parent::__construct($datasetInstanceSummary->getTitle(), $datasetInstanceSummary->getDatasourceInstanceKey(), $datasetInstanceSummary->getDatasetInstanceId(), $datasetInstanceSummary->getTransformationInstances(),
+            parent::__construct($datasetInstanceSummary->getTitle(),
+                $datasetInstanceSummary->getDatasourceInstanceKey(),
+                $datasetInstanceSummary->getDatasetInstanceId(),
+                $datasetInstanceSummary->getTransformationInstances(),
                 $datasetInstanceSummary->getParameters(),
                 $datasetInstanceSummary->getParameterValues(),
                 $datasetInstanceSummary->getSummary(),
@@ -146,7 +151,15 @@ class DatasetInstance extends DatasetInstanceSummary {
             }
         }
 
-        $originTitle = $this->originDatasetSummary ? $this->originDatasetSummary->getTitle() : "";
+        $originTitle = "";
+        if ($this->originDatasetSummary) {
+            $originTitle = $this->originDatasetSummary->getTitle();
+        } else if ($this->datasourceInstanceKey) {
+            $datasourceService = Container::instance()->get(DatasourceService::class);
+            $datasource = $datasourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
+            $originTitle = $datasource->getTitle();
+        }
+
 
         return new DatasetInstanceSummary($this->title, $readOnly ? null : $this->datasourceInstanceKey,
             $readOnly ? $this->id : $this->datasetInstanceId,
@@ -156,7 +169,7 @@ class DatasetInstance extends DatasetInstanceSummary {
             $this->summary,
             $this->description,
             $newCategories,
-            $originTitle,
+            $readOnly ? $this->title : $originTitle,
             $readOnly ? null : $this->id);
     }
 
