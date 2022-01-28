@@ -4,6 +4,8 @@
 namespace Kinintel\Traits\Controller\Admin;
 
 
+use Kiniauth\Objects\MetaData\CategorySummary;
+use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
@@ -58,6 +60,7 @@ trait Dataset {
      * @http GET /
      *
      * @param string $filterString
+     * @param string $categories
      * @param string $projectKey
      * @param string $tags
      * @param int $offset
@@ -65,8 +68,24 @@ trait Dataset {
      *
      * @return \Kinintel\Objects\Dataset\DatasetInstanceSearchResult[]
      */
-    public function filterDatasetInstances($filterString = "", $accountId = 0, $offset = 0, $limit = 10) {
-        return $this->datasetService->filterDataSetInstances($filterString, [], null, $offset, $limit, is_numeric($accountId) ? $accountId : null);
+    public function filterDatasetInstances($filterString = "", $categories = "", $accountId = 0, $offset = 0, $limit = 10) {
+        $categories = $categories ? explode(",", $categories) : [];
+        return $this->datasetService->filterDataSetInstances($filterString, $categories, [], null, $offset, $limit, is_numeric($accountId) ? $accountId : null);
+    }
+
+
+    /**
+     * Filter in use dataset instance categories optionally for a project and tags
+     *
+     * @http GET /inUseCategories
+     *
+     * @param string $projectKey
+     * @param string $tags
+     *
+     * @return CategorySummary[]
+     */
+    public function getInUseDatasetInstanceCategories($projectKey = null, $tags = "", $accountId = 0) {
+        return $this->datasetService->getInUseDatasetInstanceCategories($tags, $projectKey, $accountId);
     }
 
 
@@ -74,12 +93,26 @@ trait Dataset {
      * Save a data set instance object
      *
      * @http POST
+     * @unsanitise datasetInstanceSummary
      *
      * @param DatasetInstanceSummary $dataSetInstanceSummary
      * @param string $projectKey
      */
     public function saveDatasetInstance($dataSetInstanceSummary, $projectKey = null, $accountId = 0) {
         $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, $projectKey, is_numeric($accountId) ? $accountId : null);
+    }
+
+
+    /**
+     * Update meta data for a dataset instance
+     *
+     * @http PATCH
+     * @unsanitise datasetInstanceSearchResult
+     *
+     * @param DatasetInstanceSearchResult $datasetInstanceSearchResult
+     */
+    public function updateDatasetInstanceMetaData($datasetInstanceSearchResult) {
+        $this->datasetService->updateDataSetMetaData($datasetInstanceSearchResult);
     }
 
 

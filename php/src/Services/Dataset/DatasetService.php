@@ -17,6 +17,7 @@ use Kinikit\MVC\Response\Response;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
+use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -98,13 +99,14 @@ class DatasetService {
      * array of tags and project id.
      *
      * @param string $filterString
+     * @param array $categories
      * @param array $tags
      * @param string $projectKey
      * @param int $offset
      * @param int $limit
      * @param int $accountId
      */
-    public function filterDataSetInstances($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function filterDataSetInstances($filterString = "", $categories = [], $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         $params = [];
         if ($accountId === null) {
@@ -129,17 +131,57 @@ class DatasetService {
             $params = array_merge($params, $tags);
         }
 
+        if ($categories && sizeof($categories) > 0) {
+            $query .= " AND categories.category_key IN (" . str_repeat("?", sizeof($categories)) . ")";
+            $params = array_merge($params, $categories);
+        }
+
 
         $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
 
         // Return a summary array
         return array_map(function ($instance) {
-            return new DatasetInstanceSearchResult($instance->getId(), $instance->getTitle());
+            $summary = $instance->returnSummary();
+            return new DatasetInstanceSearchResult($summary->getId(), $summary->getTitle(), $summary->getSummary(), $summary->getDescription(),
+                $summary->getCategories());
         },
             DatasetInstance::filter($query, $params));
 
     }
 
+
+    /**
+     * Get In Use Dataset Instance categories
+     *
+     * @param string[] $tags
+     * @param string $projectKey
+     * @param integer $accountId
+     */
+    public function getInUseDatasetInstanceCategories($tags = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $params = [];
+        if ($accountId === null) {
+            $query = "WHERE accountId IS NULL";
+        } else {
+            $query = "WHERE accountId = ?";
+            $params[] = $accountId;
+        }
+
+        if ($projectKey) {
+            $query .= " AND project_key = ?";
+            $params[] = $projectKey;
+        }
+
+        if ($tags && sizeof($tags) > 0) {
+            $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+            $params = array_merge($params, $tags);
+        }
+
+        $categoryKeys = DatasetInstance::values("DISTINCT(categories.category_key)", $query, $params);
+
+        return $this->metaDataService->getMultipleCategoriesByKey($categoryKeys, $projectKey, $accountId);
+
+    }
 
     /**
      * Save a data set instance
@@ -162,9 +204,32 @@ class DatasetService {
             $dataSetInstance->setTags($tags);
         }
 
+        // Process categories
+        if (sizeof($dataSetInstanceSummary->getCategories())) {
+            $categories = $this->metaDataService->getObjectCategoriesFromSummaries($dataSetInstanceSummary->getCategories(), $accountId, $projectKey);
+            $dataSetInstance->setCategories($categories);
+        }
+
 
         $dataSetInstance->save();
         return $dataSetInstance->getId();
+    }
+
+
+    /**
+     * Update meta data for a dataset instance
+     *
+     * @param DatasetInstanceSearchResult $datasetInstanceSearchResult
+     */
+    public function updateDataSetMetaData($datasetInstanceSearchResult) {
+
+        $dataset = DatasetInstance::fetch($datasetInstanceSearchResult->getId());
+        $dataset->setTitle($datasetInstanceSearchResult->getTitle());
+        $dataset->setSummary($datasetInstanceSearchResult->getSummary());
+        $dataset->setDescription($datasetInstanceSearchResult->getDescription());
+        $dataset->setCategories($this->metaDataService->getObjectCategoriesFromSummaries($datasetInstanceSearchResult->getCategories(), $dataset->getAccountId(), $dataset->getProjectKey()));
+        $dataset->save();
+
     }
 
 
@@ -472,5 +537,6 @@ class DatasetService {
             return new SimpleResponse($contentSource);
         }
     }
+
 
 }

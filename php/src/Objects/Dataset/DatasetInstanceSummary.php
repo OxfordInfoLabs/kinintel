@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Dataset;
 
 
+use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -28,6 +29,31 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @required
      */
     protected $title;
+
+
+    /**
+     * Summary for the dashboard
+     *
+     * @var string
+     */
+    protected $summary;
+
+
+    /**
+     * Full HTML description for the dashboard
+     *
+     * @var string
+     * @sqlType LONGTEXT
+     */
+    protected $description;
+
+    /**
+     * Array of category summary objects associated with this dashboard
+     *
+     * @var CategorySummary[]
+     */
+    protected $categories = [];
+
 
     /**
      * Key for datasource this dataset builds upon if not based on a dataset
@@ -62,12 +88,17 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @param TransformationInstance[] $transformationInstances
      * @param array $parameters
      * @param mixed[] $parameterValues
+     * @param string $summary
+     * @param string $description
+     * @param CategorySummary[] $categories
      * @param integer $id
-     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfiles
      */
     public function __construct($title, $datasourceInstanceKey = null, $datasetInstanceId = null, $transformationInstances = [], $parameters = [],
-                                $parameterValues = [], $id = null) {
+                                $parameterValues = [], $summary = null, $description = null, $categories = [], $id = null) {
         $this->title = $title;
+        $this->summary = $summary;
+        $this->description = $description;
+        $this->categories = $categories;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->transformationInstances = $transformationInstances;
@@ -110,6 +141,48 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      */
     public function setTags($tags) {
         $this->tags = $tags;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSummary() {
+        return $this->summary;
+    }
+
+    /**
+     * @param string $summary
+     */
+    public function setSummary($summary) {
+        $this->summary = $summary;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription() {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description) {
+        $this->description = $description;
+    }
+
+    /**
+     * @return CategorySummary[]
+     */
+    public function getCategories() {
+        return $this->categories;
+    }
+
+    /**
+     * @param CategorySummary[] $categories
+     */
+    public function setCategories($categories) {
+        $this->categories = $categories;
     }
 
 

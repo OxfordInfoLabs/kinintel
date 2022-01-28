@@ -3,9 +3,12 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Objects\Dashboard\DashboardSearchResult;
+use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
@@ -78,28 +81,58 @@ trait Dataset {
      *
      * @param string $filterString
      * @param string $projectKey
+     * @param string $categories
      * @param string $tags
      * @param int $offset
      * @param int $limit
      *
      * @return \Kinintel\Objects\Dataset\DatasetInstanceSearchResult[]
      */
-    public function filterDatasetInstances($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
+    public function filterDatasetInstances($filterString = "", $categories = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
         $tags = $tags ? explode(",", $tags) : [];
-        return $this->datasetService->filterDataSetInstances($filterString, $tags, $projectKey, $offset, $limit);
+        $categories = $categories ? explode(",", $categories) : [];
+        return $this->datasetService->filterDataSetInstances($filterString, $categories, $tags, $projectKey, $offset, $limit);
     }
 
+
+    /**
+     * Filter in use dataset categories optionally for a project and tags
+     *
+     * @http GET /inUseCategories
+     *
+     * @param string $projectKey
+     * @param string $tags
+     *
+     * @return CategorySummary[]
+     */
+    public function getInUseDatasetInstanceCategories($projectKey = null, $tags = "") {
+        return $this->datasetService->getInUseDatasetInstanceCategories($tags, $projectKey);
+    }
 
     /**
      * Save a data set instance object
      *
      * @http POST
      *
+     * @unsanitise dataSetInstanceSummary
      * @param DatasetInstanceSummary $dataSetInstanceSummary
      * @param string $projectKey
      */
     public function saveDatasetInstance($dataSetInstanceSummary, $projectKey = null) {
         $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, $projectKey);
+    }
+
+
+    /**
+     * Update meta data for a dataset instance
+     *
+     * @http PATCH
+     * @unsanitise datasetInstanceSearchResult
+     *
+     * @param DatasetInstanceSearchResult $datasetInstanceSearchResult
+     */
+    public function updateDatasetInstanceMetaData($datasetInstanceSearchResult) {
+        $this->datasetService->updateDataSetMetaData($datasetInstanceSearchResult);
     }
 
 

@@ -4,6 +4,9 @@ namespace Kinintel\Services\Dataset;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Account\Project;
+use Kiniauth\Objects\MetaData\Category;
+use Kiniauth\Objects\MetaData\CategorySummary;
+use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
@@ -22,6 +25,7 @@ use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
+use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
@@ -232,13 +236,23 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testCanGetFilteredDatasetsForAccountsOptionallyFilteredByProjectAndTag() {
+    public function testCanGetFilteredDatasetsForAccountsOptionallyFilteredByProjectAndTagAndCategories() {
 
         // Log in as a person with projects and tags
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
 
-        $accountDataSet = new DatasetInstanceSummary("Account Dataset", "test-json");
+        $categories = [
+            new CategorySummary("Account1", "An account wide category available to account 1", "account1")
+        ];
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 1", "Account 1", "account1"), 1)),
+        ], [
+            $categories, 1, null
+        ]);
+
+
+        $accountDataSet = new DatasetInstanceSummary("Account Dataset", "test-json", null, [], [], [], null, null, $categories);
         $this->datasetService->saveDataSetInstance($accountDataSet, null, 1);
 
         $accountDataSet = new DatasetInstanceSummary("Second Account Dataset", "test-json");
@@ -281,7 +295,7 @@ class DatasetServiceTest extends TestBase {
         $this->datasetService->saveDataSetInstance($projectDataSet, "datasetProject", 1);
 
 
-        $filtered = $this->datasetService->filterDataSetInstances("", [], null, 0, 10, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], [], null, 0, 10, 1);
         $this->assertEquals(4, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dataset", $filtered[0]->getTitle());
@@ -294,7 +308,7 @@ class DatasetServiceTest extends TestBase {
 
 
         // Filter on title
-        $filtered = $this->datasetService->filterDataSetInstances("econd", [], null, 0, 10, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("econd", [], [], null, 0, 10, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Account Dataset", $filtered[0]->getTitle());
@@ -302,8 +316,14 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals("Second Project Dataset", $filtered[1]->getTitle());
 
 
+        // Filter on categories
+        $filtered = $this->datasetService->filterDataSetInstances("", ["account1"], [], null, 0, 10, 1);
+        $this->assertEquals(1, sizeof($filtered));
+        $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
+        $this->assertEquals("Account Dataset", $filtered[0]->getTitle());
+
         // Filter on project key
-        $filtered = $this->datasetService->filterDataSetInstances("", [], "datasetProject", 0, 10, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], [], "datasetProject", 0, 10, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dataset", $filtered[0]->getTitle());
@@ -311,27 +331,27 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals("Second Project Dataset", $filtered[1]->getTitle());
 
         // Filter on tags
-        $filtered = $this->datasetService->filterDataSetInstances("", ["general"], "datasetProject", 0, 10, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], ["general"], "datasetProject", 0, 10, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dataset", $filtered[0]->getTitle());
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[1]);
         $this->assertEquals("Second Project Dataset", $filtered[1]->getTitle());
 
-        $filtered = $this->datasetService->filterDataSetInstances("", ["special"], "datasetProject", 0, 10, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], ["special"], "datasetProject", 0, 10, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dataset", $filtered[0]->getTitle());
 
 
         // Offsets and limits
-        $filtered = $this->datasetService->filterDataSetInstances("", ["general"], "datasetProject", 0, 1, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], ["general"], "datasetProject", 0, 1, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dataset", $filtered[0]->getTitle());
 
 
-        $filtered = $this->datasetService->filterDataSetInstances("", ["general"], "datasetProject", 1, 10, 1);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], ["general"], "datasetProject", 1, 10, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Project Dataset", $filtered[0]->getTitle());
@@ -609,7 +629,7 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
-        $filtered = $this->datasetService->filterDataSetInstances("", [], [], 0, 10, null);
+        $filtered = $this->datasetService->filterDataSetInstances("", [], [], [], 0, 10, null);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertEquals("Shared First Dataset", $filtered[0]->getTitle());
         $this->assertEquals("Shared Second Dataset", $filtered[1]->getTitle());
@@ -750,12 +770,12 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], 25), 1, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], 25), 1, null);
         $summary = $dataSet->returnSummary();
         $this->assertEquals("test", $summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getId());
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], 25), null, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], 25), null, null);
         $summary = $dataSet->returnSummary();
         $this->assertEquals("test", $summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getId());
@@ -763,13 +783,13 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], 25), 1, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], 25), 1, null);
         $summary = $dataSet->returnSummary();
         $this->assertEquals("test", $summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getId());
 
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [new TransformationInstance("test", ["bingo" => "hello"])], [new Parameter("customParam", "Custom Parameter")], ["customParam" => "Bob"], 25), null, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [new TransformationInstance("test", ["bingo" => "hello"])], [new Parameter("customParam", "Custom Parameter")], ["customParam" => "Bob"], "Test Summary", "Test Description", [], 25), null, null);
         $summary = $dataSet->returnSummary();
         $this->assertNull($summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getDatasetInstanceId());
@@ -968,6 +988,94 @@ class DatasetServiceTest extends TestBase {
         $reInstance = DatasetInstance::fetch($instanceId);
         $this->assertEquals(1, sizeof($reInstance->getSnapshotProfiles()));
         $this->assertEquals($profileId, $reInstance->getSnapshotProfiles()[0]->getId());
+
+    }
+
+
+    public function testCanUpdateMetaDataForADatasetInstance() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSetInstance = new DatasetInstanceSummary("New Dataset For Snapshot", "test-json", null, [
+            new TransformationInstance("filter", new FilterTransformation([
+                new Filter("property", "foobar")
+            ])),
+        ], [new Parameter("customParam", "Custom Parameter"),
+            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
+            "param1" => "Test",
+            "param2" => 44,
+            "param3" => true
+        ]);
+
+        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstance, null, 1);
+
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 1", "Account 1", "account1"), 1)),
+        ], [
+            [new CategorySummary("Account 1", "Account 1", "account1")], 1, null
+        ]);
+
+
+        $this->datasetService->updateDataSetMetaData(new DatasetInstanceSearchResult($instanceId, "Updated Dataset", "New Summary", "New description", [
+            new CategorySummary("Account 1", "Account 1", "account1")
+        ]));
+
+
+        $dashboard = $this->datasetService->getDataSetInstance($instanceId);
+        $this->assertEquals("Updated Dataset", $dashboard->getTitle());
+        $this->assertEquals("New Summary", $dashboard->getSummary());
+        $this->assertEquals("New description", $dashboard->getDescription());
+        $this->assertEquals([new CategorySummary("Account1", "An account wide category available to account 1", "account1")], $dashboard->getCategories());
+
+
+    }
+
+
+    public function testCanGetInUseDashboardCategories() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $accountCategories = [
+            new CategorySummary("Account2", "An account wide category available to account 2", "account2")
+        ];
+
+        $projectCategories = [
+            new CategorySummary("Project", "A project level category available to just one project", "project"),
+        ];
+
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Account 2", "Account 2", "account2"), 2)),
+        ], [
+            $accountCategories, 2, null
+        ]);
+
+        $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
+            new ObjectCategory(new Category(new CategorySummary("Project", "Project", "project"), 2, "soapSuds")),
+        ], [
+            $projectCategories, 2, "soapSuds"
+        ]);
+
+
+        $accountDatasetInstance = new DatasetInstanceSummary("Account Dashboard", "test-json", null, [], [], [], "Account Dashboard Summary", "Account Dashboard Description", $accountCategories);
+        $this->datasetService->saveDataSetInstance($accountDatasetInstance, null, 2);
+
+        $projectDatasetInstance = new DatasetInstanceSummary("Project Dashboard", "test-json", null, [], [], [], "Project Dashboard Summary", "Project Dashboard Description", $projectCategories);
+        $this->datasetService->saveDataSetInstance($projectDatasetInstance, "soapSuds", 2);
+
+        $this->metaDataService->returnValue("getMultipleCategoriesByKey", array_merge($accountCategories, $projectCategories), [
+            ["", "account2", "project"], null, 2
+        ]);
+
+        $this->metaDataService->returnValue("getMultipleCategoriesByKey", $projectCategories, [
+            ["", "project"], "soapSuds", 2
+        ]);
+
+
+        $this->assertEquals(array_merge($accountCategories, $projectCategories), $this->datasetService->getInUseDatasetInstanceCategories([], null, 2));
+        $this->assertEquals($projectCategories, $this->datasetService->getInUseDatasetInstanceCategories([], "soapSuds", 2));
 
     }
 
