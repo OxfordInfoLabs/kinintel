@@ -205,7 +205,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
     /**
      * @param string $originDataItemTitle
      */
-    public function setOriginDataItemTitle($originDataItemTitle): void {
+    public function setOriginDataItemTitle($originDataItemTitle){
         $this->originDataItemTitle = $originDataItemTitle;
     }
 

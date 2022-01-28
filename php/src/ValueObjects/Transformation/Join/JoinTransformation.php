@@ -4,7 +4,10 @@
 namespace Kinintel\ValueObjects\Transformation\Join;
 
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
@@ -118,6 +121,25 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
         $this->joinedDataSetInstanceId = $joinedDataSetInstanceId;
     }
 
+
+    /**
+     * Get the joined data item title
+     *
+     * @return string
+     */
+    public function getJoinedDataItemTitle(){
+        if ($this->joinedDataSourceInstanceKey) {
+            $datasourceService = Container::instance()->get(DatasourceService::class);
+            $datasource = $datasourceService->getDataSourceInstanceByKey($this->joinedDataSourceInstanceKey);
+            return $datasource->getTitle();
+        } else if ($this->getJoinedDataSetInstanceId()) {
+            $datasetService = Container::instance()->get(DatasetService::class);
+            $dataset = $datasetService->getDataSetInstance($this->joinedDataSetInstanceId);
+            return $dataset->getTitle();
+        }
+    }
+
+
     /**
      * @return mixed
      */
@@ -194,6 +216,9 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     }
 
 
+    /**
+     * @return string
+     */
     public function getSQLTransformationProcessorKey() {
         return "join";
     }

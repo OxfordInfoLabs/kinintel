@@ -61,7 +61,7 @@ class FeedServiceTest extends TestBase {
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Hello"
         ], $feedId);
-        $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset"));
+        $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, null));
         $this->assertEquals($expected, $reFeed);
 
         // Update and check
@@ -72,7 +72,7 @@ class FeedServiceTest extends TestBase {
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Goodbye"
         ], $feedId);
-        $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset"));
+        $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, null));
         $this->assertEquals($expected, $reReFeed);
 
 

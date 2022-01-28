@@ -211,8 +211,6 @@ class DatasetService {
         }
 
 
-        Logger::log($dataSetInstance);
-
         $dataSetInstance->save();
         return $dataSetInstance->getId();
     }

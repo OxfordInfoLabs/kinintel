@@ -8,6 +8,7 @@ use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Services\Datasource\DatasourceService;
 
 
@@ -156,8 +157,12 @@ class DatasetInstance extends DatasetInstanceSummary {
             $originTitle = $this->originDatasetSummary->getTitle();
         } else if ($this->datasourceInstanceKey) {
             $datasourceService = Container::instance()->get(DatasourceService::class);
-            $datasource = $datasourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
-            $originTitle = $datasource->getTitle();
+            try {
+                $datasource = $datasourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
+                $originTitle = $datasource->getTitle();
+            } catch (ObjectNotFoundException $e) {
+                // OK
+            }
         }
 
 

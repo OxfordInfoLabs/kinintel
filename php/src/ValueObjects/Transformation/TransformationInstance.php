@@ -50,10 +50,31 @@ class TransformationInstance {
     }
 
     /**
+     * Get the config fully evaluated to the right class type
+     *
      * @return mixed
      */
     public function getConfig() {
-        return $this->config;
+        /**
+         * @var ObjectBinder $objectBinder
+         */
+        $objectBinder = Container::instance()->get(ObjectBinder::class);
+
+        try {
+            // Grab the transformation instance
+            $instanceClass = Container::instance()->getInterfaceImplementationClass(Transformation::class, $this->getType());
+        } catch (MissingInterfaceImplementationException $e) {
+            throw new InvalidTransformationTypeException($this->getType());
+        }
+
+        // Bind data to transformation
+        if (is_array($this->config))
+            $transformation = $objectBinder->bindFromArray($this->config, $instanceClass);
+        else
+            $transformation = $this->config;
+
+
+        return $transformation;
     }
 
     /**
@@ -72,27 +93,11 @@ class TransformationInstance {
     public function returnTransformation() {
 
         /**
-         * @var ObjectBinder $objectBinder
-         */
-        $objectBinder = Container::instance()->get(ObjectBinder::class);
-
-        /**
          * @var Validator $validator
          */
         $validator = Container::instance()->get(Validator::class);
 
-        try {
-            // Grab the transformation instance
-            $instanceClass = Container::instance()->getInterfaceImplementationClass(Transformation::class, $this->getType());
-        } catch (MissingInterfaceImplementationException $e) {
-            throw new InvalidTransformationTypeException($this->getType());
-        }
-
-        // Bind data to transformation
-        if (is_array($this->getConfig()))
-            $transformation = $objectBinder->bindFromArray($this->getConfig(), $instanceClass);
-        else
-            $transformation = $this->getConfig();
+        $transformation = $this->getConfig();
 
         $validationErrors = $validator->validateObject($transformation);
         if (sizeof($validationErrors)) {
