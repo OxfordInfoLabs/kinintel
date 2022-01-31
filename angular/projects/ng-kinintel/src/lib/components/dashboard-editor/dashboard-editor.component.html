@@ -13,10 +13,10 @@
         </div>
 
         <div class="data-actions">
-            <button mat-button color="primary" class="align-center" title="Edit default notification group">
+            <button mat-button class="align-center" matTooltip="Edit default notification group">
                 <mat-icon>manage_accounts</mat-icon>
             </button>
-            <button mat-button color="primary" class="align-center" title="Toggle notifications on/off"
+            <button mat-button class="align-center" matTooltip="Toggle notifications on/off"
                     (click)="toggleNotifications()">
                 <mat-icon *ngIf="!dashboard.alertsEnabled"
                           title="Notifications for this dashboard are now off. Press to toggle on.">notifications_off
@@ -25,7 +25,7 @@
                           title="Notifications for this dashboard are on. Press to toggle off.">notifications_active
                 </mat-icon>
             </button>
-            <button mat-button color="primary" class="align-center" title="Set dashboard item spacing"
+            <button mat-button class="align-center" matTooltip="Set dashboard item spacing"
                     [matMenuTriggerFor]="spacingMenu">
                 <mat-icon>grid_view</mat-icon>
             </button>
@@ -34,21 +34,17 @@
                     {{space.label}}
                 </button>
             </mat-menu>
-            <!--            <button mat-button color="primary" class="align-center" title="Open in full screen"-->
-            <!--                    (click)="openFullScreen()">-->
-            <!--                <mat-icon>open_in_full</mat-icon>-->
-            <!--            </button>-->
-            <button mat-button color="primary" class="align-center" title="Toggle between light/dark mode"
+            <button mat-button class="align-center" matTooltip="Toggle between light/dark mode"
                     (click)="toggleDarkMode()">
                 <mat-icon *ngIf="darkMode">light_mode</mat-icon>
                 <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
             </button>
-            <button mat-button color="primary" class="align-center" title="Add/Edit dashboard items"
+            <button mat-button class="align-center" matTooltip="Add/Edit dashboard items"
                     (click)="editDashboardItems()">
                 <mat-icon>library_add</mat-icon>
             </button>
             <div class="divider"></div>
-            <button mat-button color="primary" class="align-center" (click)="save()" title="Save dashboard">
+            <button mat-button class="align-center" (click)="save()" matTooltip="Save dashboard">
                 <mat-icon>save</mat-icon>
             </button>
         </div>
@@ -56,6 +52,10 @@
 
 
     <div class="dashboard-parameters bg-white px-4 py-1 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
+
+        <div class="list-title">
+            Parameters
+        </div>
         <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
             <label>
                 {{parameter.title}}
@@ -72,8 +72,8 @@
 
             <div class="divider" *ngIf="_.values(dashboard.layoutSettings.parameters).length > 1"></div>
         </ng-template>
-        <button mat-button color="primary" (click)="addParameter()">
-            <mat-icon>add</mat-icon>&nbsp;Add Parameter
+        <button mat-icon-button color="primary" (click)="addParameter()">
+            <mat-icon>add</mat-icon>
         </button>
     </div>
 

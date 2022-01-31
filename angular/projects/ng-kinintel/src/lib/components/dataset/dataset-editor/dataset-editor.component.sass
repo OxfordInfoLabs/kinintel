@@ -1,3 +1,31 @@
+:host
+    display: block
+    position: relative
+    height: 100%
+
+
+.long-running
+    position: fixed
+    inset: 0
+    background-color: rgba(255, 255, 255, 0.7)
+    z-index: 999
+    display: flex
+    align-items: center
+    justify-content: center
+    backdrop-filter: blur(3px)
+    .loading-box
+        position: relative
+        margin-bottom: 2rem
+        div
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            font-size: 1.2rem
+            font-weight: 500
+    p
+        font-size: 1.1rem
+
 .cell-header
     width: 100%
     display: flex
@@ -8,18 +36,121 @@
     &.sorting
         min-height: 43px
 
-.data-actions
+.dataset-data-actions
     display: flex
     align-items: center
     flex-wrap: wrap
+    width: 100%
+    justify-content: flex-end
+    background-color: white
+    border-bottom: 1px solid #ddd
+    border-top: 1px solid #ddd
+    margin-top: -1px
     button
-        margin-left: .5rem
-        background-color: whitesmoke
+        min-width: 50px
+        padding: 0 13px
+        color: #505050
     .divider
-        margin: 0 1rem 0 1.5rem
-        width: 2px
+        margin: 0 .5rem 0 .5rem
+        width: 1px
         height: 36px
-        background-color: whitesmoke
+        background-color: #ddd
+
+.parameter-listing
+    label
+        flex-direction: row
+        align-items: center
+        .parameter-input
+            //background-color: #eaeaea
+            border-radius: 4px
+            padding-left: .5rem
+            height: 36px
+            display: flex
+            align-items: center
+            button
+                color: #8e8e8e
+                &.mat-icon-button
+                    width: 30px
+                    height: 30px
+                    line-height: 30px
+                    align-self: center
+                    mat-icon
+                        font-size: 20px
+                        width: 20px
+                        height: 20px
+                        line-height: 20px
+            input
+                font-size: .9rem
+                padding: .25rem .45rem
+                width: 175px
+
+.transformation-listing
+    display: flex
+    align-items: center
+    flex-wrap: wrap
+    width: 100%
+    background-color: rgba(0,0,0,.05)
+    border-bottom: 1px solid #ddd
+    min-height: 47px
+    .list-title
+        text-transform: uppercase
+        font-size: .75rem
+        padding: 0 1rem
+        border-right: 2px solid #ddd
+        color: #4c4c4c
+        font-weight: 500
+        letter-spacing: 1px
+    .badge-item
+        display: flex
+        align-items: center
+        margin-left: 1rem
+        padding-left: 1rem
+        border-radius: 20px
+        background-color: white
+        border: 1px solid #ddd
+        height: 30px
+        &.exclude
+            opacity: .8
+        &:hover
+            background-color: #fcfcfc
+        span
+            margin-right: .5rem
+            color: rgba(0,0,0,0.54)
+        button.mat-icon-button
+            width: 33px
+            height: 33px
+            line-height: 33px
+            mat-icon
+                font-size: 20px
+                height: 20px
+                width: 20px
+                line-height: 20px
+                color: rgba(0,0,0,0.54)
+    //&.sort
+    //    background-color: white
+    //    border-top: 1px solid #ddd
+    //    margin-top: -1px
+    //    .list-title
+    //    .badge-item
+    //        height: auto
+    //        border: none
+    //        &:hover
+    //            background-color: white
+
+.dataset-filters
+    position: relative
+    .dataset-filter
+        position: relative
+        .apply-filter
+            position: absolute
+            bottom: .5rem
+            right: 0
+            z-index: 9999
+        .remove-filter
+            position: absolute
+            top: .5rem
+            right: 0
+            z-index: 9999
 
 .badge-holder
     display: flex

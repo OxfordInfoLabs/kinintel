@@ -9,15 +9,15 @@ import * as _ from 'lodash';
 export class DatasetFilterComponent implements OnInit {
 
     public static readonly filterTypes = [
-        {label: '(==) Equal To', value: 'eq'},
-        {label: '(!=) Not Equal To', value: 'neq'},
-        {label: 'Is Null', value: 'null'},
-        {label: 'Not Null', value: 'notnull'},
-        {label: '(>) Greater Than', value: 'gt'},
-        {label: '(>=) Greater Than Or Equal To', value: 'gte'},
-        {label: '(<) Less Than', value: 'lt'},
-        {label: '(<=) Less Than Or Equal To', value: 'lte'},
-        {label: 'Like', value: 'like'},
+        {label: '(==) Equal To', value: 'eq', string: '=='},
+        {label: '(!=) Not Equal To', value: 'neq', string: '!='},
+        {label: 'Is Null', value: 'null', string: 'is null'},
+        {label: 'Not Null', value: 'notnull', string: 'not null'},
+        {label: '(>) Greater Than', value: 'gt', string: '>'},
+        {label: '(>=) Greater Than Or Equal To', value: 'gte', string: '>='},
+        {label: '(<) Less Than', value: 'lt', string: '<'},
+        {label: '(<=) Less Than Or Equal To', value: 'lte', string: '<='},
+        {label: 'Like', value: 'like', string: 'like'},
     ];
 
     @Input() filter: any;

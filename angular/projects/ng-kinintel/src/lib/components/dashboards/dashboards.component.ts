@@ -6,6 +6,9 @@ import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DashboardService} from '../../services/dashboard.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
+import {MatDialog} from '@angular/material/dialog';
+import {MetadataComponent} from '../metadata/metadata.component';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'ki-dashboards',
@@ -25,15 +28,19 @@ export class DashboardsComponent implements OnInit {
     public offset = new BehaviorSubject(0);
     public activeTagSub = new Subject();
     public projectSub = new Subject();
+    public categories: any = [];
+    public filteredCategories: any = [];
 
     public activeTag: any;
 
     private tagSub: Subscription;
+    private reload = new Subject();
 
     constructor(private router: Router,
                 private tagService: TagService,
                 private projectService: ProjectService,
                 private dashboardService: DashboardService,
+                private dialog: MatDialog,
                 public config: KinintelModuleConfig) {
     }
 
@@ -47,7 +54,7 @@ export class DashboardsComponent implements OnInit {
             this.projectSub = this.projectService.activeProject;
         }
 
-        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub)
+        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -57,6 +64,8 @@ export class DashboardsComponent implements OnInit {
             ).subscribe((dashboards: any) => {
             this.dashboards = dashboards;
         });
+
+        this.dashboardService.getDashboardCategories().then(categories => this.categories = categories);
     }
 
     public view(id) {
@@ -65,6 +74,28 @@ export class DashboardsComponent implements OnInit {
 
     public delete(id) {
 
+    }
+
+    public removeCategory(index) {
+        this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
+            return key !== index;
+        });
+    }
+
+    public editMetadata(searchResult) {
+        const dialogRef = this.dialog.open(MetadataComponent, {
+            width: '700px',
+            height: '900px',
+            data: {
+                metadata: _.clone(searchResult),
+                service: this.dashboardService
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                this.reload.next(Date.now());
+            }
+        });
     }
 
     public removeActiveTag() {

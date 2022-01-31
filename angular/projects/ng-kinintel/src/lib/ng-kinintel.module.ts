@@ -65,7 +65,9 @@ import {MatRadioModule} from '@angular/material/radio';
 import { FeedsComponent } from './components/feeds/feeds.component';
 import { FeedComponent } from './components/feeds/feed/feed.component';
 import { ExportDataComponent } from './components/data-explorer/export-data/export-data.component';
-
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { MetadataComponent } from './components/metadata/metadata.component';
+import {QuillModule} from 'ngx-quill';
 
 @NgModule({
     declarations: [
@@ -105,7 +107,8 @@ import { ExportDataComponent } from './components/data-explorer/export-data/expo
         DatasetEditorPopupComponent,
         FeedsComponent,
         FeedComponent,
-        ExportDataComponent
+        ExportDataComponent,
+        MetadataComponent
     ],
     imports: [
         BrowserModule,
@@ -137,7 +140,9 @@ import { ExportDataComponent } from './components/data-explorer/export-data/expo
         RouterModule,
         MatAutocompleteModule,
         MatSnackBarModule,
-        MatRadioModule
+        MatRadioModule,
+        MatTooltipModule,
+        QuillModule.forRoot()
     ],
     exports: [
         DashboardEditorComponent,

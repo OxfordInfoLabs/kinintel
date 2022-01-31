@@ -35,6 +35,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import { SnapshotsComponent } from './views/snapshots/snapshots.component';
 import { ViewDashboardComponent } from './views/dashboards/view-dashboard/view-dashboard.component';
 import { FeedsComponent } from './views/feeds/feeds.component';
+import {QuillModule} from 'ngx-quill';
 
 @NgModule({
     declarations: [
@@ -76,7 +77,8 @@ import { FeedsComponent } from './views/feeds/feeds.component';
         MatProgressBarModule,
         MatBadgeModule,
         MatMenuModule,
-        MatDialogModule
+        MatDialogModule,
+        QuillModule.forRoot()
     ],
     providers: [
         {

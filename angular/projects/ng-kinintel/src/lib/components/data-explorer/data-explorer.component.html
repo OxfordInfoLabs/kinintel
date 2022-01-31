@@ -1,4 +1,4 @@
-<div class="configure-header">
+<div class="configure-header border-b border-gray-200">
     <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.title && !editTitle">
         <div (click)="editTitle = !editTitle">{{datasetInstanceSummary.title}}</div>
     </ng-template>
@@ -9,8 +9,8 @@
     <ng-template [ngIf]="!datasetInstanceSummary || !datasetInstanceSummary.title">
         Data Explorer
     </ng-template>
-    <button mat-icon-button mat-dialog-close>
-        <mat-icon>close</mat-icon>
+    <button mat-button mat-dialog-close>
+        Exit <mat-icon>exit_to_app</mat-icon>
     </button>
 </div>
 
@@ -19,9 +19,9 @@
     <rsz-layout class="row top" [directions]="showSnapshots ? ['bottom'] : ['none']"
                 [rFlex]="showSnapshots">
 
-        <rsz-layout class="cell left" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
+        <rsz-layout class="cell left no-p" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
             [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
-            <div class="cell-contents">
+            <div class="cell-contents no-p">
                 <ki-dataset-editor [(datasetInstanceSummary)]="datasetInstanceSummary"
                                    (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
             </div>

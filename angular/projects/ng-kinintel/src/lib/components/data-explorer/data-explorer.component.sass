@@ -2,19 +2,19 @@
     display: flex
     flex-direction: column
     height: 100vh
+    min-width: 1024px
 
 .configure-header
     height: 60px
     width: 100%
-    background-color: #f0f0f0
-    //border-bottom: 1px solid #dadce0
+    background-color: white
     display: flex
     align-items: center
     justify-content: space-between
     padding: 0 1rem
     box-sizing: border-box
     font-size: 1.2rem
-    font-weight: 300
+    font-weight: 500
 
 .configure-content
     flex: 1
@@ -47,7 +47,8 @@
             border-top: none
             position: relative
             padding: 1rem
-
+            &.no-p
+                padding: 0
         .left
             flex-basis: 65%
         .right
@@ -70,6 +71,8 @@
         padding: 2rem
     &.bar-space
         margin-top: 30px
+    &.no-p
+        padding: 0
     .entity-header
         padding: 1rem
     .cell-header

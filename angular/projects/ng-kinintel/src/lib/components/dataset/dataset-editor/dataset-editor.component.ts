@@ -7,6 +7,8 @@ import {DatasetCreateFormulaComponent} from './dataset-create-formula/dataset-cr
 import {DatasetColumnSettingsComponent} from './dataset-column-settings/dataset-column-settings.component';
 import {DatasetService} from '../../../services/dataset.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {DatasetFilterComponent} from './dataset-filters/dataset-filter/dataset-filter.component';
+import {DatasetAddParameterComponent} from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -45,6 +47,7 @@ export class DatasetEditorComponent implements OnInit {
     public focusParams = false;
     public terminatingTransformations = [];
     public String = String;
+    public longRunning = false;
 
     public limit = 25;
     private offset = 0;
@@ -92,6 +95,21 @@ export class DatasetEditorComponent implements OnInit {
             },
             hide: false
         });
+        this.showFilters = true;
+    }
+
+    public getFilterString(config) {
+        const filter = config.filters[0];
+        if (config.filters.length) {
+            if (_.every(filter)) {
+                const type = DatasetFilterComponent.getFilterType(filter.filterType);
+                if (type) {
+                    return `${filter.lhsExpression} ${type.string} ${filter.rhsExpression}`;
+                }
+                return '';
+            }
+        }
+        return '';
     }
 
     public removeFilter(index) {
@@ -454,6 +472,36 @@ export class DatasetEditorComponent implements OnInit {
         }
     }
 
+    public removeParameter(parameter) {
+        const message = 'Are you sure you would like to remove this parameter. This may cause some dashboard items ' +
+            'to fail.';
+        if (window.confirm(message)) {
+            _.remove(this.parameterValues, {name: parameter.name});
+            _.remove(this.datasetInstanceSummary.parameters, {name: parameter.name});
+            this.evaluateDataset();
+        }
+    }
+
+
+
+    public addParameter() {
+        if (!this.showParameters) {
+            this.showParameters = true;
+        }
+        const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
+            width: '600px',
+            height: '600px'
+        });
+        dialogRef.afterClosed().subscribe(parameter => {
+            if (parameter) {
+                parameter.value = parameter.defaultValue || '';
+
+                this.parameterValues.push(parameter);
+                this.datasetInstanceSummary.parameters.push(parameter);
+            }
+        });
+    }
+
     public getOrdinal(n) {
         const s = ['th', 'st', 'nd', 'rd'];
         const v = n % 100;
@@ -644,14 +692,20 @@ export class DatasetEditorComponent implements OnInit {
                     });
                 }
 
-                return this.datasetService.evaluateDataset(
+                const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
+                let finished = false;
+console.log('PARAMS', this.parameterValues);
+                const evaluateSub = this.datasetService.evaluateDatasetWithTracking(
                     clonedDatasetInstance,
                     String(this.offset),
-                    String(this.limit)
-                ).then(dataset => {
+                    String(this.limit),
+                    trackingKey
+                ).subscribe(dataset => {
+                    finished = true;
                     this.dataset = dataset;
                     return this.loadData();
-                }).catch(err => {
+                }, err => {
+                    finished = true;
                     if (err.error && err.error.message) {
                         const message = err.error.message.toLowerCase();
                         if (!message.includes('parameter') && !message.includes('required')) {
@@ -663,7 +717,39 @@ export class DatasetEditorComponent implements OnInit {
                     // If the evaluate fails we still want to publish the instance and set the terminating transformations
                     this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
                     this.setTerminatingTransformations();
+                    return true;
                 });
+
+                setTimeout(() => {
+                    if (!finished) {
+                        this.longRunning = true;
+                        evaluateSub.unsubscribe();
+                        const resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
+                            .subscribe((results: any) => {
+                            if (results.status === 'COMPLETED') {
+                                resultsSub.unsubscribe();
+                                this.dataset = results.result;
+                                this.longRunning = false;
+                                return this.loadData();
+                            } else if (results.status === 'FAILED') {
+                                resultsSub.unsubscribe();
+                                this.longRunning = false;
+                                const errorMessage = results.result;
+                                if (errorMessage) {
+                                    const message = errorMessage.toLowerCase();
+                                    if (!message.includes('parameter') && !message.includes('required')) {
+                                        this.snackBar.open(errorMessage, 'Close', {
+                                            verticalPosition: 'top'
+                                        });
+                                    }
+                                }
+                                // If the evaluate fails we still want to publish the instance and set the terminating transformations
+                                this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
+                                this.setTerminatingTransformations();
+                            }
+                        });
+                    }
+                }, 3000);
             });
 
     }

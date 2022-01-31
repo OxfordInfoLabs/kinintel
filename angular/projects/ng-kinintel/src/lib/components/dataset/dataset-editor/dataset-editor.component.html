@@ -1,81 +1,149 @@
+<div *ngIf="longRunning" class="long-running flex-col">
+
+    <div class="loading-box">
+        <mat-spinner [diameter]="150"></mat-spinner>
+        <div>Loading</div>
+    </div>
+
+    <p class="text-center">Please wait while we process this query.</p>
+    <p class="text-center">The results will be shown here once it has finished running.</p>
+</div>
+
 <div class="cell-header end">
-    <div class="data-actions">
-        <button mat-button color="primary" class="align-center" (click)="editColumnSettings()">
-            <mat-icon>table_chart</mat-icon>&nbsp;Columns
+    <div class="dataset-data-actions">
+        <button mat-button matTooltip="Edit columns" class="align-center" (click)="editColumnSettings()">
+            <mat-icon>table_chart</mat-icon>
         </button>
-        <button mat-button color="primary" class="align-center" (click)="createFormula()">
-            <mat-icon>functions</mat-icon>&nbsp;Add Formula
-        </button>
-        <div class="divider"></div>
-        <button mat-button color="primary" class="align-center" (click)="addPagingMarker()">
-            <mat-icon>push_pin</mat-icon>&nbsp;Paging Marker
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="joinData()">
-            <mat-icon>merge_type</mat-icon>&nbsp;Join Data
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="showParameters = !showParameters">
-            <mat-icon>text_fields</mat-icon>&nbsp;Add Parameter
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="summariseData()">
-            <mat-icon>pivot_table_chart</mat-icon>&nbsp;Summarise Data
-        </button>
-        <button mat-button color="primary" class="align-center" (click)="addFilter()">
-            <mat-icon>filter_alt</mat-icon>&nbsp;Add Filter
+        <button mat-button matTooltip="Add formula" class="align-center" (click)="createFormula()">
+            <mat-icon>functions</mat-icon>
         </button>
         <div class="divider"></div>
-        <button mat-button color="primary" class="align-center" (click)="evaluateDataset()">
-            <mat-icon>sync</mat-icon>&nbsp;Refresh
+        <button mat-button matTooltip="Set paging marker" class="align-center" (click)="addPagingMarker()">
+            <mat-icon>push_pin</mat-icon>
+        </button>
+        <button mat-button matTooltip="Join another dataset" class="align-center" (click)="joinData()">
+            <mat-icon>merge_type</mat-icon>
+        </button>
+        <button mat-button matTooltip="Add parameter" class="align-center" (click)="addParameter()">
+            <mat-icon>text_fields</mat-icon>
+        </button>
+        <button mat-button matTooltip="Summarise data" class="align-center" (click)="summariseData()">
+            <mat-icon>pivot_table_chart</mat-icon>
+        </button>
+        <button mat-button matTooltip="Add a filter" class="align-center" (click)="addFilter()">
+            <mat-icon>filter_alt</mat-icon>
+        </button>
+        <div class="divider"></div>
+        <button mat-button matTooltip="Refresh data with current settings" class="align-center"
+                (click)="evaluateDataset()">
+            <mat-icon>sync</mat-icon>
         </button>
     </div>
 </div>
+
 <div class="cell-header">
-    <div class="badge-holder">
-        <div class="badge-item bg-gray-200 border border-gray-200 mr-1" *ngFor="let transformation of terminatingTransformations; let i = index"
-            [ngClass]="{active: transformation._active, 'bg-opacity-30': !!transformation.exclude}">
-            <span class="cursor-pointer" (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
+    <div class="transformation-listing parameter-listing" *ngIf="showParameters || parameterValues.length">
+        <div class="list-title">
+            Parameters
+        </div>
+        <ng-template ngFor let-parameter [ngForOf]="parameterValues">
+
+            <label class="pl-4">
+                {{parameter.title}}
+                <div class="parameter-input">
+                    <input [type]="parameter.type" [(ngModel)]="parameter.value"
+                           (change)="evaluateDataset()">
+                    <button mat-icon-button style="margin-left: 0; background-color: transparent"
+                            (click)="removeParameter(parameter)">
+                        <mat-icon>highlight_off</mat-icon>
+                    </button>
+                </div>
+
+            </label>
+
+            <div class="divider" *ngIf="parameterValues.length > 1"></div>
+
+        </ng-template>
+
+        <button mat-icon-button color="primary" (click)="addParameter()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </div>
+</div>
+
+<div class="cell-header">
+    <div class="transformation-listing py-2" *ngIf="terminatingTransformations.length">
+        <div class="list-title">
+            Transformations
+        </div>
+        <div class="badge-item mr-1" *ngFor="let transformation of terminatingTransformations; let i = index"
+             [ngClass]="{active: transformation._active, 'exclude': !!transformation.exclude}">
+            <span class="cursor-pointer"
+                  (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
 
             <button [title]="transformation.exclude ? 'Re-enable this transformation' : 'Disable this transformation'"
                     mat-icon-button (click)="disableTransformation(transformation)">
                 <mat-icon *ngIf="!transformation.exclude">block</mat-icon>
                 <mat-icon *ngIf="transformation.exclude">replay</mat-icon>
             </button>
-            <button title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary" (click)="removeTransformation(transformation, true)">
+            <button title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary"
+                    (click)="removeTransformation(transformation, true)">
                 <mat-icon>cancel</mat-icon>
             </button>
         </div>
     </div>
 </div>
 
-<div class="parameter-values mt-4" *ngIf="showParameters || parameterValues.length">
-    <ki-dataset-parameter-values [parameterValues]="parameterValues" [focusParameters]="focusParams"
-                                 [(evaluatedDatasource)]="datasetInstanceSummary" [showNewOnOpen]="true"
-                                 (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
-</div>
-<div class="filters mt-4">
+<div class="cell-header">
+    <div class="transformation-listing py-2 filters-list" *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length">
+        <a class="list-title flex items-center" href="javascript:void(0)" (click)="showFilters = !showFilters">
+            Filters&nbsp;
+            <mat-icon *ngIf="!showFilters">expand_more</mat-icon>
+            <mat-icon *ngIf="showFilters">expand_less</mat-icon>
+        </a>
+        <ng-template ngFor let-filterTransformation
+                     [ngForOf]="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
 
-    <ng-template ngFor let-filterTransformation [ngForOf]="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
+            <div class="badge-item pl-2 mr-1" *ngIf="_.every(filterTransformation.config.filters[0])"
+                (click)="showFilters = !showFilters">
+                <span class="cursor-pointer" [innerHtml]="getFilterString(filterTransformation.config)"></span>
+            </div>
+
+        </ng-template>
+    </div>
+</div>
+
+
+<div class="dataset-filters"
+     *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length
+        && showFilters">
+
+    <div class="dataset-filter border-b border-gray-200"
+         *ngFor="let filterTransformation of _.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
+
+        <button mat-stroked-button class="mr-2 bg-white remove-filter" color="warn"
+                (click)="removeTransformation(filterTransformation, true)">
+            Remove Filter
+        </button>
+
         <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
                             [filterJunction]="filterTransformation.config"></ki-dataset-filters>
-        <div class="flex items-center justify-end">
-            <button mat-stroked-button style="margin-top: -3rem" class="mr-2 bg-white" color="primary"
-                    (click)="removeTransformation(filterTransformation, true)">
-                Remove Filter
-            </button>
-        </div>
-
-    </ng-template>
-
-    <div *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
-        class="flex align-center justify-end mt-4">
-        <button mat-flat-button color="primary" (click)="applyFilters()"
-                [disabled]="!filterJunction.filters.length">Apply filters
+        <button *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
+            mat-flat-button class="apply-filter mr-2" color="primary"
+                (click)="applyFilters()" [disabled]="!filterJunction.filters.length">
+            Apply Filters
         </button>
     </div>
 
 </div>
-<div class="cell-header sorting">
-    <div class="badge-holder" *ngIf="_.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'})">
-        <div class="badge-item outline" *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
+<div class="cell-header">
+    <div class="transformation-listing sort"
+         *ngIf="_.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'})">
+        <div class="list-title">
+            Sort
+        </div>
+        <div class="badge-item outline"
+             *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
             <span>{{sort.fieldName}}&nbsp;{{sort.direction}}</span>
             <button mat-icon-button (click)="removeFilter(i)">
                 <mat-icon>cancel</mat-icon>
@@ -95,12 +163,14 @@
                     {{element[column.name]}}
                 </ng-template>
                 <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
-                    <div>{{element[column.name].substring(0, 100)+'...'}}</div>
+                    <div>{{element[column.name].substring(0, 100) + '...'}}</div>
                     <a href="javascript:void(0)" (click)="viewFullItemData(element[column.name], column.name)"
                        class="flex items-center text-sm text-indigo-600">
                         view more
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                         </svg>
                     </a>
                 </ng-template>

@@ -46,7 +46,20 @@ export class DashboardService {
         return this.http.post(url, dashboardSummary).toPromise();
     }
 
-    public getDashboardDatasetInstance() {
+    public updateMetadata(dashboardSearchResult) {
+        return this.http.patch(this.config.backendURL + '/dashboard', dashboardSearchResult).toPromise();
+    }
 
+    public getDashboardCategories() {
+        const tag = this.tagService.activeTag.getValue() || null;
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        let tags = '';
+
+        if (tag) {
+            tags = tag.key;
+        }
+        return this.http.get(this.config.backendURL + '/dashboard/inUseCategories', {
+            params: {projectKey, tags}
+        }).toPromise();
     }
 }

@@ -4,6 +4,8 @@ import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
 import * as _ from 'lodash';
+import {map, switchMap} from 'rxjs/operators';
+import {interval} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -64,6 +66,23 @@ export class DatasetService {
     public evaluateDataset(datasetInstanceSummary, offset = '0', limit = '25') {
         return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}`,
             datasetInstanceSummary).toPromise();
+    }
+
+    public evaluateDatasetWithTracking(datasetInstanceSummary, offset = '0', limit = '25', trackingKey = '') {
+        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&trackingKey=${trackingKey}`,
+            datasetInstanceSummary);
+    }
+
+    public getDataTrackingResults(trackingKey) {
+        return interval(2000)
+            .pipe(
+                switchMap(() =>
+                    this.http.get(this.config.backendURL + `/dataset/results/${trackingKey}`).pipe(
+                        map(result => {
+                            return result;
+                        }))
+                )
+            );
     }
 
     public exportDataset(exportDataset) {
