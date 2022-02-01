@@ -18,13 +18,13 @@ export class DatasetService {
                 private projectService: ProjectService) {
     }
 
-    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '', type = '') {
+    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '', type = '', categories = []) {
         const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const suffix = this.config.backendURL.indexOf('/account') && accountId === null ? '/shared/all' : '';
         return this.http.get(this.config.backendURL + '/dataset' + suffix, {
             params: {
-                filterString, limit, offset, tags, projectKey, accountId, type
+                filterString, limit, offset, tags, projectKey, accountId, type, categories: categories.join(',')
             }
         });
     }
@@ -115,5 +115,22 @@ export class DatasetService {
         return this.http.delete(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
             {params: {snapshotProfileId}})
             .toPromise();
+    }
+
+    public updateMetadata(dashboardSearchResult) {
+        return this.http.patch(this.config.backendURL + '/dataset', dashboardSearchResult).toPromise();
+    }
+
+    public getDatasetCategories() {
+        const tag = this.tagService.activeTag.getValue() || null;
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        let tags = '';
+
+        if (tag) {
+            tags = tag.key;
+        }
+        return this.http.get(this.config.backendURL + '/dataset/inUseCategories', {
+            params: {projectKey, tags}
+        }).toPromise();
     }
 }

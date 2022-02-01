@@ -30,11 +30,11 @@ export class DashboardsComponent implements OnInit {
     public projectSub = new Subject();
     public categories: any = [];
     public filteredCategories: any = [];
-
+    public Date = Date;
     public activeTag: any;
+    public reload = new Subject();
 
     private tagSub: Subscription;
-    private reload = new Subject();
 
     constructor(private router: Router,
                 private tagService: TagService,
@@ -65,7 +65,7 @@ export class DashboardsComponent implements OnInit {
             this.dashboards = dashboards;
         });
 
-        this.dashboardService.getDashboardCategories().then(categories => this.categories = categories);
+        this.getCategories();
     }
 
     public view(id) {
@@ -76,10 +76,15 @@ export class DashboardsComponent implements OnInit {
 
     }
 
+    public addCategoryToFilter(category) {
+
+    }
+
     public removeCategory(index) {
         this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
             return key !== index;
         });
+        this.reload.next(Date.now());
     }
 
     public editMetadata(searchResult) {
@@ -94,6 +99,7 @@ export class DashboardsComponent implements OnInit {
         dialogRef.afterClosed().subscribe(res => {
             if (res) {
                 this.reload.next(Date.now());
+                this.getCategories();
             }
         });
     }
@@ -107,10 +113,15 @@ export class DashboardsComponent implements OnInit {
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
             this.offset.getValue().toString(),
-            this.shared ? null : ''
+            this.shared ? null : '',
+            _.map(this.filteredCategories, 'key')
         ).pipe(map((dashboards: any) => {
                 return dashboards;
             })
         );
+    }
+
+    private getCategories(){
+        this.dashboardService.getDashboardCategories().then(categories => this.categories = categories);
     }
 }

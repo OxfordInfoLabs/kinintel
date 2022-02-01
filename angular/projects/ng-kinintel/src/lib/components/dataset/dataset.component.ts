@@ -7,6 +7,8 @@ import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DatasetService} from '../../services/dataset.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
+import * as _ from 'lodash';
+import {MetadataComponent} from '../metadata/metadata.component';
 
 @Component({
     selector: 'ki-dataset',
@@ -26,7 +28,9 @@ export class DatasetComponent implements OnInit, OnDestroy {
     public offset = new BehaviorSubject(0);
     public page = 1;
     public endOfResults = false;
-
+    public categories: any = [];
+    public filteredCategories: any = [];
+    public Date = Date;
     public activeTagSub = new Subject();
     public projectSub = new Subject();
     public activeTag: any;
@@ -64,6 +68,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
         });
+
+        this.getCategories();
     }
 
     ngOnDestroy() {
@@ -86,6 +92,13 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public removeActiveTag() {
         this.tagService.resetActiveTag();
+    }
+
+    public removeCategory(index) {
+        this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
+            return key !== index;
+        });
+        this.reload.next(Date.now());
     }
 
     public delete(datasetId) {
@@ -111,6 +124,23 @@ export class DatasetComponent implements OnInit, OnDestroy {
         this.limit.next(value);
     }
 
+    public editMetadata(searchResult) {
+        const dialogRef = this.dialog.open(MetadataComponent, {
+            width: '700px',
+            height: '900px',
+            data: {
+                metadata: _.clone(searchResult),
+                service: this.datasetService
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                this.reload.next(Date.now());
+                this.getCategories();
+            }
+        });
+    }
+
     private viewDataset(datasetInstanceSummary) {
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',
@@ -134,12 +164,18 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
             this.offset.getValue().toString(),
-            this.shared ? null : ''
+            this.shared ? null : '',
+            '',
+            _.map(this.filteredCategories, 'key')
         ).pipe(map((datasets: any) => {
                 this.endOfResults = datasets.length < this.limit.getValue();
                 return datasets;
             })
         );
+    }
+
+    private getCategories() {
+        this.datasetService.getDatasetCategories().then(categories => this.categories = categories);
     }
 
 }
