@@ -67,7 +67,7 @@ import { FeedComponent } from './components/feeds/feed/feed.component';
 import { ExportDataComponent } from './components/data-explorer/export-data/export-data.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MetadataComponent } from './components/metadata/metadata.component';
-import {QuillModule} from 'ngx-quill';
+import { AvailableColumnsComponent } from './components/dataset/dataset-editor/available-columns/available-columns.component';
 
 @NgModule({
     declarations: [
@@ -108,7 +108,8 @@ import {QuillModule} from 'ngx-quill';
         FeedsComponent,
         FeedComponent,
         ExportDataComponent,
-        MetadataComponent
+        MetadataComponent,
+        AvailableColumnsComponent
     ],
     imports: [
         BrowserModule,
@@ -141,8 +142,7 @@ import {QuillModule} from 'ngx-quill';
         MatAutocompleteModule,
         MatSnackBarModule,
         MatRadioModule,
-        MatTooltipModule,
-        QuillModule.forRoot()
+        MatTooltipModule
     ],
     exports: [
         DashboardEditorComponent,

@@ -114,7 +114,7 @@ export class DatasetAddJoinComponent implements OnInit {
                 this.sharedDatasets = datasets;
             });
         }
-
+console.log('JOIN', this.data.joinTransformation);
         if (this.data.joinTransformation) {
             this.joinTransformation = this.data.joinTransformation;
             const item = {

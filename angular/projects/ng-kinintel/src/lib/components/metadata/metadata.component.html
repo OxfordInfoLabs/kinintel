@@ -22,7 +22,8 @@
 
         <div class="my-4">
             <p><b>Description</b></p>
-            <quill-editor [(ngModel)]="metadata.description" placeholder="Enter description"></quill-editor>
+            <textarea [(ngModel)]="metadata.description" placeholder="Enter description" rows="5"
+                class="w-full"></textarea>
         </div>
 
         <div class="my-4">

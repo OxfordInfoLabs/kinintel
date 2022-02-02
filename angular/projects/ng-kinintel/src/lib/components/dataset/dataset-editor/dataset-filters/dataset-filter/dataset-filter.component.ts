@@ -1,5 +1,7 @@
 import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as _ from 'lodash';
+import {MatDialog} from '@angular/material/dialog';
+import {AvailableColumnsComponent} from '../../../dataset-editor/available-columns/available-columns.component';
 
 @Component({
     selector: 'ki-dataset-filter',
@@ -32,7 +34,7 @@ export class DatasetFilterComponent implements OnInit {
     public customValue = false;
     public customLhs = false;
 
-    constructor() {
+    constructor(private dialog: MatDialog) {
     }
 
     public static getFilterType(filterType) {
@@ -49,6 +51,14 @@ export class DatasetFilterComponent implements OnInit {
             !_.find(this.joinFilterFields, field => {
                 return `[[${field.name}]]` === this.filter.rhsExpression;
             });
+    }
+
+    public viewColumns(columns) {
+        this.dialog.open(AvailableColumnsComponent, {
+            width: '500px',
+            height: '500px',
+            data: {columns}
+        });
     }
 
     public removeFilter() {

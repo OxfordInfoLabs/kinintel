@@ -111,8 +111,9 @@
                 </ng-template>
 
                 <ng-template [ngIf]="selectedSource">
-                    <p class="mt-4 mb-4">
-                        <b>Selected source: {{selectedSource.title || selectedSource.name}}</b>
+                    <p class="mb-4">
+                        <b *ngIf="!joinTransformation.config.joinedDataItemTitle">Selected source: {{selectedSource.title || selectedSource.name}}</b>
+                        <b *ngIf="joinTransformation.config.joinedDataItemTitle">Selected source: {{joinTransformation.config.joinedDataItemTitle}}</b>
                     </p>
 
                     <div class="mb-4" *ngIf="requiredParameters && requiredParameters.length">
@@ -134,7 +135,10 @@
                 </ng-template>
 
                 <ng-template [ngIf]="selectedSource">
-
+                    <p class="mb-4">
+                        <b *ngIf="!joinTransformation.config.joinedDataItemTitle">Selected source: {{selectedSource.title || selectedSource.name}}</b>
+                        <b *ngIf="joinTransformation.config.joinedDataItemTitle">Selected source: {{joinTransformation.config.joinedDataItemTitle}}</b>
+                    </p>
                     <div class="my-4">
                         <mat-checkbox [(ngModel)]="joinTransformation.config.strictJoin">Strict Join?</mat-checkbox>
                         <p><small>If turned on, data will be pruned to only return rows that match.</small></p>
@@ -156,6 +160,11 @@
                 </ng-template>
 
                 <ng-template [ngIf]="selectedSource">
+                    <p class="mb-4">
+                        <b *ngIf="!joinTransformation.config.joinedDataItemTitle">Selected source: {{selectedSource.title || selectedSource.name}}</b>
+                        <b *ngIf="joinTransformation.config.joinedDataItemTitle">Selected source: {{joinTransformation.config.joinedDataItemTitle}}</b>
+                    </p>
+
                     <p>Select the columns you would like to view, and set a new column name if required.</p>
 
                     <div class="column-definition align-center">
