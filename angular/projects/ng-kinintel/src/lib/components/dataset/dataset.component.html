@@ -62,7 +62,8 @@
                                 {{category.category}}
                             </a>
                         </div>
-                        <div *ngIf="element.viewDescription" class="mt-4" [innerHTML]="element.description"></div>
+                        <div *ngIf="element.viewDescription && element.description" class="mt-4"
+                             [innerHTML]="element.description"></div>
                     </div>
                 </td>
             </ng-container>
