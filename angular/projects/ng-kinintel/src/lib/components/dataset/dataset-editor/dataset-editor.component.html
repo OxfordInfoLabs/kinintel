@@ -153,7 +153,7 @@
 </div>
 
 <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
-       class="block overflow-x-auto">
+       class="block sticky">
 
     <ng-template ngFor let-column [ngForOf]="filterFields">
         <ng-container [matColumnDef]="column.name">
