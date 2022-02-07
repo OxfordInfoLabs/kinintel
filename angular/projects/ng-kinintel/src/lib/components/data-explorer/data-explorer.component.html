@@ -1,14 +1,23 @@
 <div class="configure-header border-b border-gray-200">
-    <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.title && !editTitle">
-        <div (click)="editTitle = !editTitle">{{datasetInstanceSummary.title}}</div>
-    </ng-template>
-    <ng-template [ngIf]="datasetInstanceSummary && editTitle">
-        <input type="text" class="w-1/4 text-sm"
-               [(ngModel)]="datasetInstanceSummary.title" (blur)="editTitle = false">
-    </ng-template>
-    <ng-template [ngIf]="!datasetInstanceSummary || !datasetInstanceSummary.title">
-        Data Explorer
-    </ng-template>
+    <div class="flex items-center">
+        <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.title && !editTitle">
+            <div (click)="editTitle = !editTitle">{{datasetInstanceSummary.title}}</div>
+        </ng-template>
+        <ng-template [ngIf]="datasetInstanceSummary && editTitle">
+            <input type="text" class="w-1/4 text-sm"
+                   [(ngModel)]="datasetInstanceSummary.title" (blur)="editTitle = false">
+        </ng-template>
+        <ng-template [ngIf]="!datasetInstanceSummary || !datasetInstanceSummary.title">
+            Data Explorer
+        </ng-template>
+
+        <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.originDataItemTitle">
+            <span class="border border-gray-200 text-xs px-2 py-1 rounded-xl ml-2 font-thin bg-gray-100">
+                <span class="uppercase tracking-wider text-gray-700 font-medium">{{datasetInstanceSummary.datasetInstanceId ? 'Dataset:' : 'Datasource:'}}</span>
+                &nbsp;{{datasetInstanceSummary.originDataItemTitle}}</span>
+        </ng-template>
+    </div>
+
     <button mat-button mat-dialog-close>
         Exit <mat-icon>exit_to_app</mat-icon>
     </button>

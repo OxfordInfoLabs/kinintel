@@ -68,6 +68,7 @@ import { ExportDataComponent } from './components/data-explorer/export-data/expo
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MetadataComponent } from './components/metadata/metadata.component';
 import { AvailableColumnsComponent } from './components/dataset/dataset-editor/available-columns/available-columns.component';
+import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
 
 @NgModule({
     declarations: [
@@ -109,7 +110,8 @@ import { AvailableColumnsComponent } from './components/dataset/dataset-editor/a
         FeedComponent,
         ExportDataComponent,
         MetadataComponent,
-        AvailableColumnsComponent
+        AvailableColumnsComponent,
+        JobTasksComponent
     ],
     imports: [
         BrowserModule,
