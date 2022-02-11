@@ -6,6 +6,8 @@ use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
 use PHPUnit\Framework\TestCase;
 
+include_once "autoloader.php";
+
 class BasicAuthenticationCredentialsTest extends TestCase {
 
     public function testProcessRequestReturnsSourceRequestWithAdditionalHeader() {

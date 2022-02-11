@@ -34,7 +34,7 @@ class JSONLStreamTabularDataSet extends TabularDataset {
     /**
      * @var integer
      */
-    private $limit;
+    private $limit = -1;
 
     /**
      * @var int
@@ -64,11 +64,11 @@ class JSONLStreamTabularDataSet extends TabularDataset {
         $this->itemOffsetPath = $itemOffsetPath;
 
         // if we have a first row offset, skip to the point.
-        if ($firstRowOffset) {
-            for ($i = 0; $i < $firstRowOffset; $i++) {
-                $this->nextRawDataItem();
-            }
+        for ($i = 0; $i < $firstRowOffset + $offset; $i++) {
+            $this->nextRawDataItem();
         }
+
+        $this->limit = $limit;
 
         // If no columns, create them from first item
         if (!$columns) {
@@ -93,6 +93,9 @@ class JSONLStreamTabularDataSet extends TabularDataset {
      */
     public function nextRawDataItem() {
 
+        if ($this->limit >= 0 && $this->readItems >= $this->limit)
+            return null;
+
         // If we have queued up an item for return, return it first.
         if (sizeof($this->pendingItemStack)) {
             return array_shift($this->pendingItemStack);
@@ -105,10 +108,15 @@ class JSONLStreamTabularDataSet extends TabularDataset {
                 if ($this->itemOffsetPath) {
                     $lineObject = $this->drillDown($this->itemOffsetPath, $lineObject);
                 }
+                if ($this->limit >= 0)
+                    $this->readItems++;
                 return $lineObject;
             } else {
+                if ($this->limit >= 0)
+                    $this->readItems++;
                 return null;
             }
+
         } catch (StreamException $e) {
             return null;
         }

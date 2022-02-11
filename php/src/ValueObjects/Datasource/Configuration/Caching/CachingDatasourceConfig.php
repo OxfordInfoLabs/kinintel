@@ -37,6 +37,19 @@ class CachingDatasourceConfig {
      */
     private $cacheDatasource;
 
+
+    /**
+     * One of the cache mode constants.  This controls
+     * whether newly accessed records represent
+     * 1) a complete data set (the default)
+     * 2) an incremental addition to the whole data set.
+     * 3) an update on the whole data set.
+     *
+     * @var string
+     */
+    private $cacheMode = self::CACHE_MODE_COMPLETE;
+
+
     /**
      * Number of days before cache expiry of entries.
      * Additive to hours entry
@@ -76,6 +89,12 @@ class CachingDatasourceConfig {
      */
     private $cacheDatasourceCachedTimeField = "cached_time";
 
+
+    // Cache mode constants
+    const CACHE_MODE_COMPLETE = "complete";
+    const CACHE_MODE_INCREMENTAl = "incremental";
+    const CACHE_MODE_UPDATE = "update";
+
     /**
      * CachingDatasourceConfig constructor.
      *
@@ -86,10 +105,12 @@ class CachingDatasourceConfig {
      * @param int $cacheExpiryDays
      * @param int $cacheHours
      * @poram bool $fallbackToOlder
+     * @param string $cacheMode
      */
     public function __construct($sourceDatasourceKey = null, $sourceDatasource = null,
                                 $cachingDatasourceKey = null, $cachingDatasource = null,
-                                $cacheExpiryDays = null, $cacheHours = null, $fallbackToOlder = false) {
+                                $cacheExpiryDays = null, $cacheHours = null, $fallbackToOlder = false,
+                                $cacheMode = self::CACHE_MODE_COMPLETE) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->sourceDatasource = $sourceDatasource;
         $this->cacheDatasourceKey = $cachingDatasourceKey;
@@ -97,6 +118,7 @@ class CachingDatasourceConfig {
         $this->cacheExpiryDays = $cacheExpiryDays;
         $this->cacheExpiryHours = $cacheHours;
         $this->fallbackToOlder = $fallbackToOlder;
+        $this->cacheMode = $cacheMode;
     }
 
 
@@ -154,6 +176,20 @@ class CachingDatasourceConfig {
      */
     public function setCacheDatasource($cacheDatasource) {
         $this->cacheDatasource = $cacheDatasource;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCacheMode() {
+        return $this->cacheMode;
+    }
+
+    /**
+     * @param string $cacheMode
+     */
+    public function setCacheMode($cacheMode) {
+        $this->cacheMode = $cacheMode;
     }
 
     /**

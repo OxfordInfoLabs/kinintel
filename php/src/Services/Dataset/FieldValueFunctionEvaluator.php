@@ -4,6 +4,7 @@
 namespace Kinintel\Services\Dataset;
 
 
+use Kinintel\ValueObjects\Dataset\FieldValueFunction\ConversionFieldValueFunction;
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\DateFormatFieldValueFunction;
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\FieldValueFunction;
 use Kinintel\ValueObjects\Dataset\FieldValueFunction\LogicFieldValueFunction;
@@ -28,7 +29,8 @@ class FieldValueFunctionEvaluator {
         $this->functions = [
             new RegExFieldValueFunction(),
             new DateFormatFieldValueFunction(),
-            new LogicFieldValueFunction()
+            new LogicFieldValueFunction(),
+            new ConversionFieldValueFunction()
         ];
     }
 

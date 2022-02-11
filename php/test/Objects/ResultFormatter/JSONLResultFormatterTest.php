@@ -126,4 +126,54 @@ class JSONLResultFormatterTest extends TestCase {
     }
 
 
+    public function testOffsetAndLimitObservedIfPassedToResults() {
+
+        $formatter = new JSONLResultFormatter();
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-jsonl.jsonl"), [], 2);
+
+        $this->assertEquals([
+            [
+                "name" => "Mark",
+                "age" => "44",
+                "position" => "Director"
+            ], [
+                "name" => "Bob",
+                "age" => "55",
+                "position" => "CEO"
+            ]
+
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("name", "Name"),
+            new Field("age", "Age"),
+            new Field("position", "Position")
+        ], $results->getColumns());
+
+
+        $results = $formatter->format(new ReadOnlyFileStream(__DIR__ . "/test-jsonl.jsonl"), [], 10, 1);
+
+        $this->assertEquals([
+            [
+                "name" => "Bob",
+                "age" => "55",
+                "position" => "CEO"
+            ], [
+                "name" => "Mary",
+                "age" => "23",
+                "position" => "HR"
+            ]
+
+        ], $results->getAllData());
+
+        $this->assertEquals([
+            new Field("name", "Name"),
+            new Field("age", "Age"),
+            new Field("position", "Position")
+        ], $results->getColumns());
+
+
+    }
+
+
 }

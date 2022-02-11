@@ -3,6 +3,7 @@
 namespace Kinintel\Objects\Datasource\WebService;
 
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
+use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Headers as ReqHeaders;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\HTTP\Response\Response;
@@ -59,7 +60,36 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]), $response);
 
     }
-    
+
+
+    public function testCanMaterialiseSimpleDatasourceWithHeaders() {
+
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pingu"}'), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([
+                "Auth-Key" => 12345, "Auth-Secret" => 67890
+            ])));
+
+        $config = new WebserviceDataSourceConfig("https://mytest.com");
+        $config->setHeaders(["Auth-Key" => 12345, "Auth-Secret" => 67890]);
+
+        $request = new TestWebServiceDataSource($config);
+
+        $request->setDispatcher($this->httpDispatcher);
+
+        // Materialise
+        $response = $request->materialiseDataset();
+
+        // Check that the response was received directly
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Pingu"
+            ]
+        ]), $response);
+
+    }
+
 
     public function testCanMaterialiseDatasourceWithCompression() {
 

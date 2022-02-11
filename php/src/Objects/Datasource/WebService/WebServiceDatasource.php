@@ -11,6 +11,7 @@ use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
@@ -50,7 +51,8 @@ class WebServiceDatasource extends BaseDatasource {
      */
     private static $supportedAuthenticationCredentials = [
         BasicAuthenticationCredentials::class,
-        QueryParameterAuthenticationCredentials::class
+        QueryParameterAuthenticationCredentials::class,
+        HTTPHeaderAuthenticationCredentials::class
     ];
 
 
@@ -138,9 +140,6 @@ class WebServiceDatasource extends BaseDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
-        // Grab headers and params
-        $headers = new Headers();
-        $payload = null;
 
         if (!$this->getConfig()) {
             $this->setConfig(new WebserviceDataSourceConfig());
@@ -151,6 +150,12 @@ class WebServiceDatasource extends BaseDatasource {
          */
         $config = $this->getConfig();
 
+
+        // Grab headers and params
+        $headers = new Headers($config->getHeaders() ?? []);
+        $payload = null;
+
+
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
             $payload = $this->templateParser->parseTemplateText($config->getPayloadTemplate(), $parameterValues);
         }
@@ -159,12 +164,10 @@ class WebServiceDatasource extends BaseDatasource {
         $url = $this->templateParser->parseTemplateText($config->getUrl(), $parameterValues);
         $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
-
-        // Inject authentication if required
+         // Inject authentication if required
         if ($this->getAuthenticationCredentials()) {
             $request = $this->getAuthenticationCredentials()->processRequest($request);
         }
-
 
         // Process multiple times according to retry configuration if required
         $attempts = 0;
@@ -176,6 +179,7 @@ class WebServiceDatasource extends BaseDatasource {
             $attempts++;
 
         } while ($attempts <= $config->getMaxRetries() && in_array($response->getStatusCode(), $config->getRetryResponseCodes() ?? []));
+
 
 
         $offset = 0;

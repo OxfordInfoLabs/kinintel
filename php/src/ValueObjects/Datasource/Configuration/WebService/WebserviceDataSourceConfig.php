@@ -41,6 +41,12 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
 
 
     /**
+     * @var string[]
+     */
+    protected $headers;
+
+
+    /**
      * Compression type if applicable - one of the compressor configuration values
      *
      * @var string
@@ -139,6 +145,20 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     public function setPayloadTemplate($payloadTemplate) {
         $this->payloadTemplate = $payloadTemplate;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getHeaders() {
+        return $this->headers;
+    }
+
+    /**
+     * @param string[] $headers
+     */
+    public function setHeaders($headers) {
+        $this->headers = $headers;
     }
 
     /**

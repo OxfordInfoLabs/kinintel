@@ -337,6 +337,11 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     }
 
 
+    // Close this database connection
+    public function closeDatabaseConnection() {
+        $this->returnDatabaseConnection()->close();
+    }
+
     /**
      * Get a singleton db connection
      *

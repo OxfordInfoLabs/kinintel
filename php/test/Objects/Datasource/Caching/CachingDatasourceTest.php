@@ -17,6 +17,8 @@ use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConf
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -80,6 +82,28 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
 
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+
         $this->cacheDatasource->returnValue("applyTransformation", $this->cacheDatasource,
             [
                 new FilterTransformation([
@@ -87,14 +111,6 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
                     new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
             ]);
 
-        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
-            [
-                new PagingTransformation(1, 0)
-            ]);
-
-        // Produce no data from cache data source when paging applied
-        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
 
         $expectedData = new ArrayTabularDataset([
             new Field("id"),
@@ -133,8 +149,9 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Check augmented source data updated in cache data source
         $this->assertTrue($this->cacheDatasource->methodWasCalled("update",
-            [$enhancedData]
+            [$enhancedData, UpdatableDatasource::UPDATE_MODE_ADD]
         ));
+
 
     }
 
@@ -149,6 +166,29 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
 
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+
         $this->cacheDatasource->returnValue("applyTransformation", $this->cacheDatasource,
             [
                 new FilterTransformation([
@@ -156,11 +196,6 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
                     new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
             ]);
 
-        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
-            [
-                new PagingTransformation(1, 0)
-            ]);
 
         $enhancedData = new ArrayTabularDataset([
             new Field("parameters"),
@@ -209,6 +244,29 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
             "testcache"
         ]);
 
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+
         $this->cacheDatasource->returnValue("applyTransformation", $this->cacheDatasource,
             [
                 new FilterTransformation([
@@ -216,11 +274,6 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
                     new Filter("[[cached_time]]", $cacheExpiry->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
             ]);
 
-        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
-            [
-                new PagingTransformation(1, 0)
-            ]);
 
         $enhancedData = new ArrayTabularDataset([
             new Field("parameters"),
@@ -258,6 +311,29 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
 
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+
         $this->cacheDatasource->returnValue("applyTransformation", $this->cacheDatasource,
             [
                 new FilterTransformation([
@@ -265,11 +341,6 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
                     new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
             ]);
 
-        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
-            [
-                new PagingTransformation(1, 0)
-            ]);
 
         // Produce no data from cache data source when paging applied
         $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
@@ -312,5 +383,256 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testIfPagingTransformationsAppliedToCachingDataSourceTheyAreTransmittedToCacheDatasource() {
+
+        $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
+            new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
+                null, $this->cacheDatasourceInstance, 7));
+
+        $sevenDaysAgo = (new \DateTime())->sub(new \DateInterval("P7D"));
+
+        $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
+
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+
+        $this->cacheDatasource->returnValue("applyTransformation", $this->cacheDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams),
+                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+            ]);
+
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+        $expectedData = new ArrayTabularDataset([
+            new Field("id"),
+            new Field("data")
+        ], [
+            ["id" => 1, "data" => "Hello World"],
+            ["id" => 2, "data" => "Goodbye Jeeves"],
+            ["id" => 3, "data" => "Welcome Bobby"]
+        ]);
+
+        // Return some source data
+        $this->sourceDatasource->returnValue("materialise", $expectedData, [
+            ["param1" => "Joe", "param2" => "Bloggs"]
+        ]);
+
+        $dataSource = $cachingDatasourceInstance->returnDataSource();
+
+        // Add a paging transformation
+        $dataSource = $dataSource->applyTransformation(new PagingTransformation(10, 5));
+
+        $this->cacheDatasource->returnValue("applyTransformation",
+            $this->cacheDatasource, [
+                new PagingTransformation(10, 5), ["param1" => "Joe", "param2" => "Bloggs"]
+            ]
+        );
+
+        // Materialise
+        $dataSource->materialise(["param1" => "Joe", "param2" => "Bloggs"]);
+
+        // Check that the cache data source had transformation applied to it.
+        $this->assertTrue($this->cacheDatasource->methodWasCalled("applyTransformation", [
+            new PagingTransformation(10, 5), ["param1" => "Joe", "param2" => "Bloggs"]
+        ]));
+
+
+    }
+
+
+    public function testIfCacheModeSetToIncrementalLastCachedDateIsAddedToParametersAndNoDateFilterIsAppliedToReturnedSet() {
+
+        $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
+            new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
+                null, $this->cacheDatasourceInstance, 7, null, false, CachingDatasourceConfig::CACHE_MODE_INCREMENTAl));
+
+
+        $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
+
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([
+            new Field("cached_time", "Cached Time")
+        ], [
+            ["cached_time" => "2020-01-01 10:00:00"]
+        ]));
+
+
+        $expectedData = new ArrayTabularDataset([
+            new Field("id"),
+            new Field("data")
+        ], [
+            ["id" => 1, "data" => "Hello World"],
+            ["id" => 2, "data" => "Goodbye Jeeves"],
+            ["id" => 3, "data" => "Welcome Bobby"]
+        ]);
+
+        // Return some source data
+        $this->sourceDatasource->returnValue("materialise", $expectedData, [
+            ["param1" => "Joe", "param2" => "Bloggs", "lastCacheTimestamp" => date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U")]
+        ]);
+
+
+        $enhancedData = new ArrayTabularDataset([
+            new Field("parameters"),
+            new Field("cached_time"),
+            new Field("id"),
+            new Field("data")
+        ], [
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 1, "data" => "Hello World"],
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 2, "data" => "Goodbye Jeeves"],
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 3, "data" => "Welcome Bobby"]
+        ]);
+
+        $this->cacheDatasource->returnValue("materialise", $enhancedData);
+
+        $dataSource = $cachingDatasourceInstance->returnDataSource();
+        $results = $dataSource->materialise(["param1" => "Joe", "param2" => "Bloggs"]);
+
+
+        // Check source data returned directly
+        //$this->assertEquals($enhancedData, $results);
+
+        // Check augmented source data updated in cache data source
+        $this->assertTrue($this->cacheDatasource->methodWasCalled("update",
+            [$enhancedData, UpdatableDatasource::UPDATE_MODE_ADD]
+        ));
+
+        $this->assertTrue($this->cacheDatasource->methodWasCalled("applyTransformation", [
+            new FilterTransformation([
+                new Filter("[[parameters]]", $encodedParams),
+            ])
+        ]));
+
+
+    }
+
+
+    public function testIfCacheModeSetToUpdateLastCachedDateIsAddedToParametersNoDateFilterIsAppliedToReturnedSeAndDatasetIsUpdated() {
+
+        $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
+            new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
+                null, $this->cacheDatasourceInstance, 7, null, false, CachingDatasourceConfig::CACHE_MODE_UPDATE));
+
+
+        $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
+
+
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $encodedParams)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source when paging applied
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([
+            new Field("cached_time", "Cached Time")
+        ], [
+            ["cached_time" => "2020-01-01 10:00:00"]
+        ]));
+
+
+        $expectedData = new ArrayTabularDataset([
+            new Field("id"),
+            new Field("data")
+        ], [
+            ["id" => 1, "data" => "Hello World"],
+            ["id" => 2, "data" => "Goodbye Jeeves"],
+            ["id" => 3, "data" => "Welcome Bobby"]
+        ]);
+
+        // Return some source data
+        $this->sourceDatasource->returnValue("materialise", $expectedData, [
+            ["param1" => "Joe", "param2" => "Bloggs", "lastCacheTimestamp" => date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U")]
+        ]);
+
+
+        $enhancedData = new ArrayTabularDataset([
+            new Field("parameters"),
+            new Field("cached_time"),
+            new Field("id"),
+            new Field("data")
+        ], [
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 1, "data" => "Hello World"],
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 2, "data" => "Goodbye Jeeves"],
+            ["parameters" => $encodedParams, "cached_time" => date("Y-m-d H:i:s"), "id" => 3, "data" => "Welcome Bobby"]
+        ]);
+
+        $this->cacheDatasource->returnValue("materialise", $enhancedData);
+
+        $dataSource = $cachingDatasourceInstance->returnDataSource();
+        $results = $dataSource->materialise(["param1" => "Joe", "param2" => "Bloggs"]);
+
+
+        // Check source data returned directly
+        //$this->assertEquals($enhancedData, $results);
+
+        // Check augmented source data updated in cache data source
+        $this->assertTrue($this->cacheDatasource->methodWasCalled("update",
+            [$enhancedData, SQLDatabaseDatasource::UPDATE_MODE_REPLACE]
+        ));
+
+        $this->assertTrue($this->cacheDatasource->methodWasCalled("applyTransformation", [
+            new FilterTransformation([
+                new Filter("[[parameters]]", $encodedParams),
+            ])
+        ]));
+
+
+    }
 
 }

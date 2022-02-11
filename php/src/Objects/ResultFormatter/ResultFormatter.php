@@ -10,6 +10,7 @@ use Kinintel\ValueObjects\Dataset\Dataset;
 /**
  * Interface ResultFormatter
  *
+ * @implementation jsonl Kinintel\Objects\ResultFormatter\JSONLResultFormatter
  * @implementation json Kinintel\Objects\ResultFormatter\JSONResultFormatter
  * @implementation sv Kinintel\Objects\ResultFormatter\SVResultFormatter
  *

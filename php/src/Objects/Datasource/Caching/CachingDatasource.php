@@ -10,6 +10,8 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
@@ -17,7 +19,13 @@ use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
+use Kinintel\ValueObjects\Transformation\Transformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class CachingDatasource extends BaseDatasource {
 
@@ -25,6 +33,11 @@ class CachingDatasource extends BaseDatasource {
      * @var DatasourceService
      */
     private $datasourceService;
+
+    /**
+     * @var Transformation[]
+     */
+    private $appliedTransformations = [];
 
 
     public function __construct($config = null, $authenticationCredentials = null, $validator = null) {
@@ -49,7 +62,13 @@ class CachingDatasource extends BaseDatasource {
      * @return array
      */
     public function getSupportedTransformationClasses() {
-        return [];
+        return [
+            PagingTransformation::class,
+            FilterTransformation::class,
+            MultiSortTransformation::class,
+            SummariseTransformation::class,
+            JoinTransformation::class
+        ];
     }
 
     /**
@@ -71,6 +90,8 @@ class CachingDatasource extends BaseDatasource {
      * @return BaseDatasource|void
      */
     public function applyTransformation($transformation, $parameterValues = []) {
+        $this->appliedTransformations[] = $transformation;
+        return $this;
     }
 
     /**
@@ -119,26 +140,43 @@ class CachingDatasource extends BaseDatasource {
         $cacheCheckDatasource = $cacheDatasourceInstance->returnDataSource();
         $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new FilterTransformation([
             new Filter("[[" . $config->getCacheDatasourceParametersField() . "]]", $encodedParameters),
-            new Filter("[[" . $config->getCacheDatasourceCachedTimeField() . "]]", $cacheThreshold, Filter::FILTER_TYPE_GREATER_THAN)
+        ]));
+        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new MultiSortTransformation([
+            new Sort($config->getCacheDatasourceCachedTimeField(), "DESC")
         ]));
         $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new PagingTransformation(1, 0));
 
         // Materialise the cache data source
         $cacheCheckDataset = $cacheCheckDatasource->materialise();
+        $checkDataItem = $cacheCheckDataset->nextDataItem();
 
         // Grab a new data source for return results
         $cacheDatasource = $cacheDatasourceInstance->returnDataSource();
 
-        // If no rows returned from cache, materialise the source dataset
-        // And store in cache
+        // If no previously cached results or we need new ones, go get them
         $noSourceResults = false;
-        if (!$cacheCheckDataset->nextDataItem()) {
+        if (!$checkDataItem || ($checkDataItem[$config->getCacheDatasourceCachedTimeField()] < $cacheThreshold)) {
+
+            $sourceParams = $parameterValues ?? [];
+
+            // If we are in incremental or update mode, we need to know when our last cache update was so we can pass this as a parameter to
+            // source
+            if ($config->getCacheMode() !== CachingDatasourceConfig::CACHE_MODE_COMPLETE) {
+                if ($checkDataItem) {
+                    $lastUpdateDate = date_create_from_format("Y-m-d H:i:s", $checkDataItem[$config->getCacheDatasourceCachedTimeField()]);
+                    $lastCacheTimestamp = $lastUpdateDate ? $lastUpdateDate->format("U") : 0;
+                } else {
+                    $lastCacheTimestamp = 0;
+                }
+
+                $sourceParams["lastCacheTimestamp"] = $lastCacheTimestamp;
+            }
 
             $noSourceResults = true;
 
             // Materialise the source data set using parameters
             $sourceDatasource = $sourceDatasourceInstance->returnDataSource();
-            $sourceDataset = $sourceDatasource->materialise($parameterValues);
+            $sourceDataset = $sourceDatasource->materialise($sourceParams);
 
             // Create merged fields ready for insert
             $targetFields = [
@@ -150,6 +188,10 @@ class CachingDatasource extends BaseDatasource {
                 $targetFields[] = new Field($column->getName(), $column->getTitle());
             }
 
+
+            // Set update mode according to cache mode
+            $updateMode = $config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_UPDATE ? UpdatableDatasource::UPDATE_MODE_REPLACE : UpdatableDatasource::UPDATE_MODE_ADD;
+
             // Insert in batches of 50
             $batch = [];
             while ($sourceItem = $sourceDataset->nextDataItem()) {
@@ -157,12 +199,12 @@ class CachingDatasource extends BaseDatasource {
                 $batch[] = array_merge([$config->getCacheDatasourceParametersField() => $encodedParameters,
                     $config->getCacheDatasourceCachedTimeField() => $now], $sourceItem);
                 if (sizeof($batch) == 50) {
-                    $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch));
+                    $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
                     $batch = [];
                 }
             }
             if (sizeof($batch)) {
-                $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch));
+                $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
             }
 
         }
@@ -177,11 +219,23 @@ class CachingDatasource extends BaseDatasource {
         }
 
 
-        // Always return from cache full beans.
-        $cacheDatasource = $cacheDatasource->applyTransformation(new FilterTransformation([
-            new Filter("[[" . $config->getCacheDatasourceParametersField() . "]]", $encodedParameters),
-            new Filter("[[" . $config->getCacheDatasourceCachedTimeField() . "]]", $cacheThreshold, Filter::FILTER_TYPE_GREATER_THAN)
-        ]));
+        // Return from cache with filters
+        $filters = [
+            new Filter("[[" . $config->getCacheDatasourceParametersField() . "]]", $encodedParameters)
+        ];
+
+        // If the cache mode is complete we are only interested in the last data set
+        if ($config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_COMPLETE) {
+            $filters[] = new Filter("[[" . $config->getCacheDatasourceCachedTimeField() . "]]", $cacheThreshold, Filter::FILTER_TYPE_GREATER_THAN);
+        }
+
+        $cacheDatasource = $cacheDatasource->applyTransformation(new FilterTransformation($filters));
+
+        // Apply additional transformations before materialisation
+        foreach ($this->appliedTransformations as $appliedTransformation) {
+            $cacheDatasource = $cacheDatasource->applyTransformation($appliedTransformation, $parameterValues);
+        }
+
 
         return $cacheDatasource->materialise();
 

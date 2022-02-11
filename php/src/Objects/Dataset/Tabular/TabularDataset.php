@@ -69,10 +69,10 @@ abstract class TabularDataset implements Dataset {
         // Grab data item
         $dataItem = $this->nextRawDataItem();
 
-
         if (is_array($dataItem)) {
 
             $newDataItem = [];
+            $hasColumnValue = false;
             foreach ($this->getColumns() as $column) {
                 $columnName = $column->getName();
 
@@ -82,8 +82,17 @@ abstract class TabularDataset implements Dataset {
                     $value = $dataItem[$columnName] ?? null;
                 }
 
+                $valueExpression = $column->getValueExpression();
+                $hasColumnValue = $hasColumnValue
+                    || ($value && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
+
                 $newDataItem[$columnName] = $value;
             }
+
+            // If no genuine column value reject the row
+            if (!$hasColumnValue)
+                $newDataItem = null;
+
         } else {
             $newDataItem = null;
         }
