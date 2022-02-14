@@ -98,12 +98,26 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             "SELECT * FROM test_data", []
         ]);
 
+        $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
+            new TableColumn("id", TableColumn::SQL_INT, 255, 2, "", true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, 2, "", false),
+            new TableColumn("date_started", TableColumn::SQL_DATE_TIME, 255, 2, "", false),
+            new TableColumn("age", TableColumn::SQL_DOUBLE)
+        ]));
+
+        $expectedColumns = [
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true),
+            new Field("name", "Name", null, Field::TYPE_STRING, false),
+            new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
+            new Field("age", "Age", null, Field::TYPE_FLOAT, false)
+        ];
+
         /**
          * @var SQLResultSetTabularDataset $dataSet
          */
         $dataSet = $sqlDatabaseDatasource->materialiseDataset();
 
-        $this->assertEquals(new SQLResultSetTabularDataset($resultSet), $dataSet);
+        $this->assertEquals(new SQLResultSetTabularDataset($resultSet, $expectedColumns, true), $dataSet);
     }
 
 
@@ -232,6 +246,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->databaseConnection->returnValue("query", $resultSet, [
             "SELECT * FROM ?", [3]
         ]);
+
 
 
         /**

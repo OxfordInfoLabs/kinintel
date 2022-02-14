@@ -55,6 +55,11 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
     /**
+     * @var bool
+     */
+    private $hasOriginalColumns = true;
+
+    /**
      * Cached array of transformation processors
      *
      * @var SQLTransformationProcessor[]
@@ -77,7 +82,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
     /**
-     *
+     * Mappings of Types to SQL types
      */
     const FIELD_TYPE_SQL_TYPE_MAP = [
         Field::TYPE_STRING => TableColumn::SQL_VARCHAR,
@@ -86,6 +91,25 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Field::TYPE_DATE => TableColumn::SQL_DATE,
         Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME
     ];
+
+    const FIELD_SQL_TYPE_TYPE_MAP = [
+        TableColumn::SQL_DOUBLE => Field::TYPE_FLOAT,
+        TableColumn::SQL_DATE_TIME => Field::TYPE_DATE_TIME,
+        TableColumn::SQL_DATE => Field::TYPE_DATE,
+        TableColumn::SQL_INT => Field::TYPE_INTEGER,
+        TableColumn::SQL_VARCHAR => Field::TYPE_STRING,
+        TableColumn::SQL_BIGINT => Field::TYPE_INTEGER,
+        TableColumn::SQL_BLOB => Field::TYPE_STRING,
+        TableColumn::SQL_DECIMAL => Field::TYPE_FLOAT,
+        TableColumn::SQL_REAL => Field::TYPE_FLOAT,
+        TableColumn::SQL_FLOAT => Field::TYPE_FLOAT,
+        TableColumn::SQL_SMALLINT => Field::TYPE_INTEGER,
+        TableColumn::SQL_INTEGER => Field::TYPE_INTEGER,
+        TableColumn::SQL_TIME => Field::TYPE_INTEGER,
+        TableColumn::SQL_TIMESTAMP => Field::TYPE_DATE_TIME,
+        TableColumn::SQL_UNKNOWN => Field::TYPE_STRING
+    ];
+
 
     /**
      * SQLDatabaseDatasource constructor.
@@ -175,6 +199,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
 
+            // Negate original columns if a none filter / sort transformation encountered.
+            if (!($transformation instanceof FilterTransformation || $transformation instanceof MultiSortTransformation || $transformation instanceof PagingTransformation))
+                $this->hasOriginalColumns = false;
+
             // Apply the transformation using the processor for this transformation
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
@@ -215,7 +243,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $query = $this->buildQuery($parameterValues);
 
-
         /**
          * @var DatabaseConnection $dbConnection
          */
@@ -223,8 +250,26 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
+
+        // Grab columns
+        $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
+
+        // If no explicit columns and table based query with no column changing transformations
+        // Generate explicit columns to allow for dataset update.
+        if ($this->getConfig()->getSource() == "table" && !$columns && $this->hasOriginalColumns) {
+
+            $columns = [];
+            $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
+
+
+            foreach ($tableMetaData->getColumns() as $column) {
+                $columns[] = new Field($column->getName(), null, null, self::FIELD_SQL_TYPE_TYPE_MAP[$column->getType()],
+                    $column->isPrimaryKey());
+            }
+        }
+
         // Return a tabular dataset
-        return new SQLResultSetTabularDataset($resultSet, $this->getConfig()->returnEvaluatedColumns($parameterValues));
+        return new SQLResultSetTabularDataset($resultSet, $columns);
     }
 
 

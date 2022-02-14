@@ -40,6 +40,12 @@ class Field {
     private $type;
 
 
+    /**
+     * @var boolean
+     */
+    private $keyField;
+
+
     // Generic field types
     const TYPE_STRING = "string";
     const TYPE_INTEGER = "integer";
@@ -54,8 +60,9 @@ class Field {
      * @param string $title
      * @param string $valueExpression
      * @param string $type
+     * @param boolean $keyField
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING) {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false) {
         $this->name = $name;
 
         // If no title supplied, make one using the name
@@ -66,6 +73,7 @@ class Field {
         $this->title = $title;
         $this->valueExpression = $valueExpression;
         $this->type = $type;
+        $this->keyField = $keyField;
     }
 
 
@@ -105,6 +113,20 @@ class Field {
         return $this->type;
     }
 
+    /**
+     * @return bool
+     */
+    public function isKeyField() {
+        return $this->keyField;
+    }
+
+    /**
+     * @param bool $keyField
+     */
+    public function setKeyField($keyField) {
+        $this->keyField = $keyField;
+    }
+
 
     /**
      * Evaluate the value expression defined using a supplied data item
@@ -142,7 +164,7 @@ class Field {
      */
     public static function toPlainFields($fields) {
         return array_map(function ($field) {
-            return new Field($field->getName(), $field->getTitle(), null, $field->getType());
+            return new Field($field->getName(), $field->getTitle(), null, $field->getType(), $field->isKeyField());
         }, $fields);
     }
 
