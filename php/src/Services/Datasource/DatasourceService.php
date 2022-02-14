@@ -4,7 +4,9 @@
 namespace Kinintel\Services\Datasource;
 
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Logging\Logger;
@@ -19,16 +21,21 @@ use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
+use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Paging\PagingMarkerTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 
 class DatasourceService {
 
@@ -175,13 +182,46 @@ class DatasourceService {
 
 
     /**
+     * Create a new custom datasource instance
+     *
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     * @param string $projectKey
+     * @param integer $accountId
+     */
+    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        // Create a new data source key
+        $newDatasourceKey = "custom_data_set_$accountId" . "_" . date("U");
+        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+        $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
+
+        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), "custom", [
+            "source" => "table",
+            "tableName" => $tableName
+        ], $credentialsKey);
+
+        $instance = $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
+        $datasource = $instance->returnDataSource();
+
+        if ($datasourceUpdate->getAdds()) {
+            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
+                    return new Field($columnName);
+                }, array_keys($datasourceUpdate->getAdds()[0]));
+            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+        }
+
+        return $newDatasourceKey;
+
+    }
+
+
+    /**
      * Update a datasource instance using a passed dataset and update mode.
      *
      * @param string $datasourceInstanceKey
-     * @param Dataset $updateDataset
-     * @param string $updateMode
+     * @param DatasourceUpdate $datasourceUpdate
      */
-    public function updateDatasourceInstance($datasourceInstanceKey, $updateDataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
+    public function updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
 
         // Grab the instance
         $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
@@ -197,8 +237,50 @@ class DatasourceService {
             throw new DatasourceNotUpdatableException($datasource);
         }
 
-        // Perform the update
-        $datasource->update($updateDataset, $updateMode);
+        // If a structural update also apply structural stuff
+        if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
+            $datasourceInstance->setTitle($datasourceUpdate->getTitle());
+
+            // If updatable and fields
+            if ($datasource instanceof UpdatableTabularDatasource && $datasourceUpdate->getFields()) {
+
+                // Update configuration of data source.
+                $config = $datasource->getConfig();
+                $config->setColumns($datasourceUpdate->getFields());
+                $datasourceInstance->setConfig($config);
+
+                // Call update on the data source
+                $datasource->updateFields($datasourceUpdate->getFields());
+
+            }
+
+            $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
+
+        }
+
+
+        // Perform the various updates required
+        if ($datasourceUpdate->getAdds()) {
+            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
+                    return new Field($columnName);
+                }, array_keys($datasourceUpdate->getAdds()[0]));
+            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+        }
+
+        if ($datasourceUpdate->getUpdates()) {
+            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
+                    return new Field($columnName);
+                }, array_keys($datasourceUpdate->getUpdates()[0]));
+            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_REPLACE);
+        }
+
+
+        if ($datasourceUpdate->getDeletes()) {
+            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
+                    return new Field($columnName);
+                }, array_keys($datasourceUpdate->getDeletes()[0]));
+            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
+        }
 
     }
 

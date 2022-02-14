@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource;
 
 
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 
 interface UpdatableDatasource {
@@ -40,11 +41,14 @@ interface UpdatableDatasource {
     /**
      * Update this datasource using a supplied dataset and the update mode supplied.
      *
-     * @param $dataset
+     * @param Dataset $dataset
      *
      * @param string $updateMode
      * @return mixed|void
      */
     public function update($dataset, $updateMode = self::UPDATE_MODE_ADD);
+
+
+
 
 }

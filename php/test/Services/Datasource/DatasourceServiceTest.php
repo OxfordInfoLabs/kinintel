@@ -19,6 +19,7 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DatasourceUpdater;
@@ -26,11 +27,15 @@ use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\TestUpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
+use Kinintel\ValueObjects\Datasource\TabularResultsDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -544,7 +549,7 @@ class DatasourceServiceTest extends TestBase {
     }
 
 
-    public function testCanUpdateDatasourceInstanceWithDatasetAndSetIsPassedDirectlyToDatasource() {
+    public function testCanUpdateDatasourceInstanceWithDatasourceUpdateObjectAndDatasourceCalledAppropriately() {
 
         // Login as superuser
         $this->securityService->returnValue("isSuperUserLoggedIn", true);
@@ -553,25 +558,210 @@ class DatasourceServiceTest extends TestBase {
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
         $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
             "test"
         ]);
 
-        $dataset = new ArrayTabularDataset([
+        $datasourceUpdate = new DatasourceUpdate([
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ], [
+            ["name" => "Mr Smith", "age" => 22],
+            ["name" => "Mrs Apple", "age" => 72]
+        ], [
+                ["name" => "Going away", "age" => 33]
+            ]
+        );
+
+        $addDatasource = new ArrayTabularDataset([
             new Field("name"),
             new Field("age")
         ], [
-            ["name" => "Joe Bloggs", 12],
-            ["name" => "Mary Jane", 7]
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
         ]);
 
-        $this->dataSourceService->updateDatasourceInstance("test", $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+        $updateDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Mr Smith", "age" => 22],
+            ["name" => "Mrs Apple", "age" => 72]
+        ]);
+
+        $deleteDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Going away", "age" => 33]
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
-            $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
         ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
+        ]));
+
+
+    }
+
+
+    public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+            new Field("name"),
+            new Field("age", null, null, Field::TYPE_INTEGER)
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+
+        $mockInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDatasourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+        $mockInstance->returnValue("returnDataSource", $mockDatasource);
+        $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
+        $this->datasourceDAO->returnValue("saveDataSourceInstance", $mockInstance);
+
+        $newDatasourceKey = $this->dataSourceService->createCustomDatasourceInstance($datasourceUpdate, "myproject", 1);
+
+        $expectedDatasourceInstance = new DatasourceInstance($newDatasourceKey, "Hello world", "custom", [
+            "source" => "table",
+            "tableName" => "custom." . $newDatasourceKey
+        ], "test");
+
+        // Check datasource was saved
+        $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
+            $expectedDatasourceInstance
+        ]));
+
+        $addDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+
+        $this->assertTrue($mockDatasource->methodWasCalled("update", [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]));
+
+
+    }
+
+
+    public function testCanUpdateDatasourceTitleAndFieldsIfUpdateWithStructureObjectPassedToUpdateMethod() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+            new Field("name"),
+            new Field("age", null, null, Field::TYPE_INTEGER)
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ], [
+            ["name" => "Mr Smith", "age" => 22],
+            ["name" => "Mrs Apple", "age" => 72]
+        ], [
+                ["name" => "Going away", "age" => 33]
+            ]
+        );
+
+        $addDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+        $updateDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Mr Smith", "age" => 22],
+            ["name" => "Mrs Apple", "age" => 72]
+        ]);
+
+        $deleteDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Going away", "age" => 33]
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
+
+
+        // Check title was updated
+        $this->assertTrue($dataSourceInstance->methodWasCalled("setTitle", [
+            "Hello world"
+        ]));
+
+        // Check column configuration was updated
+        $this->assertTrue($dataSourceConfig->methodWasCalled("setColumns", [
+            [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ]
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("updateFields", [
+            [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ]
+        ]));
+
+
+        $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
+            $dataSourceInstance
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
+        ]));
+
 
     }
 

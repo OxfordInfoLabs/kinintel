@@ -19,6 +19,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation amazons3 \Kinintel\Objects\Datasource\Amazon\AmazonS3Datasource
  * @implementation sqldatabase \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  * @implementation caching \Kinintel\Objects\Datasource\Caching\CachingDatasource
+ * @implementation custom \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  */
 interface Datasource {
 

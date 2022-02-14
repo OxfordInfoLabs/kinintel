@@ -503,7 +503,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Modify the table structure and ensure a create was made
-        $datasource->modifyTableStructure([
+        $datasource->updateFields([
             new Field("when", null, null, Field::TYPE_DATE),
             new Field("why"),
             new Field("how_many", null, null, Field::TYPE_INTEGER)
@@ -551,7 +551,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Modify the table structure and ensure a create was made
-        $datasource->modifyTableStructure([
+        $datasource->updateFields([
             new Field("when", null, null, Field::TYPE_DATE),
             new Field("why"),
             new Field("how_many", null, null, Field::TYPE_INTEGER)

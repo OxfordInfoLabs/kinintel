@@ -11,7 +11,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 
-abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableDatasource {
+abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableTabularDatasource {
 
     /**
      * @var DatasourceUpdateConfig

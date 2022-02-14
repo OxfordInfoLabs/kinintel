@@ -8,3 +8,5 @@ db.provider = sqlite3
 db.filename = DB/kinintel-test.db
 db.logFile = DB/db.log
 
+custom.datasource.credentials.key = test
+custom.datasource.table.prefix = custom.

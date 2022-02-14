@@ -118,6 +118,7 @@ class DatasourceDAO {
      */
     public function saveDataSourceInstance($dataSourceInstance) {
         $dataSourceInstance->save();
+        return $dataSourceInstance;
     }
 
 

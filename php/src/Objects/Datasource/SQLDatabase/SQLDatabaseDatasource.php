@@ -347,13 +347,12 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     }
 
     /**
-     * Modify table structure according to passed fields and optionally keyFieldNames referencing items in
-     * the fields array for compiling a primary key
+     * Update fields (opportunity for datasource to perform any required modifications)
      *
      * @param Field[] $fields
      * @param string[] $keyFieldNames
      */
-    public function modifyTableStructure($fields, $keyFieldNames = []) {
+    public function updateFields($fields, $keyFieldNames = []) {
 
         // Construct the column array we need
         $columns = [];
