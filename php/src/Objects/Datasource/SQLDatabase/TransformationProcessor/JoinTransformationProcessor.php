@@ -106,7 +106,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $joinDataParameters = $this->datasetService->getEvaluatedParameters($joinDataSet);
 
 
-
         }
 
         // If we have join data parameters, evaluate now.
@@ -222,7 +221,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             } else {
 
-                if (isset($joinDataSet) && !$joinDatasource) {
+                if (isset($joinDataSet) && !isset($joinDatasource)) {
 
                     $joinDatasource = $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet, $joinDatasourceParameterValues,
                         []);
