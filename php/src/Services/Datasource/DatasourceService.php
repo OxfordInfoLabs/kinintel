@@ -200,6 +200,10 @@ class DatasourceService {
             "tableName" => $tableName
         ], $credentialsKey);
 
+        // Set account id and project key
+        $datasourceInstance->setAccountId($accountId);
+        $datasourceInstance->setProjectKey($projectKey);
+
         $instance = $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
         $datasource = $instance->returnDataSource();
 

@@ -15,6 +15,7 @@ use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
@@ -36,6 +37,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
@@ -353,14 +355,21 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function updateFields($fields) {
 
+
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
             $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
-            $columns[] = new TableColumn($field->getName(), $type, null, null, null, $field->isKeyField());
+            if ($field instanceof DatasourceUpdateField) {
+                $columns[] = new UpdatableTableColumn($field->getName(), $type, null, null, null, $field->isKeyField(), false, false, $field->getOriginalName());
+            } else {
+                $columns[] = new TableColumn($field->getName(), $type, null, null, null, $field->isKeyField());
+            }
         }
 
+
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
+
 
         // Check to see whether the table already exists
         $sql = "";

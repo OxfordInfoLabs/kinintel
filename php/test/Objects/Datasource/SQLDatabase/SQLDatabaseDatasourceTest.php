@@ -13,6 +13,7 @@ use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceNotUpdatableException;
@@ -36,6 +37,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterTransformation;
@@ -539,7 +541,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
             new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, true),
-            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
+            new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ]);
 
         $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
@@ -553,7 +555,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $datasource->updateFields([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
-            new Field("how_many", null, null, Field::TYPE_INTEGER)
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
         ]);
 
 

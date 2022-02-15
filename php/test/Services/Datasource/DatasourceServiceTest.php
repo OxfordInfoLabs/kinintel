@@ -645,6 +645,8 @@ class DatasourceServiceTest extends TestBase {
             "source" => "table",
             "tableName" => "custom." . $newDatasourceKey
         ], "test");
+        $expectedDatasourceInstance->setAccountId(1);
+        $expectedDatasourceInstance->setProjectKey("myproject");
 
         // Check datasource was saved
         $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
