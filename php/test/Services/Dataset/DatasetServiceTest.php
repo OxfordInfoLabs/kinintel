@@ -110,7 +110,6 @@ class DatasetServiceTest extends TestBase {
             $this->datasetService->saveDataSetInstance($dataSetInstance, null, Account::LOGGED_IN_ACCOUNT);
             $this->fail("Should have thrown here");
         } catch (ValidationException $e) {
-            print_r($e->getValidationErrors());
             $this->assertTrue(isset($e->getValidationErrors()["transformationInstance"]["type"]));
         }
 
