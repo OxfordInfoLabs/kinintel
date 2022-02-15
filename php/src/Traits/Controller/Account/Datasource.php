@@ -89,15 +89,30 @@ trait Datasource {
 
 
     /**
-     * Update a datasource instance with the supplied data and optionally structure
+     * Create a new custom datasource instance.  Return the datasource key
+     *
+     * @http POST /custom
+     *
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     * @param string $projectKey
+     *
+     * @return string
+     */
+    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null) {
+        return $this->datasourceService->createCustomDatasourceInstance($datasourceUpdate, $projectKey);
+    }
+
+
+    /**
+     * Update a custom datasource instance with the supplied data and optionally structure
      *
      *
-     * @http PUT /$datasourceInstanceKey
+     * @http PUT /custom/$datasourceInstanceKey
      *
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdateWithStructure $data
      */
-    public function updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
+    public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate);
     }
 
