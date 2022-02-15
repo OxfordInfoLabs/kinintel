@@ -4,7 +4,7 @@
     "projectKey": "project1",
     "key": "myaccountdatasource",
     "title": "My Account Datasource",
-    "type": "sqldatabase",
+    "type": "custom",
     "credentialsKey": "maindb",
     "config": {
       "source": "table",

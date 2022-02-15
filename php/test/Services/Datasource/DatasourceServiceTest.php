@@ -489,13 +489,13 @@ class DatasourceServiceTest extends TestBase {
         $dataSourceInstance->returnValue("getAccountId", null);
 
         // This should be fine as super user
-        $this->dataSourceService->updateDatasourceInstance("test", new ArrayTabularDataset([], []));
+        $this->dataSourceService->updateDatasourceInstance("test", new DatasourceUpdate());
 
         // Set explicit account
         $dataSourceInstance->returnValue("getAccountId", 1);
 
         // This should be fine as super user
-        $this->dataSourceService->updateDatasourceInstance("test", new ArrayTabularDataset([], []));
+        $this->dataSourceService->updateDatasourceInstance("test", new DatasourceUpdate());
 
         // Now login as regular user
         $this->securityService->returnValue("isSuperUserLoggedIn", false);
@@ -504,7 +504,7 @@ class DatasourceServiceTest extends TestBase {
 
         // This should fail
         try {
-            $this->dataSourceService->updateDatasourceInstance("test", new ArrayTabularDataset([], []));
+            $this->dataSourceService->updateDatasourceInstance("test", new DatasourceUpdate());
             $this->fail("Should have thrown here");
         } catch (ObjectNotFoundException $e) {
             // Success

@@ -3,6 +3,7 @@
 
 namespace Kinintel\Test\Services\DataProcessor\DatasetSnapshot;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
@@ -122,14 +123,13 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         // Check that the table was created with simple snapshot_date based PK.
-        $this->assertTrue($mockDataSource->methodWasCalled("modifyTableStructure", [
+        $this->assertTrue($mockDataSource->methodWasCalled("updateFields", [
             [
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE),
+                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
                 new Field("title"),
                 new Field("metric"),
                 new Field("score")
-            ],
-            ["snapshot_date"]
+            ]
         ]));
 
     }
@@ -195,14 +195,13 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         // Check that the table was created with simple snapshot_date based PK.
-        $this->assertTrue($mockDataSource->methodWasCalled("modifyTableStructure", [
+        $this->assertTrue($mockDataSource->methodWasCalled("updateFields", [
             [
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE),
+                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
                 new Field("title"),
                 new Field("metric"),
                 new Field("score")
-            ],
-            ["snapshot_date"]
+            ]
         ]));
 
 
@@ -216,7 +215,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         // Check all data was updated as expected
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE),
+                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
                 new Field("title"),
                 new Field("metric"),
                 new Field("score")
@@ -226,7 +225,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE),
+                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
                 new Field("title"),
                 new Field("metric"),
                 new Field("score")
@@ -326,10 +325,10 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Check that the table was created with snapshot and title as primary key
         // And timelapse fields
-        $this->assertTrue($mockDataSource->methodWasCalled("modifyTableStructure", [
+        $this->assertTrue($mockDataSource->methodWasCalled("updateFields", [
             [
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE),
-                new Field("title"),
+                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
+                new Field("title", "Title", null, Field::TYPE_STRING, true),
                 new Field("metric"),
                 new Field("metric_1_days_ago"),
                 new Field("metric_7_days_ago"),
@@ -337,8 +336,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("score"),
                 new Field("score_5_days_ago"),
                 new Field("score_15_days_ago")
-            ],
-            ["snapshot_date", "title"]
+            ]
         ]));
 
 
@@ -347,8 +345,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         // Check all data was updated as expected
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE),
-                new Field("title"),
+                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
+                new Field("title", "Title", null, Field::TYPE_STRING, true),
                 new Field("metric"),
                 new Field("metric_1_days_ago"),
                 new Field("metric_7_days_ago"),

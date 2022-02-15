@@ -108,6 +108,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
                 $columns = Field::toPlainFields($dataset->getColumns());
+
                 $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSource);
             }
 
@@ -166,10 +167,13 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     private function updateDatasourceTableStructure($columns, $keyFieldNames, $columnTimeLapses, $dataSource) {
 
         // Create fields array
-        $fields = [new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE)];
+        $fields = [new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true)];
 
         // Add each column and any timelapse variations required
         foreach ($columns as $column) {
+
+            // Set as key field if in key field names array
+            if (in_array($column->getName(), $keyFieldNames)) $column->setKeyField(true);
             $fields[] = $column;
 
             // Add additional column time lapse columns
@@ -178,12 +182,11 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                     $fields[] = new Field($column->getName() . "_" . $columnTimeLapse . "_days_ago", null, null, $column->getType());
                 }
             }
+
+
         }
 
-        // Key field names
-        $keyFieldNames = array_merge(["snapshot_date"], $keyFieldNames ?? []);
-
-        $dataSource->modifyTableStructure($fields, $keyFieldNames);
+        $dataSource->updateFields($fields);
         return $fields;
     }
 

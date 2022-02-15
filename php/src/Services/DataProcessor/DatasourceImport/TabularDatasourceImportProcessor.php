@@ -85,6 +85,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
             $offset = 0;
             do {
+
                 $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($config->getSourceDataset(), null, null, $offset, $this->chunkSize);
 
                 $allData = $sourceDataset->getAllData();

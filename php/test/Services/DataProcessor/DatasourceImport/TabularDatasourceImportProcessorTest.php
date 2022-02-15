@@ -255,6 +255,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             $mockSourceInstance, null, null, 0, 500
         ]);
 
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", new ArrayTabularDataset([],[]), [
+            $mockSourceInstance, null, null, 500, 500
+        ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);

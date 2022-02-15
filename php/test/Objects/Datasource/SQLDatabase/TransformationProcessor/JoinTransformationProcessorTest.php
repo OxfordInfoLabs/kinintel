@@ -144,11 +144,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
         $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], []
-        ]);
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource,
+            [$joinDataSetInstance, [], []]
+        );
 
         $transformation = new JoinTransformation(null, 10);
 
@@ -258,16 +256,14 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
         $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], []
-        ]);
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource,
+            [$joinDataSetInstance, [], []]
+        );
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
             new Parameter("term", "Term")
         ], [
-            10
+            $joinDataSetInstance
         ]);
 
         $transformation = new JoinTransformation(null, 10);
@@ -316,16 +312,15 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             "term" => "Bingo"
         ]]);
 
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], ["term" => "Bingo"]
-        ]);
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource,
+            [$joinDataSetInstance, ["term" => "Bingo"], []]
+        );
+
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
             new Parameter("term", "Term")
         ], [
-            10
+            $joinDataSetInstance
         ]);
 
         $transformation = new JoinTransformation(null, 10, [
@@ -382,11 +377,10 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             "term" => "Bingo"
         ]]);
 
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource1, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], ["term" => "Bingo"]
-        ]);
+
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource1,
+            [$joinDataSetInstance, ["term" => "Bingo"], []]
+        );
 
 
         $joinDatasource2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
@@ -406,11 +400,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             "term" => "Bongo"
         ]]);
 
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource2, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], ["term" => "Bongo"]
-        ]);
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource2,
+            [$joinDataSetInstance, ["term" => "Bongo"], []]
+        );
 
 
         $joinDatasource3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
@@ -431,16 +423,14 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]]);
 
 
-        $this->dataSourceService->returnValue("getTransformedDataSource", $joinDatasource3, [
-            "testjoindataset", [
-                new TestTransformation(), new TestTransformation()
-            ], ["term" => "Bango"]
-        ]);
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource3,
+            [$joinDataSetInstance, ["term" => "Bango"], []]
+        );
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
             new Parameter("term", "Term")
         ], [
-            10
+            $joinDataSetInstance
         ]);
 
         $transformation = new JoinTransformation(null, 10, [
@@ -582,7 +572,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try a simple column based join
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("[[name]]", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]),[], true);
+                new Filter("[[name]]", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [], true);
 
         $joinTransformation->setEvaluatedDataSource($joinDatasource);
 

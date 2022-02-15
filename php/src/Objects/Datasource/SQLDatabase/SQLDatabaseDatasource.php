@@ -263,7 +263,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
             foreach ($tableMetaData->getColumns() as $column) {
-                $columns[] = new Field($column->getName(), null, null, self::FIELD_SQL_TYPE_TYPE_MAP[$column->getType()],
+                $columns[] = new Field($column->getName(), null, null, self::FIELD_SQL_TYPE_TYPE_MAP[$column->getType()] ?? Field::TYPE_STRING,
                     $column->isPrimaryKey());
             }
         }
@@ -350,15 +350,14 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * Update fields (opportunity for datasource to perform any required modifications)
      *
      * @param Field[] $fields
-     * @param string[] $keyFieldNames
      */
-    public function updateFields($fields, $keyFieldNames = []) {
+    public function updateFields($fields) {
 
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
             $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
-            $columns[] = new TableColumn($field->getName(), $type, null, null, null, in_array($field->getName(), $keyFieldNames));
+            $columns[] = new TableColumn($field->getName(), $type, null, null, null, $field->isKeyField());
         }
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);

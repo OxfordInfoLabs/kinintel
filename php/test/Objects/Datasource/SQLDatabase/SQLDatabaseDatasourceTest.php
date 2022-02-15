@@ -248,7 +248,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
 
-
         /**
          * @var SQLResultSetTabularDataset $dataSet
          */
@@ -476,7 +475,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testModifyTableStructureCreatesTableAccordingToPassedFieldsIfNoneExists() {
+    public function testUpdateFieldsCreatesTableAccordingToPassedFieldsIfNoneExists() {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
@@ -504,10 +503,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Modify the table structure and ensure a create was made
         $datasource->updateFields([
-            new Field("when", null, null, Field::TYPE_DATE),
-            new Field("why"),
+            new Field("when", null, null, Field::TYPE_DATE, true),
+            new Field("why", null, null, null, true),
             new Field("how_many", null, null, Field::TYPE_INTEGER)
-        ], ["when", "why"]);
+        ]);
 
 
         // Expect create to be issued
@@ -518,7 +517,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testModifyTableStructureModifiesTableAccordingToPassedFieldsIfTableAlreadyExists() {
+    public function testUpdateFieldsModifiesTableAccordingToPassedFieldsIfTableAlreadyExists() {
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
         $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
@@ -552,10 +551,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Modify the table structure and ensure a create was made
         $datasource->updateFields([
-            new Field("when", null, null, Field::TYPE_DATE),
-            new Field("why"),
+            new Field("when", null, null, Field::TYPE_DATE, true),
+            new Field("why", null, null, null, true),
             new Field("how_many", null, null, Field::TYPE_INTEGER)
-        ], ["when", "why"]);
+        ]);
 
 
         // Expect create to be issued
