@@ -28,8 +28,8 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
      * BaseUpdatableDatasource constructor.
      * @param DatasourceUpdateConfig $updateConfig
      */
-    public function __construct($config = null, $authenticationCredentials = null, $updateConfig = null, $validator = null) {
-        parent::__construct($config, $authenticationCredentials, $validator);
+    public function __construct($config = null, $authenticationCredentials = null, $updateConfig = null, $validator = null, $instanceKey = null, $instanceTitle = null) {
+        parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle);
         $this->updateConfig = $updateConfig;
         $this->datasourceService = Container::instance()->get(DatasourceService::class);
 

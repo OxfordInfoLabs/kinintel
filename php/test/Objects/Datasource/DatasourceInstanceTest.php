@@ -96,7 +96,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
 
         $dataSource = $dataSourceInstance->returnDataSource();
         $this->assertEquals(new WebServiceDatasource(new WebserviceDataSourceConfig("https://hello.com"),
-            new BasicAuthenticationCredentials("Bob", "password")), $dataSource);
+            new BasicAuthenticationCredentials("Bob", "password"), null, "goodone", "Good One"), $dataSource);
 
     }
 
@@ -121,7 +121,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
         $dataSource = $dataSourceInstance->returnDataSource();
         $this->assertEquals(new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig("table", "test_one"),
             new MySQLAuthenticationCredentials("localhost", null, "test", null, null, "test", "test"),
-            new DatasourceUpdateConfig(["name", "dob"])), $dataSource);
+            new DatasourceUpdateConfig(["name", "dob"]), null, null, "updatable", "Updatable DS"), $dataSource);
 
     }
 

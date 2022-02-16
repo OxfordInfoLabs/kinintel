@@ -22,6 +22,14 @@ abstract class TabularDataset implements Dataset {
 
 
     /**
+     * Historical read rows for all behaviour
+     *
+     * @var array
+     */
+    private $readRows = [];
+
+
+    /**
      * Construct with columns - default behaviour
      *
      * TabularDataSetTest constructor.
@@ -39,12 +47,13 @@ abstract class TabularDataset implements Dataset {
      * @return mixed[]
      */
     public function getAllData() {
-        $data = [];
-        while ($row = $this->nextDataItem()) {
-            $data[] = $row;
+
+        // Ensure all data has been read
+        while ($this->nextDataItem()) {
         }
 
-        return $data;
+        // Combine any read rows into mix to ensure we can repeatedly call getAllData
+        return array_merge($this->readRows);
     }
 
 
@@ -95,6 +104,11 @@ abstract class TabularDataset implements Dataset {
 
         } else {
             $newDataItem = null;
+        }
+
+        // If a new data item, append to read rows
+        if ($newDataItem) {
+            $this->readRows[] = $newDataItem;
         }
 
         return $newDataItem;

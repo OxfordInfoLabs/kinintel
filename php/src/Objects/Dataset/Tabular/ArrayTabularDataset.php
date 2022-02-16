@@ -46,15 +46,5 @@ class ArrayTabularDataset extends TabularDataset {
         return $item;
     }
 
-    /**
-     * Get all data - reset pointer
-     *
-     * @return array
-     */
-    public function getAllData() {
-        $this->pointer = 0;
-        return parent::getAllData();
-    }
-
 
 }

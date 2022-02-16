@@ -56,10 +56,10 @@ class WebServiceDatasource extends BaseDatasource {
     ];
 
 
-    public function __construct($config = null, $authenticationCredentials = null, $validator = null) {
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null) {
 
         // Construct parent
-        parent::__construct($config, $authenticationCredentials, $validator);
+        parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle);
 
         $this->dispatcher = Container::instance()->get(HttpRequestDispatcher::class);
         $this->templateParser = Container::instance()->get(TemplateParser::class);
@@ -164,7 +164,7 @@ class WebServiceDatasource extends BaseDatasource {
         $url = $this->templateParser->parseTemplateText($config->getUrl(), $parameterValues);
         $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
-         // Inject authentication if required
+        // Inject authentication if required
         if ($this->getAuthenticationCredentials()) {
             $request = $this->getAuthenticationCredentials()->processRequest($request);
         }
@@ -179,7 +179,6 @@ class WebServiceDatasource extends BaseDatasource {
             $attempts++;
 
         } while ($attempts <= $config->getMaxRetries() && in_array($response->getStatusCode(), $config->getRetryResponseCodes() ?? []));
-
 
 
         $offset = 0;

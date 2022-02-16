@@ -77,7 +77,7 @@ class SVStreamTabularDataSet extends TabularDataset {
         // If first row offset supplied, move there now
         if ($firstRowOffset) {
             for ($i = 0; $i < $firstRowOffset; $i++)
-                $this->nextDataItem();
+                $this->nextRawDataItem();
         }
 
         // Read header row
@@ -91,7 +91,7 @@ class SVStreamTabularDataSet extends TabularDataset {
         // if offset, forward wind to that offset
         if ($offset) {
             for ($i = 0; $i < $offset; $i++)
-                $this->nextDataItem();
+                $this->nextRawDataItem();
         }
 
     }

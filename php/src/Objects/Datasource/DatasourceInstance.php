@@ -328,6 +328,8 @@ class DatasourceInstance extends DatasourceInstanceSummary {
                 $dataSource->setAuthenticationCredentials($credentials);
             }
 
+            $dataSource->setInstanceInfo($this->getKey(), $this->getTitle());
+
             return $dataSource;
 
         } catch (MissingInterfaceImplementationException $e) {

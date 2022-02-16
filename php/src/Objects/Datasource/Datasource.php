@@ -19,7 +19,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation amazons3 \Kinintel\Objects\Datasource\Amazon\AmazonS3Datasource
  * @implementation sqldatabase \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  * @implementation caching \Kinintel\Objects\Datasource\Caching\CachingDatasource
- * @implementation custom \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
+ * @implementation custom \Kinintel\Objects\Datasource\CustomDataSource
  */
 interface Datasource {
 
@@ -53,6 +53,16 @@ interface Datasource {
      * @param AuthenticationCredentials $authenticationCredentials
      */
     public function setAuthenticationCredentials($authenticationCredentials);
+
+
+    /**
+     * Set instance info from parent data source instance
+     *
+     * @param $instanceKey
+     * @param $instanceTitle
+     * @return mixed
+     */
+    public function setInstanceInfo($instanceKey, $instanceTitle);
 
 
     /**

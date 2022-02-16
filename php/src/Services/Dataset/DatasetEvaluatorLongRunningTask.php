@@ -57,7 +57,7 @@ class DatasetEvaluatorLongRunningTask extends LongRunningTask {
             $this->offset, $this->limit);
 
         // Return array tabularised version to prevent issues with double evaluation
-        return new ArrayTabularDataset($dataSet->getColumns(), $dataSet->getAllData());
+        return $dataSet;
 
 
     }

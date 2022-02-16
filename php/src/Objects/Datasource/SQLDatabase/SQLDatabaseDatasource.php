@@ -122,8 +122,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param Validator $validator
      * @param TableDDLGenerator $tableDDLGenerator
      */
-    public function __construct($config, $authenticationCredentials, $updateConfig, $validator = null, $tableDDLGenerator = null) {
-        parent::__construct($config, $authenticationCredentials, $updateConfig, $validator);
+    public function __construct($config, $authenticationCredentials, $updateConfig, $validator = null, $tableDDLGenerator = null, $instanceKey = null,
+                                $instanceTitle = null) {
+        parent::__construct($config, $authenticationCredentials, $updateConfig, $validator, $instanceKey, $instanceTitle);
         $this->tableDDLGenerator = $tableDDLGenerator ?? new TableDDLGenerator();
     }
 

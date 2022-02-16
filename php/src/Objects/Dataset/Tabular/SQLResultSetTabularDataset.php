@@ -23,7 +23,7 @@ class SQLResultSetTabularDataset extends TabularDataset {
      *
      * @param $resultSet
      */
-    public function __construct($resultSet, $columns = [], $updatable = false) {
+    public function __construct($resultSet, $columns = []) {
         parent::__construct($columns);
         $this->resultSet = $resultSet;
     }

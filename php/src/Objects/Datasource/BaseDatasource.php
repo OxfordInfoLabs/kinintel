@@ -23,6 +23,21 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 abstract class BaseDatasource implements Datasource {
 
     /**
+     * Key for the instance which created this data source if relevant
+     *
+     * @var string
+     */
+    private $instanceKey;
+
+
+    /**
+     * Title for the instance which created this data source if relevant
+     *
+     * @var string
+     */
+    private $instanceTitle;
+
+    /**
      * Configuration for a data source
      *
      * @var DatasourceConfig
@@ -47,7 +62,7 @@ abstract class BaseDatasource implements Datasource {
      * @param DatasourceConfig $config
      * @param AuthenticationCredentials $authenticationCredentials
      */
-    public function __construct($config = null, $authenticationCredentials = null, $validator = null) {
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null) {
         $this->validator = $validator ? $validator : Container::instance()->get(Validator::class);
         if ($config)
             $this->setConfig($config);
@@ -55,6 +70,9 @@ abstract class BaseDatasource implements Datasource {
         if ($authenticationCredentials) {
             $this->setAuthenticationCredentials($authenticationCredentials);
         }
+
+        $this->instanceKey = $instanceKey;
+        $this->instanceTitle = $instanceTitle;
 
 
     }
@@ -83,6 +101,32 @@ abstract class BaseDatasource implements Datasource {
      */
     public function isAuthenticationRequired() {
         return true;
+    }
+
+    /**
+     * Implement set instance info
+     *
+     * @param $instanceKey
+     * @param $instanceTitle
+     * @return mixed|void
+     */
+    public function setInstanceInfo($instanceKey, $instanceTitle) {
+        $this->instanceKey = $instanceKey;
+        $this->instanceTitle = $instanceTitle;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInstanceKey() {
+        return $this->instanceKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInstanceTitle() {
+        return $this->instanceTitle;
     }
 
 
