@@ -69,6 +69,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import { MetadataComponent } from './components/metadata/metadata.component';
 import { AvailableColumnsComponent } from './components/dataset/dataset-editor/available-columns/available-columns.component';
 import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
+import { CreateDatasourceComponent } from './components/datasource/create-datasource/create-datasource.component';
+import { ImportDataComponent } from './components/datasource/create-datasource/import-data/import-data.component';
 
 @NgModule({
     declarations: [
@@ -111,7 +113,9 @@ import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
         ExportDataComponent,
         MetadataComponent,
         AvailableColumnsComponent,
-        JobTasksComponent
+        JobTasksComponent,
+        CreateDatasourceComponent,
+        ImportDataComponent
     ],
     imports: [
         BrowserModule,
@@ -167,7 +171,8 @@ import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
         EditAlertGroupComponent,
         SnapshotsComponent,
         ViewDashboardComponent,
-        FeedsComponent
+        FeedsComponent,
+        CreateDatasourceComponent
     ]
 })
 export class NgKinintelModule {

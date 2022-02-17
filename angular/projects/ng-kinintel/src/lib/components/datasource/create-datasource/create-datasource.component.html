@@ -1,0 +1,169 @@
+<div class="action-toolbar">
+    <button mat-button matTooltip="Import data from .CSV file" class="align-center"
+            (click)="import()">
+        <mat-icon>upload_file</mat-icon>
+    </button>
+
+    <button mat-button matTooltip="Save changes" class="align-center"
+            (click)="save()">
+        <mat-icon>save</mat-icon>
+    </button>
+</div>
+<div class="flex create-datasource-container">
+    <div class="flex-1 relative overflow-y-scroll table-scroll">
+
+        <div class="create-datasource">
+            <table class="datasource-table w-full">
+                <thead>
+                <tr>
+                    <th *ngFor="let column of columns; let colIndex = index"
+                        class="relative cursor-pointer bg-gray-100 py-1 px-2"
+                        [ngClass]="{'bg-indigo-50': selectedItem._index === colIndex}">
+                        <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
+                            {{column.title}}&nbsp;<mat-icon *ngIf="column.keyField">key</mat-icon>
+                        </div>
+                        <button mat-icon-button [matMenuTriggerFor]="header"
+                                class="absolute header-actions">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #header="matMenu">
+                            <ng-template [ngIf]="column.type !== 'id'">
+                                <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
+                                    Insert column before
+                                </button>
+                            </ng-template>
+                            <button mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
+                            <button mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
+                        </mat-menu>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="table-rows" [ngClass]="{'bg-gray-200 opacity-30': this.deletes.indexOf(rowIndex) > -1,
+                    'bg-green-50': this.adds.indexOf(rowIndex) > -1, 'bg-indigo-100': this.updates.indexOf(rowIndex) > -1}"
+                    *ngFor="let row of rows; let rowIndex = index">
+                    <td *ngFor="let rowColumn of columns; let rowColIndex = index"
+                        [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex, 'w-24 bg-gray-100': columns[rowColIndex].type === 'id'}"
+                        class="p-0 row-cell"
+                        (mouseover)="mouseoverSelection($event, rowIndex, rowColIndex)"
+                        (mousedown)="mousedownSelection($event, rowIndex, rowColIndex)">
+                        <div
+                            class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
+                            <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
+                                   type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
+                                   *ngIf="columns[rowColIndex].type !== 'id'" (change)="updateField(field, rowIndex)"
+                                   (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                   (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)"
+                                   (keydown.backspace)="deleteCell(row[rowColumn.name], rowIndex, rowColIndex)">
+
+                            <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
+                                <div class="text-gray-500 text-xs">{{row[rowColumn.name] || '<\generated\>'}}</div>
+                            </ng-template>
+
+                            <button mat-icon-button [matMenuTriggerFor]="menu"
+                                    class="absolute cell-actions" tabindex="-1">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                                <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
+                                <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
+                                <button mat-menu-item (click)="row[rowColumn.name] = ''">Clear cell</button>
+                            </mat-menu>
+                        </div>
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <button mat-icon-button color="primary" class="add-row" (click)="addRow()">
+            <mat-icon>add_circle_outline</mat-icon>
+        </button>
+
+    </div>
+
+    <div>
+        <button mat-icon-button color="primary" (click)="addColumn()"
+                class="-mt-2">
+            <mat-icon>add_circle_outline</mat-icon>
+        </button>
+    </div>
+
+    <div class="bg-gray-100 w-72 h-full p-3">
+        <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
+            Settings
+        </div>
+        <label class="mb-4">
+            Datasource Name
+            <input type="text" class="w-full" placeholder="Enter datasource name"
+             [(ngModel)]="datasourceUpdate.title">
+        </label>
+
+        <mat-checkbox class="mb-4" [checked]=""
+                      (change)="updateAutoIncrementColumn($event)">
+            Add Auto Increment Column
+        </mat-checkbox>
+
+        <div>
+            <button mat-button color="warn" (click)="resetTable()">
+                Reset Table
+            </button>
+        </div>
+
+        <hr class="my-4">
+
+        <ng-template [ngIf]="selectedItem && selectedItem._tableType">
+            <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
+                Column
+            </div>
+            <label class="mb-4">
+                Column Title
+                <input type="text" [(ngModel)]="selectedItem.title" placeholder="Enter column title"
+                       (change)="selectedItem.name = _.snakeCase(selectedItem.title)">
+            </label>
+
+            <label class="mb-4">
+                Column Type
+                <select [(ngModel)]="selectedItem.type" class="capitalize">
+                    <option [value]="null">-- Select column type --</option>
+                    <option *ngFor="let type of datasourceTypes" [value]="type">
+                        {{type}}
+                    </option>
+                </select>
+            </label>
+
+            <mat-checkbox class="mb-4" [(ngModel)]="selectedItem.keyField">
+                Primary Key
+            </mat-checkbox>
+
+            <div>
+                <button mat-button color="warn" (click)="deleteSelectedColumn()">Delete Column</button>
+            </div>
+
+            <hr class="my-4">
+        </ng-template>
+
+
+        <table class="datasource-table w-full">
+            <tbody>
+            <tr class="bg-indigo-100">
+                <td class="pl-2">Updated</td>
+                <td class="pl-2 text-right">{{updates.length || ''}}</td>
+            </tr>
+            <tr class="bg-gray-200 opacity-30">
+                <td class="pl-2">Deleted</td>
+                <td class="pl-2 text-right">{{deletes.length || ''}}</td>
+            </tr>
+            <tr class="bg-green-50">
+                <td class="pl-2">Added</td>
+                <td class="pl-2 text-right">{{adds.length || ''}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+

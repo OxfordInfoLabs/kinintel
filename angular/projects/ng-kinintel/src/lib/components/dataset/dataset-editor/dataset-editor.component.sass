@@ -1,5 +1,6 @@
 :host
-    display: block
+    display: flex
+    flex-direction: column
     position: relative
     height: 100%
 
@@ -221,6 +222,12 @@ table thead th
 table thead th
     background-clip: padding-box
 
+.table-overflow
+    &::-webkit-scrollbar
+        width: .75em
+        background: transparent
+    &::-webkit-scrollbar-thumb
+        background: #d2d2d2
 
 .paging-toolbar
     position: sticky

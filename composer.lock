@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53d8080ea5f4daf143fdd95335427608",
+    "content-hash": "6a34da319650e21e02c8873c402b45a1",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1413,41 +1413,6 @@
             "time": "2022-02-16T14:10:43+00:00"
         },
         {
-            "name": "oxil/kinintel",
-            "version": "0.1",
-            "dist": {
-                "type": "path",
-                "url": "../..",
-                "reference": "74a8c32f483c0c8b76be652ca08af0e89717d21d"
-            },
-            "require": {
-                "aws/aws-sdk-php": "^3.180",
-                "oxil/kiniauth": "dev-master"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Kinintel\\Test\\": "php/test/",
-                    "Kinintel\\": "php/src/"
-                }
-            },
-            "scripts": {
-                "dev": [
-                    "rm -rf vendor/oxil/kini*; ln -s ../../../kinikit/kinikit-core vendor/oxil/kinikit-core; ln -s ../../../kinikit/kinikit-mvc vendor/oxil/kinikit-mvc; ln -s ../../../kinikit/kinikit-persistence vendor/oxil/kinikit-persistence; ln -s ../../../kiniauth vendor/oxil/kiniauth"
-                ]
-            },
-            "description": "Kinintel - Open source Intelligence and data analysis framework building on kini tools",
-            "homepage": "https://kinintel.com",
-            "keywords": [
-                "PHP",
-                "data analysis",
-                "intelligence"
-            ],
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "paragonie/random_compat",
             "version": "v9.99.100",
             "source": {
@@ -2293,7 +2258,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "oxil/kiniauth": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

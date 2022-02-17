@@ -38,13 +38,18 @@ export class DatasourceComponent implements OnInit {
         });
     }
 
+    public createDatasource() {
+
+    }
+
     public explore(datasource) {
         const datasetInstanceSummary = {
             datasetInstanceId: null,
             datasourceInstanceKey: datasource.key,
             transformationInstances: [],
             parameterValues: {},
-            parameters: []
+            parameters: [],
+            originDataItemTitle: datasource.title
         };
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',

@@ -16,6 +16,7 @@ import {NotificationComponent} from './views/notifications/notification/notifica
 import {SnapshotsComponent} from './views/snapshots/snapshots.component';
 import {ViewDashboardComponent} from './views/dashboards/view-dashboard/view-dashboard.component';
 import {FeedsComponent} from './views/feeds/feeds.component';
+import {CreateDatasourceComponent} from './views/datasource/create-datasource/create-datasource.component';
 
 const routes: Routes = [
     {
@@ -49,6 +50,14 @@ const routes: Routes = [
             {
                 path: 'datasource',
                 component: DatasourceComponent
+            },
+            {
+                path: 'create-datasource',
+                component: CreateDatasourceComponent
+            },
+            {
+                path: 'create-datasource/:key',
+                component: CreateDatasourceComponent
             },
             {
                 path: 'notifications',

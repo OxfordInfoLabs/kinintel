@@ -110,7 +110,7 @@ trait Datasource {
      * @http PUT /custom/$datasourceInstanceKey
      *
      * @param string $datasourceInstanceKey
-     * @param DatasourceUpdateWithStructure $data
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
      */
     public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate);

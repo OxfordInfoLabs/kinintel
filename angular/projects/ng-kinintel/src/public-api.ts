@@ -17,5 +17,6 @@ export * from './lib/components/alert-groups/edit-alert-group/edit-alert-group.c
 export * from './lib/components/snapshots/snapshots.component';
 export * from './lib/components/dashboards/view-dashboard/view-dashboard.component';
 export * from './lib/components/feeds/feeds.component';
+export * from './lib/components/datasource/create-datasource/create-datasource.component';
 
 export * from './lib/ng-kinintel.module';

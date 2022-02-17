@@ -1,0 +1,80 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Import Data</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <div class="mb-4 text-sm font-thin">* Data will be imported beginning at the currently selected cell.
+            If one is not selected it will overwrite the entire table.</div>
+
+        <label class="mb-4">
+            Delimiting character
+            <input class="w-12" type="text" [(ngModel)]="import.delimiter" placeholder="Enter delimiting character">
+        </label>
+
+        <label class="mb-4">
+            <input id="csvUpload" type="file" (change)="fileUpload($event)">
+        </label>
+
+        <mat-checkbox class="mb-4" [(ngModel)]="import.headerRow">
+            File contains header row
+        </mat-checkbox>
+
+        <hr class="my-4">
+
+        <ng-template [ngIf]="import.preview">
+            <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
+                Preview
+            </div>
+
+            <table class="preview-table w-full">
+                <ng-template [ngIf]="import.headerRow">
+                    <thead>
+                    <tr>
+                        <th *ngFor="let header of import.preview[0]">{{header}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td *ngFor="let col of import.preview[1]">{{col}}</td>
+                    </tr>
+                    <tr>
+                        <td *ngFor="let col of import.preview[2]">{{col}}</td>
+                    </tr>
+                    </tbody>
+                </ng-template>
+                <ng-template [ngIf]="!import.headerRow">
+                    <thead>
+                    <tr>
+                        <th *ngFor="let col of columns">{{col.title}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let row of import.preview">
+                        <td *ngFor="let col of columns; let i = index">{{row[i]}}</td>
+                    </tr>
+                    </tbody>
+                </ng-template>
+
+
+            </table>
+
+        </ng-template>
+
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+        <button mat-button mat-flat-button color="primary" type="button" (click)="importData()">Import Data</button>
+    </div>
+
+</div>
+
+

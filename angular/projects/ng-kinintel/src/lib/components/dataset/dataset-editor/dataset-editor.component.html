@@ -152,41 +152,45 @@
     </div>
 </div>
 
-<table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
-       class="block sticky">
+<div class="table-overflow overflow-scroll">
+    <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
+           class="block sticky">
 
-    <ng-template ngFor let-column [ngForOf]="filterFields">
-        <ng-container [matColumnDef]="column.name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.title}} </th>
-            <td mat-cell *matCellDef="let element">
-                <ng-template [ngIf]="element[column.name] && String(element[column.name]).length <= 100">
-                    {{element[column.name]}}
-                </ng-template>
-                <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
-                    <div>{{element[column.name].substring(0, 100) + '...'}}</div>
-                    <a href="javascript:void(0)" (click)="viewFullItemData(element[column.name], column.name)"
-                       class="flex items-center text-sm text-indigo-600">
-                        view more
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                        </svg>
-                    </a>
-                </ng-template>
-                <ng-template [ngIf]="!element[column.name]">
-                    {{element[column.name]}}
-                </ng-template>
-            </td>
-        </ng-container>
-    </ng-template>
+        <ng-template ngFor let-column [ngForOf]="filterFields">
+            <ng-container [matColumnDef]="column.name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.title}} </th>
+                <td mat-cell *matCellDef="let element">
+                    <ng-template [ngIf]="element[column.name] && String(element[column.name]).length <= 100">
+                        {{element[column.name]}}
+                    </ng-template>
+                    <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
+                        <div>{{element[column.name].substring(0, 100) + '...'}}</div>
+                        <a href="javascript:void(0)" (click)="viewFullItemData(element[column.name], column.name)"
+                           class="flex items-center text-sm text-indigo-600">
+                            view more
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </ng-template>
+                    <ng-template [ngIf]="!element[column.name]">
+                        {{element[column.name]}}
+                    </ng-template>
+                </td>
+            </ng-container>
+        </ng-template>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-</table>
+    </table>
+</div>
 
-<div class="paging-toolbar flex align-center justify-end mt-4">
+
+
+<div class="bg-white p-4 flex align-center justify-end">
     <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
         <option [value]="1">1</option>
         <option [value]="5">5</option>

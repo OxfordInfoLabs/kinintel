@@ -1,7 +1,15 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import * as _ from 'lodash';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
+import {ProjectService} from '../services/project.service';
+
+export interface DatasourceUpdate {
+    title: string;
+    fields: any[];
+    adds: any[];
+    updates: any[];
+    deletes: any[];
+}
 
 @Injectable({
     providedIn: 'root'
@@ -9,7 +17,19 @@ import {KinintelModuleConfig} from '../ng-kinintel.module';
 export class DatasourceService {
 
     constructor(private config: KinintelModuleConfig,
-                private http: HttpClient) {
+                private http: HttpClient,
+                private projectService: ProjectService) {
+    }
+
+    public createCustomDatasource(datasourceUpdate: DatasourceUpdate) {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.post(this.config.backendURL + '/datasource/custom?projectKey=' + projectKey, datasourceUpdate)
+            .toPromise();
+    }
+
+    public updateCustomDatasource(datasourceInstanceKey, datasourceUpdate: DatasourceUpdate) {
+        return this.http.put(this.config.backendURL + '/datasource/custom/' + datasourceInstanceKey, datasourceUpdate)
+            .toPromise();
     }
 
     public getDatasources(filterString = '', limit = '10', offset = '0') {
@@ -29,11 +49,8 @@ export class DatasourceService {
             (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey)).toPromise();
     }
 
-    public evaluateDatasource(key, transformationInstances, parameterValues?, offset?, limit?) {
-
-        return this.http.post(this.config.backendURL + '/datasource/evaluate', _.omit({
-            key, transformationInstances, parameterValues, offset, limit
-        }, _.isNil)).toPromise();
+    public evaluateDatasource(evaluatedDatasource) {
+        return this.http.post(this.config.backendURL + '/datasource/evaluate', evaluatedDatasource).toPromise();
     }
 
     public exportData(evaluatedDatasource) {

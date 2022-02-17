@@ -2,31 +2,42 @@
 
     <div class="bg-white p-6 content-wrapper">
         <div class="pb-6 flex align-center justify-between">
-            <div class="flex justify-between">
-                <div>
-                    <h3 class="mb-0 text-lg leading-6 font-medium text-gray-900">
-                        Datasources
-                    </h3>
-                </div>
-            </div>
+            <h3 class="mb-0 text-lg leading-6 font-medium text-gray-900">
+                Datasources
+            </h3>
+            <button mat-flat-button color="primary" [matMenuTriggerFor]="create">
+                Connect Datasource
+                <mat-icon>expand_more</mat-icon>
+            </button>
+            <mat-menu #create="matMenu">
+                <button mat-menu-item [routerLink]="['/create-datasource']">
+                    New Datasource
+                </button>
+            </mat-menu>
         </div>
 
         <div class="mb-8">
-            <input class="full" type="text" placeholder="Search for a datasource" (keyup)="searchText.next($event.target.value)">
+            <input class="full" type="text" placeholder="Search for a datasource"
+                   (keyup)="searchText.next($event.target.value)">
         </div>
 
         <table mat-table [dataSource]="datasources">
 
             <!-- Position Column -->
             <ng-container matColumnDef="datasource">
-                <th mat-header-cell *matHeaderCellDef> Datasource </th>
+                <th mat-header-cell *matHeaderCellDef> Datasource</th>
                 <td mat-cell *matCellDef="let element"> {{element.title}} </td>
             </ng-container>
 
             <ng-container matColumnDef="explore">
-                <th mat-header-cell *matHeaderCellDef>  </th>
+                <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let element" class="text-right nop">
-                    <button mat-button color="primary" (click)="explore(element)"> Explore</button>
+                    <div class="flex items-center justify-end">
+                        <button mat-button color="primary" [routerLink]="['/create-datasource', element.key]"> Edit
+                        </button>
+                        <div class="divider"></div>
+                        <button mat-button color="primary" (click)="explore(element)"> Explore</button>
+                    </div>
                 </td>
             </ng-container>
 
