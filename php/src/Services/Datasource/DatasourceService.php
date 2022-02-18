@@ -173,6 +173,7 @@ class DatasourceService {
         // Grab the data source for this instance
         $datasource = $datasourceInstance->returnDataSource();
 
+
         // Apply transformations
         $datasource = $this->applyTransformationsToDatasource($datasource, $transformations ?? [], $parameterValues, $offset, $limit);
 
@@ -275,7 +276,7 @@ class DatasourceService {
             $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
                     return new Field($columnName);
                 }, array_keys($datasourceUpdate->getUpdates()[0]));
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
         }
 
 

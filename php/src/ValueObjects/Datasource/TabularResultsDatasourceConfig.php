@@ -54,7 +54,7 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
             }, $column->getValueExpression());
 
             $evaluatedColumns[] = new Field($column->getName(), $column->getTitle(),
-                $valueExpression);
+                $valueExpression, $column->getType(), $column->isKeyField());
 
         }
 

@@ -344,6 +344,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 case UpdatableDatasource::UPDATE_MODE_REPLACE:
                     $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
                     break;
+                case UpdatableDatasource::UPDATE_MODE_UPDATE:
+                    $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
+                    break;
+
             }
 
         }
@@ -355,7 +359,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param Field[] $fields
      */
     public function updateFields($fields) {
-
 
         // Construct the column array we need
         $columns = [];

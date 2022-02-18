@@ -12,6 +12,7 @@ interface UpdatableDatasource {
     const UPDATE_MODE_ADD = "add";
     const UPDATE_MODE_DELETE = "delete";
     const UPDATE_MODE_REPLACE = "replace";
+    const UPDATE_MODE_UPDATE = "update";
 
 
     /**

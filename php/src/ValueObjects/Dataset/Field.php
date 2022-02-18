@@ -114,14 +114,14 @@ class Field {
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     public function isKeyField() {
         return $this->keyField;
     }
 
     /**
-     * @param bool $keyField
+     * @param boolean $keyField
      */
     public function setKeyField($keyField) {
         $this->keyField = $keyField;

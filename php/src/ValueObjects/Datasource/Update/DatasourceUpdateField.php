@@ -22,8 +22,9 @@ class DatasourceUpdateField extends Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
+     * @param string $originalName
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $originalName) {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $originalName = "") {
         parent::__construct($name, $title, $valueExpression, $type, $keyField);
         $this->originalName = $originalName;
     }

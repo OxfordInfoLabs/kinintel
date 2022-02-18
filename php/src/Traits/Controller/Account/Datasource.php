@@ -83,8 +83,9 @@ trait Datasource {
      * @return \Kinintel\Objects\Dataset\Dataset
      */
     public function evaluateDatasource($evaluatedDataSource) {
-        return $this->datasourceService->getEvaluatedDataSource($evaluatedDataSource->getKey(), $evaluatedDataSource->getParameterValues(), $evaluatedDataSource->getTransformationInstances(),
+        $result =  $this->datasourceService->getEvaluatedDataSource($evaluatedDataSource->getKey(), $evaluatedDataSource->getParameterValues(), $evaluatedDataSource->getTransformationInstances(),
             $evaluatedDataSource->getOffset() ?? 0, $evaluatedDataSource->getLimit() ?? 25);
+        return $result;
     }
 
 

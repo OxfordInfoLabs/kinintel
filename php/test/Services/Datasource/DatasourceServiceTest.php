@@ -607,7 +607,7 @@ class DatasourceServiceTest extends TestBase {
         ]));
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
-            $updateDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
         ]));
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
@@ -757,7 +757,7 @@ class DatasourceServiceTest extends TestBase {
         ]));
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
-            $updateDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
         ]));
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
