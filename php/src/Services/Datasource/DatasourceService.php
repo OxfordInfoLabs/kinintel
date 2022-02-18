@@ -198,7 +198,8 @@ class DatasourceService {
 
         $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), "custom", [
             "source" => "table",
-            "tableName" => $tableName
+            "tableName" => $tableName,
+            "columns" => $datasourceUpdate->getFields()
         ], $credentialsKey);
 
         // Set account id and project key
@@ -207,6 +208,9 @@ class DatasourceService {
 
         $instance = $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
         $datasource = $instance->returnDataSource();
+
+        // Update fields
+        $datasource->updateFields($datasourceUpdate->getFields());
 
         if ($datasourceUpdate->getAdds()) {
             $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
