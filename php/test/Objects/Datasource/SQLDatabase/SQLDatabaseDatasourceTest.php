@@ -566,4 +566,50 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIDTypeFieldsAreMappedToAutoIncrementPrimaryKeyFieldAndNegateAnyPrimaryKeyFields() {
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+
+        $existingMetaData = new TableMetaData("mytable", [
+            new TableColumn("which", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
+        ]);
+
+        // Return existing meta data from call
+        $this->databaseConnection->returnValue("getTableMetaData", $existingMetaData, [
+            "mytable"
+        ]);
+
+        // Expect create table statement created using ddl generator
+        $newMetaData = new TableMetaData("mytable", [
+            new TableColumn("when", TableColumn::SQL_DATE, null, null, null, false),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, false),
+            new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, true, true, false, "how_many")
+        ]);
+
+        $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
+            $existingMetaData,
+            $newMetaData,
+            $this->databaseConnection
+        ]);
+
+
+        // Modify the table structure and ensure a create was made
+        $datasource->updateFields([
+            new Field("when", null, null, Field::TYPE_DATE, false),
+            new Field("why", null, null, null, false),
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, "how_many")
+        ]);
+
+
+        // Expect create to be issued
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
+            "NEW TABLE MODIFY"
+        ]));
+    }
+
 }
