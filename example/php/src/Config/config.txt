@@ -13,3 +13,6 @@ recaptcha.secret.key = 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 
 session.cookie.domain = WILDCARD
 session.cookie.secure = false
+
+custom.datasource.credentials.key = maindb
+custom.datasource.table.prefix = custom_

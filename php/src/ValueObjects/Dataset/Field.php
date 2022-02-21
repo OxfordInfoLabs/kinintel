@@ -52,6 +52,7 @@ class Field {
     const TYPE_FLOAT = "float";
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
+    const TYPE_ID = "id";
 
     /**
      * Field constructor.

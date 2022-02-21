@@ -91,7 +91,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Field::TYPE_INTEGER => TableColumn::SQL_INTEGER,
         Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
         Field::TYPE_DATE => TableColumn::SQL_DATE,
-        Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME
+        Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
+        Field::TYPE_ID => TableColumn::SQL_INTEGER
     ];
 
     const FIELD_SQL_TYPE_TYPE_MAP = [
@@ -364,10 +365,13 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $columns = [];
         foreach ($fields as $field) {
             $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
+            $primaryKey = $field->isKeyField() || ($field->getType() == Field::TYPE_ID);
+            $autoIncrement = ($field->getType() == Field::TYPE_ID);
+
             if ($field instanceof DatasourceUpdateField) {
-                $columns[] = new UpdatableTableColumn($field->getName(), $type, null, null, null, $field->isKeyField(), false, false, $field->getOriginalName());
+                $columns[] = new UpdatableTableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement, false, $field->getOriginalName());
             } else {
-                $columns[] = new TableColumn($field->getName(), $type, null, null, null, $field->isKeyField());
+                $columns[] = new TableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement);
             }
         }
 

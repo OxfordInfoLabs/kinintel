@@ -643,7 +643,11 @@ class DatasourceServiceTest extends TestBase {
 
         $expectedDatasourceInstance = new DatasourceInstance($newDatasourceKey, "Hello world", "custom", [
             "source" => "table",
-            "tableName" => "custom." . $newDatasourceKey
+            "tableName" => "custom." . $newDatasourceKey,
+            "columns" => [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ]
         ], "test");
         $expectedDatasourceInstance->setAccountId(1);
         $expectedDatasourceInstance->setProjectKey("myproject");
@@ -652,6 +656,15 @@ class DatasourceServiceTest extends TestBase {
         $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
             $expectedDatasourceInstance
         ]));
+
+
+        $this->assertTrue($mockDatasource->methodWasCalled("updateFields", [
+            [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ]
+        ]));
+
 
         $addDatasource = new ArrayTabularDataset([
             new Field("name"),
