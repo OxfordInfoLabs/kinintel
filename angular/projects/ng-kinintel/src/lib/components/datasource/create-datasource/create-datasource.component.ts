@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import * as _ from 'lodash';
 import {MatDialog} from '@angular/material/dialog';
-import { ImportDataComponent } from '../create-datasource/import-data/import-data.component';
+import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
 import {ActivatedRoute} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
 
@@ -20,9 +20,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         'string', 'integer', 'float', 'date', 'datetime'
     ];
 
-    public rows: any = [
-        {column_1: '', column_2: ''}
-    ];
+    public rows: any = [];
     public columns: any = [
         {
             title: 'Column 1',
@@ -51,7 +49,11 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         updates: [],
         deletes: []
     };
+    public limit = 25;
+    public page = 1;
+    public endOfResults = false;
 
+    private offset = 0;
     private isMouseDown = false;
     private startRowIndex = null;
     private startCellIndex = null;
@@ -66,24 +68,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     ngOnInit(): void {
         this.datasourceInstanceKey = this.route.snapshot.params.key;
-        if (this.datasourceInstanceKey) {
-            const evaluatedDatasource = {
-                key: this.datasourceInstanceKey,
-                transformationInstances: [],
-                parameterValues: {},
-                offset: 0,
-                limit: 100
-            };
-            this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
-                this.columns = res.columns;
-                this.rows = res.allData;
 
-                this.datasourceUpdate.title = res.instanceTitle;
-
-                this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
-            });
-
-        }
+        this.loadDatasource();
     }
 
     ngAfterViewInit() {
@@ -148,6 +134,11 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public updateAutoIncrementColumn(value) {
         if (value) {
+            this.columns.map(column => {
+                column.keyField = false;
+                return column;
+            });
+
             this.columns.unshift({
                 title: 'ID',
                 name: 'id',
@@ -249,6 +240,12 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.rows.push(row);
             this.adds.push(this.rows.length - 1);
         }
+
+        setTimeout(() => {
+            const tableWrapper = document.getElementById('tableWrapper');
+            tableWrapper.scrollTop = tableWrapper.scrollHeight;
+        }, 0);
+
     }
 
     public deleteRow(rowIndex) {
@@ -331,6 +328,15 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     public save() {
+        if (!this.datasourceUpdate.title) {
+
+        }
+
+        if (!_.find(this.columns, {keyField: true})) {
+            window.alert('Please select one of your fields as the "Primary Key"');
+            return;
+        }
+
         this.datasourceUpdate.fields = this.columns;
 
         const changes = ['adds', 'updates', 'deletes'];
@@ -339,11 +345,16 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 return this.rows[rowIndex];
             });
         });
-console.log(this.datasourceUpdate);
+
         if (!this.datasourceInstanceKey) {
-            this.datasourceService.createCustomDatasource(this.datasourceUpdate);
+            this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
+                window.location.href = '/create-datasource/' + key;
+            });
         } else {
-            this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
+            this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
+                .then(() => {
+                    this.loadDatasource();
+                });
         }
     }
 
@@ -381,10 +392,8 @@ console.log(this.datasourceUpdate);
     public resetTable() {
         const message = 'Are you sure you would like to reset the entire table? This will remove all data and columns. This action cannot be undone.';
         if (window.confirm(message)) {
-        this.rows = [
-                {column_1: '', column_2: ''}
-            ];
-        this.columns = [
+            this.rows = [];
+            this.columns = [
                 {
                     title: 'Column 1',
                     name: 'column_1',
@@ -396,6 +405,43 @@ console.log(this.datasourceUpdate);
                     type: 'string'
                 }
             ];
+        }
+    }
+
+    public pageSizeChange(value) {
+        this.limit = value;
+        this.loadDatasource();
+    }
+
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.loadDatasource();
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.loadDatasource();
+    }
+
+    private loadDatasource() {
+        if (this.datasourceInstanceKey) {
+            const evaluatedDatasource = {
+                key: this.datasourceInstanceKey,
+                transformationInstances: [],
+                parameterValues: {},
+                offset: this.offset,
+                limit: this.limit
+            };
+            this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
+                this.columns = res.columns;
+                this.rows = res.allData;
+
+                this.datasourceUpdate.title = res.instanceTitle;
+
+                this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
+            });
         }
     }
 
