@@ -237,6 +237,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.rows.splice(index, 0, row);
             this.adds.push(index);
         } else {
+            if (!this.endOfResults) {
+                // TODO: page to the end of the results
+            }
             this.rows.push(row);
             this.adds.push(this.rows.length - 1);
         }
@@ -278,6 +281,15 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (this.adds.indexOf(rowIndex) === -1) {
             this.updates.push(rowIndex);
         }
+    }
+
+    public updateColumnName() {
+        this.selectedItem.name = _.snakeCase(this.selectedItem.title);
+        this.rows.map(row => {
+            row[this.selectedItem.name] = row[this.selectedItem.previousName];
+            delete row[this.selectedItem.previousName];
+            return row;
+        });
     }
 
     public enterCell(rowIndex, rowColIndex, event) {
@@ -329,15 +341,22 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public save() {
         if (!this.datasourceUpdate.title) {
-
+            window.alert('Please enter a title for this Datasource.');
+            return;
         }
 
-        if (!_.find(this.columns, {keyField: true})) {
+        if (!_.find(this.columns, {keyField: true}) &&
+            !_.find(this.columns, {type: 'id'})) {
             window.alert('Please select one of your fields as the "Primary Key"');
             return;
         }
 
-        this.datasourceUpdate.fields = this.columns;
+        this.datasourceUpdate.fields = this.columns.map(column => {
+            if (column.name === column.previousName) {
+                delete column.previousName;
+            }
+            return column;
+        });
 
         const changes = ['adds', 'updates', 'deletes'];
         changes.forEach(change => {
@@ -435,8 +454,13 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 limit: this.limit
             };
             this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
-                this.columns = res.columns;
+                this.columns = res.columns.map(column => {
+                    column.previousName = column.name;
+                    return column;
+                });
                 this.rows = res.allData;
+
+                this.endOfResults = this.rows.length < this.limit;
 
                 this.datasourceUpdate.title = res.instanceTitle;
 

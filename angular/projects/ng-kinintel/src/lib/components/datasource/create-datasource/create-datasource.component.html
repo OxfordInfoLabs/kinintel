@@ -85,8 +85,6 @@
                 </button>
                 <div class="flex items-center">
                     <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
-                        <option [value]="1">1</option>
-                        <option [value]="5">5</option>
                         <option [value]="10">10</option>
                         <option [value]="25">25</option>
                         <option [value]="50">50</option>
@@ -124,9 +122,9 @@
         <label class="mb-4">
             Datasource Name
             <input type="text" class="w-full" placeholder="Enter datasource name"
-                   [ngClass]="{'border border-red-600': !datasourceUpdate.title}"
+                   [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
              [(ngModel)]="datasourceUpdate.title">
-            <div class="text-xs text-red-600" *ngIf="!datasourceUpdate.title">
+            <div class="text-xs text-red-500" *ngIf="!datasourceUpdate.title">
                 Please enter a name for this datasource
             </div>
         </label>
@@ -137,7 +135,7 @@
         </mat-checkbox>
 
         <div>
-            <button mat-button color="warn" (click)="resetTable()">
+            <button mat-button class="text-red-500" (click)="resetTable()">
                 Reset Table
             </button>
         </div>
@@ -151,7 +149,7 @@
             <label class="mb-4">
                 Column Title
                 <input type="text" [(ngModel)]="selectedItem.title" placeholder="Enter column title"
-                       (change)="selectedItem.name = _.snakeCase(selectedItem.title)">
+                       (change)="updateColumnName()">
             </label>
 
             <ng-template [ngIf]="selectedItem.type === 'id'">
