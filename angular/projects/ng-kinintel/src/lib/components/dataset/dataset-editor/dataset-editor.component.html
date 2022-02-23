@@ -52,7 +52,7 @@
                 {{parameter.title}}
                 <div class="parameter-input">
                     <input [type]="parameter.type" [(ngModel)]="parameter.value"
-                           (change)="evaluateDataset()">
+                           (change)="evaluateDataset(true)">
                     <button mat-icon-button style="margin-left: 0; background-color: transparent"
                             (click)="removeParameter(parameter)">
                         <mat-icon>highlight_off</mat-icon>

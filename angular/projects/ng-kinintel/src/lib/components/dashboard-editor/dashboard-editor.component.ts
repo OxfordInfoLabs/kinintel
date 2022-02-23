@@ -331,7 +331,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public setParameterValue(parameter, value) {
         parameter.value = value;
-
+        this.dashboardService.dashboardItems.next({});
         this.save(false);
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);

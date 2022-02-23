@@ -213,6 +213,10 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             } else {
                 column._tableType = 'column';
                 column._index = index;
+                if (!column.previousName) {
+                    column.previousName = column.name;
+                }
+
                 this.selectedItem = column;
 
                 this.removeCellFocusBorder();
@@ -286,8 +290,11 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public updateColumnName() {
         this.selectedItem.name = _.snakeCase(this.selectedItem.title);
         this.rows.map(row => {
-            row[this.selectedItem.name] = row[this.selectedItem.previousName];
-            delete row[this.selectedItem.previousName];
+            row[this.selectedItem.name] = row[this.selectedItem.previousName] || '';
+            if (row[this.selectedItem.previousName]) {
+                delete row[this.selectedItem.previousName];
+            }
+
             return row;
         });
     }

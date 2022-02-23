@@ -276,6 +276,7 @@ export class DatasetEditorComponent implements OnInit {
 
                 this.evaluateDataset();
             } else {
+                // Formula was cancelled, restore if we have one
                 if (clonedExpressions) {
                     this.datasetInstanceSummary.transformationInstances[existingIndex] = {
                         type: 'formula',
@@ -332,7 +333,7 @@ export class DatasetEditorComponent implements OnInit {
                 } else {
                     this.datasetInstanceSummary.transformationInstances.push(joinTransformation);
                 }
-                this.evaluateDataset();
+                this.evaluateDataset(true);
             }
         });
     }
@@ -343,7 +344,7 @@ export class DatasetEditorComponent implements OnInit {
             this.validateFilterJunction(transformation.config);
         });
 
-        this.evaluateDataset();
+        this.evaluateDataset(true);
     }
 
     public increaseOffset() {
@@ -360,7 +361,7 @@ export class DatasetEditorComponent implements OnInit {
 
     public pageSizeChange(value) {
         this.limit = value;
-        this.evaluateDataset();
+        this.evaluateDataset(true);
     }
 
     public addPagingMarker() {
@@ -399,7 +400,7 @@ export class DatasetEditorComponent implements OnInit {
                 );
             }
         }
-        this.evaluateDataset();
+        this.evaluateDataset(true);
     }
 
     public summariseData(config?, existingIndex?) {
@@ -430,21 +431,21 @@ export class DatasetEditorComponent implements OnInit {
                                 type: 'summarise',
                                 config: summariseTransformation
                             };
-                            this.evaluateDataset();
+                            this.evaluateDataset(true);
                         }
                     } else {
                         this.datasetInstanceSummary.transformationInstances[existingIndex] = {
                             type: 'summarise',
                             config: summariseTransformation
                         };
-                        this.evaluateDataset();
+                        this.evaluateDataset(true);
                     }
                 } else {
                     this.datasetInstanceSummary.transformationInstances.push({
                         type: 'summarise',
                         config: summariseTransformation
                     });
-                    this.evaluateDataset();
+                    this.evaluateDataset(true);
                 }
             } else {
                 // If we get here then the summarise transformation was cancelled - restore if we have one
@@ -633,7 +634,11 @@ export class DatasetEditorComponent implements OnInit {
         });
     }
 
-    public evaluateDataset() {
+    public evaluateDataset(resetPager?) {
+        if (resetPager) {
+            this.resetPager();
+        }
+
         return this.datasetService.getEvaluatedParameters(this.datasetInstanceSummary)
             .then((values: any) => {
                 let paramValues = values;
@@ -694,7 +699,7 @@ export class DatasetEditorComponent implements OnInit {
 
                 const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
                 let finished = false;
-console.log('PARAMS', this.parameterValues);
+
                 const evaluateSub = this.datasetService.evaluateDatasetWithTracking(
                     clonedDatasetInstance,
                     String(this.offset),
@@ -766,7 +771,12 @@ console.log('PARAMS', this.parameterValues);
             type: transformation.type,
             config: transformation.type !== 'pagingmarker' ? transformation.config : null
         }, _.isNil));
-        this.evaluateDataset();
+        this.evaluateDataset(true);
+    }
+
+    private resetPager() {
+        this.offset = 0;
+        this.page = 1;
     }
 
 }

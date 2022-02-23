@@ -33,7 +33,8 @@ export class DatasourceService {
     }
 
     public getDatasources(filterString = '', limit = '10', offset = '0') {
-        return this.http.get(this.config.backendURL + '/datasource', {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.get(this.config.backendURL + '/datasource?projectKey=' + projectKey, {
             params: {
                 filterString, limit, offset
             }
