@@ -88,7 +88,7 @@ abstract class TabularDataset implements Dataset {
                 if ($column->hasValueExpression()) {
                     $value = $column->evaluateValueExpression($dataItem);
                 } else {
-                    $value = isset($dataItem[$columnName]) ?? null;
+                    $value = $dataItem[$columnName] ?? null;
                 }
 
                 $valueExpression = $column->getValueExpression();
