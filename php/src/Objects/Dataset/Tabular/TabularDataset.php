@@ -88,12 +88,12 @@ abstract class TabularDataset implements Dataset {
                 if ($column->hasValueExpression()) {
                     $value = $column->evaluateValueExpression($dataItem);
                 } else {
-                    $value = $dataItem[$columnName] ?? null;
+                    $value = isset($dataItem[$columnName]) ?? null;
                 }
 
                 $valueExpression = $column->getValueExpression();
                 $hasColumnValue = $hasColumnValue
-                    || ($value && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
+                    || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
 
                 $newDataItem[$columnName] = $value;
             }
