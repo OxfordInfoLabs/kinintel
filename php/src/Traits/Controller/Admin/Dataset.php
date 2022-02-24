@@ -257,7 +257,7 @@ trait Dataset {
      *
      * @http GET /whitelistedsqlfunctions
      *
-     * @return array[]
+     * @return array
      */
     public function getInstalledWhitelistedSQLFunctions() {
         return $this->sqlClauseSanitiser->getWhitelistedFunctions();
