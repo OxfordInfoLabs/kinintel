@@ -182,4 +182,14 @@ class SQLClauseSanitiser {
         ];
     }
 
+
+    /**
+     * Get current set of whitelisted functions
+     *
+     * @return array[]
+     */
+    public function getWhitelistedFunctions() {
+        return $this->whitelistedFunctions;
+    }
+
 }

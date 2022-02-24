@@ -13,6 +13,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Util\SQLClauseSanitiser;
 use Kinintel\ValueObjects\Dataset\EvaluatedDataset;
 
 trait Dataset {
@@ -27,15 +28,23 @@ trait Dataset {
      */
     private $longRunningTaskService;
 
+
+    /**
+     * @var SQLClauseSanitiser
+     */
+    private $sqlClauseSanitiser;
+
     /**
      * Dataset constructor.
      *
      * @param DatasetService $datasetService
      * @param LongRunningTaskService $longRunningTaskService
+     * @param SQLClauseSanitiser $sqlClauseSanitiser
      */
-    public function __construct($datasetService, $longRunningTaskService) {
+    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser) {
         $this->datasetService = $datasetService;
         $this->longRunningTaskService = $longRunningTaskService;
+        $this->sqlClauseSanitiser = $sqlClauseSanitiser;
     }
 
 
@@ -241,6 +250,17 @@ trait Dataset {
      */
     public function removeSnapshotProfile($snapshotProfileId, $datasetInstanceId) {
         $this->datasetService->removeSnapshotProfile($datasetInstanceId, $snapshotProfileId);
+    }
+
+    /**
+     * Get the installed whitelisted SQL functions
+     *
+     * @http GET /whitelistedsqlfunctions
+     *
+     * @return array[]
+     */
+    public function getInstalledWhitelistedSQLFunctions() {
+        return $this->sqlClauseSanitiser->getWhitelistedFunctions();
     }
 
 
