@@ -33,9 +33,13 @@
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let element" class="text-right nop">
                     <div class="flex items-center justify-end">
-                        <button mat-button color="primary" [routerLink]="['/create-datasource', element.key]"> Edit
-                        </button>
-                        <div class="divider"></div>
+                        <ng-template [ngIf]="element.custom">
+                            <button mat-button color="primary" [routerLink]="['/create-datasource', element.key]">
+                                Edit
+                            </button>
+                            <div class="divider"></div>
+                        </ng-template>
+
                         <button mat-button color="primary" (click)="explore(element)"> Explore</button>
                     </div>
                 </td>
