@@ -4,7 +4,9 @@
 namespace Kinintel\ValueObjects\Transformation\Formula;
 
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class Expression {
 
@@ -72,8 +74,13 @@ class Expression {
     }
 
     // Return SQL clause
-    public function returnSQLClause() {
-        $expression = str_replace("]]", "", str_replace("[[", "", $this->expression));
+    public function returnSQLClause(&$parameterValues = []) {
+        $sqlSanitiser = Container::instance()->get(SQLClauseSanitiser::class);
+
+        // SQL Santise and substitute params
+        $expression = $sqlSanitiser->sanitiseSQL($this->expression, $parameterValues);
+        $expression = str_replace("]]", "", str_replace("[[", "", $expression));
+
         return $expression . " " . $this->returnFieldName();
     }
 

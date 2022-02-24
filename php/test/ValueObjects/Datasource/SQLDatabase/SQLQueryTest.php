@@ -80,4 +80,8 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["pears", 5, 6], $sqlQuery->getParameters());
     }
 
+
+
+
+
 }

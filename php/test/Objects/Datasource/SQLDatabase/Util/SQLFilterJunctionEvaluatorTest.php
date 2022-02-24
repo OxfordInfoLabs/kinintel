@@ -247,10 +247,14 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "SUBSTRING(T.dob, 0, 10) > ? OR (CONCAT('Me:', T.name) = ? AND T.age * 10 IN (?,?,?,?))",
+            "sql" => "SUBSTRING(T.dob, ?, ?) > ? OR (? || T.name = ? AND T.age * ? IN (?,?,?,?))",
             "parameters" => [
+                0,
+                10,
                 '2000-01-01',
+                'Me:',
                 "Joe Bloggs",
+                10,
                 5,
                 7,
                 9,
@@ -262,7 +266,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ],
             [
                 new FilterJunction([
-                    new Filter("CONCAT('Me:', [[name]])", "Joe Bloggs"),
+                    new Filter("'Me:' || [[name]]", "Joe Bloggs"),
                     new Filter("[[age]] * 10", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
                 ])
             ],

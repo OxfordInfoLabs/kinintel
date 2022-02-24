@@ -174,6 +174,7 @@ class SQLFilterJunctionEvaluator {
             array_splice($parameters, sizeof($parameters), 0, $rhsParams);
 
 
+
         return $clause;
     }
 

@@ -45,13 +45,14 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
         // Gather together the expressions we need.
         $clauses = [];
+        $clauseParams = [];
         foreach ($transformation->getExpressions() as $expression) {
-            $clauses[] = $expression->returnSQLClause();
+            $clauses[] = $expression->returnSQLClause($clauseParams);
         }
 
-        $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses));
+        $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses), $clauseParams);
 
-        return new SQLQuery("*", "(" . $query->getSQL() . ") F" . ++$this->aliasIndex);
+        return new SQLQuery("*", "(" . $query->getSQL() . ") F" . ++$this->aliasIndex, $clauseParams);
 
     }
 }

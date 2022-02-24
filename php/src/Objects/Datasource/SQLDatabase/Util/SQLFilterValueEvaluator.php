@@ -6,8 +6,22 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\TemplateParser;
+use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class SQLFilterValueEvaluator {
+
+    /**
+     * @var SQLClauseSanitiser
+     */
+    private $sqlClauseSanitiser;
+
+
+    /**
+     * SQLFilterValueEvaluator constructor.
+     */
+    public function __construct() {
+        $this->sqlClauseSanitiser = Container::instance()->get(SQLClauseSanitiser::class);
+    }
 
 
     /**
@@ -23,8 +37,6 @@ class SQLFilterValueEvaluator {
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
 
-            // Remove any [[ from column names and prefix with table alias if supplied
-            $value = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . "$1", $valueEntry);
 
             // Replace any template parameters
             $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $templateParameters) {
@@ -34,7 +46,7 @@ class SQLFilterValueEvaluator {
                     $outputParameters[] = ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "");
                 }
                 return str_repeat("?,", sizeof($valueArray) - 1) . "?";
-            }, $value);
+            }, $valueEntry);
 
             // Evaluate time offset parameters for days ago and hours ago
             $value = preg_replace_callback("/([0-9]+)_DAYS_AGO/", function ($matches) use (&$outputParameters) {
@@ -47,11 +59,19 @@ class SQLFilterValueEvaluator {
                 return "?";
             }, $value);
 
-            // If no substutions assume value is single value
-            if ($value == $valueEntry) {
+
+            // If no [[ expressions assume this is a single string
+            if (preg_replace("/\[\[(.*?)\]\]/", "", $value) == $valueEntry) {
                 $outputParameters[] = $value;
                 $value = "?";
+            } else {
+
+                $value = $this->sqlClauseSanitiser->sanitiseSQL($value, $outputParameters);
+
+                // Remove any [[ from column names and prefix with table alias if supplied
+                $value = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . "$1", $value);
             }
+
 
             $valueStrings[] = $value;
 

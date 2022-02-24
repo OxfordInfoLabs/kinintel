@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Datasource\SQLDatabase;
 
 
+use Kinikit\Core\Logging\Logger;
+
 class SQLQuery {
 
     /**
@@ -38,6 +40,7 @@ class SQLQuery {
 
 
     // Clause constants
+    const SELECT_CLAUSE = "SELECT";
     const WHERE_CLAUSE = "WHERE";
     const GROUP_BY_CLAUSE = "GROUP BY";
     const HAVING_CLAUSE = "HAVING";
@@ -70,8 +73,9 @@ class SQLQuery {
     /**
      * @param string $selectClause
      */
-    public function setSelectClause($selectClause) {
+    public function setSelectClause($selectClause, $parameters = []) {
         $this->selectClause = $selectClause;
+        $this->parametersByClauseType[self::SELECT_CLAUSE] = $parameters;
     }
 
 
@@ -187,6 +191,7 @@ class SQLQuery {
             $sql .= " OFFSET ?";
         }
 
+        Logger::log($sql);
         return $sql;
 
     }
@@ -201,6 +206,7 @@ class SQLQuery {
 
         // Construct parameters array in correct order
         $parameters = $this->initialParameters;
+        $parameters = array_merge($parameters, $this->parametersByClauseType[self::SELECT_CLAUSE] ?? []);
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::WHERE_CLAUSE] ?? []);
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::GROUP_BY_CLAUSE] ?? []);
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::HAVING_CLAUSE] ?? []);
