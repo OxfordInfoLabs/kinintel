@@ -62,8 +62,7 @@
                             {{element.summary}}
                         </div>
                         <div class="inline-category" *ngIf="element.categories.length">
-                            <a href="javascript:void(0)" *ngFor="let category of element.categories"
-                                (click)="addCategoryToFilter(category)">
+                            <a href="javascript:void(0)" *ngFor="let category of element.categories">
                                 {{category.category}}
                             </a>
                         </div>
@@ -98,10 +97,24 @@
             <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
             <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
         </table>
-        <mat-paginator [length]="dashboards.length"
-                       [pageSize]="10"
-                       [pageSizeOptions]="[5, 10, 25, 100]">
-        </mat-paginator>
+        <div class="paging-toolbar flex align-center justify-end mt-4">
+            <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+                <option [value]="250">250</option>
+                <option [value]="1000">1000</option>
+            </select>
+            <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+        </div>
     </div>
 
 </div>

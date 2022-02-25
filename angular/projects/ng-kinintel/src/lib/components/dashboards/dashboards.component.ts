@@ -24,8 +24,10 @@ export class DashboardsComponent implements OnInit {
 
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');
-    public limit = new BehaviorSubject(10);
-    public offset = new BehaviorSubject(0);
+    public limit = 10;
+    public offset = 0;
+    public page = 1;
+    public endOfResults = false;
     public activeTagSub = new Subject();
     public projectSub = new Subject();
     public categories: any = [];
@@ -54,7 +56,7 @@ export class DashboardsComponent implements OnInit {
             this.projectSub = this.projectService.activeProject;
         }
 
-        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub, this.reload)
+        merge(this.searchText, this.activeTagSub, this.projectSub, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -81,14 +83,19 @@ export class DashboardsComponent implements OnInit {
         }
     }
 
-    public addCategoryToFilter(category) {
-
+    public updateCategoryFilters() {
+        this.offset = 0;
+        this.page = 1;
+        this.reload.next(Date.now());
     }
 
     public removeCategory(index) {
         this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
             return key !== index;
         });
+
+        this.offset = 0;
+        this.page = 1;
         this.reload.next(Date.now());
     }
 
@@ -113,14 +120,34 @@ export class DashboardsComponent implements OnInit {
         this.tagService.resetActiveTag();
     }
 
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
+    }
+
+    public pageSizeChange(value) {
+        this.page = 1;
+        this.offset = 0;
+        this.limit = value;
+        this.reload.next(Date.now());
+    }
+
     private getDashboards() {
         return this.dashboardService.getDashboards(
             this.searchText.getValue() || '',
-            this.limit.getValue().toString(),
-            this.offset.getValue().toString(),
+            this.limit.toString(),
+            this.offset.toString(),
             this.shared ? null : '',
             _.map(this.filteredCategories, 'key')
         ).pipe(map((dashboards: any) => {
+                this.endOfResults = dashboards.length < this.limit;
                 return dashboards;
             })
         );

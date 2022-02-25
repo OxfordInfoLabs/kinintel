@@ -20,7 +20,7 @@
                    (keyup)="searchText.next($event.target.value)">
             <div class="w-1/3 -ml-2">
                 <mat-label>Categories</mat-label>
-                <mat-select [(value)]="filteredCategories" (selectionChange)="reload.next(Date.now())"
+                <mat-select [(value)]="filteredCategories" (selectionChange)="updateCategoryFilters()"
                             multiple class="rounded-l-none">
                     <mat-option *ngFor="let category of categories" [value]="category">{{category.category}}</mat-option>
                 </mat-select>
@@ -98,7 +98,7 @@
             <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
         </table>
         <div class="paging-toolbar flex align-center justify-end mt-4">
-            <select [value]="limit.getValue()" (change)="pageSizeChange($event.target.value)" class="mr-8">
+            <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
                 <option [value]="1">1</option>
                 <option [value]="5">5</option>
                 <option [value]="10">10</option>

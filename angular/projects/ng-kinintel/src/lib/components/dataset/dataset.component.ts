@@ -24,8 +24,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
-    public limit = new BehaviorSubject(10);
-    public offset = new BehaviorSubject(0);
+    public limit = 10;
+    public offset = 0;
     public page = 1;
     public endOfResults = false;
     public categories: any = [];
@@ -58,7 +58,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.projectSub = this.projectService.activeProject;
         }
 
-        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub, this.reload)
+        merge(this.searchText, this.activeTagSub, this.projectSub, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -94,10 +94,19 @@ export class DatasetComponent implements OnInit, OnDestroy {
         this.tagService.resetActiveTag();
     }
 
+    public updateCategoryFilters() {
+        this.offset = 0;
+        this.page = 1;
+        this.reload.next(Date.now());
+    }
+
     public removeCategory(index) {
         this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
             return key !== index;
         });
+
+        this.offset = 0;
+        this.page = 1;
         this.reload.next(Date.now());
     }
 
@@ -112,16 +121,21 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public increaseOffset() {
         this.page = this.page + 1;
-        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
     }
 
     public decreaseOffset() {
         this.page = this.page <= 1 ? 1 : this.page - 1;
-        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
     }
 
     public pageSizeChange(value) {
-        this.limit.next(value);
+        this.page = 1;
+        this.offset = 0;
+        this.limit = value;
+        this.reload.next(Date.now());
     }
 
     public editMetadata(searchResult) {
@@ -162,13 +176,13 @@ export class DatasetComponent implements OnInit, OnDestroy {
     private getDatasets() {
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
-            this.limit.getValue().toString(),
-            this.offset.getValue().toString(),
+            this.limit.toString(),
+            this.offset.toString(),
             this.shared ? null : '',
             '',
             _.map(this.filteredCategories, 'key')
         ).pipe(map((datasets: any) => {
-                this.endOfResults = datasets.length < this.limit.getValue();
+                this.endOfResults = datasets.length < this.limit;
                 return datasets;
             })
         );

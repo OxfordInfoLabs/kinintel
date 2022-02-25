@@ -49,7 +49,7 @@
             <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
         </table>
         <div class="paging-toolbar flex align-center justify-end mt-4">
-            <select [value]="limit.getValue()" (change)="pageSizeChange($event.target.value)" class="mr-8">
+            <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
                 <option [value]="1">1</option>
                 <option [value]="5">5</option>
                 <option [value]="10">10</option>
