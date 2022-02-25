@@ -50,7 +50,7 @@ export class DashboardService {
         return this.http.patch(this.config.backendURL + '/dashboard', dashboardSearchResult).toPromise();
     }
 
-    public getDashboardCategories() {
+    public getDashboardCategories(shared?) {
         const tag = this.tagService.activeTag.getValue() || null;
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         let tags = '';
@@ -58,8 +58,13 @@ export class DashboardService {
         if (tag) {
             tags = tag.key;
         }
-        return this.http.get(this.config.backendURL + '/dashboard/inUseCategories', {
+        const url = shared ? '/dashboard/shared/inUseCategories' : '/dashboard/inUseCategories';
+        return this.http.get(this.config.backendURL + url, {
             params: {projectKey, tags}
         }).toPromise();
+    }
+
+    public removeDashboard(id) {
+        return this.http.delete(this.config.backendURL + '/dashboard/' + id).toPromise();
     }
 }

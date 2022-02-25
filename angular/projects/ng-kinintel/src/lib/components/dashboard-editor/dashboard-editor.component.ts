@@ -399,20 +399,20 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
         }
 
-        if (this.dashboard.alertsEnabled) {
-            if (dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length) {
-                this.alertService.processAlertsForDashboardDatasetInstance(dashboardDatasetInstance)
-                    .then((res: any) => {
-                        if (res && res.length) {
-                            componentRef.instance.alert = true;
-                            componentRef.instance.alertData = res;
-                            const itemElement = document.getElementById(instanceId);
-                            itemElement.classList.add('alert');
-                            itemElement.parentElement.classList.add('alert');
-                        }
-                    });
-            }
-        }
+        // if (this.dashboard.alertsEnabled) {
+        //     if (dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length) {
+        //         this.alertService.processAlertsForDashboardDatasetInstance(dashboardDatasetInstance)
+        //             .then((res: any) => {
+        //                 if (res && res.length) {
+        //                     componentRef.instance.alert = true;
+        //                     componentRef.instance.alertData = res;
+        //                     const itemElement = document.getElementById(instanceId);
+        //                     itemElement.classList.add('alert');
+        //                     itemElement.parentElement.classList.add('alert');
+        //                 }
+        //             });
+        //     }
+        // }
 
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);

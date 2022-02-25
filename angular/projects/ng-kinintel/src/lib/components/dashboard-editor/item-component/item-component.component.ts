@@ -420,7 +420,9 @@ export class ItemComponentComponent implements AfterViewInit {
 
                 if (this.dashboard.alertsEnabled) {
                     if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
-                        this.alertService.processAlertsForDashboardDatasetInstance(this.dashboardDatasetInstance)
+                        const dashboardInstance = _.cloneDeep(this.dashboardDatasetInstance);
+                        dashboardInstance.parameterValues = mappedParams;
+                        this.alertService.processAlertsForDashboardDatasetInstance(dashboardInstance)
                             .then((res: any) => {
                                 if (res && res.length) {
                                     this.alert = true;

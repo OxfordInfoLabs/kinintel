@@ -62,7 +62,7 @@
                 <div class="parameter-input">
                     <input [type]="parameter.type" [value]="parameter.value"
                            (change)="setParameterValue(parameter, $event.target.value)">
-                    <button mat-icon-button style="margin-left: 0; background-color: transparent"
+                    <button mat-icon-button class="ml-0 bg-transparent"
                             (click)="removeParameter(parameter)">
                         <mat-icon>highlight_off</mat-icon>
                     </button>
@@ -104,8 +104,7 @@
                 <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
                      [attr.gs-h]="item.height" [attr.data-index]="i">
                     <div class="grid-stack-item-content" draggable="true">
-                        <ki-item-component class="p-0" [dragItem]="true" [dashboardItemType]="item"
-                                           style="justify-content: center"></ki-item-component>
+                        <ki-item-component class="p-0 justify-center" [dragItem]="true" [dashboardItemType]="item"></ki-item-component>
                     </div>
                 </div>
             </ng-template>

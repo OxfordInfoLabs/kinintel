@@ -73,7 +73,12 @@ export class DashboardsComponent implements OnInit {
     }
 
     public delete(id) {
-
+        const message = 'Are you sure you would like to completely delete this Dashboard?';
+        if (window.confirm(message)) {
+            this.dashboardService.removeDashboard(id).then(() => {
+                this.reload.next(Date.now());
+            });
+        }
     }
 
     public addCategoryToFilter(category) {
@@ -122,6 +127,6 @@ export class DashboardsComponent implements OnInit {
     }
 
     private getCategories(){
-        this.dashboardService.getDashboardCategories().then(categories => this.categories = categories);
+        this.dashboardService.getDashboardCategories(this.shared).then(categories => this.categories = categories);
     }
 }

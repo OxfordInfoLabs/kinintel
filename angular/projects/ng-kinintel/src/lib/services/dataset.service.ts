@@ -121,7 +121,7 @@ export class DatasetService {
         return this.http.patch(this.config.backendURL + '/dataset', dashboardSearchResult).toPromise();
     }
 
-    public getDatasetCategories() {
+    public getDatasetCategories(shared?) {
         const tag = this.tagService.activeTag.getValue() || null;
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         let tags = '';
@@ -129,7 +129,8 @@ export class DatasetService {
         if (tag) {
             tags = tag.key;
         }
-        return this.http.get(this.config.backendURL + '/dataset/inUseCategories', {
+        const url = shared ? '/dataset/shared/inUseCategories' : '/dataset/inUseCategories';
+        return this.http.get(this.config.backendURL + url, {
             params: {projectKey, tags}
         }).toPromise();
     }

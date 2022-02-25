@@ -111,6 +111,7 @@ trait Dashboard {
     /**
      * Remove a dashboard by id
      *
+     * @http DELETE /$id
      * @param $id
      */
     public function removeDashboard($id) {

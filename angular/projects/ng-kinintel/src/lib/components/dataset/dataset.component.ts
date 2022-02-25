@@ -175,7 +175,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     private getCategories() {
-        this.datasetService.getDatasetCategories().then(categories => this.categories = categories);
+        this.datasetService.getDatasetCategories(this.shared).then(categories => this.categories = categories);
     }
 
 }
