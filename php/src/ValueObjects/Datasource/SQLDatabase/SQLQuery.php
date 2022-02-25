@@ -191,7 +191,6 @@ class SQLQuery {
             $sql .= " OFFSET ?";
         }
 
-        Logger::log($sql);
         return $sql;
 
     }

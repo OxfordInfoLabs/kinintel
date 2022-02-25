@@ -109,7 +109,7 @@ class DashboardService {
         }
 
         if ($categories && sizeof($categories) > 0) {
-            $query .= " AND categories.category_key IN (" . str_repeat("?", sizeof($categories)) . ")";
+            $query .= " AND categories.category_key IN (?" . str_repeat(",?", sizeof($categories) - 1) . ")";
             $params = array_merge($params, $categories);
         }
 
