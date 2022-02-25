@@ -79,7 +79,7 @@ class DatasetService {
      */
     public function getExtendedDatasetInstance($originalDatasetId) {
         $originalDataset = $this->getDataSetInstance($originalDatasetId, false);
-        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId,[],[],[],null,null,[], $originalDataset->getTitle());
+        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId, [], [], [], null, null, [], $originalDataset->getTitle());
     }
 
 
@@ -160,7 +160,7 @@ class DatasetService {
     public function getInUseDatasetInstanceCategories($tags = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         $params = [];
-        if ($accountId === null) {
+        if (!$accountId) {
             $query = "WHERE accountId IS NULL";
         } else {
             $query = "WHERE accountId = ?";
