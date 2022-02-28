@@ -99,6 +99,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         this.projectSub.unsubscribe();
         this.authSub.unsubscribe();
         this.tagSub.unsubscribe();
+        this.notificationSub.unsubscribe();
     }
 
     public selectProject(disableClose = false) {
