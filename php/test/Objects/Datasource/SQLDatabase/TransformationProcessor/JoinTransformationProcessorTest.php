@@ -7,6 +7,8 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\MVC\Request\MockPHPInputStream;
+use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -509,11 +511,14 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("buildQuery", new SQLQuery("*", "join_table"), [
             []
         ]);
+        $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
+        $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         // Try a simple column based join
@@ -527,7 +532,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T1.name = T2.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T1.\"name\" = T2.\"otherName\") S1"),
             $sqlQuery);
 
 
@@ -543,7 +548,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 LEFT JOIN (SELECT * FROM join_table) T4 ON T3.name = ?) S2", [
+        $this->assertEquals(new SQLQuery("*", "(SELECT T3.*,T4.* FROM (SELECT * FROM test_table) T3 LEFT JOIN (SELECT * FROM join_table) T4 ON T3.\"name\" = ?) S2", [
             "bobby"
         ]),
             $sqlQuery);
@@ -562,11 +567,14 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("buildQuery", new SQLQuery("*", "join_table"), [
             []
         ]);
+        $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
+        $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         // Try a simple column based join
@@ -580,7 +588,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T1.name = T2.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table) T1 INNER JOIN (SELECT * FROM join_table) T2 ON T1.\"name\" = T2.\"otherName\") S1"),
             $sqlQuery);
 
     }
@@ -602,12 +610,15 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("buildQuery", $joinQuery, [
             []
         ]);
+        $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
+        $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         // Try a simple column based join
@@ -625,7 +636,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 LEFT JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON ? LIKE T2.name) S1",
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.* FROM (SELECT * FROM test_table WHERE archived = ?) T1 LEFT JOIN (SELECT * FROM join_table WHERE category = ? AND published = ?) T2 ON ? LIKE T2.\"name\") S1",
             [
                 0, "swimming", 1, "bob"
             ]),
@@ -648,6 +659,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("buildQuery", new SQLQuery("*", "join_table"), [
             []
         ]);
+        $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
@@ -656,6 +668,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
         $mainDataSourceConfig->returnValue("getColumns", [new Field("otherName"), new Field("notes")]);
+        $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         // Try simple non aliased columns
@@ -672,7 +685,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $mainDataSource);
 
 
-        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name,T2.category,T2.status FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T1.name = T2.otherName) S1"),
+        $this->assertEquals(new SQLQuery("*", "(SELECT T1.*,T2.name,T2.category,T2.status FROM (SELECT * FROM test_table) T1 LEFT JOIN (SELECT * FROM join_table) T2 ON T1.\"name\" = T2.\"otherName\") S1"),
             $sqlQuery);
 
 

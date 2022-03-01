@@ -3,22 +3,37 @@
 
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
+use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
 
 
 class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
+    /**
+     * @var DatabaseConnection
+     */
+    private $databaseConnection;
+
+
+    public function setUp(){
+        $this->databaseConnection = new SQLite3DatabaseConnection();
+    }
 
     public function testCanEvaluateSimpleFilterJunctionToSQLForAllSupportedFilterTypes() {
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator();
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
 
         // EQUALS
         $this->assertEquals([
-            "sql" => "name = ?",
+            "sql" => "\"name\" = ?",
             "parameters" => [
                 "Joe Bloggs"
             ]
@@ -28,7 +43,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // NULL
         $this->assertEquals([
-            "sql" => "name IS NULL",
+            "sql" => "\"name\" IS NULL",
             "parameters" => []
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "", Filter::FILTER_TYPE_NULL)
@@ -36,7 +51,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // NOT NULL
         $this->assertEquals([
-            "sql" => "name IS NOT NULL",
+            "sql" => "\"name\" IS NOT NULL",
             "parameters" => []
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "", Filter::FILTER_TYPE_NOT_NULL)
@@ -44,7 +59,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // GREATER THAN
         $this->assertEquals([
-            "sql" => "age > ?",
+            "sql" => "\"age\" > ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[age]]", 44, Filter::FILTER_TYPE_GREATER_THAN)
@@ -52,7 +67,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // GREATER THAN OR EQUAL TO
         $this->assertEquals([
-            "sql" => "age >= ?",
+            "sql" => "\"age\" >= ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[age]]", 44, Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)
@@ -60,7 +75,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // LESS THAN
         $this->assertEquals([
-            "sql" => "age < ?",
+            "sql" => "\"age\" < ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[age]]", 44, Filter::FILTER_TYPE_LESS_THAN)
@@ -68,7 +83,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // LESS THAN OR EQUAL TO
         $this->assertEquals([
-            "sql" => "age <= ?",
+            "sql" => "\"age\" <= ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[age]]", 44, Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO)
@@ -76,7 +91,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // PREFIX LIKE
         $this->assertEquals([
-            "sql" => "name LIKE ?",
+            "sql" => "\"name\" LIKE ?",
             "parameters" => [
                 "%ee"
             ]
@@ -86,7 +101,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // SUFFIX LIKE
         $this->assertEquals([
-            "sql" => "name LIKE ?",
+            "sql" => "\"name\" LIKE ?",
             "parameters" => [
                 "ee%"
             ]
@@ -96,7 +111,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // OPEN LIKE
         $this->assertEquals([
-            "sql" => "name LIKE ?",
+            "sql" => "\"name\" LIKE ?",
             "parameters" => [
                 "%ee%"
             ]
@@ -106,7 +121,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // BETWEEN
         $this->assertEquals([
-            "sql" => "age BETWEEN ? AND ?",
+            "sql" => "\"age\" BETWEEN ? AND ?",
             "parameters" => [
                 12,
                 50
@@ -118,7 +133,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // IN
         $this->assertEquals([
-            "sql" => "age IN (?,?,?)",
+            "sql" => "\"age\" IN (?,?,?)",
             "parameters" => [
                 12,
                 50,
@@ -130,7 +145,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // NOT IN
         $this->assertEquals([
-            "sql" => "age NOT IN (?,?,?)",
+            "sql" => "\"age\" NOT IN (?,?,?)",
             "parameters" => [
                 12,
                 50,
@@ -143,11 +158,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testAndAndOrFiltersAreMappedCorrectlyForMultipleFiltersInAJunction() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator();
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "name = ? AND age IN (?,?,?,?)",
+            "sql" => "\"name\" = ? AND \"age\" IN (?,?,?,?)",
             "parameters" => [
                 "Joe Bloggs",
                 5,
@@ -163,7 +178,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // Or junction
         $this->assertEquals([
-            "sql" => "name = ? OR age IN (?,?,?,?)",
+            "sql" => "\"name\" = ? OR \"age\" IN (?,?,?,?)",
             "parameters" => [
                 "Joe Bloggs",
                 5,
@@ -181,11 +196,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testNestedJunctionsAreEvaluatedCorrectly() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator();
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "dob > ? OR (name = ? AND age IN (?,?,?,?))",
+            "sql" => "\"dob\" > ? OR (\"name\" = ? AND \"age\" IN (?,?,?,?))",
             "parameters" => [
                 '2000-01-01',
                 "Joe Bloggs",
@@ -212,11 +227,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfLHSTableAliasSuppliedItIsAddedToAllFieldNamePrefixes() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator("T");
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator("T", null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "T.dob > ? OR (T.name = ? AND T.age IN (?,?,?,?))",
+            "sql" => "T.\"dob\" > ? OR (T.\"name\" = ? AND T.\"age\" IN (?,?,?,?))",
             "parameters" => [
                 '2000-01-01',
                 "Joe Bloggs",
@@ -243,11 +258,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfExpressionWithSquareBracketsSuppliedToLHSTheSquareBracketsAreRemovedAndPrefixedAsRequired() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator("T");
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator("T", null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "SUBSTRING(T.dob, ?, ?) > ? OR (? || T.name = ? AND T.age * ? IN (?,?,?,?))",
+            "sql" => "SUBSTR(T.\"dob\", ?, ?) > ? OR (? || T.\"name\" = ? AND T.\"age\" * ? IN (?,?,?,?))",
             "parameters" => [
                 0,
                 10,
@@ -262,7 +277,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("SUBSTRING([[dob]], 0, 10)", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("SUBSTR([[dob]], 0, 10)", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
             ],
             [
                 new FilterJunction([
@@ -279,11 +294,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfColumnsSuppliedUsingSquareBracketsTheseAreIncludedLiterallyInLieuOfPlaceholders() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator();
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "dob > new_dob OR (name = new_name AND age IN (?,?,?,?))",
+            "sql" => "\"dob\" > \"new_dob\" OR (\"name\" = \"new_name\" AND \"age\" IN (?,?,?,?))",
             "parameters" => [
                 5,
                 7,
@@ -307,11 +322,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfRHSColumnAliasSuppliedWIthColumnsSuppliedUsingSquareBracketsTheseAreIncludedLiterallyInLieuOfPlaceholders() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, "J");
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, "J", $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "dob > J.new_dob OR (name = J.new_name AND age IN (?,?,?,?))",
+            "sql" => "\"dob\" > J.\"new_dob\" OR (\"name\" = J.\"new_name\" AND \"age\" IN (?,?,?,?))",
             "parameters" => [
                 5,
                 7,

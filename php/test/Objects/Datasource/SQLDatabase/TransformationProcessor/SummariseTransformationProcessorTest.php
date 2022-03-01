@@ -30,7 +30,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
         // SUM(total)
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
@@ -41,7 +41,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, SUM(total) FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, SUM(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // MAX(total)
@@ -53,7 +53,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, MAX(total) FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, MAX(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
         // MIN(total)
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
@@ -64,7 +64,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, MIN(total) FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, MIN(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // AVG(total)
@@ -76,7 +76,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, AVG(total) FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, AVG(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
     }
 
@@ -95,7 +95,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) + SUM(total) FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) + SUM(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
     }
@@ -116,7 +116,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
     }
@@ -156,7 +156,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // Second summarisation
@@ -165,7 +165,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $query = $transformationProcessor->updateQuery($secondSummariseTransformation, $query, [], $dataSource);
-        $this->assertEquals("SELECT category, SUM(customMetric) FROM (SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM my_table GROUP BY category, dept) S1 GROUP BY category", $query->getSQL());
+        $this->assertEquals("SELECT category, SUM(customMetric) FROM (SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept) S2 GROUP BY category", $query->getSQL());
 
 
     }

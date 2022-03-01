@@ -43,7 +43,7 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-        $evaluator = new SQLFilterJunctionEvaluator();
+        $evaluator = new SQLFilterJunctionEvaluator(null,null, $dataSource->returnDatabaseConnection());
 
         $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation, $parameterValues);
 

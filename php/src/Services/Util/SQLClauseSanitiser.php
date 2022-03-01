@@ -66,6 +66,8 @@ class SQLClauseSanitiser {
             "description" => "Return the closest integer above the supplied numeric argument X"],
         "COALESCE" => ["params" => ["X", "Y", "..."], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first non-null value from the supplied parameter list"],
+        "CONCAT" => ["params" => ["X", "Y", "..."], "category" => self::STRING_WHITELISTED_FUNCTION,
+            "description" => "Join all passed strings together and return the combined result"],
         "COUNT" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,
             "description" => "Return the count of all matching values in the group"],
@@ -93,7 +95,7 @@ class SQLClauseSanitiser {
             "description" => "Rounds the supplied number X to number of decimal places supplied as Y (defaults to 0 dp)"],
         "RTRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Remove whitespace from end of the supplied string"],
-        "SUBSTRING" => ["params" => ["X", "Y", "Z"], "category" => self::STRING_WHITELISTED_FUNCTION,
+        "SUBSTR" => ["params" => ["X", "Y", "Z"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Return the portion of the string passed as the first argument, starting at Y and extracting Z number of characters"],
         "SUM" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,
@@ -121,8 +123,8 @@ class SQLClauseSanitiser {
         $parameterValues = array();
         $columnNames = array();
 
-        // Look for literals or existing ? values
-        $sqlString = preg_replace_callback("/(\[\[.*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
+        // Look for columns, literals or existing ? values
+        $sqlString = preg_replace_callback("/(\[\[[a-zA-Z0-9\-_]*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
             $literal = trim($matches[0], "' ");
             if (trim($literal, "[]") != $literal) {
                 $columnNames[] = $literal;
@@ -134,6 +136,10 @@ class SQLClauseSanitiser {
             }
             return "?";
         }, $sqlString);
+
+
+        // Remove any other [[ ]] expressions.
+        $sqlString = preg_replace("/\[\[.*?\]\]/", "", $sqlString);
 
 
         // Remove any keywords which don't match our whitelisted ones

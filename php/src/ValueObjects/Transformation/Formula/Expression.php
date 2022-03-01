@@ -74,12 +74,16 @@ class Expression {
     }
 
     // Return SQL clause
-    public function returnSQLClause(&$parameterValues = []) {
+    public function returnSQLClause(&$parameterValues, $databaseConnection) {
         $sqlSanitiser = Container::instance()->get(SQLClauseSanitiser::class);
 
         // SQL Santise and substitute params
-        $expression = $sqlSanitiser->sanitiseSQL($this->expression, $parameterValues);
-        $expression = str_replace("]]", "", str_replace("[[", "", $expression));
+        $sanitisedParams = [];
+        $expression = $sqlSanitiser->sanitiseSQL($this->expression, $sanitisedParams);
+        $parameterValues = array_merge($parameterValues, $sanitisedParams);
+
+        // Replace square bracketted expressions
+        $expression = preg_replace("/\[\[(.*?)\]\]/", $databaseConnection->escapeColumn("$1"), $expression);
 
         return $expression . " " . $this->returnFieldName();
     }

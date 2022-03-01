@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
@@ -51,9 +52,10 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
         if ($transformation instanceof SummariseTransformation) {
 
-            // If we already have a group by clause we need to create a query wrapper
-            if ($query->hasGroupByClause()) {
-                $query = new SQLQuery("*", "(" . $query->getSQL() . ") S" . ++$this->aliasIndex);
+
+            // If we already have a group by clause or have explicit columns we need to create a query wrapper
+            if ($query->hasGroupByClause() || $query->getSelectClause() !== "*") {
+                $query = new SQLQuery("*", "(" . $query->getSQL() . ") S" . ++$this->aliasIndex, $query->getParameters());
             }
 
             $groupByClauses = $transformation->getSummariseFieldNames();
