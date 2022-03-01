@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use AWS\CRT\Log;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -38,7 +39,7 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
             foreach ($transformation->getExpressions() as $expression) {
                 $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
-            }
+            };
             $dataSource->getConfig()->setColumns($datasourceColumns);
         }
 
@@ -50,9 +51,16 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
             $clauses[] = $expression->returnSQLClause($clauseParams, $dataSource->returnDatabaseConnection());
         }
 
-        $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses), $clauseParams);
+        // If Group By, make sure we wrap the query
+        if ($query->hasGroupByClause()) {
+            $params = array_merge($clauseParams, $query->getParameters());
+            $query = new SQLQuery("F" . ++$this->aliasIndex . ".*, " . join(", ", $clauses), "(" . $query->getSQL() . ") F" . $this->aliasIndex, $params);
+        } else {
+            $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses), $clauseParams);
+        }
 
-        return new SQLQuery("*", "(" . $query->getSQL() . ") F" . ++$this->aliasIndex, $clauseParams);
+
+        return $query;
 
     }
 }

@@ -93,7 +93,7 @@ class SQLClauseSanitiser {
             "description" => "Rounds the supplied number X to number of decimal places supplied as Y (defaults to 0 dp)"],
         "RTRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Remove whitespace from end of the supplied string"],
-        "SUBSTRING" => ["params" => ["X", "Y", "Z"], "category" => self::STRING_WHITELISTED_FUNCTION,
+        "SUBSTR" => ["params" => ["X", "Y", "Z"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Return the portion of the string passed as the first argument, starting at Y and extracting Z number of characters"],
         "SUM" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,

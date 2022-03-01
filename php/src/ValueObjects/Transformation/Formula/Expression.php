@@ -78,7 +78,9 @@ class Expression {
         $sqlSanitiser = Container::instance()->get(SQLClauseSanitiser::class);
 
         // SQL Santise and substitute params
-        $expression = $sqlSanitiser->sanitiseSQL($this->expression, $parameterValues);
+        $sanitisedParams = [];
+        $expression = $sqlSanitiser->sanitiseSQL($this->expression, $sanitisedParams);
+        $parameterValues = array_merge($parameterValues, $sanitisedParams);
 
         // Replace square bracketted expressions
         $expression = preg_replace("/\[\[(.*?)\]\]/", $databaseConnection->escapeColumn("$1"), $expression);

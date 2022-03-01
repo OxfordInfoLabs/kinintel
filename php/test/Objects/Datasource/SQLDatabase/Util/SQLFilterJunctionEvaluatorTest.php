@@ -262,7 +262,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         // Default AND junction
         $this->assertEquals([
-            "sql" => "SUBSTRING(T.\"dob\", ?, ?) > ? OR (? || T.\"name\" = ? AND T.\"age\" * ? IN (?,?,?,?))",
+            "sql" => "SUBSTR(T.\"dob\", ?, ?) > ? OR (? || T.\"name\" = ? AND T.\"age\" * ? IN (?,?,?,?))",
             "parameters" => [
                 0,
                 10,
@@ -277,7 +277,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("SUBSTRING([[dob]], 0, 10)", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("SUBSTR([[dob]], 0, 10)", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
             ],
             [
                 new FilterJunction([
