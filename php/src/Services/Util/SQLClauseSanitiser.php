@@ -66,6 +66,8 @@ class SQLClauseSanitiser {
             "description" => "Return the closest integer above the supplied numeric argument X"],
         "COALESCE" => ["params" => ["X", "Y", "..."], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first non-null value from the supplied parameter list"],
+        "CONCAT" => ["params" => ["X", "Y", "..."], "category" => self::STRING_WHITELISTED_FUNCTION,
+            "description" => "Join all passed strings together and return the combined result"],
         "COUNT" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,
             "description" => "Return the count of all matching values in the group"],
