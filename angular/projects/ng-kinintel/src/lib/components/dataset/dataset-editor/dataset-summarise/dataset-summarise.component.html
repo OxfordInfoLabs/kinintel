@@ -81,9 +81,9 @@
                             </div>
                         </ng-template>
                         <div class="bottom">
-                            <span>Custom label</span>
+                            <span>Label<span class="text-red-500 text-xs">&nbsp;*</span></span>
                             <input type="text" [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.name"
-                                   [(ngModel)]="item.customLabel">
+                                   [(ngModel)]="item.customLabel" [ngClass]="{'border border-red-500': !item.customLabel}">
                         </div>
 
 
@@ -105,7 +105,8 @@
                 <mat-icon>construction</mat-icon>
                 Create custom expression
             </button>
-            <button mat-flat-button color="primary" (click)="applySettings()">Apply Settings</button>
+            <button mat-flat-button color="primary" (click)="applySettings()"
+                [disabled]="!_.every(summariseExpressions, 'customLabel')">Apply Settings</button>
         </div>
 
     </div>

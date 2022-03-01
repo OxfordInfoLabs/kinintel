@@ -8,7 +8,9 @@ import {DatasetColumnSettingsComponent} from './dataset-column-settings/dataset-
 import {DatasetService} from '../../../services/dataset.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DatasetFilterComponent} from './dataset-filters/dataset-filter/dataset-filter.component';
-import {DatasetAddParameterComponent} from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
+import {
+    DatasetAddParameterComponent
+} from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -144,7 +146,9 @@ export class DatasetEditorComponent implements OnInit {
     public editTerminatingTransformation(transformation) {
         if (transformation.type === 'summarise') {
             this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
-                this.summariseData(clonedTransformation.config, existingIndex);
+                setTimeout(() => {
+                    this.summariseData(clonedTransformation.config, existingIndex);
+                }, 200);
             });
         }
         if (transformation.type === 'join') {
@@ -152,12 +156,16 @@ export class DatasetEditorComponent implements OnInit {
         }
         if (transformation.type === 'formula') {
             this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
-                this.createFormula(clonedTransformation, existingIndex);
+                setTimeout(() => {
+                    this.createFormula(clonedTransformation, existingIndex);
+                }, 200);
             });
         }
         if (transformation.type === 'columns') {
             this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
-                this.editColumnSettings(clonedTransformation, existingIndex);
+                setTimeout(() => {
+                    this.editColumnSettings(clonedTransformation, existingIndex);
+                }, 200);
             });
         }
     }
@@ -484,7 +492,6 @@ export class DatasetEditorComponent implements OnInit {
     }
 
 
-
     public addParameter() {
         if (!this.showParameters) {
             this.showParameters = true;
@@ -731,28 +738,28 @@ export class DatasetEditorComponent implements OnInit {
                         evaluateSub.unsubscribe();
                         const resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
                             .subscribe((results: any) => {
-                            if (results.status === 'COMPLETED') {
-                                resultsSub.unsubscribe();
-                                this.dataset = results.result;
-                                this.longRunning = false;
-                                return this.loadData();
-                            } else if (results.status === 'FAILED') {
-                                resultsSub.unsubscribe();
-                                this.longRunning = false;
-                                const errorMessage = results.result;
-                                if (errorMessage) {
-                                    const message = errorMessage.toLowerCase();
-                                    if (!message.includes('parameter') && !message.includes('required')) {
-                                        this.snackBar.open(errorMessage, 'Close', {
-                                            verticalPosition: 'top'
-                                        });
+                                if (results.status === 'COMPLETED') {
+                                    resultsSub.unsubscribe();
+                                    this.dataset = results.result;
+                                    this.longRunning = false;
+                                    return this.loadData();
+                                } else if (results.status === 'FAILED') {
+                                    resultsSub.unsubscribe();
+                                    this.longRunning = false;
+                                    const errorMessage = results.result;
+                                    if (errorMessage) {
+                                        const message = errorMessage.toLowerCase();
+                                        if (!message.includes('parameter') && !message.includes('required')) {
+                                            this.snackBar.open(errorMessage, 'Close', {
+                                                verticalPosition: 'top'
+                                            });
+                                        }
                                     }
+                                    // If the evaluate fails we still want to publish the instance and set the terminating transformations
+                                    this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
+                                    this.setTerminatingTransformations();
                                 }
-                                // If the evaluate fails we still want to publish the instance and set the terminating transformations
-                                this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
-                                this.setTerminatingTransformations();
-                            }
-                        });
+                            });
                     }
                 }, 3000);
             });
