@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\TemplateParser;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class SQLFilterValueEvaluator {
@@ -17,10 +18,19 @@ class SQLFilterValueEvaluator {
 
 
     /**
-     * SQLFilterValueEvaluator constructor.
+     * @var DatabaseConnection
      */
-    public function __construct() {
+    private $databaseConnection;
+
+
+    /**
+     * SQLFilterValueEvaluator constructor.
+     *
+     * @param DatabaseConnection $databaseConnection
+     */
+    public function __construct($databaseConnection) {
         $this->sqlClauseSanitiser = Container::instance()->get(SQLClauseSanitiser::class);
+        $this->databaseConnection = $databaseConnection;
     }
 
 
@@ -69,7 +79,7 @@ class SQLFilterValueEvaluator {
                 $value = $this->sqlClauseSanitiser->sanitiseSQL($value, $outputParameters);
 
                 // Remove any [[ from column names and prefix with table alias if supplied
-                $value = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . "$1", $value);
+                $value = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . $this->databaseConnection->escapeColumn("$1"), $value);
             }
 
 

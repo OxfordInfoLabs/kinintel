@@ -121,8 +121,8 @@ class SQLClauseSanitiser {
         $parameterValues = array();
         $columnNames = array();
 
-        // Look for literals or existing ? values
-        $sqlString = preg_replace_callback("/(\[\[.*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
+        // Look for columns, literals or existing ? values
+        $sqlString = preg_replace_callback("/(\[\[[a-zA-Z0-9\-_]*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
             $literal = trim($matches[0], "' ");
             if (trim($literal, "[]") != $literal) {
                 $columnNames[] = $literal;
@@ -134,6 +134,10 @@ class SQLClauseSanitiser {
             }
             return "?";
         }, $sqlString);
+
+
+        // Remove any other [[ ]] expressions.
+        $sqlString = preg_replace("/\[\[.*?\]\]/", "", $sqlString);
 
 
         // Remove any keywords which don't match our whitelisted ones

@@ -42,10 +42,10 @@ class SQLFilterJunctionEvaluator {
      * @param string $lhsTableAlias
      * @param string $rhsTableAlias
      */
-    public function __construct($lhsTableAlias = null, $rhsTableAlias = null) {
+    public function __construct($lhsTableAlias = null, $rhsTableAlias = null, $databaseConnection = null) {
         $this->lhsTableAlias = $lhsTableAlias;
         $this->rhsTableAlias = $rhsTableAlias;
-        $this->sqlFilterValueEvaluator = new SQLFilterValueEvaluator();
+        $this->sqlFilterValueEvaluator = new SQLFilterValueEvaluator($databaseConnection);
     }
 
 
@@ -172,7 +172,6 @@ class SQLFilterJunctionEvaluator {
 
         if (sizeof($rhsParams))
             array_splice($parameters, sizeof($parameters), 0, $rhsParams);
-
 
 
         return $clause;

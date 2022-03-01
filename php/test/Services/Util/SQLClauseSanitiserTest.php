@@ -47,15 +47,21 @@ class SQLClauseSanitiserTest extends TestBase {
 
     }
 
-    public function testExpressionsInSquareBracketsAreLeftIntact() {
+    public function testSimpleExpressionsInSquareBracketsAreLeftIntact() {
         $params = [];
         $sql = $this->sqlClauseSanitiser->sanitiseSQL("[[Param1]] || [[Param2]]", $params);
         $this->assertEquals("[[Param1]] || [[Param2]]", $sql);
         $this->assertEquals([], $params);
 
         $params = [];
-        $sql = $this->sqlClauseSanitiser->sanitiseSQL("123 || [[Param1]] || [[Param2]]", $params);
-        $this->assertEquals("? || [[Param1]] || [[Param2]]", $sql);
+        $sql = $this->sqlClauseSanitiser->sanitiseSQL("123 || [[Param1]] || [[param_2]] || [[param-3]]", $params);
+        $this->assertEquals("? || [[Param1]] || [[param_2]] || [[param-3]]", $sql);
+        $this->assertEquals([123], $params);
+
+        // Complex expressions removed in []
+        $params = [];
+        $sql = $this->sqlClauseSanitiser->sanitiseSQL("123 || [[Complex * Two]] || [[Bing One Two]]", $params);
+        $this->assertEquals("? ||  || ", $sql);
         $this->assertEquals([123], $params);
 
     }

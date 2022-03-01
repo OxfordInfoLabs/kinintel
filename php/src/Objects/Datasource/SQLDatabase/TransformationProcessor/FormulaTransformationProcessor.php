@@ -47,7 +47,7 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         $clauses = [];
         $clauseParams = [];
         foreach ($transformation->getExpressions() as $expression) {
-            $clauses[] = $expression->returnSQLClause($clauseParams);
+            $clauses[] = $expression->returnSQLClause($clauseParams, $dataSource->returnDatabaseConnection());
         }
 
         $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses), $clauseParams);

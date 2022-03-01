@@ -4,7 +4,11 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -20,10 +24,14 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $formulaTransformationProcessor = new FormulaTransformationProcessor();
 
+
+        $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
+        $authenticationCredentials->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
         $dataSource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test", null, [
             new Field("column1"), new Field("column2")
         ]),
-            null, null);
+            $authenticationCredentials, null);
 
         $transformation = new FormulaTransformation([
             new Expression("Computed", "[[column1]] + [[column2]]"),
@@ -40,7 +48,7 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             new Field("derivedColumn", "Derived Column")
         ], $dataSource->getConfig()->getColumns());
 
-        $this->assertEquals("SELECT * FROM (SELECT *, column1 + column2 computed, column3 + ? / column2 derivedColumn FROM sample_table) F1",
+        $this->assertEquals("SELECT * FROM (SELECT *, \"column1\" + \"column2\" computed, \"column3\" + ? / \"column2\" derivedColumn FROM sample_table) F1",
             $query->getSQL());
 
         $this->assertEquals([5], $query->getParameters());
