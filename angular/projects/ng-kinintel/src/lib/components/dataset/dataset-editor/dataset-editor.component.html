@@ -96,7 +96,7 @@
 
 <div class="cell-header">
     <div class="transformation-listing py-2 filters-list" *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length">
-        <a class="list-title flex items-center" href="javascript:void(0)" (click)="showFilters = !showFilters">
+        <a class="list-title flex items-center" (click)="showFilters = !showFilters">
             Filters&nbsp;
             <mat-icon *ngIf="!showFilters">expand_more</mat-icon>
             <mat-icon *ngIf="showFilters">expand_less</mat-icon>
@@ -165,7 +165,7 @@
                     </ng-template>
                     <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
                         <div>{{element[column.name].substring(0, 100) + '...'}}</div>
-                        <a href="javascript:void(0)" (click)="viewFullItemData(element[column.name], column.name)"
+                        <a (click)="viewFullItemData(element[column.name], column.name)"
                            class="flex items-center text-sm text-indigo-600">
                             view more
                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"

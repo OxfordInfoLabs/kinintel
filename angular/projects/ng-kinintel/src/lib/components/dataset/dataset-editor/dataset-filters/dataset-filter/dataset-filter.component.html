@@ -11,7 +11,7 @@
         </div>
         <div class="text-xs flex items-center mt-2" *ngIf="customLhs">
             {{filterFields[0].title}}&nbsp;<b>[[{{filterFields[0].name}}]]</b>...
-            <a href="javascript:void(0)" (click)="viewColumns(filterFields)"
+            <a (click)="viewColumns(filterFields)"
                 class="ml-2 hover:underline flex items-center primary">
                  view all&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -49,7 +49,7 @@
         </div>
         <div class="text-xs flex items-center mt-2" *ngIf="customLhs">
             {{filterFields[0].title}}&nbsp;<b>[[{{filterFields[0].name}}]]</b>...
-            <a href="javascript:void(0)" (click)="viewColumns(filterFields)"
+            <a (click)="viewColumns(filterFields)"
                class="ml-2 hover:underline flex items-center primary">
                 view all&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -82,7 +82,7 @@
         </div>
         <div class="text-xs flex items-center mt-2" *ngIf="customValue">
             {{joinFilterFields[0].title}}&nbsp;<b>[[{{joinFilterFields[0].name}}]]</b>...
-            <a href="javascript:void(0)" (click)="viewColumns(joinFilterFields)"
+            <a (click)="viewColumns(joinFilterFields)"
                class="ml-2 hover:underline flex items-center primary">
                 view all&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

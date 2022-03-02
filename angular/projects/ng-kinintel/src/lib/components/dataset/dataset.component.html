@@ -58,7 +58,7 @@
                             {{element.summary}}
                         </div>
                         <div class="inline-category" *ngIf="element.categories.length">
-                            <a href="javascript:void(0)" *ngFor="let category of element.categories">
+                            <a *ngFor="let category of element.categories">
                                 {{category.category}}
                             </a>
                         </div>
