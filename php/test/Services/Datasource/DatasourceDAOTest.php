@@ -110,5 +110,83 @@ class DatasourceDAOTest extends TestBase {
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
         $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[1]);
 
+        // Check limiting and offset
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("json", 3);
+        $this->assertEquals(3, sizeof($filtered));
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds"), $filtered[2]);
+
+
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("json", 10, 2);
+        $this->assertEquals(3, sizeof($filtered));
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds"), $filtered[2]);
+
     }
+
+
+    public function testCanFilterDatasourcesByAccountIdAndProjectKey() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance->setAccountId(2);
+        $dataSourceInstance->save();
+
+        $dataSourceInstance = new DatasourceInstance("db-sql", "Database SQL", "sqldatabase", [
+            "source" => "table",
+            "tableName" => "bob"
+        ], "http-basic");
+        $dataSourceInstance->setAccountId(2);
+        $dataSourceInstance->setProjectKey("soapSuds");
+        $dataSourceInstance->save();
+
+
+        // Check a couple of filters
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, null, 2);
+        $this->assertEquals(2, sizeof($filtered));
+
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[1]);
+
+
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, "soapSuds", 2);
+        $this->assertEquals(1, sizeof($filtered));
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[0]);
+
+
+    }
+
+
+    public function testDatasetSnapshotsAreIgnoredInFilteredResults() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSourceInstance = new DatasourceInstance("db-json", "Database JSON", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance->setAccountId(2);
+        $dataSourceInstance->save();
+
+        $dataSourceInstance = new DatasourceInstance("db-sql", "Dataset Snapshot", "snapshot", [
+            "source" => "table",
+            "tableName" => "bob"
+        ], "http-basic");
+        $dataSourceInstance->setAccountId(2);
+        $dataSourceInstance->save();
+
+
+        // Check a couple of filters
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, null, 2);
+        $this->assertEquals(1, sizeof($filtered));
+
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
+
+
+    }
+
 }

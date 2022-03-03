@@ -71,8 +71,8 @@ class DatasourceService {
      * @param int $limit
      * @param int $offset
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0) {
-        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $projectKey, $accountId);
     }
 
 

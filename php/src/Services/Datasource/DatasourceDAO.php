@@ -73,39 +73,64 @@ class DatasourceDAO {
      * Get an array of filtered datasources using passed filter string to limit on
      * name of data source.  This checks both local datasources and database ones.
      *
+     * If account id and/or project key is passed the returned instances are restricted accordingly
+     *
      * @param string $filterString
      * @param int $limit
      * @param int $offset
+     * @param string $projectKey
+     * @param int $accountId
+     * @param boolean $strictMode
      *
      * @return DatasourceInstanceSearchResult[]
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0) {
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null, $accountId = null) {
         $this->loadFileSystemDatasources();
 
-        // Firstly loop through the file system ones and gather any matches
-        $matches = [];
-        foreach ($this->fileSystemDataSources as $dataSource) {
-            if (!$filterString || is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
-                $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle());
+        if ($accountId || $projectKey) {
+
+            $sql = "WHERE title LIKE ? AND type <> 'snapshot'";
+            $params = ["%$filterString%"];
+
+            if ($accountId) {
+                $sql .= " AND account_id = ?";
+                $params[] = $accountId;
             }
+            if ($projectKey) {
+                $sql .= " AND project_key = ?";
+                $params[] = $projectKey;
+            }
+
+            $matches = array_map(function ($dbMatch) {
+                return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
+            }, DatasourceInstance::filter($sql, $params));
+
+        } else {
+            // Firstly loop through the file system ones and gather any matches
+            $matches = [];
+            foreach ($this->fileSystemDataSources as $dataSource) {
+                if (!$filterString || is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
+                    $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle());
+                }
+            }
+
+            // If still more to get, search the db.
+            $dbMatches = DatasourceInstance::filter("WHERE title LIKE ? AND type <> 'snapshot' AND account_id IS NULL",
+                "%$filterString%");
+
+            $newMatches = array_map(function ($dbMatch) {
+                return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
+            }, $dbMatches);
+
+            $matches = array_merge($matches, $newMatches);
         }
-
-        // If still more to get, search the db.
-        $dbMatches = DatasourceInstance::filter("WHERE title LIKE ? LIMIT ?",
-            "%$filterString%", $limit - sizeof($matches));
-
-        $newMatches = array_map(function ($dbMatch) {
-            return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
-        }, $dbMatches);
-
-        $matches = array_merge($matches, $newMatches);
 
         usort($matches, function ($x, $y) {
             return ($x->getTitle() > $y->getTitle() ? 1 : -1);
         });
 
 
-        return $matches;
+        return array_slice($matches, $offset, $limit);
 
 
     }

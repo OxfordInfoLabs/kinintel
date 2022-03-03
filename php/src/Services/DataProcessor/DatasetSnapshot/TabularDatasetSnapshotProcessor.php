@@ -141,7 +141,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         } catch (ObjectNotFoundException $e) {
 
             // Create a new data source instance and save it.
-            $dataSourceInstance = new DatasourceInstance($instanceKey, $instanceKey, "sqldatabase",
+            $dataSourceInstance = new DatasourceInstance($instanceKey, $instanceKey, "snapshot",
                 [
                     "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                     "tableName" => $instanceKey

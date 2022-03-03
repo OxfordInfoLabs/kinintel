@@ -87,7 +87,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ]);
 
 
-        $expectedDatasourceInstance = new DatasourceInstance("mytestsnapshot", "mytestsnapshot", "sqldatabase", [
+        $expectedDatasourceInstance = new DatasourceInstance("mytestsnapshot", "mytestsnapshot", "snapshot", [
             "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
             "tableName" => "mytestsnapshot"
         ], "dataset_snapshot");
