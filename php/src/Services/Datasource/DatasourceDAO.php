@@ -102,7 +102,7 @@ class DatasourceDAO {
             }
 
             $matches = array_map(function ($dbMatch) {
-                return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
+                return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle(), $dbMatch->getType());
             }, DatasourceInstance::filter($sql, $params));
 
         } else {
@@ -110,7 +110,7 @@ class DatasourceDAO {
             $matches = [];
             foreach ($this->fileSystemDataSources as $dataSource) {
                 if (!$filterString || is_numeric(strpos(strtolower($dataSource->getTitle()), strtolower($filterString)))) {
-                    $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle());
+                    $matches[] = new DatasourceInstanceSearchResult($dataSource->getKey(), $dataSource->getTitle(), $dataSource->getType());
                 }
             }
 
@@ -119,7 +119,7 @@ class DatasourceDAO {
                 "%$filterString%");
 
             $newMatches = array_map(function ($dbMatch) {
-                return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle());
+                return new DatasourceInstanceSearchResult($dbMatch->getKey(), $dbMatch->getTitle(), $dbMatch->getType());
             }, $dbMatches);
 
             $matches = array_merge($matches, $newMatches);

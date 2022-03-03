@@ -30,13 +30,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
     // use account project trait
     use AccountProject;
 
-    /**
-     * Type for this data source - can either be a mapping implementation key
-     * or a fully qualified class path
-     *
-     * @var string
-     */
-    private $type;
+
 
     /**
      * Config for the data source - should match the required format for
@@ -113,8 +107,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * @param Parameter[] $parameters
      */
     public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = []) {
-        parent::__construct($key, $title);
-        $this->type = $type;
+        parent::__construct($key, $title, $type);
         $this->config = $config;
         $this->credentialsKey = $credentialsKey;
         $this->credentialsType = $credentialsType;
@@ -138,12 +131,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
-    public function getType() {
-        return $this->type;
-    }
+
 
     /**
      * @param string $type

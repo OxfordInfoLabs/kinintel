@@ -98,31 +98,31 @@ class DatasourceDAOTest extends TestBase {
         $filtered = $this->datasourceDAO->filterDatasourceInstances("json");
         $this->assertEquals(5, sizeof($filtered));
 
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource"), $filtered[1]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds"), $filtered[2]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config"), $filtered[3]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds"), $filtered[4]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource", "webservice"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds", "webservice"), $filtered[2]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config", "webservice"), $filtered[3]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds", "webservice"), $filtered[4]);
 
         $filtered = $this->datasourceDAO->filterDatasourceInstances("database");
         $this->assertEquals(2, sizeof($filtered));
 
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL", "sqldatabase"), $filtered[1]);
 
         // Check limiting and offset
         $filtered = $this->datasourceDAO->filterDatasourceInstances("json", 3);
         $this->assertEquals(3, sizeof($filtered));
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource"), $filtered[1]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds"), $filtered[2]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource", "webservice"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds", "webservice"), $filtered[2]);
 
 
         $filtered = $this->datasourceDAO->filterDatasourceInstances("json", 10, 2);
         $this->assertEquals(3, sizeof($filtered));
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config"), $filtered[1]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds"), $filtered[2]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds", "webservice"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config", "webservice"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds", "webservice"), $filtered[2]);
 
     }
 
@@ -150,13 +150,13 @@ class DatasourceDAOTest extends TestBase {
         $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, null, 2);
         $this->assertEquals(2, sizeof($filtered));
 
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL","sqldatabase"), $filtered[1]);
 
 
         $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, "soapSuds", 2);
         $this->assertEquals(1, sizeof($filtered));
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL", "sqldatabase"), $filtered[0]);
 
 
     }
@@ -184,7 +184,7 @@ class DatasourceDAOTest extends TestBase {
         $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, null, 2);
         $this->assertEquals(1, sizeof($filtered));
 
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
 
 
     }
