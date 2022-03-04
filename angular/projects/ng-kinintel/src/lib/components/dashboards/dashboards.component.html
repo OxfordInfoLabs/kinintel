@@ -95,7 +95,7 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+            <tr mat-row class="hover:bg-gray-50" *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
         </table>
         <div class="paging-toolbar flex align-center justify-end mt-4">
             <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">

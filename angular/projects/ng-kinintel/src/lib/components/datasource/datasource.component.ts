@@ -1,16 +1,17 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {BehaviorSubject, merge, Subject} from 'rxjs';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasourceService} from '../../services/datasource.service';
+import {ProjectService} from '../../services/project.service';
 
 @Component({
     selector: 'ki-datasource',
     templateUrl: './datasource.component.html',
     styleUrls: ['./datasource.component.sass']
 })
-export class DatasourceComponent implements OnInit {
+export class DatasourceComponent implements OnInit, OnDestroy {
 
     @Input() admin: boolean;
 
@@ -21,12 +22,22 @@ export class DatasourceComponent implements OnInit {
     public page = 1;
     public endOfResults = false;
     public reload = new Subject();
+    public isProjectAdmin = false;
+
+    private projectSub: Subscription;
 
     constructor(private dialog: MatDialog,
-                private datasourceService: DatasourceService) {
+                private datasourceService: DatasourceService,
+                private projectService: ProjectService) {
     }
 
     ngOnInit(): void {
+        this.isProjectAdmin = this.projectService.isActiveProjectAdmin();
+
+        this.projectSub = this.projectService.activeProject.subscribe(() => {
+            this.isProjectAdmin = this.projectService.isActiveProjectAdmin();
+        });
+
         merge(this.searchText, this.reload)
             .pipe(
                 debounceTime(300),
@@ -37,6 +48,10 @@ export class DatasourceComponent implements OnInit {
             ).subscribe((sources: any) => {
             this.datasources = sources;
         });
+    }
+
+    ngOnDestroy() {
+        this.projectSub.unsubscribe();
     }
 
     public createDatasource() {

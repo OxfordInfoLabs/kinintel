@@ -3,17 +3,19 @@
     <div class="bg-white p-6 content-wrapper">
         <div class="pb-6 flex align-center justify-between">
             <h3 class="mb-0 text-lg leading-6 font-medium text-gray-900">
-                Datasources
+                <ng-template [ngIf]="!admin">Project&nbsp;</ng-template>Datasources
             </h3>
-            <button mat-flat-button color="primary" [matMenuTriggerFor]="create">
-                Connect Datasource
-                <mat-icon>expand_more</mat-icon>
-            </button>
-            <mat-menu #create="matMenu">
-                <button mat-menu-item [routerLink]="['/create-datasource']">
-                    New Datasource
+            <ng-template [ngIf]="isProjectAdmin">
+                <button mat-flat-button color="primary" [matMenuTriggerFor]="create">
+                    Connect Datasource
+                    <mat-icon>expand_more</mat-icon>
                 </button>
-            </mat-menu>
+                <mat-menu #create="matMenu">
+                    <button mat-menu-item [routerLink]="['/create-datasource']">
+                        New Datasource
+                    </button>
+                </mat-menu>
+            </ng-template>
         </div>
 
         <div class="mb-8">
@@ -33,7 +35,7 @@
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let element" class="text-right nop">
                     <div class="flex items-center justify-end">
-                        <ng-template [ngIf]="element.custom">
+                        <ng-template [ngIf]="element.type === 'custom' && isProjectAdmin">
                             <button mat-button color="primary" [routerLink]="['/create-datasource', element.key]">
                                 Edit
                             </button>
@@ -46,7 +48,7 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="['datasource', 'explore']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
+            <tr mat-row class="hover:bg-gray-50" *matRowDef="let row; columns: ['datasource', 'explore'];"></tr>
         </table>
         <div class="paging-toolbar flex align-center justify-end mt-4">
             <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">

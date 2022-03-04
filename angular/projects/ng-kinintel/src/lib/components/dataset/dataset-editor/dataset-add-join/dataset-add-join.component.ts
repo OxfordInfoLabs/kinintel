@@ -91,18 +91,18 @@ export class DatasetAddJoinComponent implements OnInit {
             this.snapshots = snapshots;
         });
 
-        if (this.admin) {
-            merge(this.searchText)
-                .pipe(
-                    debounceTime(300),
-                    distinctUntilChanged(),
-                    switchMap(() =>
-                        this.getDatasources()
-                    )
-                ).subscribe((sources: any) => {
-                this.datasources = sources;
-            });
-        } else {
+        merge(this.searchText)
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                switchMap(() =>
+                    this.getDatasources()
+                )
+            ).subscribe((sources: any) => {
+            this.datasources = sources;
+        });
+
+        if (!this.admin) {
             merge(this.searchText)
                 .pipe(
                     debounceTime(300),
@@ -114,7 +114,7 @@ export class DatasetAddJoinComponent implements OnInit {
                 this.sharedDatasets = datasets;
             });
         }
-console.log('JOIN', this.data.joinTransformation);
+
         if (this.data.joinTransformation) {
             this.joinTransformation = this.data.joinTransformation;
             const item = {
