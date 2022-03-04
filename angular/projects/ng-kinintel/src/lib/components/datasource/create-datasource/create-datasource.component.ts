@@ -379,6 +379,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         } else {
             this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
                 .then(() => {
+                    this.adds = [];
+                    this.updates = [];
+                    this.deletes = [];
                     this.loadDatasource();
                 });
         }
