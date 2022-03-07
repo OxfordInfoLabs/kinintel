@@ -180,6 +180,10 @@ trait Dataset {
      * @http POST /evaluate
      *
      * @param DatasetInstanceSummary $datasetInstanceSummary
+     * @param string $offset
+     * @param string $limit
+     * @param string $trackingKey
+     *
      * @return \Kinintel\Objects\Dataset\Dataset
      */
     public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25, $trackingKey = null) {
