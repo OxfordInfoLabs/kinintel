@@ -107,7 +107,6 @@ class SQLFilterJunctionEvaluator {
 
 
         $clause = "";
-        $expectArray = false;
         switch ($filter->getFilterType()) {
             case Filter::FILTER_TYPE_NOT_EQUALS:
                 $clause = "$lhsExpression <> $rhsExpression";
@@ -140,18 +139,15 @@ class SQLFilterJunctionEvaluator {
                     $lhsParams[sizeof($lhsParams) - 1] = str_replace("*", "%", $lhsParams[sizeof($lhsParams) - 1]);
                 break;
             case Filter::FILTER_TYPE_BETWEEN:
-                $expectArray = true;
                 if (!is_array($rhsParams) || sizeof($rhsParams) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array");
                 }
                 $clause = "$lhsExpression BETWEEN ? AND ?";
                 break;
             case Filter::FILTER_TYPE_IN:
-                $expectArray = true;
                 $clause = "$lhsExpression IN (" . $rhsExpression . ")";
                 break;
             case Filter::FILTER_TYPE_NOT_IN:
-                $expectArray = true;
                 $clause = "$lhsExpression NOT IN (" . $rhsExpression . ")";
                 break;
             default:
@@ -159,12 +155,7 @@ class SQLFilterJunctionEvaluator {
                 break;
         }
 
-
-        if (!$expectArray && sizeof($rhsParams) > 1) {
-            throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} should not be an array");
-        }
-
-
+        
         // Add both lhs and rhs params
         if (sizeof($lhsParams))
             array_splice($parameters, sizeof($parameters), 0, $lhsParams);

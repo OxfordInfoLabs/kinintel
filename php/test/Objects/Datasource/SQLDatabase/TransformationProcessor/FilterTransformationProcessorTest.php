@@ -48,15 +48,6 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testEqualsFiltersAreAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
 
-        try {
-            $processor->updateQuery(new FilterTransformation([
-                new Filter("[[name]]", ["hello", "test"], Filter::FILTER_TYPE_EQUALS)
-            ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
-            $this->fail("Should have thrown here");
-        } catch (DatasourceTransformationException $e) {
-            $this->assertTrue(true);
-        }
-
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[name]]", "Jeeves")
         ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
@@ -70,14 +61,6 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     public function testNotEqualsFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
 
-        try {
-            $processor->updateQuery(new FilterTransformation([
-                new Filter("name", ["hello", "test"], Filter::FILTER_TYPE_NOT_EQUALS)
-            ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
-            $this->fail("Should have thrown here");
-        } catch (DatasourceTransformationException $e) {
-            $this->assertTrue(true);
-        }
 
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[name]]", "Jeeves", Filter::FILTER_TYPE_NOT_EQUALS)
