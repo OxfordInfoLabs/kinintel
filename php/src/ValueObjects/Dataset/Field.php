@@ -64,7 +64,9 @@ class Field {
      * @param boolean $keyField
      */
     public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false) {
-        $this->name = $name;
+
+        $name = preg_split("/\W/", $name)[0];
+        $this->name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $name);
 
         // If no title supplied, make one using the name
         if (!$title) {

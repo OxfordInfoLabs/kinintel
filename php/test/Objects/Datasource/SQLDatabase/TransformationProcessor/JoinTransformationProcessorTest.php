@@ -613,7 +613,6 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
-
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mainDataSourceConfig = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
@@ -697,6 +696,5 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]]));
 
     }
-
 
 }
