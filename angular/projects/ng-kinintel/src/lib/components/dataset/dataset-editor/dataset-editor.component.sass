@@ -3,7 +3,8 @@
     flex-direction: column
     position: relative
     height: 100%
-
+    > div
+        flex: 0 1 auto
 
 .long-running
     position: fixed
@@ -140,6 +141,9 @@
 
 .dataset-filters
     position: relative
+    overflow-y: scroll
+    flex: none !important
+    max-height: 400px
     .dataset-filter
         position: relative
         .apply-filter

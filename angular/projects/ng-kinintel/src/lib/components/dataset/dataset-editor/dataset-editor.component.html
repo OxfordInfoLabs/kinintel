@@ -95,7 +95,8 @@
 </div>
 
 <div class="cell-header">
-    <div class="transformation-listing py-2 filters-list" *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length">
+    <div class="transformation-listing py-2 filters-list"
+         *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length">
         <a class="list-title flex items-center" (click)="showFilters = !showFilters">
             Filters&nbsp;
             <mat-icon *ngIf="!showFilters">expand_more</mat-icon>
@@ -105,7 +106,7 @@
                      [ngForOf]="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
 
             <div class="badge-item pl-2 mr-1" *ngIf="_.every(filterTransformation.config.filters[0])"
-                (click)="showFilters = !showFilters">
+                 (click)="showFilters = !showFilters">
                 <span class="cursor-pointer" [innerHtml]="getFilterString(filterTransformation.config)"></span>
             </div>
 
@@ -113,29 +114,34 @@
     </div>
 </div>
 
-
-<div class="dataset-filters"
+<div class="dataset-filters" id="datasetFilters"
      *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length
-        && showFilters">
+    && showFilters">
 
-    <div class="dataset-filter border-b border-gray-200"
-         *ngFor="let filterTransformation of _.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
+    <ng-template ngFor let-transformation [ngForOf]="datasetInstanceSummary.transformationInstances" let-i=index>
+        <ng-template [ngIf]="transformation.type === 'filter' && transformation.hide === false">
+            <div class="dataset-filter border-b border-gray-200">
 
-        <button mat-stroked-button class="mr-2 bg-white remove-filter" color="warn"
-                (click)="removeTransformation(filterTransformation, true)">
-            Remove Filter
-        </button>
+                <button mat-stroked-button class="mr-2 bg-white remove-filter" color="warn"
+                        (click)="removeTransformation(transformation, true, i)">
+                    Remove Filter
+                </button>
 
-        <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
-                            [filterJunction]="filterTransformation.config"></ki-dataset-filters>
-        <button *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
-            mat-flat-button class="apply-filter mr-2" color="primary"
-                (click)="applyFilters()" [disabled]="!filterJunction.filters.length">
-            Apply Filters
-        </button>
-    </div>
+                <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
+                                    [filterJunction]="transformation.config"></ki-dataset-filters>
+                <button
+                    *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
+                    mat-flat-button class="apply-filter mr-2" color="primary"
+                    (click)="applyFilters()" [disabled]="!filterJunction.filters.length">
+                    Apply Filters
+                </button>
+
+            </div>
+        </ng-template>
+    </ng-template>
 
 </div>
+
 <div class="cell-header">
     <div class="transformation-listing sort"
          *ngIf="_.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'})">
@@ -187,7 +193,6 @@
 
     </table>
 </div>
-
 
 
 <div class="bg-white p-4 flex align-center justify-end">

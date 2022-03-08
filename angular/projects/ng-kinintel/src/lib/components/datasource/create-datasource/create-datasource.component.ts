@@ -204,6 +204,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public selectColumn(column, index) {
         if (!column.autoIncrement) {
+            this.selectedCell = null;
             document.querySelectorAll('.datasource-table .bg-indigo-50').forEach(element => {
                 element.classList.remove('bg-indigo-50');
             });
@@ -241,9 +242,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.rows.splice(index, 0, row);
             this.adds.push(index);
         } else {
-            if (!this.endOfResults) {
-                // TODO: page to the end of the results
-            }
             this.rows.push(row);
             this.adds.push(this.rows.length - 1);
         }
@@ -309,6 +307,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (rowIndex === this.rows.length - 1) {
             this.rows.push(row);
             rowElementIndex = this.rows.length - 1;
+            this.adds.push(this.rows.length - 1);
         } else {
             rowElementIndex = rowIndex + 1;
         }
@@ -339,8 +338,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 const rowCell: any = rowElement.querySelectorAll('.row-cell').item(0);
                 rowCell.querySelectorAll('.cell-input').item(0).focus();
 
-                this.deletes.push(rowIndex);
-                // this.rows.splice(rowIndex, 1);
+                this.deleteRow(rowIndex);
             }
         }
 
@@ -421,6 +419,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public resetTable() {
         const message = 'Are you sure you would like to reset the entire table? This will remove all data and columns. This action cannot be undone.';
         if (window.confirm(message)) {
+            this.selectedCell = null;
             this.rows = [];
             this.columns = [
                 {

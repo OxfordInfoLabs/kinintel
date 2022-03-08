@@ -98,6 +98,11 @@ export class DatasetEditorComponent implements OnInit {
             hide: false
         });
         this.showFilters = true;
+
+        setTimeout(() => {
+            const filters = document.getElementById('datasetFilters');
+            filters.scrollTo({top: filters.scrollHeight, behavior: 'smooth'});
+        }, 0);
     }
 
     public getFilterString(config) {
@@ -123,11 +128,14 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDataset();
     }
 
-    public removeTransformation(transformation, confirm = false) {
-        const index = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
-            type: transformation.type,
-            config: transformation.config
-        });
+    public removeTransformation(transformation, confirm = false, index?) {
+        if (index === undefined) {
+            index = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
+                type: transformation.type,
+                config: transformation.config
+            });
+        }
+
         if (confirm) {
             const message = 'Are you sure you would like to remove this transformation?';
             if (window.confirm(message)) {
@@ -143,30 +151,27 @@ export class DatasetEditorComponent implements OnInit {
         this.evaluateDataset();
     }
 
-    public editTerminatingTransformation(transformation) {
+    public async editTerminatingTransformation(transformation) {
+        const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
         if (transformation.type === 'summarise') {
-            this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
-                setTimeout(() => {
-                    this.summariseData(clonedTransformation.config, existingIndex);
-                }, 200);
-            });
+            setTimeout(() => {
+                this.summariseData(clonedTransformation.config, existingIndex);
+            }, 200);
         }
         if (transformation.type === 'join') {
-            this.joinData(transformation);
+            setTimeout(() => {
+                this.joinData(clonedTransformation, existingIndex);
+            }, 200);
         }
         if (transformation.type === 'formula') {
-            this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
-                setTimeout(() => {
-                    this.createFormula(clonedTransformation, existingIndex);
-                }, 200);
-            });
+            setTimeout(() => {
+                this.createFormula(clonedTransformation, existingIndex);
+            }, 200);
         }
         if (transformation.type === 'columns') {
-            this.excludeUpstreamTransformations(transformation).then(([clonedTransformation, existingIndex]) => {
-                setTimeout(() => {
-                    this.editColumnSettings(clonedTransformation, existingIndex);
-                }, 200);
-            });
+            setTimeout(() => {
+                this.editColumnSettings(clonedTransformation, existingIndex);
+            }, 200);
         }
     }
 
@@ -301,14 +306,8 @@ export class DatasetEditorComponent implements OnInit {
         });
     }
 
-    public joinData(transformation?) {
-        let existingIndex = -1;
-        if (transformation) {
-            existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
-                config: transformation.config,
-                type: 'join'
-            });
-        }
+    public joinData(transformation?, existingIndex?) {
+        const clonedTransformation = transformation ? _.clone(transformation) : null;
         const data: any = {
             admin: this.admin,
             environment: this.environment,
@@ -342,6 +341,14 @@ export class DatasetEditorComponent implements OnInit {
                     this.datasetInstanceSummary.transformationInstances.push(joinTransformation);
                 }
                 this.evaluateDataset(true);
+            } else {
+                if (clonedTransformation) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = clonedTransformation;
+                    this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
+                        instance.exclude = false;
+                    });
+                    this.evaluateDataset();
+                }
             }
         });
     }
@@ -772,12 +779,15 @@ export class DatasetEditorComponent implements OnInit {
             for (let i = 0; i < index; i++) {
                 this.datasetInstanceSummary.transformationInstances[i].hide = false;
             }
+
+            this.datasetInstanceSummary.transformationInstances.splice(index, 1);
+        } else {
+            _.remove(this.datasetInstanceSummary.transformationInstances, _.omitBy({
+                type: transformation.type,
+                config: transformation.type !== 'pagingmarker' ? transformation.config : null
+            }, _.isNil));
         }
 
-        _.remove(this.datasetInstanceSummary.transformationInstances, _.omitBy({
-            type: transformation.type,
-            config: transformation.type !== 'pagingmarker' ? transformation.config : null
-        }, _.isNil));
         this.evaluateDataset(true);
     }
 

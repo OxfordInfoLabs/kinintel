@@ -21,7 +21,7 @@
                             class="relative cursor-pointer bg-gray-100 py-1 px-2 sticky"
                             [ngClass]="{'bg-indigo-50': selectedItem._index === colIndex}">
                             <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
-                                {{column.title}}&nbsp;<mat-icon *ngIf="column.keyField || column.type ==='id'">key</mat-icon>
+                                {{column.title}}&nbsp;<mat-icon *ngIf="column.keyField || column.type ==='id'">star</mat-icon>
                             </div>
                             <button mat-icon-button [matMenuTriggerFor]="header"
                                     class="absolute header-actions">
