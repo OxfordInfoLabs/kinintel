@@ -66,7 +66,7 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
             }
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
             if (sizeof($groupByClauses))
-                $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses), $clauseParameters);
+                $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses), [], $clauseParameters);
             else if (sizeof($evaluatedExpressions))
                 $query->setSelectClause(join(", ", $evaluatedExpressions), $clauseParameters);
         }

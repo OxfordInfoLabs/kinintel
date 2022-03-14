@@ -104,10 +104,11 @@ class SQLQuery {
      * @param $clause
      * @param $parameters
      */
-    public function setGroupByClause($selectClause, $groupByClause, $parameters = []) {
+    public function setGroupByClause($selectClause, $groupByClause, $parameters = [], $selectParameters = []) {
         $this->selectClause = $selectClause;
         $this->clausesByType[self::GROUP_BY_CLAUSE] = $groupByClause;
         $this->parametersByClauseType[self::GROUP_BY_CLAUSE] = $parameters;
+        $this->parametersByClauseType[self::SELECT_CLAUSE] = $selectParameters;
 
         // Unset any ordering or window parameters
         unset($this->clausesByType[self::ORDER_BY_CLAUSE]);
