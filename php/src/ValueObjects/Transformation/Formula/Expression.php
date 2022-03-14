@@ -6,6 +6,7 @@ namespace Kinintel\ValueObjects\Transformation\Formula;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class Expression {
@@ -74,16 +75,17 @@ class Expression {
     }
 
     // Return SQL clause
-    public function returnSQLClause(&$parameterValues, $databaseConnection) {
-        $sqlSanitiser = Container::instance()->get(SQLClauseSanitiser::class);
+    public function returnSQLClause(&$clauseParams, $parameterValues, $databaseConnection) {
+
+        /**
+         * @var SQLValueEvaluator $sqlValueEvaluator
+         */
+        $sqlValueEvaluator = new SQLValueEvaluator($databaseConnection);
 
         // SQL Santise and substitute params
         $sanitisedParams = [];
-        $expression = $sqlSanitiser->sanitiseSQL($this->expression, $sanitisedParams);
-        $parameterValues = array_merge($parameterValues, $sanitisedParams);
-
-        // Replace square bracketted expressions
-        $expression = preg_replace("/\[\[(.*?)\]\]/", $databaseConnection->escapeColumn("$1"), $expression);
+        $expression = $sqlValueEvaluator->evaluateFilterValue($this->expression, $parameterValues, null, $sanitisedParams);
+        $clauseParams = array_merge($clauseParams, $sanitisedParams);
 
         return $expression . " " . $this->returnFieldName();
     }

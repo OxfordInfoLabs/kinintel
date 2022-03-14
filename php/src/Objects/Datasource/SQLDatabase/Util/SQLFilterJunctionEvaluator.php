@@ -30,7 +30,7 @@ class SQLFilterJunctionEvaluator {
 
 
     /**
-     * @var SQLFilterValueEvaluator
+     * @var SQLValueEvaluator
      */
     private $sqlFilterValueEvaluator;
 
@@ -45,7 +45,7 @@ class SQLFilterJunctionEvaluator {
     public function __construct($lhsTableAlias = null, $rhsTableAlias = null, $databaseConnection = null) {
         $this->lhsTableAlias = $lhsTableAlias;
         $this->rhsTableAlias = $rhsTableAlias;
-        $this->sqlFilterValueEvaluator = new SQLFilterValueEvaluator($databaseConnection);
+        $this->sqlFilterValueEvaluator = new SQLValueEvaluator($databaseConnection);
     }
 
 

@@ -4,6 +4,8 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Controllers\Account\Datasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SummariseTransformationProcessor;
@@ -26,6 +28,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
@@ -41,7 +44,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, SUM(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, SUM(\"total\") FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // MAX(total)
@@ -53,7 +56,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, MAX(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, MAX(\"total\") FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
         // MIN(total)
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
@@ -64,7 +67,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, MIN(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, MIN(\"total\") FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // AVG(total)
@@ -76,7 +79,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, AVG(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, AVG(\"total\") FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
     }
 
@@ -85,17 +88,18 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
-            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)")]);
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM([[total]])")]);
 
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) + SUM(total) FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) + SUM(\"total\") FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
     }
@@ -105,18 +109,19 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
             new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
-            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM([[total]])", "Custom Metric")]);
 
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(\"total\") customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
     }
@@ -127,6 +132,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $config = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
         $dataSource->returnValue("getConfig", $config);
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
             new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
@@ -145,18 +151,19 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
 
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
             new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
-            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM([[total]])", "Custom Metric")]);
 
         $query = new SQLQuery("name,category,dept", "my_table");
 
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(\"total\") customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // Second summarisation
@@ -165,7 +172,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $query = $transformationProcessor->updateQuery($secondSummariseTransformation, $query, [], $dataSource);
-        $this->assertEquals("SELECT category, SUM(customMetric) FROM (SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(total) customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept) S2 GROUP BY category", $query->getSQL());
+        $this->assertEquals("SELECT category, SUM(\"customMetric\") FROM (SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(\"total\") customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept) S2 GROUP BY category", $query->getSQL());
 
 
     }

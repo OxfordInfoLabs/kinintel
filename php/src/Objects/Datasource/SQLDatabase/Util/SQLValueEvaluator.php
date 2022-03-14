@@ -9,7 +9,7 @@ use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
-class SQLFilterValueEvaluator {
+class SQLValueEvaluator {
 
     /**
      * @var SQLClauseSanitiser
@@ -70,8 +70,8 @@ class SQLFilterValueEvaluator {
             }, $value);
 
 
-            // If no [[ expressions assume this is a single string
-            if (preg_replace("/\[\[(.*?)\]\]/", "", $value) == $valueEntry) {
+            // If no [[ or ( expressions assume this is a single string
+            if (str_replace(["(", ")"], ["", ""], preg_replace("/\[\[(.*?)\]\]/", "", $value)) == $valueEntry) {
                 $outputParameters[] = $value;
                 $value = "?";
             } else {

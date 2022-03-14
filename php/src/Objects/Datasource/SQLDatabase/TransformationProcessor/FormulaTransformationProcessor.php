@@ -33,7 +33,6 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-
         // Update current set of columns if set
         $datasourceColumns = $dataSource->getConfig()->getColumns();
         if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
@@ -48,7 +47,7 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         $clauses = [];
         $clauseParams = [];
         foreach ($transformation->getExpressions() as $expression) {
-            $clauses[] = $expression->returnSQLClause($clauseParams, $dataSource->returnDatabaseConnection());
+            $clauses[] = $expression->returnSQLClause($clauseParams, $parameterValues, $dataSource->returnDatabaseConnection());
         }
 
         // If Group By, make sure we wrap the query

@@ -60,8 +60,9 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
             $groupByClauses = $transformation->getSummariseFieldNames();
             $evaluatedExpressions = [];
+            $clauseParameters = [];
             foreach ($transformation->getExpressions() as $expression) {
-                $evaluatedExpressions[] = $expression->getFunctionString();
+                $evaluatedExpressions[] = $expression->getFunctionString($clauseParameters, $parameterValues, $dataSource->returnDatabaseConnection());
             }
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
             if (sizeof($groupByClauses))

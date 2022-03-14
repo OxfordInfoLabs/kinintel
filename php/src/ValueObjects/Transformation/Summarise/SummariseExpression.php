@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Transformation\Summarise;
 
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
 
 /**
  * Capture a summarise expression
@@ -127,14 +128,20 @@ class SummariseExpression {
      *
      * @return string
      */
-    public function getFunctionString() {
+    public function getFunctionString(&$clauseParameters, $parameterValues = [], $databaseConnection) {
         if ($this->expressionType == self::EXPRESSION_TYPE_CUSTOM) {
-            $function = str_replace(array("[", "]"), array("",""), $this->customExpression);
+            $function = $this->customExpression;
         } else if ($this->expressionType == self::EXPRESSION_TYPE_COUNT) {
             $function = "COUNT(*)";
         } else {
-            $function = $this->expressionType . "(" . $this->fieldName . ")";
+            $function = $this->expressionType . "([[" . $this->fieldName . "]])";
         }
+
+        /**
+         * @var SQLValueEvaluator $sqlValueEvaluator
+         */
+        $sqlValueEvaluator = new SQLValueEvaluator($databaseConnection);
+        $function = $sqlValueEvaluator->evaluateFilterValue($function, $parameterValues, null, $clauseParameters);
 
         if ($this->customLabel) {
             $function .= " " . StringUtils::convertToCamelCase($this->customLabel);

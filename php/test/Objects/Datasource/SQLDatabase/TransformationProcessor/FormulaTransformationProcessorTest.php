@@ -35,23 +35,26 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $transformation = new FormulaTransformation([
             new Expression("Computed", "[[column1]] + [[column2]]"),
-            new Expression("Derived Column", "[[column3]] + 5 / [[column2]]")]);
+            new Expression("Derived Column", "[[column3]] + 5 / [[column2]]"),
+            new Expression("Parameter", "{{test}} + [[column1]]")]);
 
 
         $query = new SQLQuery("*", "sample_table");
 
-        $query = $formulaTransformationProcessor->updateQuery($transformation, $query, [], $dataSource);
+        $query = $formulaTransformationProcessor->updateQuery($transformation, $query, ["test" => "Hello"], $dataSource);
 
 
         $this->assertEquals([
             new Field("column1"), new Field("column2"), new Field("computed", "Computed"),
-            new Field("derivedColumn", "Derived Column")
+            new Field("derivedColumn", "Derived Column"),
+            new Field("parameter", "Parameter")
         ], $dataSource->getConfig()->getColumns());
 
-        $this->assertEquals("SELECT *, \"column1\" + \"column2\" computed, \"column3\" + ? / \"column2\" derivedColumn FROM sample_table",
+        $this->assertEquals("SELECT *, \"column1\" + \"column2\" computed, \"column3\" + ? / \"column2\" derivedColumn, ? + \"column1\" parameter FROM sample_table",
             $query->getSQL());
 
-        $this->assertEquals([5], $query->getParameters());
+        $this->assertEquals([5, "Hello"], $query->getParameters());
 
     }
+
 }
