@@ -62,11 +62,15 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
             $evaluatedExpressions = [];
             $clauseParameters = [];
             foreach ($transformation->getExpressions() as $expression) {
-                $evaluatedExpressions[] = $expression->getFunctionString($clauseParameters, $parameterValues, $dataSource->returnDatabaseConnection());
+                $expressionParams = [];
+                $evaluatedExpressions[] = $expression->getFunctionString($expressionParams, $parameterValues, $dataSource->returnDatabaseConnection());
+                $clauseParameters = array_merge($clauseParameters, $expressionParams);
             }
+
+
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
             if (sizeof($groupByClauses))
-                $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses), [],$clauseParameters);
+                $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses), [], $clauseParameters);
             else if (sizeof($evaluatedExpressions))
                 $query->setSelectClause(join(", ", $evaluatedExpressions), $clauseParameters);
         }
