@@ -204,8 +204,8 @@ class SQLQuery {
     public function getParameters() {
 
         // Construct parameters array in correct order
-        $parameters = $this->initialParameters;
-        $parameters = array_merge($parameters, $this->parametersByClauseType[self::SELECT_CLAUSE] ?? []);
+        $parameters = $this->parametersByClauseType[self::SELECT_CLAUSE] ?? [];
+        $parameters = array_merge($parameters, $this->initialParameters);
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::WHERE_CLAUSE] ?? []);
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::GROUP_BY_CLAUSE] ?? []);
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::HAVING_CLAUSE] ?? []);
