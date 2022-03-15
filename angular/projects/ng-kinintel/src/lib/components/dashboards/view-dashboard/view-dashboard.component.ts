@@ -38,6 +38,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() datasourceService: any;
     @Input() editAlerts: boolean;
     @Input() sidenavService: any;
+    @Input() dashboardId: number;
+    @Input() gridOnly = false;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -128,7 +130,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             }
         });
 
-        const dashboardId = this.route.snapshot.params.dashboard;
+        const dashboardId = this.dashboardId || this.route.snapshot.params.dashboard;
 
         this.dashboardService.getDashboard(dashboardId).then(dashboard => {
             this.dashboard = dashboard;
@@ -253,6 +255,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         element.firstChild.id = instanceId ? instanceId : 'i' + Date.now().toString();
         instanceId = element.firstChild.id;
 
+        componentRef.instance.viewOnly = true;
         componentRef.instance.admin = this.admin;
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
@@ -293,6 +296,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
+
+        element.classList.add('shadow');
 
         return componentRef;
     }

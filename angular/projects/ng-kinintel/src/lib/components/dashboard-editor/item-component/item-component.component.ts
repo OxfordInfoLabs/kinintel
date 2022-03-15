@@ -14,7 +14,10 @@ declare var window: any;
 @Component({
     selector: 'ki-item-component',
     templateUrl: './item-component.component.html',
-    styleUrls: ['./item-component.component.sass']
+    styleUrls: ['./item-component.component.sass'],
+    host: {
+        class: 'dark:bg-gray-700 dark:text-gray-100'
+    }
 })
 export class ItemComponentComponent implements AfterViewInit {
 
@@ -71,7 +74,11 @@ export class ItemComponentComponent implements AfterViewInit {
             symbol: '€'
         }
     ];
+    public limit = 25;
+    public page = 1;
+    public endOfResults = false;
 
+    private offset = 0;
     private itemLoadedSub: Subscription;
 
     constructor(private dialog: MatDialog,
@@ -328,7 +335,11 @@ export class ItemComponentComponent implements AfterViewInit {
             const data = dataItem || this.dashboard.layoutSettings.parameters;
 
             Object.keys(params).forEach(paramKey => {
-                params[paramKey] = this.bindParametersInString(params[paramKey], data);
+                let value = this.bindParametersInString(params[paramKey], data);
+                // Check if we have any column eg. [[ ]] values needing mapping
+                value = this.mapColumnToValue(value, data);
+
+                params[paramKey] = value;
             });
             const urlParams = new URLSearchParams(params).toString();
             window.location.href = `/dashboards/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
@@ -338,6 +349,8 @@ export class ItemComponentComponent implements AfterViewInit {
             const data = dataItem || this.dashboard.layoutSettings.parameters;
 
             url = this.bindParametersInString(url, data);
+            // Check if we have any column eg. [[ ]] values needing mapping
+            url = this.mapColumnToValue(url, data);
             window.location.href = url;
         }
     }
@@ -361,10 +374,49 @@ export class ItemComponentComponent implements AfterViewInit {
         return searchString;
     }
 
-    private evaluate() {
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.evaluate();
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.evaluate();
+    }
+
+    public pageSizeChange(value) {
+        this.limit = value;
+        this.evaluate(true);
+    }
+
+    private mapColumnToValue(searchString, data) {
+        if (searchString) {
+            const matches = searchString.match(/\[\[(.*?)\]\]/g) || [];
+            matches.forEach(exp => {
+                const expValue = exp.replace('[[', '').replace(']]', '');
+                const value = data ? data[expValue] : null;
+                if (value) {
+                    searchString = searchString.replace(exp, value);
+                }
+            });
+        }
+
+        return searchString;
+    }
+
+    private evaluate(resetPager?) {
+        if (resetPager) {
+            this.resetPager();
+        }
+
         const itemElement = document.getElementById(this.itemInstanceKey);
-        const parentElement = itemElement.closest('.grid-stack-item');
-        parentElement.classList.remove('item-disabled');
+        if (itemElement) {
+            const parentElement = itemElement.closest('.grid-stack-item');
+            parentElement.classList.remove('item-disabled');
+        }
+
         if (this.grid && _.isFunction(this.grid.makeElement)) {
             setTimeout(() => {
                 this.grid.makeElement(itemElement);
@@ -393,7 +445,9 @@ export class ItemComponentComponent implements AfterViewInit {
 
         return this.datasetService.evaluateDataset(
             datasetInstanceSummary,
-            '0', '10')
+            String(this.offset),
+            String(this.limit)
+        )
             .then(data => {
                 this.dataset = data;
                 this.filterFields = _.map(this.dataset.columns, column => {
@@ -444,6 +498,8 @@ export class ItemComponentComponent implements AfterViewInit {
                 existing[this.itemInstanceKey] = true;
                 this.dashboardService.dashboardItems.next(existing);
 
+                this.endOfResults = this.dataset.allData.length < this.limit;
+
                 return Promise.resolve(true);
             }).catch(err => {
             });
@@ -471,6 +527,11 @@ export class ItemComponentComponent implements AfterViewInit {
             itemElement.classList.remove('alert');
             itemElement.parentElement.classList.remove('alert');
         }
+    }
+
+    private resetPager() {
+        this.offset = 0;
+        this.page = 1;
     }
 
     private mapLayoutSettingsToComponentData() {

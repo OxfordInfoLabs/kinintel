@@ -1,4 +1,4 @@
-<ng-template [ngIf]="true">
+<ng-template [ngIf]="!gridOnly">
 
     <div class="align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
         <div *ngIf="editDashboardTitle" class="align-center ml-2">
@@ -18,8 +18,12 @@
             </button>
             <button mat-button color="primary" class="align-center" title="Toggle notifications on/off"
                     (click)="toggleNotifications()">
-                <mat-icon *ngIf="!dashboard.alertsEnabled" title="Notifications for this dashboard are now off. Press to toggle on.">notifications_off</mat-icon>
-                <mat-icon *ngIf="dashboard.alertsEnabled" title="Notifications for this dashboard are on. Press to toggle off.">notifications_active</mat-icon>
+                <mat-icon *ngIf="!dashboard.alertsEnabled"
+                          title="Notifications for this dashboard are now off. Press to toggle on.">notifications_off
+                </mat-icon>
+                <mat-icon *ngIf="dashboard.alertsEnabled"
+                          title="Notifications for this dashboard are on. Press to toggle off.">notifications_active
+                </mat-icon>
             </button>
             <button mat-button color="primary" class="align-center" title="Set dashboard item spacing"
                     [matMenuTriggerFor]="spacingMenu">
@@ -66,17 +70,17 @@
         </ng-template>
     </div>
 
-</ng-template>
-<ng-template [ngIf]="dashboard.displaySettings && dashboard.displaySettings.fullScreen">
-    <div class="align-center justify-between mb-4 flex-wrap">
-        <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
+    <ng-template [ngIf]="dashboard.displaySettings && dashboard.displaySettings.fullScreen">
+        <div class="align-center justify-between mb-4 flex-wrap">
+            <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
 
-        <div class="data-actions">
-            <button mat-button color="primary" class="align-center" (click)="backToEditor()"
-                    title="Back to dashboard editor">
-                <mat-icon>arrow_back</mat-icon>
-            </button>
+            <div class="data-actions">
+                <button mat-button color="primary" class="align-center" (click)="backToEditor()"
+                        title="Back to dashboard editor">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+            </div>
         </div>
-    </div>
+    </ng-template>
 </ng-template>
 <div class="grid-stack"></div>

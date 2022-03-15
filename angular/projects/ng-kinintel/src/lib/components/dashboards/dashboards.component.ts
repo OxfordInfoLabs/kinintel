@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DashboardService} from '../../services/dashboard.service';

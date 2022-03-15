@@ -417,6 +417,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
 
+        element.classList.add('shadow');
+
         return componentRef;
     }
 

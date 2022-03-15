@@ -70,7 +70,7 @@
                             <input type="text" [(ngModel)]="callToAction.label">
                         </label>
 
-                        <ng-template [ngIf]="callToAction && dashboardParameters.length">
+                        <ng-template [ngIf]="callToAction && callToAction.parameters && dashboardParameters.length">
                             <p>Please enter the following parameters to use with this dashboard</p>
 
                             <ng-template ngFor let-param [ngForOf]="dashboardParameters">
@@ -211,7 +211,7 @@
                                 </select>
                                 <small class="font-normal">Select the destination for the action link</small>
                             </label>
-                            <ng-template [ngIf]="tabular.cta.type === 'custom'">
+                            <ng-template [ngIf]="tabular.cta && tabular.cta.type === 'custom'">
                                 <p>Please enter the link for this call to action.</p>
 
                                 <label class="mb-2">
@@ -230,7 +230,7 @@
                                            class="mb-2 dashboard-param-pick">
                                         <select matNativeControl [(ngModel)]="tabular.cta.parameters[param.name]"
                                                 [compareWith]="ctaSelectOption">
-                                            <option [value]="undefined">-- Select Value --</option>
+                                            <option>-- Select Value --</option>
                                             <ng-template [ngIf]="dataset">
                                                 <option *ngFor="let column of dataset.columns"
                                                         [value]="'[['+column.name+']]'">

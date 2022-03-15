@@ -9,6 +9,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as _ from 'lodash';
 import {MetadataComponent} from '../metadata/metadata.component';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
     selector: 'ki-dataset',
@@ -41,6 +42,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 private tagService: TagService,
                 private projectService: ProjectService,
                 private datasetService: DatasetService,
+                private route: ActivatedRoute,
                 public config: KinintelModuleConfig) {
     }
 
