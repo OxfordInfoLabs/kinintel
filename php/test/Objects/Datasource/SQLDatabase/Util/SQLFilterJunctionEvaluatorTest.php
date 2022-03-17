@@ -27,7 +27,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
     public function setUp(): void {
         $this->databaseConnection = new SQLite3DatabaseConnection();
     }
-
+     
     public function testCanEvaluateSimpleFilterJunctionToSQLForAllSupportedFilterTypes() {
         $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
