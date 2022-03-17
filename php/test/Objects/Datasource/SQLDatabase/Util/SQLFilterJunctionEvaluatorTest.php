@@ -24,12 +24,12 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
     private $databaseConnection;
 
 
-    public function setUp(){
+    public function setUp(): void {
         $this->databaseConnection = new SQLite3DatabaseConnection();
     }
 
     public function testCanEvaluateSimpleFilterJunctionToSQLForAllSupportedFilterTypes() {
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
         // EQUALS
         $this->assertEquals([
@@ -158,7 +158,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testAndAndOrFiltersAreMappedCorrectlyForMultipleFiltersInAJunction() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
@@ -196,7 +196,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testNestedJunctionsAreEvaluatedCorrectly() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
@@ -294,7 +294,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfColumnsSuppliedUsingSquareBracketsTheseAreIncludedLiterallyInLieuOfPlaceholders() {
 
-        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null,null, $this->databaseConnection);
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
         // Default AND junction
         $this->assertEquals([
