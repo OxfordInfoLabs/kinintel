@@ -19,7 +19,7 @@ export class NotificationService {
 
         return this.http.get(`${this.config.backendURL}/notification/group`, {
             params: {projectKey, limit, offset}
-        }).toPromise();
+        });
     }
 
     public getNotificationGroup(id) {

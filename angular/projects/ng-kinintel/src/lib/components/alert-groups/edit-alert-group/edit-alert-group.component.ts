@@ -70,7 +70,7 @@ export class EditAlertGroupComponent implements OnInit {
     }
 
     private loadNotificationGroups() {
-        this.notificationService.getNotificationGroups().then(groups => {
+        this.notificationService.getNotificationGroups().toPromise().then(groups => {
             this.notificationGroups = groups;
         });
     }

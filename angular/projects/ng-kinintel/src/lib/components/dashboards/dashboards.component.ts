@@ -83,17 +83,13 @@ export class DashboardsComponent implements OnInit {
         }
     }
 
-    public updateCategoryFilters() {
-        this.offset = 0;
-        this.page = 1;
-        this.reload.next(Date.now());
+    public toggleCategory(event, category) {
+        event.stopPropagation();
+        category.checked = !category.checked;
+        this.updateCategoryFilters();
     }
 
-    public removeCategory(index) {
-        this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
-            return key !== index;
-        });
-
+    public updateCategoryFilters() {
         this.offset = 0;
         this.page = 1;
         this.reload.next(Date.now());
@@ -140,12 +136,13 @@ export class DashboardsComponent implements OnInit {
     }
 
     private getDashboards() {
+        const checkedCategories = _.filter(this.categories, 'checked');
         return this.dashboardService.getDashboards(
             this.searchText.getValue() || '',
             this.limit.toString(),
             this.offset.toString(),
             this.shared ? null : '',
-            _.map(this.filteredCategories, 'key')
+            _.map(checkedCategories, 'key')
         ).pipe(map((dashboards: any) => {
                 this.endOfResults = dashboards.length < this.limit;
                 return dashboards;

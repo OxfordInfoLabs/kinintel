@@ -1,4 +1,4 @@
-import {Component, Inject, Input, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy} from '@angular/core';
 import * as _ from 'lodash';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
@@ -11,13 +11,14 @@ import {DatasetFilterComponent} from './dataset-filters/dataset-filter/dataset-f
 import {
     DatasetAddParameterComponent
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-editor',
     templateUrl: './dataset-editor.component.html',
     styleUrls: ['./dataset-editor.component.sass']
 })
-export class DatasetEditorComponent implements OnInit {
+export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     @Input() datasetInstanceSummary: any;
     @Input() environment: any = {};
@@ -33,6 +34,8 @@ export class DatasetEditorComponent implements OnInit {
     public showParameters = false;
     public displayedColumns = [];
     public _ = _;
+    public Array = Array;
+    public Object = Object;
     public filterFields = [];
     public filterJunction = {
         logic: 'AND',
@@ -53,6 +56,7 @@ export class DatasetEditorComponent implements OnInit {
 
     public limit = 25;
     private offset = 0;
+    private evaluateSub: Subscription;
 
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -81,6 +85,12 @@ export class DatasetEditorComponent implements OnInit {
         }
 
         this.evaluateDataset();
+    }
+
+    ngOnDestroy() {
+        if (this.evaluateSub) {
+            this.evaluateSub.unsubscribe();
+        }
     }
 
     public addFilter() {
@@ -180,17 +190,6 @@ export class DatasetEditorComponent implements OnInit {
     }
 
     public async editColumnSettings(existingTransformation?, existingIndex?) {
-        if (!existingTransformation) {
-            for (const transformation of this.datasetInstanceSummary.transformationInstances.slice().reverse()) {
-                if (transformation.type === 'columns') {
-                    const [clone, index] = await this.excludeUpstreamTransformations(transformation);
-                    existingTransformation = clone;
-                    existingIndex = index;
-                    break;
-                }
-            }
-        }
-
         const clonedColumns = existingTransformation ? _.clone(existingTransformation.config.columns) : null;
 
         const columnSettings = [];
@@ -714,7 +713,7 @@ export class DatasetEditorComponent implements OnInit {
                 const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
                 let finished = false;
 
-                const evaluateSub = this.datasetService.evaluateDatasetWithTracking(
+                this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
                     clonedDatasetInstance,
                     String(this.offset),
                     String(this.limit),
@@ -742,7 +741,7 @@ export class DatasetEditorComponent implements OnInit {
                 setTimeout(() => {
                     if (!finished) {
                         this.longRunning = true;
-                        evaluateSub.unsubscribe();
+                        this.evaluateSub.unsubscribe();
                         const resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
                             .subscribe((results: any) => {
                                 if (results.status === 'COMPLETED') {

@@ -20,7 +20,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     @Input() shared: boolean;
     @Input() admin: boolean;
 
-    public datasets: any = [];
+    public snapshots: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
     public offset = new BehaviorSubject(0);
@@ -60,7 +60,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 )
             ).subscribe((snapshots: any) => {
             this.endOfResults = snapshots.length < this.limit.getValue();
-            this.datasets = snapshots;
+            this.snapshots = snapshots;
         });
     }
 

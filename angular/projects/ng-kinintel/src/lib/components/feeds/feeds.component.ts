@@ -18,10 +18,12 @@ export class FeedsComponent implements OnInit, OnDestroy {
     @Input() admin: boolean;
     @Input() feedUrl: string;
 
-    public datasets: any = [];
+    public feeds: any = [];
     public searchText = new BehaviorSubject('');
     public limit = new BehaviorSubject(10);
     public offset = new BehaviorSubject(0);
+    public page = 1;
+    public endOfResults = false;
 
     private reload = new Subject();
 
@@ -38,15 +40,30 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 debounceTime(300),
                 // distinctUntilChanged(),
                 switchMap(() =>
-                    this.getSnapshots()
+                    this.getFeeds()
                 )
-            ).subscribe((snapshots: any) => {
-            this.datasets = snapshots;
+            ).subscribe((feeds: any) => {
+            this.endOfResults = feeds.length < this.limit.getValue();
+            this.feeds = feeds;
         });
     }
 
     ngOnDestroy() {
 
+    }
+
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public pageSizeChange(value) {
+        this.limit.next(value);
     }
 
     public editFeed(feed?) {
@@ -86,7 +103,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
         }
     }
 
-    private getSnapshots() {
+    private getFeeds() {
         return this.feedService.listFeeds(
             this.searchText.getValue() || '',
             this.limit.getValue().toString(),
