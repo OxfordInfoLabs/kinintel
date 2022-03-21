@@ -7,10 +7,14 @@ use Kinikit\Core\Testing\ConcreteClassGenerator;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
@@ -46,7 +50,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
         $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $this->datasourceService->returnValue("getDataSourceInstanceByKey",
             $datasourceInstance);
-        $this->notesDatasource = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $this->notesDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
         $datasourceInstance->returnValue("returnDataSource", $this->notesDatasource);
         $this->datasource->setDatasourceService($this->datasourceService);
     }
@@ -169,7 +173,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
                 ]
             ]
 
-        ]), BaseUpdatableDatasource::UPDATE_MODE_REPLACE);
+        ]), BaseUpdatableDatasource::UPDATE_MODE_UPDATE);
 
 
         // Check data pruned
@@ -215,7 +219,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
                             "description" => "Hey Mary"
                         ]
                     ]),
-                BaseUpdatableDatasource::UPDATE_MODE_REPLACE
+                BaseUpdatableDatasource::UPDATE_MODE_UPDATE
             ]
 
         ));
@@ -288,6 +292,156 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
 
         ));
+    }
+
+
+    public function testIfReplaceModeSuppliedWithParentFieldMappingsPreviousEntriesAreFirstSelectedAndDeletedForParentField() {
+
+        $config = new DatasourceUpdateConfig([], [
+            new UpdatableMappedField("notes", "notes", ["id" => "parentId"], BaseUpdatableDatasource::UPDATE_MODE_REPLACE)
+        ]);
+
+        // Get filtered datasource
+        $filteredDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+
+        // Expect a call to the notes datasource with a transformation
+        $this->notesDatasource->returnValue("applyTransformation", $filteredDatasource, [
+            new FilterTransformation([], [
+                new FilterJunction([
+                    new Filter("[[parentId]]", 1, Filter::FILTER_TYPE_EQUALS)
+                ], [], FilterJunction::LOGIC_AND),
+                new FilterJunction([
+                    new Filter("[[parentId]]", 2, Filter::FILTER_TYPE_EQUALS)
+                ], [], FilterJunction::LOGIC_AND)
+            ], FilterJunction::LOGIC_OR)
+        ]);
+        $filteredDatasource->returnValue("materialise", new ArrayTabularDataset([
+            new Field("id"),
+            new Field("title"),
+            new Field("parentId")
+        ], [
+            [
+                "parentId" => 1,
+                "id" => 10,
+                "title" => "Item 10"
+            ],
+            [
+                "parentId" => 1,
+                "id" => 20,
+                "title" => "Item 20"
+            ],
+            [
+                "parentId" => 2,
+                "id" => 30,
+                "title" => "Item 30"
+            ],
+            [
+                "parentId" => 2,
+                "id" => 40,
+                "title" => "Item 40"
+            ]
+        ]));
+
+
+        $this->datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $this->datasource->updateMappedFieldData(new ArrayTabularDataset([new Field("id"), new Field("notes")], [
+            [
+                "id" => 1,
+                "notes" => [
+                    [
+                        "id" => 1,
+                        "title" => "Item 1"
+                    ],
+                    [
+                        "id" => 2,
+                        "title" => "Item 2"
+                    ]
+                ]
+            ],
+            [
+                "id" => 2,
+                "notes" => [
+                    [
+                        "id" => 3,
+                        "title" => "Item 3"
+                    ],
+                    [
+                        "id" => 4,
+                        "title" => "Item 4"
+                    ]
+                ]
+            ]]), BaseUpdatableDatasource::UPDATE_MODE_REPLACE);
+
+
+        // Expect a delete to occur for the existing data
+        $this->assertTrue($this->notesDatasource->methodWasCalled("update", [
+            new ArrayTabularDataset([
+                new Field("id"),
+                new Field("title"),
+                new Field("parentId")
+            ], [
+                [
+                    "parentId" => 1,
+                    "id" => 10,
+                    "title" => "Item 10"
+                ],
+                [
+                    "parentId" => 1,
+                    "id" => 20,
+                    "title" => "Item 20"
+                ],
+                [
+                    "parentId" => 2,
+                    "id" => 30,
+                    "title" => "Item 30"
+                ],
+                [
+                    "parentId" => 2,
+                    "id" => 40,
+                    "title" => "Item 40"
+                ]
+            ]),
+            BaseUpdatableDatasource::UPDATE_MODE_DELETE
+        ]));
+
+        // Expect an ADD rather than a replace as we have cleared old data out of the way.
+        $this->assertTrue($this->notesDatasource->methodWasCalled("update",
+            [
+                new ArrayTabularDataset([
+                    new Field("id"),
+                    new Field("title"),
+                    new Field("parentId")
+                ],
+                    [
+                        [
+                            "parentId" => 1,
+                            "id" => 1,
+                            "title" => "Item 1"
+                        ],
+                        [
+                            "parentId" => 1,
+                            "id" => 2,
+                            "title" => "Item 2"
+                        ],
+                        [
+                            "parentId" => 2,
+                            "id" => 3,
+                            "title" => "Item 3"
+                        ],
+                        [
+                            "parentId" => 2,
+                            "id" => 4,
+                            "title" => "Item 4"
+                        ]
+                    ]),
+                BaseUpdatableDatasource::UPDATE_MODE_ADD
+            ]
+
+        ));
+
+
     }
 
 

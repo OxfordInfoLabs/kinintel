@@ -342,8 +342,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                     $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
                     break;
                 case UpdatableDatasource::UPDATE_MODE_DELETE:
-
-                    $bulkDataManager->delete($config->getTableName(), $allData);
+                    $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
                     break;
                 case UpdatableDatasource::UPDATE_MODE_REPLACE:
                     $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);

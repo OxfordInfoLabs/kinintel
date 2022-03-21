@@ -49,18 +49,28 @@ class TabularDatasourceImportProcessorConfiguration {
 
 
     /**
+     * Chunksize to use for reading data from
+     *
+     * @var integer
+     */
+    private $chunkSize = 500;
+
+
+    /**
      * DatasourceImportProcessorConfiguration constructor.
      *
      * @param string $sourceDatasourceKey
      * @param TargetDatasource[] $targetDatasources
      * @param string[] $sourceDatasourceKeys
      * @param DatasetInstance $sourceDataset
+     * @param integer $chunkSize
      */
-    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null) {
+    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $chunkSize = 500) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->targetDatasources = $targetDatasources;
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->sourceDataset = $sourceDataset;
+        $this->chunkSize = $chunkSize;
     }
 
 
@@ -119,6 +129,20 @@ class TabularDatasourceImportProcessorConfiguration {
      */
     public function setTargetDatasources($targetDatasources) {
         $this->targetDatasources = $targetDatasources;
+    }
+
+    /**
+     * @return int
+     */
+    public function getChunkSize() {
+        return $this->chunkSize;
+    }
+
+    /**
+     * @param int $chunkSize
+     */
+    public function setChunkSize($chunkSize) {
+        $this->chunkSize = $chunkSize;
     }
 
 
