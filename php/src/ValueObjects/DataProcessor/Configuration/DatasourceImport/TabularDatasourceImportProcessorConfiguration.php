@@ -53,8 +53,15 @@ class TabularDatasourceImportProcessorConfiguration {
      *
      * @var integer
      */
-    private $chunkSize = 500;
+    private $sourceReadChunkSize = 500;
 
+
+    /**
+     * Update chunksize
+     *
+     * @var int
+     */
+    private $targetWriteChunkSize = 25;
 
     /**
      * DatasourceImportProcessorConfiguration constructor.
@@ -63,14 +70,16 @@ class TabularDatasourceImportProcessorConfiguration {
      * @param TargetDatasource[] $targetDatasources
      * @param string[] $sourceDatasourceKeys
      * @param DatasetInstance $sourceDataset
-     * @param integer $chunkSize
+     * @param integer $sourceReadChunkSize
+     * @param integer $targetWriteChunkSize
      */
-    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $chunkSize = 500) {
+    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $sourceReadChunkSize = 500, $targetWriteChunkSize = 25) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->targetDatasources = $targetDatasources;
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->sourceDataset = $sourceDataset;
-        $this->chunkSize = $chunkSize;
+        $this->sourceReadChunkSize = $sourceReadChunkSize;
+        $this->targetWriteChunkSize = $targetWriteChunkSize;
     }
 
 
@@ -134,15 +143,29 @@ class TabularDatasourceImportProcessorConfiguration {
     /**
      * @return int
      */
-    public function getChunkSize() {
-        return $this->chunkSize;
+    public function getSourceReadChunkSize() {
+        return $this->sourceReadChunkSize;
     }
 
     /**
-     * @param int $chunkSize
+     * @param int $sourceReadChunkSize
      */
-    public function setChunkSize($chunkSize) {
-        $this->chunkSize = $chunkSize;
+    public function setSourceReadChunkSize($sourceReadChunkSize) {
+        $this->sourceReadChunkSize = $sourceReadChunkSize;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTargetWriteChunkSize() {
+        return $this->targetWriteChunkSize;
+    }
+
+    /**
+     * @param int $targetWriteChunkSize
+     */
+    public function setTargetWriteChunkSize($targetWriteChunkSize) {
+        $this->targetWriteChunkSize = $targetWriteChunkSize;
     }
 
 

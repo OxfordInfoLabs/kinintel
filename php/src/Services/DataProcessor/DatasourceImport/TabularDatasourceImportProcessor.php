@@ -65,7 +65,9 @@ class TabularDatasourceImportProcessor implements DataProcessor {
      */
     public function process($config = null) {
 
-        $chunkSize = $config->getChunkSize();
+        // Read and write chunk size
+        $sourceReadChunkSize = $config->getSourceReadChunkSize();
+        $targetWriteChunkSize = $config->getTargetWriteChunkSize();
 
         /**
          * Loop through each target datasource and ensure we can update first up
@@ -85,12 +87,12 @@ class TabularDatasourceImportProcessor implements DataProcessor {
             $offset = 0;
             do {
 
-                $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($config->getSourceDataset(), null, null, $offset, $chunkSize);
+                $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($config->getSourceDataset(), null, null, $offset, $sourceReadChunkSize);
 
                 $allData = $sourceDataset->getAllData();
 
-                $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources, $chunkSize);
-                $offset += $chunkSize;
+                $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources, $targetWriteChunkSize);
+                $offset += $sourceReadChunkSize;
             } while (sizeof($allData) > 0);
 
 
@@ -103,7 +105,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                 $offset = 0;
                 do {
-                    $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, null, null, $offset, $chunkSize);
+                    $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, null, null, $offset, $sourceReadChunkSize);
 
                     if ($sourceDataset) {
 
@@ -113,8 +115,8 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                             throw new UnsupportedDatasetException("Tabular datasets must be returned from source datasources");
                         }
 
-                        $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources, $chunkSize);
-                        $offset += $chunkSize;
+                        $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources, $targetWriteChunkSize);
+                        $offset += $sourceReadChunkSize;
                     } else {
                         $allData = [];
                     }

@@ -315,7 +315,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
-        ], [], null, 1);
+        ], [], null, 1, 1);
 
 
         $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService);
