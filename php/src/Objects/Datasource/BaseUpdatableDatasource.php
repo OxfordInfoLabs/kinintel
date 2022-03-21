@@ -10,6 +10,9 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableTabularDatasource {
 
@@ -95,7 +98,14 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
             $mappedData = [];
             $mappedColumns = [];
+            $mappedKeys = [];
             foreach ($data as $index => $dataItem) {
+
+                $mappedKeyValues = [];
+                foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
+                    $mappedKeyValues[$childFieldMapping] = $dataItem[$parentFieldMapping] ?? null;
+                }
+                $mappedKeys[] = $mappedKeyValues;
 
                 // Get and ensure data items are an array
                 $mappedDataItems = $dataItem[$mappedField->getFieldName()] ?? [];
@@ -105,8 +115,8 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
                     foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
                         $mappedDataItem[$childFieldMapping] = $dataItem[$parentFieldMapping] ?? null;
-                    }
 
+                    }
                     $mappedData[] = $mappedDataItem;
                 }
 
@@ -123,8 +133,40 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
             }
 
+            $updateRule = $mappedField->getUpdateMode() ?? $parentUpdateRule;
+
+            // If a replace operation, delete old items.
+            if ($parentUpdateRule == self::UPDATE_MODE_REPLACE) {
+
+                $filterJunctions = [];
+                foreach ($mappedKeys as $keySet) {
+                    $filters = [];
+                    foreach ($keySet as $key => $value) {
+                        $filters[] = new Filter("[[" . $key . "]]", $value, Filter::FILTER_TYPE_EQUALS);
+                    }
+                    $filterJunctions[] = new FilterJunction($filters, [], FilterJunction::LOGIC_AND);
+                }
+
+                // Create a filter transformation to apply to the datasource
+                $transformation = new FilterTransformation([],
+                    $filterJunctions,
+                    FilterJunction::LOGIC_OR
+                );
+
+                $filteredSource = $datasource->applyTransformation($transformation);
+                $existingItems = $filteredSource->materialise();
+
+                // Delete previous items
+                $datasource->update($existingItems, UpdatableDatasource::UPDATE_MODE_DELETE);
+
+                // Change update rule to an add
+                $updateRule = BaseUpdatableDatasource::UPDATE_MODE_ADD;
+
+            }
+
+
             // Update mapped data source
-            $datasource->update(new ArrayTabularDataset($mappedColumns, $mappedData), $mappedField->getUpdateMode() ?? $parentUpdateRule);
+            $datasource->update(new ArrayTabularDataset($mappedColumns, $mappedData), $updateRule);
 
             // Remove column from array
             foreach ($columns as $index => $column) {

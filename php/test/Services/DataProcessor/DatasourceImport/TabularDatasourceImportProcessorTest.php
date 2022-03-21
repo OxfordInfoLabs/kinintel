@@ -55,13 +55,12 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockSourceInstance->returnValue("returnDataSource", $mockSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSourceInstance, [
-            "source"
-        ]);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
 
-        $mockSource->returnValue("materialise", $dataSet);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+            "source", null, null, 0, 500
+        ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
@@ -119,9 +118,6 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockSourceInstance->returnValue("returnDataSource", $mockSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSourceInstance, [
-            "source"
-        ]);
 
         $dataSet = new ArrayTabularDataset([new Field("bong")], [
             [
@@ -132,7 +128,10 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockSource->returnValue("materialise", $dataSet);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+            "source", null, null, 0, 500
+        ]);
+
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
@@ -146,6 +145,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->processor->process($config);
+
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [
             new ArrayTabularDataset([new Field("bong")], [
@@ -166,9 +166,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $mockFirstSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockFirstSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockFirstSourceInstance->returnValue("returnDataSource", $mockFirstSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockFirstSourceInstance, [
-            "source1"
-        ]);
+
 
         $dataSet1 = new ArrayTabularDataset([new Field("bong")], [
             [
@@ -179,15 +177,15 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockFirstSource->returnValue("materialise", $dataSet1);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet1, [
+            "source1", null, null, 0, 500
+        ]);
 
 
         $mockSecondSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSecondSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockSecondSourceInstance->returnValue("returnDataSource", $mockSecondSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSecondSourceInstance, [
-            "source2"
-        ]);
+
 
         $dataSet2 = new ArrayTabularDataset([new Field("bong")], [
             [
@@ -198,7 +196,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockSecondSource->returnValue("materialise", $dataSet2);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet2, [
+            "source2", null, null, 0, 500
+        ]);
 
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -255,7 +255,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             $mockSourceInstance, null, null, 0, 500
         ]);
 
-        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", new ArrayTabularDataset([],[]), [
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", new ArrayTabularDataset([], []), [
             $mockSourceInstance, null, null, 500, 500
         ]);
 
@@ -291,9 +291,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockSourceInstance->returnValue("returnDataSource", $mockSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSourceInstance, [
-            "source"
-        ]);
+
 
         $dataSet = new ArrayTabularDataset([new Field("bong")], [
             [
@@ -304,7 +302,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockSource->returnValue("materialise", $dataSet);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+            "source", null, null, 0, 1
+        ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
@@ -315,10 +315,10 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
-        ]);
+        ], [], null, 1, 1);
 
 
-        $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService, 1);
+        $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService);
         $processor->process($config);
 
         // Expect 2 independent calls
@@ -346,9 +346,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockSourceInstance->returnValue("returnDataSource", $mockSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSourceInstance, [
-            "source"
-        ]);
+
 
         $dataSet = new ArrayTabularDataset([new Field("name"), new Field("age"), new Field("shoeSize")], [
             [
@@ -363,7 +361,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockSource->returnValue("materialise", $dataSet);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+            "source", null, null, 0, 500
+        ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
@@ -406,9 +406,6 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
         $mockSourceInstance->returnValue("returnDataSource", $mockSource);
-        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockSourceInstance, [
-            "source"
-        ]);
 
         $dataSet = new ArrayTabularDataset([new Field("name"), new Field("dob"), new Field("shoeSize")], [
             [
@@ -423,7 +420,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $mockSource->returnValue("materialise", $dataSet);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+            "source", null, null, 0, 500
+        ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);

@@ -438,8 +438,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
 
 
+
         $this->assertTrue($this->bulkDataManager->methodWasCalled("delete", [
-            "test_data", $data
+            "test_data", $data, null
         ]));
 
     }
