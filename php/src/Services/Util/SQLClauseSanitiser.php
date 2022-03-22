@@ -137,10 +137,11 @@ class SQLClauseSanitiser {
                     $literal = intval($literal);
                 }
             }
+
             if (trim($literal, "[]") != $literal) {
                 $columnNames[] = $literal;
                 return "$" . (sizeof($columnNames) - 1);
-            } else if ($literal == "?") {
+            } else if ($literal === "?") {
                 $parameterValues[] = array_shift($existingParams);
             } else {
                 $parameterValues[] = $literal;
