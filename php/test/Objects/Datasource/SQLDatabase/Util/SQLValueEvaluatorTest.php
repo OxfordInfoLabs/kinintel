@@ -44,11 +44,12 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     public function testParametersInDoubleBracesGetEvaluatedAsBoundParameters() {
 
+        // Numbers
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("{{first}} + {{second}}", ["first" => 55, "second" => 23], null, $parameters);
         $this->assertEquals("? + ?", $value);
-        $this->assertEquals([55, 23], $parameters);
+        $this->assertSame([55, 23], $parameters);
 
 
         // Array one
@@ -56,7 +57,14 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("{{array}}", ["array" => [1, 2, 3, 4, 5, 6, 7]], null, $parameters);
         $this->assertEquals("?,?,?,?,?,?,?", $value);
-        $this->assertEquals([1, 2, 3, 4, 5, 6, 7], $parameters);
+        $this->assertSame([1, 2, 3, 4, 5, 6, 7], $parameters);
+
+        // Strings
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("{{test}}", ["test" => "Hello"], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertSame(["Hello"], $parameters);
 
 
     }

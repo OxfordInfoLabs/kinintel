@@ -121,7 +121,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(\"total\") customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) \"totalRecords\", COUNT(*) + SUM(\"total\") \"customMetric\" FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
     }
@@ -163,7 +163,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
 
-        $this->assertEquals("SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(\"total\") customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
+        $this->assertEquals("SELECT category, dept, COUNT(*) \"totalRecords\", COUNT(*) + SUM(\"total\") \"customMetric\" FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept", $query->getSQL());
 
 
         // Second summarisation
@@ -172,7 +172,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $query = $transformationProcessor->updateQuery($secondSummariseTransformation, $query, [], $dataSource);
-        $this->assertEquals("SELECT category, SUM(\"customMetric\") FROM (SELECT category, dept, COUNT(*) totalRecords, COUNT(*) + SUM(\"total\") customMetric FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept) S2 GROUP BY category", $query->getSQL());
+        $this->assertEquals("SELECT category, SUM(\"customMetric\") FROM (SELECT category, dept, COUNT(*) \"totalRecords\", COUNT(*) + SUM(\"total\") \"customMetric\" FROM (SELECT name,category,dept FROM my_table) S1 GROUP BY category, dept) S2 GROUP BY category", $query->getSQL());
 
 
     }

@@ -28,22 +28,22 @@ class SQLClauseSanitiserTest extends TestBase {
         $params = [];
         $sql = $this->sqlClauseSanitiser->sanitiseSQL("'HELLO'", $params);
         $this->assertEquals("?", $sql);
-        $this->assertEquals(["HELLO"], $params);
+        $this->assertSame(["HELLO"], $params);
 
         $params = [];
         $sql = $this->sqlClauseSanitiser->sanitiseSQL("33", $params);
         $this->assertEquals("?", $sql);
-        $this->assertEquals([33], $params);
+        $this->assertSame([33], $params);
 
         $params = [];
         $sql = $this->sqlClauseSanitiser->sanitiseSQL("33.334", $params);
         $this->assertEquals("?", $sql);
-        $this->assertEquals([33.334], $params);
+        $this->assertSame([33.334], $params);
 
         $params = [];
         $sql = $this->sqlClauseSanitiser->sanitiseSQL("33.334 || 'Hello 123'", $params);
         $this->assertEquals("? || ?", $sql);
-        $this->assertEquals([33.334, "Hello 123"], $params);
+        $this->assertSame([33.334, "Hello 123"], $params);
 
     }
 

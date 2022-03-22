@@ -55,7 +55,10 @@ class SQLValueEvaluator {
                 $valueArray = is_array($matchingParamValue) ? $matchingParamValue : [$matchingParamValue];
                 $literals = [];
                 foreach ($valueArray as $matchingParamValueElement) {
-                    $literals[] = "'" . ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "") . "'";
+                    if ($matches[1] || !is_numeric($matchingParamValueElement))
+                        $literals[] = "'" . ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "") . "'";
+                    else if (is_numeric($matchingParamValueElement))
+                        $literals[] = $matchingParamValueElement;
                 }
                 return join(",", $literals);
             }, $valueEntry);
@@ -68,6 +71,7 @@ class SQLValueEvaluator {
             $value = preg_replace_callback("/'*([0-9]+)_HOURS_AGO'*/", function ($matches) use (&$outputParameters) {
                 return "'" . (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s") . "'";
             }, $value);
+
 
 
             // If no [[ or ( expressions assume this is a single string
