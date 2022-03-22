@@ -18,6 +18,8 @@ export class AlertGroupsComponent implements OnInit {
     public offset = new BehaviorSubject(0);
     public projectSub = new Subject();
     public moment = moment;
+    public page = 1;
+    public endOfResults = false;
 
     private reload = new Subject();
 
@@ -39,9 +41,24 @@ export class AlertGroupsComponent implements OnInit {
                     this.getAlertGroups()
                 )
             ).subscribe((alertGroups: any) => {
+            this.endOfResults = alertGroups.length < this.limit.getValue();
             this.alertGroups = alertGroups;
         });
 
+    }
+
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    }
+
+    public pageSizeChange(value) {
+        this.limit.next(value);
     }
 
     public delete(id) {

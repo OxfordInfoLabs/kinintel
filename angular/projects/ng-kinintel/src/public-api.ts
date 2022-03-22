@@ -22,5 +22,7 @@ export * from './lib/components/snapshots/snapshots.component';
 export * from './lib/components/dashboards/view-dashboard/view-dashboard.component';
 export * from './lib/components/feeds/feeds.component';
 export * from './lib/components/datasource/create-datasource/create-datasource.component';
+export * from './lib/components/metadata/metadata.component';
+export * from './lib/components/data-explorer/data-explorer.component';
 
 export * from './lib/ng-kinintel.module';

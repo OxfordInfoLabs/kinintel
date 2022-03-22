@@ -96,17 +96,13 @@ export class DatasetComponent implements OnInit, OnDestroy {
         this.tagService.resetActiveTag();
     }
 
-    public updateCategoryFilters() {
-        this.offset = 0;
-        this.page = 1;
-        this.reload.next(Date.now());
+    public toggleCategory(event, category) {
+        event.stopPropagation();
+        category.checked = !category.checked;
+        this.updateCategoryFilters();
     }
 
-    public removeCategory(index) {
-        this.filteredCategories = _.filter(this.filteredCategories, (value, key) => {
-            return key !== index;
-        });
-
+    public updateCategoryFilters() {
         this.offset = 0;
         this.page = 1;
         this.reload.next(Date.now());
@@ -176,13 +172,14 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     private getDatasets() {
+        const checkedCategories = _.filter(this.categories, 'checked');
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
             this.limit.toString(),
             this.offset.toString(),
             this.shared ? null : '',
             '',
-            _.map(this.filteredCategories, 'key')
+            _.map(checkedCategories, 'key')
         ).pipe(map((datasets: any) => {
                 this.endOfResults = datasets.length < this.limit;
                 return datasets;

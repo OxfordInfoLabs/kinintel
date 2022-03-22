@@ -1,77 +1,138 @@
-<div class="container mx-auto max-w-screen-lg mb-4">
-
-    <div class="bg-white p-6 content-wrapper">
-        <div class="pb-6 flex align-center justify-between">
-            <div class="flex justify-between w-full items-center mb-4">
-                <h3 class="mb-0 text-lg leading-6 font-medium text-gray-900">
-                    {{'Feeds'}}
-                </h3>
-                <button mat-flat-button color="primary" (click)="editFeed()">Create New Feed</button>
+<div class="p-6 bg-white border-b border-gray-200">
+    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+        <div class="flex items-start flex-1">
+            <div class="pt-1.5">
+                <h1 class="text-2xl font-bold text-gray-900">Feeds</h1>
+                <p class="text-sm font-medium text-gray-500">
+                    A list of all the feeds currently available.
+                </p>
             </div>
         </div>
-
-        <div class="mb-8">
-            <input class="full" type="text" placeholder="Search for a feed"
-                   (keyup)="searchText.next($event.target.value)">
+        <div class="mt-6 flex flex-col-reverse justify-stretch">
+            <button type="button" (click)="editFeed()"
+                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                Create New Feed
+            </button>
         </div>
-
-        <table>
-            <thead>
-            <tr>
-                <th>Path</th>
-                <th>Dataset</th>
-                <th>Parameters</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody *ngFor="let feed of datasets" class="hover:bg-gray-50">
-                <tr>
-                    <td [ngClass]="{'border-0': feed._showExample}">
-                        <div class="flex items-center">
-                            {{feedUrl}}{{feed.path}}
-                            <mat-icon color="primary" class="ml-2 text-sm cursor-pointer"
-                                      (click)="feed._showExample = !feed._showExample">info_outline</mat-icon>
-                        </div>
-                    </td>
-                    <td [ngClass]="{'border-0': feed._showExample}">
-                        <a class="primary hover:underline font-medium"
-                           (click)="view(feed.datasetInstanceId)">
-                            {{feed.datasetLabel.title}}</a>
-                    </td>
-                    <td [ngClass]="{'border-0': feed._showExample}">
-                        {{feed.exposedParameterNames.join(', ')}}
-                    </td>
-                    <td class="pr-0" [ngClass]="{'border-0': feed._showExample}">
-                        <div class="flex items-center justify-end">
-                            <button mat-button color="primary" (click)="editFeed(feed)"> Edit</button>
-                            <div class="divider"></div>
-                            <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
-                                <mat-icon>more_vert</mat-icon>
-                            </button>
-                            <mat-menu #itemMenu="matMenu">
-                                <button mat-menu-item (click)="delete(feed.id)">Delete Feed</button>
-                            </mat-menu>
-                        </div>
-                    </td>
-                </tr>
-                <tr *ngIf="feed._showExample">
-                    <td class="pt-0 pr-0 pl-0" colspan="4">
-                        <div class="tracking-wider font-bold">cURL</div>
-                        <pre class="block bg-gray-800 text-gray-100 pt-2 pl-2 rounded-t whitespace-normal">
-curl -H "API-KEY:<b>[[apiKey]]</b>" -H "API-SECRET:<b>[[apiSecret]]</b>"</pre>
-                        <pre class="block bg-gray-800 text-gray-100 pb-2 pl-2 rounded-b whitespace-normal mb-6">-X GET {{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></pre>
-                        <div class="tracking-wider font-bold">HTTPS</div>
-                        <pre class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">{{feedUrl}}{{feed.path}}?apiKey=<b>[[apiKey]]</b>&apiSecret=<b>[[apiSecret]]</b><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames">&{{param}}=<b>[[VALUE]]</b></ng-template></pre>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-
-        <mat-paginator [length]="datasets.length"
-                       [pageSize]="10"
-                       [pageSizeOptions]="[5, 10, 25, 100]">
-        </mat-paginator>
     </div>
-
+</div>
+<div class="px-4 sm:px-6 lg:px-8 mt-0">
+    <div class="flex flex-col">
+        <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle">
+                <div class="shadow-sm ring-1 ring-black ring-opacity-5">
+                    <div class="mt-3 sm:mt-0 flex-1">
+                        <label for="mobile-search-candidate" class="sr-only">Search</label>
+                        <div class="flex">
+                            <div class="relative flex-grow focus-within:z-10">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                         viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd"
+                                              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                              clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <input type="text" name="mobile-search-candidate" id="mobile-search-candidate"
+                                       class="block w-full rounded-none pl-10 border-t-0 border-l-0 border-gray-300"
+                                       placeholder="Search feeds"
+                                       (keyup)="searchText.next($event.target.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <table class="min-w-full border-separate bg-white" style="border-spacing: 0">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                Path
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                Dataset
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                Parameters
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
+                                <span class="sr-only">Edit</span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody *ngFor="let feed of feeds" class="hover:bg-gray-50">
+                            <tr class="hover:bg-gray-50">
+                                <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
+                                    class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">
+                                    <div class="flex items-center">
+                                        {{feedUrl}}{{feed.path}}
+                                        <mat-icon color="primary" class="ml-2 text-sm cursor-pointer"
+                                                  (click)="feed._showExample = !feed._showExample">info_outline</mat-icon>
+                                    </div>
+                                </td>
+                                <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
+                                    class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
+                                    <a class="primary hover:underline font-medium"
+                                       (click)="view(feed.datasetInstanceId)">
+                                        {{feed.datasetLabel ? feed.datasetLabel.title : ''}}</a>
+                                </td>
+                                <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
+                                    class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
+                                    {{feed.exposedParameterNames.join(', ')}}
+                                </td>
+                                <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
+                                    class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
+                                    <div class="flex items-center justify-end">
+                                        <button mat-button color="primary" (click)="editFeed(feed)"> Edit</button>
+                                        <div class="divider"></div>
+                                        <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
+                                            <mat-icon>more_vert</mat-icon>
+                                        </button>
+                                        <mat-menu #itemMenu="matMenu">
+                                            <button mat-menu-item (click)="delete(feed.id)">Delete Feed</button>
+                                        </mat-menu>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr *ngIf="feed._showExample">
+                                <td class="px-4 pt-0" colspan="4">
+                                    <div class="tracking-wider font-bold">cURL</div>
+                                    <pre class="block bg-gray-800 text-gray-100 pt-2 pl-2 rounded-t whitespace-normal">
+curl -H "API-KEY:<b>[[apiKey]]</b>" -H "API-SECRET:<b>[[apiSecret]]</b>"</pre>
+                                    <pre class="block bg-gray-800 text-gray-100 pb-2 pl-2 rounded-b whitespace-normal mb-6">-X GET {{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></pre>
+                                    <div class="tracking-wider font-bold">HTTPS</div>
+                                    <pre class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">{{feedUrl}}{{feed.path}}?apiKey=<b>[[apiKey]]</b>&apiSecret=<b>[[apiSecret]]</b><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames">&{{param}}=<b>[[VALUE]]</b></ng-template></pre>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                        <tr>
+                            <td colspan="4" class="whitespace-nowrap border-b border-gray-200 py-3 px-4 text-sm font-medium text-gray-900">
+                                <div class="paging-toolbar flex align-center justify-end">
+                                    <select [value]="limit.getValue()" (change)="pageSizeChange($event.target.value)" class="mr-8">
+                                        <option [value]="1">1</option>
+                                        <option [value]="5">5</option>
+                                        <option [value]="10">10</option>
+                                        <option [value]="25">25</option>
+                                        <option [value]="50">50</option>
+                                        <option [value]="100">100</option>
+                                        <option [value]="250">250</option>
+                                        <option [value]="1000">1000</option>
+                                    </select>
+                                    <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
+                                        <mat-icon>chevron_left</mat-icon>
+                                    </button>
+                                    <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+                                        <mat-icon>chevron_right</mat-icon>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
