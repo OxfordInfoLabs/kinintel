@@ -76,6 +76,15 @@ class SQLValueEvaluator {
 
             // If no [[ or ( expressions assume this is a single string
             if (str_replace(["(", ")"], ["", ""], preg_replace("/\[\[(.*?)\]\]/", "", $value)) == $valueEntry) {
+
+                if (is_numeric($value)) {
+                    if (floatval($value) != intval($value)) {
+                        $value = floatval($value);
+                    } else {
+                        $value = intval($value);
+                    }
+                }
+
                 $outputParameters[] = $value;
                 $value = "?";
             } else {
