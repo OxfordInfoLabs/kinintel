@@ -52,21 +52,20 @@ class SQLValueEvaluator {
             $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $templateParameters) {
                 $matchingParamValue = $templateParameters[$matches[2]] ?? null;
                 $valueArray = is_array($matchingParamValue) ? $matchingParamValue : [$matchingParamValue];
+                $literals = [];
                 foreach ($valueArray as $matchingParamValueElement) {
-                    $outputParameters[] = ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "");
+                    $literals[] = "'" . ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "") . "'";
                 }
-                return str_repeat("?,", sizeof($valueArray) - 1) . "?";
+                return join(",", $literals);
             }, $valueEntry);
 
             // Evaluate time offset parameters for days ago and hours ago
-            $value = preg_replace_callback("/([0-9]+)_DAYS_AGO/", function ($matches) use (&$outputParameters) {
-                $outputParameters[] = (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "D"))->format("Y-m-d H:i:s");
-                return "?";
+            $value = preg_replace_callback("/'*([0-9]+)_DAYS_AGO'*/", function ($matches) use (&$outputParameters) {
+                return "'" . (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "D"))->format("Y-m-d H:i:s") . "'";
             }, $value);
 
-            $value = preg_replace_callback("/([0-9]+)_HOURS_AGO/", function ($matches) use (&$outputParameters) {
-                $outputParameters[] = (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s");
-                return "?";
+            $value = preg_replace_callback("/'*([0-9]+)_HOURS_AGO'*/", function ($matches) use (&$outputParameters) {
+                return "'" . (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s") . "'";
             }, $value);
 
 

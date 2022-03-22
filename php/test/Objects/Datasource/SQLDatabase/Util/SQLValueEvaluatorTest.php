@@ -9,7 +9,7 @@ use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
 
 include_once "autoloader.php";
 
-class SQLFilterValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
+class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
 
     /**
@@ -83,6 +83,15 @@ class SQLFilterValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("?", $value);
 
 
+    }
+
+
+    public function testTimePeriodStringsPassedAsParametersAreEvaluatedCorrectly() {
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("{{timePeriod}}", ["timePeriod" => "1_DAYS_AGO"], null, $parameters);
+        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertEquals("?", $value);
     }
 
 
