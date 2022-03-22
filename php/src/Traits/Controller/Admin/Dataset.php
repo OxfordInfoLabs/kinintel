@@ -179,6 +179,8 @@ trait Dataset {
      *
      * @http POST /evaluate
      *
+     * @unsanitise $datasetInstanceSummary
+     *
      * @param DatasetInstanceSummary $datasetInstanceSummary
      * @param string $offset
      * @param string $limit

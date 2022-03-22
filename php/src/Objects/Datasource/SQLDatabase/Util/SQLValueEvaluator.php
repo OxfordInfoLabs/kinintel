@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;

@@ -97,7 +97,6 @@ class SQLFilterJunctionEvaluator {
      */
     private function createFilterStatement($filter, &$parameters, $templateParameters = []) {
 
-
         $lhsParams = [];
         $rhsParams = [];
 

@@ -52,7 +52,6 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
         if ($transformation instanceof SummariseTransformation) {
 
-
             // If we already have a group by clause or have explicit columns we need to create a query wrapper
             if ($query->hasGroupByClause() || $query->getSelectClause() !== "*") {
                 $query = new SQLQuery("*", "(" . $query->getSQL() . ") S" . ++$this->aliasIndex, $query->getParameters());

@@ -144,7 +144,7 @@ class SummariseExpression {
         $function = $sqlValueEvaluator->evaluateFilterValue($function, $parameterValues, null, $clauseParameters);
 
         if ($this->customLabel) {
-            $function .= " " . StringUtils::convertToCamelCase($this->customLabel);
+            $function .= " " . $databaseConnection->escapeColumn(StringUtils::convertToCamelCase($this->customLabel));
         }
 
         return $function;
