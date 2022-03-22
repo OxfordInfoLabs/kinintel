@@ -91,7 +91,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                 $allData = $sourceDataset->getAllData();
 
-                $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources, $targetWriteChunkSize);
+                $this->populateTargetDatasources(new ArrayTabularDataset(Field::toPlainFields($sourceDataset->getColumns()), $allData), $targetDatasources, $targetWriteChunkSize);
                 $offset += $sourceReadChunkSize;
             } while (sizeof($allData) > 0);
 
@@ -115,7 +115,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                             throw new UnsupportedDatasetException("Tabular datasets must be returned from source datasources");
                         }
 
-                        $this->populateTargetDatasources(new ArrayTabularDataset($sourceDataset->getColumns(), $allData), $targetDatasources, $targetWriteChunkSize);
+                        $this->populateTargetDatasources(new ArrayTabularDataset(Field::toPlainFields($sourceDataset->getColumns()), $allData), $targetDatasources, $targetWriteChunkSize);
                         $offset += $sourceReadChunkSize;
                     } else {
                         $allData = [];
@@ -164,6 +164,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
     // Process target chunk results
     private function processTargetChunkResults($targetDatasources, $fields, $chunkedResults) {
+
 
         /**
          * Update all targets with chunked results
