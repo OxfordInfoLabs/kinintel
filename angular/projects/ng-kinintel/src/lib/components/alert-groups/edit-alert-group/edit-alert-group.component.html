@@ -1,56 +1,85 @@
-<div class="container mx-auto max-w-screen-lg">
-
-    <h2>Alert Group</h2>
-
-    <div class="bg-white p-6 content-wrapper">
-
-        <label class="mb-4">
-            Name
-            <input type="text" [(ngModel)]="alertGroup.title">
-        </label>
-
-        <ki-task-time-periods [(taskTimePeriods)]="alertGroup.taskTimePeriods"></ki-task-time-periods>
-
-        <label class="my-4">
-            Notification Groups
-            <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple [compareWith]="notificationGroupDisplay">
-                <mat-option [value]="group" *ngFor="let group of notificationGroups">{{group.name}}</mat-option>
-            </mat-select>
-        </label>
-        <button mat-button color="primary" (click)="createNotificationGroup()">
-            <mat-icon>group_add</mat-icon>&nbsp;Create new notification group
-        </button>
-
-        <label class="mb-4">
-            Notification Title
-            <input type="text" [(ngModel)]="alertGroup.notificationTitle">
-            <small>Will be used as the subject for the notification</small>
-        </label>
-
-        <label class="my-4">
-            Notification Prefix Text
-            <textarea cols="30" rows="4" [(ngModel)]="alertGroup.notificationPrefixText"></textarea>
-            <small>Text to include at the beginning of the notification</small>
-        </label>
-
-        <label class="my-4">
-            Notification Suffix Text
-            <textarea cols="30" rows="4" [(ngModel)]="alertGroup.notificationSuffixText"></textarea>
-            <small>Text to include at the end of the notification</small>
-        </label>
-
-        <div class="py-4 align-center justify-between">
-            <button mat-stroked-button [routerLink]="['/alert-groups']">
-                Cancel
-            </button>
-            <div>
-                <button mat-flat-button color="primary" (click)="save()"
-                        [disabled]="!alertGroup.title || (!alertGroup.taskTimePeriods || !alertGroup.taskTimePeriods.length) || (!alertGroup.notificationGroups || !alertGroup.notificationGroups.length)">
-                    Save Changes
-                </button>
+<div class="p-6 bg-white border-b border-gray-200">
+    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+        <div class="flex items-start flex-1">
+            <div class="pt-1.5">
+                <h1 class="text-2xl font-bold text-gray-900 mb-0">Alert Group</h1>
+                <p class="text-sm font-medium text-gray-500">
+                    These details will be used to schedule alerts with the system.
+                </p>
             </div>
         </div>
+    </div>
+</div>
 
+<div class="space-y-8 divide-y divide-gray-200 p-6 bg-white">
+    <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+        <div>
+            <div class="space-y-6 sm:space-y-5">
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Name </label>
+                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <input type="text" name="title" [(ngModel)]="alertGroup.title"
+                               class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Time Periods </label>
+                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <ki-task-time-periods [showTitle]="false" [(taskTimePeriods)]="alertGroup.taskTimePeriods"></ki-task-time-periods>
+                    </div>
+                </div>
+
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Groups </label>
+                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple [compareWith]="notificationGroupDisplay">
+                            <mat-option [value]="group" *ngFor="let group of notificationGroups">{{group.name}}</mat-option>
+                        </mat-select>
+                        <button mat-button color="primary" (click)="createNotificationGroup()">
+                            <mat-icon>group_add</mat-icon>&nbsp;Create new notification group
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Title </label>
+                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <input type="text" name="notificationTitle" [(ngModel)]="alertGroup.notificationTitle"
+                               class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                        <p class="mt-2 text-sm text-gray-500">Will be used as the subject for the notification</p>
+                    </div>
+                </div>
+
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Prefix Text </label>
+                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <textarea name="notificationPrefixText" rows="3" [(ngModel)]="alertGroup.notificationPrefixText"
+                                  class="max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"></textarea>
+                        <p class="mt-2 text-sm text-gray-500">Text to include at the beginning of the notification</p>
+                    </div>
+                </div>
+
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Suffix Text </label>
+                    <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <textarea name="notificationSuffixText" rows="3" [(ngModel)]="alertGroup.notificationSuffixText"
+                                  class="max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"></textarea>
+                        <p class="mt-2 text-sm text-gray-500">Text to include at the end of the notification</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
+    <div class="pt-5">
+        <div class="flex justify-end">
+            <button type="button" [routerLink]="['/alert-groups']"
+                    class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
+            <button type="button" (click)="save()" [disabled]="!alertGroup.title || (!alertGroup.taskTimePeriods || !alertGroup.taskTimePeriods.length) || (!alertGroup.notificationGroups || !alertGroup.notificationGroups.length)"
+                    class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Save Changes</button>
+        </div>
+    </div>
 </div>

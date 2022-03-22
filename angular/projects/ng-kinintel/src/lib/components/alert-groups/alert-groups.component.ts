@@ -20,6 +20,7 @@ export class AlertGroupsComponent implements OnInit {
     public moment = moment;
     public page = 1;
     public endOfResults = false;
+    public loading = true;
 
     private reload = new Subject();
 
@@ -43,6 +44,7 @@ export class AlertGroupsComponent implements OnInit {
             ).subscribe((alertGroups: any) => {
             this.endOfResults = alertGroups.length < this.limit.getValue();
             this.alertGroups = alertGroups;
+            this.loading = false;
         });
 
     }

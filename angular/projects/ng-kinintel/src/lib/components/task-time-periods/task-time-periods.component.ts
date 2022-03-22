@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 export class TaskTimePeriodsComponent implements OnInit {
 
     @Input() taskTimePeriods: any = [];
+    @Input() showTitle = true;
 
     @Output() taskTimePeriodsChange = new EventEmitter();
 

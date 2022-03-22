@@ -24,6 +24,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
     public offset = new BehaviorSubject(0);
     public page = 1;
     public endOfResults = false;
+    public loading = true;
 
     private reload = new Subject();
 
@@ -45,6 +46,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
             ).subscribe((feeds: any) => {
             this.endOfResults = feeds.length < this.limit.getValue();
             this.feeds = feeds;
+            this.loading = false;
         });
     }
 
