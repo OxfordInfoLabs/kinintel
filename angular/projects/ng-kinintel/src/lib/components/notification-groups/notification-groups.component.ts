@@ -19,6 +19,7 @@ export class NotificationGroupsComponent implements OnInit {
     public offset = new BehaviorSubject(0);
     public page = 1;
     public endOfResults = false;
+    public loading = true;
 
     private reload = new Subject();
 
@@ -38,6 +39,7 @@ export class NotificationGroupsComponent implements OnInit {
             ).subscribe((groups: any) => {
             this.endOfResults = groups.length < this.limit.getValue();
             this.notificationGroups = groups;
+            this.loading = false;
         });
     }
 

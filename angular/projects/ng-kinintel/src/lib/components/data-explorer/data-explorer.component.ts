@@ -44,7 +44,6 @@ export class DataExplorerComponent implements OnInit {
     }
 
     public dataLoaded(data) {
-        console.log('Data loaded explorer', data);
         this.columns = data.columns;
     }
 

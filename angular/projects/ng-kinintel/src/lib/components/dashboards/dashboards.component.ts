@@ -35,6 +35,7 @@ export class DashboardsComponent implements OnInit {
     public Date = Date;
     public activeTag: any;
     public reload = new Subject();
+    public loading = true;
 
     private tagSub: Subscription;
 
@@ -65,6 +66,7 @@ export class DashboardsComponent implements OnInit {
                 )
             ).subscribe((dashboards: any) => {
             this.dashboards = dashboards;
+            this.loading = false;
         });
 
         this.getCategories();
