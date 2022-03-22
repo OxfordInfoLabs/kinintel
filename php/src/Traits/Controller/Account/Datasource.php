@@ -57,8 +57,8 @@ trait Datasource {
      * @param int $limit
      * @param int $offset
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0) {
-        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null) {
+        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset, $projectKey);
     }
 
 
@@ -83,7 +83,7 @@ trait Datasource {
      * @return \Kinintel\Objects\Dataset\Dataset
      */
     public function evaluateDatasource($evaluatedDataSource) {
-        $result =  $this->datasourceService->getEvaluatedDataSource($evaluatedDataSource->getKey(), $evaluatedDataSource->getParameterValues(), $evaluatedDataSource->getTransformationInstances(),
+        $result = $this->datasourceService->getEvaluatedDataSource($evaluatedDataSource->getKey(), $evaluatedDataSource->getParameterValues(), $evaluatedDataSource->getTransformationInstances(),
             $evaluatedDataSource->getOffset() ?? 0, $evaluatedDataSource->getLimit() ?? 25);
         return $result;
     }

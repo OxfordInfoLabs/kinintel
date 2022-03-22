@@ -3,6 +3,8 @@
 
 namespace Kinintel\Services\Util;
 
+use Kinikit\Core\Logging\Logger;
+
 /**
  * Class SQLClauseSanitiser
  * @package Kinintel\Services\Util
@@ -154,6 +156,7 @@ class SQLClauseSanitiser {
             }
             return $matches[0];
         }, $sqlString);
+
 
         // Remove any symbols which don't match our whitelisted ones
         $sqlString = preg_replace_callback("/\\W/", function ($matches) {
