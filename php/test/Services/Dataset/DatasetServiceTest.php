@@ -343,6 +343,13 @@ class DatasetServiceTest extends TestBase {
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dataset", $filtered[0]->getTitle());
 
+        // Filter on special NONE tags
+        $filtered = $this->datasetService->filterDataSetInstances("", [], ["NONE"], null, 0, 10, 1);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
+        $this->assertEquals("Account Dataset", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[1]);
+        $this->assertEquals("Second Account Dataset", $filtered[1]->getTitle());
 
         // Offsets and limits
         $filtered = $this->datasetService->filterDataSetInstances("", [], ["general"], "datasetProject", 0, 1, 1);
@@ -585,6 +592,15 @@ class DatasetServiceTest extends TestBase {
         $matches = $this->datasetService->filterSnapshotProfiles("", ["project"], "soapSuds", 0, 10, 2);
         $this->assertEquals(1, sizeof($matches));
         $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[0]);
+
+        // Check special NONE tag
+        $matches = $this->datasetService->filterSnapshotProfiles("", ["NONE"], null, 0, 10, 2);
+        $this->assertEquals(4, sizeof($matches));
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[2]);
+        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile2), $matches[3]);
+
 
         // Limit to filter string
         $matches = $this->datasetService->filterSnapshotProfiles("another", [], null, 0, 10, 2);

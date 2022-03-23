@@ -104,8 +104,12 @@ class DashboardService {
         }
 
         if ($tags && sizeof($tags) > 0) {
-            $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
-            $params = array_merge($params, $tags);
+            if ($tags[0] == "NONE") {
+                $query .= " AND tags.tag_key IS NULL";
+            } else {
+                $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+                $params = array_merge($params, $tags);
+            }
         }
 
         if ($categories && sizeof($categories) > 0) {

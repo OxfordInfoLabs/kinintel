@@ -24,6 +24,7 @@ use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
@@ -394,6 +395,14 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
+
+        // Filter on special NONE tags
+        $filtered = $this->dashboardService->filterDashboards("", [], ["NONE"], null, 0, 10, 1);
+        $this->assertEquals(2, sizeof($filtered));
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
+        $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
+        $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
+        $this->assertEquals("Second Account Dashboard", $filtered[1]->getTitle());
 
 
         // Offsets and limits

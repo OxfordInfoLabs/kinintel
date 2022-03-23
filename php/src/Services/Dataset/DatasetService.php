@@ -127,8 +127,13 @@ class DatasetService {
         }
 
         if ($tags && sizeof($tags) > 0) {
-            $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
-            $params = array_merge($params, $tags);
+
+            if ($tags[0] == "NONE") {
+                $query .= " AND tags.tag_key IS NULL";
+            } else {
+                $query .= " AND tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+                $params = array_merge($params, $tags);
+            }
         }
 
         if ($categories && sizeof($categories) > 0) {
@@ -137,6 +142,7 @@ class DatasetService {
         }
 
         $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
+
 
         // Return a summary array
         return array_map(function ($instance) {
@@ -268,8 +274,12 @@ class DatasetService {
         }
 
         if ($tags && sizeof($tags) > 0) {
-            $clauses[] = "datasetInstanceLabel.tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
-            $params = array_merge($params, $tags);
+            if ($tags[0] == "NONE") {
+                $clauses[] = "datasetInstanceLabel.tags.tag_key IS NULL";
+            } else {
+                $clauses[] = "datasetInstanceLabel.tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
+                $params = array_merge($params, $tags);
+            }
         }
 
         if ($filterString) {
