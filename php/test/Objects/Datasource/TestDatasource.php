@@ -57,7 +57,7 @@ class TestDatasource extends BaseDatasource {
     }
 
 
-    public function applyTransformation($transformation, $parameterValues = []) {
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
         // TODO: Implement applyQuery() method.
     }
 

@@ -24,12 +24,13 @@ abstract class SQLTransformationProcessor {
 
     /**
      * @param $transformation
-     * @param $parameterValues
      * @param $datasource
+     * @param $parameterValues
+     * @param null $pagingTransformation
      *
      * @return Datasource
      */
-    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+    public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
         return $datasource;
     }
 

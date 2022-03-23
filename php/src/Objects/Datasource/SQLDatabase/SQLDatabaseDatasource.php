@@ -195,9 +195,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      *
      * @param Transformation $transformation
      * @param array $parameterValues
+     * @param null $pagingTransformation
      * @return BaseDatasource|void
      */
-    public function applyTransformation($transformation, $parameterValues = []) {
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
 
         $dataSource = $this;
 
@@ -210,7 +211,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             // Apply the transformation using the processor for this transformation
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
-            $dataSource = $processor->applyTransformation($transformation, $dataSource, $parameterValues);
+            $dataSource = $processor->applyTransformation($transformation, $dataSource, $parameterValues, $pagingTransformation);
 
             // If same datasource apply the transformation
             if ($dataSource === $this) {

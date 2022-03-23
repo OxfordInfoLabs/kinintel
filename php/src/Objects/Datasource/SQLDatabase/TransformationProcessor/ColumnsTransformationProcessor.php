@@ -18,9 +18,10 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      * @param ColumnsTransformation $transformation
      * @param SQLDatabaseDatasource $datasource
      * @param mixed[] $parameterValues
+     * @param null $pagingTransformation
      * @return \Kinintel\Objects\Datasource\Datasource|void
      */
-    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+    public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
         return $datasource;
     }
 

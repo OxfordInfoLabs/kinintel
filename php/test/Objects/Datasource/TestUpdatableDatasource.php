@@ -20,7 +20,7 @@ class TestUpdatableDatasource extends BaseDatasource implements UpdatableDatasou
         // TODO: Implement getSupportedTransformationClasses() method.
     }
 
-    public function applyTransformation($transformation, $parameterValues = []) {
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
         // TODO: Implement applyTransformation() method.
     }
 }

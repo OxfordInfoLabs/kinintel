@@ -32,6 +32,7 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Join\JoinColumn;
 use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -497,6 +498,164 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column2" => "Dumpty"
             ]
         ], $evaluatedDatasource->materialise()->getAllData());
+
+    }
+
+
+    public function testIfPagingTransformationPassedThroughToApplyMethodItIsAppliedFirstToParentSetWhenParameterBasedJoin() {
+        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testjoindataset");
+        $joinDataSetInstance->returnValue("getTransformationInstances", [
+            new TestTransformation(), new TestTransformation()
+        ]);
+
+        $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
+
+        $joinDatasource1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource1->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $joinDatasource1->returnValue("materialise", new ArrayTabularDataset([
+            new Field("column1"), new Field("column2")
+        ], [
+            [
+                "column1" => "John",
+                "column2" => "Brown"
+            ],
+            [
+                "column1" => "Joe",
+                "column2" => "Bloggs"
+            ]
+        ]), [[
+            "term" => "Bingo"
+        ]]);
+
+
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource1,
+            [$joinDataSetInstance, ["term" => "Bingo"], []]
+        );
+
+
+        $joinDatasource2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource2->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $joinDatasource2->returnValue("materialise", new ArrayTabularDataset([
+            new Field("column1"), new Field("column2")
+        ], [
+            [
+                "column1" => "Jane",
+                "column2" => "White"
+            ],
+            [
+                "column1" => "Andrew",
+                "column2" => "Smythe"
+            ]
+        ]), [[
+            "term" => "Bongo"
+        ]]);
+
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource2,
+            [$joinDataSetInstance, ["term" => "Bongo"], []]
+        );
+
+
+        $joinDatasource3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource3->returnValue("getAuthenticationCredentials", $this->authCredentials);
+        $joinDatasource3->returnValue("materialise", new ArrayTabularDataset([
+            new Field("column1"), new Field("column2")
+        ], [
+            [
+                "column1" => "Peter",
+                "column2" => "Piper"
+            ],
+            [
+                "column1" => "Humpty",
+                "column2" => "Dumpty"
+            ]
+        ]), [[
+            "term" => "Bango"
+        ]]);
+
+
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource3,
+            [$joinDataSetInstance, ["term" => "Bango"], []]
+        );
+
+        $this->dataSetService->returnValue("getEvaluatedParameters", [
+            new Parameter("term", "Term")
+        ], [
+            $joinDataSetInstance
+        ]);
+
+        $transformation = new JoinTransformation(null, 10, [
+            new JoinParameterMapping("term", null, "expression")
+        ]);
+
+        $mainDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $mainDatasource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table"));
+
+        // Expect a paged main datasource from paging transformation
+        $pagedMainDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDatasource->returnValue("applyTransformation", $pagedMainDatasource, [
+            new PagingTransformation(5, 0), []
+        ]);
+
+        $pagedMainDatasource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table"));
+
+
+        $pagedMainDatasource->returnValue("materialise", new ArrayTabularDataset([
+            new Field("title", "Title"),
+            new Field("expression", "Expression")
+        ], [
+            [
+                "title" => "Test 1",
+                "expression" => "Bingo"
+            ],
+            [
+                "title" => "Test 2",
+                "expression" => "Bongo"
+            ], [
+                "title" => "Test 3",
+                "expression" => "Bango"
+            ]
+        ]), [[]]);
+
+
+        $this->processor->applyTransformation($transformation, $mainDatasource, [], new PagingTransformation(5, 0));
+
+        $evaluatedDatasource = $transformation->returnEvaluatedDataSource();
+        $this->assertInstanceOf(DefaultDatasource::class, $evaluatedDatasource);
+        $this->assertEquals([[
+            "alias_1" => "Bingo",
+            "column1" => "John",
+            "column2" => "Brown"
+        ],
+            [
+                "alias_1" => "Bingo",
+                "column1" => "Joe",
+                "column2" => "Bloggs"
+            ],
+            [
+                "alias_1" => "Bongo",
+                "column1" => "Jane",
+                "column2" => "White"
+            ],
+            [
+                "alias_1" => "Bongo",
+                "column1" => "Andrew",
+                "column2" => "Smythe"
+            ],
+            [
+                "alias_1" => "Bango",
+                "column1" => "Peter",
+                "column2" => "Piper"
+            ],
+            [
+                "alias_1" => "Bango",
+                "column1" => "Humpty",
+                "column2" => "Dumpty"
+            ]
+        ], $evaluatedDatasource->materialise()->getAllData());
+
 
     }
 

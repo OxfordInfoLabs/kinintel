@@ -87,9 +87,10 @@ class CachingDatasource extends BaseDatasource {
      *
      * @param \Kinintel\ValueObjects\Transformation\Transformation $transformation
      * @param array $parameterValues
+     * @param null $pagingTransformation
      * @return BaseDatasource|void
      */
-    public function applyTransformation($transformation, $parameterValues = []) {
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
         $this->appliedTransformations[] = $transformation;
         return $this;
     }

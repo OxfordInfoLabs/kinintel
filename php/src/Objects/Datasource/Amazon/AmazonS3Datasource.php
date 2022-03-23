@@ -44,9 +44,10 @@ class AmazonS3Datasource extends BaseDatasource {
      *
      * @param Transformation $transformation
      * @param array $parameterValues
+     * @param null $pagingTransformation
      * @return BaseDatasource|void
      */
-    public function applyTransformation($transformation, $parameterValues = []) {
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
 
         // Track paging transformations
         if ($transformation instanceof PagingTransformation)

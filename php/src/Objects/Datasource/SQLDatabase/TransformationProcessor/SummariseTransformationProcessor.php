@@ -26,9 +26,10 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
      * @param $transformation
      * @param $datasource
      * @param array $parameterValues
+     * @param null $pagingTransformation
      * @return \Kinintel\Objects\Datasource\Datasource|void
      */
-    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+    public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
 
         // Unset any explicit columns from the datasource config
         $datasource->getConfig()->setColumns([]);

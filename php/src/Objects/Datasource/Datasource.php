@@ -91,9 +91,10 @@ interface Datasource {
      *
      * @param Transformation $transformation
      * @param array $parameterValues
+     * @param null $pagingTransformation
      * @return BaseDatasource
      */
-    public function applyTransformation($transformation, $parameterValues = []);
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null);
 
 
     /**

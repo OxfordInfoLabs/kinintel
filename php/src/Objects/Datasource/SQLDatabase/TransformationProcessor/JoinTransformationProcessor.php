@@ -77,6 +77,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @param JoinTransformation $transformation
      * @param Datasource $datasource
      * @param mixed[] $parameterValues
+     * @param null $pagingTransformation
      *
      * @return \Kinintel\Objects\Datasource\Datasource|DefaultDatasource|mixed
      * @throws \Kinikit\Core\Validation\ValidationException
@@ -85,7 +86,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @throws \Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException
      * @throws \Kinintel\Exception\UnsupportedDatasourceTransformationException
      */
-    public function applyTransformation($transformation, $datasource, $parameterValues = []) {
+    public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
 
 
         $joinDataParameters = [];
@@ -154,6 +155,10 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 // Pre-columns
                 $preColumns = $datasource->getConfig()->getColumns();
+
+                // If a paging transformation, apply this now
+                if ($pagingTransformation instanceof PagingTransformation)
+                    $datasource = $datasource->applyTransformation($pagingTransformation, $parameterValues);
 
                 // Materialise the parent data set
                 $parentDataset = $datasource->materialise($parameterValues);

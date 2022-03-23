@@ -304,7 +304,10 @@ class DatasourceService {
     private function applyTransformationsToDatasource($datasource, $transformationInstances, $parameterValues, $offset = null, $limit = null) {
 
         $pagingMarkerFound = false;
-        $pagingTransformation = new PagingTransformation($limit, $offset);
+
+        if ($offset !== null && $limit !== null)
+            $pagingTransformation = new PagingTransformation($limit, $offset);
+        else $pagingTransformation = null;
 
         foreach ($transformationInstances as $transformationInstance) {
 
@@ -317,13 +320,13 @@ class DatasourceService {
             }
 
             if ($this->isTransformationSupported($datasource, $transformation)) {
-                $datasource = $datasource->applyTransformation($transformation, $parameterValues);
+                $datasource = $datasource->applyTransformation($transformation, $parameterValues, $pagingTransformation);
             } else if ($datasource instanceof DefaultDatasource) {
                 throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
             } else {
                 $defaultDatasource = new DefaultDatasource($datasource);
                 if ($this->isTransformationSupported($defaultDatasource, $transformation))
-                    $datasource = $defaultDatasource->applyTransformation($transformation, $parameterValues);
+                    $datasource = $defaultDatasource->applyTransformation($transformation, $parameterValues, $pagingTransformation);
                 else
                     throw new UnsupportedDatasourceTransformationException($datasource, $transformation);
             }
@@ -331,7 +334,7 @@ class DatasourceService {
         }
 
         // If no paging marker found and paging is supported as a transformation apply offset and limit
-        if (!$pagingMarkerFound && $this->isTransformationSupported($datasource, $pagingTransformation) && $offset !== null && $limit !== null) {
+        if (!$pagingMarkerFound && $pagingTransformation && $this->isTransformationSupported($datasource, $pagingTransformation)) {
             $datasource = $datasource->applyTransformation($pagingTransformation, $parameterValues);
         }
 

@@ -167,15 +167,15 @@ class DatasourceServiceTest extends TestBase {
 
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
-            $transformation1, []
+            $transformation1, [], new PagingTransformation(20, 0)
         ]);
 
         $transformed1->returnValue("applyTransformation", $transformed2, [
-            $transformation2, []
+            $transformation2, [], new PagingTransformation(20, 0)
         ]);
 
         $transformed2->returnValue("applyTransformation", $transformed3, [
-            $transformation3, []
+            $transformation3, [], new PagingTransformation(20, 0)
         ]);
 
 
@@ -188,7 +188,7 @@ class DatasourceServiceTest extends TestBase {
         $transformed3->returnValue("materialise", $dataSet);
 
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3]));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3], 0, 20));
 
 
     }
@@ -293,7 +293,7 @@ class DatasourceServiceTest extends TestBase {
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
-            $transformation1, ["param1" => "Joe", "param2" => "Bloggs"]
+            $transformation1, ["param1" => "Joe", "param2" => "Bloggs"], new PagingTransformation(10, 10)
         ]);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
@@ -305,7 +305,7 @@ class DatasourceServiceTest extends TestBase {
         $transformed1->returnValue("materialise", $dataSet);
 
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "Joe", "param2" => "Bloggs"], [$transformationInstance1]));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "Joe", "param2" => "Bloggs"], [$transformationInstance1], 10, 10));
 
 
     }
@@ -336,7 +336,7 @@ class DatasourceServiceTest extends TestBase {
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
-            $transformation1, []
+            $transformation1, [], new PagingTransformation(50, 15)
         ]);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
@@ -389,7 +389,7 @@ class DatasourceServiceTest extends TestBase {
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
-            $transformation1, []
+            $transformation1, [], new PagingTransformation(25, 25)
         ]);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);

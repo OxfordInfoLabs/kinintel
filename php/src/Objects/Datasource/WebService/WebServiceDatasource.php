@@ -118,9 +118,10 @@ class WebServiceDatasource extends BaseDatasource {
      *
      * @param Transformation $transformation
      * @param array $parameterValues
+     * @param null $pagingTransformation
      * @return BaseDatasource
      */
-    public function applyTransformation($transformation, $parameterValues = []) {
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
 
         if ($transformation instanceof PagingTransformation) {
             $this->pagingTransformations[] = $transformation;
