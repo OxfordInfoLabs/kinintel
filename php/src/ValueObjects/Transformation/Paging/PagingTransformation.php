@@ -19,6 +19,14 @@ class PagingTransformation implements Transformation, SQLDatabaseTransformation 
      */
     private $offset;
 
+
+    /**
+     * Applied flag to indicate that paging has been applied.
+     *
+     * @var bool
+     */
+    private $applied = false;
+
     /**
      * PagingTransformation constructor.
      * @param int $limit
@@ -56,6 +64,20 @@ class PagingTransformation implements Transformation, SQLDatabaseTransformation 
      */
     public function setOffset($offset) {
         $this->offset = $offset;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isApplied() {
+        return $this->applied;
+    }
+
+    /**
+     * @param bool $applied
+     */
+    public function setApplied($applied) {
+        $this->applied = $applied;
     }
 
 

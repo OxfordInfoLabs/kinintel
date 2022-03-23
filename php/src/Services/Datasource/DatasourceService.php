@@ -303,7 +303,6 @@ class DatasourceService {
      */
     private function applyTransformationsToDatasource($datasource, $transformationInstances, $parameterValues, $offset = null, $limit = null) {
 
-        $pagingMarkerFound = false;
 
         if ($offset !== null && $limit !== null)
             $pagingTransformation = new PagingTransformation($limit, $offset);
@@ -315,8 +314,8 @@ class DatasourceService {
 
             // If a marker transformation, use a paging transformation instead
             if ($transformation instanceof PagingMarkerTransformation) {
-                $pagingMarkerFound = true;
-                $transformation = new PagingTransformation($limit, $offset);
+                $transformation = $pagingTransformation;
+                $pagingTransformation->setApplied(true);
             }
 
             if ($this->isTransformationSupported($datasource, $transformation)) {
@@ -334,7 +333,7 @@ class DatasourceService {
         }
 
         // If no paging marker found and paging is supported as a transformation apply offset and limit
-        if (!$pagingMarkerFound && $pagingTransformation && $this->isTransformationSupported($datasource, $pagingTransformation)) {
+        if ($pagingTransformation && (!$pagingTransformation->isApplied()) && $this->isTransformationSupported($datasource, $pagingTransformation)) {
             $datasource = $datasource->applyTransformation($pagingTransformation, $parameterValues);
         }
 

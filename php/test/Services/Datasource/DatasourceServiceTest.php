@@ -364,49 +364,6 @@ class DatasourceServiceTest extends TestBase {
     }
 
 
-    public function testPagingTransformationReplacesPagingMarkerTransformationsUsingOffsetAndLimitParamsIfNoPagingMarkerTransformationPresentAndPagingTransformationSupportedByTerminatingDatasource() {
-
-        // Program expected return values
-        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
-
-
-        // Ensure that transformation classes supported by the datasource
-        $dataSource->returnValue("getSupportedTransformationClasses", [
-            Transformation::class
-        ]);
-
-        $transformation1 = new PagingTransformation(25, 25);
-
-        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
-        $transformed1->returnValue("getSupportedTransformationClasses", [
-            Transformation::class,
-            PagingTransformation::class
-        ]);
-
-
-        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
-        $transformationInstance1->returnValue("returnTransformation", $transformation1);
-
-        $dataSource->returnValue("applyTransformation", $transformed1, [
-            $transformation1, [], new PagingTransformation(25, 25)
-        ]);
-
-        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
-        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
-            "test"
-        ]);
-
-        $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
-        $transformed1->returnValue("materialise", $dataSet);
-
-
-        $this->assertSame($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", [], [new TransformationInstance("pagingmarker")], 25, 25));
-
-
-    }
-
-
     public function testDefaultDatasourceReturnedIfUnsupportedTransformationSuppliedAsPartOfDatasetOrAdditionalTransformations() {
 
         // Program expected return values
