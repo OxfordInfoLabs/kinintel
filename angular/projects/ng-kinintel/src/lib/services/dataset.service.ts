@@ -18,8 +18,8 @@ export class DatasetService {
                 private projectService: ProjectService) {
     }
 
-    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '', type = '', categories = []) {
-        const tags = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
+    public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '', type = '', categories = [], tags?) {
+        tags = tags || (this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '');
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const suffix = this.config.backendURL.indexOf('/account') && accountId === null ? '/shared/all' : '';
         return this.http.get(this.config.backendURL + '/dataset' + suffix, {
@@ -91,9 +91,9 @@ export class DatasetService {
             .toPromise();
     }
 
-    public listSnapshotProfiles(filterString = '', limit = '10', offset = '0') {
+    public listSnapshotProfiles(filterString = '', limit = '10', offset = '0', tags?) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
-        const activeTag = this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '';
+        const activeTag = tags || (this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '');
 
         return this.http.get(this.config.backendURL + '/dataset/snapshotprofile', {
             params: _.omitBy({filterString, limit, offset, tags: activeTag, projectKey}, _.isNil)

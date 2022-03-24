@@ -19,20 +19,37 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     @Input() headingLabel: string;
     @Input() shared: boolean;
     @Input() admin: boolean;
+    @Input() environment: any;
 
-    public snapshots: any = [];
+    public snapshots: any = {
+        project: {
+            data: [],
+            limit: 10,
+            offset: 0,
+            page: 1,
+            endOfResults: false,
+            shared: false,
+            reload: new Subject(),
+            categories: []
+        },
+        tag: {
+            data: [],
+            limit: 10,
+            offset: 0,
+            page: 1,
+            endOfResults: false,
+            shared: false,
+            reload: new Subject(),
+            categories: []
+        }
+    };
     public searchText = new BehaviorSubject('');
-    public limit = new BehaviorSubject(10);
-    public offset = new BehaviorSubject(0);
-    public page = 1;
-    public endOfResults = false;
-
     public activeTagSub = new Subject();
-    public projectSub = new Subject();
     public activeTag: any;
 
     private tagSub: Subscription;
     private reload = new Subject();
+    private tagDataSub: Subscription;
 
     constructor(private dialog: MatDialog,
                 private tagService: TagService,
@@ -44,29 +61,47 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         if (this.tagService) {
             this.activeTagSub = this.tagService.activeTag;
-            this.tagSub = this.tagService.activeTag.subscribe(tag => this.activeTag = tag);
+            this.tagSub = this.tagService.activeTag.subscribe(tag => {
+                if (tag) {
+                    this.activeTag = tag;
+                    this.tagDataSub = merge(this.searchText, this.snapshots.tag.reload, this.projectService.activeProject, this.reload)
+                        .pipe(
+                            debounceTime(300),
+                            // distinctUntilChanged(),
+                            switchMap(() =>
+                                this.getSnapshots(this.snapshots.tag)
+                            )
+                        ).subscribe((dashboards: any) => {
+                            this.snapshots.tag.data = dashboards;
+                        });
+                } else {
+                    this.activeTag = null;
+                    if (this.tagDataSub) {
+                        this.tagDataSub.unsubscribe();
+                    }
+                }
+
+            });
         }
 
-        if (this.projectService) {
-            this.projectSub = this.projectService.activeProject;
-        }
-
-        merge(this.searchText, this.limit, this.offset, this.activeTagSub, this.projectSub, this.reload)
+        merge(this.searchText, this.snapshots.project.reload, this.projectService.activeProject, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
                 switchMap(() =>
-                    this.getSnapshots()
+                    this.getSnapshots(this.snapshots.project, 'NONE')
                 )
             ).subscribe((snapshots: any) => {
-            this.endOfResults = snapshots.length < this.limit.getValue();
-            this.snapshots = snapshots;
+            this.snapshots.project.data = snapshots;
         });
     }
 
     ngOnDestroy() {
         if (this.tagSub) {
             this.tagSub.unsubscribe();
+        }
+        if (this.tagDataSub) {
+            this.tagDataSub.unsubscribe();
         }
     }
 
@@ -91,7 +126,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             }
         });
         dialogRef.afterClosed().subscribe(res => {
-
+            this.reload.next(Date.now());
         });
     }
 
@@ -119,38 +154,43 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.tagService.resetActiveTag();
     }
 
-    public delete(datasetId) {
+    public delete(datasetId, snapshot) {
         const message = 'Are you sure you would like to remove this Snapshot?';
         if (window.confirm(message)) {
             this.datasetService.removeDataset(datasetId).then(() => {
-                this.reload.next(Date.now());
+                snapshot.reload.next(Date.now());
             });
         }
     }
 
-    public increaseOffset() {
-        this.page = this.page + 1;
-        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    public increaseOffset(snapshot) {
+        snapshot.page = snapshot.page + 1;
+        snapshot.offset = (snapshot.limit * snapshot.page) - snapshot.limit;
+        snapshot.reload.next(Date.now());
     }
 
-    public decreaseOffset() {
-        this.page = this.page <= 1 ? 1 : this.page - 1;
-        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+    public decreaseOffset(snapshot) {
+        snapshot.page = snapshot.page <= 1 ? 1 : snapshot.page - 1;
+        snapshot.offset = (snapshot.limit * snapshot.page) - snapshot.limit;
+        snapshot.reload.next(Date.now());
     }
 
-    public pageSizeChange(value) {
-        this.limit.next(value);
+    public pageSizeChange(value, snapshot) {
+        snapshot.page = 1;
+        snapshot.offset = 0;
+        snapshot.limit = value;
+        snapshot.reload.next(Date.now());
     }
 
-    private getSnapshots() {
+    private getSnapshots(snapshot, tags?) {
         return this.datasetService.listSnapshotProfiles(
             this.searchText.getValue() || '',
-            this.limit.getValue().toString(),
-            this.offset.getValue().toString()
+            snapshot.limit.toString(),
+            snapshot.offset.toString(),
+            tags
         ).pipe(map((snapshots: any) => {
-                return _.filter(snapshots, snapshot => {
-                    return snapshot.taskStatus !== 'PENDING';
-                });
+                snapshot.endOfResults = snapshots.length < snapshot.limit;
+                return snapshots;
             })
         );
     }
