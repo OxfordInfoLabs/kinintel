@@ -156,8 +156,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 // Pre-columns
                 $preColumns = $datasource->getConfig()->getColumns();
 
-                // If a paging transformation, apply this now
-                if ($pagingTransformation instanceof PagingTransformation) {
+                // If a paging transformation and not yet applied, apply this now
+                if ($pagingTransformation instanceof PagingTransformation && !$pagingTransformation->isApplied()) {
                     $datasource = $datasource->applyTransformation($pagingTransformation, $parameterValues);
                     $pagingTransformation->setApplied(true);
                 }
