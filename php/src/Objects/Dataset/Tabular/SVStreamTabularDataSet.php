@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Stream\StreamException;
 use Kinikit\Core\Util\StringUtils;
@@ -53,6 +54,15 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
+     * An optional array of column indexes in the source CSV data to
+     * ignore when mapping to columns.
+     *
+     * @var array
+     */
+    private $ignoreColumnIndexes = [];
+
+
+    /**
      * SVStreamTabularDataSet constructor.
      *
      * @param Field[] $columns
@@ -61,14 +71,17 @@ class SVStreamTabularDataSet extends TabularDataset {
      * @param false $firstRowHeader
      * @param string $separator
      * @param string $enclosure
+     * @param array $ignoreColumnIndexes
      * @param integer $limit
      * @param integer $offset
      */
-    public function __construct($columns, $stream, $firstRowOffset = 0, $firstRowHeader = false, $separator = ",", $enclosure = '"', $limit = PHP_INT_MAX, $offset = 0) {
+    public function __construct($columns, $stream, $firstRowOffset = 0, $firstRowHeader = false, $separator = ",", $enclosure = '"',
+                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = []) {
         parent::__construct($columns);
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
+        $this->ignoreColumnIndexes = $ignoreColumnIndexes;
 
         // Total limit including offset
         $this->limit = $limit + $offset + $firstRowOffset;
@@ -106,6 +119,17 @@ class SVStreamTabularDataSet extends TabularDataset {
         return sizeof($this->columns) ? $this->columns : $this->csvColumns;
     }
 
+    /**
+     * Ensure we close the stream on get all data
+     *
+     * @return mixed[]
+     */
+    public function getAllData() {
+        $allData = parent::getAllData();
+        $this->stream->close();
+        return $allData;
+    }
+
 
     /**
      * Read the next data item from the stream using the SV format.
@@ -124,13 +148,18 @@ class SVStreamTabularDataSet extends TabularDataset {
             // Only continue if we have some content
             if (trim($csvLine[0])) {
 
-                while (sizeof($this->csvColumns) < sizeof($csvLine)) {
+                while (sizeof($this->csvColumns) < sizeof($csvLine) - sizeof($this->ignoreColumnIndexes)) {
                     $this->csvColumns[] = new Field("column" . (sizeof($this->csvColumns) + 1));
                 }
 
                 $dataItem = [];
+                $columnIndex = 0;
                 foreach ($csvLine as $index => $value) {
-                    $dataItem[$this->csvColumns[$index]->getName()] = trim($value);
+                    if (!in_array($index, $this->ignoreColumnIndexes)) {
+                        if (isset($this->csvColumns[$columnIndex]))
+                            $dataItem[$this->csvColumns[$columnIndex]->getName()] = trim($value);
+                        $columnIndex++;
+                    }
                 }
 
                 return $dataItem;

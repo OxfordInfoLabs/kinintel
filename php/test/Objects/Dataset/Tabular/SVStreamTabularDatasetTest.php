@@ -59,6 +59,26 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testIfIgnoreColumnIndexesSuppliedThoseColumnsAreNotIncludedInOutput() {
+
+        // Create mock stream
+        $mockStream = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
+
+        $mockStream->returnValue("readCSVLine", [
+            "value1", "value2", "value3", "value4", "value5", "value6"
+        ], [
+            ",", '"'
+        ]);
+
+        $dataSet = new SVStreamTabularDataSet([
+        ], $mockStream, 0, false, ",", '"', PHP_INT_MAX, 0, [
+            1, 3, 5
+        ]);
+
+        $this->assertEquals(["column1" => "value1", "column2" => "value3", "column3" => "value5"], $dataSet->nextDataItem());
+
+
+    }
 
 
 }

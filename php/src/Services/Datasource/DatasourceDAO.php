@@ -179,10 +179,9 @@ class DatasourceDAO {
         $dataSources = scandir($directory);
         foreach ($dataSources as $dataSource) {
             if (strpos($dataSource, ".json")) {
-                $splitFilename = explode(".", $dataSource);
                 $instance = $this->jsonToObjectConverter->convert(file_get_contents($directory . "/" . $dataSource), DataSourceInstance::class);
-                $instance->setKey($splitFilename[0]);
-                $this->fileSystemDataSources[$splitFilename[0]] = $instance;
+                $instance->setKey($instance->getKey());
+                $this->fileSystemDataSources[$instance->getKey()] = $instance;
             } else if (substr($dataSource, 0, 1) !== "." && is_dir($directory . "/" . $dataSource)) {
                 $this->loadDatasourcesFromDirectory($directory . "/" . $dataSource);
             }

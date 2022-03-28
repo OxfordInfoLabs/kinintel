@@ -52,8 +52,8 @@ abstract class TabularDataset implements Dataset {
         while ($this->nextDataItem()) {
         }
 
-        // Combine any read rows into mix to ensure we can repeatedly call getAllData
-        return array_merge($this->readRows);
+        // Return read rows
+        return $this->readRows;
     }
 
 
