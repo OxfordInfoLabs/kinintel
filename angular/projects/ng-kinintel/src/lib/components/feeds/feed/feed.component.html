@@ -59,11 +59,11 @@
             </label>
         </ng-template>
 
-        <ng-template [ngIf]="feedDataset && feedDataset.parameters.length">
+        <ng-template [ngIf]="feedDataset && parameters.length">
             <label class="">Exposed Parameters</label>
             <mat-selection-list [(ngModel)]="feed.exposedParameterNames">
                 <mat-list-option checkboxPosition="before" [value]="param.name"
-                                 *ngFor="let param of feedDataset.parameters">
+                                 *ngFor="let param of parameters">
                     {{param.title}}
                 </mat-list-option>
             </mat-selection-list>

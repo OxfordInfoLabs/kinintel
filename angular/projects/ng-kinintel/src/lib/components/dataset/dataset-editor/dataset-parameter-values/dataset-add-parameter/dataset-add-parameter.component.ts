@@ -1,5 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import * as _ from 'lodash';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-dataset-add-parameter',
@@ -11,10 +12,14 @@ export class DatasetAddParameterComponent implements OnInit {
 
     public parameter: any = {type: 'text', multiple: false, defaultValue: null};
 
-    constructor() {
+    constructor(public dialogRef: MatDialogRef<DatasetAddParameterComponent>,
+                @Inject(MAT_DIALOG_DATA) public data: any) {
     }
 
     ngOnInit(): void {
+        if (this.data.parameter) {
+            this.parameter = this.data.parameter
+        }
     }
 
     public setName() {

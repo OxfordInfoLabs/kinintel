@@ -19,6 +19,7 @@ export class FeedComponent implements OnInit {
     public feedUrl: string;
     public searchText = new BehaviorSubject('');
     public feedDataset: any;
+    public parameters: any = [];
 
     constructor(public dialogRef: MatDialogRef<FeedComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -34,6 +35,7 @@ export class FeedComponent implements OnInit {
 
         if (this.feed.datasetInstanceId) {
             this.feedDataset = await this.datasetService.getDataset(this.feed.datasetInstanceId);
+            this.parameters = await this.datasetService.getEvaluatedParameters(this.feedDataset);
         }
 
         this.feedUrl = this.data.feedUrl;
@@ -58,8 +60,10 @@ export class FeedComponent implements OnInit {
         const dataset = event.source.value;
         this.feed.datasetInstanceId = dataset.id;
         this.feed.datasetLabel = dataset;
+        this.parameters = [];
 
         this.feedDataset = await this.datasetService.getDataset(this.feed.datasetInstanceId);
+        this.parameters = await this.datasetService.getEvaluatedParameters(this.feedDataset);
     }
 
     public saveFeed() {

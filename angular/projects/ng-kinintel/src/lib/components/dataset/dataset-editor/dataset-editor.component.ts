@@ -53,6 +53,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public terminatingTransformations = [];
     public String = String;
     public longRunning = false;
+    public sideOpen = false;
 
     public limit = 25;
     private offset = 0;
@@ -497,21 +498,37 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-
-    public addParameter() {
+    public addParameter(existingParameter?, parameterValueIndex?) {
+        let clonedParameter = null;
+        if (existingParameter) {
+            clonedParameter = _.clone(existingParameter);
+        }
         if (!this.showParameters) {
             this.showParameters = true;
         }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
             width: '600px',
-            height: '600px'
+            height: '600px',
+            data: {
+                parameter: clonedParameter
+            }
         });
         dialogRef.afterClosed().subscribe(parameter => {
             if (parameter) {
-                parameter.value = parameter.defaultValue || '';
+                if (!clonedParameter) {
+                    parameter.value = parameter.defaultValue || '';
 
-                this.parameterValues.push(parameter);
-                this.datasetInstanceSummary.parameters.push(parameter);
+                    this.parameterValues.push(parameter);
+                    this.datasetInstanceSummary.parameters.push(parameter);
+                } else {
+                    if (!clonedParameter.value) {
+                        parameter.value = parameter.defaultValue || '';
+                    }
+                    const diParamIndex = _.findIndex(this.datasetInstanceSummary.parameters, existingParameter);
+                    this.parameterValues[parameterValueIndex] = parameter;
+                    this.datasetInstanceSummary.parameters[diParamIndex] = parameter;
+                }
+
             }
         });
     }
@@ -654,10 +671,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         return this.datasetService.getEvaluatedParameters(this.datasetInstanceSummary)
             .then((values: any) => {
-                let paramValues = values;
-                if (this.datasetInstanceSummary.parameters.length) {
-                    paramValues = values.concat(this.datasetInstanceSummary.parameters);
-                }
+                const paramValues = values.map(value => {
+                    value._locked = !_.find(this.datasetInstanceSummary.parameters, {name: value.name});
+                    return value;
+                });
 
                 this.focusParams = false;
                 const parameterValues = {};

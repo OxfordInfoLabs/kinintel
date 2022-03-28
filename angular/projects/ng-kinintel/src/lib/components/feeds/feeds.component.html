@@ -103,16 +103,11 @@
                                 <div class="tracking-wider font-bold">cURL</div>
                                 <pre class="block bg-gray-800 text-gray-100 pt-2 pl-2 rounded-t whitespace-normal">
 curl -H "API-KEY:<b>[[apiKey]]</b>" -H "API-SECRET:<b>[[apiSecret]]</b>"</pre>
-                                <pre class="block bg-gray-800 text-gray-100 pb-2 pl-2 rounded-b whitespace-normal mb-6">-X GET {{feedUrl}}{{feed.path}}
-                                    <ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames"
-                                                 let-i=index>{{i === 0 ? '?' : '&'}}{{param}}
-                                        =<b>[[VALUE]]</b></ng-template></pre>
+                                <pre class="block bg-gray-800 text-gray-100 pb-2 pl-2 rounded-b whitespace-normal mb-6">
+-X GET {{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></pre>
                                 <div class="tracking-wider font-bold">HTTPS</div>
-                                <pre
-                                    class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">{{feedUrl}}{{feed.path}}
-                                    ?apiKey=<b>[[apiKey]]</b>&apiSecret=<b>[[apiSecret]]</b><ng-template ngFor let-param
-                                                                                                         [ngForOf]="feed.exposedParameterNames">&{{param}}
-                                        =<b>[[VALUE]]</b></ng-template></pre>
+                                <pre class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">
+{{feedUrl}}{{feed.path}}?apiKey=<b>[[apiKey]]</b>&apiSecret=<b>[[apiSecret]]</b><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames">&{{param}}=<b>[[VALUE]]</b></ng-template></pre>
                             </td>
                         </tr>
                         </tbody>

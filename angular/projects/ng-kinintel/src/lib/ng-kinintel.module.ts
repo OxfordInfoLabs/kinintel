@@ -71,6 +71,7 @@ import { AvailableColumnsComponent } from './components/dataset/dataset-editor/a
 import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
 import { CreateDatasourceComponent } from './components/datasource/create-datasource/create-datasource.component';
 import { ImportDataComponent } from './components/datasource/create-datasource/import-data/import-data.component';
+import { WhitelistedSqlFunctionsComponent } from './components/whitelisted-sql-functions/whitelisted-sql-functions.component';
 
 @NgModule({
     declarations: [
@@ -115,7 +116,8 @@ import { ImportDataComponent } from './components/datasource/create-datasource/i
         AvailableColumnsComponent,
         JobTasksComponent,
         CreateDatasourceComponent,
-        ImportDataComponent
+        ImportDataComponent,
+        WhitelistedSqlFunctionsComponent
     ],
     imports: [
         BrowserModule,

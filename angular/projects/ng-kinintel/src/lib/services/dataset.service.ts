@@ -134,4 +134,9 @@ export class DatasetService {
             params: {projectKey, tags}
         }).toPromise();
     }
+
+    public getWhiteListedSQLFunctions() {
+        return this.http.get(this.config.backendURL + '/dataset/whitelistedsqlfunctions')
+            .toPromise();
+    }
 }
