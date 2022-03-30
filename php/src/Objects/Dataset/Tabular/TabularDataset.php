@@ -22,6 +22,14 @@ abstract class TabularDataset implements Dataset {
 
 
     /**
+     * Boolean indicator as to whether we want to cache all rows - defaults to true
+     *
+     * @var boolean
+     */
+    private $cacheAllRows;
+
+
+    /**
      * Historical read rows for all behaviour
      *
      * @var array
@@ -36,8 +44,9 @@ abstract class TabularDataset implements Dataset {
      *
      * @param Field[] $columns
      */
-    public function __construct($columns = []) {
+    public function __construct($columns = [], $cacheAllRows = true) {
         $this->columns = $columns;
+        $this->cacheAllRows = $cacheAllRows;
     }
 
     /**
@@ -107,7 +116,7 @@ abstract class TabularDataset implements Dataset {
         }
 
         // If a new data item, append to read rows
-        if ($newDataItem) {
+        if ($newDataItem && $this->cacheAllRows) {
             $this->readRows[] = $newDataItem;
         }
 

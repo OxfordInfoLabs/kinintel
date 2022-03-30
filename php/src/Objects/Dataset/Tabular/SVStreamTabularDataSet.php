@@ -76,8 +76,8 @@ class SVStreamTabularDataSet extends TabularDataset {
      * @param integer $offset
      */
     public function __construct($columns, $stream, $firstRowOffset = 0, $firstRowHeader = false, $separator = ",", $enclosure = '"',
-                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = []) {
-        parent::__construct($columns);
+                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = [], $cacheAllRows = true) {
+        parent::__construct($columns, $cacheAllRows);
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
