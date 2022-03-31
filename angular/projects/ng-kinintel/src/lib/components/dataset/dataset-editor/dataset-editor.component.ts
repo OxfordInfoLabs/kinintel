@@ -11,7 +11,7 @@ import {DatasetFilterComponent} from './dataset-filters/dataset-filter/dataset-f
 import {
     DatasetAddParameterComponent
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
-import {Subscription} from 'rxjs';
+import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -54,6 +54,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public String = String;
     public longRunning = false;
     public sideOpen = false;
+    public openSide = new BehaviorSubject(false);
 
     public limit = 25;
     private offset = 0;
@@ -86,6 +87,20 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
 
         this.evaluateDataset();
+
+        this.openSide.subscribe((open: boolean) => {
+            if (open) {
+                document.getElementById('sidebarWrapper').classList.add('z-20');
+                document.getElementById('sidebarWrapper').classList.remove('-z-10');
+                document.getElementById('docSidebar').classList.add();
+            } else {
+                setTimeout(() => {
+                    document.getElementById('sidebarWrapper').classList.add('-z-10');
+                    document.getElementById('sidebarWrapper').classList.remove('z-20');
+                }, 700);
+            }
+            this.sideOpen = open;
+        });
     }
 
     ngOnDestroy() {

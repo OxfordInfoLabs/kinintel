@@ -166,9 +166,13 @@
                     </div>
 
                     <ki-dataset-filters *ngIf="joinFilterFields" [filterFields]="filterFields"
-                                        [joinFilterFields]="joinFilterFields"
+                                        [joinFilterFields]="joinFilterFields" [openSide]="openSide"
                                         [joinFieldsName]="selectedSource.title || selectedSource.name"
                                         [filterJunction]="joinTransformation.config.joinFilters"></ki-dataset-filters>
+
+                    <ng-template [ngIf]="openSide.getValue()">
+                        <ki-whitelisted-sql-functions [fields]="filterFields"></ki-whitelisted-sql-functions>
+                    </ng-template>
 
                 </ng-template>
 

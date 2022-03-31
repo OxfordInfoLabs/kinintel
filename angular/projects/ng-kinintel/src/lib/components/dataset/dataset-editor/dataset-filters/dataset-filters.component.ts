@@ -1,4 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-filters',
@@ -11,6 +12,7 @@ export class DatasetFiltersComponent implements OnInit {
     @Input() filterFields: any = [];
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
+    @Input() openSide: Subject<boolean>;
 
     constructor() {
     }

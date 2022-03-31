@@ -2,6 +2,7 @@ import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as _ from 'lodash';
 import {MatDialog} from '@angular/material/dialog';
 import {AvailableColumnsComponent} from '../../../dataset-editor/available-columns/available-columns.component';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-filter',
@@ -28,6 +29,7 @@ export class DatasetFilterComponent implements OnInit {
     @Input() filterFields: any = [];
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
+    @Input() openSide: Subject<boolean>;
 
     @Output() filtersRemoved = new EventEmitter();
 
@@ -54,11 +56,13 @@ export class DatasetFilterComponent implements OnInit {
     }
 
     public viewColumns(columns) {
-        this.dialog.open(AvailableColumnsComponent, {
-            width: '500px',
-            height: '500px',
-            data: {columns}
-        });
+        this.openSide.next(true);
+    }
+
+    public updateCustom(custom) {
+        if (!custom) {
+            this.openSide.next(false);
+        }
     }
 
     public removeFilter() {
