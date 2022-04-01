@@ -25,6 +25,9 @@ module.exports = {
                 red: colors.rose,
                 yellow: colors.amber,
                 blue: colors.blue
+            },
+            zIndex: {
+                '-10': '-10',
             }
         }
     },

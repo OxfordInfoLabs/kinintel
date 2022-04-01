@@ -46,6 +46,7 @@ export class DatasetAddJoinComponent implements OnInit {
     public requiredParameters: any;
     public parameterValues: any;
     public updateParams = new Subject();
+    public openSide = new BehaviorSubject(false);
 
     public _ = _;
 

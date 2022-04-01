@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-dataset-filter-junction',
@@ -13,6 +14,7 @@ export class DatasetFilterJunctionComponent implements OnInit {
     @Input() junctionIndex: number;
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
+    @Input() openSide: Subject<boolean>;
 
     @Output() filterJunctionChange = new EventEmitter<any>();
 

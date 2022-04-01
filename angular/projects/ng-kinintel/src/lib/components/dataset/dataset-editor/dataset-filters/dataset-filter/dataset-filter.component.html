@@ -9,20 +9,20 @@
             <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
                    name="lhsExpression" placeholder="Custom expression" class="mr-4 full">
         </div>
-        <div class="text-xs flex items-center mt-2" *ngIf="customLhs">
-            {{filterFields[0].title}}&nbsp;<b>[[{{filterFields[0].name}}]]</b>...
-            <a (click)="viewColumns(filterFields)"
-                class="ml-2 hover:underline flex items-center primary">
-                 view all&nbsp;
+        <div class="mt-2 custom-checkbox flex items-center justify-between">
+            <div>
+                <mat-checkbox [(ngModel)]="customLhs" (ngModelChange)="updateCustom($event)"></mat-checkbox>Custom expression
+            </div>
+
+            <a (click)="viewColumns(filterFields)" *ngIf="customLhs && openSide"
+               class="text-xs ml-2 hover:underline flex items-center primary">
+                view docs&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                     <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                 </svg>
             </a>
         </div>
-        <p class="mt-2 custom-checkbox">
-            <mat-checkbox [(ngModel)]="customLhs"></mat-checkbox>Custom expression
-        </p>
     </div>
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
@@ -47,20 +47,20 @@
             <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
                    name="lhsExpression" placeholder="Custom expression" class="mr-4 full">
         </div>
-        <div class="text-xs flex items-center mt-2" *ngIf="customLhs">
-            {{filterFields[0].title}}&nbsp;<b>[[{{filterFields[0].name}}]]</b>...
-            <a (click)="viewColumns(filterFields)"
-               class="ml-2 hover:underline flex items-center primary">
-                view all&nbsp;
+        <div class="mt-2 custom-checkbox flex items-center justify-between">
+            <div>
+                <mat-checkbox [(ngModel)]="customLhs" (ngModelChange)="updateCustom($event)"></mat-checkbox>Custom expression
+            </div>
+
+            <a (click)="viewColumns(filterFields)" *ngIf="customLhs && openSide"
+               class="text-xs ml-2 hover:underline flex items-center primary">
+                view docs&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                     <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                 </svg>
             </a>
         </div>
-        <p class="mt-2 custom-checkbox">
-            <mat-checkbox [(ngModel)]="customLhs"></mat-checkbox>Custom expression
-        </p>
     </div>
 
     <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
@@ -80,20 +80,20 @@
             <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression"
                    name="filterValue" placeholder="Custom value" class="mr-4 full">
         </div>
-        <div class="text-xs flex items-center mt-2" *ngIf="customValue">
-            {{joinFilterFields[0].title}}&nbsp;<b>[[{{joinFilterFields[0].name}}]]</b>...
-            <a (click)="viewColumns(joinFilterFields)"
-               class="ml-2 hover:underline flex items-center primary">
-                view all&nbsp;
+        <div class="mt-2 custom-checkbox flex items-center justify-between">
+            <div>
+                <mat-checkbox [(ngModel)]="customValue" (ngModelChange)="updateCustom($event)"></mat-checkbox>Custom expression
+            </div>
+
+            <a (click)="viewColumns(filterFields)" *ngIf="customValue && openSide"
+               class="text-xs ml-2 hover:underline flex items-center primary">
+                view docs&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                     <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                 </svg>
             </a>
         </div>
-        <p class="mt-2 custom-checkbox">
-            <mat-checkbox [(ngModel)]="customValue"></mat-checkbox>Custom value
-        </p>
     </div>
 
 </ng-template>

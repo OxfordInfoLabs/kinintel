@@ -13,15 +13,6 @@
         <p>Use expressions to create new derived columns from other columns. Use columns show below for calculations in
             your expressions.</p>
 
-        <p><b>Available columns</b></p>
-        <p>Use columns by wrapping the column name in double square brackets. Available columns are outlined below...</p>
-
-        <div>
-            <span class="pr-4" *ngFor="let column of allColumns">
-                {{column.title}} <b>[[{{column.name}}]]</b>
-            </span>
-        </div>
-
         <div class="formula-container" *ngFor="let formula of formulas; let i = index">
             <div class="formula-fields">
                 <label>
@@ -39,6 +30,8 @@
                 <mat-icon>remove_circle_outline</mat-icon>
             </button>
         </div>
+
+        <ki-whitelisted-sql-functions [fields]="allColumns"></ki-whitelisted-sql-functions>
     </div>
 
     <div class="dialog-footer">

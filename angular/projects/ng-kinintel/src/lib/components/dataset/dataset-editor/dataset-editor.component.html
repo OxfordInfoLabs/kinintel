@@ -8,54 +8,54 @@
     <p class="text-center">Please wait while we process this query.</p>
     <p class="text-center">The results will be shown here once it has finished running.</p>
 </div>
-<!--<div class="fixed inset-0 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">-->
-<!--    <div class="absolute inset-0 overflow-hidden">-->
-<!--        &lt;!&ndash; Background overlay, show/hide based on slide-over state. &ndash;&gt;-->
-<!--        <div class="absolute inset-0" aria-hidden="true"></div>-->
+<div class="fixed inset-0 overflow-hidden -z-10"
+     (click)="openSide.next(false)" id="sidebarWrapper"
+     aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 overflow-hidden">
+        <!-- Background overlay, show/hide based on slide-over state. -->
+        <div class="absolute inset-0" aria-hidden="true"></div>
 
-<!--        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">-->
-<!--            &lt;!&ndash;-->
-<!--              Slide-over panel, show/hide based on slide-over state.-->
+        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+            <!--
+              Slide-over panel, show/hide based on slide-over state.
 
-<!--              Entering: "transform transition ease-in-out duration-500 sm:duration-700"-->
-<!--                From: "translate-x-full"-->
-<!--                To: "translate-x-0"-->
-<!--              Leaving: "transform transition ease-in-out duration-500 sm:duration-700"-->
-<!--                From: "translate-x-0"-->
-<!--                To: "translate-x-full"-->
-<!--            &ndash;&gt;-->
-<!--            <div [ngClass]="{'translate-x-0': sideOpen, 'translate-x-full': !sideOpen}"-->
-<!--                class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700">-->
-<!--                <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">-->
-<!--                    <div class="px-4 sm:px-6">-->
-<!--                        <div class="flex items-start justify-between">-->
-<!--                            <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">Panel title</h2>-->
-<!--                            <div class="ml-3 flex h-7 items-center">-->
-<!--                                <button type="button" (click)="sideOpen = false"-->
-<!--                                        class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">-->
-<!--                                    <span class="sr-only">Close panel</span>-->
-<!--                                    &lt;!&ndash; Heroicon name: outline/x &ndash;&gt;-->
-<!--                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">-->
-<!--                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />-->
-<!--                                    </svg>-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="relative mt-6 flex-1 px-4 sm:px-6">-->
-<!--                        &lt;!&ndash; Replace with your content &ndash;&gt;-->
-<!--                        <div class="absolute inset-0 px-4 sm:px-6">-->
-<!--                            <div class="h-full border-2 border-dashed border-gray-200" aria-hidden="true"></div>-->
-<!--                        </div>-->
-<!--                        &lt;!&ndash; /End replace &ndash;&gt;-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
+              Entering: "transform transition ease-in-out duration-500 sm:duration-700"
+                From: "translate-x-full"
+                To: "translate-x-0"
+              Leaving: "transform transition ease-in-out duration-500 sm:duration-700"
+                From: "translate-x-0"
+                To: "translate-x-full"
+            -->
+            <div [ngClass]="{'translate-x-0': sideOpen, 'translate-x-full': !sideOpen}"
+                 (click)="$event.stopPropagation()"
+                class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700" id="docSidebar">
+                <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
+                    <div class="px-4 sm:px-6">
+                        <div class="flex items-start justify-between">
+                            <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
+                                Documentation
+                            </h2>
+                            <div class="ml-3 flex h-7 items-center">
+                                <button type="button" (click)="openSide.next(false)"
+                                        class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <span class="sr-only">Close panel</span>
+                                    <!-- Heroicon name: outline/x -->
+                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative flex-1 px-4 sm:px-6">
+                        <ki-whitelisted-sql-functions [fields]="filterFields"></ki-whitelisted-sql-functions>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!--<ki-whitelisted-sql-functions></ki-whitelisted-sql-functions>-->
 <div class="cell-header end">
     <div class="dataset-data-actions">
         <button mat-button matTooltip="Edit columns" class="align-center" (click)="editColumnSettings()">
@@ -188,6 +188,7 @@
                 </button>
 
                 <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
+                                    [openSide]="openSide"
                                     [filterJunction]="transformation.config"></ki-dataset-filters>
                 <button
                     *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
