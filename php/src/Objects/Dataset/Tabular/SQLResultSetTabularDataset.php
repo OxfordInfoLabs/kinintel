@@ -59,7 +59,7 @@ class SQLResultSetTabularDataset extends TabularDataset {
      * Simply read the next data item from the result set
      */
     public function nextRawDataItem() {
-        return $this->resultSet->nextRow();
+        return $this->resultSet->nextRow() ?? false;
     }
 
 

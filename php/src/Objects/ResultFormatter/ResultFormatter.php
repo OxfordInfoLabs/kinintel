@@ -5,7 +5,8 @@ namespace Kinintel\Objects\ResultFormatter;
 
 // Result formatter interface
 use Kinikit\Core\Stream\ReadableStream;
-use Kinintel\ValueObjects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Dataset;
+
 
 /**
  * Interface ResultFormatter

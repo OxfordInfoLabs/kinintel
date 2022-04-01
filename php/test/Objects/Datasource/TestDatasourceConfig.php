@@ -4,7 +4,7 @@
 namespace Kinintel\Objects\Datasource;
 
 
-use Kinintel\ValueObjects\Datasource\DatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\DatasourceConfig;
 
 class TestDatasourceConfig implements DatasourceConfig {
 

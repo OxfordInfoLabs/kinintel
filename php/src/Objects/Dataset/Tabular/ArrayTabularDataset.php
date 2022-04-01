@@ -41,7 +41,7 @@ class ArrayTabularDataset extends TabularDataset {
      * Implement only required method
      */
     public function nextRawDataItem() {
-        $item = $this->data[$this->pointer] ?? null;
+        $item = $this->data[$this->pointer] ?? false;
         if ($item) $this->pointer++;
         return $item;
     }

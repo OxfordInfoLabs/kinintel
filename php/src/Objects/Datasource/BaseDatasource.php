@@ -11,7 +11,7 @@ use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
-use Kinintel\ValueObjects\Datasource\DatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\DatasourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Transformation;
 

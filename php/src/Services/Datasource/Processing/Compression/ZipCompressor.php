@@ -47,14 +47,32 @@ class ZipCompressor implements Compressor {
 
         mkdir($zipFile . "-extracted", 0777, true);
 
-        $entry = $zip->extractTo($zipFile . "-extracted", $config->getEntryFilename());
+        $entryFilenames = $config->getEntryFilenames() ?? [$config->getEntryFilename()];
 
-        // If no entry matching entry filename throw compression exception
-        if ($entry === false) {
-            throw new DatasourceCompressionException("The compressed zip data does not have an entry matching the supplied entry filename '{$config->getEntryFilename()}'");
+        $result = $zip->extractTo($zipFile . "-extracted", $entryFilenames);
+
+        if ($result === false) {
+            $missing = [];
+            foreach ($entryFilenames as $entryFilename) {
+                if (!file_exists($zipFile . "-extracted/$entryFilename")) {
+                    $missing[] = $entryFilename;
+                }
+            }
+            throw new DatasourceCompressionException("The compressed zip data does not have entries for the following supplied entry filenames '" . join(",", $missing) . "'");
         }
 
-        return new ReadOnlyFileStream($zipFile . "-extracted/" . $config->getEntryFilename());
+        if (sizeof($entryFilenames) > 1) {
+            $streamFilename = $zipFile . "-extracted/combined-stream";
+            $catSources = [];
+            foreach ($entryFilenames as $entryFilename) {
+                $catSources[] = $zipFile . "-extracted/$entryFilename";
+            }
+            shell_exec("cat " . join(" ", $catSources) . " > $streamFilename");
+        } else {
+            $streamFilename = $zipFile . "-extracted/" . $config->getEntryFilename();
+        }
+
+        return new ReadOnlyFileStream($streamFilename);
 
     }
 

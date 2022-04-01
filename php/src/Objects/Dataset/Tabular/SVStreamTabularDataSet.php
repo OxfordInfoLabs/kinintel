@@ -103,8 +103,9 @@ class SVStreamTabularDataSet extends TabularDataset {
 
         // if offset, forward wind to that offset
         if ($offset) {
-            for ($i = 0; $i < $offset; $i++)
+            for ($i = 0; $i < $offset; $i++) {
                 $this->nextRawDataItem();
+            }
         }
 
     }
@@ -138,7 +139,7 @@ class SVStreamTabularDataSet extends TabularDataset {
 
         // Shortcut if we have reached the limit
         if ($this->readItems >= $this->limit)
-            return null;
+            return false;
 
         try {
             $csvLine = $this->stream->readCSVLine($this->separator, $this->enclosure);
@@ -169,9 +170,19 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
         } catch (StreamException $e) {
-            return null;
+            return false;
         }
 
+    }
+
+
+    /**
+     * Return the stream, useful for testing
+     *
+     * @return ReadableStream
+     */
+    public function returnStream() {
+        return $this->stream;
     }
 
     // Read the header row
