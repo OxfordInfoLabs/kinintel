@@ -58,7 +58,7 @@ abstract class TabularDataset implements Dataset {
     public function getAllData() {
 
         // Ensure all data has been read
-        while ($this->nextDataItem()) {
+        while ($this->nextDataItem() !== false) {
         }
 
         // Return read rows
@@ -86,6 +86,10 @@ abstract class TabularDataset implements Dataset {
 
         // Grab data item
         $dataItem = $this->nextRawDataItem();
+
+        // If false, quit now
+        if ($dataItem === false)
+            return false;
 
         if (is_array($dataItem)) {
 

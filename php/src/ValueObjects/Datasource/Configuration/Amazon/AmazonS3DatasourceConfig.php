@@ -2,7 +2,7 @@
 
 namespace Kinintel\ValueObjects\Datasource\Configuration\Amazon;
 
-use Kinintel\ValueObjects\Datasource\FormattedResultDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\FormattedResultDatasourceConfig;
 
 /**
  * Required config for Amazon S3

@@ -13,6 +13,7 @@ namespace Kinintel\ValueObjects\Authentication;
  * @implementation http-basic \Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials
  * @implementation http-query \Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials
  * @implementation http-headers \Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials
+ * @implementation ftp \Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials
  *
  * @implementation mysql \Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials
  * @implementation sqlite \Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials

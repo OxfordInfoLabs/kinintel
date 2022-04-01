@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinintel\ValueObjects\Datasource;
+namespace Kinintel\ValueObjects\Datasource\Configuration;
 
 use Kinintel\Objects\ResultFormatter\JSONResultFormatter;
 

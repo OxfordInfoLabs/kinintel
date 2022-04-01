@@ -4,7 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 
 
-use Kinintel\ValueObjects\Datasource\TabularResultsDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 
 class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
 

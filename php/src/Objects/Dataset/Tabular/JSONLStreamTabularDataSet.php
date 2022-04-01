@@ -94,7 +94,7 @@ class JSONLStreamTabularDataSet extends TabularDataset {
     public function nextRawDataItem() {
 
         if ($this->limit >= 0 && $this->readItems >= $this->limit)
-            return null;
+            return false;
 
         // If we have queued up an item for return, return it first.
         if (sizeof($this->pendingItemStack)) {
@@ -118,7 +118,7 @@ class JSONLStreamTabularDataSet extends TabularDataset {
             }
 
         } catch (StreamException $e) {
-            return null;
+            return false;
         }
     }
 

@@ -58,16 +58,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.209.24",
+            "version": "3.218.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ce68bfc141863a25f4b870f10cfa996312fb1813"
+                "reference": "714ed40bc2e60d4af907eb2d41fbfb75f980d2e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ce68bfc141863a25f4b870f10cfa996312fb1813",
-                "reference": "ce68bfc141863a25f4b870f10cfa996312fb1813",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/714ed40bc2e60d4af907eb2d41fbfb75f980d2e2",
+                "reference": "714ed40bc2e60d4af907eb2d41fbfb75f980d2e2",
                 "shasum": ""
             },
             "require": {
@@ -143,9 +143,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.209.24"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.218.0"
             },
-            "time": "2022-02-14T19:15:07+00:00"
+            "time": "2022-03-31T18:20:58+00:00"
         },
         {
             "name": "cache/adapter-common",
@@ -512,12 +512,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "c1fd316f0a0f3325ed1e7cdbe61030418b868f9f"
+                "reference": "82ca75f0b1f130f018febdda29af13086da5dbac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c1fd316f0a0f3325ed1e7cdbe61030418b868f9f",
-                "reference": "c1fd316f0a0f3325ed1e7cdbe61030418b868f9f",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/82ca75f0b1f130f018febdda29af13086da5dbac",
+                "reference": "82ca75f0b1f130f018febdda29af13086da5dbac",
                 "shasum": ""
             },
             "require": {
@@ -629,7 +629,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-12-13T16:13:08+00:00"
+            "time": "2022-03-20T14:21:21+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -659,12 +659,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\Promise\\": "src/"
-                },
                 "files": [
                     "src/functions_include.php"
-                ]
+                ],
+                "psr-4": {
+                    "GuzzleHttp\\Promise\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -722,12 +722,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "c5b547b9904106507e48c645b76ff74f18eea84e"
+                "reference": "5c693242bede743c23402bc5b9de62da04a882d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/c5b547b9904106507e48c645b76ff74f18eea84e",
-                "reference": "c5b547b9904106507e48c645b76ff74f18eea84e",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/5c693242bede743c23402bc5b9de62da04a882d7",
+                "reference": "5c693242bede743c23402bc5b9de62da04a882d7",
                 "shasum": ""
             },
             "require": {
@@ -830,7 +830,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-02T11:26:46+00:00"
+            "time": "2022-03-24T01:07:58+00:00"
         },
         {
             "name": "league/flysystem",
@@ -1058,12 +1058,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Masterminds/html5-php.git",
-                "reference": "f640ac1bdddff06ea333a920c95bbad8872429ab"
+                "reference": "d3786d4e099de91936f3e6c35933e5d0ddc17b53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/f640ac1bdddff06ea333a920c95bbad8872429ab",
-                "reference": "f640ac1bdddff06ea333a920c95bbad8872429ab",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/d3786d4e099de91936f3e6c35933e5d0ddc17b53",
+                "reference": "d3786d4e099de91936f3e6c35933e5d0ddc17b53",
                 "shasum": ""
             },
             "require": {
@@ -1118,9 +1118,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Masterminds/html5-php/issues",
-                "source": "https://github.com/Masterminds/html5-php/tree/2.7.5"
+                "source": "https://github.com/Masterminds/html5-php/tree/master"
             },
-            "time": "2021-07-01T14:25:37+00:00"
+            "time": "2022-03-01T09:32:19+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
@@ -1241,12 +1241,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OxfordInfoLabs/kiniauth.git",
-                "reference": "568779e250c77e3d3b5d21f784402cca836be02f"
+                "reference": "8a1e726b2aa84b0aa2405df3aa355f4611208b04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OxfordInfoLabs/kiniauth/zipball/568779e250c77e3d3b5d21f784402cca836be02f",
-                "reference": "568779e250c77e3d3b5d21f784402cca836be02f",
+                "url": "https://api.github.com/repos/OxfordInfoLabs/kiniauth/zipball/8a1e726b2aa84b0aa2405df3aa355f4611208b04",
+                "reference": "8a1e726b2aa84b0aa2405df3aa355f4611208b04",
                 "shasum": ""
             },
             "require": {
@@ -1277,7 +1277,7 @@
                 "issues": "https://github.com/OxfordInfoLabs/kiniauth/issues",
                 "source": "https://github.com/OxfordInfoLabs/kiniauth/tree/master"
             },
-            "time": "2022-02-11T12:32:10+00:00"
+            "time": "2022-03-29T13:07:43+00:00"
         },
         {
             "name": "oxil/kinikit-core",
@@ -1285,12 +1285,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OxfordInfoLabs/kinikit-core.git",
-                "reference": "72f79daf05e6765203f4c2754176f04eaccec52c"
+                "reference": "73a1db4fb28280410fd0a2cd05541edb5679f9f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OxfordInfoLabs/kinikit-core/zipball/72f79daf05e6765203f4c2754176f04eaccec52c",
-                "reference": "72f79daf05e6765203f4c2754176f04eaccec52c",
+                "url": "https://api.github.com/repos/OxfordInfoLabs/kinikit-core/zipball/73a1db4fb28280410fd0a2cd05541edb5679f9f8",
+                "reference": "73a1db4fb28280410fd0a2cd05541edb5679f9f8",
                 "shasum": ""
             },
             "require": {
@@ -1325,7 +1325,7 @@
                 "issues": "https://github.com/OxfordInfoLabs/kinikit-core/issues",
                 "source": "https://github.com/OxfordInfoLabs/kinikit-core/tree/master"
             },
-            "time": "2022-02-15T15:38:37+00:00"
+            "time": "2022-03-28T14:44:22+00:00"
         },
         {
             "name": "oxil/kinikit-mvc",
@@ -1333,12 +1333,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OxfordInfoLabs/kinikit-mvc.git",
-                "reference": "e811609a792545e7454341cfb22d743c02ba7003"
+                "reference": "dedb97abfb3216a8a999926f6c7156f8c83bcbb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OxfordInfoLabs/kinikit-mvc/zipball/e811609a792545e7454341cfb22d743c02ba7003",
-                "reference": "e811609a792545e7454341cfb22d743c02ba7003",
+                "url": "https://api.github.com/repos/OxfordInfoLabs/kinikit-mvc/zipball/dedb97abfb3216a8a999926f6c7156f8c83bcbb0",
+                "reference": "dedb97abfb3216a8a999926f6c7156f8c83bcbb0",
                 "shasum": ""
             },
             "require": {
@@ -1368,7 +1368,7 @@
                 "issues": "https://github.com/OxfordInfoLabs/kinikit-mvc/issues",
                 "source": "https://github.com/OxfordInfoLabs/kinikit-mvc/tree/master"
             },
-            "time": "2021-11-30T11:53:21+00:00"
+            "time": "2022-02-18T12:09:59+00:00"
         },
         {
             "name": "oxil/kinikit-persistence",
@@ -1376,12 +1376,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OxfordInfoLabs/kinikit-persistence.git",
-                "reference": "7ed0b233c99b53a73c53ba492edd75b8532f2c5a"
+                "reference": "e57c5e21efa7f15533010b3fae0977c7b74365b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OxfordInfoLabs/kinikit-persistence/zipball/7ed0b233c99b53a73c53ba492edd75b8532f2c5a",
-                "reference": "7ed0b233c99b53a73c53ba492edd75b8532f2c5a",
+                "url": "https://api.github.com/repos/OxfordInfoLabs/kinikit-persistence/zipball/e57c5e21efa7f15533010b3fae0977c7b74365b4",
+                "reference": "e57c5e21efa7f15533010b3fae0977c7b74365b4",
                 "shasum": ""
             },
             "require": {
@@ -1410,7 +1410,7 @@
                 "issues": "https://github.com/OxfordInfoLabs/kinikit-persistence/issues",
                 "source": "https://github.com/OxfordInfoLabs/kinikit-persistence/tree/master"
             },
-            "time": "2022-02-16T14:10:43+00:00"
+            "time": "2022-03-23T11:36:31+00:00"
         },
         {
             "name": "oxil/kinintel",
@@ -1418,7 +1418,7 @@
             "dist": {
                 "type": "path",
                 "url": "../..",
-                "reference": "74a8c32f483c0c8b76be652ca08af0e89717d21d"
+                "reference": "b325b4ced636d412b3d18af518d62097362d0ff6"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.180",
@@ -1499,16 +1499,16 @@
         },
         {
             "name": "phpmailer/phpmailer",
-            "version": "v6.5.3",
+            "version": "v6.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "baeb7cde6b60b1286912690ab0693c7789a31e71"
+                "reference": "e43bac82edc26ca04b36143a48bde1c051cfd5b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/baeb7cde6b60b1286912690ab0693c7789a31e71",
-                "reference": "baeb7cde6b60b1286912690ab0693c7789a31e71",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/e43bac82edc26ca04b36143a48bde1c051cfd5b1",
+                "reference": "e43bac82edc26ca04b36143a48bde1c051cfd5b1",
                 "shasum": ""
             },
             "require": {
@@ -1521,10 +1521,10 @@
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
                 "doctrine/annotations": "^1.2",
                 "php-parallel-lint/php-console-highlighter": "^0.5.0",
-                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "php-parallel-lint/php-parallel-lint": "^1.3.1",
                 "phpcompatibility/php-compatibility": "^9.3.5",
                 "roave/security-advisories": "dev-latest",
-                "squizlabs/php_codesniffer": "^3.6.0",
+                "squizlabs/php_codesniffer": "^3.6.2",
                 "yoast/phpunit-polyfills": "^1.0.0"
             },
             "suggest": {
@@ -1565,7 +1565,7 @@
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
             "support": {
                 "issues": "https://github.com/PHPMailer/PHPMailer/issues",
-                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.5.3"
+                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.6.0"
             },
             "funding": [
                 {
@@ -1573,7 +1573,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-11-25T16:34:11+00:00"
+            "time": "2022-02-28T15:31:21+00:00"
         },
         {
             "name": "psr/cache",
@@ -2001,7 +2001,7 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.24.0",
+            "version": "v1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
@@ -2033,12 +2033,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Ctype\\": ""
-                },
                 "files": [
                     "bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Ctype\\": ""
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -2063,7 +2063,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.24.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.25.0"
             },
             "funding": [
                 {
@@ -2083,7 +2083,7 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.24.0",
+            "version": "v1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -2146,7 +2146,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.24.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.25.0"
             },
             "funding": [
                 {
@@ -2218,12 +2218,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "237f1789a7db3a0cbb8e28a75832a45b7f9fc304"
+                "reference": "393ea10efdc908829665a00b30991808992a1c32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/237f1789a7db3a0cbb8e28a75832a45b7f9fc304",
-                "reference": "237f1789a7db3a0cbb8e28a75832a45b7f9fc304",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/393ea10efdc908829665a00b30991808992a1c32",
+                "reference": "393ea10efdc908829665a00b30991808992a1c32",
                 "shasum": ""
             },
             "require": {
@@ -2287,7 +2287,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-04T07:03:10+00:00"
+            "time": "2022-03-26T11:00:50+00:00"
         }
     ],
     "packages-dev": [],

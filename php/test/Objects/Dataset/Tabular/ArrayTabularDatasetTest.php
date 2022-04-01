@@ -24,7 +24,7 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["name" => "Mark", "age" => 30], $arrayTabularDataSet->nextDataItem());
         $this->assertEquals(["name" => "Bob", "age" => 25], $arrayTabularDataSet->nextDataItem());
         $this->assertEquals(["name" => "Mary", "age" => 50], $arrayTabularDataSet->nextDataItem());
-        $this->assertNull($arrayTabularDataSet->nextDataItem());
+        $this->assertFalse($arrayTabularDataSet->nextDataItem());
 
         $this->assertEquals([
             ["name" => "Mark", "age" => 30],

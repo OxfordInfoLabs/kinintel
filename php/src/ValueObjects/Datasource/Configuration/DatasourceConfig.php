@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Datasource;
+namespace Kinintel\ValueObjects\Datasource\Configuration;
 
 /**
  * Placeholder interface for data source config.
