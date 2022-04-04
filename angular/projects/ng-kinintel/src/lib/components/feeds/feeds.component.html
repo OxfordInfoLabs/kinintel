@@ -116,7 +116,7 @@ curl -H "API-KEY:<b>[[apiKey]]</b>" -H "API-SECRET:<b>[[apiSecret]]</b>"</pre>
                             <td colspan="4"
                                 class="whitespace-nowrap border-b border-gray-200 py-3 px-4 text-sm font-medium text-gray-900">
                                 <div class="paging-toolbar flex align-center justify-end">
-                                    <select [value]="limit.getValue()" (change)="pageSizeChange($event.target.value)"
+                                    <select [value]="limit" (change)="pageSizeChange($event.target.value)"
                                             class="mr-8">
                                         <option [value]="1">1</option>
                                         <option [value]="5">5</option>

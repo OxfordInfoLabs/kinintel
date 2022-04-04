@@ -20,8 +20,8 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     public feeds: any = [];
     public searchText = new BehaviorSubject('');
-    public limit = new BehaviorSubject(10);
-    public offset = new BehaviorSubject(0);
+    public limit = 10;
+    public offset = 0;
     public page = 1;
     public endOfResults = false;
     public loading = true;
@@ -36,7 +36,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
 
-        merge(this.searchText, this.limit, this.offset, this.reload)
+        merge(this.searchText, this.reload)
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -44,9 +44,14 @@ export class FeedsComponent implements OnInit, OnDestroy {
                     this.getFeeds()
                 )
             ).subscribe((feeds: any) => {
-            this.endOfResults = feeds.length < this.limit.getValue();
+            this.endOfResults = feeds.length < this.limit;
             this.feeds = feeds;
             this.loading = false;
+        });
+
+        this.searchText.subscribe(() => {
+            this.page = 1;
+            this.offset = 0;
         });
     }
 
@@ -56,16 +61,21 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     public increaseOffset() {
         this.page = this.page + 1;
-        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
     }
 
     public decreaseOffset() {
         this.page = this.page <= 1 ? 1 : this.page - 1;
-        this.offset.next((this.limit.getValue() * this.page) - this.limit.getValue());
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
     }
 
     public pageSizeChange(value) {
-        this.limit.next(value);
+        this.page = 1;
+        this.offset = 0;
+        this.limit = value;
+        this.reload.next(Date.now());
     }
 
     public editFeed(feed?) {
@@ -108,8 +118,8 @@ export class FeedsComponent implements OnInit, OnDestroy {
     private getFeeds() {
         return this.feedService.listFeeds(
             this.searchText.getValue() || '',
-            this.limit.getValue().toString(),
-            this.offset.getValue().toString()
+            this.limit.toString(),
+            this.offset.toString()
         ).pipe(map((feeds: any) => {
                 return feeds;
             })
