@@ -35,7 +35,14 @@ class ZipCompressor implements Compressor {
         $tmpDir = sys_get_temp_dir();
         $zipFile = tempnam($tmpDir, "zip");
 
-        file_put_contents($zipFile, $stream->getContents());
+        // Save the stream to a local file
+        $zipFileResource = fopen($zipFile, "w");
+        while (!$stream->isEof()) {
+            if ($bytes = $stream->read(32768)) {
+                fputs($zipFileResource, $bytes);
+            }
+        }
+        fclose($zipFileResource);
 
         // Now open the file using zip
         $zip = new \ZipArchive();

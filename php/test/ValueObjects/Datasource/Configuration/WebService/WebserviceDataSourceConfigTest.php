@@ -40,8 +40,8 @@ class WebserviceDataSourceConfigTest extends \PHPUnit\Framework\TestCase {
         $validationErrors = $webserviceConfig->validate();
 
         $this->assertEquals(1, sizeof($validationErrors));
-        $this->assertEquals(new FieldValidationError("entryFilename", "required", "This field is required"),
-            $validationErrors["compressionConfig"]["entryFilename"]["required"]);
+        $this->assertEquals(new FieldValidationError("entryFilename", "requiredEither", "One of the fields entryFilename, entryFilenames is required"),
+            $validationErrors["compressionConfig"]["entryFilename"]["requiredEither"]);
 
 
     }
