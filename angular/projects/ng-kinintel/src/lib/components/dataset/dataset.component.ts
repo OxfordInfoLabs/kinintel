@@ -72,6 +72,11 @@ export class DatasetComponent implements OnInit, OnDestroy {
         });
 
         this.getCategories();
+
+        this.searchText.subscribe(() => {
+            this.page = 1;
+            this.offset = 0;
+        });
     }
 
     ngOnDestroy() {

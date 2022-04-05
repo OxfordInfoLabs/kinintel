@@ -48,6 +48,11 @@ export class DatasourceComponent implements OnInit, OnDestroy {
             ).subscribe((sources: any) => {
             this.datasources = sources;
         });
+
+        this.searchText.subscribe(() => {
+            this.page = 1;
+            this.offset = 0;
+        });
     }
 
     ngOnDestroy() {

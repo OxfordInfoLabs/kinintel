@@ -94,6 +94,13 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             ).subscribe((snapshots: any) => {
             this.snapshots.project.data = snapshots;
         });
+
+        this.searchText.subscribe(() => {
+            _.forEach(this.snapshots, snapshot => {
+                snapshot.page = 1;
+                snapshot.offset = 0;
+            });
+        });
     }
 
     ngOnDestroy() {

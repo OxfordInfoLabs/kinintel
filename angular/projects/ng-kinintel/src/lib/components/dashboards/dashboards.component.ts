@@ -70,6 +70,11 @@ export class DashboardsComponent implements OnInit {
         });
 
         this.getCategories();
+
+        this.searchText.subscribe(() => {
+            this.page = 1;
+            this.offset = 0;
+        });
     }
 
     public view(id) {
