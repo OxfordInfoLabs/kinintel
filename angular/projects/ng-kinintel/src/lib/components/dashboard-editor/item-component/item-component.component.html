@@ -75,7 +75,9 @@
 
     <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image', 'p-0': dashboardItemType.type === 'table'}">
 
-        <div [id]="dashboardItemType.type + itemInstanceKey" *ngIf="dashboardItemType.type === 'text' && textData.value"></div>
+        <ng-template [ngIf]="dashboardItemType.type === 'text' && textData.value">
+            <div *ngIf="textData.safeTextData" [innerHTML]="textData.safeTextData"></div>
+        </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'metric'">
             <div class="metric-item">

@@ -1,3 +1,32 @@
+<div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 -z-10" id="sidebarWrapper2">
+    <div [ngClass]="{'translate-x-0': sideOpen, 'translate-x-full': !sideOpen}"
+         (click)="$event.stopPropagation()"
+         class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700" id="docSidebar">
+        <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
+            <div class="px-4 sm:px-6">
+                <div class="flex items-start justify-between">
+                    <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
+                        Documentation
+                    </h2>
+                    <div class="ml-3 flex h-7 items-center">
+                        <button type="button" (click)="openSide.next(false)"
+                                class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            <span class="sr-only">Close panel</span>
+                            <!-- Heroicon name: outline/x -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="relative flex-1 px-4 sm:px-6">
+                <ki-html-documentation></ki-html-documentation>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="configure-header">
     Configure {{dashboardItemType.label}}
     <button mat-icon-button mat-dialog-close>
@@ -159,14 +188,21 @@
 
             </mat-tab>
             <mat-tab label="Text" *ngIf="dashboardItemType.type === 'text'">
-                <div class="w-1/2">
-                    <div class="p-4">
-                        <label class="mb-2">
-                            Enter the HTML/Text for this item
-                            <textarea class="font-mono"
-                                      cols="30" rows="10" [(ngModel)]="textData.value"></textarea>
-                        </label>
+                <div class="w-1/2 p-4">
+                    <div class="flex items-center mb-2 justify-between">
+                        <div class="font-semibold">Enter the HTML/Text for this item</div>
+                        <a (click)="openSide.next(true)"
+                           class="text-xs ml-2 hover:underline flex items-center primary">
+                            view help docs&nbsp;
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                        </a>
                     </div>
+
+                    <textarea class="font-mono w-full"
+                              cols="30" rows="10" [(ngModel)]="textData.value"></textarea>
                 </div>
             </mat-tab>
             <mat-tab label="Image" *ngIf="dashboardItemType.type === 'image'">

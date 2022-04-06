@@ -228,7 +228,7 @@ export class ItemComponentComponent implements AfterViewInit {
 
     public evaluateTextData() {
         setTimeout(() => {
-            const element: any = document.getElementById(this.dashboardItemType.type + this.itemInstanceKey);
+            const element: any = document.createElement('div');
             if (element) {
                 element.innerHTML = this.bindParametersInString(this.textData.value);
 
@@ -245,6 +245,9 @@ export class ItemComponentComponent implements AfterViewInit {
                     templateDelimiters: ['[[', ']]']
                 };
                 const bind = new Kinibind(element, data);
+                const boundHTML = bind.boundContext.els[0].innerHTML;
+                this.textData.safeTextData = this.sanitizer.sanitize(1, boundHTML);
+                element.remove();
             }
         }, 0);
     }

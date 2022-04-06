@@ -92,7 +92,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             if (open) {
                 document.getElementById('sidebarWrapper').classList.add('z-20');
                 document.getElementById('sidebarWrapper').classList.remove('-z-10');
-                document.getElementById('docSidebar').classList.add();
             } else {
                 setTimeout(() => {
                     document.getElementById('sidebarWrapper').classList.add('-z-10');
