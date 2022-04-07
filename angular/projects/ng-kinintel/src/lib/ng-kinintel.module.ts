@@ -72,6 +72,7 @@ import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
 import { CreateDatasourceComponent } from './components/datasource/create-datasource/create-datasource.component';
 import { ImportDataComponent } from './components/datasource/create-datasource/import-data/import-data.component';
 import { WhitelistedSqlFunctionsComponent } from './components/whitelisted-sql-functions/whitelisted-sql-functions.component';
+import { HtmlDocumentationComponent } from './components/dashboard-editor/configure-item/html-documentation/html-documentation.component';
 
 @NgModule({
     declarations: [
@@ -117,7 +118,8 @@ import { WhitelistedSqlFunctionsComponent } from './components/whitelisted-sql-f
         JobTasksComponent,
         CreateDatasourceComponent,
         ImportDataComponent,
-        WhitelistedSqlFunctionsComponent
+        WhitelistedSqlFunctionsComponent,
+        HtmlDocumentationComponent
     ],
     imports: [
         BrowserModule,

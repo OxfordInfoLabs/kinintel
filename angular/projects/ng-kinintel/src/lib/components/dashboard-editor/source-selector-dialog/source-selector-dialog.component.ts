@@ -14,6 +14,7 @@ import * as _ from 'lodash';
 })
 export class SourceSelectorDialogComponent implements OnInit {
 
+    public Object = Object;
     public datasources: any = [];
     public datasets: any = [];
     public sharedDatasets: any = [];
@@ -24,6 +25,30 @@ export class SourceSelectorDialogComponent implements OnInit {
     public updateParams = new Subject();
     public dashboard: any;
     public admin: boolean;
+    public tableData: any = {
+        datasources: {
+            data: [],
+            limit: 5,
+            offset: 0,
+            page: 1,
+            endOfResults: false,
+            shared: false,
+            reload: new Subject(),
+            title: 'Datasources',
+            type: 'datasource'
+        },
+        datasets: {
+            data: [],
+            limit: 5,
+            offset: 0,
+            page: 1,
+            endOfResults: false,
+            shared: false,
+            reload: new Subject(),
+            title: 'My Account Datasets',
+            type: 'dataset'
+        }
+    };
 
     constructor(public dialogRef: MatDialogRef<SourceSelectorDialogComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -36,51 +61,100 @@ export class SourceSelectorDialogComponent implements OnInit {
         this.dashboard = this.data.dashboard;
         this.admin = this.data.admin;
 
-        merge(this.searchText)
+        if (!this.admin) {
+            this.tableData.shared = {
+                data: [],
+                limit: 5,
+                offset: 0,
+                page: 1,
+                endOfResults: false,
+                shared: false,
+                reload: new Subject(),
+                title: 'Datasets Shared With Account',
+                type: 'dataset'
+            };
+        }
+
+        this.tableData.snapshots = {
+            data: [],
+                limit: 5,
+                offset: 0,
+                page: 1,
+                endOfResults: false,
+                shared: false,
+                reload: new Subject(),
+                title: 'Snapshots',
+                type: 'snapshot'
+        };
+
+        merge(this.searchText, this.tableData.datasets.reload)
             .pipe(
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getDatasets(false)
+                    this.getDatasets(false, this.tableData.datasets.limit, this.tableData.datasets.offset)
                 )
             ).subscribe((datasets: any) => {
-            this.datasets = datasets;
+            this.tableData.datasets.endOfResults = datasets.length < this.tableData.datasets.limit;
+            this.tableData.datasets.data = datasets;
         });
 
-        merge(this.searchText)
+        merge(this.searchText, this.tableData.snapshots.reload)
             .pipe(
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getSnapshots(false)
+                    this.getSnapshots(this.tableData.snapshots.limit, this.tableData.snapshots.offset)
                 )
             ).subscribe((snapshots: any) => {
-            this.snapshots = snapshots;
+            this.tableData.snapshots.endOfResults = snapshots.length < this.tableData.snapshots.limit;
+            this.tableData.snapshots.data = snapshots;
         });
 
-        merge(this.searchText)
+        merge(this.searchText, this.tableData.datasources.reload)
             .pipe(
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getDatasources()
+                    this.getDatasources(this.tableData.datasources.limit, this.tableData.datasources.offset)
                 )
-            ).subscribe((sources: any) => {
-            this.datasources = sources;
+            ).subscribe((datasources: any) => {
+            this.tableData.datasources.endOfResults = datasources.length < this.tableData.datasources.limit;
+            this.tableData.datasources.data = datasources;
         });
 
         if (!this.admin) {
-            merge(this.searchText)
+            merge(this.searchText, this.tableData.shared.reload)
                 .pipe(
                     debounceTime(300),
                     distinctUntilChanged(),
                     switchMap(() =>
-                        this.getDatasets(true)
+                        this.getDatasets(true, this.tableData.shared.limit, this.tableData.shared.offset)
                     )
-                ).subscribe((datasets: any) => {
-                this.sharedDatasets = datasets;
+                ).subscribe((shared: any) => {
+                this.tableData.shared.endOfResults = shared.length < this.tableData.shared.limit;
+                this.tableData.shared.data = shared;
             });
         }
+    }
+
+    public increaseOffset(dataItem) {
+        dataItem.page = dataItem.page + 1;
+        dataItem.offset = (dataItem.limit * dataItem.page) - dataItem.limit;
+        dataItem.reload.next(Date.now());
+    }
+
+    public decreaseOffset(dataItem) {
+        dataItem.page = dataItem.page <= 1 ? 1 : dataItem.page - 1;
+        dataItem.offset = (dataItem.limit * dataItem.page) - dataItem.limit;
+        dataItem.reload.next(Date.now());
+    }
+
+    public pageSizeChange(value, dataItem) {
+        dataItem.page = 1;
+        dataItem.offset = 0;
+        dataItem.limit = value;
+        dataItem.reload.next(Date.now());
     }
 
     public setEvaluatedParameters(parameterValues, evaluate?) {
@@ -160,11 +234,11 @@ export class SourceSelectorDialogComponent implements OnInit {
         }
     }
 
-    private getDatasets(shared) {
+    private getDatasets(shared, limit, offset) {
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
-            '5',
-            '0',
+            limit.toString(),
+            offset.toString(),
             shared ? null : ''
         ).pipe(map((datasets: any) => {
                 return datasets;
@@ -172,22 +246,22 @@ export class SourceSelectorDialogComponent implements OnInit {
         );
     }
 
-    private getDatasources() {
+    private getDatasources(limit, offset) {
         return this.datasourceService.getDatasources(
             this.searchText.getValue() || '',
-            '5',
-            '0'
+            limit.toString(),
+            offset.toString()
         ).pipe(map((sources: any) => {
                 return sources;
             })
         );
     }
 
-    private getSnapshots(shared) {
+    private getSnapshots(limit, offset) {
         return this.datasetService.listSnapshotProfiles(
             this.searchText.getValue() || '',
-            '5',
-            '0'
+            limit.toString(),
+            offset.toString()
         ).pipe(map((snapshots: any) => {
                 return _.filter(snapshots, snapshot => {
                     return snapshot.taskStatus !== 'PENDING';

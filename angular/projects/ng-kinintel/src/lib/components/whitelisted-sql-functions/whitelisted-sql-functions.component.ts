@@ -31,7 +31,6 @@ export class WhitelistedSqlFunctionsComponent implements OnInit {
                 sqlFunction.name = name;
                 this.sqlFunctions[sqlFunction.category].functions.push(sqlFunction);
             });
-            console.log(this.sqlFunctions);
         });
     }
 

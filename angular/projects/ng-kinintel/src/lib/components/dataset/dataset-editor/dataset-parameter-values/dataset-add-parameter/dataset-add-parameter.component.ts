@@ -17,8 +17,8 @@ export class DatasetAddParameterComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        if (this.data.parameter) {
-            this.parameter = this.data.parameter
+        if (this.data && this.data.parameter) {
+            this.parameter = this.data.parameter;
         }
     }
 
