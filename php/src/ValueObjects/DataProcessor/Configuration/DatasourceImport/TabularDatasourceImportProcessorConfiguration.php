@@ -40,6 +40,15 @@ class TabularDatasourceImportProcessorConfiguration {
 
 
     /**
+     * Array of parameter sets to pass to repeated calls to the source datasource / dataset
+     * Used to allow the same single source to be called with different values as required
+     *
+     * @var array
+     */
+    private $sourceParameterSets = [];
+
+
+    /**
      * An array of target datasources being fed by the source datasource.
      *
      * @var TargetDatasource[]
@@ -49,11 +58,11 @@ class TabularDatasourceImportProcessorConfiguration {
 
 
     /**
-     * Chunksize to use for reading data from
+     * Chunksize to use for reading data from source
      *
      * @var integer
      */
-    private $sourceReadChunkSize = 500;
+    private $sourceReadChunkSize = null;
 
 
     /**
@@ -73,7 +82,7 @@ class TabularDatasourceImportProcessorConfiguration {
      * @param integer $sourceReadChunkSize
      * @param integer $targetWriteChunkSize
      */
-    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $sourceReadChunkSize = 500, $targetWriteChunkSize = 25) {
+    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $sourceReadChunkSize = null, $targetWriteChunkSize = 25) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->targetDatasources = $targetDatasources;
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
@@ -123,6 +132,20 @@ class TabularDatasourceImportProcessorConfiguration {
      */
     public function setSourceDataset($sourceDataset) {
         $this->sourceDataset = $sourceDataset;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSourceParameterSets() {
+        return $this->sourceParameterSets;
+    }
+
+    /**
+     * @param array $sourceParameterSets
+     */
+    public function setSourceParameterSets($sourceParameterSets) {
+        $this->sourceParameterSets = $sourceParameterSets;
     }
 
 

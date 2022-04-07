@@ -33,11 +33,6 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
 
     /**
-     * @var integer
-     */
-    private $chunkSize;
-
-    /**
      * DatasourceImportProcessor constructor.
      *
      * @param DatasourceService $datasourceService
@@ -84,16 +79,16 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
         if ($config->getSourceDataset()) {
 
-            $offset = 0;
+            $offset = $sourceReadChunkSize ? 0 : null;
             do {
 
                 $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($config->getSourceDataset(), null, null, $offset, $sourceReadChunkSize);
 
-                $allData = $sourceDataset->getAllData();
+                $readEntries = $this->populateTargetDatasources($sourceDataset, $targetDatasources, $targetWriteChunkSize);
 
-                $this->populateTargetDatasources(new ArrayTabularDataset(Field::toPlainFields($sourceDataset->getColumns()), $allData), $targetDatasources, $targetWriteChunkSize);
-                $offset += $sourceReadChunkSize;
-            } while (sizeof($allData) > 0);
+                if ($sourceReadChunkSize)
+                    $offset += $sourceReadChunkSize;
+            } while ($readEntries == ($sourceReadChunkSize ?? PHP_INT_MAX));
 
 
         } else {
@@ -103,24 +98,31 @@ class TabularDatasourceImportProcessor implements DataProcessor {
             // Process all applicable data sources
             foreach ($sourceDatasourceKeys as $sourceDatasourceKey) {
 
-                $offset = 0;
-                do {
-                    $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, null, null, $offset, $sourceReadChunkSize);
+                // Ensure a single placeholder parameter set in place if none supplied
+                $sourceParamSets = $config->getSourceParameterSets() ?: [[]];
 
-                    if ($sourceDataset) {
+                // Loop through param sets
+                foreach ($sourceParamSets as $paramSet) {
 
-                        if ($sourceDataset instanceof TabularDataset) {
-                            $allData = $sourceDataset->getAllData();
+                    $offset = $sourceReadChunkSize ? 0 : null;
+                    do {
+                        $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
+
+                        if ($sourceDataset) {
+
+                            if (!($sourceDataset instanceof TabularDataset)) {
+                                throw new UnsupportedDatasetException("Tabular datasets must be returned from source datasources");
+                            }
+
+                            $readEntries = $this->populateTargetDatasources($sourceDataset, $targetDatasources, $targetWriteChunkSize);
+
+                            if ($sourceReadChunkSize)
+                                $offset += $sourceReadChunkSize;
                         } else {
-                            throw new UnsupportedDatasetException("Tabular datasets must be returned from source datasources");
+                            $readEntries = 0;
                         }
-
-                        $this->populateTargetDatasources(new ArrayTabularDataset(Field::toPlainFields($sourceDataset->getColumns()), $allData), $targetDatasources, $targetWriteChunkSize);
-                        $offset += $sourceReadChunkSize;
-                    } else {
-                        $allData = [];
-                    }
-                } while (sizeof($allData) > 0);
+                    } while ($readEntries == ($sourceReadChunkSize ?? PHP_INT_MAX));
+                }
 
             }
         }
@@ -141,12 +143,13 @@ class TabularDatasourceImportProcessor implements DataProcessor {
             throw new UnsupportedDatasetException("The source datasource supplied to the processor must materialise to a tabular data set");
         }
 
-        $fields = $sourceDataset->getColumns();
+        // Ensure fields are in plain format to avoid double
+        $fields = Field::toPlainFields($sourceDataset->getColumns());
 
         // Chunk the results according to chunk size for scalability.
         $read = 0;
         $dataItems = [];
-        while ($dataItem = $sourceDataset->nextDataItem()) {
+        while (($dataItem = $sourceDataset->nextDataItem()) !== false) {
 
             $dataItems[] = $dataItem;
             $read++;
@@ -159,6 +162,8 @@ class TabularDatasourceImportProcessor implements DataProcessor {
         // Process remainder if required
         if (sizeof($dataItems))
             $this->processTargetChunkResults($targetDatasources, $fields, $dataItems);
+
+        return $read;
     }
 
 

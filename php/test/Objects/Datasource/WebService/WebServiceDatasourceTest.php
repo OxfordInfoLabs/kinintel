@@ -287,7 +287,7 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfPagingTransformationsAppliedToDatasourceTheyAreStoredAndAppliedToFormatterAtMaterialise() {
+    public function testIfPagingTransformationsAppliedToDatasourceWithoutPagingViaParametersTheyAreStoredAndAppliedToFormatterAtMaterialise() {
 
         $stream = new ReadOnlyStringStream('[{"name": "Bob"},{"name": "Pete"},{"name": "Rose"}]');
         $expectedResponse = new Response($stream, 200, null, null);
@@ -348,6 +348,78 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertTrue($formatter->methodWasCalled("format", [
             $stream, [], 20, 30]));
+
+
+    }
+
+
+    public function testIfPagingTransformationsAppliedToDatasourceWithPagingViaParametersTheyAreStoredAndAppliedToFormatterAtMaterialise() {
+
+        $stream = new ReadOnlyStringStream('[{"name": "Bob"},{"name": "Pete"},{"name": "Rose"}]');
+        $expectedResponse = new Response($stream, 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com?offset=0&limit=100", Request::METHOD_GET));
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com?offset=10&limit=100", Request::METHOD_GET));
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com?offset=30&limit=20", Request::METHOD_GET));
+
+        $config = MockObjectProvider::instance()->getMockInstance(WebserviceDataSourceConfig::class);
+        $formatter = MockObjectProvider::instance()->getMockInstance(ResultFormatter::class);
+        $config->returnValue("returnFormatter", $formatter);
+        $config->returnValue("getUrl", "https://mytest.com?offset={{offset}}&limit={{limit}}");
+        $config->returnValue("getMethod", Request::METHOD_GET);
+        $config->returnValue("isPagingViaParameters", true);
+
+
+        $validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
+
+
+        // Check limit passed correctly when supplied
+        $request = new TestWebServiceDataSource($config, null, $validator);
+        $request->setDispatcher($this->httpDispatcher);
+
+        $request->applyTransformation(new PagingTransformation(100));
+
+        // Materialise
+        $request->materialiseDataset();
+
+        // Check no formatter based limiting
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, [], PHP_INT_MAX, 0]));
+
+
+        $formatter->resetMethodCallHistory("format");
+
+
+        // Check offset passed correctly when supplied
+        $request = new TestWebServiceDataSource($config, null, $validator);
+        $request->setDispatcher($this->httpDispatcher);
+
+        $request->applyTransformation(new PagingTransformation(100, 10));
+
+        // Materialise
+        $request->materialiseDataset();
+
+        // Check no formatter based limiting
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, [], PHP_INT_MAX, 0]));
+
+
+        $formatter->resetMethodCallHistory("format");
+
+
+        // Apply a second transformation
+        $request->applyTransformation(new PagingTransformation(20, 20));
+        // Materialise
+        $request->materialiseDataset();
+
+        // Check no formatter based limiting
+        $this->assertTrue($formatter->methodWasCalled("format", [
+            $stream, [], PHP_INT_MAX, 0]));
 
 
     }

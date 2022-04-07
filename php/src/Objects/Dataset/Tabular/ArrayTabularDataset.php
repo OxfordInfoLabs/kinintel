@@ -19,11 +19,6 @@ class ArrayTabularDataset extends TabularDataset {
      */
     private $data;
 
-    /**
-     * @var integer
-     */
-    private $pointer = 0;
-
 
     /**
      * ArrayTabularDataset constructor.
@@ -41,9 +36,7 @@ class ArrayTabularDataset extends TabularDataset {
      * Implement only required method
      */
     public function nextRawDataItem() {
-        $item = $this->data[$this->pointer] ?? false;
-        if ($item) $this->pointer++;
-        return $item;
+        return sizeof($this->data) ? array_shift($this->data) : false;
     }
 
 

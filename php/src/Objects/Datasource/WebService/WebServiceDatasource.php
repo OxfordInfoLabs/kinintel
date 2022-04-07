@@ -157,6 +157,23 @@ class WebServiceDatasource extends BaseDatasource {
         $payload = null;
 
 
+        // Calculate offset and limits in case these need to be passed through
+        $offset = 0;
+        $limit = PHP_INT_MAX;
+
+        // Increment the offset and limit accordingly.
+        foreach ($this->pagingTransformations as $pagingTransformation) {
+            $offset += $pagingTransformation->getOffset();
+            $limit = $pagingTransformation->getLimit();
+        }
+
+        // If paging via parameters
+        if ($config->isPagingViaParameters()) {
+            $parameterValues["offset"] = $offset;
+            $parameterValues["limit"] = $limit;
+        }
+
+
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
             $payload = $this->templateParser->parseTemplateText($config->getPayloadTemplate(), $parameterValues);
         }
@@ -170,6 +187,7 @@ class WebServiceDatasource extends BaseDatasource {
             $request = $this->getAuthenticationCredentials()->processRequest($request);
         }
 
+
         // Process multiple times according to retry configuration if required
         $attempts = 0;
         do {
@@ -182,15 +200,6 @@ class WebServiceDatasource extends BaseDatasource {
         } while ($attempts <= $config->getMaxRetries() && in_array($response->getStatusCode(), $config->getRetryResponseCodes() ?? []));
 
 
-        $offset = 0;
-        $limit = PHP_INT_MAX;
-
-        // Increment the offset and limit accordingly.
-        foreach ($this->pagingTransformations as $pagingTransformation) {
-            $offset += $pagingTransformation->getOffset();
-            $limit = $pagingTransformation->getLimit();
-        }
-
         $responseStream = $response->getStream();
 
         if ($this->getConfig()->getCompressionType()) {
@@ -199,7 +208,8 @@ class WebServiceDatasource extends BaseDatasource {
         }
 
         // Materialise the web service result and return the result
-        return $config->returnFormatter()->format($responseStream, $config->returnEvaluatedColumns($parameterValues), $limit, $offset);
+        return $config->returnFormatter()->format($responseStream, $config->returnEvaluatedColumns($parameterValues), $config->isPagingViaParameters() ? PHP_INT_MAX : $limit,
+            $config->isPagingViaParameters() ? 0 : $offset);
 
     }
 

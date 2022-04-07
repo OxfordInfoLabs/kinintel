@@ -449,7 +449,7 @@ class DatasetService {
      * @param $dataSetInstanceId
      * @param TransformationInstance[] $additionalTransformations
      */
-    public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
+    public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $parameterValues = [], $additionalTransformations = [], $offset = null, $limit = null) {
         $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId, false);
         return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
@@ -466,7 +466,7 @@ class DatasetService {
      * @return Dataset
      *
      */
-    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25) {
+    public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = [], $offset = null, $limit = null) {
 
 
         // Aggregate transformations and parameter values.

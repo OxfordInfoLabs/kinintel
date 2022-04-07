@@ -314,6 +314,10 @@ class DatasourceService {
 
             // If a marker transformation, use a paging transformation instead
             if ($transformation instanceof PagingMarkerTransformation) {
+
+                // If no paging transformation, ignore this one
+                if (!$pagingTransformation) continue;
+                
                 $transformation = $pagingTransformation;
                 $pagingTransformation->setApplied(true);
             }

@@ -49,8 +49,6 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
     protected $headers;
 
 
-
-
     /**
      * Response codes which if received will trigger a retry
      * for the retry interval specified separately.
@@ -73,6 +71,16 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      * @var int
      */
     protected $maxRetries = 10;
+
+
+    /**
+     * If set, paging will be applied using parameters passed to the
+     * webservice data fields instead of following the request in memory which is the default
+     *
+     * @var bool
+     */
+    protected $pagingViaParameters = false;
+
 
     /**
      * WebserviceDataSourceConfig constructor.
@@ -193,7 +201,19 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
         $this->maxRetries = $maxRetries;
     }
 
+    /**
+     * @return bool
+     */
+    public function isPagingViaParameters() {
+        return $this->pagingViaParameters;
+    }
 
+    /**
+     * @param bool $pagingViaParameters
+     */
+    public function setPagingViaParameters($pagingViaParameters) {
+        $this->pagingViaParameters = $pagingViaParameters;
+    }
 
 
 }

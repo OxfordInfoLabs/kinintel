@@ -59,7 +59,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
-            "source", null, null, 0, 500
+            "source", null, null, null, null
         ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -129,7 +129,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
-            "source", null, null, 0, 500
+            "source", null, null, null, null
         ]);
 
 
@@ -178,7 +178,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet1, [
-            "source1", null, null, 0, 500
+            "source1", null, null, null, null
         ]);
 
 
@@ -197,7 +197,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet2, [
-            "source2", null, null, 0, 500
+            "source2", null, null, null, null
         ]);
 
 
@@ -252,12 +252,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", $dataSet, [
-            $mockSourceInstance, null, null, 0, 500
+            $mockSourceInstance, null, null, null, null
         ]);
 
-        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", new ArrayTabularDataset([], []), [
-            $mockSourceInstance, null, null, 500, 500
-        ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
@@ -362,7 +359,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
-            "source", null, null, 0, 500
+            "source", null, null, null, null
         ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -421,7 +418,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
-            "source", null, null, 0, 500
+            "source", null, null, null, null
         ]);
 
         $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -462,6 +459,90 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
+
+    }
+
+
+    public function testIfSourceParameterSetsPassedForSourceDatasourceDatasourceIsEvaluatedMultipleTimesForParamsAndAllResultsPassedToTarget() {
+
+        $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $mockSourceInstance->returnValue("returnDataSource", $mockSource);
+
+        $dataSet1 = new ArrayTabularDataset([new Field("bong")], [
+            [
+                "bong" => "bing"
+            ],
+            [
+                "bong" => "bong"
+            ]
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet1, [
+            "source", ["param1" => "first", "param2" => "FIRST"], null, null, null
+        ]);
+
+
+        $dataSet2 = new ArrayTabularDataset([new Field("bong")], [
+            [
+                "bong" => "bang"
+            ],
+            [
+                "bong" => "bung"
+            ]
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet2, [
+            "source", ["param1" => "second", "param2" => "SECOND"], null, null, null
+        ]);
+
+
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "target"
+        ]);
+
+        $config = new TabularDatasourceImportProcessorConfiguration("source", [
+            new TargetDatasource("target")
+        ]);
+        $config->setSourceParameterSets([
+            [
+                "param1" => "first",
+                "param2" => "FIRST"
+            ],
+            [
+                "param1" => "second",
+                "param2" => "SECOND"
+            ]
+        ]);
+
+        $this->processor->process($config);
+
+
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("bong")], [
+                [
+                    "bong" => "bing"
+                ],
+                [
+                    "bong" => "bong"
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("bong")], [
+                [
+                    "bong" => "bang"
+                ],
+                [
+                    "bong" => "bung"
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
 
     }
 
