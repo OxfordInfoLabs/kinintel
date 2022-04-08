@@ -7,7 +7,8 @@ namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
 class ConversionFieldValueFunction extends FieldValueFunctionWithArguments {
 
     const supportedFunctions = [
-        "toJSON"
+        "toJSON",
+        "toNumber"
     ];
 
 
@@ -33,6 +34,13 @@ class ConversionFieldValueFunction extends FieldValueFunctionWithArguments {
         switch ($functionName) {
             case "toJSON":
                 return $value ? json_encode($value) : $value;
+            case "toNumber":
+                $value = preg_replace("/[^0-9]/", "", $value);
+                if (is_numeric($value)){
+                    return strpos($value, ".") ? floatval($value) : intval($value);
+                } else {
+                    return $functionArgs[0] ?? null;
+                }
         }
     }
 }
