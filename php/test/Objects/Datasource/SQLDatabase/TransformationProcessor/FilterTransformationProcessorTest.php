@@ -354,7 +354,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
         $sourceQuery = new SQLQuery("*", "test_data");
-        
+
         // Check an array one
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[age]]", "{{ages}}", Filter::FILTER_TYPE_IN)
