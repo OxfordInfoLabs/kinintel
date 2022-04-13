@@ -43,14 +43,30 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-        $evaluator = new SQLFilterJunctionEvaluator(null,null, $dataSource->returnDatabaseConnection());
+        $evaluator = new SQLFilterJunctionEvaluator(null, null, $dataSource->returnDatabaseConnection());
 
         $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation, $parameterValues);
 
         if ($query->hasGroupByClause()) {
-            $query->setHavingClause($evaluated["sql"], $evaluated["parameters"]);
+
+            $sql = $evaluated["sql"];
+            $params = $evaluated["parameters"];
+            if ($havingClause = $query->getHavingClause()) {
+                $sql = "(" . $havingClause . ") AND (" . $sql . ")";
+                $params = array_merge($query->getParametersByClauseType(SQLQuery::HAVING_CLAUSE), $params);
+            }
+
+            $query->setHavingClause($sql, $params);
         } else {
-            $query->setWhereClause($evaluated["sql"], $evaluated["parameters"]);
+
+            $sql = $evaluated["sql"];
+            $params = $evaluated["parameters"];
+            if ($whereClause = $query->getWhereClause()) {
+                $sql = "(" . $whereClause . ") AND (" . $sql . ")";
+                $params = array_merge($query->getParametersByClauseType(SQLQuery::WHERE_CLAUSE), $params);
+            }
+
+            $query->setWhereClause($sql, $params);
         }
 
         return $query;

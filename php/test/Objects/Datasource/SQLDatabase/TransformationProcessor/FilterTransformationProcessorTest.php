@@ -353,10 +353,12 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ], $query->getParameters());
 
 
+        $sourceQuery = new SQLQuery("*", "test_data");
+        
         // Check an array one
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[age]]", "{{ages}}", Filter::FILTER_TYPE_IN)
-        ]), $query, [
+        ]), $sourceQuery, [
             "ages" => [10, 11, 12, 13, 14, 15]
         ], $this->dataSource);
 
@@ -407,6 +409,34 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+    public function testSecondFilterAppliedIsAddedToQueryUsingANDStructure() {
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+
+        $sourceQuery = new SQLQuery("*", "test_data");
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[job]]", "*{{jobTitle}}*", Filter::FILTER_TYPE_LIKE)
+        ]), $sourceQuery, [
+            "jobTitle" => "Company Director"
+        ], $this->dataSource);
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[job]]", "Geek", Filter::FILTER_TYPE_NOT_EQUALS)
+        ]), $query, [
+            "jobTitle" => "Company Director"
+        ], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE (\"job\" LIKE ?) AND (\"job\" <> ?)", $query->getSQL());
+        $this->assertEquals([
+            "%Company Director%",
+            "Geek"
+        ], $query->getParameters());
+
+
+    }
+
 
 }
 

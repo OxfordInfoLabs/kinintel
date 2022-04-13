@@ -86,6 +86,21 @@ class SQLQuery {
         return isset($this->clausesByType[self::GROUP_BY_CLAUSE]);
     }
 
+
+    /**
+     * @return bool
+     */
+    public function getWhereClause() {
+        return $this->clausesByType[self::WHERE_CLAUSE] ?? "";
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHavingClause() {
+        return $this->clausesByType[self::HAVING_CLAUSE] ?? "";
+    }
+
     /**
      * Set the where clause for this query
      *
@@ -195,6 +210,14 @@ class SQLQuery {
 
     }
 
+    /**
+     * Get parameters by clause type
+     *
+     * @param $clauseType
+     */
+    public function getParametersByClauseType($clauseType) {
+        return $this->parametersByClauseType[$clauseType] ?? [];
+    }
 
     /**
      * Return parameters in positional order
