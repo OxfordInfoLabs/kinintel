@@ -15,6 +15,7 @@ class SQLClauseSanitiser {
 
     const NUMERIC_WHITELISTED_FUNCTION = "NUMERIC";
     const STRING_WHITELISTED_FUNCTION = "STRING";
+    const DATE_WHITELISTED_FUNCTION = "DATE";
     const ANY_WHITELISTED_FUNCTION = "ANY";
     const AGGREGATE_FUNCTION = "AGGREGATE";
 
@@ -105,7 +106,13 @@ class SQLClauseSanitiser {
         "TRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Removes whitespace from start and end of the supplied string"],
         "UPPER" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
-            "description" => "Convert the supplied string to upper case"]
+            "description" => "Convert the supplied string to upper case"],
+        "DAY" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
+            "description" => "Extract the day of the month from a date"],
+        "MONTH" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
+            "description" => "Extract the numerical month value from a date"],
+        "YEAR" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
+            "description" => "Extract the numerical year value from a date"]
     ];
 
     /**
