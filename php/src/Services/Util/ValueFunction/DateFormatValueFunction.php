@@ -1,12 +1,10 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Services\Util\ValueFunction;
 
 
-use Kinikit\Core\Logging\Logger;
-
-class DateFormatFieldValueFunction extends FieldValueFunctionWithArguments {
+class DateFormatValueFunction extends ValueFunctionWithArguments {
 
     const supportedFunctions = [
         "ensureDateFormat",

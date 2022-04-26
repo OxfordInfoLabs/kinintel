@@ -26,9 +26,10 @@ interface Compressor {
      * and return a new stream to the uncompressed data
      *
      * @param ReadableStream $stream
-     * @param CompressorConfiguration$config
+     * @param CompressorConfiguration $config
+     * @param mixed[] $parameterValues
      * @return ReadableStream
      */
-    public function uncompress($stream, $config);
+    public function uncompress($stream, $config, $parameterValues = []);
 
 }

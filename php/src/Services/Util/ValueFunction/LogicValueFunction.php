@@ -1,12 +1,10 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Services\Util\ValueFunction;
 
 
-use Kinikit\Core\Logging\Logger;
-
-class LogicFieldValueFunction extends FieldValueFunctionWithArguments {
+class LogicValueFunction extends ValueFunctionWithArguments {
 
     const supportedFunctions = [
         "ifNot",

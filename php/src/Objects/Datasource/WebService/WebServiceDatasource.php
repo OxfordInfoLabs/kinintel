@@ -10,6 +10,7 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
+use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
@@ -34,9 +35,9 @@ class WebServiceDatasource extends BaseDatasource {
     private $dispatcher;
 
     /**
-     * @var TemplateParser
+     * @var ParameterisedStringEvaluator
      */
-    private $templateParser;
+    private $parameterisedStringEvaluator;
 
     /**
      * @var PagingTransformation[]
@@ -62,7 +63,7 @@ class WebServiceDatasource extends BaseDatasource {
         parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle);
 
         $this->dispatcher = Container::instance()->get(HttpRequestDispatcher::class);
-        $this->templateParser = Container::instance()->get(TemplateParser::class);
+        $this->parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
     }
 
     /**
@@ -175,11 +176,11 @@ class WebServiceDatasource extends BaseDatasource {
 
 
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
-            $payload = $this->templateParser->parseTemplateText($config->getPayloadTemplate(), $parameterValues);
+            $payload = $this->parameterisedStringEvaluator->evaluateString($config->getPayloadTemplate(), [], $parameterValues);
         }
 
         // Create a new HttpRequest for this request
-        $url = $this->templateParser->parseTemplateText($config->getUrl(), $parameterValues);
+        $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
         $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
         // Inject authentication if required
@@ -204,7 +205,7 @@ class WebServiceDatasource extends BaseDatasource {
 
         if ($this->getConfig()->getCompressionType()) {
             $compressor = Container::instance()->getInterfaceImplementation(Compressor::class, $this->getConfig()->getCompressionType());
-            $responseStream = $compressor->uncompress($responseStream, $this->getConfig()->returnCompressionConfig());
+            $responseStream = $compressor->uncompress($responseStream, $this->getConfig()->returnCompressionConfig(), $parameterValues);
         }
 
         // Materialise the web service result and return the result

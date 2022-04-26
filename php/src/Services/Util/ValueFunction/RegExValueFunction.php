@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Services\Util\ValueFunction;
 
 
-class RegExFieldValueFunction implements FieldValueFunction {
+class RegExValueFunction implements ValueFunction {
 
     // We require an expression starting and ending with a /
     public function doesFunctionApply($functionString) {

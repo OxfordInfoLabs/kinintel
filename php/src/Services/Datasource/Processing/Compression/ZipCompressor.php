@@ -4,10 +4,12 @@
 namespace Kinintel\Services\Datasource\Processing\Compression;
 
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Exception\DatasourceCompressionException;
+use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\ZipCompressorConfiguration;
 
 
@@ -29,7 +31,7 @@ class ZipCompressor implements Compressor {
      * @param ZipCompressorConfiguration $config
      * @return ReadableStream
      */
-    public function uncompress($stream, $config) {
+    public function uncompress($stream, $config, $parameterValues = []) {
 
         // Create a folder to extract to
         $tmpDir = sys_get_temp_dir();
@@ -54,7 +56,16 @@ class ZipCompressor implements Compressor {
 
         mkdir($zipFile . "-extracted", 0777, true);
 
-        $entryFilenames = $config->getEntryFilenames() ?? [$config->getEntryFilename()];
+        $rawEntryFilenames = $config->getEntryFilenames() ?? [$config->getEntryFilename()];
+
+        /**
+         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
+         */
+        $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
+        $entryFilenames = array_map(function ($filename) use ($parameterisedStringEvaluator, $parameterValues) {
+            return $parameterisedStringEvaluator->evaluateString($filename, [], $parameterValues);
+        }, $rawEntryFilenames);
+
 
         $result = $zip->extractTo($zipFile . "-extracted", $entryFilenames);
 
