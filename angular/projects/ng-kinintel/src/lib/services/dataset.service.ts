@@ -19,7 +19,7 @@ export class DatasetService {
     }
 
     public getDatasets(filterString = '', limit = '10', offset = '0', accountId = '', type = '', categories = [], tags?) {
-        tags = tags || (this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : '');
+        tags = tags || (this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : 'NONE');
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const suffix = this.config.backendURL.indexOf('/account') && accountId === null ? '/shared/all' : '';
         return this.http.get(this.config.backendURL + '/dataset' + suffix, {

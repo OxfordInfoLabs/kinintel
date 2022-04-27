@@ -280,21 +280,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     public toggleDarkMode() {
         this.dashboard.displaySettings.darkMode = this.darkMode = !this.darkMode;
         this.setDarkModeOnBody();
-        this.save(false);
     }
 
     public updateGridSpacing(space, save = true) {
         this.dashboard.displaySettings.inset = space;
         document.querySelectorAll('.grid-stack-item-content')
             .forEach((el: any) => el.style.inset = space);
-        if (save) {
-            this.save(false);
-        }
     }
 
     public toggleNotifications() {
         this.dashboard.alertsEnabled = !this.dashboard.alertsEnabled;
-        this.save(false);
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
@@ -316,7 +311,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 parameter.value = parameter.defaultValue || '';
                 this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
-            this.save(false);
         });
     }
 
@@ -325,14 +319,12 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             'to fail.';
         if (window.confirm(message)) {
             delete this.dashboard.layoutSettings.parameters[parameter.name];
-            this.save(false);
         }
     }
 
     public setParameterValue(parameter, value) {
         parameter.value = value;
         this.dashboardService.dashboardItems.next({});
-        this.save(false);
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
@@ -398,7 +390,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
         }
 
-        // attach component to the appRef so that so that it will be dirty checked.
+        // attach component to the appRef so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
 
         element.classList.add('shadow');

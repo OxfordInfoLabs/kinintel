@@ -119,7 +119,7 @@
                                             <mat-icon>more_vert</mat-icon>
                                         </button>
                                         <mat-menu #itemMenu="matMenu">
-                                            <button mat-menu-item (click)="extend(element.id)">Create {{newTitle || 'Dataset'}}</button>
+                                            <button mat-menu-item (click)="extend(element.id)">Create Extended {{newTitle || 'Dataset'}}</button>
                                             <button mat-menu-item (click)="editMetadata(element)">Edit Metadata</button>
                                             <button mat-menu-item (click)="delete(element.id)">Delete {{newTitle || 'Dataset'}}</button>
                                         </mat-menu>
@@ -165,7 +165,7 @@
 
         <div class="relative inline-block">
             <mat-icon
-                class="mx-auto text-6xl h-14 w-20 text-gray-300">rss_feed
+                class="mx-auto text-6xl h-14 w-20 text-gray-300">query_stats
             </mat-icon>
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
