@@ -1,19 +1,19 @@
 <?php
 
 
-namespace Kinintel\Test\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Test\Services\Util\ValueFunction;
 
 
-use Kinintel\ValueObjects\Dataset\FieldValueFunction\DateFormatFieldValueFunction;
+use Kinintel\Services\Util\ValueFunction\DateFormatValueFunction;
 
 
 include_once "autoloader.php";
 
-class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
+class DateFormatValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testFunctionIsResolvedForKnownFunctionNames() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertFalse($function->doesFunctionApply("imaginary"));
         $this->assertFalse($function->doesFunctionApply("test"));
 
@@ -30,13 +30,13 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testCanEnsureDateFormat(){
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals('2020-01-01', $function->applyFunction("ensureDateFormat 'Y-m-d'", "2020-01-01", []));
         $this->assertNull($function->applyFunction("ensureDateFormat 'Y-m-d'", "01/01/2020", []));
     }
 
     public function testCanConvertDatesUsingDateConvert() {
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals('01/01/2020', $function->applyFunction("dateConvert 'Y-m-d' 'd/m/Y'", "2020-01-01", []));
         $this->assertEquals('01/01/2020 10:44:33', $function->applyFunction("dateConvert 'Y-m-d H:i:s' 'd/m/Y H:i:s'", "2020-01-01 10:44:33", []));
         $this->assertNull($function->applyFunction("dateConvert 'Y-m-d' 'd/m/Y'", "Invalid", []));
@@ -45,7 +45,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetDayOfMonthForWholeSQLDateOrDateTime() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals(25, $function->applyFunction("dayOfMonth", "2020-03-25", []));
         $this->assertEquals(25, $function->applyFunction("dayOfMonth", "2020-03-25 10:00:00", []));
         $this->assertEquals("05", $function->applyFunction("dayOfMonth", "2020-03-05 10:00:00", []));
@@ -53,7 +53,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetDayOfWeekForWholeSQLDateOrDateTime() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals(5, $function->applyFunction("dayOfWeek", "2021-12-02", []));
         $this->assertEquals(5, $function->applyFunction("dayOfWeek", "2021-12-02 10:00:00", []));
 
@@ -61,7 +61,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetDayNameForWholeSQLDateOrDateTime() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals("Thursday", $function->applyFunction("dayName", "2021-12-02", []));
         $this->assertEquals("Thursday", $function->applyFunction("dayName", "2021-12-02 10:00:00", []));
 
@@ -69,7 +69,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetMonthForWholeSQLDateOrDateTime() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals(12, $function->applyFunction("month", "2021-12-02", []));
         $this->assertEquals("01", $function->applyFunction("month", "2021-01-02 10:00:00", []));
 
@@ -77,7 +77,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetMonthNameForWholeSQLDateOrDateTimeOrInteger() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals("December", $function->applyFunction("monthName", "2021-12-02", []));
         $this->assertEquals("January", $function->applyFunction("monthName", "2021-01-02 10:00:00", []));
         $this->assertEquals("February", $function->applyFunction("monthName", 2, []));
@@ -85,7 +85,7 @@ class DateFormatFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanGetYearForWholeSQLDateOrDateTime() {
 
-        $function = new DateFormatFieldValueFunction();
+        $function = new DateFormatValueFunction();
         $this->assertEquals(2021, $function->applyFunction("year", "2021-12-02", []));
 
     }

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Services\Util\ValueFunction;
 
 
-class ConversionFieldValueFunction extends FieldValueFunctionWithArguments {
+class ConversionValueFunction extends ValueFunctionWithArguments {
 
     const supportedFunctions = [
         "toJSON",

@@ -1,17 +1,17 @@
 <?php
 
 
-namespace Kinintel\Test\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Test\Services\Util\ValueFunction;
 
-use Kinintel\ValueObjects\Dataset\FieldValueFunction\RegExFieldValueFunction;
+use Kinintel\Services\Util\ValueFunction\RegExValueFunction;
 
 include_once "autoloader.php";
 
-class RegExFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
+class RegExValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testRegExExpressionsStartingAndEndingWithDelimitersAreAcceptedAndProcessedUsingFullOrCaptureExpression() {
 
-        $function = new RegExFieldValueFunction();
+        $function = new RegExValueFunction();
         $this->assertFalse($function->doesFunctionApply("test"));
         $this->assertFalse($function->doesFunctionApply("regex()"));
         $this->assertFalse($function->doesFunctionApply("/onesided"));

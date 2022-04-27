@@ -1,18 +1,18 @@
 <?php
 
 
-namespace Kinintel\Test\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Test\Services\Util\ValueFunction;
 
-use Kinintel\ValueObjects\Dataset\FieldValueFunction\LogicFieldValueFunction;
+use Kinintel\Services\Util\ValueFunction\LogicValueFunction;
 
 include_once "autoloader.php";
 
-class LogicFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
+class LogicValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testIfNotFunctionEvaluatesCorrectly() {
 
-        $function = new LogicFieldValueFunction();
+        $function = new LogicValueFunction();
         $this->assertTrue($function->doesFunctionApply("ifNot"));
 
         // Check pass through if text set
@@ -30,7 +30,7 @@ class LogicFieldValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testAddAndSubtractFunctionsEvaluateCorrectlyForMemberAndLiteralValues() {
 
-        $function = new LogicFieldValueFunction();
+        $function = new LogicValueFunction();
         $this->assertEquals(40, $function->applyFunction("add 10", 30, []));
         $this->assertEquals(40, $function->applyFunction("add hello", 20, ["hello" => 20]));
 

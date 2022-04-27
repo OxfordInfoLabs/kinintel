@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Services\Util\ValueFunction;
 
 
-interface FieldValueFunction {
+interface ValueFunction {
 
     /**
      * Does a value function apply to the passed function string

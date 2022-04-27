@@ -9,6 +9,7 @@ use Kinikit\Core\Stream\FTP\ReadOnlyFTPStream;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
+use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\Generic\UsernameAndPasswordAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\FTP\FTPDatasourceConfig;
@@ -99,14 +100,23 @@ class FTPDataSource extends BaseDatasource {
             $limit = $pagingTransformation->getLimit();
         }
 
+        /**
+         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
+         */
+        $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
+
+        $hostname = $parameterisedStringEvaluator->evaluateString($config->getHostname(), [], $parameterValues);
+        $filePath = $parameterisedStringEvaluator->evaluateString($config->getFilePath(), [], $parameterValues);
+
+
         // get an FTP stream for this data source
-        $responseStream = new ReadOnlyFTPStream($config->getHostname(), $config->getFilePath(), $config->isSecure(),
+        $responseStream = new ReadOnlyFTPStream($hostname, $filePath, $config->isSecure(),
             $authCreds->getUsername(), $authCreds->getPassword(), $authCreds->getPrivateKey());
 
 
         if ($this->getConfig()->getCompressionType()) {
             $compressor = Container::instance()->getInterfaceImplementation(Compressor::class, $this->getConfig()->getCompressionType());
-            $responseStream = $compressor->uncompress($responseStream, $this->getConfig()->returnCompressionConfig());
+            $responseStream = $compressor->uncompress($responseStream, $this->getConfig()->returnCompressionConfig(), $parameterValues);
         }
 
         // Materialise the web service result and return the result

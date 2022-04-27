@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
+namespace Kinintel\Services\Util\ValueFunction;
 
 /**
  * Field value function with arguments in classic function(arg1,arg2) format
@@ -9,7 +9,7 @@ namespace Kinintel\ValueObjects\Dataset\FieldValueFunction;
  * Class FieldValueFunctionWithArguments
  * @package Kinintel\ValueObjects\Dataset\FieldValueFunction
  */
-abstract class FieldValueFunctionWithArguments implements FieldValueFunction {
+abstract class ValueFunctionWithArguments implements ValueFunction {
 
 
     /**
