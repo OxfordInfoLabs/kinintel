@@ -16,6 +16,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     @Input() admin: boolean;
     @Input() title: string;
     @Input() description: string;
+    @Input() exploreText: string;
 
     public datasources: any = [];
     public searchText = new BehaviorSubject('');

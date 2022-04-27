@@ -14,7 +14,7 @@
                 </p>
             </div>
         </div>
-        <div class="mt-6 flex flex-col-reverse justify-stretch">
+        <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="!hideCreate">
             <button type="button" (click)="create()"
                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
                 Create {{newTitle || 'Dataset'}}
@@ -111,7 +111,7 @@
                                         Edit
                                     </button>
                                     <button *ngIf="shared" mat-button color="primary" (click)="extend(element.id)">
-                                        Extend
+                                        Create {{newTitle || 'Dataset'}}
                                     </button>
                                     <ng-template [ngIf]="!shared">
                                         <div class="divider"></div>
@@ -119,9 +119,9 @@
                                             <mat-icon>more_vert</mat-icon>
                                         </button>
                                         <mat-menu #itemMenu="matMenu">
-                                            <button mat-menu-item (click)="extend(element.id)">Extend Dataset</button>
+                                            <button mat-menu-item (click)="extend(element.id)">Create {{newTitle || 'Dataset'}}</button>
                                             <button mat-menu-item (click)="editMetadata(element)">Edit Metadata</button>
-                                            <button mat-menu-item (click)="delete(element.id)">Delete Dataset</button>
+                                            <button mat-menu-item (click)="delete(element.id)">Delete {{newTitle || 'Dataset'}}</button>
                                         </mat-menu>
                                     </ng-template>
                                 </div>
@@ -160,7 +160,7 @@
 </div>
 
 <div class="p-4" *ngIf="!datasets.length && !loading">
-    <button type="button" (click)="create()"
+    <button type="button" (click)="create()" *ngIf="!hideCreate"
             class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 
         <div class="relative inline-block">

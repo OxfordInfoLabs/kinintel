@@ -23,6 +23,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() headingDescription: string;
     @Input() newTitle: string;
     @Input() newDescription: string;
+    @Input() hideCreate: boolean;
     @Input() shared: boolean;
     @Input() admin: boolean;
     @Input() reload: Subject<any>;
