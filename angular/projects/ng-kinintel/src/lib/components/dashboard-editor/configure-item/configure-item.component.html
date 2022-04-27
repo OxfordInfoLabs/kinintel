@@ -45,7 +45,7 @@
                         Configure {{dashboardItemType.label}}
                     </button>
                     <p class="font-light w-3/4 text-center mt-4">
-                        Please configure this {{dashboardItemType.label}} with a Datasource or Dataset.
+                        Please configure this {{dashboardItemType.label}} using a data package or stored query.
                     </p>
                 </div>
             </div>
@@ -58,19 +58,56 @@
 
     <rsz-layout class="row bottom" [directions]="['none']" [rFlex]="false">
         <mat-tab-group>
-            <mat-tab label="General">
+            <mat-tab label="Header">
                 <div class="w-1/2">
                     <div class="p-4">
+                        <div class="flex items-center mb-2 justify-between">
+                            <div class="font-semibold">Enter HTML/Text for the Title and Description fields</div>
+                            <a (click)="openSide.next(true)"
+                               class="text-xs ml-2 hover:underline flex items-center primary">
+                                view help docs&nbsp;
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                </svg>
+                            </a>
+                        </div>
                         <label class="mb-2">
-                            Name
+                            Title
                             <input type="text" [(ngModel)]="general.name">
-                            <small class="font-normal">Name of the item</small>
+                            <small class="font-normal">Title of the item</small>
                         </label>
                         <label class="mb-2">
                             Description
-                            <input type="text" [(ngModel)]="general.description">
+                            <textarea class="font-mono w-full"
+                                      cols="30" rows="5" [(ngModel)]="general.description"></textarea>
                             <small class="font-normal">Description of the data item.</small>
                         </label>
+
+                    </div>
+                </div>
+
+            </mat-tab>
+            <mat-tab label="Footer">
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <div class="flex items-center mb-2 justify-between">
+                            <div class="font-semibold">Enter HTML/Text for the footer field</div>
+                            <a (click)="openSide.next(true)"
+                               class="text-xs ml-2 hover:underline flex items-center primary">
+                                view help docs&nbsp;
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                </svg>
+                            </a>
+                        </div>
+                        <label class="mb-2">
+                            Footer
+                            <input type="text" [(ngModel)]="general.footer">
+                            <small class="font-normal">Text to display at the bottom of the item</small>
+                        </label>
+
                         <label class="mb-2">
                             Call to action
                             <select matNativeControl [(ngModel)]="callToAction" [compareWith]="setCallToActionItem"
@@ -130,8 +167,8 @@
 
                         </ng-template>
                     </div>
-                </div>
 
+                </div>
             </mat-tab>
             <mat-tab label="Dependencies">
                 <div class="flex justify-between">
@@ -465,6 +502,25 @@
                             </select>
                         </label>
 
+                        <label class="mb-4">
+                            <ng-template
+                                [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                                Series Column
+                            </ng-template>
+                            <select [(ngModel)]="dashboardItemType.seriesColumn" (ngModelChange)="setChartData()">
+                                <option value="">-- Select
+                                    <ng-template
+                                        [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                                        Series Column
+                                    </ng-template>
+                                    --
+                                </option>
+                                <option [value]="field.name" *ngFor="let field of filterFields">
+                                    {{field.title}}
+                                </option>
+                            </select>
+                        </label>
+
                         <div class="align-center justify-between">
                             <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend
                             </mat-slide-toggle>
@@ -552,10 +608,8 @@
 </div>
 
 <div class="configure-footer">
-    <button mat-stroked-button mat-dialog-close color="primary">
-        Cancel
-    </button>
+    <div></div>
     <button mat-flat-button color="primary" (click)="saveDashboard()">
-        Save Changes
+        Close
     </button>
 </div>

@@ -1,7 +1,7 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
     <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Dataset Name</h2>
+        <h2 mat-dialog-title>{{title || 'Dataset Name'}}</h2>
 
         <button mat-icon-button mat-dialog-close>
             <mat-icon>clear</mat-icon>
@@ -10,7 +10,7 @@
 
     <div class="dialog-content">
 
-        Enter a name for this dataset.
+        {{description || 'Enter a name for this dataset.'}}
 
         <input type="text" #datasetName class="dataset-new-name">
 

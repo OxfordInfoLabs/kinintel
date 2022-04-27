@@ -382,8 +382,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
-        const dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;
-        componentRef.instance.dashboardDatasetInstance = dashboardDatasetInstance;
+        componentRef.instance.dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;;
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;
@@ -398,21 +397,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 componentRef.instance.load();
             }
         }
-
-        // if (this.dashboard.alertsEnabled) {
-        //     if (dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length) {
-        //         this.alertService.processAlertsForDashboardDatasetInstance(dashboardDatasetInstance)
-        //             .then((res: any) => {
-        //                 if (res && res.length) {
-        //                     componentRef.instance.alert = true;
-        //                     componentRef.instance.alertData = res;
-        //                     const itemElement = document.getElementById(instanceId);
-        //                     itemElement.classList.add('alert');
-        //                     itemElement.parentElement.classList.add('alert');
-        //                 }
-        //             });
-        //     }
-        // }
 
         // attach component to the appRef so that so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);

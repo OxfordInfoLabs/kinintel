@@ -1,60 +1,13 @@
 <ng-template [ngIf]="!gridOnly">
 
     <div class="align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
-        <div *ngIf="editDashboardTitle" class="align-center ml-2">
-            <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title">&nbsp;
-        </div>
 
-        <div *ngIf="!editDashboardTitle" class="align-center ml-2">
-            <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
-            <button mat-icon-button (click)="editDashboardTitle = true;">
-                <mat-icon>edit</mat-icon>
-            </button>
-        </div>
+        <h2 class="dashboard-title ml-2">{{dashboard.title}}</h2>
 
-        <div class="data-actions">
-            <button mat-button color="primary" class="align-center" title="Edit default notification group">
-                <mat-icon>manage_accounts</mat-icon>
-            </button>
-            <button mat-button color="primary" class="align-center" title="Toggle notifications on/off"
-                    (click)="toggleNotifications()">
-                <mat-icon *ngIf="!dashboard.alertsEnabled"
-                          title="Notifications for this dashboard are now off. Press to toggle on.">notifications_off
-                </mat-icon>
-                <mat-icon *ngIf="dashboard.alertsEnabled"
-                          title="Notifications for this dashboard are on. Press to toggle off.">notifications_active
-                </mat-icon>
-            </button>
-            <button mat-button color="primary" class="align-center" title="Set dashboard item spacing"
-                    [matMenuTriggerFor]="spacingMenu">
-                <mat-icon>grid_view</mat-icon>
-            </button>
-            <mat-menu #spacingMenu="matMenu">
-                <button mat-menu-item *ngFor="let space of gridSpaces" (click)="updateGridSpacing(space.value)">
-                    {{space.label}}
-                </button>
-            </mat-menu>
-            <!--            <button mat-button color="primary" class="align-center" title="Open in full screen"-->
-            <!--                    (click)="openFullScreen()">-->
-            <!--                <mat-icon>open_in_full</mat-icon>-->
-            <!--            </button>-->
-            <button mat-button color="primary" class="align-center" title="Toggle between light/dark mode"
-                    (click)="toggleDarkMode()">
-                <mat-icon *ngIf="darkMode">light_mode</mat-icon>
-                <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
-            </button>
-            <button mat-button color="primary" class="align-center" title="Add/Edit dashboard items"
-                    (click)="editDashboardItems()">
-                <mat-icon>library_add</mat-icon>
-            </button>
-            <div class="divider"></div>
-            <button mat-button color="primary" class="align-center" (click)="save()" title="Save dashboard">
-                <mat-icon>save</mat-icon>
-            </button>
-        </div>
     </div>
 
-    <div class="dashboard-parameters bg-white px-4 py-1 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
+    <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200"
+         *ngIf="dashboard.layoutSettings && _.values(dashboard.layoutSettings.parameters).length">
         <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
             <label>
                 {{parameter.title}}
@@ -70,17 +23,5 @@
         </ng-template>
     </div>
 
-    <ng-template [ngIf]="dashboard.displaySettings && dashboard.displaySettings.fullScreen">
-        <div class="align-center justify-between mb-4 flex-wrap">
-            <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
-
-            <div class="data-actions">
-                <button mat-button color="primary" class="align-center" (click)="backToEditor()"
-                        title="Back to dashboard editor">
-                    <mat-icon>arrow_back</mat-icon>
-                </button>
-            </div>
-        </div>
-    </ng-template>
 </ng-template>
 <div class="grid-stack"></div>

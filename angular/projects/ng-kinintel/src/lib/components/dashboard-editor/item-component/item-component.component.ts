@@ -226,56 +226,74 @@ export class ItemComponentComponent implements AfterViewInit {
         this.dashboardItemType._editing = false;
     }
 
-    public evaluateTextData() {
-        setTimeout(() => {
-            const element: any = document.createElement('div');
-            if (element) {
-                element.innerHTML = this.bindParametersInString(this.textData.value);
+    public evaluateTextData(textData) {
+        let evaluatedTextData = '';
+        const element: any = document.createElement('div');
+        element.innerHTML = this.bindParametersInString(textData);
 
-                const data: any = {
-                    dataSet: this.dataset.allData
-                };
-                _.forEach(this.dataset.allData[0] || [], (value, key) => {
-                    data[key] = value;
-                });
+        const data: any = {
+            dataSet: this.dataset.allData
+        };
+        _.forEach(this.dataset.allData[0] || [], (value, key) => {
+            data[key] = value;
+        });
 
-                const Kinibind = window.Kinibind;
-                Kinibind.config = {
-                    prefix: 'd',
-                    templateDelimiters: ['[[', ']]']
-                };
-                const bind = new Kinibind(element, data);
-                const boundHTML = bind.boundContext.els[0].innerHTML;
-                this.textData.safeTextData = this.sanitizer.sanitize(1, boundHTML);
-                element.remove();
-            }
-        }, 0);
+        const Kinibind = window.Kinibind;
+        Kinibind.config = {
+            prefix: 'd',
+            templateDelimiters: ['[[', ']]']
+        };
+        const bind = new Kinibind(element, data);
+        const boundHTML = bind.boundContext.els[0].innerHTML;
+        evaluatedTextData = this.sanitizer.sanitize(1, boundHTML);
+        element.remove();
+        return evaluatedTextData;
     }
 
     public setChartData() {
         if (this.dashboardItemType.xAxis && this.dashboardItemType.yAxis) {
             let data: any;
 
-            if (this.dashboardItemType.type !== 'pie' && this.dashboardItemType.type !== 'doughnut') {
-                data = _.map(this.dataset.allData, item => {
-                    return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
+            if (!this.dashboardItemType.seriesColumn) {
+                if (this.dashboardItemType.type !== 'pie' && this.dashboardItemType.type !== 'doughnut') {
+                    data = _.map(this.dataset.allData, item => {
+                        return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
+                    });
+                } else {
+                    data = _.map(this.dataset.allData, item => {
+                        return item[this.dashboardItemType.yAxis];
+                    });
+                }
+
+                this.chartData = [
+                    {
+                        data,
+                        label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
+                        fill: !!this.dashboardItemType.fill
+                    }
+                ];
+                this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
+                    return item[this.dashboardItemType.xAxis];
                 });
             } else {
-                data = _.map(this.dataset.allData, item => {
-                    return item[this.dashboardItemType.yAxis];
-                });
-            }
+                const chartData = [];
+                const series = _.uniq(_.map(this.dataset.allData, this.dashboardItemType.seriesColumn));
+                series.forEach(value => {
+                    const seriesResults = _.filter(this.dataset.allData, allData => {
+                        return allData[this.dashboardItemType.seriesColumn] === value;
+                    });
 
-            this.chartData = [
-                {
-                    data,
-                    label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
-                    fill: !!this.dashboardItemType.fill
-                }
-            ];
-            this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
-                return item[this.dashboardItemType.xAxis];
-            });
+                    chartData.push({
+                        data: _.map(seriesResults, item => {
+                            return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
+                        }),
+                        label: value,
+                        fill: !!this.dashboardItemType.fill
+                    });
+                });
+                this.chartData = chartData;
+                this.dashboardItemType.labels = series;
+            }
         }
     }
 
@@ -468,7 +486,13 @@ export class ItemComponentComponent implements AfterViewInit {
                 }
 
                 if (Object.keys(this.textData).length) {
-                    this.evaluateTextData();
+                    this.textData.safeTextData = this.evaluateTextData(this.textData.value);
+                }
+
+                if (Object.keys(this.general).length) {
+                    this.general.evaluatedName = this.general.name ? this.evaluateTextData(this.general.name) : '';
+                    this.general.evaluatedDescription = this.general.description ? this.evaluateTextData(this.general.description) : '';
+                    this.general.evaluatedFooter = this.general.footer ? this.evaluateTextData(this.general.footer) : '';
                 }
 
                 this.loadingItem = false;

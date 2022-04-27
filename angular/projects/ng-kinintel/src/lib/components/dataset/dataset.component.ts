@@ -10,6 +10,7 @@ import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as _ from 'lodash';
 import {MetadataComponent} from '../metadata/metadata.component';
 import {ActivatedRoute} from '@angular/router';
+import {CreateDatasetComponent} from './create-dataset/create-dataset.component';
 
 @Component({
     selector: 'ki-dataset',
@@ -19,6 +20,9 @@ import {ActivatedRoute} from '@angular/router';
 export class DatasetComponent implements OnInit, OnDestroy {
 
     @Input() headingLabel: string;
+    @Input() headingDescription: string;
+    @Input() newTitle: string;
+    @Input() newDescription: string;
     @Input() shared: boolean;
     @Input() admin: boolean;
     @Input() reload: Subject<any>;
@@ -35,6 +39,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     public activeTagSub = new Subject();
     public projectSub = new Subject();
     public activeTag: any;
+    public loading = true;
 
     private tagSub: Subscription;
 
@@ -69,6 +74,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
+            this.loading = false;
         });
 
         this.getCategories();
@@ -158,6 +164,21 @@ export class DatasetComponent implements OnInit, OnDestroy {
         });
     }
 
+    public create() {
+        const dialogRef = this.dialog.open(CreateDatasetComponent, {
+            width: '1200px',
+            height: '800px',
+            data: {
+                admin: this.admin
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                this.viewDataset(res);
+            }
+        });
+    }
+
     private viewDataset(datasetInstanceSummary) {
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',
@@ -168,7 +189,9 @@ export class DatasetComponent implements OnInit, OnDestroy {
             data: {
                 datasetInstanceSummary,
                 showChart: false,
-                admin: this.admin
+                admin: this.admin,
+                newTitle: this.newTitle ? this.newTitle + ' Name' : null,
+                newDescription: this.newDescription || null
             }
         });
         dialogRef.afterClosed().subscribe(res => {

@@ -14,6 +14,8 @@ import {ProjectService} from '../../services/project.service';
 export class DatasourceComponent implements OnInit, OnDestroy {
 
     @Input() admin: boolean;
+    @Input() title: string;
+    @Input() description: string;
 
     public datasources: any = [];
     public searchText = new BehaviorSubject('');

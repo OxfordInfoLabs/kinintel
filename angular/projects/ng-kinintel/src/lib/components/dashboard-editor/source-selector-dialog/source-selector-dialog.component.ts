@@ -1,6 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {BehaviorSubject, merge, Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 import {DatasetService} from '../../../services/dataset.service';
 import {DatasourceService} from '../../../services/datasource.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
@@ -19,36 +18,11 @@ export class SourceSelectorDialogComponent implements OnInit {
     public datasets: any = [];
     public sharedDatasets: any = [];
     public snapshots: any = [];
-    public searchText = new BehaviorSubject('');
     public dashboardDatasetInstance: any;
     public requiredParameters: any = [];
     public updateParams = new Subject();
     public dashboard: any;
     public admin: boolean;
-    public tableData: any = {
-        datasources: {
-            data: [],
-            limit: 5,
-            offset: 0,
-            page: 1,
-            endOfResults: false,
-            shared: false,
-            reload: new Subject(),
-            title: 'Datasources',
-            type: 'datasource'
-        },
-        datasets: {
-            data: [],
-            limit: 5,
-            offset: 0,
-            page: 1,
-            endOfResults: false,
-            shared: false,
-            reload: new Subject(),
-            title: 'My Account Datasets',
-            type: 'dataset'
-        }
-    };
 
     constructor(public dialogRef: MatDialogRef<SourceSelectorDialogComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -60,101 +34,6 @@ export class SourceSelectorDialogComponent implements OnInit {
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
         this.dashboard = this.data.dashboard;
         this.admin = this.data.admin;
-
-        if (!this.admin) {
-            this.tableData.shared = {
-                data: [],
-                limit: 5,
-                offset: 0,
-                page: 1,
-                endOfResults: false,
-                shared: false,
-                reload: new Subject(),
-                title: 'Datasets Shared With Account',
-                type: 'dataset'
-            };
-        }
-
-        this.tableData.snapshots = {
-            data: [],
-                limit: 5,
-                offset: 0,
-                page: 1,
-                endOfResults: false,
-                shared: false,
-                reload: new Subject(),
-                title: 'Snapshots',
-                type: 'snapshot'
-        };
-
-        merge(this.searchText, this.tableData.datasets.reload)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getDatasets(false, this.tableData.datasets.limit, this.tableData.datasets.offset)
-                )
-            ).subscribe((datasets: any) => {
-            this.tableData.datasets.endOfResults = datasets.length < this.tableData.datasets.limit;
-            this.tableData.datasets.data = datasets;
-        });
-
-        merge(this.searchText, this.tableData.snapshots.reload)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getSnapshots(this.tableData.snapshots.limit, this.tableData.snapshots.offset)
-                )
-            ).subscribe((snapshots: any) => {
-            this.tableData.snapshots.endOfResults = snapshots.length < this.tableData.snapshots.limit;
-            this.tableData.snapshots.data = snapshots;
-        });
-
-        merge(this.searchText, this.tableData.datasources.reload)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getDatasources(this.tableData.datasources.limit, this.tableData.datasources.offset)
-                )
-            ).subscribe((datasources: any) => {
-            this.tableData.datasources.endOfResults = datasources.length < this.tableData.datasources.limit;
-            this.tableData.datasources.data = datasources;
-        });
-
-        if (!this.admin) {
-            merge(this.searchText, this.tableData.shared.reload)
-                .pipe(
-                    debounceTime(300),
-                    distinctUntilChanged(),
-                    switchMap(() =>
-                        this.getDatasets(true, this.tableData.shared.limit, this.tableData.shared.offset)
-                    )
-                ).subscribe((shared: any) => {
-                this.tableData.shared.endOfResults = shared.length < this.tableData.shared.limit;
-                this.tableData.shared.data = shared;
-            });
-        }
-    }
-
-    public increaseOffset(dataItem) {
-        dataItem.page = dataItem.page + 1;
-        dataItem.offset = (dataItem.limit * dataItem.page) - dataItem.limit;
-        dataItem.reload.next(Date.now());
-    }
-
-    public decreaseOffset(dataItem) {
-        dataItem.page = dataItem.page <= 1 ? 1 : dataItem.page - 1;
-        dataItem.offset = (dataItem.limit * dataItem.page) - dataItem.limit;
-        dataItem.reload.next(Date.now());
-    }
-
-    public pageSizeChange(value, dataItem) {
-        dataItem.page = 1;
-        dataItem.offset = 0;
-        dataItem.limit = value;
-        dataItem.reload.next(Date.now());
     }
 
     public setEvaluatedParameters(parameterValues, evaluate?) {
@@ -164,7 +43,10 @@ export class SourceSelectorDialogComponent implements OnInit {
         });
     }
 
-    public async select(item, type, stepper?) {
+    public async select(event, stepper?) {
+        const item = event.item;
+        const type = event.type;
+
         if (type === 'datasource') {
             const datasource: any = await this.datasourceService.getDatasource(item.key);
             this.dashboardDatasetInstance = {
@@ -232,42 +114,6 @@ export class SourceSelectorDialogComponent implements OnInit {
         } else {
             this.dialogRef.close(this.dashboardDatasetInstance);
         }
-    }
-
-    private getDatasets(shared, limit, offset) {
-        return this.datasetService.getDatasets(
-            this.searchText.getValue() || '',
-            limit.toString(),
-            offset.toString(),
-            shared ? null : ''
-        ).pipe(map((datasets: any) => {
-                return datasets;
-            })
-        );
-    }
-
-    private getDatasources(limit, offset) {
-        return this.datasourceService.getDatasources(
-            this.searchText.getValue() || '',
-            limit.toString(),
-            offset.toString()
-        ).pipe(map((sources: any) => {
-                return sources;
-            })
-        );
-    }
-
-    private getSnapshots(limit, offset) {
-        return this.datasetService.listSnapshotProfiles(
-            this.searchText.getValue() || '',
-            limit.toString(),
-            offset.toString()
-        ).pipe(map((snapshots: any) => {
-                return _.filter(snapshots, snapshot => {
-                    return snapshot.taskStatus !== 'PENDING';
-                });
-            })
-        );
     }
 
 }

@@ -24,6 +24,8 @@ export class DataExplorerComponent implements OnInit {
     public editTitle = false;
 
     private columns: any = [];
+    private newTitle: string;
+    private newDescription: string;
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -36,6 +38,9 @@ export class DataExplorerComponent implements OnInit {
         this.chartData = !!this.data.showChart;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
+
+        this.newTitle = this.data.newTitle;
+        this.newDescription = this.data.newDescription;
 
         this.chartData = [
             {data: [1000, 1400, 1999, 2500, 5000]},
@@ -101,6 +106,10 @@ export class DataExplorerComponent implements OnInit {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
                 width: '475px',
                 height: '150px',
+                data: {
+                    title: this.newTitle,
+                    description: this.newDescription
+                }
             });
             dialogRef.afterClosed().subscribe(res => {
                 if (res) {

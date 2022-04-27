@@ -2,7 +2,8 @@
 
     <div class="align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
         <div *ngIf="editDashboardTitle" class="align-center ml-2">
-            <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title">&nbsp;
+            <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title"
+                [ngClass]="{'border-red-500': !dashboard.title || dashboard.title === 'New Dashboard'}">&nbsp;
         </div>
 
         <div *ngIf="!editDashboardTitle" class="align-center ml-2">
@@ -51,7 +52,7 @@
     </div>
 
 
-    <div class="dashboard-parameters bg-white px-4 py-1 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
+    <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
 
         <div class="list-title">
             Parameters

@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-dataset-name-dialog',
@@ -8,10 +9,16 @@ import {Component, OnInit} from '@angular/core';
 })
 export class DatasetNameDialogComponent implements OnInit {
 
-    constructor() {
+    public title: string;
+    public description: string;
+
+    constructor(public dialogRef: MatDialogRef<DatasetNameDialogComponent>,
+                @Inject(MAT_DIALOG_DATA) public data: any) {
     }
 
     ngOnInit(): void {
+        this.title = this.data.title;
+        this.description = this.data.description;
     }
 
 }

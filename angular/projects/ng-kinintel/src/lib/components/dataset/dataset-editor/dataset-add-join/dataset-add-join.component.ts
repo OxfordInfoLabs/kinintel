@@ -57,7 +57,7 @@ export class DatasetAddJoinComponent implements OnInit {
             endOfResults: false,
             shared: false,
             reload: new Subject(),
-            title: 'Datasources',
+            title: 'My Data',
             type: 'datasource'
         },
         datasets: {
@@ -68,7 +68,7 @@ export class DatasetAddJoinComponent implements OnInit {
             endOfResults: false,
             shared: false,
             reload: new Subject(),
-            title: 'My Account Datasets',
+            title: 'Stored Queries',
             type: 'dataset'
         }
     };
@@ -101,7 +101,7 @@ export class DatasetAddJoinComponent implements OnInit {
                 endOfResults: false,
                 shared: false,
                 reload: new Subject(),
-                title: 'Datasets Shared With Account',
+                title: 'Data Packages',
                 type: 'dataset'
             };
         }
@@ -180,7 +180,7 @@ export class DatasetAddJoinComponent implements OnInit {
             const type = item.key ? 'datasource' : 'dataset';
 
             setTimeout(() => {
-                this.select(item, type, this.matStepper, false);
+                this.select({item, type}, this.matStepper, false);
             }, 200);
         }
     }
@@ -204,7 +204,10 @@ export class DatasetAddJoinComponent implements OnInit {
         dataItem.reload.next(Date.now());
     }
 
-    public async select(item, type, step, reset = true) {
+    public async select(event, step, reset = true) {
+        const item = event.item;
+        const type = event.type;
+
         this.joinFilterFields = null;
         // Reset if we are selecting an item again, not loading initially.
         if (reset) {

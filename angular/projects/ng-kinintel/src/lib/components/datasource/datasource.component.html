@@ -2,15 +2,15 @@
     <div class="md:flex md:items-center md:justify-between md:space-x-5">
         <div class="flex items-start flex-1">
             <div class="pt-1.5">
-                <h1 class="text-2xl font-bold text-gray-900">Datasources</h1>
+                <h1 class="text-2xl font-bold text-gray-900 capitalize">{{title || 'Datasources'}}</h1>
                 <p class="text-sm font-medium text-gray-500">
-                    A list of all the datasources currently available.
+                    {{description || 'A list of all the datasources currently available.'}}
                 </p>
             </div>
         </div>
         <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="isProjectAdmin">
             <button mat-flat-button color="primary" [matMenuTriggerFor]="create">
-                Connect Datasource
+                Import Data
                 <mat-icon>expand_more</mat-icon>
             </button>
             <mat-menu #create="matMenu">
@@ -40,7 +40,7 @@
                             </div>
                             <input type="text" name="mobile-search-candidate" id="mobile-search-candidate"
                                    class="block w-full rounded-none pl-10 border-t-0 border-l-0 border-gray-300"
-                                   placeholder="Search datasources"
+                                   placeholder="Search {{title || 'datasources'}}"
                                    (keyup)="searchText.next($event.target.value)">
                         </div>
                     </div>

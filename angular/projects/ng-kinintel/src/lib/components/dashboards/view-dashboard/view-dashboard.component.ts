@@ -138,10 +138,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             if (this.dashboard.displaySettings) {
                 this.darkMode = !!this.dashboard.displaySettings.darkMode;
                 this.setDarkModeOnBody();
-                if (this.dashboard.displaySettings.fullScreen) {
-                    this.openFullScreen();
-                    this.fullScreen = true;
-                }
             } else {
                 this.dashboard.displaySettings = {};
             }
@@ -168,69 +164,16 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         }
     }
 
-    public editDashboardItems() {
-        window.location.href = `/dashboards/${this.dashboard.id}`;
-    }
-
-    public openFullScreen() {
-        this.dashboard.displaySettings.fullScreen = true;
-        this.save(false).then(() => {
-            this.router.navigate(['dashboards', this.dashboard.id, 'full']);
-        });
-    }
-
-    public backToEditor() {
-        this.dashboard.displaySettings.fullScreen = false;
-        this.save(false).then(() => {
-            this.router.navigate(['dashboards', this.dashboard.id]);
-        });
-    }
-
-    public toggleDarkMode() {
-        this.dashboard.displaySettings.darkMode = this.darkMode = !this.darkMode;
-        this.setDarkModeOnBody();
-        this.save(false);
-    }
-
     public updateGridSpacing(space, save = true) {
         this.dashboard.displaySettings.inset = space;
         document.querySelectorAll('.grid-stack-item-content')
             .forEach((el: any) => el.style.inset = space);
-        if (save) {
-            this.save(false);
-        }
-    }
-
-    public toggleNotifications() {
-        this.dashboard.alertsEnabled = !this.dashboard.alertsEnabled;
-        this.save(false);
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public setParameterValue(parameter, value) {
         parameter.value = value;
-
-        this.save(false);
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
-    }
-
-    public save(showSaved = true) {
-        this.dashboard.layoutSettings.grid = this.grid.save(true);
-        return this.dashboardService.saveDashboard(this.dashboard).then((dashboardId) => {
-            if (showSaved) {
-                this.snackBar.open('Dashboard successfully saved.', 'Close', {
-                    verticalPosition: 'top',
-                    duration: 3000
-                });
-            }
-            if (!this.dashboard.id) {
-                this.dashboard.id = dashboardId;
-                this.router.navigate([`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`]);
-            }
-            return this.dashboard;
-        });
     }
 
     private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {

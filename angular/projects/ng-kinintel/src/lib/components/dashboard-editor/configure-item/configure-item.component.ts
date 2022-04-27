@@ -327,7 +327,7 @@ export class ConfigureItemComponent implements OnInit {
         }
     }
 
-    public saveDashboard() {
+    public async saveDashboard() {
         const grid = this.grid.save(true);
         if (!this.dashboard.layoutSettings) {
             this.dashboard.layoutSettings = {};
@@ -347,51 +347,53 @@ export class ConfigureItemComponent implements OnInit {
         _.remove(this.dashboardDatasetInstance.transformationInstances, {type: 'paging'});
         this.dashboard.datasetInstances.push(this.dashboardDatasetInstance);
 
-        if (!this.dashboard.title || !this.dashboard.id) {
-            const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
-                width: '475px',
-                height: '150px',
-            });
-            dialogRef.afterClosed().subscribe(title => {
-                this.dashboard.title = title;
-                this.dashboardService.saveDashboard(this.dashboard).then(dashboardId => {
-                    if (!this.dashboard.id) {
-                        this.router.navigate([`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`]);
-                    } else {
-                        this.dialogRef.close();
-                    }
-                });
-            });
-        } else {
-            this.dashboardService.saveDashboard(this.dashboard);
-            this.dialogRef.close(this.dashboardDatasetInstance);
-        }
+        this.dialogRef.close(this.dashboardDatasetInstance);
     }
 
     public setChartData() {
         if (this.dashboardItemType.xAxis && this.dashboardItemType.yAxis) {
             let data: any;
 
-            if (this.dashboardItemType.type !== 'pie' && this.dashboardItemType.type !== 'doughnut') {
-                data = _.map(this.dataset.allData, item => {
-                    return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
+            if (!this.dashboardItemType.seriesColumn) {
+                if (this.dashboardItemType.type !== 'pie' && this.dashboardItemType.type !== 'doughnut') {
+                    data = _.map(this.dataset.allData, item => {
+                        return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
+                    });
+                } else {
+                    data = _.map(this.dataset.allData, item => {
+                        return item[this.dashboardItemType.yAxis];
+                    });
+                }
+
+                this.chartData = [
+                    {
+                        data,
+                        label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
+                        fill: !!this.dashboardItemType.fill
+                    }
+                ];
+                this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
+                    return item[this.dashboardItemType.xAxis];
                 });
             } else {
-                data = _.map(this.dataset.allData, item => {
-                    return item[this.dashboardItemType.yAxis];
-                });
-            }
+                const chartData = [];
+                const series = _.uniq(_.map(this.dataset.allData, this.dashboardItemType.seriesColumn));
+                series.forEach(value => {
+                    const seriesResults = _.filter(this.dataset.allData, allData => {
+                        return allData[this.dashboardItemType.seriesColumn] === value;
+                    });
 
-            this.chartData = [
-                {
-                    data,
-                    label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
-                    fill: !!this.dashboardItemType.fill
-                }
-            ];
-            this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
-                return item[this.dashboardItemType.xAxis];
-            });
+                    chartData.push({
+                        data: _.map(seriesResults, item => {
+                            return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
+                        }),
+                        label: value,
+                        fill: !!this.dashboardItemType.fill
+                    });
+                });
+                this.chartData = chartData;
+                this.dashboardItemType.labels = series;
+            }
         }
     }
 

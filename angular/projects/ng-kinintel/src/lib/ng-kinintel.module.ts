@@ -73,6 +73,8 @@ import { CreateDatasourceComponent } from './components/datasource/create-dataso
 import { ImportDataComponent } from './components/datasource/create-datasource/import-data/import-data.component';
 import { WhitelistedSqlFunctionsComponent } from './components/whitelisted-sql-functions/whitelisted-sql-functions.component';
 import { HtmlDocumentationComponent } from './components/dashboard-editor/configure-item/html-documentation/html-documentation.component';
+import { DataPickerComponent } from './components/data-picker/data-picker.component';
+import { CreateDatasetComponent } from './components/dataset/create-dataset/create-dataset.component';
 
 @NgModule({
     declarations: [
@@ -119,7 +121,9 @@ import { HtmlDocumentationComponent } from './components/dashboard-editor/config
         CreateDatasourceComponent,
         ImportDataComponent,
         WhitelistedSqlFunctionsComponent,
-        HtmlDocumentationComponent
+        HtmlDocumentationComponent,
+        DataPickerComponent,
+        CreateDatasetComponent
     ],
     imports: [
         BrowserModule,
