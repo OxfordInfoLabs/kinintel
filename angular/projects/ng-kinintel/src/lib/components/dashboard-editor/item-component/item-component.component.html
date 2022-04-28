@@ -90,8 +90,11 @@
         </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'image'">
-            <img *ngIf="imageData.source" [src]="imageData.source" alt="" class="w-auto h-full"
-                 (error)="imageError = true">
+            <div class="w-auto h-full">
+                <img *ngIf="imageData.source" [src]="imageData.source" alt=""
+                     (error)="imageError = true">
+            </div>
+
             <div *ngIf="!imageData.source || imageError" class="relative flex items-center justify-center">
                 <p class="z-10 text-lg">No image</p>
                 <svg xmlns="http://www.w3.org/2000/svg" class="filter blur-sm absolute w-auto h-full text-gray-300"
