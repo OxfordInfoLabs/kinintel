@@ -8,8 +8,7 @@
                 <p class="text-sm font-medium text-gray-500">
                     <span *ngIf="headingDescription" [innerHTML]="headingDescription"></span>
                     <ng-template [ngIf]="!headingDescription">
-                        A list of all the datasets currently available. These include datasets that have been shared
-                        with this account and datasets that have been created against the active project and/or case.
+                        A list of all the <span class="lowercase">{{headingLabel || 'datasets'}}</span> currently available.
                     </ng-template>
                 </p>
             </div>
@@ -53,8 +52,7 @@
                             <th colspan="2" scope="colgroup"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 pl-4 text-left text-xs font-semibold text-gray-900">
                                 <div class="w-full flex items-center justify-between">
-                                    <div *ngIf="shared">Data Packages</div>
-                                    <div *ngIf="!shared">Stored Queries</div>
+                                    <div>{{headingLabel || 'Datasets'}}</div>
                                     <button type="button" [matMenuTriggerFor]="projectCategories"
                                             [disabled]="!categories.length"
                                             class="disabled:opacity-50 -ml-px relative inline-flex items-center py-3 px-4 border-l border-gray-300 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none border-t-0 border-r-0">
