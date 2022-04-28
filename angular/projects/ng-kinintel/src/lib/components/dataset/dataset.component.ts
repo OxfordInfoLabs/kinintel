@@ -9,7 +9,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as _ from 'lodash';
 import {MetadataComponent} from '../metadata/metadata.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {CreateDatasetComponent} from './create-dataset/create-dataset.component';
 
 @Component({
@@ -27,6 +27,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() shared: boolean;
     @Input() admin: boolean;
     @Input() reload: Subject<any>;
+    @Input() url: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -48,7 +49,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 private tagService: TagService,
                 private projectService: ProjectService,
                 private datasetService: DatasetService,
-                private route: ActivatedRoute,
+                private router: Router,
                 public config: KinintelModuleConfig) {
     }
 
@@ -181,6 +182,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     private viewDataset(datasetInstanceSummary) {
+        this.router.navigate([this.url || '/dataset'], {fragment: _.kebabCase(datasetInstanceSummary.title)});
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',
             height: '100vh',
@@ -196,6 +198,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             }
         });
         dialogRef.afterClosed().subscribe(res => {
+            this.router.navigate([this.url || '/dataset'], {fragment: null});
             this.reload.next(Date.now());
         });
     }

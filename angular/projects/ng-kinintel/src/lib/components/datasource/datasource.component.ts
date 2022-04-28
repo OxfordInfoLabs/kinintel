@@ -5,6 +5,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasourceService} from '../../services/datasource.service';
 import {ProjectService} from '../../services/project.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'ki-datasource',
@@ -31,7 +32,8 @@ export class DatasourceComponent implements OnInit, OnDestroy {
 
     constructor(private dialog: MatDialog,
                 private datasourceService: DatasourceService,
-                private projectService: ProjectService) {
+                private projectService: ProjectService,
+                private router: Router) {
     }
 
     ngOnInit(): void {
@@ -67,6 +69,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     }
 
     public explore(datasource) {
+        this.router.navigate(['/datasource'], {fragment: datasource.key});
         const datasetInstanceSummary = {
             datasetInstanceId: null,
             datasourceInstanceKey: datasource.key,
@@ -88,7 +91,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
             }
         });
         dialogRef.afterClosed().subscribe(res => {
-
+            this.router.navigate(['/datasource'], {fragment: null});
         });
     }
 
