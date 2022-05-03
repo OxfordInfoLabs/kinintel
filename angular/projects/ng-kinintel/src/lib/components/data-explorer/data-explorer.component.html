@@ -18,9 +18,17 @@
         </ng-template>
     </div>
 
-    <button mat-button mat-dialog-close>
-        Exit <mat-icon>exit_to_app</mat-icon>
-    </button>
+    <div class="flex items-center">
+        <mat-radio-group class="flex items-center text-sm"
+            *ngIf="admin" aria-label="Select a scope" [(ngModel)]="accountId">
+            <mat-radio-button class="mt-0" [value]="null">Public</mat-radio-button>
+            <mat-radio-button class="mt-0 ml-2" [value]="0">Private</mat-radio-button>
+        </mat-radio-group>
+        <button [ngClass]="{'ml-4': admin}" mat-button mat-dialog-close>
+            Exit <mat-icon>exit_to_app</mat-icon>
+        </button>
+    </div>
+
 </div>
 
 <div class="configure-content">

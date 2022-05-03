@@ -28,6 +28,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() admin: boolean;
     @Input() reload: Subject<any>;
     @Input() url: string;
+    @Input() accountId: any;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -171,7 +172,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
             width: '1200px',
             height: '800px',
             data: {
-                admin: this.admin
+                admin: this.admin,
+                accountId: this.accountId
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -194,7 +196,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 showChart: false,
                 admin: this.admin,
                 newTitle: this.newTitle ? this.newTitle + ' Name' : null,
-                newDescription: this.newDescription || null
+                newDescription: this.newDescription || null,
+                accountId: this.accountId
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -209,7 +212,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.searchText.getValue() || '',
             this.limit.toString(),
             this.offset.toString(),
-            this.shared ? null : '',
+            this.shared ? null : (!_.isNil(this.accountId) ? this.accountId : ''),
             '',
             _.map(checkedCategories, 'key')
         ).pipe(map((datasets: any) => {

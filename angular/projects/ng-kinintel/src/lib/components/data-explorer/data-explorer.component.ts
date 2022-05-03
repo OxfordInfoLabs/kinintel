@@ -22,6 +22,7 @@ export class DataExplorerComponent implements OnInit {
     public showSnapshots = false;
     public snapshotProfiles: any = [];
     public editTitle = false;
+    public accountId: any;
 
     private columns: any = [];
     private newTitle: string;
@@ -38,6 +39,7 @@ export class DataExplorerComponent implements OnInit {
         this.chartData = !!this.data.showChart;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
+        this.accountId = this.data.accountId;
 
         this.newTitle = this.data.newTitle;
         this.newDescription = this.data.newDescription;
@@ -123,7 +125,7 @@ export class DataExplorerComponent implements OnInit {
     }
 
     private saveDataset() {
-        this.datasetService.saveDataset(this.datasetInstanceSummary).then(() => {
+        this.datasetService.saveDataset(this.datasetInstanceSummary, this.accountId).then(() => {
             this.dialogRef.close();
             this.router.navigate(['/dataset']);
         });
