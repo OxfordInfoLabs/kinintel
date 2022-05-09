@@ -1,7 +1,8 @@
 <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 -z-10" id="sidebarWrapper2">
     <div [ngClass]="{'translate-x-0': sideOpen, 'translate-x-full': !sideOpen}"
          (click)="$event.stopPropagation()"
-         class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700" id="docSidebar">
+         class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700"
+         id="docSidebar">
         <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
             <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
@@ -13,8 +14,10 @@
                                 class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                             <span class="sr-only">Close panel</span>
                             <!-- Heroicon name: outline/x -->
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
@@ -63,9 +66,12 @@
                             <a (click)="openSide.next(true)"
                                class="text-xs ml-2 hover:underline flex items-center primary">
                                 view help docs&nbsp;
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                     fill="currentColor">
+                                    <path
+                                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                    <path
+                                        d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
                                 </svg>
                             </a>
                         </div>
@@ -93,9 +99,12 @@
                             <a (click)="openSide.next(true)"
                                class="text-xs ml-2 hover:underline flex items-center primary">
                                 view help docs&nbsp;
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                     fill="currentColor">
+                                    <path
+                                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                    <path
+                                        d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
                                 </svg>
                             </a>
                         </div>
@@ -189,7 +198,8 @@
                                                 (ngModelChange)="updateInstanceFilterFields($event, instanceKey)">
                                         <mat-option [value]="{type: null}">-- Select Type --</mat-option>
                                         <mat-option [value]="{type: 'LOADED'}">Loaded</mat-option>
-                                        <mat-option [value]="{type: 'MATCH', filterJunction: _.clone(filterJunction), key: instanceKey}">
+                                        <mat-option
+                                            [value]="{type: 'MATCH', filterJunction: _.clone(filterJunction), key: instanceKey}">
                                             Matches Criteria
                                         </mat-option>
                                     </mat-select>
@@ -197,7 +207,8 @@
 
                                 <ng-template
                                     [ngIf]="dependencies[instanceKey] && dependencies[instanceKey].type === 'MATCH'">
-                                    <div class="w-full flex items-center" *ngIf="!dependencies[instanceKey].filterFields">
+                                    <div class="w-full flex items-center"
+                                         *ngIf="!dependencies[instanceKey].filterFields">
                                         Loading filter component...
                                     </div>
                                     <ki-dataset-filters *ngIf="dependencies[instanceKey].filterFields" class="ml-0"
@@ -214,7 +225,8 @@
                             <label class="mb-2">
                                 No data notice message
                                 <input type="text" [(ngModel)]="dependencies.notice">
-                                <small class="font-normal">Enter the message to display when no data is returned from dependency.</small>
+                                <small class="font-normal">Enter the message to display when no data is returned from
+                                    dependency.</small>
                             </label>
                         </div>
                     </div>
@@ -228,9 +240,12 @@
                         <a (click)="openSide.next(true)"
                            class="text-xs ml-2 hover:underline flex items-center primary">
                             view help docs&nbsp;
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                 fill="currentColor">
+                                <path
+                                    d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                <path
+                                    d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
                             </svg>
                         </a>
                     </div>
@@ -499,25 +514,17 @@
                             </select>
                         </label>
 
-                        <label class="mb-4">
-                            <ng-template
-                                [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                        <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                            <label class="mb-4">
                                 Series Column
-                            </ng-template>
-                            <select [(ngModel)]="dashboardItemType.seriesColumn" (ngModelChange)="setChartData()">
-                                <option value="">-- Select
-                                    <ng-template
-                                        [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
-                                        Series Column
-                                    </ng-template>
-                                    --
-                                </option>
-                                <option [value]="field.name" *ngFor="let field of filterFields">
-                                    {{field.title}}
-                                </option>
-                            </select>
-                        </label>
-
+                                <select [(ngModel)]="dashboardItemType.seriesColumn" (ngModelChange)="setChartData()">
+                                    <option value="">-- Select Series Column--</option>
+                                    <option [value]="field.name" *ngFor="let field of filterFields">
+                                        {{field.title}}
+                                    </option>
+                                </select>
+                            </label>
+                        </ng-template>
                         <div class="align-center justify-between">
                             <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend
                             </mat-slide-toggle>

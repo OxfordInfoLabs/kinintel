@@ -41,7 +41,7 @@
                 <div *ngIf="!tableData[tableKey].data.length" class="font-normal">
                     No data
                 </div>
-                <div class="paging-toolbar flex align-center justify-end" *ngIf="tableData[tableKey].data.length">
+                <div class="paging-toolbar flex align-center justify-end">
                     <select [value]="tableData[tableKey].limit" (change)="pageSizeChange($event.target.value, tableData[tableKey])"
                             class="mr-8">
                         <option [value]="1">1</option>

@@ -1,5 +1,5 @@
 <div class="parameter">
-    <p *ngIf="parameter.type !== 'boolean'">{{parameter.title}}<span>*</span></p>
+<!--    <p *ngIf="parameter.type !== 'boolean'">{{parameter.title}}<span>*</span></p>-->
 
     <ng-template [ngIf]="parameter.type === 'text'">
         <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"

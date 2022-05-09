@@ -108,7 +108,7 @@
         <canvas baseChart *ngIf="chartData" style="height: 200px"
                 [datasets]="chartData"
                 [labels]="dashboardItemType.labels"
-                [options]="{responsive: true}"
+                [options]="{responsive:true, maintainAspectRatio: false}"
                 [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
                 [legend]="!!dashboardItemType.legend"
                 [chartType]="dashboardItemType.type"

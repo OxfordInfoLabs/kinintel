@@ -492,16 +492,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public setEvaluatedParameters(parameterValues, evaluate?) {
-        this.parameterValues = parameterValues;
-        parameterValues.forEach(param => {
-            this.datasetInstanceSummary.parameterValues[param.name] = param.value;
-        });
-        if (evaluate) {
-            this.evaluateDataset();
-        }
-    }
-
     public removeParameter(parameter) {
         const message = 'Are you sure you would like to remove this parameter. This may cause some dashboard items ' +
             'to fail.';
@@ -562,6 +552,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 columnName
             }
         });
+    }
+
+    public booleanUpdate(event, parameter) {
+        parameter.value = event.checked;
+        this.evaluateDataset(true);
+        // console.log('UPDATE', event);
     }
 
     private excludeUpstreamTransformations(transformation) {
@@ -694,18 +690,19 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 const parameterValues = {};
                 paramValues.forEach(paramValue => {
                     const existParam = _.find(this.parameterValues, {name: paramValue.name});
-                    if (!existParam || (existParam && !existParam.value)) {
+                    if (!existParam || (existParam && _.isNil(existParam.value))) {
                         const existingValue = this.datasetInstanceSummary.parameterValues[paramValue.name];
-                        paramValue.value = existingValue || paramValue.defaultValue;
+                        paramValue.value = _.isNil(existingValue) ? paramValue.defaultValue : existingValue;
                         parameterValues[paramValue.name] = paramValue;
                         this.focusParams = !existingValue;
                     } else {
                         parameterValues[existParam.name] = existParam;
                     }
                 });
-
                 this.parameterValues = _.values(parameterValues);
-                this.setEvaluatedParameters(this.parameterValues);
+                this.parameterValues.forEach(param => {
+                    this.datasetInstanceSummary.parameterValues[param.name] = param.value;
+                });
 
                 if (this.datasetInstanceSummary && this.datasetInstanceSummary.id) {
                     localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, (this.limit).toString());

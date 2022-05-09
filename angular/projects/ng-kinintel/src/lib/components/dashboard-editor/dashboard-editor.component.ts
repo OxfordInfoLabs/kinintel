@@ -155,7 +155,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
-            float: true,
+            float: false,
             cellHeight: 20,
             minW: 768,
             disableOneColumnMode: false,

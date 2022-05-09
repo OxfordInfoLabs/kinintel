@@ -79,9 +79,27 @@
             <label class="pl-4">
                 {{parameter.title}}
                 <div class="parameter-input">
-                    <input class="pr-8"
-                        [type]="parameter.type" [(ngModel)]="parameter.value"
-                           (change)="evaluateDataset(true)">
+                    <ng-template [ngIf]="parameter.type === 'text'">
+                        <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                               (change)="evaluateDataset(true)" required autofocus>
+                    </ng-template>
+                    <ng-template [ngIf]="parameter.type === 'numeric'">
+                        <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                               (change)="evaluateDataset(true)" required autofocus>
+                    </ng-template>
+                    <ng-template [ngIf]="parameter.type === 'date'">
+                        <input class="pr-8" type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                               (change)="evaluateDataset(true)" required autofocus>
+                    </ng-template>
+                    <ng-template [ngIf]=" parameter.type === 'datetime'">
+                        <input class="pr-8" type="datetime-local" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                               (change)="evaluateDataset(true)" required autofocus>
+                    </ng-template>
+                    <ng-template [ngIf]="parameter.type === 'boolean'">
+                        <mat-slide-toggle class="pr-8" color="primary"
+                                          [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
+                                          required></mat-slide-toggle>
+                    </ng-template>
                     <ng-template [ngIf]="!parameter._locked">
                         <button mat-icon-button class="-ml-8 bg-transparent edit-parameter"
                                 matTooltip="Edit this parameter settings"
