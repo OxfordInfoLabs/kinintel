@@ -21,6 +21,7 @@ export class DashboardsComponent implements OnInit {
     @Input() shared: boolean;
     @Input() allowNew: boolean;
     @Input() admin: boolean;
+    @Input() accountId: any;
 
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');
@@ -78,7 +79,8 @@ export class DashboardsComponent implements OnInit {
     }
 
     public view(id) {
-        this.router.navigateByUrl(`dashboards/${id}${this.admin ? '?a=true' : ''}`);
+        const route = _.filter(this.router.url.split('/'))[0];
+        this.router.navigateByUrl(`${route}/${id}${this.admin ? '?a=true' : ''}`);
     }
 
     public delete(id) {
@@ -148,7 +150,7 @@ export class DashboardsComponent implements OnInit {
             this.searchText.getValue() || '',
             this.limit.toString(),
             this.offset.toString(),
-            this.shared ? null : '',
+            this.shared ? null : (!_.isNil(this.accountId) ? this.accountId : ''),
             _.map(checkedCategories, 'key')
         ).pipe(map((dashboards: any) => {
                 this.endOfResults = dashboards.length < this.limit;

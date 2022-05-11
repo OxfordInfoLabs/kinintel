@@ -88,8 +88,52 @@
                                (change)="evaluateDataset(true)" required autofocus>
                     </ng-template>
                     <ng-template [ngIf]="parameter.type === 'date'">
-                        <input class="pr-8" type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                               (change)="evaluateDataset(true)" required autofocus>
+                        <ng-template [ngIf]="!parameter._dateType">
+                            <div class="flex items-center mr-8">
+                                <button (click)="changeDateType($event, parameter, 'picker')"
+                                    class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
+                                    <mat-icon class="text-base">calendar_month</mat-icon>
+                                    Date Picker
+                                </button>
+                                <button (click)="changeDateType($event, parameter, 'period')"
+                                        class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
+                                    <mat-icon class="text-base">restore</mat-icon>
+                                    Time Period
+                                </button>
+                            </div>
+                        </ng-template>
+                        <ng-template [ngIf]="parameter._dateType === 'picker'">
+                            <input  type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                                   (change)="evaluateDataset(true)" required autofocus>
+
+                            <a (click)="changeDateType($event, parameter, 'period')"
+                               matTooltip="Time Period"
+                                    class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
+                                <mat-icon class="text-base">restore</mat-icon>
+                            </a>
+                        </ng-template>
+                        <ng-template [ngIf]="parameter._dateType === 'period'">
+                            <div class="flex items-center">
+                                <input #periodValue type="number" placeholder="No." required autofocus
+                                       class="w-16 mr-2" min="0" [value]="parameter._periodValue || 1"
+                                       (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+
+                                <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
+                                    #period (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+                                    <option value="DAYS">Days</option>
+                                    <option value="HOURS">Hours</option>
+                                </select>
+
+                                <div>Ago</div>
+                            </div>
+
+                            <a (click)="changeDateType($event, parameter, 'picker')"
+                               matTooltip="Date Picker"
+                                    class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
+                                <mat-icon class="text-base">calendar_month</mat-icon>
+                            </a>
+                        </ng-template>
+
                     </ng-template>
                     <ng-template [ngIf]=" parameter.type === 'datetime'">
                         <input class="pr-8" type="datetime-local" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"

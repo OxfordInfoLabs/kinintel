@@ -29,6 +29,7 @@ import {BehaviorSubject, Subscription} from 'rxjs';
 export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @Input() sidenavService: any;
+    @Input() accountId: any;
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -127,6 +128,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     private grid: GridStack;
     private queryParams: any = {};
+    private routeURL: string;
 
     public static myClone(event) {
         return event.target.cloneNode(true);
@@ -144,6 +146,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngOnInit(): void {
+        this.routeURL = _.filter(this.router.url.split('/'))[0];
         this.route.queryParams.subscribe(params => {
             const cloned = _.clone(params);
             this.admin = !!cloned.a;
@@ -331,7 +334,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public save(showSaved = true) {
         this.dashboard.layoutSettings.grid = this.grid.save(true);
-        return this.dashboardService.saveDashboard(this.dashboard).then((dashboardId) => {
+        return this.dashboardService.saveDashboard(this.dashboard, this.accountId).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {
                     verticalPosition: 'top',
@@ -340,7 +343,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
             if (!this.dashboard.id) {
                 this.dashboard.id = dashboardId;
-                this.router.navigateByUrl(`/dashboards/${dashboardId}${this.admin ? '?a=true' : ''}`);
+                this.router.navigateByUrl(`/${this.routeURL}/${dashboardId}${this.admin ? '?a=true' : ''}`);
             }
             return this.dashboard;
         });

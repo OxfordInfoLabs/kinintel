@@ -53,6 +53,13 @@ export class DatasetFilterComponent implements OnInit {
             !_.find(this.joinFilterFields, field => {
                 return `[[${field.name}]]` === this.filter.rhsExpression;
             });
+
+        if (String(this.filter.rhsExpression).includes('AGO')) {
+            this.filter._expType = 'period';
+            const periodValues = this.filter.rhsExpression.split('_');
+            this.filter._periodValue = periodValues[0];
+            this.filter._period = periodValues[1];
+        }
     }
 
     public viewColumns(columns) {
@@ -63,6 +70,19 @@ export class DatasetFilterComponent implements OnInit {
         if (!custom) {
             this.openSide.next(false);
         }
+    }
+
+    public updateFilterType(filter, type, value?) {
+        filter._expType = type;
+        if (type === 'period') {
+            filter.rhsExpression = `${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`;
+        } else {
+            filter.rhsExpression = value;
+        }
+    }
+
+    public updatePeriodValue(value, period, filter) {
+        filter.rhsExpression = `${value}_${period}_AGO`;
     }
 
     public removeFilter() {

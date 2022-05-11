@@ -32,7 +32,47 @@
         </mat-option>
     </mat-select>
 
-    <input type="text" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value" class="mr-4 full">
+    <div class="relative w-full">
+        <input *ngIf="!filter._expType" type="text" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value"
+               class="pr-8 mr-4 full">
+        <input *ngIf="filter._expType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value"
+               class="pr-8 mr-4 full">
+
+        <ng-template [ngIf]="filter._expType === 'period'">
+            <div class="flex items-center">
+                <input #periodValue type="number" placeholder="No." required autofocus
+                       class="w-32 mr-2" min="0" [value]="filter._periodValue || 1"
+                       (change)="updatePeriodValue(periodValue.value, period.value, filter)">
+
+                <select class="param-period-picker w-32 mr-2" [value]="filter._period || 'DAYS'"
+                        #period (change)="updatePeriodValue(periodValue.value, period.value, filter)">
+                    <option value="DAYS">Days</option>
+                    <option value="HOURS">Hours</option>
+                </select>
+
+                <div class="font-medium">Ago</div>
+            </div>
+        </ng-template>
+
+        <button class="absolute right-0 top-0.5" mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="updateFilterType(filter, null, '')">
+                <mat-icon>title</mat-icon>
+                <span>Text</span>
+            </button>
+            <button mat-menu-item (click)="updateFilterType(filter, 'date-picker', '')">
+                <mat-icon>calendar_month</mat-icon>
+                <span>Date Picker</span>
+            </button>
+            <button mat-menu-item (click)="updateFilterType(filter, 'period')">
+                <mat-icon>restore</mat-icon>
+                <span>Time Period</span>
+            </button>
+        </mat-menu>
+    </div>
+
 </ng-template>
 
 

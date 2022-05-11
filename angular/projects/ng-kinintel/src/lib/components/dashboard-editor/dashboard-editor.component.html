@@ -14,6 +14,11 @@
         </div>
 
         <div class="data-actions">
+            <mat-radio-group class="flex items-center text-sm"
+                             *ngIf="admin" aria-label="Select a scope" [(ngModel)]="accountId">
+                <mat-radio-button class="mt-0" [value]="null">Shared</mat-radio-button>
+                <mat-radio-button class="mt-0 ml-2" [value]="0">Private</mat-radio-button>
+            </mat-radio-group>
             <button mat-button class="align-center" matTooltip="Edit default notification group">
                 <mat-icon>manage_accounts</mat-icon>
             </button>

@@ -14,7 +14,7 @@
                 <mat-icon>expand_more</mat-icon>
             </button>
             <mat-menu #create="matMenu">
-                <button mat-menu-item [routerLink]="['/create-datasource']">
+                <button mat-menu-item [routerLink]="['/import-data']">
                     New Datasource
                 </button>
             </mat-menu>
@@ -72,7 +72,7 @@
                                 <div class="flex items-center justify-end">
                                     <ng-template [ngIf]="element.type === 'custom' && isProjectAdmin">
                                         <button mat-button color="primary"
-                                                [routerLink]="['/create-datasource', element.key]">
+                                                [routerLink]="['/import-data', element.key]">
                                             Edit
                                         </button>
                                         <div class="divider"></div>

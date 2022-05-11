@@ -136,7 +136,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             if (_.every(filter)) {
                 const type = DatasetFilterComponent.getFilterType(filter.filterType);
                 if (type) {
-                    return `${filter.lhsExpression} ${type.string} ${filter.rhsExpression}`;
+                    const lhsExpression = filter.lhsExpression.replace('[[', '').replace(']]', '');
+                    return `${_.startCase(lhsExpression)} ${type.string} ${filter.rhsExpression}`;
                 }
                 return '';
             }
@@ -557,7 +558,17 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
         this.evaluateDataset(true);
-        // console.log('UPDATE', event);
+    }
+
+    public changeDateType(event, parameter, value) {
+        event.stopPropagation();
+        event.preventDefault();
+        parameter._dateType = value;
+    }
+
+    public updatePeriodValue(value, period, parameter) {
+        parameter.value = `${value}_${period}_AGO`;
+        this.evaluateDataset(true);
     }
 
     private excludeUpstreamTransformations(transformation) {
@@ -701,6 +712,17 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 });
                 this.parameterValues = _.values(parameterValues);
                 this.parameterValues.forEach(param => {
+                    if (param.type === 'date') {
+                        if (!param._dateType && param.value) {
+                            const isPeriod = param.value.includes('AGO');
+                            param._dateType = isPeriod ? 'period' : 'picker';
+                            if (isPeriod) {
+                                const periodValues = param.value.split('_');
+                                param._periodValue = periodValues[0];
+                                param._period = periodValues[1];
+                            }
+                        }
+                    }
                     this.datasetInstanceSummary.parameterValues[param.name] = param.value;
                 });
 

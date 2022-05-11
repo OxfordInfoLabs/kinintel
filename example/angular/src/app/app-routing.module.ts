@@ -52,11 +52,11 @@ const routes: Routes = [
                 component: DatasourceComponent
             },
             {
-                path: 'create-datasource',
+                path: 'import-data',
                 component: CreateDatasourceComponent
             },
             {
-                path: 'create-datasource/:key',
+                path: 'import-data/:key',
                 component: CreateDatasourceComponent
             },
             {

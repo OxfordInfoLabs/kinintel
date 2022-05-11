@@ -372,7 +372,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
         if (!this.datasourceInstanceKey) {
             this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
-                window.location.href = '/create-datasource/' + key;
+                window.location.href = '/import-data/' + key;
             });
         } else {
             this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
