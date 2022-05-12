@@ -63,6 +63,15 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
+     * If supplied as true, any blank column values will be skipped
+     * and columns shifted to left.
+     *
+     * @var bool
+     */
+    private $skipBlankColumnValues = false;
+
+
+    /**
      * SVStreamTabularDataSet constructor.
      *
      * @param Field[] $columns
@@ -76,12 +85,13 @@ class SVStreamTabularDataSet extends TabularDataset {
      * @param integer $offset
      */
     public function __construct($columns, $stream, $firstRowOffset = 0, $firstRowHeader = false, $separator = ",", $enclosure = '"',
-                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = [], $cacheAllRows = true) {
+                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = [], $cacheAllRows = true, $skipBlankColumnValues = false) {
         parent::__construct($columns, $cacheAllRows);
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
         $this->ignoreColumnIndexes = $ignoreColumnIndexes;
+        $this->skipBlankColumnValues = $skipBlankColumnValues;
 
         // Total limit including offset
         $this->limit = $limit + $offset + $firstRowOffset;
@@ -149,14 +159,15 @@ class SVStreamTabularDataSet extends TabularDataset {
             // Only continue if we have some content
             if (trim($csvLine[0])) {
 
-                while (sizeof($this->csvColumns) < sizeof($csvLine) - sizeof($this->ignoreColumnIndexes)) {
-                    $this->csvColumns[] = new Field("column" . (sizeof($this->csvColumns) + 1));
-                }
-
                 $dataItem = [];
                 $columnIndex = 0;
                 foreach ($csvLine as $index => $value) {
-                    if (!in_array($index, $this->ignoreColumnIndexes)) {
+                    if (!in_array($index, $this->ignoreColumnIndexes) && (!$this->skipBlankColumnValues || trim($value))) {
+
+                        // Ensure we have enough columns
+                        if (!isset($this->csvColumns[$columnIndex]))
+                            $this->csvColumns[] = new Field("column" . (sizeof($this->csvColumns) + 1));
+
                         if (isset($this->csvColumns[$columnIndex]))
                             $dataItem[$this->csvColumns[$columnIndex]->getName()] = trim($value);
                         $columnIndex++;

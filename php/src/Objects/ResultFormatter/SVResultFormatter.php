@@ -49,6 +49,17 @@ class SVResultFormatter implements ResultFormatter {
      */
     private $firstRowHeader;
 
+    /**
+     * @var int[]
+     */
+    private $ignoreColumnIndexes;
+
+
+    /**
+     * @var boolean
+     */
+    private $skipBlankColumnValues;
+
 
     /**
      * SVResultFormatter constructor.
@@ -58,11 +69,13 @@ class SVResultFormatter implements ResultFormatter {
      * @param int $firstRowOffset
      * @param boolean $firstRowHeader
      */
-    public function __construct($separator = ",", $enclosure = '"', $firstRowOffset = 0, $firstRowHeader = false) {
+    public function __construct($separator = ",", $enclosure = '"', $firstRowOffset = 0, $firstRowHeader = false, $ignoreColumnIndexes = [], $skipBlankColumnValues = false) {
         $this->separator = $separator;
         $this->enclosure = $enclosure;
         $this->firstRowOffset = $firstRowOffset;
         $this->firstRowHeader = $firstRowHeader;
+        $this->ignoreColumnIndexes = $ignoreColumnIndexes;
+        $this->skipBlankColumnValues = $skipBlankColumnValues;
     }
 
     /**
@@ -122,6 +135,20 @@ class SVResultFormatter implements ResultFormatter {
         $this->firstRowHeader = $firstRowHeader;
     }
 
+    /**
+     * @return int[]
+     */
+    public function getIgnoreColumnIndexes() {
+        return $this->ignoreColumnIndexes;
+    }
+
+    /**
+     * @param int[] $ignoreColumnIndexes
+     */
+    public function setIgnoreColumnIndexes($ignoreColumnIndexes): void {
+        $this->ignoreColumnIndexes = $ignoreColumnIndexes;
+    }
+
 
     /**
      * Format the value string
@@ -133,7 +160,7 @@ class SVResultFormatter implements ResultFormatter {
      * @return Dataset
      */
     public function format($stream, $passedColumns = [], $limit = PHP_INT_MAX, $offset = 0) {
-        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowOffset, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset);
+        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowOffset, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset, $this->ignoreColumnIndexes, true, $this->skipBlankColumnValues);
     }
 
 }

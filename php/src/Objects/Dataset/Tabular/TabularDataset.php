@@ -75,6 +75,13 @@ abstract class TabularDataset implements Dataset {
         return $this->columns;
     }
 
+    /**
+     * Disable row data caching - used programmatically when we know a dataset
+     * will only be read once.
+     */
+    public function disableRowDataCaching() {
+        $this->cacheAllRows = false;
+    }
 
     /**
      * Provide the next data item - this will be an associative array with keys matching

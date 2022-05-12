@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\FTP;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\FTP\ReadOnlyFTPStream;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -110,9 +111,11 @@ class FTPDataSource extends BaseDatasource {
 
 
         // get an FTP stream for this data source
-        $responseStream = new ReadOnlyFTPStream($hostname, $filePath, $config->isSecure(),
-            $authCreds->getUsername(), $authCreds->getPassword(), $authCreds->getPrivateKey());
+//        $responseStream = new ReadOnlyFTPStream($hostname, $filePath, $config->isSecure(),
+//            $authCreds->getUsername(), $authCreds->getPassword(), $authCreds->getPrivateKey());
 
+
+        $responseStream = new ReadOnlyFileStream("/tmp/nominet.zip");
 
         if ($this->getConfig()->getCompressionType()) {
             $compressor = Container::instance()->getInterfaceImplementation(Compressor::class, $this->getConfig()->getCompressionType());

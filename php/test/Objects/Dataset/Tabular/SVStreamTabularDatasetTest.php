@@ -81,4 +81,24 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfSkipBlankColumnValuesSuppliedTheyAreOptimisedOut() {
+
+        // Create mock stream
+        $mockStream = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
+
+        $mockStream->returnValue("readCSVLine", [
+            "value1", "", "value3", "", "value5", "value6"
+        ], [
+            ",", '"'
+        ]);
+
+        $dataSet = new SVStreamTabularDataSet([
+        ], $mockStream, 0, false, ",", '"', PHP_INT_MAX, 0, [], true, true);
+
+        $this->assertEquals(["column1" => "value1", "column2" => "value3", "column3" => "value5", "column4" => "value6"], $dataSet->nextDataItem());
+
+
+    }
+
+
 }
