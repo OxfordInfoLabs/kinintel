@@ -111,11 +111,9 @@ class FTPDataSource extends BaseDatasource {
 
 
         // get an FTP stream for this data source
-//        $responseStream = new ReadOnlyFTPStream($hostname, $filePath, $config->isSecure(),
-//            $authCreds->getUsername(), $authCreds->getPassword(), $authCreds->getPrivateKey());
+        $responseStream = new ReadOnlyFTPStream($hostname, $filePath, $config->isSecure(),
+            $authCreds->getUsername(), $authCreds->getPassword(), $authCreds->getPrivateKey());
 
-
-        $responseStream = new ReadOnlyFileStream("/tmp/nominet.zip");
 
         if ($this->getConfig()->getCompressionType()) {
             $compressor = Container::instance()->getInterfaceImplementation(Compressor::class, $this->getConfig()->getCompressionType());
