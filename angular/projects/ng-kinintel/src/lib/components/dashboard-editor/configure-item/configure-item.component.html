@@ -32,6 +32,12 @@
 
 <div class="configure-header">
     Configure {{dashboardItemType.label}}
+    <button mat-button (click)="saveDashboard()">
+        <div class="flex items-center">
+            <mat-icon class="mr-1">chevron_left</mat-icon>
+            Back to Dashboard
+        </div>
+    </button>
 </div>
 
 <div class="configure-content">
@@ -273,7 +279,7 @@
                     </div>
                 </div>
             </mat-tab>
-            <mat-tab label="Table" *ngIf="dashboardItemType.type === 'table'">
+            <mat-tab label="Rows" *ngIf="dashboardItemType.type === 'table'">
                 <div class="w-1/2">
                     <div class="p-4">
                         <div class="mb-4 flex items-center">
@@ -342,6 +348,49 @@
                 </div>
 
 
+            </mat-tab>
+            <mat-tab label="Columns" *ngIf="dashboardItemType.type === 'table'">
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <label class="mb-2">
+                            Select the column to format
+                            <select matNativeControl [(ngModel)]="tableCells.column"
+                                    (ngModelChange)="setColumn($event)">
+                                <option [value]="undefined">-- Select Column --</option>
+                                <ng-template [ngIf]="dataset">
+                                    <option *ngFor="let column of dataset.columns"
+                                            [value]="column.name">
+                                        {{column.title}}
+                                    </option>
+                                </ng-template>
+                            </select>
+                        </label>
+
+                        <ng-template [ngIf]="tableCells[tableCells.column]">
+                            <label class="mb-2">
+                                Column Format
+                                <select matNativeControl [(ngModel)]="tableCells[tableCells.column].type"
+                                        (ngModelChange)="setColumnFormat($event)">
+                                    <option [value]="undefined">Automatic</option>
+                                    <option *ngFor="let format of columnFormats"
+                                            [value]="format.type">
+                                        {{format.title}}
+                                    </option>
+                                </select>
+                            </label>
+
+                            <ki-table-cell-formatter *ngIf="tableCells[tableCells.column].type"
+                                                     [type]="tableCells[tableCells.column].type"
+                                                     [data]="tableCells[tableCells.column].data"
+                                                     [openSide]="openSide" [dataset]="dataset"
+                                                     [currencies]="currencies" [dashboards]="dashboards">
+
+                            </ki-table-cell-formatter>
+
+                        </ng-template>
+
+                    </div>
+                </div>
             </mat-tab>
             <mat-tab label="Metric" *ngIf="dashboardItemType.type === 'metric'">
                 <div class="p-4 flex justify-between">
@@ -614,6 +663,9 @@
 <div class="configure-footer">
     <div></div>
     <button mat-flat-button color="primary" (click)="saveDashboard()">
-        Back to Dashboard
+        <div class="flex items-center">
+            <mat-icon class="mr-1">chevron_left</mat-icon>
+            Back to Dashboard
+        </div>
     </button>
 </div>

@@ -75,6 +75,7 @@ import { WhitelistedSqlFunctionsComponent } from './components/whitelisted-sql-f
 import { HtmlDocumentationComponent } from './components/dashboard-editor/configure-item/html-documentation/html-documentation.component';
 import { DataPickerComponent } from './components/data-picker/data-picker.component';
 import { CreateDatasetComponent } from './components/dataset/create-dataset/create-dataset.component';
+import { TableCellFormatterComponent } from './components/dashboard-editor/configure-item/table-cell-formatter/table-cell-formatter.component';
 
 @NgModule({
     declarations: [
@@ -123,7 +124,8 @@ import { CreateDatasetComponent } from './components/dataset/create-dataset/crea
         WhitelistedSqlFunctionsComponent,
         HtmlDocumentationComponent,
         DataPickerComponent,
-        CreateDatasetComponent
+        CreateDatasetComponent,
+        TableCellFormatterComponent
     ],
     imports: [
         BrowserModule,

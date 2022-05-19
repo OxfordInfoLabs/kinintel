@@ -107,15 +107,13 @@
                             <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm font-medium"
                                 [ngClass]="{'border-b-0': i === dashboards.length - 1, 'border-b': i !== dashboards.length - 1}">
                                 <div class="flex items-center justify-end">
-                                    <button mat-button color="primary" (click)="view(element.id)"> Edit</button>
+                                    <button mat-button color="primary" [routerLink]="['/dashboards/view/' + element.id]"> View</button>
                                     <div class="divider"></div>
                                     <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
-                                        <button mat-menu-item [routerLink]="['/dashboards/view/' + element.id]">View
-                                            Read Only
-                                        </button>
+                                        <button mat-menu-item (click)="view(element.id)">Edit Dashboard</button>
                                         <button mat-menu-item (click)="editMetadata(element)">Edit Metadata</button>
                                         <button mat-menu-item (click)="delete(element.id)">Delete Dashboard</button>
                                     </mat-menu>

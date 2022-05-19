@@ -26,6 +26,7 @@ export class ConfigureItemComponent implements OnInit {
     public textData: any = {};
     public imageData: any = {};
     public tabular: any = {};
+    public tableCells: any = {};
     public general: any = {};
     public dependencies: any = {};
     public callToAction: any = {};
@@ -65,6 +66,40 @@ export class ConfigureItemComponent implements OnInit {
         }],
         filterJunctions: []
     };
+    public columnFormats: any = [
+        {
+            title: 'Number',
+            type: 'number'
+        },
+        {
+            title: 'Currency',
+            type: 'currency'
+        },
+        {
+            title: 'Percentage',
+            type: 'percentage'
+        },
+        {
+            title: 'Date & Time',
+            type: 'datetime'
+        },
+        {
+            title: 'Comparison',
+            type: 'comparison'
+        },
+        {
+            title: 'Link',
+            type: 'link'
+        },
+        {
+            title: 'Custom',
+            type: 'custom'
+        },
+        {
+            title: 'Hide Column',
+            type: 'hide'
+        }
+    ];
 
     public sideOpen = false;
     public openSide = new BehaviorSubject(false);
@@ -201,6 +236,22 @@ export class ConfigureItemComponent implements OnInit {
 
     public setImageData(column) {
         this.imageData.source = column ? this.dataset.allData[0][column] : null;
+    }
+
+    public setColumn(column) {
+        if (!this.tableCells[column] || Array.isArray(this.tableCells[column])) {
+            this.tableCells[column] = {};
+        }
+    }
+
+    public setColumnFormat(format) {
+        if (format === 'undefined') {
+            delete this.tableCells[this.tableCells.column].type;
+        } else {
+            if (!this.tableCells[this.tableCells.column].data) {
+                this.tableCells[this.tableCells.column].data = {};
+            }
+        }
     }
 
     public editAlert(alert, index?) {
@@ -455,7 +506,7 @@ export class ConfigureItemComponent implements OnInit {
     }
 
     private mapComponentDataToDashboardInstance() {
-        const layoutSettings = ['metric', 'dependencies', 'tabular', 'general', 'imageData', 'textData', 'callToAction'];
+        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction'];
         layoutSettings.forEach(setting => {
             if (!this.dashboard.layoutSettings[setting]) {
                 this.dashboard.layoutSettings[setting] = {};

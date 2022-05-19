@@ -95,7 +95,10 @@ const routes: Routes = [
     },
     {
         path: 'dashboards/:dashboard/full',
-        component: DashboardComponent
+        component: ViewDashboardComponent,
+        data: {
+            full: true
+        }
     }
 ];
 

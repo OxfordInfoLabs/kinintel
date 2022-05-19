@@ -1,0 +1,202 @@
+<ng-template [ngIf]="type === 'number'">
+    <label class="mb-2">
+        Decimals
+        <select matNativeControl [(ngModel)]="data.decimal"
+                (ngModelChange)="setDecimalValue($event)">
+            <option [value]="undefined">Automatic</option>
+            <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
+                    [value]="decimal">
+                {{decimal}}
+            </option>
+        </select>
+    </label>
+</ng-template>
+
+<ng-template [ngIf]="type === 'currency'">
+    <label class="mb-2">
+        Decimals
+        <select matNativeControl [(ngModel)]="data.decimal"
+                (ngModelChange)="setDecimalValue($event)">
+            <option [value]="undefined">Automatic</option>
+            <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
+                    [value]="decimal">
+                {{decimal}}
+            </option>
+        </select>
+    </label>
+
+    <div class="mb-4 flex items-center">
+        <mat-checkbox class="mr-2" [(ngModel)]="data.thousandsSeparator"></mat-checkbox>
+        <p class="mb-0 mt-1">Thousands Separator</p>
+    </div>
+
+    <label class="mb-4">
+        Currency
+        <select matNativeControl [compareWith]="selectOption" [(ngModel)]="data.currency">
+            <option value="">-- Select Currency --</option>
+            <option [ngValue]="currency" *ngFor="let currency of currencies">
+                {{currency.name}}
+            </option>
+        </select>
+    </label>
+</ng-template>
+
+<ng-template [ngIf]="type === 'percentage'">
+    <label class="mb-2">
+        Decimals
+        <select matNativeControl [(ngModel)]="data.decimal"
+                (ngModelChange)="setDecimalValue($event)">
+            <option [value]="undefined">Automatic</option>
+            <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
+                    [value]="decimal">
+                {{decimal}}
+            </option>
+        </select>
+    </label>
+
+    <div class="mb-4 flex items-center">
+        <mat-checkbox class="mr-2" [(ngModel)]="data.thousandsSeparator"></mat-checkbox>
+        <p class="mb-0 mt-1">Thousands Separator</p>
+    </div>
+</ng-template>
+
+<ng-template [ngIf]="type === 'datetime'">
+    <label class="mb-2">
+        Date Format
+        <select matNativeControl [(ngModel)]="data.dateFormat">
+            <option *ngFor="let format of dateFormats"
+                    [value]="format.value">
+                {{format.title}}
+            </option>
+        </select>
+    </label>
+    <label class="mb-2">
+        Time Format
+        <select matNativeControl [(ngModel)]="data.timeFormat">
+            <option *ngFor="let format of timeFormats"
+                    [value]="format.value">
+                {{format.title}}
+            </option>
+        </select>
+    </label>
+</ng-template>
+
+<ng-template [ngIf]="type === 'comparison'">
+    <label class="mb-2">
+        Select Column to compare
+        <select matNativeControl [(ngModel)]="data.comparisonColumn">
+            <option [value]="undefined">-- Select Column --</option>
+            <ng-template [ngIf]="dataset">
+                <option *ngFor="let column of dataset.columns"
+                        [value]="column.name">
+                    {{column.title}}
+                </option>
+            </ng-template>
+        </select>
+    </label>
+
+    <div class="mb-4 flex items-center">
+        <mat-checkbox class="mr-2" [(ngModel)]="data.comparisonPercentage"></mat-checkbox>
+        <p class="mb-0 mt-1">Display Change as Percentage</p>
+    </div>
+
+    <label class="mb-2">
+        Decimals
+        <select matNativeControl [(ngModel)]="data.comparisonDecimals"
+                (ngModelChange)="setDecimalValue($event)">
+            <option [value]="undefined">Automatic</option>
+            <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
+                    [value]="decimal">
+                {{decimal}}
+            </option>
+        </select>
+    </label>
+</ng-template>
+
+<ng-template [ngIf]="type === 'link'">
+    <label class="mb-2">
+        Link Settings
+        <select matNativeControl [(ngModel)]="data.linkType">
+            <option value="">External Link</option>
+            <option value="custom">Custom Link</option>
+            <option value="dashboard">Link Dashboard</option>
+        </select>
+        <small class="font-normal">Select the destination for the action link</small>
+    </label>
+
+    <ng-template [ngIf]="data.linkType === 'custom'">
+        <p>Please enter the link for this call to action.</p>
+
+        <label class="mb-2">
+            Link
+            <input type="text" [(ngModel)]="data.customLink">
+        </label>
+    </ng-template>
+
+    <ng-template [ngIf]="data.linkType === 'dashboard'">
+        <label class="mb-2">
+            Select Dashboard
+            <select matNativeControl [(ngModel)]="data.dashboardLink"
+                    [compareWith]="selectOption" (ngModelChange)="dashboardParamUpdate($event)">
+                <option *ngFor="let dashboard of dashboards"
+                        [ngValue]="{value: dashboard.id, label: dashboard.title}">
+                    {{dashboard.title}}
+                </option>
+            </select>
+            <small class="font-normal">Select the destination for the action link</small>
+        </label>
+    </ng-template>
+
+    <ng-template [ngIf]="data.dashboardLinkParams && dashboardParameters.length">
+        <p>Please enter the following parameters to use with this dashboard</p>
+
+        <ng-template ngFor let-param [ngForOf]="dashboardParameters">
+            <label>{{param.title}}</label>
+            <label *ngIf="!data.dashboardLinkParams['custom-'+param.name]"
+                   class="mb-2 dashboard-param-pick">
+                <select matNativeControl [(ngModel)]="data.dashboardLinkParams[param.name]"
+                        [compareWith]="ctaSelectOption">
+                    <option>-- Select Value --</option>
+                    <ng-template [ngIf]="dataset">
+                        <option *ngFor="let column of dataset.columns"
+                                [value]="'[['+column.name+']]'">
+                            {{column.title}}
+                        </option>
+                    </ng-template>
+                </select>
+            </label>
+            <div class="mb-2 flex items-center">
+                <mat-checkbox class="mr-2"
+                              [(ngModel)]="data.dashboardLinkParams['custom-'+param.name]"></mat-checkbox>
+                <p class="mb-0 mt-1">Use custom value</p>
+            </div>
+            <label class="mb-2 dashboard-param-pick">
+                <input type="text" *ngIf="data.dashboardLinkParams['custom-'+param.name]"
+                       placeholder="Enter custom parameter value"
+                       [(ngModel)]="data.dashboardLinkParams[param.name]">
+            </label>
+        </ng-template>
+    </ng-template>
+
+
+</ng-template>
+
+<ng-template [ngIf]="type === 'custom'">
+    <div class="flex items-center mb-2 justify-between">
+        <div class="font-semibold">Enter the HTML/Text for this item</div>
+        <a (click)="openSide.next(true)"
+           class="text-xs ml-2 hover:underline flex items-center primary">
+            view help docs&nbsp;
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                 fill="currentColor">
+                <path
+                    d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                <path
+                    d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+            </svg>
+        </a>
+    </div>
+
+    <textarea class="font-mono w-full"
+              cols="30" rows="10" [(ngModel)]="data.customText"></textarea>
+</ng-template>

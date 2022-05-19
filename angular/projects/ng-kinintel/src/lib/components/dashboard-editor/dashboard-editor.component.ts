@@ -267,22 +267,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     public openFullScreen() {
-        this.dashboard.displaySettings.fullScreen = true;
         this.save(false).then(() => {
-            this.router.navigate(['dashboards', this.dashboard.id, 'full']);
+            window.location.href = `/dashboards/${this.dashboard.id}/full${this.admin ? '?a=true&' : '?'}`;
         });
-    }
-
-    public backToEditor() {
-        this.dashboard.displaySettings.fullScreen = false;
-        this.save(false).then(() => {
-            this.router.navigate(['dashboards', this.dashboard.id]);
-        });
-    }
-
-    public toggleDarkMode() {
-        this.dashboard.displaySettings.darkMode = this.darkMode = !this.darkMode;
-        this.setDarkModeOnBody();
     }
 
     public updateGridSpacing(space, save = true) {
@@ -377,7 +364,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
-        componentRef.instance.dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;;
+        componentRef.instance.dashboardDatasetInstance = _.find(this.dashboard.datasetInstances, {instanceKey: instanceId}) || null;
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;

@@ -22,7 +22,10 @@ import {AlertService} from '../../../services/alert.service';
     selector: 'ki-view-dashboard',
     templateUrl: './view-dashboard.component.html',
     styleUrls: ['./view-dashboard.component.sass'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    host: {
+        class: 'block absolute inset-0 bg-gray-50'
+    }
 })
 export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -31,6 +34,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @HostBinding('class.p-4') get t() {
         return this.dashboard.displaySettings && this.dashboard.displaySettings.fullScreen;
     }
+    @HostBinding('class.dark-mode-dashboard') darkMode = false;
 
     @Input() dashboardService: any;
     @Input() alertService: any;
@@ -45,7 +49,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     public activeSidePanel: string = null;
     public _ = _;
     public editDashboardTitle = false;
-    public darkMode = false;
     public fullScreen = false;
     public admin: boolean;
     public gridSpaces = [
@@ -62,9 +65,11 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             value: '10px'
         }
     ];
+    public refreshInterval = 0;
+    public hideParameters = false;
+    public fullOnly = false;
 
     private grid: GridStack;
-
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
@@ -78,6 +83,25 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     }
 
     ngOnInit(): void {
+        this.fullOnly = this.route.snapshot.data.full;
+        if (this.fullOnly) {
+            this.darkMode = localStorage.getItem('fullDashboardDarkMode') === 'true';
+            this.refreshInterval = Number(localStorage.getItem('fullDashboardRefreshInterval') || 0);
+            this.hideParameters = localStorage.getItem('fullDashboardHideParams') === 'true';
+        }
+
+        if (this.refreshInterval) {
+            let count = 0;
+            setInterval(() => {
+                if (count > 10) {
+                    window.location.reload();
+                } else {
+                    this.reload();
+                    count++;
+                }
+            }, (this.refreshInterval * 1000));
+        }
+
         if (!this.dashboardService) {
             this.dashboardService = this.kiDashboardService;
         }
@@ -85,7 +109,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         if (!this.alertService) {
             this.alertService = this.kiAlertService;
         }
-
 
         this.route.queryParams.subscribe(params => {
             this.admin = !!params.a;
@@ -135,12 +158,10 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         this.dashboardService.getDashboard(dashboardId).then(dashboard => {
             this.dashboard = dashboard;
             this.editDashboardTitle = !this.dashboard.title;
-            if (this.dashboard.displaySettings) {
-                this.darkMode = !!this.dashboard.displaySettings.darkMode;
-                this.setDarkModeOnBody();
-            } else {
+            if (!this.dashboard.displaySettings) {
                 this.dashboard.displaySettings = {};
             }
+
             if (this.dashboard.layoutSettings) {
                 if (this.dashboard.layoutSettings.grid && this.dashboard.layoutSettings.grid.length) {
                     this.grid.load(this.dashboard.layoutSettings.grid);
@@ -149,7 +170,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 this.dashboard.layoutSettings = {};
             }
 
-            if (this.sidenavService) {
+            if (this.sidenavService && !this.fullOnly) {
                 setTimeout(() => {
                     this.sidenavService.close();
                 }, 0);
@@ -162,6 +183,36 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         if (this.sidenavService) {
             this.sidenavService.open();
         }
+    }
+
+    public editNotifications() {
+        this.editAlerts = !this.editAlerts;
+        this.grid.removeAll();
+        this.grid.load(this.dashboard.layoutSettings.grid);
+    }
+
+    public viewFullscreen() {
+        const dashboardId = this.dashboardId || this.route.snapshot.params.dashboard;
+        window.location.href = `/dashboards/${dashboardId}/full${this.admin ? '?a=true&' : '?'}`;
+    }
+
+    public toggleDarkMode() {
+        this.darkMode = !this.darkMode;
+        localStorage.setItem('fullDashboardDarkMode', String(this.darkMode));
+    }
+
+    public setRefreshInterval(intervalSeconds) {
+        if (intervalSeconds) {
+            localStorage.setItem('fullDashboardRefreshInterval', String(intervalSeconds));
+        } else {
+            localStorage.removeItem('fullDashboardRefreshInterval');
+        }
+        window.location.reload();
+    }
+
+    public toggleParameters() {
+        this.hideParameters = !this.hideParameters;
+        localStorage.setItem('fullDashboardHideParams', String(this.hideParameters));
     }
 
     public updateGridSpacing(space, save = true) {
@@ -202,6 +253,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         componentRef.instance.admin = this.admin;
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
+        componentRef.instance.editAlerts = this.editAlerts;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 
@@ -251,6 +303,11 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         } else {
             document.body.classList.remove('dark');
         }
+    }
+
+    private reload() {
+        this.grid.removeAll();
+        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
 }

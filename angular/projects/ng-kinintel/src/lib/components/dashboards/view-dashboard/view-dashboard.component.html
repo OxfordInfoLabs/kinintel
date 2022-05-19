@@ -1,27 +1,65 @@
 <ng-template [ngIf]="!gridOnly">
 
-    <div class="align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
+    <div class="dashboard-header align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
 
         <h2 class="dashboard-title ml-2">{{dashboard.title}}</h2>
 
+        <div class="flex items-center">
+            <ng-template [ngIf]="fullOnly">
+                <div *ngIf="refreshInterval" class="text-gray-400 text-xs">every {{refreshInterval / 60}} Minutes</div>
+                <button mat-icon-button class="align-center" [matMenuTriggerFor]="menu"
+                        matTooltip="Set refresh interval">
+                    <mat-icon>autorenew</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="setRefreshInterval(0)">Off</button>
+                    <button mat-menu-item (click)="setRefreshInterval(60)">Every 1 Minute</button>
+                    <button mat-menu-item (click)="setRefreshInterval(300)">Every 5 Minutes</button>
+                    <button mat-menu-item (click)="setRefreshInterval(600)">Every 10 Minutes</button>
+                    <button mat-menu-item (click)="setRefreshInterval(1800)">Every 30 Minutes</button>
+                    <button mat-menu-item (click)="setRefreshInterval(3600)">Every 60 Minutes</button>
+                </mat-menu>
+                <button mat-icon-button class="align-center" (click)="toggleParameters()"
+                        matTooltip="Hide parameter bar">
+                    <mat-icon>keyboard_hide</mat-icon>
+                </button>
+                <button mat-icon-button class="align-center" matTooltip="Toggle between light/dark mode"
+                        (click)="toggleDarkMode()">
+                    <mat-icon *ngIf="darkMode">light_mode</mat-icon>
+                    <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
+                </button>
+            </ng-template>
+            <ng-template [ngIf]="!fullOnly">
+                <button mat-button class="align-center" matTooltip="View full screen"
+                        (click)="viewFullscreen()">
+                    <mat-icon>fullscreen</mat-icon>
+                </button>
+            </ng-template>
+            <button mat-button class="align-center" matTooltip="Enable editing of Alerts"
+                    (click)="editNotifications()">
+                <mat-icon>edit_notifications</mat-icon>
+            </button>
+        </div>
+
     </div>
 
-    <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200"
-         *ngIf="dashboard.layoutSettings && _.values(dashboard.layoutSettings.parameters).length">
-        <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
-            <label>
-                {{parameter.title}}
-                <div class="parameter-input">
-                    <input [type]="parameter.type" [value]="parameter.value"
-                           (blur)="setParameterValue(parameter, $event.target.value)"
-                           (keyup.enter)="setParameterValue(parameter, $event.target.value)">
-                </div>
+    <ng-template [ngIf]="!hideParameters">
+        <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200"
+             *ngIf="dashboard.layoutSettings && _.values(dashboard.layoutSettings.parameters).length">
+            <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
+                <label>
+                    {{parameter.title}}
+                    <div class="parameter-input">
+                        <input [type]="parameter.type" [value]="parameter.value"
+                               (blur)="setParameterValue(parameter, $event.target.value)"
+                               (keyup.enter)="setParameterValue(parameter, $event.target.value)">
+                    </div>
+                </label>
 
-            </label>
-
-            <div class="divider" *ngIf="_.values(dashboard.layoutSettings.parameters).length > 1"></div>
-        </ng-template>
-    </div>
+                <div class="divider" *ngIf="_.values(dashboard.layoutSettings.parameters).length > 1"></div>
+            </ng-template>
+        </div>
+    </ng-template>
 
 </ng-template>
 <div class="grid-stack"></div>

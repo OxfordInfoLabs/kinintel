@@ -40,10 +40,9 @@
                     {{space.label}}
                 </button>
             </mat-menu>
-            <button mat-button class="align-center" matTooltip="Toggle between light/dark mode"
-                    (click)="toggleDarkMode()">
-                <mat-icon *ngIf="darkMode">light_mode</mat-icon>
-                <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
+            <button mat-button class="align-center" matTooltip="View full screen"
+                    (click)="openFullScreen()">
+                <mat-icon>fullscreen</mat-icon>
             </button>
             <button mat-button class="align-center" matTooltip="Add/Edit dashboard items"
                     (click)="editDashboardItems()">
@@ -84,20 +83,8 @@
     </div>
 
 </ng-template>
-<ng-template [ngIf]="dashboard.displaySettings && dashboard.displaySettings.fullScreen">
-    <div class="align-center justify-between mb-4 flex-wrap">
-        <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
-
-        <div class="data-actions">
-            <button mat-button color="primary" class="align-center" (click)="backToEditor()"
-                    title="Back to dashboard editor">
-                <mat-icon>arrow_back</mat-icon>
-            </button>
-        </div>
-    </div>
-</ng-template>
 <div class="grid-container flex justify-between">
-    <div class="grid-stack flex-1 h-full"></div>
+    <div class="grid-stack flex-1 h-full dark:bg-gray-900"></div>
     <div class="right-panel" [ngClass]="{show: showEditPanel}">
         <div class="flex items-center justify-between">
             <div></div>
