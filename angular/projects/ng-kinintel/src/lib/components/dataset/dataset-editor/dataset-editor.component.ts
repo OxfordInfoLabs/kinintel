@@ -12,6 +12,7 @@ import {
     DatasetAddParameterComponent
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
+import * as moment from 'moment';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -712,7 +713,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 });
                 this.parameterValues = _.values(parameterValues);
                 this.parameterValues.forEach(param => {
-                    if (param.type === 'date') {
+                    if (param.type === 'date' || param.type === 'datetime') {
                         if (!param._dateType && param.value) {
                             const isPeriod = param.value.includes('AGO');
                             param._dateType = isPeriod ? 'period' : 'picker';
@@ -762,6 +763,17 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
                 const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
                 let finished = false;
+
+                // Ensure we send back any dates in correct format
+                const datetimeParams = _.filter(clonedDatasetInstance.parameters, param => {
+                    return param.type === 'date' || param.type === 'datetime';
+                });
+                datetimeParams.forEach(param => {
+                    const value = clonedDatasetInstance.parameterValues[param.name];
+                    if (value && !value.includes('AGO')) {
+                        clonedDatasetInstance.parameterValues[param.name] = moment(value).format('YYYY-MM-DD HH:mm:ss');
+                    }
+                });
 
                 this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
                     clonedDatasetInstance,

@@ -87,7 +87,7 @@
                         <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                (change)="evaluateDataset(true)" required autofocus>
                     </ng-template>
-                    <ng-template [ngIf]="parameter.type === 'date'">
+                    <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                         <ng-template [ngIf]="!parameter._dateType">
                             <div class="flex items-center mr-8">
                                 <button (click)="changeDateType($event, parameter, 'picker')"
@@ -103,7 +103,7 @@
                             </div>
                         </ng-template>
                         <ng-template [ngIf]="parameter._dateType === 'picker'">
-                            <input  type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                            <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                    (change)="evaluateDataset(true)" required autofocus>
 
                             <a (click)="changeDateType($event, parameter, 'period')"
@@ -134,10 +134,6 @@
                             </a>
                         </ng-template>
 
-                    </ng-template>
-                    <ng-template [ngIf]=" parameter.type === 'datetime'">
-                        <input class="pr-8" type="datetime-local" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                               (change)="evaluateDataset(true)" required autofocus>
                     </ng-template>
                     <ng-template [ngIf]="parameter.type === 'boolean'">
                         <mat-slide-toggle class="pr-8" color="primary"

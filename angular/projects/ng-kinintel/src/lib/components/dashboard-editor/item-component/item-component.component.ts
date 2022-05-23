@@ -562,7 +562,10 @@ export class ItemComponentComponent implements AfterViewInit {
                                             break;
                                         case 'datetime':
                                             const dateMoment = moment(item[tableCell]);
-                                            item[tableCell] = dateMoment.format(cellData.dateFormat + ' ' + cellData.timeFormat);
+                                            const dateFormat = cellData.dateFormat === 'null' ? '' : cellData.dateFormat;
+                                            const timeFormat = cellData.timeFormat === 'null' ? '' : cellData.timeFormat;
+
+                                            item[tableCell] = dateMoment.format(dateFormat + ' ' + timeFormat);
                                             break;
                                         case 'comparison':
                                             const comparisonColumn = this.tableCells[tableCell].data.comparisonColumn;
