@@ -257,6 +257,25 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         this.sidenavService.open();
     }
 
+    public booleanUpdate(event, parameter) {
+        parameter.value = event.checked;
+        this.grid.removeAll();
+        this.grid.load(this.dashboard.layoutSettings.grid);
+    }
+
+    public changeDateType(event, parameter, value) {
+        event.stopPropagation();
+        event.preventDefault();
+        parameter._dateType = value;
+    }
+
+    public updatePeriodValue(value, period, parameter) {
+        parameter.value = `${value}_${period}_AGO`;
+        this.grid.removeAll();
+        this.grid.load(this.dashboard.layoutSettings.grid);
+    }
+
+
     public editDashboardItems() {
         this.showEditPanel = !this.showEditPanel;
         if (this.showEditPanel) {
@@ -284,10 +303,17 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
-    public addParameter() {
+    public addParameter(existingParameter?, parameterValueIndex?) {
+        let clonedParameter = null;
+        if (existingParameter) {
+            clonedParameter = _.clone(existingParameter);
+        }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
             width: '600px',
-            height: '600px'
+            height: '600px',
+            data: {
+                parameter: clonedParameter
+            }
         });
         dialogRef.afterClosed().subscribe(parameter => {
             if (parameter) {
@@ -297,8 +323,14 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 if (!this.dashboard.layoutSettings.parameters) {
                     this.dashboard.layoutSettings.parameters = {};
                 }
+                if (!clonedParameter) {
+                    parameter.value = parameter.defaultValue || '';
+                } else {
+                    if (!clonedParameter.value) {
+                        parameter.value = parameter.defaultValue || '';
+                    }
+                }
 
-                parameter.value = parameter.defaultValue || '';
                 this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
         });

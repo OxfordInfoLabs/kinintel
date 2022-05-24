@@ -148,6 +148,15 @@ mat-drawer-container
 .dashboard-parameters
     display: flex
     align-items: center
+    min-height: 45px
+    .list-title
+        text-transform: uppercase
+        font-size: .75rem
+        padding: 0 1rem 0 .5rem
+        border-right: 2px solid #ddd
+        color: #4c4c4c
+        font-weight: 500
+        letter-spacing: 1px
     .divider
         margin: 0 1rem
         width: 2px
@@ -155,12 +164,13 @@ mat-drawer-container
         background-color: #e0e0e0
         align-self: flex-end
     button
-        align-self: flex-end
+        //align-self: flex-end
         //background-color: #eaeaea
         margin-left: .5rem
     label
         flex-direction: row
         align-items: center
+        margin-left: 1rem
         .parameter-input
             //background-color: #eaeaea
             border-radius: 4px
