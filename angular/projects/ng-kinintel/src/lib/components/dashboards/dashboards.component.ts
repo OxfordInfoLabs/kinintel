@@ -78,7 +78,7 @@ export class DashboardsComponent implements OnInit {
         });
     }
 
-    public view(id) {
+    public edit(id) {
         const route = _.filter(this.router.url.split('/'))[0];
         this.router.navigateByUrl(`${route}/${id}${this.admin ? '?a=true' : ''}`);
     }
@@ -102,6 +102,14 @@ export class DashboardsComponent implements OnInit {
         this.offset = 0;
         this.page = 1;
         this.reload.next(Date.now());
+    }
+
+    public copy(dashboardId) {
+
+    }
+
+    public extend(dashboardId) {
+
     }
 
     public editMetadata(searchResult) {
@@ -159,7 +167,7 @@ export class DashboardsComponent implements OnInit {
         );
     }
 
-    private getCategories(){
+    private getCategories() {
         this.dashboardService.getDashboardCategories(this.shared).then(categories => this.categories = categories);
     }
 }

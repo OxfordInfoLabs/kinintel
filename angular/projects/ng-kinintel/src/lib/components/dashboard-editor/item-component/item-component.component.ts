@@ -456,8 +456,9 @@ export class ItemComponentComponent implements AfterViewInit {
             const matches = searchString.match(/\[\[(.*?)\]\]/g) || [];
             matches.forEach(exp => {
                 const expValue = exp.replace('[[', '').replace(']]', '');
-                const value = data ? data[expValue] : null;
+                let value = data ? data[expValue] : null;
                 if (value) {
+                    value = _.isPlainObject(value) ? value.initialValue : value;
                     searchString = searchString.replace(exp, value);
                 }
             });
@@ -527,7 +528,7 @@ export class ItemComponentComponent implements AfterViewInit {
                                     switch (this.tableCells[tableCell].type) {
                                         case 'number':
                                             const cellNumber = Number(item[tableCell]);
-                                            item[tableCell] = cellNumber.toFixed(cellData.decimal);
+                                            item[tableCell] = {cellValue: cellNumber.toFixed(cellData.decimal), initialValue: item[tableCell]};
                                             break;
                                         case 'currency':
                                             let cellCurrency: any = Number(item[tableCell]);
@@ -550,7 +551,7 @@ export class ItemComponentComponent implements AfterViewInit {
                                                 }
                                             }
 
-                                            item[tableCell] = cellCurrency;
+                                            item[tableCell] = {cellValue: cellCurrency, initialValue: item[tableCell]};
                                             break;
                                         case 'percentage':
                                             let cellPercent: any = Number(item[tableCell]);
@@ -564,14 +565,14 @@ export class ItemComponentComponent implements AfterViewInit {
                                                 cellPercent = cellPercent.replace(',', '');
                                             }
 
-                                            item[tableCell] = cellPercent;
+                                            item[tableCell] = {cellValue: cellPercent, initialValue: item[tableCell]};
                                             break;
                                         case 'datetime':
                                             const dateMoment = moment(item[tableCell]);
                                             const dateFormat = cellData.dateFormat === 'null' ? '' : cellData.dateFormat;
                                             const timeFormat = cellData.timeFormat === 'null' ? '' : cellData.timeFormat;
 
-                                            item[tableCell] = dateMoment.format(dateFormat + ' ' + timeFormat);
+                                            item[tableCell] = {cellValue: dateMoment.format(dateFormat + ' ' + timeFormat), initialValue: item[tableCell]};
                                             break;
                                         case 'comparison':
                                             const comparisonColumn = this.tableCells[tableCell].data.comparisonColumn;

@@ -19,6 +19,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
 import {BehaviorSubject, Subscription} from 'rxjs';
+import * as moment from 'moment';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -215,6 +216,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             Object.keys(this.queryParams).forEach(key => {
                 if (Object.keys(this.dashboard.layoutSettings.parameters).length) {
                     if (this.dashboard.layoutSettings.parameters[key]) {
+                        if (this.dashboard.layoutSettings.parameters[key].type === 'date' ||
+                            this.dashboard.layoutSettings.parameters[key].type === 'datetime') {
+                            this.queryParams[key] = moment(this.queryParams[key]).format('YYYY-MM-DDTHH:mm');
+                        }
                         this.dashboard.layoutSettings.parameters[key].value = this.queryParams[key];
                     }
                 }

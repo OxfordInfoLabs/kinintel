@@ -151,8 +151,8 @@
                 </thead>
                 <tbody class="bg-white ">
                 <tr *ngFor="let dataItem of dataset.allData"
-                    [ngClass]="{'hover:bg-gray-50 cursor-pointer ': tabular.actionRows}"
-                    (click)="tabular.actionRows ? callToActionLink(tabular.cta, dataItem) : null">
+                    [ngClass]="{'hover:bg-gray-50 cursor-pointer ': (tabular.actionRows && tabular.cta)}"
+                    (click)="(tabular.actionRows && tabular.cta) ? callToActionLink(tabular.cta, dataItem) : null">
                     <ng-template ngFor let-column [ngForOf]="dataset.columns" let-i=index>
                         <td *ngIf="!hiddenColumns[column.name]"
                             class="whitespace-nowrap border-b border-gray-200  px-3 py-2 text-sm text-gray-500 "
