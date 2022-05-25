@@ -29,6 +29,7 @@ use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
+use Kinintel\Services\Util\ValueFunctionEvaluator;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -50,16 +51,23 @@ class DatasourceService {
      */
     private $securityService;
 
+
+    /**
+     * @var ValueFunctionEvaluator
+     */
+    private $valueFunctionEvaluator;
+
     /**
      * DatasourceService constructor.
      *
      * @param DatasourceDAO $datasourceDAO
      * @param SecurityService $securityService
+     * @param ValueFunctionEvaluator $valueFunctionEvaluator
      */
-    public function __construct($datasourceDAO, $securityService) {
+    public function __construct($datasourceDAO, $securityService, $valueFunctionEvaluator) {
         $this->datasourceDAO = $datasourceDAO;
         $this->securityService = $securityService;
-
+        $this->valueFunctionEvaluator = $valueFunctionEvaluator;
     }
 
 
@@ -140,7 +148,8 @@ class DatasourceService {
      * @return Dataset
      */
     public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = [], $offset = null, $limit = null) {
-        $datasource = $this->getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues, $offset, $limit);
+
+        list($datasource, $parameterValues) = $this->getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues, $offset, $limit);
 
         // Return the evaluated data source
         return $datasource->materialise($parameterValues ?? []);
@@ -153,21 +162,21 @@ class DatasourceService {
      *
      * @param $datasourceInstanceKey
      * @param $transformations
-     * @param mixed[] $parameterValues
+     * @param mixed $parameterValues
      *
-     * @return Datasource
+     * @return [Datasource, array]
      * @throws InvalidParametersException
      * @throws ObjectNotFoundException
      * @throws UnsupportedDatasourceTransformationException
      * @throws ValidationException
      */
-    public function getTransformedDataSource($datasourceInstanceKey, $transformations, &$parameterValues, $offset = null, $limit = null) {
+    public function getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues, $offset = null, $limit = null) {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
 
         // Validate parameters first up
-        $parameterValues = $this->validateParameters($datasourceInstance, $transformations, $parameterValues);
+        $this->validateParameters($datasourceInstance, $transformations, $parameterValues);
 
 
         // Grab the data source for this instance
@@ -178,7 +187,7 @@ class DatasourceService {
         $datasource = $this->applyTransformationsToDatasource($datasource, $transformations ?? [], $parameterValues, $offset, $limit);
 
 
-        return $datasource;
+        return [$datasource, $parameterValues];
     }
 
 
@@ -317,7 +326,7 @@ class DatasourceService {
 
                 // If no paging transformation, ignore this one
                 if (!$pagingTransformation) continue;
-                
+
                 $transformation = $pagingTransformation;
                 $pagingTransformation->setApplied(true);
             }
@@ -363,12 +372,13 @@ class DatasourceService {
      *
      * @param mixed[] $parameterValues
      */
-    private function validateParameters($datasourceInstance, $transformationInstances, $parameterValues) {
+    private function validateParameters($datasourceInstance, $transformationInstances, &$parameterValues) {
 
         $validationErrors = [];
 
         // Grab parameters from data source instance
         $parameters = $datasourceInstance->getParameters() ?? [];
+
 
         // Check that the parameters are supplied and of required type
         foreach ($parameters as $parameter) {
@@ -376,15 +386,18 @@ class DatasourceService {
             if (!isset($parameterValues[$paramName])) {
 
                 if ($parameter->getDefaultValue()) {
-                    $parameterValues[$paramName] = $parameter->getDefaultValue();
+                    $parameterValues[$paramName] = $this->valueFunctionEvaluator->evaluateSpecialExpressions($parameter->getDefaultValue());
                 } else {
                     $validationErrors[$paramName] = [
                         "required" => new FieldValidationError($paramName, "required", "Parameter {$paramName} is required")];
                 }
-            } else if (!$parameter->validateParameterValue($parameterValues[$paramName])) {
-                $validationErrors[$paramName] = [
-                    new FieldValidationError($paramName, "wrongtype", "Parameter {$paramName} is of the wrong type - should be {$parameter->getType()}")
-                ];
+            } else {
+                $parameterValues[$paramName] = $this->valueFunctionEvaluator->evaluateSpecialExpressions($parameterValues[$paramName]);
+                if (!$parameter->validateParameterValue($parameterValues[$paramName])) {
+                    $validationErrors[$paramName] = [
+                        new FieldValidationError($paramName, "wrongtype", "Parameter {$paramName} is of the wrong type - should be {$parameter->getType()}")
+                    ];
+                }
             }
         }
 

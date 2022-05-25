@@ -575,7 +575,7 @@ class DashboardServiceTest extends TestBase {
     }
 
 
-    public function testIfLoggedInAsAccountHolderWhenAccessingSummaryForSharedDashboardItIsReturnedAsNewCopy() {
+    public function testCanReturnCopyOfDashboard() {
 
 
         // Log in as a person with projects and tags
@@ -608,10 +608,12 @@ class DashboardServiceTest extends TestBase {
         // Log in as a regular account
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
-        $dashboard = $this->dashboardService->getDashboardById($dashboard1Id);
+        // Check copy rules
+        $dashboard = $this->dashboardService->copyDashboard($dashboard1Id);
         $this->assertNull($dashboard->getId());
         $this->assertEquals(1, sizeof($dashboard->getDatasetInstances()));
         $this->assertEquals("brandnew", $dashboard->getDatasetInstances()[0]->getInstanceKey());
+        $this->assertFalse($dashboard->isReadOnly());
         $this->assertEquals(2, sizeof($dashboard->getDatasetInstances()[0]->getAlerts()));
         $this->assertNull($dashboard->getDatasetInstances()[0]->getAlerts()[0]->getId());
         $this->assertNull($dashboard->getDatasetInstances()[0]->getAlerts()[0]->getAlertGroupId());

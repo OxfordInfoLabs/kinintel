@@ -42,6 +42,19 @@ trait Dashboard {
             return new DashboardSummary("");
         }
     }
+    
+
+    /**
+     * Copy a dashboard from it's id.
+     *
+     * @http GET /copy/$id
+     *
+     * @param $id
+     * @return DashboardSummary
+     */
+    public function copyDashboard($id) {
+        return $this->dashboardService->copyDashboard($id);
+    }
 
 
     /**

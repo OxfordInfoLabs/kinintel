@@ -61,12 +61,18 @@ class DashboardService {
      * @return DashboardSummary
      */
     public function getDashboardById($id) {
-        $dashboard = Dashboard::fetch($id);
+        return Dashboard::fetch($id)->returnSummary();
+    }
 
-        $returnCopy = $dashboard->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn();
-        $summary = $dashboard->returnSummary($returnCopy);
 
-        return $summary;
+    /**
+     * Get a copy of a dashboard.  No link is retained with the
+     * original dashboard being copied.
+     *
+     * @param $id
+     */
+    public function copyDashboard($id) {
+        return Dashboard::fetch($id)->returnSummary(true);
     }
 
 

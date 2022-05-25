@@ -2,6 +2,7 @@
 
 namespace Kinintel\Objects\Datasource\WebService;
 
+use AWS\CRT\Log;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
@@ -180,14 +181,17 @@ class WebServiceDatasource extends BaseDatasource {
         }
 
         // Create a new HttpRequest for this request
-        $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
+        $urlEncodedParams =[];
+        foreach ($parameterValues as $key => $parameterValue){
+            $urlEncodedParams[$key] = urlencode($parameterValue);
+        }
+        $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $urlEncodedParams);
         $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
         // Inject authentication if required
         if ($this->getAuthenticationCredentials()) {
             $request = $this->getAuthenticationCredentials()->processRequest($request);
         }
-
 
         // Process multiple times according to retry configuration if required
         $attempts = 0;

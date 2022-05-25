@@ -106,7 +106,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             // If parameters required for a data set, ensure we have mappings for them.
             $joinDataParameters = $this->datasetService->getEvaluatedParameters($joinDataSet);
 
-
         }
 
         // If we have join data parameters, evaluate now.
@@ -209,13 +208,14 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 }
 
 
+
                 // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
                 if (isset($materialisedJoinSet) && sizeof($materialisedJoinSet->getColumns())) {
                     foreach ($aliasFields as $aliasField) {
                         $newColumns[] = new Field($aliasField);
                     }
-                    $newColumns = array_merge($newColumns, $materialisedJoinSet->getColumns());
+                    $newColumns = array_merge($newColumns, Field::toPlainFields($materialisedJoinSet->getColumns()));
 
 
                     // Create new join dataset.

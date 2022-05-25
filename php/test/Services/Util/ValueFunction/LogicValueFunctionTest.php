@@ -40,4 +40,16 @@ class LogicValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testTernaryExpressionsAreEvaluatedCorrectly(){
+
+        $function = new LogicValueFunction();
+        $this->assertEquals("Yes", $function->applyFunction("ternary 'Yes' 'No'", true, null));
+        $this->assertEquals("No", $function->applyFunction("ternary 'Yes' 'No'", false, null));
+
+        $function = new LogicValueFunction();
+        $this->assertEquals("Bong", $function->applyFunction("ternary 'Bong' 'Bung'", 1, null));
+        $this->assertEquals("Bung", $function->applyFunction("ternary 'Bong' 'Bung'", 0, null));
+
+    }
+
 }

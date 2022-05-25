@@ -88,7 +88,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                 if ($sourceReadChunkSize)
                     $offset += $sourceReadChunkSize;
-            } while ($readEntries == ($sourceReadChunkSize ?? PHP_INT_MAX));
+            } while ($readEntries >= ($sourceReadChunkSize ?? PHP_INT_MAX));
 
 
         } else {
@@ -121,7 +121,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                         } else {
                             $readEntries = 0;
                         }
-                    } while ($readEntries == ($sourceReadChunkSize ?? PHP_INT_MAX));
+                    } while ($readEntries >= ($sourceReadChunkSize ?? PHP_INT_MAX));
                 }
 
             }

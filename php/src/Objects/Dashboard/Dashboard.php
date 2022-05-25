@@ -93,7 +93,7 @@ class Dashboard extends DashboardSummary {
          * @var SecurityService $securityService
          */
         $securityService = Container::instance()->get(SecurityService::class);
-        $readOnly = !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
+        $readOnly = !$returnCopy && !$securityService->isSuperUserLoggedIn() && $this->accountId == null;
 
 
         // Map categories to summary objects

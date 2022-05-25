@@ -4,12 +4,15 @@
 namespace Kinintel\Services\Util\ValueFunction;
 
 
+use Kinikit\Core\Logging\Logger;
+
 class LogicValueFunction extends ValueFunctionWithArguments {
 
     const supportedFunctions = [
         "ifNot",
         "add",
-        "subtract"
+        "subtract",
+        "ternary"
     ];
 
 
@@ -48,6 +51,9 @@ class LogicValueFunction extends ValueFunctionWithArguments {
             case "subtract":
                 $subtraction = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
                 return is_numeric($value) && is_numeric($subtraction) ? gmp_strval(gmp_sub("$value", "$subtraction")) : null;
+
+            case "ternary":
+                return $value ? $functionArgs[0] : $functionArgs[1];
         }
 
         return $value;
@@ -58,10 +64,22 @@ class LogicValueFunction extends ValueFunctionWithArguments {
     // Expand member expression
     private function expandMemberExpression($expression, $dataItem) {
 
+        if (is_numeric($expression))
+            return $expression;
+
+        $trimmed = trim($expression, "'\"");
+        if ($trimmed !== $expression) {
+            return $trimmed;
+        }
+
         $explodedExpression = explode(".", $expression);
         foreach ($explodedExpression as $expression) {
-            $dataItem = $dataItem[$expression] ?? null;
+            if (is_array($dataItem))
+                $dataItem = $dataItem[$expression] ?? null;
+            else
+                $dataItem = $expression;
         }
+
         return $dataItem;
     }
 }

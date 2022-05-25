@@ -5,6 +5,7 @@ namespace Kinintel\Services\Util;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinintel\Services\Util\ValueFunction\ArrayValueFunction;
 use Kinintel\Services\Util\ValueFunction\ConversionValueFunction;
 use Kinintel\Services\Util\ValueFunction\DateFormatValueFunction;
 use Kinintel\Services\Util\ValueFunction\ValueFunction;
@@ -31,7 +32,8 @@ class ValueFunctionEvaluator {
             new RegExValueFunction(),
             new DateFormatValueFunction(),
             new LogicValueFunction(),
-            new ConversionValueFunction()
+            new ConversionValueFunction(),
+            new ArrayValueFunction()
         ];
     }
 
@@ -105,6 +107,29 @@ class ValueFunctionEvaluator {
     }
 
 
+    public function evaluateSpecialExpressions($expression) {
+
+        if ($expression == "NOW") {
+            $expression = date("Y-m-d H:i:s");
+        }
+
+        if (is_string($expression)) {
+
+            // Evaluate time offset parameters for days ago and hours ago
+            $expression = preg_replace_callback("/([0-9]+)_DAYS_AGO/", function ($matches) use (&$outputParameters) {
+                return (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "D"))->format("Y-m-d H:i:s");
+            }, $expression);
+
+            $expression = preg_replace_callback("/([0-9]+)_HOURS_AGO/", function ($matches) use (&$outputParameters) {
+                return (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s");
+            }, $expression);
+
+        }
+
+        return $expression;
+    }
+
+
     // Expand member expression
     private function expandMemberExpression($expression, $dataItem) {
 
@@ -113,25 +138,6 @@ class ValueFunctionEvaluator {
             $dataItem = $dataItem[$expression] ?? null;
         }
         return $dataItem;
-    }
-
-
-    private function evaluateSpecialExpressions($expression) {
-
-        if ($expression == "NOW") {
-            $expression = date("Y-m-d H:i:s");
-        }
-
-        // Evaluate time offset parameters for days ago and hours ago
-        $expression = preg_replace_callback("/([0-9]+)_DAYS_AGO/", function ($matches) use (&$outputParameters) {
-            return (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "D"))->format("Y-m-d H:i:s");
-        }, $expression);
-
-        $expression = preg_replace_callback("/([0-9]+)_HOURS_AGO/", function ($matches) use (&$outputParameters) {
-            return (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s");
-        }, $expression);
-
-        return $expression;
     }
 
 

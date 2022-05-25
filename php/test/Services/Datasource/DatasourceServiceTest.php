@@ -28,6 +28,7 @@ use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\TestUpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
+use Kinintel\Services\Util\ValueFunctionEvaluator;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
@@ -68,12 +69,18 @@ class DatasourceServiceTest extends TestBase {
 
 
     /**
+     * @var MockObject
+     */
+    private $valueFunctionEvaluator;
+
+    /**
      * Set up
      */
     public function setUp(): void {
         $this->datasourceDAO = MockObjectProvider::instance()->getMockInstance(DatasourceDAO::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
-        $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService);
+        $this->valueFunctionEvaluator = MockObjectProvider::instance()->getMockInstance(ValueFunctionEvaluator::class);
+        $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService, $this->valueFunctionEvaluator);
 
     }
 

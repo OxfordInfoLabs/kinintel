@@ -46,6 +46,19 @@ trait Dashboard {
 
 
     /**
+     * Copy a dashboard from it's id.
+     *
+     * @http GET /copy/$id
+     *
+     * @param $id
+     * @return DashboardSummary
+     */
+    public function copyDashboard($id) {
+        return $this->dashboardService->copyDashboard($id);
+    }
+
+
+    /**
      * Filter dashboards, optionally by title, project key, tags and limited by offset and limit.
      *
      * @http GET /
