@@ -6,6 +6,8 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Objects\Dashboard\DashboardSearchResult;
@@ -61,7 +63,7 @@ class DashboardService {
      * @return DashboardSummary
      */
     public function getDashboardById($id) {
-        return Dashboard::fetch($id)->returnSummary();
+        return $this->getFullDashboardById($id)->returnSummary();
     }
 
 
@@ -82,8 +84,16 @@ class DashboardService {
      *
      * @param $id
      */
-    public function extendDashboard($parentDashboardId){
+    public function extendDashboard($parentDashboardId) {
 
+        $parentDashboard = Dashboard::fetch($parentDashboardId);
+
+        $newDashboard = new Dashboard();
+        $newDashboard->setParentDashboardId($parentDashboardId);
+        $newDashboard->setTitle($parentDashboard->getTitle() . " Extended");
+        $this->mergeParentDashboard($newDashboard, $parentDashboardId);
+
+        return $newDashboard->returnSummary();
     }
 
 
@@ -295,6 +305,94 @@ class DashboardService {
         }
 
         return $activeDashboardDatasetAlerts;
+    }
+
+
+    /**
+     * Get a full dashboard by id including parent merge
+     *
+     * @param $id
+     * @return Dashboard
+     */
+    private function getFullDashboardById($id) {
+
+        /**
+         * @var Dashboard $dashboard
+         */
+        $dashboard = Dashboard::fetch($id);
+
+        if ($dashboard->getParentDashboardId()) {
+            $this->mergeParentDashboard($dashboard, $dashboard->getParentDashboardId());
+        }
+
+        return $dashboard;
+    }
+
+
+    /**
+     * Merge a child dashboard object with it's parent using the supplied id.
+     *
+     * @param Dashboard $childDashboard
+     * @param int $parentDashboardId
+     */
+    private function mergeParentDashboard($childDashboard, $parentDashboardId) {
+
+        try {
+            $parentDashboard = $this->getFullDashboardById($parentDashboardId);
+
+            // Capture parent instance keys
+            $parentInstanceKeys = ObjectArrayUtils::getMemberValueArrayForObjects("instanceKey", $parentDashboard->getDatasetInstances());
+
+            // Merge instances prioritising keys from parent
+            $childDashboard->setDatasetInstances($this->combineArraysByUniqueMemberKey($childDashboard->getDatasetInstances() ?? [],
+                $parentDashboard->getDatasetInstances() ?? [], "instanceKey"));
+
+            $parentLayoutSettings = $parentDashboard->getLayoutSettings() ?? [];
+            $childLayoutSettings = $childDashboard->getLayoutSettings() ?? [];
+
+            $layoutSettings = [];
+
+            // Calculate grid settings
+            $gridSettings = [];
+            foreach ($parentLayoutSettings["grid"] ?? [] as $parentGridSetting) {
+                $parentGridSetting["locked"] = 1;
+                $gridSettings[] = $parentGridSetting;
+            }
+
+            foreach ($childLayoutSettings["grid"] ?? [] as $childGridSetting) {
+                preg_match('/id="(.*?)"/', $childGridSetting["content"], $matches);
+                $instanceKey = $matches[1] ?? null;
+                if ($instanceKey && !in_array($instanceKey, $parentInstanceKeys))
+                    $gridSettings[] = $childGridSetting;
+            }
+
+            $layoutSettings["grid"] = $gridSettings;
+
+
+            $combinedKeys = array_unique(array_merge(array_keys($parentLayoutSettings), array_keys($childLayoutSettings)));
+            foreach ($combinedKeys as $key) {
+                if ($key !== "grid") {
+                    $layoutSettings[$key] = array_merge($childLayoutSettings[$key] ?? [], $parentLayoutSettings[$key] ?? []);
+                }
+            }
+
+            $childDashboard->setLayoutSettings($layoutSettings);
+
+
+        } catch (ObjectNotFoundException $e) {
+            // Tolerate broken hierarchy and ignore parentage in this scenario
+        }
+    }
+
+
+
+    // Combine the two arrays using a member key to determine uniqueness.
+    // Second array keys win if conflicts
+    private function combineArraysByUniqueMemberKey($firstArray, $secondArray, $memberKey) {
+        $firstArrayIndexed = ObjectArrayUtils::indexArrayOfObjectsByMember($memberKey, $firstArray);
+        $secondArrayIndexed = ObjectArrayUtils::indexArrayOfObjectsByMember($memberKey, $secondArray);
+        $combined = array_merge($firstArrayIndexed, $secondArrayIndexed);
+        return array_values($combined);
     }
 
 

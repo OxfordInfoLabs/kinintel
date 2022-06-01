@@ -59,6 +59,19 @@ trait Dashboard {
 
 
     /**
+     * Extends a dashboard by id
+     *
+     * @http GET /extend/$id
+     *
+     * @param $id
+     * @return DashboardSummary
+     */
+    public function extendDashboard($id) {
+        return $this->dashboardService->extendDashboard($id);
+    }
+
+
+    /**
      * Filter dashboards, optionally by title, project key, tags and limited by offset and limit.
      *
      * @http GET /

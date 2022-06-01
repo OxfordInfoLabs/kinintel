@@ -1,0 +1,14 @@
+[
+  {
+    "accountId": 1,
+    "projectKey": "project1",
+    "key": "myaccountdatasource",
+    "title": "My Account Datasource",
+    "type": "custom",
+    "credentialsKey": "maindb",
+    "config": {
+      "source": "table",
+      "tableName": "test_account_datasource"
+    }
+  }
+]

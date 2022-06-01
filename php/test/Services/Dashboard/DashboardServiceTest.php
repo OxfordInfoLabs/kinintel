@@ -345,7 +345,7 @@ class DashboardServiceTest extends TestBase {
 
 
         $filtered = $this->dashboardService->filterDashboards("", [], [], null, 0, 10, 1);
-        $this->assertEquals(4, sizeof($filtered));
+        $this->assertEquals(6, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
         $this->assertEquals("Account Dashboard Summary", $filtered[0]->getSummary());
@@ -398,7 +398,7 @@ class DashboardServiceTest extends TestBase {
 
         // Filter on special NONE tags
         $filtered = $this->dashboardService->filterDashboards("", [], ["NONE"], null, 0, 10, 1);
-        $this->assertEquals(2, sizeof($filtered));
+        $this->assertEquals(4, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
@@ -627,8 +627,90 @@ class DashboardServiceTest extends TestBase {
     public function testDashboardWithParentIdReturnedWithParentDataMergedOnGet() {
 
 
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $parentDashboardRaw = Dashboard::fetch(1);
+        $childDashboardRaw = Dashboard::fetch(2);
+
+        // Get a child dashboard by id.
+        $childDashboard = $this->dashboardService->getDashboardById(2);
+
+        // Confirm that it contains the aggregate of the dashboard instances
+        $datasetInstances = $childDashboard->getDatasetInstances();
+        $this->assertEquals(4, sizeof($datasetInstances));
+        $this->assertEquals($childDashboardRaw->getDatasetInstances()[0], $datasetInstances[0]);
+        $this->assertEquals($childDashboardRaw->getDatasetInstances()[1], $datasetInstances[1]);
+        $this->assertEquals($parentDashboardRaw->getDatasetInstances()[0], $datasetInstances[2]);
+        $this->assertEquals($parentDashboardRaw->getDatasetInstances()[1], $datasetInstances[3]);
 
 
+        // Confirm that layout settings are merged correctly
+        $parentRawLayoutSettings = $parentDashboardRaw->getLayoutSettings();
+        $childRawLayoutSettings = $childDashboardRaw->getLayoutSettings();
+        $childLayoutSettings = $childDashboard->getLayoutSettings();
+
+        // Grid settings - ensure parent ones are added locked
+        $this->assertEquals(4, sizeof($childLayoutSettings["grid"]));
+
+        $parentGrid1 = $parentRawLayoutSettings["grid"][0];
+        $parentGrid1["locked"] = 1;
+        $parentGrid2 = $parentRawLayoutSettings["grid"][1];
+        $parentGrid2["locked"] = 1;
+
+        $this->assertEquals([$parentGrid1, $parentGrid2], array_slice($childLayoutSettings["grid"], 0, 2));
+        $this->assertEquals($childRawLayoutSettings["grid"], array_slice($childLayoutSettings["grid"], 2));
+
+        // Check other keys merged as expected
+        $this->assertEquals(array_merge($childRawLayoutSettings["charts"], $parentRawLayoutSettings["charts"]), $childLayoutSettings["charts"]);
+        $this->assertEquals(array_merge($childRawLayoutSettings["metric"], $parentRawLayoutSettings["metric"]), $childLayoutSettings["metric"]);
+        $this->assertEquals(array_merge($childRawLayoutSettings["dependencies"], $parentRawLayoutSettings["dependencies"]), $childLayoutSettings["dependencies"]);
+        $this->assertEquals(array_merge($childRawLayoutSettings["general"], $parentRawLayoutSettings["general"]), $childLayoutSettings["general"]);
+
+
+    }
+
+
+    public function testWhenChildDashboardSavedParentAssetsAreRemoved() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $originalDashboardRaw = Dashboard::fetch(2);
+
+        // Get a child dashboard by id.
+        $childDashboard = $this->dashboardService->getDashboardById(2);
+
+        // Save the dashboard
+        $this->dashboardService->saveDashboard($childDashboard, "project1", 1);
+
+        // Grab the raw version and check all parent info stripped.
+        $childDashboardRaw = Dashboard::fetch(2);
+
+        // Check all parent info removed
+        $this->assertEquals($originalDashboardRaw, $childDashboardRaw);
+
+
+    }
+
+    public function testCanExtendDashboardAndGetANewOneWithParentLink() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $parentDashboard = $this->dashboardService->getDashboardById(2);
+
+        $extended = $this->dashboardService->extendDashboard(2);
+        $this->assertEquals(null, $extended->getId());
+        $this->assertEquals(2, $extended->getParentDashboardId());
+        $this->assertEquals("Test Child Dashboard Extended", $extended->getTitle());
+        $this->assertEquals($parentDashboard->getDatasetInstances(), $extended->getDatasetInstances());
+
+        // Lock all parent and confirm extension
+        $parentLayout = $parentDashboard->getLayoutSettings();
+        $parentLayout["grid"][0]["locked"] = 1;
+        $parentLayout["grid"][1]["locked"] = 1;
+        $parentLayout["grid"][2]["locked"] = 1;
+        $parentLayout["grid"][3]["locked"] = 1;
+
+        $this->assertEquals($parentLayout, $extended->getLayoutSettings());
 
     }
 
