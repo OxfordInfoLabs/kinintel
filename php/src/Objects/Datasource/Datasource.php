@@ -62,9 +62,10 @@ interface Datasource {
      *
      * @param $instanceKey
      * @param $instanceTitle
+     * @param $instanceParameters
      * @return mixed
      */
-    public function setInstanceInfo($instanceKey, $instanceTitle);
+    public function setInstanceInfo($instanceKey, $instanceTitle, $instanceParameters);
 
 
     /**

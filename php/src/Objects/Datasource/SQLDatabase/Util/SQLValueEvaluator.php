@@ -48,7 +48,6 @@ class SQLValueEvaluator {
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
 
-
             // Replace any template parameters
             $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $templateParameters) {
                 $matchingParamValue = $templateParameters[$matches[2]] ?? null;

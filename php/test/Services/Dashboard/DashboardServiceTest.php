@@ -624,6 +624,15 @@ class DashboardServiceTest extends TestBase {
     }
 
 
+    public function testDashboardWithParentIdReturnedWithParentDataMergedOnGet() {
+
+
+
+
+
+    }
+
+
     public function testReadOnlyFlagSetOnSummaryCorrectlyIfAccountIdNullAndLoggedInAsRegularUser() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");

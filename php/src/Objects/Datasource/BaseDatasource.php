@@ -37,6 +37,13 @@ abstract class BaseDatasource implements Datasource {
      */
     private $instanceTitle;
 
+
+    /**
+     * @var Parameter[]
+     */
+    private $instanceParameters;
+
+
     /**
      * Configuration for a data source
      *
@@ -62,7 +69,7 @@ abstract class BaseDatasource implements Datasource {
      * @param DatasourceConfig $config
      * @param AuthenticationCredentials $authenticationCredentials
      */
-    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null) {
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null, $instanceParameters = []) {
         $this->validator = $validator ? $validator : Container::instance()->get(Validator::class);
         if ($config)
             $this->setConfig($config);
@@ -73,6 +80,7 @@ abstract class BaseDatasource implements Datasource {
 
         $this->instanceKey = $instanceKey;
         $this->instanceTitle = $instanceTitle;
+        $this->instanceParameters = $instanceParameters;
 
 
     }
@@ -108,11 +116,13 @@ abstract class BaseDatasource implements Datasource {
      *
      * @param $instanceKey
      * @param $instanceTitle
+     * @param $instanceParameters
      * @return mixed|void
      */
-    public function setInstanceInfo($instanceKey, $instanceTitle) {
+    public function setInstanceInfo($instanceKey, $instanceTitle, $instanceParameters) {
         $this->instanceKey = $instanceKey;
         $this->instanceTitle = $instanceTitle;
+        $this->instanceParameters = $instanceParameters;
     }
 
     /**
@@ -127,6 +137,13 @@ abstract class BaseDatasource implements Datasource {
      */
     public function getInstanceTitle() {
         return $this->instanceTitle;
+    }
+
+    /**
+     * @return Parameter[]
+     */
+    public function getInstanceParameters() {
+        return $this->instanceParameters;
     }
 
 

@@ -12,6 +12,13 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
+     * Parent dashboard ID.
+     *
+     * @var integer
+     */
+    protected $parentDashboardId;
+
+    /**
      * Attached dataset instances
      *
      * @var DashboardDatasetInstance[]
@@ -82,6 +89,21 @@ class DashboardSummary extends DashboardSearchResult {
         $this->alertsEnabled = $alertsEnabled;
         $this->readOnly = $readOnly;
     }
+
+    /**
+     * @return int
+     */
+    public function getParentDashboardId() {
+        return $this->parentDashboardId;
+    }
+
+    /**
+     * @param int $parentDashboardId
+     */
+    public function setParentDashboardId($parentDashboardId) {
+        $this->parentDashboardId = $parentDashboardId;
+    }
+
 
     /**
      * @return DashboardDatasetInstance[]

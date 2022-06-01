@@ -14,6 +14,7 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
+use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -76,7 +77,10 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
-                null, $this->cacheDatasourceInstance, 7));
+                null, $this->cacheDatasourceInstance, 7), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
         $sevenDaysAgo = (new \DateTime())->sub(new \DateInterval("P7D"));
 
@@ -160,7 +164,10 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
-                null, $this->cacheDatasourceInstance, 7));
+                null, $this->cacheDatasourceInstance, 7), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
         $sevenDaysAgo = (new \DateTime())->sub(new \DateInterval("P7D"));
 
@@ -230,7 +237,10 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig("testsource", null,
-                "testcache", null, 5, 12));
+                "testcache", null, 5, 12), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
         $cacheExpiry = (new \DateTime())->sub(new \DateInterval("P5D"))->sub(new \DateInterval("PT12H"));
 
@@ -305,7 +315,10 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
-                null, $this->cacheDatasourceInstance, 7, null, true));
+                null, $this->cacheDatasourceInstance, 7, null, true), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
         $sevenDaysAgo = (new \DateTime())->sub(new \DateInterval("P7D"));
 
@@ -387,7 +400,10 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
-                null, $this->cacheDatasourceInstance, 7));
+                null, $this->cacheDatasourceInstance, 7), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
         $sevenDaysAgo = (new \DateTime())->sub(new \DateInterval("P7D"));
 
@@ -468,7 +484,11 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
-                null, $this->cacheDatasourceInstance, 7, null, false, CachingDatasourceConfig::CACHE_MODE_INCREMENTAl));
+                null, $this->cacheDatasourceInstance, 7,
+                null, false, CachingDatasourceConfig::CACHE_MODE_INCREMENTAl), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
 
         $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);
@@ -554,7 +574,11 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
-                null, $this->cacheDatasourceInstance, 7, null, false, CachingDatasourceConfig::CACHE_MODE_UPDATE));
+                null, $this->cacheDatasourceInstance, 7, null,
+                false, CachingDatasourceConfig::CACHE_MODE_UPDATE), null, null, [], [], [
+                new Parameter("param1","Param 1"),
+                new Parameter("param2", "Param 2")
+            ]);
 
 
         $encodedParams = json_encode(["param1" => "Joe", "param2" => "Bloggs"]);

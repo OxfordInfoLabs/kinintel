@@ -77,6 +77,17 @@ class DashboardService {
 
 
     /**
+     * Extend a dashboard.  This will create a link with the original dashboard
+     * using the parent dashboard id.
+     *
+     * @param $id
+     */
+    public function extendDashboard($parentDashboardId){
+
+    }
+
+
+    /**
      * Filter dashboards optionally by title, tags, project key and limiting as required
      *
      * @param string $filterString

@@ -58,10 +58,10 @@ class WebServiceDatasource extends BaseDatasource {
     ];
 
 
-    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null) {
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null, $instanceParameters = []) {
 
         // Construct parent
-        parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle);
+        parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle,$instanceParameters);
 
         $this->dispatcher = Container::instance()->get(HttpRequestDispatcher::class);
         $this->parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);

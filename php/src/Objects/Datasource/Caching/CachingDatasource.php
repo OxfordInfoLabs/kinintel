@@ -135,7 +135,12 @@ class CachingDatasource extends BaseDatasource {
         $cacheThreshold = $cacheThresholdObj->format("Y-m-d H:i:s");
 
         // Encode parameters
-        $encodedParameters = json_encode($parameterValues);
+        $sourceParameterValues = [];
+        foreach ($this->getInstanceParameters() ?? [] as $parameter) {
+            if (isset($parameterValues[$parameter->getName()]))
+                $sourceParameterValues[$parameter->getName()] = $parameterValues[$parameter->getName()];
+        }
+        $encodedParameters = json_encode($sourceParameterValues);
 
         // Do a limited check on cache data source
         $cacheCheckDatasource = $cacheDatasourceInstance->returnDataSource();
@@ -238,7 +243,7 @@ class CachingDatasource extends BaseDatasource {
         }
 
 
-        return $cacheDatasource->materialise();
+        return $cacheDatasource->materialise($parameterValues);
 
     }
 
