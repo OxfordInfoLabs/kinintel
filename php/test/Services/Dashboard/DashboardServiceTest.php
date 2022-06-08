@@ -660,6 +660,18 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals([$parentGrid1, $parentGrid2], array_slice($childLayoutSettings["grid"], 0, 2));
         $this->assertEquals($childRawLayoutSettings["grid"], array_slice($childLayoutSettings["grid"], 2));
 
+
+        // Parameters - check these are merged
+        $parameters = $childLayoutSettings["parameters"];
+        $this->assertEquals(3, sizeof($parameters));
+        $this->assertTrue(isset($parameters["childParam"]));
+        $this->assertEquals("childValue", $parameters["childParam"]["value"]);
+        $this->assertTrue(isset($parameters["parentParam1"]));
+        $this->assertEquals("childParentValue", $parameters["parentParam1"]["value"]);
+        $this->assertTrue(isset($parameters["parentParam2"]));
+        $this->assertEquals("value2", $parameters["parentParam2"]["value"]);
+
+
         // Check other keys merged as expected
         $this->assertEquals(array_merge($childRawLayoutSettings["charts"], $parentRawLayoutSettings["charts"]), $childLayoutSettings["charts"]);
         $this->assertEquals(array_merge($childRawLayoutSettings["metric"], $parentRawLayoutSettings["metric"]), $childLayoutSettings["metric"]);

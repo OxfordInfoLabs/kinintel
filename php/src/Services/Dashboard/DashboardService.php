@@ -210,6 +210,10 @@ class DashboardService {
             $dashboard->setCategories($categories);
         }
 
+        if ($dashboard->getParentDashboardId()) {
+            $this->removeParentData($dashboard);
+        }
+
         $dashboard->save();
         return $dashboard->getId();
     }
@@ -372,7 +376,7 @@ class DashboardService {
             $combinedKeys = array_unique(array_merge(array_keys($parentLayoutSettings), array_keys($childLayoutSettings)));
             foreach ($combinedKeys as $key) {
                 if ($key !== "grid") {
-                    $layoutSettings[$key] = array_merge($childLayoutSettings[$key] ?? [], $parentLayoutSettings[$key] ?? []);
+                    $layoutSettings[$key] = array_merge($parentLayoutSettings[$key] ?? [], $childLayoutSettings[$key] ?? []);
                 }
             }
 
@@ -382,6 +386,64 @@ class DashboardService {
         } catch (ObjectNotFoundException $e) {
             // Tolerate broken hierarchy and ignore parentage in this scenario
         }
+    }
+
+
+    /**
+     * Remove parent data from a dashboard
+     *
+     * @param Dashboard $dashboard
+     */
+    private function removeParentData($dashboard) {
+
+        $newInstances = [];
+        $includeKeys = [];
+
+        // Remove parent instances
+        foreach ($dashboard->getDatasetInstances() ?? [] as $datasetInstance) {
+            if (!$datasetInstance->getDashboardId() || $datasetInstance->getDashboardId() == $dashboard->getId()) {
+                $newInstances[] = $datasetInstance;
+                $includeKeys[$datasetInstance->getInstanceKey()] = 1;
+            }
+        }
+        $dashboard->setDatasetInstances($newInstances);
+
+
+        // Update layout settings
+        $layoutSettings = $dashboard->getLayoutSettings() ?? [];
+
+        // Grid first
+        $gridSettings = $layoutSettings["grid"] ?? [];
+        $newGrid = [];
+        foreach ($gridSettings as $gridSetting) {
+            if (!($gridSetting["locked"] ?? false))
+                $newGrid[] = $gridSetting;
+        }
+        $layoutSettings["grid"] = $newGrid;
+
+
+        // Grab parent dashboard and optimise out any parameters exact match to parent ones
+        $parentDashboard = $this->getFullDashboardById($dashboard->getParentDashboardId());
+        $parentLayoutSettings = $parentDashboard->getLayoutSettings() ?? [];
+
+        $parameters = $layoutSettings["parameters"] ?? [];
+        foreach ($parentLayoutSettings["parameters"] ?? [] as $key => $parameter) {
+            if (isset($parameters[$key]) && $parameters[$key] == $parameter) {
+                unset($parameters[$key]);
+            }
+        }
+        $layoutSettings["parameters"] = $parameters;
+
+        // Everything else except grid and parameters
+        foreach ($layoutSettings as $key => $value) {
+            if ($key !== "grid" && $key !== "parameters") {
+                $layoutSettings[$key] = array_intersect_key($layoutSettings[$key], $includeKeys);
+            }
+        }
+
+        // Update layout settings
+        $dashboard->setLayoutSettings($layoutSettings);
+
     }
 
 

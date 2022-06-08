@@ -132,6 +132,24 @@
       "callToAction": {
         "i1654077656777": [],
         "i1654077693984": []
+      },
+      "parameters": {
+        "parentParam1": {
+          "type": "text",
+          "multiple": false,
+          "defaultValue": null,
+          "title": "Parent Param 1",
+          "name": "parentParam1",
+          "value": "value1"
+        },
+        "parentParam2": {
+          "type": "text",
+          "multiple": false,
+          "defaultValue": null,
+          "title": "Parent Param 2",
+          "name": "parentParam2",
+          "value": "value2"
+        }
       }
     }
   },
@@ -268,6 +286,24 @@
       "callToAction": {
         "i1654080160929": [],
         "i1654080217467": []
+      },
+      "parameters": {
+        "childParam": {
+          "type": "text",
+          "multiple": false,
+          "defaultValue": null,
+          "title": "Child Param",
+          "name": "childParam",
+          "value": "childValue"
+        },
+        "parentParam1": {
+          "type": "text",
+          "multiple": false,
+          "defaultValue": null,
+          "title": "Parent Param 1",
+          "name": "parentParam1",
+          "value": "childParentValue"
+        }
       }
     }
   }

@@ -88,12 +88,6 @@ class Dashboard extends DashboardSummary {
      * Override save method to ensure all parent data is removed first of all
      */
     public function save() {
-
-        // If a parent dashboard, firstly strip all parent data
-        if ($this->parentDashboardId) {
-            $this->removeParentData();
-        }
-
         parent::save();
     }
 
@@ -139,43 +133,5 @@ class Dashboard extends DashboardSummary {
 
     }
 
-    // Remove parent data
-    private function removeParentData() {
-
-        $newInstances = [];
-        $includeKeys = [];
-
-        // Remove parent instances
-        foreach ($this->datasetInstances ?? [] as $datasetInstance) {
-            if (!$datasetInstance->getDashboardId() || $datasetInstance->getDashboardId() == $this->id) {
-                $newInstances[] = $datasetInstance;
-                $includeKeys[$datasetInstance->getInstanceKey()] = 1;
-            }
-        }
-        $this->datasetInstances = $newInstances;
-
-
-        // Update layout settings
-        $layoutSettings = $this->layoutSettings ?? [];
-
-        // Grid first
-        $gridSettings = $layoutSettings["grid"] ?? [];
-        $newGrid = [];
-        foreach ($gridSettings as $gridSetting) {
-            if (!($gridSetting["locked"] ?? false))
-                $newGrid[] = $gridSetting;
-        }
-        $layoutSettings["grid"] = $newGrid;
-
-        // Everything else except grid
-        foreach ($layoutSettings as $key => $value) {
-            if ($key !== "grid") {
-                $layoutSettings[$key] = array_intersect_key($layoutSettings[$key], $includeKeys);
-            }
-        }
-
-        // Update layout settings
-        $this->layoutSettings = $layoutSettings;
-    }
 
 }
