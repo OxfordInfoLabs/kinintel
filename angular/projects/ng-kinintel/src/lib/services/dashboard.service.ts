@@ -22,6 +22,14 @@ export class DashboardService {
         return this.http.get(`${this.config.backendURL}/dashboard/${id}`).toPromise();
     }
 
+    public copyDashboard(id) {
+        return this.http.get(`${this.config.backendURL}/dashboard/copy/${id}`).toPromise();
+    }
+
+    public extendDashboard(id) {
+        return this.http.get(`${this.config.backendURL}/dashboard/extend/${id}`).toPromise();
+    }
+
     public getDashboards(filterString = '', limit = '10', offset = '0', accountId = '', categories = [], tags?) {
         tags = tags || (this.tagService.activeTag.getValue() ? this.tagService.activeTag.getValue().key : 'NONE');
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';

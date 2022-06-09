@@ -2,7 +2,6 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {SourceSelectorDialogComponent} from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
 import {DashboardService} from '../../../services/dashboard.service';
-import {DatasetNameDialogComponent} from '../../dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import * as _ from 'lodash';
 import chroma from 'chroma-js';
 import {DatasetService} from '../../../services/dataset.service';
@@ -34,6 +33,7 @@ export class ConfigureItemComponent implements OnInit {
     public dashboardItemType;
     public dashboardDatasetInstance: any;
     public dashboards: any = [];
+    public sharedDashboards: any = [];
     public dashboardParameters: any = [];
     public dashboardParamValues: any = [];
     public admin: boolean;
@@ -100,6 +100,7 @@ export class ConfigureItemComponent implements OnInit {
             type: 'hide'
         }
     ];
+    public showAlertWarning = false;
 
     public sideOpen = false;
     public openSide = new BehaviorSubject(false);
@@ -154,10 +155,19 @@ export class ConfigureItemComponent implements OnInit {
 
         this.dashboardService.getDashboards(
             '',
-            '50',
+            '100',
             '0'
         ).toPromise().then(dashboards => {
             this.dashboards = dashboards;
+        });
+
+        this.dashboardService.getDashboards(
+            '',
+            '100',
+            '0',
+            null
+        ).toPromise().then(dashboards => {
+            this.sharedDashboards = dashboards;
         });
 
         this.openSide.subscribe((open: boolean) => {
@@ -265,13 +275,16 @@ export class ConfigureItemComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(alertItem => {
-            if (!this.dashboardDatasetInstance.alerts) {
-                this.dashboardDatasetInstance.alerts = [];
-            }
-            if (index >= 0) {
-                this.dashboardDatasetInstance.alerts[index] = alertItem;
-            } else {
-                this.dashboardDatasetInstance.alerts.push(alertItem);
+            if (alertItem) {
+                if (!this.dashboardDatasetInstance.alerts) {
+                    this.dashboardDatasetInstance.alerts = [];
+                }
+                if (index >= 0) {
+                    this.dashboardDatasetInstance.alerts[index] = alertItem;
+                } else {
+                    this.dashboardDatasetInstance.alerts.push(alertItem);
+                    this.showAlertWarning = !this.dashboard.alertsEnabled;
+                }
             }
         });
     }
@@ -289,7 +302,7 @@ export class ConfigureItemComponent implements OnInit {
         const filterType = DatasetFilterComponent.getFilterType(filter.filterType);
 
         if (filter) {
-            details += `<b>Where</b> ${filter.lhsExpression} `;
+            details += `<span class="font-medium">Where</span> ${filter.lhsExpression} `;
             details += filterType ? filterType.label : '';
             details += ` ${filter.rhsExpression}`;
         }
@@ -297,11 +310,11 @@ export class ConfigureItemComponent implements OnInit {
         const matchRule = alert.matchRuleConfiguration;
         if (matchRule && alert.matchRuleType === 'rowcount') {
             if (matchRule.matchType === 'equals') {
-                details += ` <b>And</b> exactly ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
+                details += ` <span class="font-medium">And</span> exactly ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
             } else if (matchRule.matchType === 'greater') {
-                details += ` <b>And</b> more than ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
+                details += ` <span class="font-medium">And</span> more than ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
             } else if (matchRule.matchType === 'less') {
-                details += ` <b>And</b> less than ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
+                details += ` <span class="font-medium">And</span> less than ${matchRule.value} row${matchRule.value > 1 ? 's' : ''} returned`;
             }
         }
 

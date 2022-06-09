@@ -17,6 +17,7 @@ import * as _ from 'lodash';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../../services/alert.service';
+import * as moment from 'moment';
 
 @Component({
     selector: 'ki-view-dashboard',
@@ -70,6 +71,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     public fullOnly = false;
 
     private grid: GridStack;
+    private queryParams: any = {};
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
@@ -111,11 +113,14 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         }
 
         this.route.queryParams.subscribe(params => {
-            this.admin = !!params.a;
+            const cloned = _.clone(params);
+            this.admin = !!cloned.a;
+            delete cloned.a;
+            this.queryParams = cloned;
         });
     }
 
-    ngAfterViewInit() {
+    async ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
             float: true,
@@ -155,27 +160,44 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         const dashboardId = this.dashboardId || this.route.snapshot.params.dashboard;
 
-        this.dashboardService.getDashboard(dashboardId).then(dashboard => {
-            this.dashboard = dashboard;
-            this.editDashboardTitle = !this.dashboard.title;
-            if (!this.dashboard.displaySettings) {
-                this.dashboard.displaySettings = {};
-            }
+        this.dashboard = await this.dashboardService.getDashboard(dashboardId);
 
-            if (this.dashboard.layoutSettings) {
-                if (this.dashboard.layoutSettings.grid && this.dashboard.layoutSettings.grid.length) {
-                    this.grid.load(this.dashboard.layoutSettings.grid);
+        Object.keys(this.queryParams).forEach(key => {
+            if (Object.keys(this.dashboard.layoutSettings.parameters).length) {
+                if (this.dashboard.layoutSettings.parameters[key]) {
+                    if (this.dashboard.layoutSettings.parameters[key].type === 'date' ||
+                        this.dashboard.layoutSettings.parameters[key].type === 'datetime') {
+                        this.queryParams[key] = moment(this.queryParams[key]).format('YYYY-MM-DDTHH:mm');
+                    }
+                    this.dashboard.layoutSettings.parameters[key].value = this.queryParams[key];
                 }
-            } else {
-                this.dashboard.layoutSettings = {};
             }
 
-            if (this.sidenavService && !this.fullOnly) {
-                setTimeout(() => {
-                    this.sidenavService.close();
-                }, 0);
-            }
+            this.dashboard.datasetInstances.forEach(instance => {
+                if (!_.values(instance.parameterValues).length) {
+                    instance.parameterValues = {};
+                }
+                instance.parameterValues[key] = this.queryParams[key];
+            });
         });
+
+        if (!this.dashboard.displaySettings) {
+            this.dashboard.displaySettings = {};
+        }
+
+        if (this.dashboard.layoutSettings) {
+            if (this.dashboard.layoutSettings.grid && this.dashboard.layoutSettings.grid.length) {
+                this.grid.load(this.dashboard.layoutSettings.grid);
+            }
+        } else {
+            this.dashboard.layoutSettings = {};
+        }
+
+        if (this.sidenavService && !this.fullOnly) {
+            setTimeout(() => {
+                this.sidenavService.close();
+            }, 0);
+        }
     }
 
     ngOnDestroy() {

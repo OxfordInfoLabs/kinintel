@@ -81,6 +81,7 @@ export class ItemComponentComponent implements AfterViewInit {
     public limit = 25;
     public page = 1;
     public endOfResults = false;
+    public itemLocked = false;
 
     private offset = 0;
     private itemLoadedSub: Subscription;
@@ -206,6 +207,13 @@ export class ItemComponentComponent implements AfterViewInit {
     }
 
     public load() {
+        // Check to see if any of the grid items are locked
+        const grid = this.dashboard.layoutSettings.grid;
+        const lockedItems = _.filter(grid, 'locked');
+        this.itemLocked = !!_.find(lockedItems, lockedItem => {
+            return lockedItem.content.includes(this.itemInstanceKey);
+        });
+
         if (this.dashboardDatasetInstance) {
             return this.evaluate();
         }
@@ -527,23 +535,23 @@ export class ItemComponentComponent implements AfterViewInit {
                                     const cellData = this.tableCells[tableCell].data;
                                     switch (this.tableCells[tableCell].type) {
                                         case 'number':
-                                            const cellNumber = Number(item[tableCell]);
+                                            const cellNumber = parseFloat(String(item[tableCell]));
                                             item[tableCell] = {cellValue: cellNumber.toFixed(cellData.decimal), initialValue: item[tableCell]};
                                             break;
                                         case 'currency':
-                                            let cellCurrency: any = Number(item[tableCell]);
+                                            let cellCurrency: any = parseFloat(String(item[tableCell]));
 
                                             if (cellData.thousandsSeparator && (cellData.currency && cellData.currency.value)) {
                                                 cellCurrency = cellCurrency.toLocaleString('en-GB', {
                                                     style: 'currency',
                                                     currency: cellData.currency.value,
-                                                    minimumFractionDigits: cellData.decimal
+                                                    minimumFractionDigits: cellData.decimal || 0
                                                 });
                                             } else {
                                                 cellCurrency = cellCurrency.toFixed(cellData.decimal);
                                                 if (cellData.thousandsSeparator) {
                                                     cellCurrency = Number(cellCurrency).toLocaleString('en-GB', {
-                                                        minimumFractionDigits: cellData.decimal
+                                                        minimumFractionDigits: cellData.decimal || 0
                                                     });
                                                 }
                                                 if (cellData.currency && cellData.currency.value) {
@@ -557,7 +565,7 @@ export class ItemComponentComponent implements AfterViewInit {
                                             let cellPercent: any = Number(item[tableCell]);
                                             const formatter = new Intl.NumberFormat('en-GB', {
                                                 style: 'percent',
-                                                minimumFractionDigits: cellData.decimal
+                                                minimumFractionDigits: cellData.decimal || 0
                                             });
                                             cellPercent = formatter.format(cellPercent);
 
@@ -615,7 +623,7 @@ export class ItemComponentComponent implements AfterViewInit {
                                                 linkValue = this.bindParametersInString(linkValue, dataItem);
                                                 // Check if we have any column eg. [[ ]] values needing mapping
                                                 linkValue = this.mapColumnToValue(linkValue, dataItem);
-                                                anchor = `<a href="${linkValue}" target="_blank" class="text-indigo-600 hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                anchor = `<a href="${linkValue}" target="_blank" class="text-seconadry hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                                       <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                                                       <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                                                     </svg></span></a>`;
@@ -633,14 +641,14 @@ export class ItemComponentComponent implements AfterViewInit {
 
                                                 });
                                                 const urlParams = new URLSearchParams(params).toString();
-                                                linkValue = `${this.router.url.split('/')[0]}/dashboards/${dashboardLink.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
-                                                anchor = `<a href="${linkValue}" class="text-indigo-600 hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                linkValue = `${this.router.url.split('/')[0]}/dashboards/view/${dashboardLink.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
+                                                anchor = `<a href="${linkValue}" class="text-secondary hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                                       <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                                                       <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                                                     </svg></span></a>`;
                                             } else {
                                                 linkValue = linkValue.includes('http') ? linkValue : `http://${linkValue}`;
-                                                anchor = `<a href="${linkValue}" target="_blank" class="text-indigo-600 hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                anchor = `<a href="${linkValue}" target="_blank" class="text-seconadry hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                                       <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
                                                       <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
                                                     </svg></span></a>`;
@@ -674,7 +682,6 @@ export class ItemComponentComponent implements AfterViewInit {
                                             break;
                                     }
                                 }
-
                                 return item;
                             });
                         }

@@ -18,25 +18,25 @@
                       class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                     {{feedUrl}}
                   </span>
-                <input type="text" class="w-full rounded-l-none"
+                <input type="text" class="w-full rounded-l-none" [ngClass]="{'border-red-600': !!error}"
                        placeholder="my-new-data-feed" [(ngModel)]="feed.path">
             </div>
-            <small class="font-normal">The path used to identify this feed</small>
+            <small *ngIf="!error" class="font-normal">The path used to identify this feed</small>
+            <small *ngIf="error" class="font-normal text-red-600">{{error}}</small>
         </label>
 
         <label class="mb-4">
-            Dataset
-
+            Query
             <input type="text" [matAutocomplete]="autoDatasets"
                    [value]="feed.datasetLabel ? feed.datasetLabel.title : ''"
-                   (keyup)="searchText.next($event.target.value)" placeholder="Search for a dataset">
+                   (keyup)="searchText.next($event.target.value)" placeholder="Search for a query">
             <mat-autocomplete #autoDatasets="matAutocomplete" [displayWith]="displayFn">
                 <mat-option *ngFor="let dataset of datasets" [value]="dataset"
                             (onSelectionChange)="updateFeedDataset($event)">
                     {{dataset.title}}
                 </mat-option>
             </mat-autocomplete>
-            <small class="font-normal">Start typing name to view available datasets</small>
+            <small class="font-normal">Start typing name to view available stored queries</small>
         </label>
 
         <label class="mb-4">

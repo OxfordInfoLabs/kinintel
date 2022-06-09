@@ -15,7 +15,7 @@
         </div>
         <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="!hideCreate">
             <button type="button" (click)="create()"
-                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
                 Create {{newTitle || 'Dataset'}}
             </button>
         </div>
@@ -159,7 +159,7 @@
 
 <div class="p-4" *ngIf="!datasets.length && !loading">
     <button type="button" (click)="create()" *ngIf="!hideCreate"
-            class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
 
         <div class="relative inline-block">
             <mat-icon

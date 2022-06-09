@@ -23,7 +23,7 @@
                             <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
                                 {{column.title}}&nbsp;
                                 <svg *ngIf="column.keyField || column.type ==='id'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <button mat-icon-button [matMenuTriggerFor]="header"
@@ -88,7 +88,8 @@
                                 <mat-menu #menu="matMenu">
                                     <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
                                     <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
-                                    <button mat-menu-item (click)="row[rowColumn.name] = ''">Clear cell</button>
+                                    <button *ngIf="columns[rowColIndex].type !== 'id'"
+                                        mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell</button>
                                 </mat-menu>
                             </div>
 
@@ -181,7 +182,7 @@
                 </label>
 
                 <mat-checkbox class="mb-4" [checked]="true" disabled>
-                    Primary Key
+                    {{_.filter(columns, 'keyField').length > 1 ? 'Part of Unique Identifier' : 'Unique Identifier'}}
                 </mat-checkbox>
             </ng-template>
 
@@ -198,7 +199,7 @@
 
                 <mat-checkbox class="mb-4" [(ngModel)]="selectedItem.keyField"
                               [disabled]="_.find(columns, {type:'id'})">
-                    Primary Key
+                    {{_.filter(columns, 'keyField').length > 1 ? 'Part of Unique Identifier' : 'Unique Identifier'}}
                 </mat-checkbox>
 
             </ng-template>

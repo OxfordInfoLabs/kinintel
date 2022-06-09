@@ -36,6 +36,20 @@ const routes: Routes = [
                 component: DashboardComponent
             },
             {
+                path: 'dashboards/copy/:dashboard',
+                component: DashboardComponent,
+                data: {
+                    type: 'copy'
+                }
+            },
+            {
+                path: 'dashboards/extend/:dashboard',
+                component: DashboardComponent,
+                data: {
+                    type: 'extend'
+                }
+            },
+            {
                 path: 'dashboards/view/:dashboard',
                 component: ViewDashboardComponent
             },

@@ -20,6 +20,7 @@ export class FeedComponent implements OnInit {
     public searchText = new BehaviorSubject('');
     public feedDataset: any;
     public parameters: any = [];
+    public error = '';
 
     constructor(public dialogRef: MatDialogRef<FeedComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -69,6 +70,11 @@ export class FeedComponent implements OnInit {
     public saveFeed() {
         this.feedService.saveFeed(this.feed).then(res => {
             this.dialogRef.close();
+        }).catch(err => {
+            const validationErrors = err.error ? (err.error.validationErrors || {}) : {};
+            if (validationErrors.path && validationErrors.path.duplicatePath) {
+                this.error = 'Path name is not available. Please enter a different path.';
+            }
         });
     }
 

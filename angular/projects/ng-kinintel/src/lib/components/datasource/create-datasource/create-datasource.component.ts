@@ -175,13 +175,10 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         dialogRef.afterClosed().subscribe(res => {
             if (res) {
                 if (!this.selectedCell) {
-                    let rowColIndex = 0;
-                    if (_.find(this.columns, {type: 'id'})) {
-                        rowColIndex = 1;
-                    }
+                    const rowColIndex = 0;
                     this.selectedCell = {rowIndex: 0, rowColIndex};
                 }
-
+console.log(this.selectedCell);
                 if (res.headerRow) {
                     const columns = [];
                     res.data[0].forEach(header => {
@@ -277,6 +274,14 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public blurCell() {
         this.selectedCell = null;
         this.removeCellFocusBorder();
+    }
+
+    public clearCell(rowIndex, rowColIndex) {
+        const columnName = this.columns[rowColIndex].name;
+        this.rows[rowIndex][columnName] = '';
+        if (this.adds.indexOf(rowIndex) === -1) {
+            this.updates.push(rowIndex);
+        }
     }
 
     public updateField(field, rowIndex) {

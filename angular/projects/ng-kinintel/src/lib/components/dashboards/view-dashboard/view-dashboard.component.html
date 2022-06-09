@@ -55,11 +55,13 @@
                     <div class="parameter-input">
                         <ng-template [ngIf]="parameter.type === 'text'">
                             <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                                   (change)="setParameterValue(parameter, $event.target.value)" required autofocus>
+                                   (change)="setParameterValue(parameter, $event.target.value)" required autofocus
+                                   [disabled]="parameter.locked">
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'numeric'">
                             <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                                   (change)="setParameterValue(parameter, $event.target.value)" required autofocus>
+                                   (change)="setParameterValue(parameter, $event.target.value)" required autofocus
+                                   [disabled]="parameter.locked">
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                             <ng-template [ngIf]="!parameter._dateType">
@@ -78,7 +80,8 @@
                             </ng-template>
                             <ng-template [ngIf]="parameter._dateType === 'picker'">
                                 <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                                       (change)="setParameterValue(parameter, $event.target.value)" required autofocus>
+                                       (change)="setParameterValue(parameter, $event.target.value)" required autofocus
+                                       [disabled]="parameter.locked">
 
                                 <a (click)="changeDateType($event, parameter, 'period')"
                                    matTooltip="Time Period"
@@ -90,9 +93,11 @@
                                 <div class="flex items-center">
                                     <input #periodValue type="number" placeholder="No." required autofocus
                                            class="w-16 mr-2" min="0" [value]="parameter._periodValue || 1"
-                                           (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+                                           (change)="updatePeriodValue(periodValue.value, period.value, parameter)"
+                                           [disabled]="parameter.locked">
 
                                     <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
+                                            [disabled]="parameter.locked"
                                             #period (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
                                         <option value="DAYS">Days</option>
                                         <option value="HOURS">Hours</option>
@@ -110,7 +115,7 @@
 
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'boolean'">
-                            <mat-slide-toggle class="pr-8" color="primary"
+                            <mat-slide-toggle class="pr-8" color="primary" [disabled]="parameter.locked"
                                               [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
                                               required></mat-slide-toggle>
                         </ng-template>

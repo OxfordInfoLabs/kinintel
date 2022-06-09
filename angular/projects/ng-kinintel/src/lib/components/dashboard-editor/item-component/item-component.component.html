@@ -43,42 +43,44 @@
     <p>Loading {{general.name || dashboardItemType.label}} ...</p>
 </div>
 
-<button mat-icon-button class="edit-widget" *ngIf="viewOnly && editAlerts"
-    [matMenuTriggerFor]="alertMenu">
-    <mat-icon>add_alert</mat-icon>
-</button>
-<mat-menu #alertMenu="matMenu" class="no-menu-padding">
-    <button mat-menu-item (click)="editItemAlerts(null)">
-        <mat-icon>add</mat-icon>
-        <span>New Alert</span>
+<ng-template [ngIf]="!itemLocked">
+    <button mat-icon-button class="edit-widget" *ngIf="viewOnly && editAlerts"
+            [matMenuTriggerFor]="alertMenu">
+        <mat-icon>add_alert</mat-icon>
     </button>
-    <ng-template [ngIf]="dashboardDatasetInstance">
-        <div mat-menu-item class="flex items-center justify-between p-0 "
-             [ngClass]="{'border border-t border-b-0 border-r-0 border-l-0 border-solid border-gray-200': i === 0}"
-             *ngFor="let alert of dashboardDatasetInstance.alerts; let i = index">
-            <div class="px-4 flex items-center" (click)="editItemAlerts(alert, i)">
-                <mat-icon>edit</mat-icon>
-                <span>{{alert.title}}</span>
-            </div>
-            <div class="flex items-center">
-                <div class="mx-2 divider"></div>
-                <button mat-icon-button (click)="removeAlert($event, alert, i)">
-                    <mat-icon class="mx-2 text-red-600 m-0">highlight_off</mat-icon>
-                </button>
-            </div>
+    <mat-menu #alertMenu="matMenu" class="no-menu-padding">
+        <button mat-menu-item (click)="editItemAlerts(null)">
+            <mat-icon>add</mat-icon>
+            <span>New Alert</span>
+        </button>
+        <ng-template [ngIf]="dashboardDatasetInstance">
+            <div mat-menu-item class="flex items-center justify-between p-0 "
+                 [ngClass]="{'border border-t border-b-0 border-r-0 border-l-0 border-solid border-gray-200': i === 0}"
+                 *ngFor="let alert of dashboardDatasetInstance.alerts; let i = index">
+                <div class="px-4 flex items-center" (click)="editItemAlerts(alert, i)">
+                    <mat-icon>edit</mat-icon>
+                    <span>{{alert.title}}</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="mx-2 divider"></div>
+                    <button mat-icon-button (click)="removeAlert($event, alert, i)">
+                        <mat-icon class="mx-2 text-red-600 m-0">highlight_off</mat-icon>
+                    </button>
+                </div>
 
-        </div>
-    </ng-template>
-</mat-menu>
+            </div>
+        </ng-template>
+    </mat-menu>
 
-<button *ngIf="!dragItem && !viewOnly" mat-icon-button class="edit-widget "
-        [matMenuTriggerFor]="editMenu">
-    <mat-icon>more_vert</mat-icon>
-</button>
-<mat-menu #editMenu="matMenu">
-    <button mat-menu-item (click)="configure()">Edit Item</button>
-    <button mat-menu-item (click)="removeWidget($event)">Delete Item</button>
-</mat-menu>
+    <button *ngIf="!dragItem && !viewOnly" mat-icon-button class="edit-widget "
+            [matMenuTriggerFor]="editMenu">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #editMenu="matMenu">
+        <button mat-menu-item (click)="configure()">Edit Item</button>
+        <button mat-menu-item (click)="removeWidget($event)">Delete Item</button>
+    </mat-menu>
+</ng-template>
 
 <ng-template [ngIf]="!dragItem && dashboardItemType.type === 'heading'">
 
@@ -161,10 +163,12 @@
                                 <div [innerHTML]="dataItem[column.name].cellValue"></div>
                             </ng-template>
                             <ng-template [ngIf]="!_.isPlainObject(dataItem[column.name])">
-                                <ng-template [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
+                                <ng-template
+                                    [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
                                     {{dataItem[column.name]}}
                                 </ng-template>
-                                <ng-template [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
+                                <ng-template
+                                    [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
                                     <div
                                         [title]="dataItem[column.name]">{{dataItem[column.name].substring(0, 100) + '...'}}</div>
                                 </ng-template>
@@ -210,7 +214,7 @@
 
     <div class="call-to-action w-full bg-gray-50 px-5 py-3" *ngIf="callToAction && Object.keys(callToAction).length">
         <div class="text-sm">
-            <a class="font-medium text-indigo-700 hover:text-indigo-900 flex items-center"
+            <a class="font-medium text-secondary flex items-center"
                (click)="callToActionLink(callToAction)">
                 {{callToAction.label}}
                 <mat-icon>chevron_right</mat-icon>

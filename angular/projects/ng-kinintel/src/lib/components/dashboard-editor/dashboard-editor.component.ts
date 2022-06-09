@@ -14,7 +14,9 @@ import {ItemComponentComponent} from './item-component/item-component.component'
 import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../services/dashboard.service';
 import * as _ from 'lodash';
-import {DatasetAddParameterComponent} from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
+import {
+    DatasetAddParameterComponent
+} from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
@@ -156,7 +158,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    ngAfterViewInit() {
+    async ngAfterViewInit() {
         const options = {
             minRow: 1, // don't collapse when empty
             float: false,
@@ -204,57 +206,65 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         const dashboardId = this.route.snapshot.params.dashboard;
+        const routeData = this.route.snapshot.data;
+        const editType = routeData ? routeData.type : null;
 
-        this.dashboardService.getDashboard(dashboardId).then(dashboard => {
-            this.dashboard = dashboard;
-            if (!this.dashboard.title) {
-                this.dashboard.title = 'New Dashboard';
-                this.editDashboardTitle = true;
+        if (editType === 'copy') {
+            this.dashboard = await this.dashboardService.copyDashboard(dashboardId);
+            this.dashboard.title = this.dashboard.title + ' copy';
+        } else if (editType === 'extend') {
+            this.dashboard = await this.dashboardService.extendDashboard(dashboardId);
+        } else {
+            this.dashboard = await this.dashboardService.getDashboard(dashboardId);
+        }
+
+        if (!this.dashboard.title) {
+            this.dashboard.title = 'New Dashboard';
+            this.editDashboardTitle = true;
+        }
+
+        // If we have any query params, check if they match any set out in the dashboard
+        Object.keys(this.queryParams).forEach(key => {
+            if (Object.keys(this.dashboard.layoutSettings.parameters).length) {
+                if (this.dashboard.layoutSettings.parameters[key]) {
+                    if (this.dashboard.layoutSettings.parameters[key].type === 'date' ||
+                        this.dashboard.layoutSettings.parameters[key].type === 'datetime') {
+                        this.queryParams[key] = moment(this.queryParams[key]).format('YYYY-MM-DDTHH:mm');
+                    }
+                    this.dashboard.layoutSettings.parameters[key].value = this.queryParams[key];
+                }
             }
 
-            // If we have any query params, check if they match any set out in the dashboard
-            Object.keys(this.queryParams).forEach(key => {
-                if (Object.keys(this.dashboard.layoutSettings.parameters).length) {
-                    if (this.dashboard.layoutSettings.parameters[key]) {
-                        if (this.dashboard.layoutSettings.parameters[key].type === 'date' ||
-                            this.dashboard.layoutSettings.parameters[key].type === 'datetime') {
-                            this.queryParams[key] = moment(this.queryParams[key]).format('YYYY-MM-DDTHH:mm');
-                        }
-                        this.dashboard.layoutSettings.parameters[key].value = this.queryParams[key];
-                    }
+            this.dashboard.datasetInstances.forEach(instance => {
+                if (!_.values(instance.parameterValues).length) {
+                    instance.parameterValues = {};
                 }
-
-                this.dashboard.datasetInstances.forEach(instance => {
-                    if (!_.values(instance.parameterValues).length) {
-                        instance.parameterValues = {};
-                    }
-                    instance.parameterValues[key] = this.queryParams[key];
-                });
+                instance.parameterValues[key] = this.queryParams[key];
             });
-
-            if (this.dashboard.displaySettings && (this.dashboard.displaySettings.length || Object.keys(this.dashboard.displaySettings).length)) {
-                this.darkMode = !!this.dashboard.displaySettings.darkMode;
-                this.setDarkModeOnBody();
-                if (this.dashboard.displaySettings.fullScreen) {
-                    this.openFullScreen();
-                    this.fullScreen = true;
-                }
-            } else {
-                this.dashboard.displaySettings = {};
-            }
-            if (this.dashboard.layoutSettings) {
-                if (this.dashboard.layoutSettings.grid && this.dashboard.layoutSettings.grid.length) {
-                    this.grid.load(this.dashboard.layoutSettings.grid);
-                }
-            } else {
-                this.dashboard.layoutSettings = {};
-            }
-
-            setTimeout(() => {
-                this.showEditPanel = true;
-                this.sidenavService.close();
-            }, 0);
         });
+
+        if (this.dashboard.displaySettings && (this.dashboard.displaySettings.length || Object.keys(this.dashboard.displaySettings).length)) {
+            this.darkMode = !!this.dashboard.displaySettings.darkMode;
+            this.setDarkModeOnBody();
+            if (this.dashboard.displaySettings.fullScreen) {
+                this.openFullScreen();
+                this.fullScreen = true;
+            }
+        } else {
+            this.dashboard.displaySettings = {};
+        }
+        if (this.dashboard.layoutSettings) {
+            if (this.dashboard.layoutSettings.grid && this.dashboard.layoutSettings.grid.length) {
+                this.grid.load(this.dashboard.layoutSettings.grid);
+            }
+        } else {
+            this.dashboard.layoutSettings = {};
+        }
+
+        setTimeout(() => {
+            this.showEditPanel = true;
+            this.sidenavService.close();
+        }, 0);
     }
 
     ngOnDestroy() {
@@ -314,8 +324,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             clonedParameter = _.clone(existingParameter);
         }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
-            width: '600px',
-            height: '600px',
+            width: '650px',
+            height: '650px',
             data: {
                 parameter: clonedParameter
             }
@@ -366,8 +376,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 });
             }
             if (!this.dashboard.id) {
-                this.dashboard.id = dashboardId;
-                this.router.navigateByUrl(`/${this.routeURL}/${dashboardId}${this.admin ? '?a=true' : ''}`);
+                window.location.href = `/${this.routeURL}/${dashboardId}${this.admin ? '?a=true' : ''}`;
             }
             return this.dashboard;
         });

@@ -3,7 +3,6 @@
         Decimals
         <select matNativeControl [(ngModel)]="data.decimal"
                 (ngModelChange)="setDecimalValue($event)">
-            <option [value]="undefined">Automatic</option>
             <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
                     [value]="decimal">
                 {{decimal}}
@@ -17,7 +16,6 @@
         Decimals
         <select matNativeControl [(ngModel)]="data.decimal"
                 (ngModelChange)="setDecimalValue($event)">
-            <option [value]="undefined">Automatic</option>
             <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
                     [value]="decimal">
                 {{decimal}}
@@ -46,7 +44,6 @@
         Decimals
         <select matNativeControl [(ngModel)]="data.decimal"
                 (ngModelChange)="setDecimalValue($event)">
-            <option [value]="undefined">Automatic</option>
             <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
                     [value]="decimal">
                 {{decimal}}
@@ -104,7 +101,6 @@
         Decimals
         <select matNativeControl [(ngModel)]="data.comparisonDecimals"
                 (ngModelChange)="setDecimalValue($event)">
-            <option [value]="undefined">Automatic</option>
             <option *ngFor="let decimal of [0,1,2,3,4,5,6,7,8,9]"
                     [value]="decimal">
                 {{decimal}}
@@ -119,7 +115,7 @@
         <select matNativeControl [(ngModel)]="data.linkType">
             <option value="">External Link</option>
             <option value="custom">Custom Link</option>
-            <option value="dashboard">Link Dashboard</option>
+            <option value="dashboard">Existing Dashboard</option>
         </select>
         <small class="font-normal">Select the destination for the action link</small>
     </label>
@@ -138,10 +134,18 @@
             Select Dashboard
             <select matNativeControl [(ngModel)]="data.dashboardLink"
                     [compareWith]="selectOption" (ngModelChange)="dashboardParamUpdate($event)">
-                <option *ngFor="let dashboard of dashboards"
-                        [ngValue]="{value: dashboard.id, label: dashboard.title}">
-                    {{dashboard.title}}
-                </option>
+                <optgroup label="Dashboards">
+                    <option *ngFor="let dashboard of dashboards"
+                            [ngValue]="{value: dashboard.id, label: dashboard.title}">
+                        {{dashboard.title}}
+                    </option>
+                </optgroup>
+                <optgroup label="Shared Dashboards">
+                    <option *ngFor="let dashboard of sharedDashboards"
+                            [ngValue]="{value: dashboard.id, label: dashboard.title}">
+                        {{dashboard.title}}
+                    </option>
+                </optgroup>
             </select>
             <small class="font-normal">Select the destination for the action link</small>
         </label>

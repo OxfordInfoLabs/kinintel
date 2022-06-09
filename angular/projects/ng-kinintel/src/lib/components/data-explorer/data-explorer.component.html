@@ -20,12 +20,13 @@
 
     <div class="flex items-center">
         <mat-radio-group class="flex items-center text-sm"
-            *ngIf="admin" aria-label="Select a scope" [(ngModel)]="accountId">
+                         *ngIf="admin" aria-label="Select a scope" [(ngModel)]="accountId">
             <mat-radio-button class="mt-0" [value]="null">Data Package</mat-radio-button>
             <mat-radio-button class="mt-0 ml-2" [value]="0">Stored Query</mat-radio-button>
         </mat-radio-group>
         <button [ngClass]="{'ml-4': admin}" mat-button mat-dialog-close>
-            Exit <mat-icon>exit_to_app</mat-icon>
+            Exit
+            <mat-icon>exit_to_app</mat-icon>
         </button>
     </div>
 
@@ -37,7 +38,7 @@
                 [rFlex]="showSnapshots">
 
         <rsz-layout class="cell left no-p" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
-            [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
+                    [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents no-p">
                 <ki-dataset-editor [(datasetInstanceSummary)]="datasetInstanceSummary"
                                    (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
@@ -61,41 +62,105 @@
     </rsz-layout>
 
     <rsz-layout *ngIf="showSnapshots" class="row bottom" [directions]="['none']" [rFlex]="false">
-        <div class="p-4">
-            <div class="py-4 flex justify-between">
-                <div><b>Snapshot Profiles</b></div>
-                <button mat-flat-button color="primary" (click)="editSnapshot(null)">
-                    <mat-icon>add</mat-icon>
-                    New Snapshot Profile
-                </button>
+        <div class="px-6 py-3 bg-white border-b border-gray-200">
+            <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                <div class="flex items-start flex-1">
+                    <div class="pt-1.5">
+                        <h1 class="text-xl font-bold text-gray-900 mb-0">
+                            <div>Snapshot Profiles</div>
+                        </h1>
+                        <p class="text-xs font-medium text-gray-500">
+                            A list of all the snapshots that have been created for this stored query.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-col-reverse justify-stretch">
+                    <button type="button" (click)="editSnapshot(null)"
+                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
+                        <mat-icon>add</mat-icon>
+                        New Snapshot Profile
+                    </button>
+                </div>
             </div>
-            <table *ngIf="snapshotProfiles.length">
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Last Started</th>
-                    <th>Next Start Time</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let snapshot of snapshotProfiles; let i = index">
-                    <td>{{snapshot.title}}</td>
-                    <td class="capitalize">{{snapshot.taskStatus}}</td>
-                    <td>{{snapshot.taskLastStartTime}}</td>
-                    <td>{{snapshot.taskNextStartTime}}</td>
-                    <td class="text-right">
-                        <div class="align-center justify-end">
-                            <button mat-button color="primary" (click)="editSnapshot(snapshot)"> Edit</button>
-                            <div class="divider"></div>
-                            <button mat-button color="warn" (click)="deleteSnapshot(snapshot)"> Delete</button>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        </div>
+        <div class="px-4 sm:px-6 lg:px-8 mt-0">
+            <div class="flex flex-col">
+                <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+                    <div class="inline-block min-w-full py-2 align-middle">
+                        <table *ngIf="snapshotProfiles.length"
+                            class="min-w-full border-separate" style="border-spacing: 0">
+                            <thead class="bg-gray-100">
+                            <tr>
+                                <th scope="col"
+                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                    Title
+                                </th>
+                                <th scope="col"
+                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                    Status
+                                </th>
+                                <th scope="col"
+                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                    Last Started
+                                </th>
+                                <th scope="col"
+                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                    Next Start Time
+                                </th>
+                                <th scope="col"
+                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
+                                    <span class="sr-only">Edit</span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                            <tr *ngFor="let snapshot of snapshotProfiles; let i = index">
+                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+                                    {{snapshot.title}}
+                                </td>
+                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500 capitalize">
+                                    {{snapshot.taskStatus}}
+                                </td>
+                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
+                                    {{snapshot.taskLastStartTime}}
+                                </td>
+                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
+                                    {{snapshot.taskNextStartTime}}
+                                </td>
+                                <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
+                                    <div class="align-center justify-end">
+                                        <button mat-button color="primary" (click)="editSnapshot(snapshot)"> Edit</button>
+                                        <div class="divider"></div>
+                                        <button mat-button color="warn" (click)="deleteSnapshot(snapshot)"> Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
 
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4" *ngIf="!snapshotProfiles.length">
+            <button type="button" (click)="editSnapshot(null)"
+                    class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+
+                <div class="relative inline-block">
+                    <mat-icon
+                        class="mx-auto text-6xl h-14 w-20 text-gray-300">history
+                    </mat-icon>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor" stroke-width="4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </div>
+
+                <span class="mt-2 block text-sm font-medium text-gray-900">Create Snapshot Profile</span>
+            </button>
         </div>
     </rsz-layout>
 </div>

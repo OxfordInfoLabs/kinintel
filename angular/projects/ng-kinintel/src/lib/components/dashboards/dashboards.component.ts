@@ -83,6 +83,16 @@ export class DashboardsComponent implements OnInit {
         this.router.navigateByUrl(`${route}/${id}${this.admin ? '?a=true' : ''}`);
     }
 
+    public copy(id) {
+        const route = _.filter(this.router.url.split('/'))[0];
+        this.router.navigateByUrl(`${route}/copy/${id}${this.admin ? '?a=true' : ''}`);
+    }
+
+    public extend(id) {
+        const route = _.filter(this.router.url.split('/'))[0];
+        this.router.navigateByUrl(`${route}/extend/${id}${this.admin ? '?a=true' : ''}`);
+    }
+
     public delete(id) {
         const message = 'Are you sure you would like to completely delete this Dashboard?';
         if (window.confirm(message)) {
@@ -102,14 +112,6 @@ export class DashboardsComponent implements OnInit {
         this.offset = 0;
         this.page = 1;
         this.reload.next(Date.now());
-    }
-
-    public copy(dashboardId) {
-
-    }
-
-    public extend(dashboardId) {
-
     }
 
     public editMetadata(searchResult) {

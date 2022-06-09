@@ -20,7 +20,7 @@
                     </h2>
                     <div class="ml-3 flex h-7 items-center">
                         <button type="button" (click)="openSide.next(false)"
-                                class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none">
                             <span class="sr-only">Close panel</span>
                             <!-- Heroicon name: outline/x -->
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -275,7 +275,7 @@
                         <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
                             <div>{{element[column.name].substring(0, 100) + '...'}}</div>
                             <a (click)="viewFullItemData(element[column.name], column.name)"
-                               class="flex items-center text-sm text-indigo-600">
+                               class="flex items-center text-sm text-seconadry">
                                 view more
                                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
                                      viewBox="0 0 24 24"

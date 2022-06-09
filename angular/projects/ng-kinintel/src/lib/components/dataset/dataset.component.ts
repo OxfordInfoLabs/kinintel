@@ -51,10 +51,17 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 private projectService: ProjectService,
                 private datasetService: DatasetService,
                 private router: Router,
+                private route: ActivatedRoute,
                 public config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {
+        this.route.params.subscribe(param => {
+            if (param.id) {
+                this.view(param.id);
+            }
+        });
+
         if (!this.reload) {
             this.reload = new Subject();
         }
