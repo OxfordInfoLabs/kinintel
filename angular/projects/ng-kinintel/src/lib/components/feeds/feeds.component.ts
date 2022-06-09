@@ -17,6 +17,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     @Input() admin: boolean;
     @Input() feedUrl: string;
+    @Input() apiKeys: any;
 
     public feeds: any = [];
     public searchText = new BehaviorSubject('');
