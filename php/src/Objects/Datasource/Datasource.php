@@ -22,6 +22,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation caching \Kinintel\Objects\Datasource\Caching\CachingDatasource
  * @implementation custom \Kinintel\Objects\Datasource\CustomDataSource
  * @implementation snapshot \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
+ * @implementation document \Kinintel\Objects\Datasource\Document\DocumentDatasource
  */
 interface Datasource {
 

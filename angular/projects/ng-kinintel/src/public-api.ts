@@ -24,5 +24,6 @@ export * from './lib/components/feeds/feeds.component';
 export * from './lib/components/datasource/create-datasource/create-datasource.component';
 export * from './lib/components/metadata/metadata.component';
 export * from './lib/components/data-explorer/data-explorer.component';
+export * from './lib/components/datasource/document-datasource/document-datasource.component';
 
 export * from './lib/ng-kinintel.module';

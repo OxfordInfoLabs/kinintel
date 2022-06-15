@@ -15,7 +15,10 @@
             </button>
             <mat-menu #create="matMenu">
                 <button mat-menu-item [routerLink]="['/import-data']">
-                    New Datasource
+                    New Tabular Datasource
+                </button>
+                <button mat-menu-item [routerLink]="['/document-datasource']">
+                    New Document Datasource
                 </button>
             </mat-menu>
         </div>
@@ -70,9 +73,13 @@
                             <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm font-medium"
                                 [ngClass]="{'border-b-0': i === datasources.length - 1, 'border-b': i !== datasources.length - 1}">
                                 <div class="flex items-center justify-end">
-                                    <ng-template [ngIf]="element.type === 'custom' && isProjectAdmin">
-                                        <button mat-button color="primary"
+                                    <ng-template [ngIf]="isProjectAdmin">
+                                        <button mat-button color="primary" *ngIf="element.type === 'custom'"
                                                 [routerLink]="['/import-data', element.key]">
+                                            Edit
+                                        </button>
+                                        <button mat-button color="primary" *ngIf="element.type === 'document'"
+                                                [routerLink]="['/document-datasource', element.key]">
                                             Edit
                                         </button>
                                         <div class="divider"></div>

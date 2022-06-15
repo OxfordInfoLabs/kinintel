@@ -17,6 +17,7 @@ import {SnapshotsComponent} from './views/snapshots/snapshots.component';
 import {ViewDashboardComponent} from './views/dashboards/view-dashboard/view-dashboard.component';
 import {FeedsComponent} from './views/feeds/feeds.component';
 import {CreateDatasourceComponent} from './views/datasource/create-datasource/create-datasource.component';
+import {DocumentDatasourceComponent} from './views/datasource/document-datasource/document-datasource.component';
 
 const routes: Routes = [
     {
@@ -72,6 +73,14 @@ const routes: Routes = [
             {
                 path: 'import-data/:key',
                 component: CreateDatasourceComponent
+            },
+            {
+                path: 'document-datasource',
+                component: DocumentDatasourceComponent
+            },
+            {
+                path: 'document-datasource/:key',
+                component: DocumentDatasourceComponent
             },
             {
                 path: 'notifications',

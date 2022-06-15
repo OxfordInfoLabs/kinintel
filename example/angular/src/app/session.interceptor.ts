@@ -35,8 +35,11 @@ export class SessionInterceptor implements HttpInterceptor {
             });
         }
 
-        if (!request.headers.has('Content-Type')) {
+        const existingHeaders = request.headers.get('Content-Type');
+        if (!existingHeaders) {
             request = request.clone({ headers: request.headers.set('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8') });
+        } else if (existingHeaders === 'file') {
+            request = request.clone({ headers: request.headers.delete('Content-Type') });
         }
 
         const sessionData = this.authService.sessionData.getValue();

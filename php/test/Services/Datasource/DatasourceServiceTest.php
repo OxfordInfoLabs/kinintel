@@ -19,6 +19,7 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
@@ -33,6 +34,7 @@ use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\BaseUpdatableDatasourceTest;
 use Kinintel\ValueObjects\Datasource\Configuration\DatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
@@ -81,6 +83,26 @@ class DatasourceServiceTest extends TestBase {
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->valueFunctionEvaluator = MockObjectProvider::instance()->getMockInstance(ValueFunctionEvaluator::class);
         $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService, $this->valueFunctionEvaluator);
+
+    }
+
+
+    public function testOnSaveOfDatasourceInstanceDAOIsCalledAndOnDatasourceSaveIsCalledOnDatasource() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+
+
+        $this->dataSourceService->saveDataSourceInstance($dataSourceInstance);
+
+        // Check that the datasource was saved via the DAO and on save called
+        $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
+            $dataSourceInstance
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("onInstanceSave"));
 
     }
 

@@ -3,13 +3,18 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kiniauth\Objects\Account\Account;
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\MVC\Request\FileUpload;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -47,6 +52,21 @@ trait Datasource {
         return $this->datasourceService->getDataSourceInstanceByKey($key);
     }
 
+
+    /**
+     * @http PUT /$key
+     *
+     * @param $key
+     * @param DatasourceConfigUpdate $documentDatasourceConfig
+     *
+     * @return string
+     */
+    public function updateDatasourceInstance($key, $documentDatasourceConfig) {
+        $instance = $this->datasourceService->getDataSourceInstanceByKey($key);
+        $instance->setConfig($documentDatasourceConfig->getConfig());
+        $instance->setTitle($documentDatasourceConfig->getTitle());
+        return $this->datasourceService->saveDataSourceInstance($instance)->getKey();
+    }
 
     /**
      * Filter datasource instances
@@ -115,6 +135,54 @@ trait Datasource {
      */
     public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate);
+    }
+
+
+    /**
+     * @http POST /document
+     *
+     * @param DatasourceConfigUpdate $documentDatasourceConfig
+     * @param null $projectKey
+     *
+     * @return integer
+     */
+    public function createDocumentDatasourceInstance($documentDatasourceConfig, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        $newDatasourceKey = "document_data_set_$accountId" . "_" . date("U");
+        $config = $documentDatasourceConfig->getConfig();
+        $config["tableName"] = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
+        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $documentDatasourceConfig->getTitle(), "document", $config, Configuration::readParameter("custom.datasource.credentials.key"));
+
+        // Set account id and project key
+        $datasourceInstance->setAccountId($accountId);
+        $datasourceInstance->setProjectKey($projectKey);
+
+        return $this->datasourceService->saveDataSourceInstance($datasourceInstance)->getKey();
+    }
+
+
+    /**
+     * @http POST /document/upload/$datasourceInstanceKey
+     *
+     * @param string $datasourceInstanceKey
+     * @param FileUpload[] $uploadedFiles
+     * @return void
+     */
+    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles) {
+
+        $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        $datasource = $datasourceInstance->returnDataSource();
+
+        $fileData = [];
+
+        foreach ($uploadedFiles ?? [] as $file) {
+            $fileData[] = ["filename" => $file->getClientFilename(), "documentFilePath" => $file->getTemporaryFilePath()];
+        }
+
+        $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath")], $fileData), UpdatableDatasource::UPDATE_MODE_REPLACE);
+
+//        Logger::log($uploadedFiles);
+
     }
 
 

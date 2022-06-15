@@ -76,6 +76,7 @@ import { HtmlDocumentationComponent } from './components/dashboard-editor/config
 import { DataPickerComponent } from './components/data-picker/data-picker.component';
 import { CreateDatasetComponent } from './components/dataset/create-dataset/create-dataset.component';
 import { TableCellFormatterComponent } from './components/dashboard-editor/configure-item/table-cell-formatter/table-cell-formatter.component';
+import { DocumentDatasourceComponent } from './components/datasource/document-datasource/document-datasource.component';
 
 @NgModule({
     declarations: [
@@ -125,7 +126,8 @@ import { TableCellFormatterComponent } from './components/dashboard-editor/confi
         HtmlDocumentationComponent,
         DataPickerComponent,
         CreateDatasetComponent,
-        TableCellFormatterComponent
+        TableCellFormatterComponent,
+        DocumentDatasourceComponent
     ],
     imports: [
         BrowserModule,
@@ -182,7 +184,8 @@ import { TableCellFormatterComponent } from './components/dashboard-editor/confi
         SnapshotsComponent,
         ViewDashboardComponent,
         FeedsComponent,
-        CreateDatasourceComponent
+        CreateDatasourceComponent,
+        DocumentDatasourceComponent
     ]
 })
 export class NgKinintelModule {
