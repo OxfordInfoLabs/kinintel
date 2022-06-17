@@ -186,7 +186,6 @@ class DatasourceService {
         // Apply transformations
         $datasource = $this->applyTransformationsToDatasource($datasource, $transformations ?? [], $parameterValues, $offset, $limit);
 
-
         return [$datasource, $parameterValues];
     }
 

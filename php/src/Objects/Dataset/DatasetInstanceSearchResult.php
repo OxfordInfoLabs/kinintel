@@ -47,6 +47,22 @@ class DatasetInstanceSearchResult {
 
 
     /**
+     * The datasource being referenced for this data set instance
+     *
+     * @var string
+     */
+    protected $datasourceInstanceKey;
+
+
+    /**
+     * Instance id for the referenced data set if using
+     *
+     * @var integer
+     */
+    protected $datasetInstanceId;
+
+
+    /**
      * DatasetInstanceSearchResult constructor.
      *
      * @param int $id
@@ -55,12 +71,14 @@ class DatasetInstanceSearchResult {
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($id, $title, $summary, $description, $categories) {
+    public function __construct($id, $title, $summary, $description, $categories, $datasetInstanceId = null, $datasourceInstanceKey = null) {
         $this->id = $id;
         $this->title = $title;
         $this->summary = $summary;
         $this->description = $description;
         $this->categories = $categories;
+        $this->datasetInstanceId = $datasetInstanceId;
+        $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
 
 
@@ -132,6 +150,34 @@ class DatasetInstanceSearchResult {
      */
     public function setCategories($categories) {
         $this->categories = $categories;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatasourceInstanceKey() {
+        return $this->datasourceInstanceKey;
+    }
+
+    /**
+     * @param string $datasourceInstanceKey
+     */
+    public function setDatasourceInstanceKey($datasourceInstanceKey) {
+        $this->datasourceInstanceKey = $datasourceInstanceKey;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDatasetInstanceId() {
+        return $this->datasetInstanceId;
+    }
+
+    /**
+     * @param int $datasetInstanceId
+     */
+    public function setDatasetInstanceId($datasetInstanceId) {
+        $this->datasetInstanceId = $datasetInstanceId;
     }
 
 

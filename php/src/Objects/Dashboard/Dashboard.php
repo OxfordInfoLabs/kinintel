@@ -54,6 +54,13 @@ class Dashboard extends DashboardSummary {
         $this->projectKey = $projectKey;
     }
 
+    /**
+     * @param int $id
+     */
+    public function setId($id) {
+        $this->id = $id;
+    }
+
 
     /**
      * @return ObjectTag[]
