@@ -37,6 +37,7 @@ import { ViewDashboardComponent } from './views/dashboards/view-dashboard/view-d
 import { FeedsComponent } from './views/feeds/feeds.component';
 import {QuillModule} from 'ngx-quill';
 import { CreateDatasourceComponent } from './views/datasource/create-datasource/create-datasource.component';
+import { DocumentDatasourceComponent } from './views/datasource/document-datasource/document-datasource.component';
 
 @NgModule({
     declarations: [
@@ -57,7 +58,8 @@ import { CreateDatasourceComponent } from './views/datasource/create-datasource/
         SnapshotsComponent,
         ViewDashboardComponent,
         FeedsComponent,
-        CreateDatasourceComponent
+        CreateDatasourceComponent,
+        DocumentDatasourceComponent
     ],
     imports: [
         BrowserModule,

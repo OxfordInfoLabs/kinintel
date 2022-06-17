@@ -92,7 +92,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
         Field::TYPE_DATE => TableColumn::SQL_DATE,
         Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
-        Field::TYPE_ID => TableColumn::SQL_INTEGER
+        Field::TYPE_ID => TableColumn::SQL_INTEGER,
+        Field::TYPE_LONGTEXT => TableColumn::SQL_BLOB,
     ];
 
     const FIELD_SQL_TYPE_TYPE_MAP = [
@@ -381,7 +382,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
 
-
         // Check to see whether the table already exists
         $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
@@ -392,11 +392,20 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
 
+        Logger::log($sql);
 
         if (trim($sql))
             $databaseConnection->executeScript($sql);
 
 
+    }
+
+    /**
+     * Event method called when a parent datasource instance is saved to provide
+     * an opportunity to update e.g. structural stuff based on updated config.
+     *
+     */
+    public function onInstanceSave() {
     }
 
 

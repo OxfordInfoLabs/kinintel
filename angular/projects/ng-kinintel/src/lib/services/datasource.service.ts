@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
 import {ProjectService} from '../services/project.service';
 
@@ -58,5 +58,24 @@ export class DatasourceService {
         return this.http.post(this.config.backendURL + '/datasource/parameters/' +
             (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey),
             {transformationInstances: evaluatedDatasource.transformationInstances}).toPromise();
+    }
+
+    public createDocumentDatasource(config) {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.post(this.config.backendURL + '/datasource/document?projectKey=' + projectKey,
+            config)
+            .toPromise();
+    }
+
+    public updateDatasourceInstance(key, config) {
+        return this.http.put(this.config.backendURL + '/datasource/' + key, config).toPromise();
+    }
+
+    public uploadDatasourceDocuments(key, uploadedFiles) {
+        const HttpUploadOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'file' })
+        };
+        return this.http.post(this.config.backendURL + '/datasource/document/upload/' + key,
+            uploadedFiles, HttpUploadOptions).toPromise();
     }
 }

@@ -50,6 +50,12 @@ interface UpdatableDatasource {
     public function update($dataset, $updateMode = self::UPDATE_MODE_ADD);
 
 
+    /**
+     * Event method called when a parent datasource instance is saved to provide
+     * an opportunity to update e.g. structural stuff based on updated config.
+     *
+     */
+    public function onInstanceSave();
 
 
 }
