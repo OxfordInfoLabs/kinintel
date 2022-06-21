@@ -49,8 +49,6 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
-        $dataSource->getConfig()->setColumns([]);
-
         if ($transformation instanceof SummariseTransformation) {
 
             // If we already have a group by clause or have explicit columns we need to create a query wrapper

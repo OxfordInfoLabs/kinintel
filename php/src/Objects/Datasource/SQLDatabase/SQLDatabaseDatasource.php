@@ -247,7 +247,11 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
+
+
         $query = $this->buildQuery($parameterValues);
+
+
 
         /**
          * @var DatabaseConnection $dbConnection
@@ -435,6 +439,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $config = $this->getConfig();
 
+
         // If a tabular based source, create base clause
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
             $query = new SQLQuery("*", $config->getTableName());
@@ -447,6 +452,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
             $query = new SQLQuery("*", "(" . $queryString . ") A");
         }
+
 
         /**
          * Process each transformation
