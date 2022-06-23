@@ -872,7 +872,7 @@ export class DatasetEditorPopupComponent {
     constructor(@Inject(MAT_DIALOG_DATA) public data: DatasetEditorPopupComponent) {
 
         this.fullData = this.data.fullData;
-        this.columnName = this.data.columnName;
+        this.columnName = _.startCase(this.data.columnName);
     }
 
 }

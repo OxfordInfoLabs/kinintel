@@ -77,6 +77,7 @@ import { DataPickerComponent } from './components/data-picker/data-picker.compon
 import { CreateDatasetComponent } from './components/dataset/create-dataset/create-dataset.component';
 import { TableCellFormatterComponent } from './components/dashboard-editor/configure-item/table-cell-formatter/table-cell-formatter.component';
 import { DocumentDatasourceComponent } from './components/datasource/document-datasource/document-datasource.component';
+import { AngularD3CloudModule } from 'angular-d3-cloud';
 
 @NgModule({
     declarations: [
@@ -160,7 +161,8 @@ import { DocumentDatasourceComponent } from './components/datasource/document-da
         MatAutocompleteModule,
         MatSnackBarModule,
         MatRadioModule,
-        MatTooltipModule
+        MatTooltipModule,
+        AngularD3CloudModule
     ],
     exports: [
         DashboardEditorComponent,

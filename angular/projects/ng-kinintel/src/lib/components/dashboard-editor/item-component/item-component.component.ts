@@ -1,11 +1,11 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, ViewChild} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
 import * as _ from 'lodash';
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
-import {Subscription} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import * as moment from 'moment';
@@ -13,6 +13,7 @@ import {Router} from '@angular/router';
 import {
     EditDashboardAlertComponent
 } from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
+import {GridItemHTMLElement} from 'gridstack';
 
 declare var window: any;
 
@@ -49,6 +50,7 @@ export class ItemComponentComponent implements AfterViewInit {
     public dependencies: any = {};
     public metric: any = {};
     public textData: any = {};
+    public wordCloud: any = {};
     public imageData: any = {};
     public tabular: any = {};
     public tableCells: any = {};
@@ -536,7 +538,10 @@ export class ItemComponentComponent implements AfterViewInit {
                                     switch (this.tableCells[tableCell].type) {
                                         case 'number':
                                             const cellNumber = parseFloat(String(item[tableCell]));
-                                            item[tableCell] = {cellValue: cellNumber.toFixed(cellData.decimal), initialValue: item[tableCell]};
+                                            item[tableCell] = {
+                                                cellValue: cellNumber.toFixed(cellData.decimal),
+                                                initialValue: item[tableCell]
+                                            };
                                             break;
                                         case 'currency':
                                             let cellCurrency: any = parseFloat(String(item[tableCell]));
@@ -580,7 +585,10 @@ export class ItemComponentComponent implements AfterViewInit {
                                             const dateFormat = cellData.dateFormat === 'null' ? '' : cellData.dateFormat;
                                             const timeFormat = cellData.timeFormat === 'null' ? '' : cellData.timeFormat;
 
-                                            item[tableCell] = {cellValue: dateMoment.format(dateFormat + ' ' + timeFormat), initialValue: item[tableCell]};
+                                            item[tableCell] = {
+                                                cellValue: dateMoment.format(dateFormat + ' ' + timeFormat),
+                                                initialValue: item[tableCell]
+                                            };
                                             break;
                                         case 'comparison':
                                             const comparisonColumn = this.tableCells[tableCell].data.comparisonColumn;
@@ -654,7 +662,10 @@ export class ItemComponentComponent implements AfterViewInit {
                                                     </svg></span></a>`;
                                             }
 
-                                            item[tableCell] = {cellValue: this.sanitizer.bypassSecurityTrustHtml(anchor), initialValue: linkValue};
+                                            item[tableCell] = {
+                                                cellValue: this.sanitizer.bypassSecurityTrustHtml(anchor),
+                                                initialValue: linkValue
+                                            };
                                             break;
                                         case 'custom':
                                             const element: any = document.createElement('div');
@@ -674,7 +685,10 @@ export class ItemComponentComponent implements AfterViewInit {
                                             };
                                             const bind = new Kinibind(element, kData);
                                             const boundHTML = bind.boundContext.els[0].innerHTML;
-                                            item[tableCell] = {cellValue: this.sanitizer.sanitize(1, boundHTML), initialValue: originalValue};
+                                            item[tableCell] = {
+                                                cellValue: this.sanitizer.sanitize(1, boundHTML),
+                                                initialValue: originalValue
+                                            };
                                             element.remove();
                                             break;
                                         case 'hide':
@@ -711,6 +725,38 @@ export class ItemComponentComponent implements AfterViewInit {
                     this.general.evaluatedDescription = this.general.description ? this.evaluateTextData(this.general.description) : '';
                     this.general.evaluatedFooter = this.general.footer ? this.evaluateTextData(this.general.footer) : '';
                 }
+
+                setTimeout(() => {
+                    const element = document.getElementById(this.itemInstanceKey);
+                    for (const child of Array.from(element.children) as any[]) {
+                        if (child.classList.contains('item-container')) {
+                            this.wordCloud.width = child.clientWidth - 50;
+                            this.wordCloud.height = child.clientHeight - 50;
+                        }
+                    }
+                    if (Object.keys(this.wordCloud).length) {
+                        if (this.wordCloud.populationMethod === 'SINGLE') {
+                            const rowData = this.dataset.allData[this.wordCloud.row];
+                            if (rowData) {
+                                const words = _.words(rowData[this.wordCloud.column]);
+                                const count = _.countBy(words, _.identity);
+
+                                const max = _.max(_.values(count));
+
+                                this.wordCloud.data = _.orderBy(_.uniq(words).map(word => {
+                                    return {text: word, value: (count[word] / max) * 150};
+                                }), ['value'], ['desc']);
+                            }
+                        } else if (this.wordCloud.populationMethod === 'WHOLE') {
+                            // TODO: Get all the data without limits set
+                            // const columnData = this.dataset.allData.map(item => {
+                            //     return {text: item.phrase, value: ()}
+                            // });
+                        }
+
+                    }
+                }, 0);
+
 
                 this.loadingItem = false;
                 this.configureClass = false;
@@ -787,7 +833,7 @@ export class ItemComponentComponent implements AfterViewInit {
         });
     }
 
-    private reloadAlert() {
+    private reloadAlert(save = true) {
         const thisEl = document.getElementById(this.itemInstanceKey).closest('.grid-stack-item');
         const existingGrid = _.find(this.dashboard.layoutSettings.grid, grid => {
             return grid.content.includes(`id="${this.itemInstanceKey}"`);
@@ -797,6 +843,8 @@ export class ItemComponentComponent implements AfterViewInit {
             this.grid.addWidget(existingGrid);
         }
 
-        this.dashboardService.saveDashboard(this.dashboard);
+        if (save) {
+            this.dashboardService.saveDashboard(this.dashboard);
+        }
     }
 }

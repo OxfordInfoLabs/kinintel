@@ -9,10 +9,14 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Util\TextAnalysis\DocumentTextExtractor;
+use Kinintel\Services\Util\TextAnalysis\PhraseExtractor;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
+use Kinintel\ValueObjects\Util\TextAnalysis\Phrase;
 
 /**
  * Built in document datasource
@@ -29,7 +33,11 @@ class DocumentDatasource extends SQLDatabaseDatasource {
     }
 
     public function getUpdateConfig() {
-        return new DatasourceUpdateConfig();
+        return new DatasourceUpdateConfig([], $this->getConfig()->isIndexContent() ? [
+            new UpdatableMappedField("phrases", "index_" . $this->getInstanceKey(), [
+                "filename" => "document_file_name"
+            ])
+        ] : []);
     }
 
 
@@ -57,6 +65,27 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("original_text");
         }
 
+        if ($config->isIndexContent()) {
+            $fields[] = new Field("phrases");
+        }
+
+        $customStopwords = [];
+        if ($config->isCustomStopWords() &&
+            $config->getStopWordsDatasourceKey() &&
+            $config->getStopWordsDatasourceColumn()) {
+
+            /** @var DatasourceService $datasourceService */
+            $datasourceService = Container::instance()->get(DatasourceService::class);
+            $stopwordDatasourceInstance = $datasourceService->getDataSourceInstanceByKey($config->getStopWordsDatasourceKey());
+            /** @var TabularDataset $dataset */
+            $stopwordDataset = $stopwordDatasourceInstance->returnDataSource()->materialise();
+
+            $customStopwords = array_map(function($data) use ($config) {
+                return $data[$config->getStopWordsDatasourceColumn()];
+            }, $stopwordDataset->getAllData());
+
+
+        }
         while ($row = $dataset->nextDataItem()) {
             $newRow = null;
             if (($row["filename"] ?? null) &&
@@ -81,25 +110,37 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     "file_type" => mime_content_type(($row["documentFilePath"]))
                 ];
 
-                Logger::log($newRow["file_type"]);
-
             }
 
             if ($newRow) {
                 $fileType = $newRow["file_type"];
-                if ($config->isStoreText()) {
+                $text = '';
+                if ($config->isStoreText() || $config->isIndexContent()) {
                     try {
                         /** @var DocumentTextExtractor $extractor */
                         $extractor = Container::instance()->getInterfaceImplementation(DocumentTextExtractor::class, $fileType);
+
                         $text = isset($row["documentSource"]) ? $extractor->extractTextFromString($row["documentSource"]) : $extractor->extractTextFromFile($row["documentFilePath"]);
 
-                        $newRow["original_text"] = $text;
+                        if ($config->isStoreText())
+                            $newRow["original_text"] = $text;
                     } catch (MissingInterfaceImplementationException $e) {
                         // Missing implemented file type
                     }
                 }
 
+                if ($config->isIndexContent()) {
+                    /** @var PhraseExtractor $phraseExtractor */
+                    $phraseExtractor = Container::instance()->get(PhraseExtractor::class);
 
+                    $phrases = $phraseExtractor->extractPhrases($text, $config->getMaxPhraseLength(), $config->getMinPhraseLength(), $config->isBuiltInStopWords(), $customStopwords, 'EN');
+
+                    /** @var Phrase $phrase */
+                    $newRow["phrases"] = array_map(function($phrase) {
+                        return ["phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency()];
+                    }, $phrases ?? []);
+
+                }
 
                 $newRows[] = $newRow;
             }
@@ -134,6 +175,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         if ($config->isStoreText()) {
             $fields[] = new Field('original_text', 'Original Text', null, Field::TYPE_LONGTEXT);
         }
+
 
         $this->updateFields($fields);
     }

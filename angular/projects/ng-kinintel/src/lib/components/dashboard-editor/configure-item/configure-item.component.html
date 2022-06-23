@@ -789,7 +789,7 @@
                             </div>
                         </div>
                         <table class="min-w-full border-separate" style="border-spacing: 0"
-                            *ngIf="dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length">
+                               *ngIf="dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length">
                             <thead class="bg-gray-100">
                             <tr>
                                 <th scope="col"
@@ -824,7 +824,8 @@
                             </tr>
                             </tbody>
                         </table>
-                        <div class="p-4" *ngIf="dashboardDatasetInstance && (!dashboardDatasetInstance.alerts || !dashboardDatasetInstance.alerts.length)">
+                        <div class="p-4"
+                             *ngIf="dashboardDatasetInstance && (!dashboardDatasetInstance.alerts || !dashboardDatasetInstance.alerts.length)">
                             <button type="button" (click)="editAlert(null)"
                                     class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
 
@@ -833,7 +834,8 @@
                                         class="mx-auto text-6xl h-14 w-20 text-gray-300">notifications_active
                                     </mat-icon>
                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                         class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none"
+                                         viewBox="0 0 24 24"
                                          stroke="currentColor" stroke-width="4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                     </svg>
@@ -843,6 +845,63 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </mat-tab>
+            <mat-tab label="Word Cloud" *ngIf="dashboardItemType.type === 'words'">
+                <div class="px-6 py-3 bg-white border-b border-gray-200">
+                    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-start flex-1">
+                            <div class="pt-1.5">
+                                <h1 class="text-xl font-bold text-gray-900 mb-0">Word Cloud Settings</h1>
+                                <p class="text-xs font-medium text-gray-500">
+                                    Adjust the settings for the Word Cloud generator.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <label class="mb-2">
+                            Use the whole data set to populate word cloud, or provide a string from a single column.
+                            <mat-radio-group [(ngModel)]="wordCloud.populationMethod">
+                                <mat-radio-button value="WHOLE">Whole Data Set</mat-radio-button>
+                                <mat-radio-button value="SINGLE">Single String</mat-radio-button>
+                            </mat-radio-group>
+
+                        </label>
+
+                        <ng-template [ngIf]="wordCloud.populationMethod === 'SINGLE'">
+                            <label class="mb-2">
+                                Select which row to use for the word cloud
+                                <select matNativeControl [(ngModel)]="wordCloud.row">
+                                    <option [value]="undefined">-- Select Row --</option>
+                                    <ng-template [ngIf]="dataset">
+                                        <option *ngFor="let row of dataset.allData; let i = index"
+                                                [value]="i">
+                                            {{_.values(row)[0]}}
+                                        </option>
+                                    </ng-template>
+                                </select>
+                            </label>
+
+                            <label class="mb-2">
+                                Select the column to use for the word cloud
+                                <select matNativeControl [(ngModel)]="wordCloud.column">
+                                    <option [value]="undefined">-- Select Column --</option>
+                                    <ng-template [ngIf]="dataset">
+                                        <option *ngFor="let column of dataset.columns"
+                                                [value]="column.name">
+                                            {{column.title}}
+                                        </option>
+                                    </ng-template>
+                                </select>
+                            </label>
+                        </ng-template>
+
+                    </div>
+
                 </div>
             </mat-tab>
         </mat-tab-group>

@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Cassandra\Custom;
 use Kiniauth\Objects\Account\Account;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
@@ -11,6 +12,7 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
@@ -32,11 +34,18 @@ trait Datasource {
     private $datasourceService;
 
     /**
+     * @var CustomDatasourceService
+     */
+    private $customDatasourceService;
+
+    /**
      * Datasource constructor.
      * @param DatasourceService $datasourceService
+     * @param CustomDatasourceService $customDatasourceService
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService, $customDatasourceService) {
         $this->datasourceService = $datasourceService;
+        $this->customDatasourceService = $customDatasourceService;
     }
 
 
@@ -120,7 +129,7 @@ trait Datasource {
      * @return string
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null) {
-        return $this->datasourceService->createCustomDatasourceInstance($datasourceUpdate, $projectKey);
+        return $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, $projectKey);
     }
 
 
@@ -147,16 +156,7 @@ trait Datasource {
      * @return integer
      */
     public function createDocumentDatasourceInstance($documentDatasourceConfig, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
-        $newDatasourceKey = "document_data_set_$accountId" . "_" . date("U");
-        $config = $documentDatasourceConfig->getConfig();
-        $config["tableName"] = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
-        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $documentDatasourceConfig->getTitle(), "document", $config, Configuration::readParameter("custom.datasource.credentials.key"));
-
-        // Set account id and project key
-        $datasourceInstance->setAccountId($accountId);
-        $datasourceInstance->setProjectKey($projectKey);
-
-        return $this->datasourceService->saveDataSourceInstance($datasourceInstance)->getKey();
+        return $this->customDatasourceService->createDocumentDatasourceInstance($documentDatasourceConfig, $projectKey, $accountId);
     }
 
 
@@ -168,21 +168,7 @@ trait Datasource {
      * @return void
      */
     public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles) {
-
-        $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey);
-
-        $datasource = $datasourceInstance->returnDataSource();
-
-        $fileData = [];
-
-        foreach ($uploadedFiles ?? [] as $file) {
-            $fileData[] = ["filename" => $file->getClientFilename(), "documentFilePath" => $file->getTemporaryFilePath()];
-        }
-
-        $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath")], $fileData), UpdatableDatasource::UPDATE_MODE_REPLACE);
-
-//        Logger::log($uploadedFiles);
-
+        $this->customDatasourceService->uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles);
     }
 
 

@@ -23,6 +23,7 @@ export class ConfigureItemComponent implements OnInit {
     public chartData: any;
     public metric: any = {};
     public textData: any = {};
+    public wordCloud: any = {};
     public imageData: any = {};
     public tabular: any = {};
     public tableCells: any = {};
@@ -128,7 +129,7 @@ export class ConfigureItemComponent implements OnInit {
         } else {
             if (this.dashboard.layoutSettings) {
                 this.mapLayoutSettingsToComponentData();
-
+console.log(this.wordCloud);
                 if (this.dashboard.layoutSettings.parameters) {
                     this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
                         .filter('value')
@@ -519,7 +520,7 @@ export class ConfigureItemComponent implements OnInit {
     }
 
     private mapComponentDataToDashboardInstance() {
-        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction'];
+        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction', 'wordCloud'];
         layoutSettings.forEach(setting => {
             if (!this.dashboard.layoutSettings[setting]) {
                 this.dashboard.layoutSettings[setting] = {};

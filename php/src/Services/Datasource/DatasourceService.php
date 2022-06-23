@@ -195,47 +195,6 @@ class DatasourceService {
     }
 
 
-    /**
-     * Create a new custom datasource instance
-     *
-     * @param DatasourceUpdateWithStructure $datasourceUpdate
-     * @param string $projectKey
-     * @param integer $accountId
-     */
-    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
-
-        // Create a new data source key
-        $newDatasourceKey = "custom_data_set_$accountId" . "_" . date("U");
-        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
-        $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
-
-        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), "custom", [
-            "source" => "table",
-            "tableName" => $tableName,
-            "columns" => $datasourceUpdate->getFields()
-        ], $credentialsKey);
-
-        // Set account id and project key
-        $datasourceInstance->setAccountId($accountId);
-        $datasourceInstance->setProjectKey($projectKey);
-
-        $instance = $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
-        $datasource = $instance->returnDataSource();
-
-        // Update fields
-        $datasource->updateFields($datasourceUpdate->getFields());
-
-        if ($datasourceUpdate->getAdds()) {
-            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
-                    return new Field($columnName);
-                }, array_keys($datasourceUpdate->getAdds()[0]));
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
-        }
-
-        return $newDatasourceKey;
-
-    }
-
 
     /**
      * Update a datasource instance using a passed dataset and update mode.

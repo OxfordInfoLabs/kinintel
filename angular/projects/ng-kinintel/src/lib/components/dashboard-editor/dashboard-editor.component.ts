@@ -7,7 +7,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import 'gridstack/dist/gridstack.min.css';
-import {GridStack, GridStackNode} from 'gridstack';
+import {GridItemHTMLElement, GridStack, GridStackNode} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
@@ -20,7 +20,7 @@ import {
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import * as moment from 'moment';
 
 @Component({
@@ -101,6 +101,13 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             type: 'image',
             label: 'Image',
             icon: 'image',
+            width: 3,
+            height: 20
+        },
+        {
+            type: 'words',
+            label: 'Word Cloud',
+            icon: 'language',
             width: 3,
             height: 20
         }

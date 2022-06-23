@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -79,8 +80,8 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
      */
     public function updateMappedFieldData($dataSet, $parentUpdateRule = self::UPDATE_MODE_ADD) {
 
-        $mappedFields = $this->getUpdateConfig()->getMappedFields();
 
+        $mappedFields = $this->getUpdateConfig()->getMappedFields();
         // If no mapped fields, return immediately
         if (!$mappedFields || sizeof($mappedFields) == 0) {
             return $dataSet;
@@ -152,6 +153,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                     $filterJunctions,
                     FilterJunction::LOGIC_OR
                 );
+
 
                 $filteredSource = $datasource->applyTransformation($transformation);
                 $existingItems = $filteredSource->materialise();

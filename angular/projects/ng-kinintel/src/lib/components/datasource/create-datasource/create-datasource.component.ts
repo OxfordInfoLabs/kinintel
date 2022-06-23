@@ -178,7 +178,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     const rowColIndex = 0;
                     this.selectedCell = {rowIndex: 0, rowColIndex};
                 }
-console.log(this.selectedCell);
+
                 if (res.headerRow) {
                     const columns = [];
                     res.data[0].forEach(header => {

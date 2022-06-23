@@ -53,9 +53,16 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
     private $maxPhraseLength;
 
 
-    public function __construct($tableName = "", $storeOriginal = false, $storeText = false) {
+    public function __construct($tableName = "", $storeOriginal = false, $storeText = false, $indexContent = false, $builtInStopWords = true, $minPhraseLength = 1, $maxPhraseLength = 1, $customStopWords = false, $stopWordsDatasourceKey = null, $stopWordsDatasourceColumn = null) {
         $this->storeOriginal = $storeOriginal;
         $this->storeText = $storeText;
+        $this->indexContent = $indexContent;
+        $this->builtInStopWords = $builtInStopWords;
+        $this->minPhraseLength = $minPhraseLength;
+        $this->maxPhraseLength = $maxPhraseLength;
+        $this->customStopWords = $customStopWords;
+        $this->stopWordsDatasourceKey = $stopWordsDatasourceKey;
+        $this->stopWordsDatasourceColumn = $stopWordsDatasourceColumn;
 
         parent::__construct(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tableName);
     }
