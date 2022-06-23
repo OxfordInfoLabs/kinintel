@@ -50,7 +50,7 @@ class PhraseExtractor {
                 $phrases[] = implode(" ", $phrase);
                 for ($j = 1; $j < $maxPhraseLength; $j++) {
                     $nextWord = isset($allWords[$i + $j]) ? strtolower($allWords[$i + $j]) : null;
-                    if ($nextWord && !in_array($nextWord, $stopwords)) {
+                    if ($nextWord) {
                         $phrase[] = $nextWord;
                         $phrases[] = implode(" ", $phrase);
                     } else {

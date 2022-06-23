@@ -104,7 +104,7 @@ export class DataExplorerComponent implements OnInit {
     }
 
     public saveChanges() {
-        if (!this.datasetInstanceSummary.id) {
+        if (!this.datasetInstanceSummary.id && !this.datasetInstanceSummary.title) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
                 width: '475px',
                 height: '150px',

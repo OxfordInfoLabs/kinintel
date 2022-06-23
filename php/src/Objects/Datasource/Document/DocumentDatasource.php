@@ -107,7 +107,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     "filename" => $row["filename"],
                     "imported_date" => date("Y-m-d H:i:s"),
                     "file_size" => filesize(($row["documentFilePath"])),
-                    "file_type" => mime_content_type(($row["documentFilePath"]))
+                    "file_type" => $row["file_type"] ?? mime_content_type(($row["documentFilePath"]))
                 ];
 
             }

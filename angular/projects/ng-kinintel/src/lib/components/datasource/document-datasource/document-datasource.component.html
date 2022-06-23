@@ -81,7 +81,6 @@
                                     </td>
                                 </tr>
 
-                                <!-- More people... -->
                                 </tbody>
                             </table>
                         </div>
@@ -204,7 +203,8 @@
                         </div>
                     </label>
                     <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <mat-checkbox class="block mb-4" [(ngModel)]="documentConfig.config.indexContent">Index Document
+                        <mat-checkbox class="block mb-4" [(ngModel)]="documentConfig.config.indexContent"
+                            (ngModelChange)="indexDocumentChange($event)">Index Document
                             Content
                         </mat-checkbox>
                         <ng-template [ngIf]="documentConfig.config.indexContent">

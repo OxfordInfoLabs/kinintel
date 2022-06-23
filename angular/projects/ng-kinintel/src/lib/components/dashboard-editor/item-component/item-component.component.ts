@@ -744,14 +744,18 @@ export class ItemComponentComponent implements AfterViewInit {
                                 const max = _.max(_.values(count));
 
                                 this.wordCloud.data = _.orderBy(_.uniq(words).map(word => {
-                                    return {text: word, value: (count[word] / max) * 150};
-                                }), ['value'], ['desc']);
+                                    const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 10000;
+                                    return {text: word, value: ((count[word] / max) * fontSize) * 5};
+                                }), ['value'], ['desc']).slice(0, 100);
                             }
                         } else if (this.wordCloud.populationMethod === 'WHOLE') {
-                            // TODO: Get all the data without limits set
-                            // const columnData = this.dataset.allData.map(item => {
-                            //     return {text: item.phrase, value: ()}
-                            // });
+                            const max = _.maxBy(this.dataset.allData, 'frequency');
+                            const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 10000;
+                            this.wordCloud.data = _.orderBy(this.dataset.allData.map(item => {
+                                return {text: item.phrase, value: ((Number(item.frequency) / Number(max.frequency)) * fontSize)};
+                            }), ['value'], ['desc']).slice(0, 100);
+
+                            console.log(this.wordCloud);
                         }
 
                     }

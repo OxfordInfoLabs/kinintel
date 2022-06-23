@@ -36,6 +36,7 @@ export class DatasetSummariseComponent implements OnInit {
 
                 if (field) {
                     field.expressionType = expression.expressionType;
+                    field.customLabel = expression.customLabel;
                     return field;
                 }
                 return expression;
@@ -48,7 +49,7 @@ export class DatasetSummariseComponent implements OnInit {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
             if (event.previousContainer.id === 'availableColumns') {
-                copyArrayItem(event.previousContainer.data,
+                copyArrayItem(_.cloneDeep(event.previousContainer.data),
                     event.container.data,
                     event.previousIndex,
                     event.currentIndex);
