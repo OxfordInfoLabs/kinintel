@@ -206,6 +206,18 @@
             </div>
         </ng-template>
 
+        <ng-template [ngIf]="dashboardItemType.type === 'words'">
+            <angular-d3-cloud *ngIf="wordCloud.data"
+                [data]="wordCloud.data"
+                [width]="wordCloud.width"
+                [height]="wordCloud.height"
+                [padding]="5"
+                font="serif"
+                [rotate]="0"
+                [autoFill]="true"
+            ></angular-d3-cloud>
+        </ng-template>
+
     </div>
 
     <div class="footer w-full bg-gray-50 px-5 py-1 text-gray-600 border-b border-gray-200 text-xs"

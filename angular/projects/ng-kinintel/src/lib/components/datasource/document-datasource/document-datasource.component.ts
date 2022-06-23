@@ -5,6 +5,11 @@ import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DatasourceService} from '../../../services/datasource.service';
 import {MatOptionSelectionChange} from '@angular/material/core';
 import {DatasetService} from '../../../services/dataset.service';
+import {
+    DatasetEditorPopupComponent
+} from '../../dataset/dataset-editor/dataset-editor.component';
+import {MatDialog} from '@angular/material/dialog';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'ki-document-datasource',
@@ -21,11 +26,15 @@ export class DocumentDatasourceComponent implements OnInit {
     public datasource: any;
     public evaluatedDatasource: any;
     public showSettings = true;
-    public showUpload = true;
+    public showUpload = false;
+    public String = String;
+    public files: any = null;
+    public _ = _;
 
     constructor(private route: ActivatedRoute,
                 private datasourceService: DatasourceService,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private dialog: MatDialog) {
     }
 
     async ngOnInit(): Promise<any> {
@@ -39,7 +48,12 @@ export class DocumentDatasourceComponent implements OnInit {
                     title: this.datasource.title,
                     config: this.datasource.config
                 };
-                this.evaluatedDatasource = await this.datasourceService.evaluateDatasource(this.datasource);
+                this.evaluateDatasource();
+
+                if (this.documentConfig.config.stopWordsDatasourceKey) {
+                    this.documentConfig.datasource = await this.datasourceService.getDatasource(this.documentConfig.config.stopWordsDatasourceKey);
+                    this.updateDatasource(this.documentConfig.datasource);
+                }
             }
         });
 
@@ -55,6 +69,22 @@ export class DocumentDatasourceComponent implements OnInit {
         });
     }
 
+    public viewFullItemData(data, columnName) {
+        this.dialog.open(DatasetEditorPopupComponent, {
+            width: '800px',
+            height: '400px',
+            data: {
+                fullData: data,
+                columnName
+            }
+        });
+    }
+
+    public humanFileSize(size: any) {
+        const i = size === 0 ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
+        return Number(( size / Math.pow(1024, i) ).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    }
+
     public displayFn(dataset): string {
         return dataset && dataset.title ? dataset.title : '';
     }
@@ -65,10 +95,10 @@ export class DocumentDatasourceComponent implements OnInit {
     }
 
     public dropHandler(ev) {
-        console.log('File(s) dropped');
-
         // Prevent default behavior (Prevent file from being opened)
         ev.preventDefault();
+
+        this.files = [];
 
         if (ev.dataTransfer.items) {
             // Use DataTransferItemList interface to access the file(s)
@@ -76,33 +106,39 @@ export class DocumentDatasourceComponent implements OnInit {
                 // If dropped items aren't files, reject them
                 if (ev.dataTransfer.items[i].kind === 'file') {
                     const file = ev.dataTransfer.items[i].getAsFile();
-                    console.log('... file[' + i + '].name = ' + file.name);
+                    this.files.push(file);
                 }
             }
         } else {
             // Use DataTransfer interface to access the file(s)
             for (let i = 0; i < ev.dataTransfer.files.length; i++) {
-                console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
+                const file = ev.dataTransfer.files[i];
+                this.files.push(file);
             }
         }
     }
 
     public fileUpload(event) {
-        const files = event.target.files;
+        this.files = Array.from(event.target.files);
+    }
 
+    public removeFile(index) {
+        this.files.splice(index, 1);
+    }
+
+    public uploadFiles() {
         const formData = new FormData();
 
-        for (const file of files) {
-            console.log(file);
+        for (const file of this.files) {
+
             formData.append(file.name, file);
         }
 
-        this.uploadFiles(formData);
+        return this.uploadDatasourceDocuments(formData);
     }
 
-    public async updateDatasource(event: MatOptionSelectionChange) {
-        const datasource = event.source.value;
-        this.documentConfig.stopWordsDatasourceKey = datasource.key;
+    public async updateDatasource(datasource) {
+        this.documentConfig.config.stopWordsDatasourceKey = datasource.key;
         this.documentConfig.datasource = datasource;
 
         const datasetInstanceSummary = {
@@ -117,11 +153,20 @@ export class DocumentDatasourceComponent implements OnInit {
         this.selectedDatasource = await this.datasetService.evaluateDataset(datasetInstanceSummary, '0', '1');
     }
 
-    public save() {
+    public async save() {
         if (!this.datasource) {
-            this.datasourceService.createDocumentDatasource(this.documentConfig);
+            this.datasourceKey = await this.datasourceService.createDocumentDatasource(this.documentConfig);
+
+            if (this.files && this.files.length) {
+                await this.uploadFiles();
+            }
+
+            window.location.href = '/document-datasource/' + this.datasourceKey;
+
         } else {
-            this.datasourceService.updateDatasourceInstance(this.datasourceKey, this.documentConfig);
+            await this.datasourceService.updateDatasourceInstance(this.datasourceKey, this.documentConfig);
+
+            this.evaluateDatasource();
         }
     }
 
@@ -136,8 +181,23 @@ export class DocumentDatasourceComponent implements OnInit {
         );
     }
 
-    private uploadFiles(files) {
-        this.datasourceService.uploadDatasourceDocuments(this.datasourceKey, files);
+    private async uploadDatasourceDocuments(formData) {
+        await this.datasourceService.uploadDatasourceDocuments(this.datasourceKey, formData);
+
+        this.files = null;
+        this.evaluateDatasource();
     }
 
+    private async evaluateDatasource() {
+        this.evaluatedDatasource = await this.datasourceService.evaluateDatasource(this.datasource);
+        this.evaluatedDatasource.allData.map(data => {
+            if (data.file_size) {
+                data.file_size = this.humanFileSize(data.file_size);
+            }
+            if (data.file_type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                data.file_type = 'application/docx';
+            }
+            return data;
+        });
+    }
 }

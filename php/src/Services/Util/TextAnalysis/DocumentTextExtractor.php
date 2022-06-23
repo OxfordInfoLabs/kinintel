@@ -5,6 +5,7 @@ namespace Kinintel\Services\Util\TextAnalysis;
  * @implementation text/plain \Kinintel\Services\Util\TextAnalysis\Extractors\TextTextExtractor
  * @implementation text/html \Kinintel\Services\Util\TextAnalysis\Extractors\HTMLTextExtractor
  * @implementation application/vnd.openxmlformats-officedocument.wordprocessingml.document \Kinintel\Services\Util\TextAnalysis\Extractors\DocxTextExtractor
+ * @implementation application/pdf \Kinintel\Services\Util\TextAnalysis\Extractors\PDFTextExtractor
  *
  */
 interface DocumentTextExtractor {
