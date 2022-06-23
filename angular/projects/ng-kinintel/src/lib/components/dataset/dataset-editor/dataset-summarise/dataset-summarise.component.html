@@ -36,7 +36,7 @@
                     <div class="example-box" *ngFor="let item of summariseFields; let i = index" cdkDrag>
                         {{item.title}}
                         <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
-                            <mat-icon>remove</mat-icon>
+                            <mat-icon>remove_circle_outline</mat-icon>
                         </button>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                                 {{item.title}}
 
                                 <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
-                                    <mat-icon>remove</mat-icon>
+                                    <mat-icon>remove_circle_outline</mat-icon>
                                 </button>
                             </div>
                         </ng-template>

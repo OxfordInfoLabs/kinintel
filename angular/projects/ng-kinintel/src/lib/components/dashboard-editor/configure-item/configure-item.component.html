@@ -864,12 +864,11 @@
                 <div class="w-1/2">
                     <div class="p-4">
                         <label class="mb-2">
-                            Use the whole data set to populate word cloud, or provide a string from a single column.
+                            Use an indexed document data source to populate word cloud, or provide a string from a single column.
                             <mat-radio-group [(ngModel)]="wordCloud.populationMethod">
-                                <mat-radio-button value="WHOLE">Whole Data Set</mat-radio-button>
-                                <mat-radio-button value="SINGLE">Single String</mat-radio-button>
+                                <mat-radio-button value="WHOLE">Indexed Document</mat-radio-button>
+                                <mat-radio-button class="ml-4" value="SINGLE">Single String</mat-radio-button>
                             </mat-radio-group>
-
                         </label>
 
                         <ng-template [ngIf]="wordCloud.populationMethod === 'SINGLE'">

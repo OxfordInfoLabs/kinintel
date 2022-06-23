@@ -80,6 +80,17 @@ export class DocumentDatasourceComponent implements OnInit {
         });
     }
 
+    public indexDocumentChange(change) {
+        if (change) {
+            if (!this.documentConfig.config.minPhraseLength) {
+                this.documentConfig.config.minPhraseLength = 1;
+            }
+            if (!this.documentConfig.config.maxPhraseLength) {
+                this.documentConfig.config.maxPhraseLength = 1;
+            }
+        }
+    }
+
     public humanFileSize(size: any) {
         const i = size === 0 ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
         return Number(( size / Math.pow(1024, i) ).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
@@ -189,6 +200,7 @@ export class DocumentDatasourceComponent implements OnInit {
     }
 
     private async evaluateDatasource() {
+        this.datasource.limit = 1000;
         this.evaluatedDatasource = await this.datasourceService.evaluateDatasource(this.datasource);
         this.evaluatedDatasource.allData.map(data => {
             if (data.file_size) {
