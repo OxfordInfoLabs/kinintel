@@ -1096,4 +1096,34 @@ class DatasetServiceTest extends TestBase {
     }
 
 
+    public function testCanGetDatasetByTitleAndOptionallyByAccountAndProject() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $topLevel = new DatasetInstanceSummary("Top Level Dataset", "test-json");
+        $topLevelId = $this->datasetService->saveDataSetInstance($topLevel, null, null);
+
+        $account1 = new DatasetInstanceSummary("Account Dataset 1", "test-json");
+        $account1Id = $this->datasetService->saveDataSetInstance($account1, null, 1);
+
+        $account2 = new DatasetInstanceSummary("Account Dataset 2", "test-json");
+        $account2Id = $this->datasetService->saveDataSetInstance($account2, null, 2);
+
+        $project1 = new DatasetInstanceSummary("Project Dataset 1", "test-json");
+        $project1Id = $this->datasetService->saveDataSetInstance($project1, "soapSuds", 2);
+
+        $project2 = new DatasetInstanceSummary("Project Dataset 2", "test-json");
+        $project2Id = $this->datasetService->saveDataSetInstance($project2, "wiperBlades", 2);
+
+        $this->assertEquals($this->datasetService->getDataSetInstance($topLevelId), $this->datasetService->getDataSetInstanceByTitle("Top Level Dataset", null, null));
+        $this->assertEquals($this->datasetService->getDataSetInstance($account1Id), $this->datasetService->getDataSetInstanceByTitle("Account Dataset 1", null, 1));
+        $this->assertEquals($this->datasetService->getDataSetInstance($account2Id), $this->datasetService->getDataSetInstanceByTitle("Account Dataset 2", null, 2));
+        $this->assertEquals($this->datasetService->getDataSetInstance($project1Id), $this->datasetService->getDataSetInstanceByTitle("Project Dataset 1", "soapSuds", 2));
+        $this->assertEquals($this->datasetService->getDataSetInstance($project2Id), $this->datasetService->getDataSetInstanceByTitle("Project Dataset 2", "wiperBlades", 2));
+
+
+    }
+
+
 }

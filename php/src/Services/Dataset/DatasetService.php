@@ -28,6 +28,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -91,6 +92,41 @@ class DatasetService {
      */
     public function getFullDataSetInstance($id) {
         return DatasetInstance::fetch($id);
+    }
+
+
+    /**
+     * Get dataset instance by title optionally limited to account and project.
+     *
+     * @param $title
+     * @param null $projectKey
+     * @param string $accountId
+     */
+    public function getDataSetInstanceByTitle($title, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        // If account id or project key, form clause
+        $clauses = ["title = ?"];
+        $parameters = [$title];
+        if ($accountId || $projectKey) {
+            $clauses[] = "accountId = ?";
+            $parameters[] = $accountId;
+
+            if ($projectKey) {
+                $clauses[] = "projectKey = ?";
+                $parameters[] = $projectKey;
+            }
+        } else {
+            $clauses[] = "accountId IS NULL";
+        }
+
+
+        $matches = DatasetInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
+        if (sizeof($matches) > 0) {
+            return $matches[0]->returnSummary();
+        } else {
+            throw new ObjectNotFoundException(DatasetInstance::class, $title);
+        }
+
     }
 
 

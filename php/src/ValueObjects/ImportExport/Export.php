@@ -284,6 +284,8 @@ class Export {
             $datasourceInstance = unserialize(serialize($datasourceInstance));
 
             $datasourceInstance->setKey(md5("DS::" . $datasourceInstance->getKey()));
+            $datasourceInstance->setAccountId(null);
+            $datasourceInstance->setProjectKey(null);
 
             $config = $datasourceInstance->getConfig() ?? [];
 
@@ -322,6 +324,8 @@ class Export {
 
             // Update the id
             $datasetInstance->setId(md5("DS::" . $datasetInstance->getId()));
+            $datasetInstance->setAccountId(null);
+            $datasetInstance->setProjectKey(null);
 
             // Do core logic for dataset instance
             $this->processCoreDatasetInstance($datasetInstance);
@@ -376,6 +380,8 @@ class Export {
 
             // Update the id
             $dashboard->setId(md5("DB::" . $dashboard->getId()));
+            $dashboard->setAccountId(null);
+            $dashboard->setProjectKey(null);
 
             // If an internal parent datasource key, hash it
             if ($dashboard->getParentDashboardId() && in_array($dashboard->getParentDashboardId(), $this->dashboardIds)) {

@@ -4,6 +4,7 @@
 namespace Kinintel\Services\Datasource;
 
 
+use Kiniauth\Objects\Account\Account;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -65,6 +66,42 @@ class DatasourceDAO {
             } else {
                 throw new ObjectNotFoundException(DatasourceInstance::class, $key);
             }
+        }
+    }
+
+
+    /**
+     * Get a datasource instance by title - usually for a specific project / account for comparison matching
+     *
+     * @param string $title
+     * @param string $projectKey
+     * @param integer $accountId
+     *
+     * @return DatasourceInstance
+     */
+    public function getDatasourceInstanceByTitle($title, $projectKey = null, $accountId = null) {
+
+        // If account id or project key, form clause
+        $clauses = ["title = ?"];
+        $parameters = [$title];
+        if ($accountId || $projectKey) {
+            $clauses[] = "accountId = ?";
+            $parameters[] = $accountId;
+
+            if ($projectKey) {
+                $clauses[] = "projectKey = ?";
+                $parameters[] = $projectKey;
+            }
+        } else {
+            $clauses[] = "accountId IS NULL";
+        }
+
+
+        $matches = DatasourceInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
+        if (sizeof($matches) > 0) {
+            return $matches[0];
+        } else {
+            throw new ObjectNotFoundException(DatasourceInstance::class, $title);
         }
     }
 

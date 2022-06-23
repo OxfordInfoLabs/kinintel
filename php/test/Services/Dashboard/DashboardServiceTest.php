@@ -287,7 +287,6 @@ class DashboardServiceTest extends TestBase {
     }
 
 
-
     public function testCanGetFilteredDashboardsForAccountsOptionallyFilteredByProjectTagAndCategories() {
 
         // Log in as a person with projects and tags
@@ -454,7 +453,6 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Second Project Dashboard", $all[1]->getTitle());
 
     }
-
 
 
     public function testCanGetFilteredSharedDashboardsWithAccountIdOfNull() {
@@ -819,5 +817,33 @@ class DashboardServiceTest extends TestBase {
 
     }
 
+    public function testCanGetDashboardByTitleAndOptionallyByAccountAndProject() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $topLevel = new DashboardSummary("Top Level Dashboard");
+        $topLevelId = $this->dashboardService->saveDashboard($topLevel, null, null);
+
+        $account1 = new DashboardSummary("Account Dashboard 1");
+        $account1Id = $this->dashboardService->saveDashboard($account1, null, 1);
+
+        $account2 = new DashboardSummary("Account Dashboard 2");
+        $account2Id = $this->dashboardService->saveDashboard($account2, null, 2);
+
+        $project1 = new DashboardSummary("Project Dashboard 1");
+        $project1Id = $this->dashboardService->saveDashboard($project1, "soapSuds", 2);
+
+        $project2 = new DashboardSummary("Project Dashboard 2");
+        $project2Id = $this->dashboardService->saveDashboard($project2, "wiperBlades", 2);
+
+        $this->assertEquals($this->dashboardService->getDashboardById($topLevelId), $this->dashboardService->getDashboardByTitle("Top Level Dashboard", null, null));
+        $this->assertEquals($this->dashboardService->getDashboardById($account1Id), $this->dashboardService->getDashboardByTitle("Account Dashboard 1", null, 1));
+        $this->assertEquals($this->dashboardService->getDashboardById($account2Id), $this->dashboardService->getDashboardByTitle("Account Dashboard 2", null, 2));
+        $this->assertEquals($this->dashboardService->getDashboardById($project1Id), $this->dashboardService->getDashboardByTitle("Project Dashboard 1", "soapSuds", 2));
+        $this->assertEquals($this->dashboardService->getDashboardById($project2Id), $this->dashboardService->getDashboardByTitle("Project Dashboard 2", "wiperBlades", 2));
+
+
+    }
 
 }

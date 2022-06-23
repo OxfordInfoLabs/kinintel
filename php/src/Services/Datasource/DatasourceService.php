@@ -96,6 +96,20 @@ class DatasourceService {
 
 
     /**
+     * Get a datasource instance by title - usually for a specific project / account for comparison matching
+     *
+     * @param string $title
+     * @param string $projectKey
+     * @param integer $accountId
+     *
+     * @return DatasourceInstance
+     */
+    public function getDatasourceInstanceByTitle($title, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->getDatasourceInstanceByTitle($title, $projectKey, $accountId);
+    }
+
+
+    /**
      * Save a datasource instance
      *
      * @param DatasourceInstance $dataSourceInstance

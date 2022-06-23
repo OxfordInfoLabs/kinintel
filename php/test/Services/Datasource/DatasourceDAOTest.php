@@ -151,7 +151,7 @@ class DatasourceDAOTest extends TestBase {
         $this->assertEquals(2, sizeof($filtered));
 
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL","sqldatabase"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL", "sqldatabase"), $filtered[1]);
 
 
         $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, "soapSuds", 2);
@@ -160,6 +160,7 @@ class DatasourceDAOTest extends TestBase {
 
 
     }
+
 
 
     public function testDatasetSnapshotsAreIgnoredInFilteredResults() {
@@ -188,5 +189,65 @@ class DatasourceDAOTest extends TestBase {
 
 
     }
+
+
+    public function testCanGetDatasourceInstanceByTitleOptionallyLimitedToAccountAndProject() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSourceInstance1 = new DatasourceInstance("test-top-level", "Test Top Level", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance1->save();
+
+
+        $dataSourceInstance2 = new DatasourceInstance("test-account-1", "Test Account", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance2->setAccountId(1);
+        $dataSourceInstance2->save();
+
+        $dataSourceInstance3 = new DatasourceInstance("test-account-2", "Test Account", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance3->setAccountId(2);
+        $dataSourceInstance3->save();
+
+        $dataSourceInstance4 = new DatasourceInstance("test-project-1", "Test Project", "sqldatabase", [
+            "source" => "table",
+            "tableName" => "bob"
+        ], "http-basic");
+        $dataSourceInstance4->setAccountId(2);
+        $dataSourceInstance4->setProjectKey("soapSuds");
+        $dataSourceInstance4->save();
+
+        $dataSourceInstance5 = new DatasourceInstance("test-project-2", "Test Project", "sqldatabase", [
+            "source" => "table",
+            "tableName" => "bob"
+        ], "http-basic");
+        $dataSourceInstance5->setAccountId(2);
+        $dataSourceInstance5->setProjectKey("wiperBlades");
+        $dataSourceInstance5->save();
+
+
+        $topLevel = $this->datasourceDAO->getDatasourceInstanceByTitle("Test Top Level");
+        $this->assertEquals($dataSourceInstance1, $topLevel);
+
+        $accountLevel1 = $this->datasourceDAO->getDatasourceInstanceByTitle("Test Account", null, 1);
+        $this->assertEquals($dataSourceInstance2, $accountLevel1);
+
+        $accountLevel2 = $this->datasourceDAO->getDatasourceInstanceByTitle("Test Account", null, 2);
+        $this->assertEquals($dataSourceInstance3, $accountLevel2);
+
+        $projectLevel1 = $this->datasourceDAO->getDatasourceInstanceByTitle("Test Project", "soapSuds", 2);
+        $this->assertEquals($dataSourceInstance4, $projectLevel1);
+
+        $projectLevel2 = $this->datasourceDAO->getDatasourceInstanceByTitle("Test Project", "wiperBlades", 2);
+        $this->assertEquals($dataSourceInstance5, $projectLevel2);
+
+
+    }
+
+
 
 }

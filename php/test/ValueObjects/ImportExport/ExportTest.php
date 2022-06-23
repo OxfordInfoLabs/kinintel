@@ -27,6 +27,9 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
             "otherProp" => "my value"
         ], "maindb");
 
+        $sourceDatasource->setProjectKey("testproject");
+        $sourceDatasource->setAccountId(1);
+
 
         $export = new Export(Export::SCOPE_PROJECT, "My Export", [$sourceDatasource], [], [], []);
 
@@ -51,22 +54,22 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
         ], "maindb");
 
         // Has parent datasource included in export
-        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Example 1", "myexampledatasource", null, [], [], [], null, null, [], null, 1));
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Example 1", "myexampledatasource", null, [], [], [], null, null, [], null, 1),1, "myprojectkey");
 
         // Has external parent datasource
-        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Example 2", "coredatasource", null, [], [], [], null, null, [], null, 2));
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Example 2", "coredatasource", null, [], [], [], null, null, [], null, 2),1, "myprojectkey");
 
         // Has parent dataset included in export
-        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Example 3", null, 4, [], [], [], null, null, [], null, 3));
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Example 3", null, 4, [], [], [], null, null, [], null, 3),1, "myprojectkey");
 
         // Has parent dataset included in export and is parent of #3
-        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [], [], [], null, null, [], null, 4));
+        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [], [], [], null, null, [], null, 4),1, "myprojectkey");
 
         // Is a parent of #4
-        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Example 5", null, 3, [], [], [], null, null, [], null, 5));
+        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Example 5", null, 3, [], [], [], null, null, [], null, 5),1, "myprojectkey");
 
         // Has external parent dataset
-        $dataset6 = new DatasetInstance(new DatasetInstanceSummary("Example 6", null, 33, [], [], [], null, null, [], null, 6));
+        $dataset6 = new DatasetInstance(new DatasetInstanceSummary("Example 6", null, 33, [], [], [], null, null, [], null, 6),1, "myprojectkey");
 
 
         $export = new Export(Export::SCOPE_PROJECT, "Dataset Export", [$sourceDatasource], [$dataset1, $dataset2, $dataset3, $dataset4, $dataset5, $dataset6], [], []);
@@ -170,9 +173,9 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
             new DashboardDatasetInstance("instance4", null, "externalds", [
                 new TransformationInstance("join", new JoinTransformation("myexampledatasource", null))
             ])
-        ], null, null, null, null, null, [], 1, false, 2));
-        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, null, null, [], 2, false, 23));
-        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, null, null, [], 3, false, 1));
+        ], null, null, null, null, null, [], 1, false, 2),1, "myprojectkey");
+        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, null, null, [], 2, false, 23),1, "myprojectkey");
+        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, null, null, [], 3, false, 1),1, "myprojectkey");
 
 
         $export = new Export(Export::SCOPE_PROJECT, "Dashboard Export", [$datasource], [$dataset], [$dashboard1, $dashboard2, $dashboard3], []);
