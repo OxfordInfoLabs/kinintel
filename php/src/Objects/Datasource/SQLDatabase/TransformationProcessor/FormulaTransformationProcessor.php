@@ -55,7 +55,8 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
             $params = array_merge($clauseParams, $query->getParameters());
             $query = new SQLQuery("F" . ++$this->aliasIndex . ".*, " . join(", ", $clauses), "(" . $query->getSQL() . ") F" . $this->aliasIndex, $params);
         } else {
-            $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses), $clauseParams);
+            $params = array_merge($query->getParametersByClauseType(SQLQuery::SELECT_CLAUSE) ?? [], $clauseParams);
+            $query->setSelectClause($query->getSelectClause() . ", " . join(", ", $clauses), $params);
         }
 
 

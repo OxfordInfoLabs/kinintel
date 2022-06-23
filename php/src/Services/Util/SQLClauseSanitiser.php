@@ -82,6 +82,8 @@ class SQLClauseSanitiser {
             "description" => "Return the closest integer below the supplied numeric argument X"],
         "IFNULL" => ["params" => ["X", "Y"], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first argument if not null or second argument if not null or null if both are null"],
+        "INSTR" => ["params" => ["X", "Y"], "category" => self::STRING_WHITELISTED_FUNCTION,
+            "description" => "Return the position of the string supplied as Y within the string supplied as X"],
         "LENGTH" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Return the length of the string argument supplied"],
         "LOWER" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
