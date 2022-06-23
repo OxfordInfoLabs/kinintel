@@ -140,6 +140,14 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
     }
 
     /**
+     * @param int $id
+     */
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    
+    /**
      * @return TagSummary[]
      */
     public function getTags() {
@@ -205,7 +213,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
     /**
      * @param string $originDataItemTitle
      */
-    public function setOriginDataItemTitle($originDataItemTitle){
+    public function setOriginDataItemTitle($originDataItemTitle) {
         $this->originDataItemTitle = $originDataItemTitle;
     }
 

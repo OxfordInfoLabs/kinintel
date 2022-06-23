@@ -286,6 +286,8 @@ class DashboardServiceTest extends TestBase {
 
     }
 
+
+
     public function testCanGetFilteredDashboardsForAccountsOptionallyFilteredByProjectTagAndCategories() {
 
         // Log in as a person with projects and tags
@@ -419,6 +421,41 @@ class DashboardServiceTest extends TestBase {
 
 
     }
+
+
+    public function testCanGetAllDashboardsForAccountOrProject() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $all = $this->dashboardService->getAllDashboards(null, 1);
+        $this->assertEquals(6, sizeof($all));
+        $this->assertInstanceOf(DashboardSummary::class, $all[0]);
+        $this->assertEquals("Account Dashboard", $all[0]->getTitle());
+        $this->assertEquals("Account Dashboard Summary", $all[0]->getSummary());
+        $this->assertEquals("Account Dashboard Description", $all[0]->getDescription());
+
+
+        $this->assertInstanceOf(DashboardSummary::class, $all[1]);
+        $this->assertEquals("Project Dashboard", $all[1]->getTitle());
+        $this->assertInstanceOf(DashboardSummary::class, $all[2]);
+        $this->assertEquals("Second Account Dashboard", $all[2]->getTitle());
+        $this->assertInstanceOf(DashboardSummary::class, $all[3]);
+        $this->assertEquals("Second Project Dashboard", $all[3]->getTitle());
+
+
+        // Filter on project key
+        $all = $this->dashboardService->getAllDashboards("datasetProject", 1);
+        $this->assertEquals(2, sizeof($all));
+        $this->assertInstanceOf(DashboardSummary::class, $all[0]);
+        $this->assertEquals("Project Dashboard", $all[0]->getTitle());
+        $this->assertInstanceOf(DashboardSummary::class, $all[1]);
+        $this->assertEquals("Second Project Dashboard", $all[1]->getTitle());
+
+    }
+
+
 
     public function testCanGetFilteredSharedDashboardsWithAccountIdOfNull() {
 
@@ -762,7 +799,7 @@ class DashboardServiceTest extends TestBase {
         $dashboard = new DashboardSummary("Johnny 5");
         $id = $this->dashboardService->saveDashboard($dashboard, null, 2);
 
-        $searchResult = new DashboardSearchResult($id, "Updated Title", "My special summary", "My description", [new CategorySummary("Account 2", "Account 2", "account2")]);
+        $searchResult = new DashboardSearchResult($id, "Updated Title", "My special summary", "My description", [new CategorySummary("Account 2", "Account 2", "account2")], null);
 
         $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
             new ObjectCategory(new Category(new CategorySummary("Account 2", "Account 2", "account2"), 2)),

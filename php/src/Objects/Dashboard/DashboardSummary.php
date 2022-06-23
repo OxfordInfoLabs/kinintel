@@ -12,13 +12,6 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
-     * Parent dashboard ID.
-     *
-     * @var integer
-     */
-    protected $parentDashboardId;
-
-    /**
      * Attached dataset instances
      *
      * @var DashboardDatasetInstance[]
@@ -82,27 +75,12 @@ class DashboardSummary extends DashboardSearchResult {
      * @param CategorySummary[] $categories
      */
     public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
-        parent::__construct($id, $title, $summary, $description, $categories);
+        parent::__construct($id, $title, $summary, $description, $categories, $parentDashboardId);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
         $this->alertsEnabled = $alertsEnabled;
         $this->readOnly = $readOnly;
-        $this->parentDashboardId = $parentDashboardId;
-    }
-
-    /**
-     * @return int
-     */
-    public function getParentDashboardId() {
-        return $this->parentDashboardId;
-    }
-
-    /**
-     * @param int $parentDashboardId
-     */
-    public function setParentDashboardId($parentDashboardId) {
-        $this->parentDashboardId = $parentDashboardId;
     }
 
 

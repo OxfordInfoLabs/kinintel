@@ -63,7 +63,17 @@ class DashboardService {
      * @return DashboardSummary
      */
     public function getDashboardById($id) {
-        return $this->getFullDashboardById($id)->returnSummary();
+        return $this->getRecursiveDashboardById($id)->returnSummary();
+    }
+
+
+    /**
+     * Get a full dashboard by id without summarisation for internal use
+     *
+     * @param $id
+     */
+    public function getFullDashboard($id) {
+        return Dashboard::fetch($id);
     }
 
 
@@ -94,6 +104,26 @@ class DashboardService {
         $this->mergeParentDashboard($newDashboard, $parentDashboardId);
 
         return $newDashboard->returnSummary();
+    }
+
+
+    /**
+     * Get all dashboards as summaries
+     *
+     * @return array
+     */
+    public function getAllDashboards($projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        $clause = "WHERE account_id = ?";
+        $params = [$accountId];
+        if ($projectKey) {
+            $clause .= " AND project_key =?";
+            $params[] = $projectKey;
+        }
+        $clause .= " ORDER BY title";
+
+        return array_map(function ($dashboard) {
+            return $dashboard->returnSummary();
+        }, Dashboard::filter($clause, $params));
     }
 
 
@@ -150,7 +180,7 @@ class DashboardService {
         // Return a summary array
         return array_map(function ($instance) {
             $summary = $instance->returnSummary();
-            return new DashboardSearchResult($instance->getId(), $instance->getTitle(), $instance->getSummary(), $instance->getDescription(), $summary->getCategories());
+            return new DashboardSearchResult($instance->getId(), $instance->getTitle(), $instance->getSummary(), $instance->getDescription(), $summary->getCategories(), $summary->getParentDashboardId());
         },
             Dashboard::filter($query, $params));
 
@@ -313,12 +343,12 @@ class DashboardService {
 
 
     /**
-     * Get a full dashboard by id including parent merge
+     * Get a dashboard by id including parent merge
      *
      * @param $id
      * @return Dashboard
      */
-    private function getFullDashboardById($id) {
+    private function getRecursiveDashboardById($id) {
 
         /**
          * @var Dashboard $dashboard
@@ -342,7 +372,7 @@ class DashboardService {
     private function mergeParentDashboard($childDashboard, $parentDashboardId) {
 
         try {
-            $parentDashboard = $this->getFullDashboardById($parentDashboardId);
+            $parentDashboard = $this->getRecursiveDashboardById($parentDashboardId);
 
             // Capture parent instance keys
             $parentInstanceKeys = ObjectArrayUtils::getMemberValueArrayForObjects("instanceKey", $parentDashboard->getDatasetInstances());
@@ -423,7 +453,7 @@ class DashboardService {
 
 
         // Grab parent dashboard and optimise out any parameters exact match to parent ones
-        $parentDashboard = $this->getFullDashboardById($dashboard->getParentDashboardId());
+        $parentDashboard = $this->getRecursiveDashboardById($dashboard->getParentDashboardId());
         $parentLayoutSettings = $parentDashboard->getLayoutSettings() ?? [];
 
         $parameters = $layoutSettings["parameters"] ?? [];

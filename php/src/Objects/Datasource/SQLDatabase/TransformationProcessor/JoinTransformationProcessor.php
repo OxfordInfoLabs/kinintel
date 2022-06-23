@@ -208,7 +208,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 }
 
 
-
                 // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
                 if (isset($materialisedJoinSet) && sizeof($materialisedJoinSet->getColumns())) {
@@ -275,6 +274,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
 
+
         return $datasource;
 
     }
@@ -327,6 +327,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             if ($transformation->getJoinColumns()) {
 
                 $newColumns = $dataSource->getConfig()->getColumns() ?? [];
+
 
                 // Get column names
                 $indexedColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $newColumns);

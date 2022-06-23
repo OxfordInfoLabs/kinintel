@@ -49,6 +49,12 @@ class DashboardSearchResult extends ActiveRecord {
 
 
     /**
+     * @var integer
+     */
+    protected $parentDashboardId;
+
+
+    /**
      * DashboardSearchResult constructor.
      * @param int $id
      * @param string $title
@@ -56,12 +62,13 @@ class DashboardSearchResult extends ActiveRecord {
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($id, $title, $summary, $description, $categories) {
+    public function __construct($id, $title, $summary, $description, $categories, $parentDashboardId) {
         $this->id = $id;
         $this->title = $title;
         $this->summary = $summary;
         $this->description = $description;
         $this->categories = $categories;
+        $this->parentDashboardId = $parentDashboardId;
     }
 
 
@@ -127,5 +134,19 @@ class DashboardSearchResult extends ActiveRecord {
      */
     public function getId() {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getParentDashboardId() {
+        return $this->parentDashboardId;
+    }
+
+    /**
+     * @param int $parentDashboardId
+     */
+    public function setParentDashboardId($parentDashboardId) {
+        $this->parentDashboardId = $parentDashboardId;
     }
 }
