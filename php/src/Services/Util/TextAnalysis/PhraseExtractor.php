@@ -64,7 +64,7 @@ class PhraseExtractor {
         $phraseCounts = array_count_values($phrases);
         foreach ($phraseCounts as $phrase => $count) {
             if (sizeof(explode(" ", $phrase)) >= $minPhraseLength) {
-                $finalPhrases[] = new Phrase($phrase, $count);
+                $finalPhrases[] = new Phrase($phrase, $count, sizeof($this->getWords($phrase)));
             }
         }
 

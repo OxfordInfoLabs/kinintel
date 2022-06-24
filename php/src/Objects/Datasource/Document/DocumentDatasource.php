@@ -138,7 +138,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
                     /** @var Phrase $phrase */
                     $newRow["phrases"] = array_map(function($phrase) {
-                        return ["phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency()];
+                        return ["phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
                     }, $phrases ?? []);
 
                 }

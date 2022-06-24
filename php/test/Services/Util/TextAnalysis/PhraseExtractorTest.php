@@ -41,17 +41,17 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"));
 
         $this->assertEquals([
-            new Phrase("quick", 2),
-            new Phrase("brown", 2),
-            new Phrase("fox", 1),
-            new Phrase("jumped", 1),
-            new Phrase("over", 1),
-            new Phrase("lazy", 2),
-            new Phrase("dog", 1),
-            new Phrase("ain't", 1),
-            new Phrase("average", 1),
-            new Phrase("test", 1),
-            new Phrase("one", 1)
+            new Phrase("quick", 2, 1),
+            new Phrase("brown", 2, 1),
+            new Phrase("fox", 1, 1),
+            new Phrase("jumped", 1, 1),
+            new Phrase("over", 1, 1),
+            new Phrase("lazy", 2, 1),
+            new Phrase("dog", 1, 1),
+            new Phrase("ain't", 1, 1),
+            new Phrase("average", 1, 1),
+            new Phrase("test", 1, 1),
+            new Phrase("one", 1, 1)
         ], $phrases);
 
     }
@@ -69,30 +69,30 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3);
 
         $this->assertEquals([
-            new Phrase("quick", 2),
-            new Phrase("quick brown", 2),
-            new Phrase("quick brown fox", 1),
-            new Phrase("brown", 2),
-            new Phrase("brown fox", 1),
-            new Phrase("brown fox jumped", 1),
-            new Phrase("fox", 1),
-            new Phrase("fox jumped", 1),
-            new Phrase("fox jumped over", 1),
-            new Phrase("jumped", 1),
-            new Phrase("jumped over", 1),
-            new Phrase("over", 1),
-            new Phrase("lazy", 2),
-            new Phrase("lazy dog", 1),
-            new Phrase("dog", 1),
-            new Phrase("ain't", 1),
-            new Phrase("average", 1),
-            new Phrase("average lazy", 1),
-            new Phrase("average lazy test", 1),
-            new Phrase("lazy test", 1),
-            new Phrase("test", 1),
-            new Phrase("quick brown one", 1),
-            new Phrase("brown one", 1),
-            new Phrase("one", 1)
+            new Phrase("quick", 2, 1),
+            new Phrase("quick brown", 2, 2),
+            new Phrase("quick brown fox", 1, 3),
+            new Phrase("brown", 2, 1),
+            new Phrase("brown fox", 1, 2),
+            new Phrase("brown fox jumped", 1, 3),
+            new Phrase("fox", 1, 1),
+            new Phrase("fox jumped", 1, 2),
+            new Phrase("fox jumped over", 1, 3),
+            new Phrase("jumped", 1, 1),
+            new Phrase("jumped over", 1, 2),
+            new Phrase("over", 1, 1),
+            new Phrase("lazy", 2, 1),
+            new Phrase("lazy dog", 1, 2),
+            new Phrase("dog", 1, 1),
+            new Phrase("ain't", 1, 1),
+            new Phrase("average", 1, 1),
+            new Phrase("average lazy", 1, 2),
+            new Phrase("average lazy test", 1, 3),
+            new Phrase("lazy test", 1, 2),
+            new Phrase("test", 1, 1),
+            new Phrase("quick brown one", 1, 3),
+            new Phrase("brown one", 1, 2),
+            new Phrase("one", 1, 1)
         ], $phrases);
 
     }
@@ -110,19 +110,19 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2);
 
         $this->assertEquals([
-            new Phrase("quick brown", 2),
-            new Phrase("quick brown fox", 1),
-            new Phrase("brown fox", 1),
-            new Phrase("brown fox jumped", 1),
-            new Phrase("fox jumped", 1),
-            new Phrase("fox jumped over", 1),
-            new Phrase("jumped over", 1),
-            new Phrase("lazy dog", 1),
-            new Phrase("average lazy", 1),
-            new Phrase("average lazy test", 1),
-            new Phrase("lazy test", 1),
-            new Phrase("quick brown one", 1),
-            new Phrase("brown one", 1)
+            new Phrase("quick brown", 2, 2),
+            new Phrase("quick brown fox", 1, 3),
+            new Phrase("brown fox", 1, 2),
+            new Phrase("brown fox jumped", 1, 3),
+            new Phrase("fox jumped", 1, 2),
+            new Phrase("fox jumped over", 1, 3),
+            new Phrase("jumped over", 1, 2),
+            new Phrase("lazy dog", 1, 2),
+            new Phrase("average lazy", 1, 2),
+            new Phrase("average lazy test", 1, 3),
+            new Phrase("lazy test", 1, 2),
+            new Phrase("quick brown one", 1, 3),
+            new Phrase("brown one", 1, 2)
         ], $phrases);
 
     }
@@ -142,13 +142,13 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->assertEquals([
-            new Phrase("quick", 2),
-            new Phrase("brown", 2),
-            new Phrase("fox", 1),
-            new Phrase("jumped", 1),
-            new Phrase("lazy", 2),
-            new Phrase("dog", 1),
-            new Phrase("average", 1)
+            new Phrase("quick", 2, 1),
+            new Phrase("brown", 2, 1),
+            new Phrase("fox", 1, 1),
+            new Phrase("jumped", 1, 1),
+            new Phrase("lazy", 2, 1),
+            new Phrase("dog", 1, 1),
+            new Phrase("average", 1, 1)
         ], $phrases);
 
     }
