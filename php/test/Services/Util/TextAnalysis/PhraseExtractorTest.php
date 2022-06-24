@@ -67,7 +67,7 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
         ], ["EN"]);
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3);
-print_r($phrases);
+
         $this->assertEquals([
             new Phrase("quick", 2, 1),
             new Phrase("quick brown", 2, 2),
