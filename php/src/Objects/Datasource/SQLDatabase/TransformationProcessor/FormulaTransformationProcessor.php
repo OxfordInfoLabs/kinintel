@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use AWS\CRT\Log;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -35,9 +36,11 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
         // Update current set of columns if set
         $datasourceColumns = $dataSource->getConfig()->getColumns();
+        $indexedColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $datasourceColumns);
         if (is_array($datasourceColumns) && sizeof($datasourceColumns)) {
             foreach ($transformation->getExpressions() as $expression) {
-                $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
+                if (!isset($indexedColumns[$expression->returnFieldName()]))
+                    $datasourceColumns[] = new Field($expression->returnFieldName(), $expression->getFieldTitle());
             };
             $dataSource->getConfig()->setColumns($datasourceColumns);
         }

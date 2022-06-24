@@ -51,6 +51,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
      * @throws \Kinintel\Exception\DatasourceUpdateException
      */
     public function update($dataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
+
         $newRows = [];
         $fields = [
             new Field("filename"),

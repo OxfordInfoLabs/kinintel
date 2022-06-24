@@ -123,6 +123,15 @@ class SummariseExpression {
         $this->customLabel = $customLabel;
     }
 
+
+    /**
+     * Get a custom field name as conversion from label
+     */
+    public function getCustomFieldName() {
+        return StringUtils::convertToCamelCase($this->customLabel);
+    }
+
+
     /**
      * Get the function string for this expression
      *
@@ -144,11 +153,12 @@ class SummariseExpression {
         $function = $sqlValueEvaluator->evaluateFilterValue($function, $parameterValues, null, $clauseParameters);
 
         if ($this->customLabel) {
-            $function .= " " . $databaseConnection->escapeColumn(StringUtils::convertToCamelCase($this->customLabel));
+            $function .= " " . $databaseConnection->escapeColumn($this->getCustomFieldName($databaseConnection));
         }
 
         return $function;
 
     }
+
 
 }

@@ -438,8 +438,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var SQLDatabaseDatasourceConfig $config
          */
         $config = $this->getConfig();
-
-
+        
         // If a tabular based source, create base clause
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
             $query = new SQLQuery("*", $config->getTableName());

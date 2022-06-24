@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -56,13 +57,21 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
                 $query = new SQLQuery("*", "(" . $query->getSQL() . ") S" . ++$this->aliasIndex, $query->getParameters());
             }
 
+            $columns = [];
+            $databaseConnection = $dataSource->returnDatabaseConnection();
+
             $groupByClauses = $transformation->getSummariseFieldNames();
+            foreach ($groupByClauses as $groupByClause) {
+                $columns[] = new Field($groupByClause);
+            }
+
             $evaluatedExpressions = [];
             $clauseParameters = [];
             foreach ($transformation->getExpressions() as $expression) {
                 $expressionParams = [];
-                $evaluatedExpressions[] = $expression->getFunctionString($expressionParams, $parameterValues, $dataSource->returnDatabaseConnection());
+                $evaluatedExpressions[] = $expression->getFunctionString($expressionParams, $parameterValues, $databaseConnection);
                 $clauseParameters = array_merge($clauseParameters, $expressionParams);
+                $columns[] = new Field($expression->getCustomFieldName($databaseConnection));
             }
 
 
@@ -71,6 +80,11 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
                 $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses), [], $clauseParameters);
             else if (sizeof($evaluatedExpressions))
                 $query->setSelectClause(join(", ", $evaluatedExpressions), $clauseParameters);
+
+
+            // Set columns
+            $dataSource->getConfig()->setColumns($columns);
+
         }
 
         return $query;

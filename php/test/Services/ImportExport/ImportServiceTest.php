@@ -93,7 +93,7 @@ class ImportServiceTest extends TestBase {
 
 
         // Programme expected responses
-        $this->datasourceService->returnValue("")
+       // $this->datasourceService->returnValue("")
 
         // Import to project
         $this->importService->importToProject($export, "newproject", 1);

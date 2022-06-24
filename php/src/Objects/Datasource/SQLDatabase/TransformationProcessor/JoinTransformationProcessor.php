@@ -274,7 +274,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             $datasource->getConfig()->setColumns($dataSet->getColumns());
         }
 
-
         return $datasource;
 
     }
@@ -328,7 +327,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 $newColumns = $dataSource->getConfig()->getColumns() ?? [];
 
-
                 // Get column names
                 $indexedColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $newColumns);
 
@@ -350,6 +348,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     $joinColumnStrings[] = $childTableAlias . "." . $columnSpec;
                     $newColumns[] = new Field($columnName, $joinColumn->getTitle());
                 }
+
 
 
                 $childSelectColumns = join(",", $joinColumnStrings);
