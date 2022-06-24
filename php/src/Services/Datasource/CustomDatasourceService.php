@@ -98,6 +98,7 @@ class CustomDatasourceService {
         $fields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
             new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
+            new Field("phrase_length", "Phrase Length", null, Field::TYPE_INTEGER),
             new Field("frequency", "Frequency", null, Field::TYPE_INTEGER)
         ];
         $indexInstanceKey = "index_" . $newDatasourceKey;
