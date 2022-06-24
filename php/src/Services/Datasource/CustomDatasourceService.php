@@ -178,9 +178,10 @@ class CustomDatasourceService {
                 $mimeType = $fileExtension == 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : $file->getMimeType();
 
                 $fileData[] = ["filename" => $file->getClientFilename(), "documentFilePath" => $file->getTemporaryFilePath(), "file_type" => $mimeType];
-                $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath"), new Field("file_type")], $fileData), UpdatableDatasource::UPDATE_MODE_REPLACE);
             }
         }
+
+        $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath"), new Field("file_type")], $fileData), UpdatableDatasource::UPDATE_MODE_REPLACE);
 
 
     }
