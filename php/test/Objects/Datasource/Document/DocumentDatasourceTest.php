@@ -255,6 +255,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testIfIndexWordsSetWithDefaultOptionsUpdateConfigurationIsDefinedCorrectlyAndDatasetContainsPhrases() {
+        $previousDatasourceService = Container::instance()->get(DatasourceService::class);
 
         $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         Container::instance()->set(DatasourceService::class, $mockDatasourceService);
@@ -378,12 +379,12 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             UpdatableDatasource::UPDATE_MODE_ADD
         ]));
 
-
+        Container::instance()->set(DatasourceService::class, $previousDatasourceService);
     }
 
 
     public function testIfCustomStopwordsConfigSuppliedCustomStopwordsAreLoadedFromDatasourceColumn() {
-
+        $previousDatasourceService = Container::instance()->get(DatasourceService::class);
         // Set up mock objects for subordinate datasources
         $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         Container::instance()->set(DatasourceService::class, $mockDatasourceService);
@@ -467,7 +468,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ], ["filename", "imported_date", "file_size", "file_type"]]));
 
-
+        Container::instance()->set(DatasourceService::class, $previousDatasourceService);
     }
 
 }
