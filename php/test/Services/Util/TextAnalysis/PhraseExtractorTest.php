@@ -80,20 +80,33 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("fox jumped over", 1, 3),
             new Phrase("jumped", 1, 1),
             new Phrase("jumped over", 1, 2),
+            new Phrase("jumped over the", 1, 3),
             new Phrase("over", 1, 1),
+            new Phrase("over the", 1, 2),
+            new Phrase("over the lazy", 1, 3),
             new Phrase("lazy", 2, 1),
             new Phrase("lazy dog", 1, 2),
+            new Phrase("lazy dog this", 1, 3),
             new Phrase("dog", 1, 1),
+            new Phrase("dog this", 1, 2),
+            new Phrase("dog this ain't", 1, 3),
             new Phrase("ain't", 1, 1),
+            new Phrase("ain't your", 1, 2),
+            new Phrase("ain't your average", 1, 3),
             new Phrase("average", 1, 1),
             new Phrase("average lazy", 1, 2),
             new Phrase("average lazy test", 1, 3),
             new Phrase("lazy test", 1, 2),
+            new Phrase("lazy test it's", 1, 3),
             new Phrase("test", 1, 1),
+            new Phrase("test it's", 1, 2),
+            new Phrase("test it's a", 1, 3),
             new Phrase("quick brown one", 1, 3),
             new Phrase("brown one", 1, 2),
             new Phrase("one", 1, 1)
         ], $phrases);
+
+
 
     }
 
@@ -117,12 +130,23 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("fox jumped", 1, 2),
             new Phrase("fox jumped over", 1, 3),
             new Phrase("jumped over", 1, 2),
+            new Phrase("jumped over the", 1, 3),
+            new Phrase("over the", 1, 2),
+            new Phrase("over the lazy", 1, 3),
             new Phrase("lazy dog", 1, 2),
+            new Phrase("lazy dog this", 1, 3),
+            new Phrase("dog this", 1, 2),
+            new Phrase("dog this ain't", 1, 3),
+            new Phrase("ain't your", 1, 2),
+            new Phrase("ain't your average", 1, 3),
             new Phrase("average lazy", 1, 2),
             new Phrase("average lazy test", 1, 3),
             new Phrase("lazy test", 1, 2),
+            new Phrase("lazy test it's", 1, 3),
+            new Phrase("test it's", 1, 2),
+            new Phrase("test it's a", 1, 3),
             new Phrase("quick brown one", 1, 3),
-            new Phrase("brown one", 1, 2)
+            new Phrase("brown one", 1, 2),
         ], $phrases);
 
     }

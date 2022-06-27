@@ -321,7 +321,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         Container::instance()->set(PhraseExtractor::class, $mockPhraseExtractor);
 
 
-        $mockPhraseExtractor->returnValue("extractPhrases", [new Phrase("Hello", 1), new Phrase("World", 2)],
+        $mockPhraseExtractor->returnValue("extractPhrases", [new Phrase("Hello", 1, 1), new Phrase("World", 2, 1)],
             ["Hello World", 1, 1, true, [], 'EN']);
 
         $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
@@ -335,11 +335,13 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "phrases" => [
                     [
                         "phrase" => "Hello",
-                        "frequency" => 1
+                        "frequency" => 1,
+                        "phrase_length" => 1
                     ],
                     [
                         "phrase" => "World",
-                        "frequency" => 2
+                        "frequency" => 2,
+                        "phrase_length" => 1
                     ]
                 ]
             ]
@@ -356,16 +358,19 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             new ArrayTabularDataset([
                 new Field("phrase"),
                 new Field("frequency"),
+                new Field("phrase_length"),
                 new Field("document_file_name")
             ], [
                 [
                     "phrase" => "Hello",
                     "frequency" => 1,
+                    "phrase_length" => 1,
                     "document_file_name" => "test.txt"
                 ],
                 [
                     "phrase" => "World",
                     "frequency" => 2,
+                    "phrase_length" => 1,
                     "document_file_name" => "test.txt"
                 ]
 
@@ -436,7 +441,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         Container::instance()->set(PhraseExtractor::class, $mockPhraseExtractor);
 
 
-        $mockPhraseExtractor->returnValue("extractPhrases", [new Phrase("Hello", 1), new Phrase("World", 2)],
+        $mockPhraseExtractor->returnValue("extractPhrases", [new Phrase("Hello", 1, 1), new Phrase("World", 2, 1)],
             ["Hello World", 1, 1, true, ["a", "the"], 'EN']);
 
         $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
@@ -450,11 +455,13 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "phrases" => [
                     [
                         "phrase" => "Hello",
-                        "frequency" => 1
+                        "frequency" => 1,
+                        "phrase_length" => 1,
                     ],
                     [
                         "phrase" => "World",
-                        "frequency" => 2
+                        "frequency" => 2,
+                        "phrase_length" => 1,
                     ]
                 ]
             ]
