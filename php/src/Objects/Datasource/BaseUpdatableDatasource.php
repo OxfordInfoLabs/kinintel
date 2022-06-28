@@ -162,7 +162,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                 $datasource->update($existingItems, UpdatableDatasource::UPDATE_MODE_DELETE);
 
                 // Change update rule to an add
-                $updateRule = BaseUpdatableDatasource::UPDATE_MODE_ADD;
+//                $updateRule = BaseUpdatableDatasource::UPDATE_MODE_ADD;
 
             }
 
