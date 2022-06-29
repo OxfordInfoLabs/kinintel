@@ -11,6 +11,8 @@ use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 
 class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
@@ -45,11 +47,33 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
             $dataSource->getConfig()->setColumns($datasourceColumns);
         }
 
+        // Check transformations up to this point to see if a substitution is required
+        $datasourceTransformations = $dataSource->returnTransformations();
+        $transformationIndex = array_search($transformation, $datasourceTransformations);
+        $substitutions = [];
+        for ($i = $transformationIndex - 1; $i >= 0; $i--) {
+            $previousTransformation = $datasourceTransformations[$i];
+            // We can stop at summarisations or joins as these will create sub queries anyway.
+            if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof JoinTransformation)
+                break;
+            if ($previousTransformation instanceof FormulaTransformation) {
+                foreach ($previousTransformation->getExpressions() as $expression) {
+                    $substitutions[$expression->returnFieldName()] = $expression->getExpression();
+                }
+            }
+        }
+
 
         // Gather together the expressions we need.
         $clauses = [];
         $clauseParams = [];
         foreach ($transformation->getExpressions() as $expression) {
+
+            // Process any substitutions.
+            foreach ($substitutions as $key => $value) {
+                $expression->setExpression(str_replace("[[" . $key . "]]", "(" . $value . ")", $expression->getExpression()));
+            }
+
             $clauses[] = $expression->returnSQLClause($clauseParams, $parameterValues, $dataSource->returnDatabaseConnection());
         }
 

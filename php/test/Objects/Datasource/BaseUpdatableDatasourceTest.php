@@ -436,7 +436,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
                             "title" => "Item 4"
                         ]
                     ]),
-                BaseUpdatableDatasource::UPDATE_MODE_ADD
+                BaseUpdatableDatasource::UPDATE_MODE_REPLACE
             ]
 
         ));
