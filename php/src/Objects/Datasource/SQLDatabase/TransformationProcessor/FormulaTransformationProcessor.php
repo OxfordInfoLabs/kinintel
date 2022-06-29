@@ -63,8 +63,6 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
             }
         }
 
-        Logger::log($substitutions);
-        
 
         // Gather together the expressions we need.
         $clauses = [];
@@ -78,6 +76,8 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
             $clauses[] = $expression->returnSQLClause($clauseParams, $parameterValues, $dataSource->returnDatabaseConnection());
         }
+
+        Logger::log($clauses);
 
         // If Group By, make sure we wrap the query
         if ($query->hasGroupByClause()) {
