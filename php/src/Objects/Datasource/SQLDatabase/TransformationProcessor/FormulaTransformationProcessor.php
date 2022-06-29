@@ -74,10 +74,9 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
                 $expression->setExpression(str_replace("[[" . $key . "]]", "(" . $value . ")", $expression->getExpression()));
             }
 
+
             $clauses[] = $expression->returnSQLClause($clauseParams, $parameterValues, $dataSource->returnDatabaseConnection());
         }
-
-        Logger::log($clauses);
 
         // If Group By, make sure we wrap the query
         if ($query->hasGroupByClause()) {

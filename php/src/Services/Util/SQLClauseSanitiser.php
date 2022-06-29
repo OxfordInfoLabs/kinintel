@@ -187,8 +187,9 @@ class SQLClauseSanitiser {
         }, $sqlString);
 
 
-        // Re-add the column names back in at the end.
-        foreach ($columnNames as $index => $columnName) {
+        // Re-add the column names back in at the end reverse mapping
+        for ($index = sizeof($columnNames) - 1; $index >= 0; $index--) {
+            $columnName = $columnNames[$index];
             $sqlString = str_replace("$" . $index, $columnName, $sqlString);
         }
 
