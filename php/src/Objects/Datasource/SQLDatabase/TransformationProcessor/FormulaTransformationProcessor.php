@@ -63,6 +63,8 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
             }
         }
 
+        Logger::log($substitutions);
+        
 
         // Gather together the expressions we need.
         $clauses = [];
