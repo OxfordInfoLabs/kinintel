@@ -82,6 +82,8 @@ class SQLClauseSanitiser {
             "description" => "Return the closest integer below the supplied numeric argument X"],
         "GREATEST" => ["params" => ["X", "Y", "..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Return the largest value of all supplied arguments"],
+        "GROUP_CONCAT" => ["params" => ["X"], "category" => self::AGGREGATE_FUNCTION,
+            "description" => "Join together the values of the expression identified as X with commas"],
         "IFNULL" => ["params" => ["X", "Y"], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first argument if not null or second argument if not null or null if both are null"],
         "INSTR" => ["params" => ["X", "Y"], "category" => self::STRING_WHITELISTED_FUNCTION,
