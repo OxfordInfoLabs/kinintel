@@ -376,7 +376,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 ]
 
             ]),
-            UpdatableDatasource::UPDATE_MODE_ADD
+            UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
         Container::instance()->set(DatasourceService::class, $previousDatasourceService);

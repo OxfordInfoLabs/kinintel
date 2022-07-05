@@ -157,10 +157,13 @@
                     (click)="(tabular.actionRows && tabular.cta) ? callToActionLink(tabular.cta, dataItem) : null">
                     <ng-template ngFor let-column [ngForOf]="dataset.columns" let-i=index>
                         <td *ngIf="!hiddenColumns[column.name]"
+                            [title]="(tableCells[column.name] && tableCells[column.name].maxWidth) ? dataItem[column.name] : ''"
                             class="whitespace-nowrap border-b border-gray-200  px-3 py-2 text-sm text-gray-500 "
-                            [ngClass]="{'font-medium text-gray-900': i === 0}">
+                            [ngClass]="{'font-medium text-gray-900': i === 0}"
+                            [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
                             <ng-template [ngIf]="_.isPlainObject(dataItem[column.name])">
-                                <div [innerHTML]="dataItem[column.name].cellValue"></div>
+                                <div [innerHTML]="dataItem[column.name].cellValue"
+                                     [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
                             </ng-template>
                             <ng-template [ngIf]="!_.isPlainObject(dataItem[column.name])">
                                 <ng-template
@@ -170,6 +173,7 @@
                                 <ng-template
                                     [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
                                     <div
+                                        [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"
                                         [title]="dataItem[column.name]">{{dataItem[column.name].substring(0, 100) + '...'}}</div>
                                 </ng-template>
                                 <ng-template [ngIf]="!dataItem[column.name]">

@@ -299,17 +299,39 @@ export class ItemComponentComponent implements AfterViewInit {
         return evaluatedTextData;
     }
 
-    public setChartData() {
+    public async setChartData() {
         if (this.dashboardItemType.xAxis && this.dashboardItemType.yAxis) {
+            let datasetData = this.dataset.allData;
+            if (this.dashboardItemType.limit) {
+                datasetData = datasetData.slice(0, this.dashboardItemType.limit);
+                if (this.dashboardItemType.combineRemaining && !this.dashboardItemType.seriesColumn) {
+                    const remainingData = await this.evaluateDataset(10000000, 0);
+
+                    const combined = [];
+                    for (let i = 0; i < remainingData.allData.length; i++) {
+                        if (i > this.dashboardItemType.limit) {
+                            combined.push(remainingData.allData[i]);
+                        }
+                    }
+
+                    const pushObject = {};
+                    pushObject[this.dashboardItemType.xAxis] = this.dashboardItemType.combineRemaingingLabel || 'Remaining';
+                    pushObject[this.dashboardItemType.yAxis] = _.sumBy(combined, remainingItem => {
+                        return Number(remainingItem[this.dashboardItemType.yAxis]);
+                    });
+                    datasetData.push(pushObject);
+                }
+            }
+
             let data: any;
 
             if (!this.dashboardItemType.seriesColumn) {
                 if (this.dashboardItemType.type !== 'pie' && this.dashboardItemType.type !== 'doughnut') {
-                    data = _.map(this.dataset.allData, item => {
+                    data = _.map(datasetData, item => {
                         return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
                     });
                 } else {
-                    data = _.map(this.dataset.allData, item => {
+                    data = _.map(datasetData, item => {
                         return item[this.dashboardItemType.yAxis];
                     });
                 }
@@ -321,14 +343,14 @@ export class ItemComponentComponent implements AfterViewInit {
                         fill: !!this.dashboardItemType.fill
                     }
                 ];
-                this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
+                this.dashboardItemType.labels = _.map(datasetData, item => {
                     return item[this.dashboardItemType.xAxis];
                 });
             } else {
                 const chartData = [];
-                const series = _.uniq(_.map(this.dataset.allData, this.dashboardItemType.seriesColumn));
+                const series = _.uniq(_.map(datasetData, this.dashboardItemType.seriesColumn));
                 series.forEach(value => {
-                    const seriesResults = _.filter(this.dataset.allData, allData => {
+                    const seriesResults = _.filter(datasetData, allData => {
                         return allData[this.dashboardItemType.seriesColumn] === value;
                     });
 
@@ -495,39 +517,9 @@ export class ItemComponentComponent implements AfterViewInit {
         }
 
         this.loadingItem = true;
-
-        const mappedParams = this.getMappedParams(this.dashboardDatasetInstance);
-
-        const datasetInstanceSummary = {
-            datasetInstanceId: this.dashboardDatasetInstance.datasetInstanceId,
-            datasourceInstanceKey: this.dashboardDatasetInstance.datasourceInstanceKey,
-            transformationInstances: this.dashboardDatasetInstance.transformationInstances,
-            parameterValues: mappedParams,
-            parameters: this.dashboardDatasetInstance.parameters
-        };
-
-        if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
-            _.forEach(this.dashboard.layoutSettings.parameters, (param, name) => {
-                if (!datasetInstanceSummary.parameterValues[name]) {
-                    let value = param.value;
-                    if (param.type === 'date' || param.type === 'datetime') {
-                        if (value && !value.includes('AGO')) {
-                            value = moment(value).format('YYYY-MM-DD HH:mm:ss');
-                        }
-                    }
-                    datasetInstanceSummary.parameterValues[name] = value;
-                }
-            });
-        }
-
         this.hiddenColumns = {};
 
-        return this.datasetService.evaluateDataset(
-            datasetInstanceSummary,
-            String(this.offset),
-            String(this.limit)
-        )
-            .then(data => {
+        return this.evaluateDataset().then(data => {
                 if (Object.keys(this.tableCells).length) {
                     Object.keys(this.tableCells).forEach(tableCell => {
                         if (tableCell !== 'column') {
@@ -730,8 +722,8 @@ export class ItemComponentComponent implements AfterViewInit {
                     const element = document.getElementById(this.itemInstanceKey);
                     for (const child of Array.from(element.children) as any[]) {
                         if (child.classList.contains('item-container')) {
-                            this.wordCloud.width = child.clientWidth - 50;
-                            this.wordCloud.height = child.clientHeight - 50;
+                            this.wordCloud.width = child.clientWidth - 40;
+                            this.wordCloud.height = child.clientHeight - 40;
                         }
                     }
                     if (Object.keys(this.wordCloud).length) {
@@ -742,20 +734,24 @@ export class ItemComponentComponent implements AfterViewInit {
                                 const count = _.countBy(words, _.identity);
 
                                 const max = _.max(_.values(count));
+                                const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 1000;
 
                                 this.wordCloud.data = _.orderBy(_.uniq(words).map(word => {
-                                    const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 10000;
-                                    return {text: word, value: ((count[word] / max) * fontSize) * 5};
+                                    return {text: word, value: ((count[word] / max) * _.min([fontSize, 120]))};
                                 }), ['value'], ['desc']).slice(0, 100);
                             }
                         } else if (this.wordCloud.populationMethod === 'WHOLE') {
-                            const max = _.maxBy(this.dataset.allData, 'frequency');
-                            const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 10000;
+                            const max = _.maxBy(this.dataset.allData, item => {
+                                return Number(item[this.wordCloud.frequency]);
+                            });
+
+                            const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 1000;
                             this.wordCloud.data = _.orderBy(this.dataset.allData.map(item => {
-                                return {text: item.phrase, value: ((Number(item.frequency) / Number(max.frequency)) * fontSize)};
+                                const text = item[this.wordCloud.column];
+                                const textValue = item[this.wordCloud.frequency];
+                                return {text, value: ((Number(textValue) / Number(max.frequency)) * _.min([fontSize, 120]))};
                             }), ['value'], ['desc']).slice(0, 100);
 
-                            console.log(this.wordCloud);
                         }
 
                     }
@@ -769,7 +765,7 @@ export class ItemComponentComponent implements AfterViewInit {
                 if (this.dashboard.alertsEnabled) {
                     if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
                         const dashboardInstance = _.cloneDeep(this.dashboardDatasetInstance);
-                        dashboardInstance.parameterValues = mappedParams;
+                        dashboardInstance.parameterValues = this.getMappedParams(this.dashboardDatasetInstance);
                         this.alertService.processAlertsForDashboardDatasetInstance(dashboardInstance)
                             .then((res: any) => {
                                 if (res && res.length) {
@@ -850,5 +846,39 @@ export class ItemComponentComponent implements AfterViewInit {
         if (save) {
             this.dashboardService.saveDashboard(this.dashboard);
         }
+    }
+
+    private evaluateDataset(limit?, offset?) {
+        const mappedParams = this.getMappedParams(this.dashboardDatasetInstance);
+
+        const datasetInstanceSummary = {
+            datasetInstanceId: this.dashboardDatasetInstance.datasetInstanceId,
+            datasourceInstanceKey: this.dashboardDatasetInstance.datasourceInstanceKey,
+            transformationInstances: this.dashboardDatasetInstance.transformationInstances,
+            parameterValues: mappedParams,
+            parameters: this.dashboardDatasetInstance.parameters
+        };
+
+        if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+            _.forEach(this.dashboard.layoutSettings.parameters, (param, name) => {
+                if (!datasetInstanceSummary.parameterValues[name]) {
+                    let value = param.value;
+                    if (param.type === 'date' || param.type === 'datetime') {
+                        if (value && !value.includes('AGO')) {
+                            value = moment(value).format('YYYY-MM-DD HH:mm:ss');
+                        }
+                    }
+                    datasetInstanceSummary.parameterValues[name] = value;
+                }
+            });
+        }
+
+        this.hiddenColumns = {};
+
+        return this.datasetService.evaluateDataset(
+            datasetInstanceSummary,
+            String(offset || this.offset),
+            String(limit || this.limit)
+        );
     }
 }
