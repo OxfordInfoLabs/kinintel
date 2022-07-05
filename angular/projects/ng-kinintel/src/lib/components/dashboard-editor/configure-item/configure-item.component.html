@@ -452,6 +452,17 @@
                         </label>
 
                         <ng-template [ngIf]="tableCells[tableCells.column]">
+                            <label class="mb-4">
+                                Specify Max Column Width
+                                <div class="mt-1 relative rounded-md shadow-sm w-1/4">
+                                    <input type="number" [(ngModel)]="tableCells[tableCells.column].maxWidth"
+                                           class="block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="Enter width">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm"> px </span>
+                                    </div>
+                                </div>
+                            </label>
+
                             <label class="mb-2">
                                 Column Format
                                 <select matNativeControl [(ngModel)]="tableCells[tableCells.column].type"
@@ -696,6 +707,31 @@
                                 </select>
                             </label>
                         </ng-template>
+
+                        <div class="mt-4 mb-4 align-center justify-between">
+                            <label class="flex-1">
+                                Limit Results
+                                <select [(ngModel)]="dashboardItemType.limit">
+                                    <option [value]="undefined">No Limit</option>
+                                    <option [value]="5">5</option>
+                                    <option [value]="10">10</option>
+                                    <option [value]="25">25</option>
+                                    <option [value]="50">50</option>
+                                    <option [value]="100">100</option>
+                                    <option [value]="250">250</option>
+                                </select>
+                            </label>
+                            <label class="ml-4 mt-4 flex-1">
+                                <mat-checkbox [(ngModel)]="dashboardItemType.combineRemaining">
+                                    Combine remaining results</mat-checkbox>
+                            </label>
+                        </div>
+
+                        <label class="mb-4" *ngIf="dashboardItemType.combineRemaining">
+                            Remaining results label
+                            <input type="text" [(ngModel)]="dashboardItemType.combineRemaingingLabel">
+                        </label>
+
                         <div class="align-center justify-between">
                             <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend
                             </mat-slide-toggle>
@@ -866,7 +902,7 @@
                         <label class="mb-2">
                             Use an indexed document data source to populate word cloud, or provide a string from a single column.
                             <mat-radio-group [(ngModel)]="wordCloud.populationMethod">
-                                <mat-radio-button value="WHOLE">Indexed Document</mat-radio-button>
+                                <mat-radio-button value="WHOLE">Word Frequencies</mat-radio-button>
                                 <mat-radio-button class="ml-4" value="SINGLE">Single String</mat-radio-button>
                             </mat-radio-group>
                         </label>
@@ -888,6 +924,33 @@
                             <label class="mb-2">
                                 Select the column to use for the word cloud
                                 <select matNativeControl [(ngModel)]="wordCloud.column">
+                                    <option [value]="undefined">-- Select Column --</option>
+                                    <ng-template [ngIf]="dataset">
+                                        <option *ngFor="let column of dataset.columns"
+                                                [value]="column.name">
+                                            {{column.title}}
+                                        </option>
+                                    </ng-template>
+                                </select>
+                            </label>
+                        </ng-template>
+
+                        <ng-template [ngIf]="wordCloud.populationMethod === 'WHOLE'">
+                            <label class="mb-2">
+                                Select the column to use for the words
+                                <select matNativeControl [(ngModel)]="wordCloud.column">
+                                    <option [value]="undefined">-- Select Column --</option>
+                                    <ng-template [ngIf]="dataset">
+                                        <option *ngFor="let column of dataset.columns"
+                                                [value]="column.name">
+                                            {{column.title}}
+                                        </option>
+                                    </ng-template>
+                                </select>
+                            </label>
+                            <label class="mb-2">
+                                Select the column to use for the frequency
+                                <select matNativeControl [(ngModel)]="wordCloud.frequency">
                                     <option [value]="undefined">-- Select Column --</option>
                                     <ng-template [ngIf]="dataset">
                                         <option *ngFor="let column of dataset.columns"

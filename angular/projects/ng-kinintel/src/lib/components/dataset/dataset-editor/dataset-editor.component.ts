@@ -180,26 +180,21 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     public async editTerminatingTransformation(transformation) {
         const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
-        if (transformation.type === 'summarise') {
-            setTimeout(() => {
+        const dataLoadedSub = this.dataLoaded.subscribe(res => {
+            if (transformation.type === 'summarise') {
                 this.summariseData(clonedTransformation.config, existingIndex);
-            }, 200);
-        }
-        if (transformation.type === 'join') {
-            setTimeout(() => {
+            }
+            if (transformation.type === 'join') {
                 this.joinData(clonedTransformation, existingIndex);
-            }, 200);
-        }
-        if (transformation.type === 'formula') {
-            setTimeout(() => {
+            }
+            if (transformation.type === 'formula') {
                 this.createFormula(clonedTransformation, existingIndex);
-            }, 200);
-        }
-        if (transformation.type === 'columns') {
-            setTimeout(() => {
+            }
+            if (transformation.type === 'columns') {
                 this.editColumnSettings(clonedTransformation, existingIndex);
-            }, 200);
-        }
+            }
+            dataLoadedSub.unsubscribe();
+        });
     }
 
     public exportData() {

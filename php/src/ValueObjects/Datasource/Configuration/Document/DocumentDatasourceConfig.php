@@ -3,6 +3,7 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\Document;
 
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Util\TextAnalysis\StopWord;
 
 class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
 
@@ -17,25 +18,9 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
     private $storeText;
 
     /**
-     * @var boolean
+     * @var StopWord[]
      */
-    private $builtInStopWords;
-
-    /**
-     * @var boolean
-     */
-    private $customStopWords;
-
-    /**
-     * @var string
-     */
-    private $stopWordsDatasourceKey;
-
-
-    /**
-     * @var string
-     */
-    private $stopWordsDatasourceColumn;
+    private $stopWords;
 
     /**
      * @var boolean
@@ -53,16 +38,22 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
     private $maxPhraseLength;
 
 
-    public function __construct($tableName = "", $storeOriginal = false, $storeText = false, $indexContent = false, $builtInStopWords = true, $minPhraseLength = 1, $maxPhraseLength = 1, $customStopWords = false, $stopWordsDatasourceKey = null, $stopWordsDatasourceColumn = null) {
+    /**
+     * @param string $tableName
+     * @param boolean $storeOriginal
+     * @param string $storeText
+     * @param boolean $indexContent
+     * @param StopWord[] $stopWords
+     * @param integer $minPhraseLength
+     * @param integer $maxPhraseLength
+     */
+    public function __construct($tableName = "", $storeOriginal = false, $storeText = false, $indexContent = false, $stopWords = [], $minPhraseLength = 1, $maxPhraseLength = 1) {
         $this->storeOriginal = $storeOriginal;
         $this->storeText = $storeText;
         $this->indexContent = $indexContent;
-        $this->builtInStopWords = $builtInStopWords;
+        $this->stopWords = $stopWords;
         $this->minPhraseLength = $minPhraseLength;
         $this->maxPhraseLength = $maxPhraseLength;
-        $this->customStopWords = $customStopWords;
-        $this->stopWordsDatasourceKey = $stopWordsDatasourceKey;
-        $this->stopWordsDatasourceColumn = $stopWordsDatasourceColumn;
 
         parent::__construct(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tableName);
     }
@@ -93,62 +84,6 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
      */
     public function setStoreText($storeText): void {
         $this->storeText = $storeText;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isBuiltInStopWords() {
-        return $this->builtInStopWords;
-    }
-
-    /**
-     * @param bool $builtInStopWords
-     */
-    public function setBuiltInStopWords($builtInStopWords): void {
-        $this->builtInStopWords = $builtInStopWords;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCustomStopWords() {
-        return $this->customStopWords;
-    }
-
-    /**
-     * @param bool $customStopWords
-     */
-    public function setCustomStopWords($customStopWords): void {
-        $this->customStopWords = $customStopWords;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStopWordsDatasourceKey() {
-        return $this->stopWordsDatasourceKey;
-    }
-
-    /**
-     * @param string $stopWordsDatasourceKey
-     */
-    public function setStopWordsDatasourceKey($stopWordsDatasourceKey): void {
-        $this->stopWordsDatasourceKey = $stopWordsDatasourceKey;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStopWordsDatasourceColumn() {
-        return $this->stopWordsDatasourceColumn;
-    }
-
-    /**
-     * @param string $stopWordsDatasourceColumn
-     */
-    public function setStopWordsDatasourceColumn($stopWordsDatasourceColumn): void {
-        $this->stopWordsDatasourceColumn = $stopWordsDatasourceColumn;
     }
 
     /**
@@ -191,6 +126,20 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
      */
     public function setMaxPhraseLength($maxPhraseLength): void {
         $this->maxPhraseLength = $maxPhraseLength;
+    }
+
+    /**
+     * @return StopWord[]
+     */
+    public function getStopWords() {
+        return $this->stopWords;
+    }
+
+    /**
+     * @param StopWord[] $stopWords
+     */
+    public function setStopWords($stopWords) {
+        $this->stopWords = $stopWords;
     }
 
 

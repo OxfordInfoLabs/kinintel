@@ -3,7 +3,6 @@ import {ActivatedRoute} from '@angular/router';
 import {BehaviorSubject, merge} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DatasourceService} from '../../../services/datasource.service';
-import {MatOptionSelectionChange} from '@angular/material/core';
 import {DatasetService} from '../../../services/dataset.service';
 import {
     DatasetEditorPopupComponent
@@ -19,17 +18,19 @@ import * as _ from 'lodash';
 export class DocumentDatasourceComponent implements OnInit {
 
     public datasourceKey: any;
-    public documentConfig: any = {config: {}};
     public searchText = new BehaviorSubject('');
     public datasources: any = [];
     public selectedDatasource: any;
-    public datasource: any;
+    public datasource: any = {config: {stopWords: []}};
     public evaluatedDatasource: any;
     public showSettings = true;
     public showUpload = false;
     public String = String;
     public files: any = null;
     public _ = _;
+    public builtInStopWords = {
+        builtIn: false
+    };
 
     constructor(private route: ActivatedRoute,
                 private datasourceService: DatasourceService,
@@ -44,15 +45,18 @@ export class DocumentDatasourceComponent implements OnInit {
                 this.showSettings = false;
                 this.datasource = await this.datasourceService.getDatasource(this.datasourceKey);
 
-                this.documentConfig = {
-                    title: this.datasource.title,
-                    config: this.datasource.config
-                };
                 this.evaluateDatasource();
 
-                if (this.documentConfig.config.stopWordsDatasourceKey) {
-                    this.documentConfig.datasource = await this.datasourceService.getDatasource(this.documentConfig.config.stopWordsDatasourceKey);
-                    this.updateDatasource(this.documentConfig.datasource);
+                if (this.datasource.config.stopWords && this.datasource.config.stopWords.length) {
+                    for (const stopWord of this.datasource.config.stopWords) {
+                        if (stopWord.custom) {
+                            stopWord.datasource = await this.datasourceService.getDatasource(stopWord.datasourceKey);
+                            this.updateDatasource(stopWord, stopWord.datasource);
+                        }
+                        if (stopWord.builtIn) {
+                            this.builtInStopWords = stopWord;
+                        }
+                    }
                 }
             }
         });
@@ -82,13 +86,24 @@ export class DocumentDatasourceComponent implements OnInit {
 
     public indexDocumentChange(change) {
         if (change) {
-            if (!this.documentConfig.config.minPhraseLength) {
-                this.documentConfig.config.minPhraseLength = 1;
+            if (!this.datasource.config.minPhraseLength) {
+                this.datasource.config.minPhraseLength = 1;
             }
-            if (!this.documentConfig.config.maxPhraseLength) {
-                this.documentConfig.config.maxPhraseLength = 1;
+            if (!this.datasource.config.maxPhraseLength) {
+                this.datasource.config.maxPhraseLength = 1;
             }
         }
+    }
+
+    public updateBuiltInStopWordConfig(value) {
+        _.remove(this.datasource.config.stopWords, stopWord => {
+            return stopWord.builtIn !== undefined;
+        });
+        this.datasource.config.stopWords.push(this.builtInStopWords);
+    }
+
+    public removeCustomStopWord(index) {
+        this.datasource.config.stopWords.splice(index, 1);
     }
 
     public humanFileSize(size: any) {
@@ -148,9 +163,9 @@ export class DocumentDatasourceComponent implements OnInit {
         return this.uploadDatasourceDocuments(formData);
     }
 
-    public async updateDatasource(datasource) {
-        this.documentConfig.config.stopWordsDatasourceKey = datasource.key;
-        this.documentConfig.datasource = datasource;
+    public async updateDatasource(stopWord, datasource) {
+        stopWord.datasourceKey = datasource.key;
+        stopWord.datasource = datasource;
 
         const datasetInstanceSummary = {
             datasetInstanceId: null,
@@ -161,12 +176,12 @@ export class DocumentDatasourceComponent implements OnInit {
             originDataItemTitle: datasource.title
         };
 
-        this.selectedDatasource = await this.datasetService.evaluateDataset(datasetInstanceSummary, '0', '1');
+        stopWord.selectedDatasource = await this.datasetService.evaluateDataset(datasetInstanceSummary, '0', '1');
     }
 
     public async save() {
-        if (!this.datasource) {
-            this.datasourceKey = await this.datasourceService.createDocumentDatasource(this.documentConfig);
+        if (!this.datasourceKey) {
+            this.datasourceKey = await this.datasourceService.createDocumentDatasource(this.datasource);
 
             if (this.files && this.files.length) {
                 await this.uploadFiles();
@@ -175,7 +190,7 @@ export class DocumentDatasourceComponent implements OnInit {
             window.location.href = '/document-datasource/' + this.datasourceKey;
 
         } else {
-            await this.datasourceService.updateDatasourceInstance(this.datasourceKey, this.documentConfig);
+            await this.datasourceService.updateDatasourceInstance(this.datasourceKey, this.datasource);
 
             this.evaluateDatasource();
         }

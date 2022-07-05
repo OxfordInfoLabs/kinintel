@@ -17,6 +17,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceCo
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Util\TextAnalysis\Phrase;
+use Kinintel\ValueObjects\Util\TextAnalysis\StopWord;
 
 /**
  * Built in document datasource
@@ -69,24 +70,23 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         if ($config->isIndexContent()) {
             $fields[] = new Field("phrases");
         }
+        Logger::log($config);
+        foreach ($config->getStopWords() as $stopWord) {
 
-        $customStopwords = [];
-        if ($config->isCustomStopWords() &&
-            $config->getStopWordsDatasourceKey() &&
-            $config->getStopWordsDatasourceColumn()) {
+            if ($stopWord->isCustom() && $stopWord->getDatasourceKey() && $stopWord->getDatasourceColumn()) {
 
-            /** @var DatasourceService $datasourceService */
-            $datasourceService = Container::instance()->get(DatasourceService::class);
-            $stopwordDatasourceInstance = $datasourceService->getDataSourceInstanceByKey($config->getStopWordsDatasourceKey());
-            /** @var TabularDataset $dataset */
-            $stopwordDataset = $stopwordDatasourceInstance->returnDataSource()->materialise();
+                /** @var DatasourceService $datasourceService */
+                $datasourceService = Container::instance()->get(DatasourceService::class);
+                $stopwordDatasourceInstance = $datasourceService->getDataSourceInstanceByKey($stopWord->getDatasourceKey());
+                /** @var TabularDataset $dataset */
+                $stopwordDataset = $stopwordDatasourceInstance->returnDataSource()->materialise();
 
-            $customStopwords = array_map(function($data) use ($config) {
-                return $data[$config->getStopWordsDatasourceColumn()];
-            }, $stopwordDataset->getAllData());
-
-
+                $stopWord->setList(array_map(function($data) use ($stopWord) {
+                    return $data[$stopWord->getDatasourceColumn()];
+                }, $stopwordDataset->getAllData()));
+            }
         }
+
         while ($row = $dataset->nextDataItem()) {
             $newRow = null;
             if (($row["filename"] ?? null) &&
@@ -134,7 +134,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     /** @var PhraseExtractor $phraseExtractor */
                     $phraseExtractor = Container::instance()->get(PhraseExtractor::class);
 
-                    $phrases = $phraseExtractor->extractPhrases($text, $config->getMaxPhraseLength(), $config->getMinPhraseLength(), $config->isBuiltInStopWords(), $customStopwords, 'EN');
+                    $phrases = $phraseExtractor->extractPhrases($text, $config->getMaxPhraseLength(), $config->getMinPhraseLength(), $config->getStopWords(), 'EN');
 
                     /** @var Phrase $phrase */
                     $newRow["phrases"] = array_map(function($phrase) {

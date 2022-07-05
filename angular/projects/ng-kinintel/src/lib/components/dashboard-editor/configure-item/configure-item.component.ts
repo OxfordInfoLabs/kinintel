@@ -129,7 +129,7 @@ export class ConfigureItemComponent implements OnInit {
         } else {
             if (this.dashboard.layoutSettings) {
                 this.mapLayoutSettingsToComponentData();
-console.log(this.wordCloud);
+
                 if (this.dashboard.layoutSettings.parameters) {
                     this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
                         .filter('value')
