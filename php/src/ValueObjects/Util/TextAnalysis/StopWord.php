@@ -34,7 +34,7 @@ class StopWord {
      */
     private $list;
 
-    public function __construct($builtIn, $custom, $datasourceKey, $datasourceColumn, $minPhraseLength, $list = []) {
+    public function __construct($builtIn = true, $custom = false, $datasourceKey = null, $datasourceColumn = null, $minPhraseLength = 1, $list = []) {
         $this->builtIn = $builtIn;
         $this->custom = $custom;
         $this->datasourceKey = $datasourceKey;

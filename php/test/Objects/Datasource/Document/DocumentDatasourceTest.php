@@ -28,6 +28,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Util\TextAnalysis\Phrase;
+use Kinintel\ValueObjects\Util\TextAnalysis\StopWord;
 
 include_once "autoloader.php";
 
@@ -323,7 +324,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $mockPhraseExtractor->returnValue("extractPhrases", [new Phrase("Hello", 1, 1), new Phrase("World", 2, 1)],
-            ["Hello World", 1, 1, true, [], 'EN']);
+            ["Hello World", 1, 1, [], 'EN']);
 
         $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
 
@@ -425,7 +426,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $documentDatasource = new DocumentDatasource(
-            new DocumentDatasourceConfig("test_data", false, false, true, true, 1, 1, true, "stopwords_ds", "word"),
+            new DocumentDatasourceConfig("test_data", false, false, true, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 1, 1, true, "stopwords_ds", "word"),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
 
@@ -443,7 +444,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $mockPhraseExtractor->returnValue("extractPhrases", [new Phrase("Hello", 1, 1), new Phrase("World", 2, 1)],
-            ["Hello World", 1, 1, true, ["a", "the"], 'EN']);
+            ["Hello World", 1, 1, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 'EN']);
 
         $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
 

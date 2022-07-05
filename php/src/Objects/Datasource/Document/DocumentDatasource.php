@@ -70,7 +70,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         if ($config->isIndexContent()) {
             $fields[] = new Field("phrases");
         }
-        Logger::log($config);
+
         foreach ($config->getStopWords() as $stopWord) {
 
             if ($stopWord->isCustom() && $stopWord->getDatasourceKey() && $stopWord->getDatasourceColumn()) {
@@ -142,6 +142,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     }, $phrases ?? []);
 
                 }
+
 
                 $newRows[] = $newRow;
             }
