@@ -12,6 +12,7 @@ use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\DatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceInstanceInfo;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
@@ -25,23 +26,9 @@ abstract class BaseDatasource implements Datasource {
     /**
      * Key for the instance which created this data source if relevant
      *
-     * @var string
+     * @var DatasourceInstanceInfo
      */
-    private $instanceKey;
-
-
-    /**
-     * Title for the instance which created this data source if relevant
-     *
-     * @var string
-     */
-    private $instanceTitle;
-
-
-    /**
-     * @var Parameter[]
-     */
-    private $instanceParameters;
+    private $instanceInfo;
 
 
     /**
@@ -69,7 +56,7 @@ abstract class BaseDatasource implements Datasource {
      * @param DatasourceConfig $config
      * @param AuthenticationCredentials $authenticationCredentials
      */
-    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null, $instanceParameters = []) {
+    public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceInfo = null) {
         $this->validator = $validator ? $validator : Container::instance()->get(Validator::class);
         if ($config)
             $this->setConfig($config);
@@ -78,9 +65,7 @@ abstract class BaseDatasource implements Datasource {
             $this->setAuthenticationCredentials($authenticationCredentials);
         }
 
-        $this->instanceKey = $instanceKey;
-        $this->instanceTitle = $instanceTitle;
-        $this->instanceParameters = $instanceParameters;
+        $this->instanceInfo = $instanceInfo;
 
 
     }
@@ -114,36 +99,18 @@ abstract class BaseDatasource implements Datasource {
     /**
      * Implement set instance info
      *
-     * @param $instanceKey
-     * @param $instanceTitle
-     * @param $instanceParameters
+     * @param DatasourceInstance $instance
      * @return mixed|void
      */
-    public function setInstanceInfo($instanceKey, $instanceTitle, $instanceParameters) {
-        $this->instanceKey = $instanceKey;
-        $this->instanceTitle = $instanceTitle;
-        $this->instanceParameters = $instanceParameters;
+    public function setInstanceInfo($instance) {
+        $this->instanceInfo = new DatasourceInstanceInfo($instance);
     }
 
     /**
-     * @return string
+     * @return DatasourceInstanceInfo
      */
-    public function getInstanceKey() {
-        return $this->instanceKey;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInstanceTitle() {
-        return $this->instanceTitle;
-    }
-
-    /**
-     * @return Parameter[]
-     */
-    public function getInstanceParameters() {
-        return $this->instanceParameters;
+    public function getInstanceInfo() {
+        return $this->instanceInfo;
     }
 
 

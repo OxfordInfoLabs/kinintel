@@ -10,3 +10,5 @@ db.logFile = DB/db.log
 
 custom.datasource.credentials.key = test
 custom.datasource.table.prefix = custom.
+
+document.datasource.attachment.storage.key = test

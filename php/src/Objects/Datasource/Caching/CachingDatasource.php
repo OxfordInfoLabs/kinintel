@@ -136,7 +136,8 @@ class CachingDatasource extends BaseDatasource {
 
         // Encode parameters
         $sourceParameterValues = [];
-        foreach ($this->getInstanceParameters() ?? [] as $parameter) {
+        $instanceParams = $this->getInstanceInfo()->getParameters();
+        foreach ($instanceParams ?? [] as $parameter) {
             if (isset($parameterValues[$parameter->getName()]))
                 $sourceParameterValues[$parameter->getName()] = $parameterValues[$parameter->getName()];
         }

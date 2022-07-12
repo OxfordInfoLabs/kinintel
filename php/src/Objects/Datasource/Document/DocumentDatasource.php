@@ -2,9 +2,16 @@
 
 namespace Kinintel\Objects\Datasource\Document;
 
+use Kiniauth\Objects\Application\Setting;
+use Kiniauth\Objects\Attachment\AttachmentSummary;
+use Kiniauth\Services\Application\SettingsService;
+use Kiniauth\Services\Attachment\AttachmentService;
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
@@ -35,7 +42,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
     public function getUpdateConfig() {
         return new DatasourceUpdateConfig([], $this->getConfig()->isIndexContent() ? [
-            new UpdatableMappedField("phrases", "index_" . $this->getInstanceKey(), [
+            new UpdatableMappedField("phrases", "index_" . $this->getInstanceInfo()->getKey(), [
                 "filename" => "document_file_name"
             ])
         ] : []);
@@ -67,6 +74,10 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("original_text");
         }
 
+        if ($config->isStoreOriginal()) {
+            $fields[] = new Field("original_link");
+        }
+
         if ($config->isIndexContent()) {
             $fields[] = new Field("phrases");
         }
@@ -81,11 +92,19 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                 /** @var TabularDataset $dataset */
                 $stopwordDataset = $stopwordDatasourceInstance->returnDataSource()->materialise();
 
-                $stopWord->setList(array_map(function($data) use ($stopWord) {
+                $stopWord->setList(array_map(function ($data) use ($stopWord) {
                     return $data[$stopWord->getDatasourceColumn()];
                 }, $stopwordDataset->getAllData()));
             }
         }
+
+
+        /**
+         * @var SettingsService $settingsService
+         */
+        $settingsService = Container::instance()->get(SettingsService::class);
+        $settings = $settingsService->getParentAccountSettingValues();
+
 
         while ($row = $dataset->nextDataItem()) {
             $newRow = null;
@@ -116,6 +135,33 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             if ($newRow) {
                 $fileType = $newRow["file_type"];
                 $text = '';
+
+                // If storing original, call the attachment service
+                if ($config->isStoreOriginal()) {
+
+                    $instanceInfo = $this->getInstanceInfo();
+
+                    /**
+                     * @var AttachmentService $attachmentService
+                     */
+                    $attachmentService = Container::instance()->get(AttachmentService::class);
+
+                    // Create an attachment summary
+                    $attachmentSummary = new AttachmentSummary($newRow["filename"], $newRow["file_type"], "DocumentDatasourceInstance",
+                        $instanceInfo->getKey(), Configuration::readParameter("document.datasource.attachment.storage.key") ?? null,
+                        $instanceInfo->getProjectKey(), $instanceInfo->getAccountId());
+
+                    $stream = isset($row["documentSource"]) ? new ReadOnlyStringStream($row["documentSource"]) :
+                        new ReadOnlyFileStream($row["documentFilePath"]);
+
+                    // Save the attachment and return an id
+                    $attachmentId = $attachmentService->saveAttachment($attachmentSummary, $stream);
+
+                    // Store the original document link
+                    $newRow["original_link"] = str_replace("\$id", $attachmentId, $settings["attachmentDownloadURLPattern"] ?? "");
+
+                }
+
                 if ($config->isStoreText() || $config->isIndexContent()) {
                     try {
                         /** @var DocumentTextExtractor $extractor */
@@ -137,7 +183,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     $phrases = $phraseExtractor->extractPhrases($text, $config->getMaxPhraseLength(), $config->getMinPhraseLength(), $config->getStopWords(), 'EN');
 
                     /** @var Phrase $phrase */
-                    $newRow["phrases"] = array_map(function($phrase) {
+                    $newRow["phrases"] = array_map(function ($phrase) {
                         return ["phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
                     }, $phrases ?? []);
 

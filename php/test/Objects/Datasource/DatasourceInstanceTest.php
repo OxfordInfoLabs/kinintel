@@ -13,6 +13,7 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredenti
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceInstanceInfo;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 
@@ -96,7 +97,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
 
         $dataSource = $dataSourceInstance->returnDataSource();
         $this->assertEquals(new WebServiceDatasource(new WebserviceDataSourceConfig("https://hello.com"),
-            new BasicAuthenticationCredentials("Bob", "password"), null, "goodone", "Good One"), $dataSource);
+            new BasicAuthenticationCredentials("Bob", "password"), null, new DatasourceInstanceInfo(new DatasourceInstance("goodone", "Good One", "webservice"))), $dataSource);
 
     }
 
@@ -121,7 +122,7 @@ class DatasourceInstanceTest extends \PHPUnit\Framework\TestCase {
         $dataSource = $dataSourceInstance->returnDataSource();
         $this->assertEquals(new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig("table", "test_one"),
             new MySQLAuthenticationCredentials("localhost", null, "test", null, null, "test", "test"),
-            new DatasourceUpdateConfig(["name", "dob"]), null, null, "updatable", "Updatable DS"), $dataSource);
+            new DatasourceUpdateConfig(["name", "dob"]), null, null, new DatasourceInstanceInfo(new DatasourceInstance("updatable", "Updatable DS", "test"))), $dataSource);
 
     }
 

@@ -316,7 +316,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
                 $dataSource->setAuthenticationCredentials($credentials);
             }
 
-            $dataSource->setInstanceInfo($this->getKey(), $this->getTitle(), $this->getParameters());
+            $dataSource->setInstanceInfo($this);
 
             return $dataSource;
 

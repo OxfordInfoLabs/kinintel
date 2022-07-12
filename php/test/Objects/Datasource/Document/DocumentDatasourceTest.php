@@ -3,10 +3,16 @@
 namespace Kinintel\Objects\Datasource\Document;
 
 
+use Kiniauth\Objects\Attachment\AttachmentSummary;
+use Kiniauth\Services\Attachment\AttachmentService;
+use Kiniauth\Services\Attachment\AttachmentStorage;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
+use Kinikit\MVC\ContentSource\FileContentSource;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
@@ -255,6 +261,49 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         ], ["filename", "imported_date", "file_size", "file_type", "original_text"]]));
     }
 
+
+    public function testIfStoreOriginalSetOriginalDocumentIsStoredUsingConfiguredAttachmentStorage() {
+
+        $mockAttachmentService = MockObjectProvider::instance()->getMockInstance(AttachmentService::class);
+        Container::instance()->set(AttachmentService::class, $mockAttachmentService);
+
+        $documentDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", true, true),
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+        $datasourceInstance = new DatasourceInstance("test_data", "Test Data", "test");
+        $datasourceInstance->setAccountId(5);
+        $datasourceInstance->setProjectKey("myproject");
+        $documentDatasource->setInstanceInfo($datasourceInstance);
+
+        $dataset = new ArrayTabularDataset([new Field("filename"), new Field("documentSource"), new Field("file_type")], [["filename" => "test.txt", "documentSource" => "Hello World", "file_type" => "text/plain"]]);
+
+        $mockAttachmentService->returnValue("saveAttachment", 25, [
+            new AttachmentSummary("test.txt", "text/plain", "DocumentDatasourceInstance", "test_data", "test", "myproject", 5),
+            new ReadOnlyStringStream("Hello World")]);
+
+        $documentDatasource->update($dataset);
+
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", ["test_data", [
+            [
+                "filename" => "test.txt",
+                "imported_date" => date("Y-m-d H:i:s"),
+                "file_size" => 11,
+                "file_type" => "text/plain",
+                "original_text" => "Hello World",
+                "original_link" => "http://kinicart.test/attachment/25"
+            ]
+        ], ["filename", "imported_date", "file_size", "file_type", "original_text", "original_link"]]));
+
+        // Check attachment service was called with original text
+        $this->assertTrue($mockAttachmentService->methodWasCalled("saveAttachment", [
+            new AttachmentSummary("test.txt", "text/plain", "DocumentDatasourceInstance", "test_data", "test", "myproject", 5),
+            new ReadOnlyStringStream("Hello World")]));
+
+
+    }
+
+
     public function testIfIndexWordsSetWithDefaultOptionsUpdateConfigurationIsDefinedCorrectlyAndDatasetContainsPhrases() {
         $previousDatasourceService = Container::instance()->get(DatasourceService::class);
 
@@ -303,7 +352,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $documentDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", false, false, true),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
-        $documentDatasource->setInstanceInfo("test_data", "Test Data", []);
+        $documentDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
 
         $updateConfig = $documentDatasource->getUpdateConfig();
         $this->assertEquals(1, sizeof($updateConfig->getMappedFields()));
@@ -430,7 +479,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
 
-        $documentDatasource->setInstanceInfo("test_data", "Test Data", []);
+        $documentDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
 
         $dataset = new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath")], [["filename" => "test.txt", "documentFilePath" => __DIR__ . "/test.txt"]]);
 
