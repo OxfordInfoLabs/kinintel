@@ -362,53 +362,24 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     }
 
     /**
-     * Update fields (opportunity for datasource to perform any required modifications)
-     *
-     * @param Field[] $fields
-     */
-    public function updateFields($fields) {
-
-        // Construct the column array we need
-        $columns = [];
-        foreach ($fields as $field) {
-            $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
-            $primaryKey = $field->isKeyField() || ($field->getType() == Field::TYPE_ID);
-            $autoIncrement = ($field->getType() == Field::TYPE_ID);
-
-            if ($field instanceof DatasourceUpdateField) {
-                $columns[] = new UpdatableTableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement, false, $field->getOriginalName());
-            } else {
-                $columns[] = new TableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement);
-            }
-        }
-
-
-        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
-
-        // Check to see whether the table already exists
-        $sql = "";
-        $databaseConnection = $this->returnDatabaseConnection();
-        try {
-            $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());
-            $sql = $this->tableDDLGenerator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
-        } catch (\Exception $e) {
-            $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
-        }
-
-        Logger::log($sql);
-
-        if (trim($sql))
-            $databaseConnection->executeScript($sql);
-
-
-    }
-
-    /**
      * Event method called when a parent datasource instance is saved to provide
      * an opportunity to update e.g. structural stuff based on updated config.
      *
+     * The default behaviour here is to update fields
+     *
      */
     public function onInstanceSave() {
+        $this->updateFields($this->getConfig()->getColumns());
+    }
+
+
+    /**
+     * Handle instance delete when a parent datasource instance is deleted.
+     *
+     * @return mixed|void
+     */
+    public function onInstanceDelete(){
+
     }
 
 
@@ -481,6 +452,46 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $this->transformationProcessorInstances[$key] = Container::instance()->getInterfaceImplementation(SQLTransformationProcessor::class, $key);
         }
         return $this->transformationProcessorInstances[$key] ?? null;
+    }
+
+
+    /**
+     * Update fields (opportunity for datasource to perform any required modifications)
+     *
+     */
+    protected function updateFields($fields) {
+
+        // Construct the column array we need
+        $columns = [];
+        foreach ($fields as $field) {
+            $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
+            $primaryKey = $field->isKeyField() || ($field->getType() == Field::TYPE_ID);
+            $autoIncrement = ($field->getType() == Field::TYPE_ID);
+
+            if ($field instanceof DatasourceUpdateField) {
+                $columns[] = new UpdatableTableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement, false, $field->getOriginalName());
+            } else {
+                $columns[] = new TableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement);
+            }
+        }
+
+
+        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
+
+        // Check to see whether the table already exists
+        $sql = "";
+        $databaseConnection = $this->returnDatabaseConnection();
+        try {
+            $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());
+            $sql = $this->tableDDLGenerator->generateTableModifySQL($previousMetaData, $newMetaData, $databaseConnection);
+        } catch (\Exception $e) {
+            $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
+        }
+
+        if (trim($sql))
+            $databaseConnection->executeScript($sql);
+
+
     }
 
 

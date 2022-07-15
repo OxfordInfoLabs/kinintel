@@ -108,8 +108,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
                 $columns = Field::toPlainFields($dataset->getColumns());
-
-                $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSource);
+                $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstance, $dataSource);
             }
 
             // Grab all data
@@ -158,13 +157,14 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
 
     /**
-     * @param \Kinintel\Objects\Dataset\Dataset $dataset
-     * @param array $columnTimeLapses
-     * @param TabularDatasetSnapshotProcessorConfiguration $config
-     * @param $dataSource
+     * @param Field[] $columns
+     * @param string[] $keyFieldNames
+     * @param int[] $columnTimeLapses
+     * @param DatasourceInstance $dataSourceInstance
+     * @param Datasource $dataSource
      * @return Field[]
      */
-    private function updateDatasourceTableStructure($columns, $keyFieldNames, $columnTimeLapses, $dataSource) {
+    private function updateDatasourceTableStructure($columns, $keyFieldNames, $columnTimeLapses, $dataSourceInstance, $dataSource) {
 
         // Create fields array
         $fields = [new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true)];
@@ -186,7 +186,12 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
         }
 
-        $dataSource->updateFields($fields);
+        // Update fields and save.
+        $config = $dataSource->getConfig();
+        $config->setColumns($fields);
+        $dataSourceInstance->setConfig($config);
+        $this->datasourceService->saveDataSourceInstance($dataSourceInstance);
+
         return $fields;
     }
 

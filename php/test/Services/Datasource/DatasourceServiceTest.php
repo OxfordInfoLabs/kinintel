@@ -674,13 +674,6 @@ class DatasourceServiceTest extends TestBase {
             ]
         ]));
 
-        $this->assertTrue($dataSource->methodWasCalled("updateFields", [
-            [
-                new Field("name"),
-                new Field("age", null, null, Field::TYPE_INTEGER)
-            ]
-        ]));
-
 
         $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
             $dataSourceInstance

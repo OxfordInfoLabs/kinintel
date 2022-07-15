@@ -15,7 +15,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
-abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableTabularDatasource {
+abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableDatasource {
 
     /**
      * @var DatasourceUpdateConfig

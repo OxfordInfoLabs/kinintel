@@ -438,7 +438,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
 
 
-
         $this->assertTrue($this->bulkDataManager->methodWasCalled("delete", [
             "test_data", $data, null
         ]));
@@ -478,11 +477,13 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testUpdateFieldsCreatesTableAccordingToPassedFieldsIfNoneExists() {
+    public function testOnInstanceSaveCreatesTableAccordingToConfiguredFieldsIfNoneExists() {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable");
+
+        $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
 
 
@@ -504,13 +505,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
 
-        // Modify the table structure and ensure a create was made
-        $datasource->updateFields([
+        $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
             new Field("how_many", null, null, Field::TYPE_INTEGER)
         ]);
 
+        // Modify the table structure and ensure a create was made
+        $datasource->onInstanceSave();
 
         // Expect create to be issued
         $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
@@ -520,10 +522,12 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testUpdateFieldsModifiesTableAccordingToPassedFieldsIfTableAlreadyExists() {
+    public function testOnInstanceSaveModifiesTableAccordingToPassedFieldsIfTableAlreadyExists() {
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable");
+
+        $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
 
 
@@ -552,12 +556,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
 
-        // Modify the table structure and ensure a create was made
-        $datasource->updateFields([
+        $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
             new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
         ]);
+
+        // Modify the table structure and ensure a create was made
+        $datasource->onInstanceSave();
 
 
         // Expect create to be issued
@@ -570,7 +576,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testIDTypeFieldsAreMappedToAutoIncrementPrimaryKeyFieldAndNegateAnyPrimaryKeyFields() {
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable"),
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable");
+
+        $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
 
 
@@ -599,12 +607,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
 
-        // Modify the table structure and ensure a create was made
-        $datasource->updateFields([
+        $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, false),
             new Field("why", null, null, null, false),
             new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, "how_many")
         ]);
+
+        // Modify the table structure and ensure a create was made
+        $datasource->onInstanceSave();
 
 
         // Expect create to be issued

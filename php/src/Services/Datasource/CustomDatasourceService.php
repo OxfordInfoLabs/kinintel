@@ -41,6 +41,7 @@ class CustomDatasourceService {
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
+
         // Create a new data source key
         $newDatasourceKey = "custom_data_set_$accountId" . "_" . date("U");
         $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
@@ -58,9 +59,6 @@ class CustomDatasourceService {
 
         $instance = $this->datasourceService->saveDataSourceInstance($datasourceInstance);
         $datasource = $instance->returnDataSource();
-
-        // Update fields
-        $datasource->updateFields($datasourceUpdate->getFields());
 
         if ($datasourceUpdate->getAdds()) {
             $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {

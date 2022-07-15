@@ -224,8 +224,8 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field('original_text', 'Original Text', null, Field::TYPE_LONG_STRING);
         }
 
-
-        $this->updateFields($fields);
+        // Update fields with new set.
+        parent::updateFields($fields);
     }
 
 

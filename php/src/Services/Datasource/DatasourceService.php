@@ -236,19 +236,16 @@ class DatasourceService {
             $datasourceInstance->setTitle($datasourceUpdate->getTitle());
 
             // If updatable and fields
-            if ($datasource instanceof UpdatableTabularDatasource && $datasourceUpdate->getFields()) {
+            if ($datasource instanceof UpdatableDatasource && $datasourceUpdate->getFields()) {
 
                 // Update configuration of data source.
                 $config = $datasource->getConfig();
                 $config->setColumns($datasourceUpdate->getFields());
                 $datasourceInstance->setConfig($config);
 
-                // Call update on the data source
-                $datasource->updateFields($datasourceUpdate->getFields());
-
             }
 
-            $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
+            $this->saveDataSourceInstance($datasourceInstance);
 
         }
 

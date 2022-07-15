@@ -76,13 +76,6 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
 
-        $this->assertTrue($mockDatasource->methodWasCalled("updateFields", [
-            [
-                new Field("name"),
-                new Field("age", null, null, Field::TYPE_INTEGER)
-            ]
-        ]));
-
 
         $addDatasource = new ArrayTabularDataset([
             new Field("name"),
@@ -99,5 +92,6 @@ class CustomDatasourceServiceTest extends TestBase {
 
 
     }
+
 
 }
