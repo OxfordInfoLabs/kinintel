@@ -5,8 +5,10 @@ namespace Kinintel\Traits\Controller\Admin;
 
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
+use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
@@ -23,11 +25,18 @@ trait Datasource {
     private $datasourceService;
 
     /**
+     * @var CustomDatasourceService
+     */
+    private $customDatasourceService;
+
+    /**
      * Datasource constructor.
      * @param DatasourceService $datasourceService
+     * @param CustomDatasourceService $customDatasourceService
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService, $customDatasourceService) {
         $this->datasourceService = $datasourceService;
+        $this->customDatasourceService = $customDatasourceService;
     }
 
 
@@ -84,5 +93,32 @@ trait Datasource {
             $evaluatedDataSource->getOffset() ?? 0, $evaluatedDataSource->getLimit() ?? 25);
     }
 
+    /**
+     * Create a new custom datasource instance.  Return the datasource key
+     *
+     * @http POST /custom
+     *
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     * @param string $projectKey
+     *
+     * @return string
+     */
+    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null) {
+        return $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, $projectKey, null);
+    }
+
+
+    /**
+     * Update a custom datasource instance with the supplied data and optionally structure
+     *
+     *
+     * @http PUT /custom/$datasourceInstanceKey
+     *
+     * @param string $datasourceInstanceKey
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     */
+    public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
+        $this->datasourceService->updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate);
+    }
 
 }

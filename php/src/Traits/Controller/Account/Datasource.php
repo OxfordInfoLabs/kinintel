@@ -182,8 +182,6 @@ trait Datasource {
      * @return void
      */
     public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $trackingKey = null) {
-        Logger::log("hello");
-        Logger::log($trackingKey);
         if (!$trackingKey) {
             $trackingKey = date("U") . StringUtils::generateRandomString(5);
         }

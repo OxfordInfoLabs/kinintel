@@ -43,7 +43,7 @@ class CustomDatasourceService {
 
 
         // Create a new data source key
-        $newDatasourceKey = "custom_data_set_$accountId" . "_" . date("U");
+        $newDatasourceKey = "custom_data_set_" . ($accountId ? $accountId . "_" : "") . date("U");
         $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
         $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 

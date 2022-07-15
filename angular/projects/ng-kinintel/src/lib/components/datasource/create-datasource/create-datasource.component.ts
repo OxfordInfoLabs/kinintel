@@ -4,6 +4,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
 import {ActivatedRoute} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 declare var window: any;
 
@@ -63,7 +64,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     constructor(private dialog: MatDialog,
                 private route: ActivatedRoute,
-                private datasourceService: DatasourceService) {
+                private datasourceService: DatasourceService,
+                private snackbar: MatSnackBar) {
     }
 
     ngOnInit(): void {
@@ -378,6 +380,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (!this.datasourceInstanceKey) {
             this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
                 window.location.href = '/import-data/' + key;
+            }).catch(err => {
+                const errorCode = (err.error && err.error.sqlStateCode) ? err.error.sqlStateCode : 0;
+                this.displayError(errorCode);
             });
         } else {
             this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
@@ -386,6 +391,11 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     this.updates = [];
                     this.deletes = [];
                     this.loadDatasource();
+                })
+                .catch(err => {
+                    console.log('ERROR', err);
+                    const errorCode = (err.error && err.error.sqlStateCode) ? err.error.sqlStateCode : 0;
+                    this.displayError(errorCode);
                 });
         }
     }
@@ -547,4 +557,18 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         }
     }
 
+    private displayError(code: any) {
+        let message = 'There was an error creating/editing your data source. Please check and try again.';
+
+        switch (Number(code)) {
+            case 23000:
+                message = 'Duplicate Primary Key Found. Please check for duplicate values in unique identity column.';
+                break;
+        }
+
+        this.snackbar.open(message, null, {
+            duration: 5000,
+            verticalPosition: 'top'
+        });
+    }
 }
