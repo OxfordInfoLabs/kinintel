@@ -5,15 +5,21 @@ namespace Kinintel\Traits\Controller\Account;
 
 use Cassandra\Custom;
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
+use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\StringUtils;
 use Kinikit\MVC\Request\FileUpload;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
 use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Services\Datasource\DocumentUploadLongRunningTask;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
@@ -39,13 +45,20 @@ trait Datasource {
     private $customDatasourceService;
 
     /**
+     * @var LongRunningTaskService
+     */
+    private $longRunningTaskService;
+
+    /**
      * Datasource constructor.
      * @param DatasourceService $datasourceService
      * @param CustomDatasourceService $customDatasourceService
+     * @param LongRunningTaskService $longRunningTaskService
      */
-    public function __construct($datasourceService, $customDatasourceService) {
+    public function __construct($datasourceService, $customDatasourceService, $longRunningTaskService) {
         $this->datasourceService = $datasourceService;
         $this->customDatasourceService = $customDatasourceService;
+        $this->longRunningTaskService = $longRunningTaskService;
     }
 
 
@@ -165,11 +178,32 @@ trait Datasource {
      *
      * @param string $datasourceInstanceKey
      * @param FileUpload[] $uploadedFiles
+     * @param string $trackingKey
      * @return void
      */
-    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles) {
-        $this->customDatasourceService->uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles);
+    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $trackingKey = null) {
+        Logger::log("hello");
+        Logger::log($trackingKey);
+        if (!$trackingKey) {
+            $trackingKey = date("U") . StringUtils::generateRandomString(5);
+        }
+
+        // Create a long running task for this dataset
+        $longRunningTask = new DocumentUploadLongRunningTask($this->customDatasourceService, $datasourceInstanceKey, $uploadedFiles);
+
+        // Start the task and return results
+        return $this->longRunningTaskService->startTask("DocumentUpload", $longRunningTask, $trackingKey);
     }
 
+    /**
+     * @http GET /document/upload/tracking
+     *
+     * @param $trackingKey
+     * @return StoredLongRunningTaskSummary
+     * @throws ObjectNotFoundException
+     */
+    public function retrieveUploadResults($trackingKey) {
+        return $this->longRunningTaskService->getStoredTaskByTaskKey($trackingKey);
+    }
 
 }

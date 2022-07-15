@@ -719,6 +719,20 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                             }
                         }
                     }
+                    if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
+                        if (_.isString(param.value) && param.value.includes('{{')) {
+                            const paramKey = param.value.replace('{{', '').replace('}}', '');
+                            if (this.dashboardParameters[paramKey]) {
+                                param.value = this.dashboardParameters[paramKey].value;
+                            }
+                        }
+
+                        // If no value has been set default to the dashboard param value
+                        if (!param.value && this.dashboardParameters[param.name]) {
+                            param.value = this.dashboardParameters[param.name].value;
+                        }
+                    }
+
                     this.datasetInstanceSummary.parameterValues[param.name] = param.value;
                 });
 
@@ -734,17 +748,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
 
                 this.parameterValues.forEach(param => {
-                    let value = param.value;
-                    if (_.isString(param.value) && param.value.includes('{{')) {
-                        if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
-                            const paramKey = param.value.replace('{{', '').replace('}}', '');
-                            if (this.dashboardParameters[paramKey]) {
-                                value = this.dashboardParameters[paramKey].value;
-                            }
-                        }
-                    }
-
-                    clonedDatasetInstance.parameterValues[param.name] = value;
+                    clonedDatasetInstance.parameterValues[param.name] = param.value;
                 });
 
                 // Merge in global dashboard params

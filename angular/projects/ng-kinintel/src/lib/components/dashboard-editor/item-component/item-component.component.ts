@@ -764,6 +764,14 @@ export class ItemComponentComponent implements AfterViewInit {
 
                 if (this.dashboard.alertsEnabled) {
                     if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
+                        if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+                            if (Array.isArray(this.dashboardDatasetInstance.parameterValues)) {
+                                this.dashboardDatasetInstance.parameterValues = {};
+                            }
+                            _.forEach(this.dashboard.layoutSettings.parameters, parameter => {
+                                this.dashboardDatasetInstance.parameterValues[parameter.name] = parameter.value;
+                            });
+                        }
                         const dashboardInstance = _.cloneDeep(this.dashboardDatasetInstance);
                         dashboardInstance.parameterValues = this.getMappedParams(this.dashboardDatasetInstance);
                         this.alertService.processAlertsForDashboardDatasetInstance(dashboardInstance)
@@ -806,6 +814,7 @@ export class ItemComponentComponent implements AfterViewInit {
             } else {
                 mappedParams[key] = value;
             }
+
         });
         return mappedParams;
     }

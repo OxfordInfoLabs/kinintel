@@ -205,7 +205,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 this.addComponentToGridItem(item.el.firstChild, instanceId,
-                    dashboardItemType || this.itemTypes[item.el.dataset.index], !!dashboardItemType);
+                    dashboardItemType || _.clone(this.itemTypes[item.el.dataset.index]), !!dashboardItemType);
             });
             if (this.dashboard.displaySettings.inset) {
                 this.updateGridSpacing(this.dashboard.displaySettings.inset, false);

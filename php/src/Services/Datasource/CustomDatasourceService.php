@@ -5,6 +5,7 @@ namespace Kinintel\Services\Datasource;
 
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
 use Kiniauth\ValueObjects\Upload\FileUpload;
 use Kiniauth\ValueObjects\Upload\UploadedFile;
 use Kinikit\Core\Configuration\Configuration;
@@ -123,16 +124,19 @@ class CustomDatasourceService {
      *
      * @param $datasourceInstanceKey
      * @param $uploadedFiles
+     * @param LongRunningTask|null $longRunningTask
      * @return void
      * @throws \Kinikit\Core\Validation\ValidationException
      */
-    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles) {
+    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $longRunningTask = null) {
 
         $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey);
 
         $datasource = $datasourceInstance->returnDataSource();
 
-        $fileData = [];
+        $totalFiles = sizeof($uploadedFiles);
+        $completed = 0;
+        $failed = [];
 
         /** @var \Kinikit\MVC\Request\FileUpload $file */
         foreach ($uploadedFiles ?? [] as $file) {
@@ -143,6 +147,7 @@ class CustomDatasourceService {
                 $zip = new \ZipArchive();
                 $zip->open($file->getTemporaryFilePath());
                 $entries = $zip->count();
+                $totalFiles += $entries - 1;
                 for ($i = 0; $i < $entries; $i++) {
                     $stat = $zip->statIndex($i);
                     if (substr($zip->getNameIndex($i), 0, 9) === "__MACOSX/") {
@@ -166,10 +171,27 @@ class CustomDatasourceService {
                     }
 
                     $content = $zip->getFromName($stat["name"]);
-                    $datasource->update(new ArrayTabularDataset(
-                        [new Field("filename"), new Field("documentSource"), new Field("file_type"), new Field("file_size")],
-                        [["filename" => $stat["name"], "documentSource" => $content, "file_type" => $mimeType, "file_size" => $stat["size"]]]
-                    ), UpdatableDatasource::UPDATE_MODE_REPLACE);
+                    try {
+                        $datasource->update(new ArrayTabularDataset(
+                            [new Field("filename"), new Field("documentSource"), new Field("file_type"), new Field("file_size")],
+                            [["filename" => $stat["name"], "documentSource" => $content, "file_type" => $mimeType, "file_size" => $stat["size"]]]
+                        ), UpdatableDatasource::UPDATE_MODE_REPLACE);
+                        $completed++;
+
+
+                    } catch (\Exception $e) {
+                        $failed[] = [
+                            "filename" => $stat["name"],
+                            "message" => $e->getMessage()
+                        ];
+                    }
+                    if ($longRunningTask) {
+                        $longRunningTask->updateProgress([
+                            "completed" => $completed,
+                            "total" => $totalFiles,
+                            "failed" => $failed
+                        ]);
+                    }
                 }
 
                 $zip->close();
@@ -177,11 +199,30 @@ class CustomDatasourceService {
             } else {
                 $mimeType = $fileExtension == 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : $file->getMimeType();
 
-                $fileData[] = ["filename" => $file->getClientFilename(), "documentFilePath" => $file->getTemporaryFilePath(), "file_type" => $mimeType];
+                $fileData = ["filename" => $file->getClientFilename(), "documentFilePath" => $file->getTemporaryFilePath(), "file_type" => $mimeType];
+
+                try {
+                    $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath"), new Field("file_type")],
+                        [$fileData]), UpdatableDatasource::UPDATE_MODE_REPLACE);
+
+                    $completed++;
+
+                } catch (\Exception $e) {
+                    $failed[] = [
+                        "filename" => $file->getClientFilename(),
+                        "message" => $e->getMessage()
+                    ];
+                }
+                if ($longRunningTask) {
+                    $longRunningTask->updateProgress([
+                        "completed" => $completed,
+                        "total" => $totalFiles,
+                        "failed" => $failed
+                    ]);
+                }
+
             }
         }
-
-        $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath"), new Field("file_type")], $fileData), UpdatableDatasource::UPDATE_MODE_REPLACE);
 
 
     }

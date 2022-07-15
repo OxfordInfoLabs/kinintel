@@ -78,6 +78,7 @@ import { CreateDatasetComponent } from './components/dataset/create-dataset/crea
 import { TableCellFormatterComponent } from './components/dashboard-editor/configure-item/table-cell-formatter/table-cell-formatter.component';
 import { DocumentDatasourceComponent } from './components/datasource/document-datasource/document-datasource.component';
 import { AngularD3CloudModule } from 'angular-d3-cloud';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
     declarations: [
@@ -162,7 +163,8 @@ import { AngularD3CloudModule } from 'angular-d3-cloud';
         MatSnackBarModule,
         MatRadioModule,
         MatTooltipModule,
-        AngularD3CloudModule
+        AngularD3CloudModule,
+        MatProgressBarModule
     ],
     exports: [
         DashboardEditorComponent,

@@ -31,6 +31,9 @@ export class DocumentDatasourceComponent implements OnInit {
     public builtInStopWords = {
         builtIn: false
     };
+    public uploadResults: any;
+    public failedResults: any = [];
+    public uploading = false;
 
     constructor(private route: ActivatedRoute,
                 private datasourceService: DatasourceService,
@@ -152,7 +155,7 @@ export class DocumentDatasourceComponent implements OnInit {
         this.files.splice(index, 1);
     }
 
-    public uploadFiles() {
+    public async uploadFiles() {
         const formData = new FormData();
 
         for (const file of this.files) {
@@ -160,7 +163,8 @@ export class DocumentDatasourceComponent implements OnInit {
             formData.append(file.name, file);
         }
 
-        return this.uploadDatasourceDocuments(formData);
+        await this.uploadDatasourceDocuments(formData);
+        this.evaluateDatasource();
     }
 
     public async updateDatasource(stopWord, datasource) {
@@ -185,6 +189,7 @@ export class DocumentDatasourceComponent implements OnInit {
 
             if (this.files && this.files.length) {
                 await this.uploadFiles();
+                this.evaluateDatasource();
             }
 
             window.location.href = '/document-datasource/' + this.datasourceKey;
@@ -208,10 +213,31 @@ export class DocumentDatasourceComponent implements OnInit {
     }
 
     private async uploadDatasourceDocuments(formData) {
-        await this.datasourceService.uploadDatasourceDocuments(this.datasourceKey, formData);
+        this.uploading = true;
+        const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
+
+        const uploadSub = this.datasourceService.uploadDatasourceDocuments(this.datasourceKey, formData, trackingKey);
 
         this.files = null;
-        this.evaluateDatasource();
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                uploadSub.unsubscribe();
+                const resultSub = this.datasourceService.getDataTrackingResults(trackingKey).subscribe((res: any) => {
+                    this.uploadResults = res;
+                    if (res.status === 'COMPLETED') {
+                        this.uploading = false;
+                        resultSub.unsubscribe();
+                        this.failedResults = res.progressData.failed || [];
+                        resolve(true);
+                        setTimeout(() => {
+                            this.uploadResults = null;
+                            this.failedResults = [];
+                        }, 5000);
+                    }
+                });
+            }, 100);
+        });
     }
 
     private async evaluateDatasource() {
