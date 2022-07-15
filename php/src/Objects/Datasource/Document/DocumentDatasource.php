@@ -221,7 +221,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         }
 
         if ($config->isStoreText()) {
-            $fields[] = new Field('original_text', 'Original Text', null, Field::TYPE_LONGTEXT);
+            $fields[] = new Field('original_text', 'Original Text', null, Field::TYPE_LONG_STRING);
         }
 
 

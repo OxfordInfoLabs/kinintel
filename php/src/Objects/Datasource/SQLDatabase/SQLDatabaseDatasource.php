@@ -93,7 +93,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Field::TYPE_DATE => TableColumn::SQL_DATE,
         Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
         Field::TYPE_ID => TableColumn::SQL_INTEGER,
-        Field::TYPE_LONGTEXT => TableColumn::SQL_BLOB,
+        Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB
     ];
 
     const FIELD_SQL_TYPE_TYPE_MAP = [
@@ -103,7 +103,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         TableColumn::SQL_INT => Field::TYPE_INTEGER,
         TableColumn::SQL_VARCHAR => Field::TYPE_STRING,
         TableColumn::SQL_BIGINT => Field::TYPE_INTEGER,
-        TableColumn::SQL_BLOB => Field::TYPE_STRING,
+        TableColumn::SQL_BLOB => Field::TYPE_LONG_STRING,
+        TableColumn::SQL_LONGBLOB => Field::TYPE_LONG_STRING,
         TableColumn::SQL_DECIMAL => Field::TYPE_FLOAT,
         TableColumn::SQL_REAL => Field::TYPE_FLOAT,
         TableColumn::SQL_FLOAT => Field::TYPE_FLOAT,
@@ -248,9 +249,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     public function materialiseDataset($parameterValues = []) {
 
 
-
         $query = $this->buildQuery($parameterValues);
-
 
 
         /**
@@ -438,7 +437,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var SQLDatabaseDatasourceConfig $config
          */
         $config = $this->getConfig();
-        
+
         // If a tabular based source, create base clause
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
             $query = new SQLQuery("*", $config->getTableName());

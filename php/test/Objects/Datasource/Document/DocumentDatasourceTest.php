@@ -130,7 +130,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("file_size", "INTEGER"),
             new TableColumn("file_type", "VARCHAR"),
             new TableColumn("original_link", "VARCHAR"),
-            new TableColumn("original_text", "BLOB"),
+            new TableColumn("original_text", "LONGBLOB"),
         ]);
 
 
@@ -165,7 +165,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("file_size", "INTEGER"),
             new TableColumn("file_type", "VARCHAR"),
             new TableColumn("original_link", "VARCHAR"),
-            new TableColumn("original_text", "BLOB"),
+            new TableColumn("original_text", "LONGBLOB"),
         ]);
 
 
