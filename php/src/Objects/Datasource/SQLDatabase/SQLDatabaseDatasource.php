@@ -378,8 +378,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      *
      * @return mixed|void
      */
-    public function onInstanceDelete(){
-
+    public function onInstanceDelete() {
+        $databaseConnection = $this->returnDatabaseConnection();
+        $dropSQL = $this->tableDDLGenerator->generateTableDropSQL($this->getConfig()->getTableName());
+        $databaseConnection->executeScript($dropSQL);
     }
 
 
@@ -478,6 +480,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
 
+
         // Check to see whether the table already exists
         $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
@@ -487,6 +490,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         } catch (\Exception $e) {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
+
 
         if (trim($sql))
             $databaseConnection->executeScript($sql);

@@ -623,4 +623,25 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
     }
 
+
+    public function testOnInstanceDeleteTableIsDeleted() {
+
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable");
+
+        $datasource = new SQLDatabaseDatasource($config,
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+        $ddlGenerator->returnValue("generateTableDropSQL", "TABLE DELETE", [
+            "mytable"
+        ]);
+
+        $datasource->onInstanceDelete();
+
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
+            "TABLE DELETE"
+        ]));
+    }
+
 }

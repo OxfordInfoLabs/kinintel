@@ -131,7 +131,16 @@ class DatasourceService {
      * @param $dataSourceInstanceKey
      */
     public function removeDatasourceInstance($dataSourceInstanceKey) {
+
+        // Grab the instance and from that the datasource
+        $instance = $this->datasourceDAO->getDataSourceInstanceByKey($dataSourceInstanceKey);
+        $datasource = $instance->returnDataSource();
+
+        // Remove the instance
         $this->datasourceDAO->removeDatasourceInstance($dataSourceInstanceKey);
+
+        // Call the instance delete
+        $datasource->onInstanceDelete();
     }
 
 
@@ -206,7 +215,6 @@ class DatasourceService {
 
         return [$datasource, $parameterValues];
     }
-
 
 
     /**

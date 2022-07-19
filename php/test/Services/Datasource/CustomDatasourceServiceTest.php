@@ -76,7 +76,6 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
 
-
         $addDatasource = new ArrayTabularDataset([
             new Field("name"),
             new Field("age")
@@ -89,6 +88,38 @@ class CustomDatasourceServiceTest extends TestBase {
         $this->assertTrue($mockDatasource->methodWasCalled("update", [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
         ]));
+
+
+    }
+
+
+    public function testIfCustomDataSourceCreationFailsInstanceIsDeleted() {
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+            new Field("name"),
+            new Field("age", null, null, Field::TYPE_INTEGER)
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+
+        $mockInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDatasourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+        $mockInstance->returnValue("returnDataSource", $mockDatasource);
+        $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
+        $this->datasourceService->throwException("saveDataSourceInstance", new \Exception("RANDOM FAILURE"));
+
+        try {
+            $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, "myproject", 1);
+            $this->fail("Should have thrown here");
+        } catch (\Exception $e) {
+            $this->assertEquals("RANDOM FAILURE", $e->getMessage());
+            $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", [
+                "custom_data_set_1_" . date("U")
+            ]));
+        }
 
 
     }

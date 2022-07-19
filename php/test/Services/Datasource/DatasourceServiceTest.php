@@ -87,7 +87,7 @@ class DatasourceServiceTest extends TestBase {
     }
 
 
-    public function testOnSaveOfDatasourceInstanceDAOIsCalledAndOnDatasourceSaveIsCalledOnDatasource() {
+    public function testOnSaveOfDatasourceInstanceDAOIsCalledAndOnInstanceSaveIsCalledOnDatasource() {
 
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -103,6 +103,25 @@ class DatasourceServiceTest extends TestBase {
         ]));
 
         $this->assertTrue($dataSource->methodWasCalled("onInstanceSave"));
+
+    }
+
+    public function testOnRemoveOfDatasourceInstanceDAOIsCalledAndOnInstanceDeleteIsCalledOnDatasource() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, ["twinkle"]);
+
+        $this->dataSourceService->removeDatasourceInstance("twinkle");
+
+        // Check that the datasource was saved via the DAO and on save called
+        $this->assertTrue($this->datasourceDAO->methodWasCalled("removeDatasourceInstance", [
+            "twinkle"
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("onInstanceDelete"));
 
     }
 

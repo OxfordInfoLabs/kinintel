@@ -41,33 +41,44 @@ class CustomDatasourceService {
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
-
         // Create a new data source key
         $newDatasourceKey = "custom_data_set_" . ($accountId ? $accountId . "_" : "") . date("U");
-        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
-        $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
-        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), "custom", [
-            "source" => "table",
-            "tableName" => $tableName,
-            "columns" => $datasourceUpdate->getFields()
-        ], $credentialsKey);
+        try {
 
-        // Set account id and project key
-        $datasourceInstance->setAccountId($accountId);
-        $datasourceInstance->setProjectKey($projectKey);
+            $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+            $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
-        $instance = $this->datasourceService->saveDataSourceInstance($datasourceInstance);
-        $datasource = $instance->returnDataSource();
+            $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), "custom", [
+                "source" => "table",
+                "tableName" => $tableName,
+                "columns" => $datasourceUpdate->getFields()
+            ], $credentialsKey);
 
-        if ($datasourceUpdate->getAdds()) {
-            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
-                    return new Field($columnName);
-                }, array_keys($datasourceUpdate->getAdds()[0]));
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+            // Set account id and project key
+            $datasourceInstance->setAccountId($accountId);
+            $datasourceInstance->setProjectKey($projectKey);
+
+            $instance = $this->datasourceService->saveDataSourceInstance($datasourceInstance);
+            $datasource = $instance->returnDataSource();
+
+            if ($datasourceUpdate->getAdds()) {
+                $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
+                        return new Field($columnName);
+                    }, array_keys($datasourceUpdate->getAdds()[0]));
+                $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+            }
+
+            return $newDatasourceKey;
+        } catch (\Exception $e) {
+
+            try {
+                $this->datasourceService->removeDatasourceInstance($newDatasourceKey);
+            } catch (\Exception $e) {
+            }
+
+            throw $e;
         }
-
-        return $newDatasourceKey;
 
     }
 
