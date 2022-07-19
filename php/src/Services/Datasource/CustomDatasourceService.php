@@ -105,6 +105,7 @@ class CustomDatasourceService {
 
         $this->datasourceService->saveDataSourceInstance($datasourceInstance);
 
+
         $fields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
             new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
@@ -114,15 +115,14 @@ class CustomDatasourceService {
         $indexInstanceKey = "index_" . $newDatasourceKey;
         $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $documentDatasourceConfig->getTitle() . " Index", "sqldatabase", [
             "source" => "table",
-            "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $indexInstanceKey
+            "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $indexInstanceKey,
+            "columns" => $fields
         ], Configuration::readParameter("custom.datasource.credentials.key"));
 
         $indexDatasourceInstance->setAccountId($accountId);
         $indexDatasourceInstance->setProjectKey($projectKey);
 
         $this->datasourceService->saveDataSourceInstance($indexDatasourceInstance);
-
-        $indexDatasourceInstance->returnDataSource()->updateFields($fields);
 
         return $newDatasourceKey;
     }
