@@ -102,6 +102,9 @@ export class DocumentDatasourceComponent implements OnInit {
         _.remove(this.datasource.config.stopWords, stopWord => {
             return stopWord.builtIn !== undefined;
         });
+        if (!this.datasource.config.stopWords) {
+            this.datasource.config.stopWords = [];
+        }
         this.datasource.config.stopWords.push(this.builtInStopWords);
     }
 

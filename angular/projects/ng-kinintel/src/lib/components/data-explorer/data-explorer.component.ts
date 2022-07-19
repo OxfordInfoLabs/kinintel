@@ -27,6 +27,7 @@ export class DataExplorerComponent implements OnInit {
     private columns: any = [];
     private newTitle: string;
     private newDescription: string;
+    private datasetTitle: string;
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -40,6 +41,10 @@ export class DataExplorerComponent implements OnInit {
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
         this.accountId = this.data.accountId;
+
+        if (!this.datasetInstanceSummary.id) {
+            this.datasetTitle = this.datasetInstanceSummary.title;
+        }
 
         this.newTitle = this.data.newTitle;
         this.newDescription = this.data.newDescription;
@@ -104,7 +109,7 @@ export class DataExplorerComponent implements OnInit {
     }
 
     public saveChanges() {
-        if (!this.datasetInstanceSummary.id && !this.datasetInstanceSummary.title) {
+        if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
                 width: '475px',
                 height: '150px',

@@ -63,7 +63,7 @@
     </rsz-layout>
 
     <rsz-layout class="row bottom" [directions]="['none']" [rFlex]="false">
-        <mat-tab-group class="gray-header h-full">
+        <mat-tab-group class="gray-header h-full" (>
             <mat-tab label="Header">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">
                     <div class="md:flex md:items-center md:justify-between md:space-x-5">
@@ -99,8 +99,11 @@
                         </label>
                         <label class="mb-2">
                             Description
-                            <textarea class="font-mono w-full"
-                                      cols="30" rows="5" [(ngModel)]="general.description"></textarea>
+                            <ngx-codemirror class="border rounded block"
+                                [(ngModel)]="general.description"
+                                [options]="{lineNumbers: false,theme: 'ttcn',mode: 'htmlmixed'}">
+
+                            </ngx-codemirror>
                             <small class="font-normal">Description of the data item.</small>
                         </label>
 
