@@ -24,34 +24,49 @@
     </div>
 </div>
 
-<div class="bg-blue-50 p-4" *ngIf="uploading && uploadResults">
+<div class="bg-blue-50 p-4" *ngIf="uploading">
     <div class="flex">
         <div class="flex-shrink-0">
             <!-- Heroicon name: solid/information-circle -->
-            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                 fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clip-rule="evenodd"/>
             </svg>
         </div>
         <div class="ml-3 w-full">
-            <p class="text-sm text-blue-700 font-medium">Progress</p>
-            <div>Uploaded {{uploadResults.progressData.completed}}/{{uploadResults.progressData.total}}</div>
-            <mat-progress-bar class="w-full" mode="determinate" [value]="(uploadResults.progressData.completed/uploadResults.progressData.total) * 100"></mat-progress-bar>
+            <p class="text-sm text-primary font-medium">Progress</p>
+            <ng-template [ngIf]="uploadResults && uploadResults.progressData">
+                <div class="text-primary my-2">Uploaded {{uploadResults.progressData.completed}}
+                    /{{uploadResults.progressData.total}}</div>
+                <mat-progress-bar class="w-full my-4" mode="determinate"
+                                  [value]="(uploadResults.progressData.completed/uploadResults.progressData.total) * 100"></mat-progress-bar>
+            </ng-template>
+            <ng-template [ngIf]="!uploadResults || !uploadResults.progressData">
+                <div class="text-primary my-2">Preparing Upload...</div>
+                <mat-progress-bar class="w-full my-4" mode="buffer"></mat-progress-bar>
+            </ng-template>
         </div>
     </div>
 </div>
 
-<div class="bg-green-50 p-4" *ngIf="!failedResults.length && uploadResults">
+<div class="bg-green-50 p-4" *ngIf="!failedResults.length && uploadResults && !uploading">
     <div class="flex">
         <div class="flex-shrink-0">
             <!-- Heroicon name: solid/check-circle -->
-            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                 fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"/>
             </svg>
         </div>
         <div class="ml-3">
             <h3 class="text-sm font-medium text-green-800">Upload completed</h3>
             <div class="mt-2 text-sm text-green-700">
-                <p><b>{{uploadResults.progressData.completed}}</b> files were processed successfully out of <b>{{uploadResults.progressData.total}}</b> uploaded items.</p>
+                <p><b>{{uploadResults.progressData.completed}}</b> files were processed successfully out of
+                    <b>{{uploadResults.progressData.total}}</b> uploaded items.</p>
             </div>
         </div>
     </div>
@@ -61,23 +76,22 @@
     <div class="flex">
         <div class="flex-shrink-0">
             <!-- Heroicon name: solid/x-circle -->
-            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                 aria-hidden="true">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clip-rule="evenodd"/>
             </svg>
         </div>
         <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">There were 2 errors with your submission</h3>
+            <h3 class="text-sm font-medium text-red-800">There were {{failedResults.length}} errors with your
+                submission</h3>
             <div class="mt-2 text-sm text-red-700">
                 <ul role="list" class="list-disc pl-5 space-y-1">
-                    <li>Your password must be at least 8 characters</li>
-                    <li>Your password must include at least one pro wrestling finishing move</li>
+                    <li *ngFor="let failedResult of failedResults">
+                        {{failedResult.message}}
+                    </li>
                 </ul>
-            </div>
-            <div class="mt-4">
-                <div class="-mx-2 -my-1.5 flex">
-                    <button type="button" class="bg-green-50 px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600">View status</button>
-                    <button type="button" class="ml-3 bg-green-50 px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600">Dismiss</button>
-                </div>
             </div>
         </div>
     </div>
@@ -328,7 +342,8 @@
                                                 {{datasource.title}}
                                             </mat-option>
                                         </mat-autocomplete>
-                                        <small class="font-normal">Start typing name to view available datasources</small>
+                                        <small class="font-normal">Start typing name to view available
+                                            datasources</small>
                                     </label>
 
 
@@ -341,14 +356,17 @@
                                                     {{column.title}}
                                                 </option>
                                             </select>
-                                            <small class="font-normal">Select the column to use for the stop words</small>
+                                            <small class="font-normal">Select the column to use for the stop
+                                                words</small>
                                         </label>
 
                                         <label class="mb-4" *ngIf="datasource.config.maxPhraseLength > 1">
                                             Min phrase length for including stop words
                                             <input type="number" [min]="2"
                                                    [(ngModel)]="stopWord.minPhraseLength">
-                                            <small class="font-normal">The {{stopWord.datasource ? stopWord.datasource.title : ''}} stop words will be included when the
+                                            <small
+                                                class="font-normal">The {{stopWord.datasource ? stopWord.datasource.title : ''}}
+                                                stop words will be included when the
                                                 phrase length is greater than or equal to this value.</small>
                                         </label>
                                     </div>
@@ -413,7 +431,7 @@
 </div>
 
 <ng-template [ngIf]="evaluatedDatasource">
-    <table class="min-w-full border-separate bg-white pb-16" style="border-spacing: 0">
+    <table class="min-w-full border-separate bg-white" style="border-spacing: 0">
         <thead class="bg-gray-100">
         <tr>
             <th *ngFor="let column of evaluatedDatasource.columns" scope="col"
@@ -427,55 +445,59 @@
             <td *ngFor="let column of evaluatedDatasource.columns; let i = index"
                 [ngClass]="{'font-medium': i === 0}"
                 class="border-b border-gray-200 py-2 px-4 text-sm text-gray-900">
-                <ng-template [ngIf]="data[column.name] && String(data[column.name]).length <= 100">
-                    {{data[column.name]}}
-                </ng-template>
-                <ng-template [ngIf]="data[column.name] && String(data[column.name]).length > 100">
-                    <div>{{data[column.name].substring(0, 100) + '...'}}</div>
-                    <a (click)="viewFullItemData(data[column.name], column.name)"
-                       class="flex items-center text-sm text-cta">
-                        view more
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
-                             viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                <ng-template [ngIf]="column.name === 'original_link'">
+                    <a class="flex items-center text-cta hover:underline" (click)="downloadDoc(data[column.name])">
+                        {{data[column.name]}}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
                     </a>
                 </ng-template>
-                <ng-template [ngIf]="!data[column.name]">
-                    {{data[column.name]}}
+                <ng-template [ngIf]="column.name !== 'original_link'">
+                    <ng-template [ngIf]="data[column.name] && String(data[column.name]).length <= 100">
+                        {{data[column.name]}}
+                    </ng-template>
+                    <ng-template [ngIf]="data[column.name] && String(data[column.name]).length > 100">
+                        <div>{{data[column.name].substring(0, 100) + '...'}}</div>
+                        <a (click)="viewFullItemData(data[column.name], column.name)"
+                           class="flex items-center text-sm text-cta hover:underline">
+                            view more
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </ng-template>
+                    <ng-template [ngIf]="!data[column.name]">
+                        {{data[column.name]}}
+                    </ng-template>
                 </ng-template>
             </td>
-        </tr>
-        <tr>
-            <!--            <td colspan="5"-->
-            <!--                class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">-->
-            <!--                <div class="paging-toolbar flex align-center justify-end">-->
-            <!--                    <select [value]="snapshots.tag.limit" (change)="pageSizeChange($event.target.value, snapshots.tag)"-->
-            <!--                            class="mr-8">-->
-            <!--                        <option [value]="1">1</option>-->
-            <!--                        <option [value]="5">5</option>-->
-            <!--                        <option [value]="10">10</option>-->
-            <!--                        <option [value]="25">25</option>-->
-            <!--                        <option [value]="50">50</option>-->
-            <!--                        <option [value]="100">100</option>-->
-            <!--                        <option [value]="250">250</option>-->
-            <!--                        <option [value]="1000">1000</option>-->
-            <!--                    </select>-->
-            <!--                    <button mat-icon-button class="mr-4" (click)="decreaseOffset(snapshots.tag)"-->
-            <!--                            [disabled]="snapshots.tag.page <= 1">-->
-            <!--                        <mat-icon>chevron_left</mat-icon>-->
-            <!--                    </button>-->
-            <!--                    <button mat-icon-button (click)="increaseOffset(snapshots.tag)"-->
-            <!--                            [disabled]="snapshots.tag.endOfResults">-->
-            <!--                        <mat-icon>chevron_right</mat-icon>-->
-            <!--                    </button>-->
-            <!--                </div>-->
-            <!--            </td>-->
         </tr>
         </tbody>
 
     </table>
+    <div class="bg-white p-4 flex align-center justify-end">
+        <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
+            <option [value]="1">1</option>
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+            <option [value]="250">250</option>
+            <option [value]="1000">1000</option>
+        </select>
+        <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
 </ng-template>
 
