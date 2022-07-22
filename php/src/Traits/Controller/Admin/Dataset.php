@@ -113,7 +113,7 @@ trait Dataset {
      * Save a data set instance object
      *
      * @http POST
-     * @unsanitise datasetInstanceSummary
+     * @unsanitise dataSetInstanceSummary
      *
      * @param DatasetInstanceSummary $dataSetInstanceSummary
      * @param string $projectKey
