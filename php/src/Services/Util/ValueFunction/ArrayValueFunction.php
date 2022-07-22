@@ -4,9 +4,12 @@
 namespace Kinintel\Services\Util\ValueFunction;
 
 
+use AWS\CRT\Log;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 
-class ArrayValueFunction extends ValueFunctionWithArguments {
+class ArrayValueFunction extends ValueFunctionWithArguments
+{
 
     const supportedFunctions = [
         "memberValues",
@@ -18,7 +21,8 @@ class ArrayValueFunction extends ValueFunctionWithArguments {
      *
      * @return string[]|void
      */
-    protected function getSupportedFunctionNames() {
+    protected function getSupportedFunctionNames()
+    {
         return self::supportedFunctions;
     }
 
@@ -32,7 +36,8 @@ class ArrayValueFunction extends ValueFunctionWithArguments {
      * @param $dataItem
      * @return mixed|void
      */
-    protected function applyFunctionWithArgs($functionName, $functionArgs, $value, $dataItem) {
+    protected function applyFunctionWithArgs($functionName, $functionArgs, $value, $dataItem)
+    {
 
         if (is_array($value)) {
 

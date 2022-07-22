@@ -143,7 +143,6 @@ class WebServiceDatasource extends BaseDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
-
         if (!$this->getConfig()) {
             $this->setConfig(new WebserviceDataSourceConfig());
         }
@@ -179,6 +178,7 @@ class WebServiceDatasource extends BaseDatasource {
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
             $payload = $this->parameterisedStringEvaluator->evaluateString($config->getPayloadTemplate(), [], $parameterValues);
         }
+        Logger::log($payload);
 
         // Create a new HttpRequest for this request
         $urlEncodedParams =[];

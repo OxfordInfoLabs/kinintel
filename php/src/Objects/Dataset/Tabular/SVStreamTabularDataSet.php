@@ -157,7 +157,7 @@ class SVStreamTabularDataSet extends TabularDataset {
             $this->readItems++;
 
             // Only continue if we have some content
-            if (trim($csvLine[0])) {
+            if (is_array($csvLine) && trim($csvLine[0])) {
 
                 $dataItem = [];
                 $columnIndex = 0;
