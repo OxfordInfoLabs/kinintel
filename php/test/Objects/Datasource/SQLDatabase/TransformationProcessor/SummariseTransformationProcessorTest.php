@@ -127,24 +127,24 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testExplicitlyConfiguredDatasourceColumnsAreUnsetFollowingAnApplyTransformationForSummarisation() {
-
-        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $config = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
-        $dataSource->returnValue("getConfig", $config);
-        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
-
-        $summariseTransformation = new SummariseTransformation(["category", "dept"], [
-            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
-            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
-
-
-        $transformationProcessor = new SummariseTransformationProcessor();
-        $transformationProcessor->applyTransformation($summariseTransformation, $dataSource, []);
-
-        $this->assertTrue($config->methodWasCalled("setColumns", [[]]));
-
-    }
+//    public function testExplicitlyConfiguredDatasourceColumnsAreUnsetFollowingAnApplyTransformationForSummarisation() {
+//
+//        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+//        $config = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class);
+//        $dataSource->returnValue("getConfig", $config);
+//        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+//
+//        $summariseTransformation = new SummariseTransformation(["category", "dept"], [
+//            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total Records"),
+//            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, null, "COUNT(*) + SUM(total)", "Custom Metric")]);
+//
+//
+//        $transformationProcessor = new SummariseTransformationProcessor();
+//        $transformationProcessor->applyTransformation($summariseTransformation, $dataSource, []);
+//
+//        $this->assertTrue($config->methodWasCalled("setColumns", [[]]));
+//
+//    }
 
 
     public function testDoubleSummarisationCorrectlyWrapsInnerQuery() {

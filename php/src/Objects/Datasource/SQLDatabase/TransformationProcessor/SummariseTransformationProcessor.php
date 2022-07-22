@@ -33,7 +33,7 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
     public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
 
         // Unset any explicit columns from the datasource config
-        $datasource->getConfig()->setColumns([]);
+       // $datasource->getConfig()->setColumns([]);
 
         return $datasource;
     }

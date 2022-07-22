@@ -364,6 +364,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
             return $joinQuery;
         } else {
+
             return $query;
         }
 
