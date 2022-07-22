@@ -58,4 +58,13 @@ interface UpdatableDatasource {
     public function onInstanceSave();
 
 
+    /**
+     * Event method called when a parent datasource instance is deleted to provide
+     * an opportunity to clean up - e.g. free resources etc.
+     *
+     * @return mixed
+     */
+    public function onInstanceDelete();
+
+
 }

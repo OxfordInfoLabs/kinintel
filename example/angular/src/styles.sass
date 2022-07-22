@@ -3,6 +3,10 @@
 @import 'tailwindcss/components'
 @import 'tailwindcss/utilities'
 
+@import '~codemirror/lib/codemirror.css'
+@import '~codemirror/theme/idea.css'
+@import '~codemirror/theme/ttcn.css'
+
 @import '../node_modules/quill/dist/quill.core.css'
 @import '../node_modules/quill/dist/quill.bubble.css'
 @import '../node_modules/quill/dist/quill.snow.css'
@@ -111,5 +115,5 @@ mat-tab-group
     .mat-tab-body-wrapper
         height: 100%
 
-ki-view-dashboard
-    overflow: hidden
+.CodeMirror
+    height: 150px !important

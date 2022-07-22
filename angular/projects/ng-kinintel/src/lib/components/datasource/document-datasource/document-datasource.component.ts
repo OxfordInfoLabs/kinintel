@@ -34,6 +34,11 @@ export class DocumentDatasourceComponent implements OnInit {
     public uploadResults: any;
     public failedResults: any = [];
     public uploading = false;
+    public page = 1;
+    public endOfResults = false;
+    public limit = 25;
+
+    private offset = 0;
 
     constructor(private route: ActivatedRoute,
                 private datasourceService: DatasourceService,
@@ -76,6 +81,23 @@ export class DocumentDatasourceComponent implements OnInit {
         });
     }
 
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.evaluateDatasource();
+    }
+
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.evaluateDatasource();
+    }
+
+    public pageSizeChange(value) {
+        this.limit = value;
+        this.evaluateDatasource(true);
+    }
+
     public viewFullItemData(data, columnName) {
         this.dialog.open(DatasetEditorPopupComponent, {
             width: '800px',
@@ -102,6 +124,9 @@ export class DocumentDatasourceComponent implements OnInit {
         _.remove(this.datasource.config.stopWords, stopWord => {
             return stopWord.builtIn !== undefined;
         });
+        if (!this.datasource.config.stopWords) {
+            this.datasource.config.stopWords = [];
+        }
         this.datasource.config.stopWords.push(this.builtInStopWords);
     }
 
@@ -110,8 +135,8 @@ export class DocumentDatasourceComponent implements OnInit {
     }
 
     public humanFileSize(size: any) {
-        const i = size === 0 ? 0 : Math.floor( Math.log(size) / Math.log(1024) );
-        return Number(( size / Math.pow(1024, i) ).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+        const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+        return Number((size / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
     }
 
     public displayFn(dataset): string {
@@ -153,6 +178,10 @@ export class DocumentDatasourceComponent implements OnInit {
 
     public removeFile(index) {
         this.files.splice(index, 1);
+    }
+
+    public downloadDoc(url) {
+        window.open(url);
     }
 
     public async uploadFiles() {
@@ -216,16 +245,17 @@ export class DocumentDatasourceComponent implements OnInit {
         this.uploading = true;
         const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
 
-        const uploadSub = this.datasourceService.uploadDatasourceDocuments(this.datasourceKey, formData, trackingKey);
+        this.datasourceService.uploadDatasourceDocuments(this.datasourceKey, formData, trackingKey).catch(err => {
+            // Ignore - we have set off a long-running task which we are tracking below
+        });
 
         this.files = null;
 
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                uploadSub.unsubscribe();
                 const resultSub = this.datasourceService.getDataTrackingResults(trackingKey).subscribe((res: any) => {
                     this.uploadResults = res;
-                    if (res.status === 'COMPLETED') {
+                    if (res && res.status === 'COMPLETED') {
                         this.uploading = false;
                         resultSub.unsubscribe();
                         this.failedResults = res.progressData.failed || [];
@@ -240,8 +270,14 @@ export class DocumentDatasourceComponent implements OnInit {
         });
     }
 
-    private async evaluateDatasource() {
-        this.datasource.limit = 1000;
+    private async evaluateDatasource(resetPager = false) {
+        if (resetPager) {
+            this.offset = 0;
+            this.page = 1;
+        }
+
+        this.datasource.limit = this.limit;
+        this.datasource.offset = this.offset;
         this.evaluatedDatasource = await this.datasourceService.evaluateDatasource(this.datasource);
         this.evaluatedDatasource.allData.map(data => {
             if (data.file_size) {
@@ -252,5 +288,7 @@ export class DocumentDatasourceComponent implements OnInit {
             }
             return data;
         });
+
+        this.endOfResults = this.evaluatedDatasource.allData.length < this.limit;
     }
 }

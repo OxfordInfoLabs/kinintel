@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
 import {ProjectService} from '../services/project.service';
-import {interval} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {interval, of} from 'rxjs';
+import {catchError, map, switchMap} from 'rxjs/operators';
 
 export interface DatasourceUpdate {
     title: string;
@@ -78,7 +78,7 @@ export class DatasourceService {
             headers: new HttpHeaders({ 'Content-Type': 'file' })
         };
         return this.http.post(this.config.backendURL + '/datasource/document/upload/' + key + '?trackingKey=' + trackingKey,
-            uploadedFiles, HttpUploadOptions).subscribe(res => res);
+            uploadedFiles, HttpUploadOptions).toPromise();
     }
 
     public getDataTrackingResults(trackingKey) {
@@ -90,6 +90,9 @@ export class DatasourceService {
                     }).pipe(
                         map(result => {
                             return result;
+                        }),
+                        catchError(err => {
+                            return of(null);
                         }))
                 )
             );

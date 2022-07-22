@@ -79,6 +79,7 @@ import { TableCellFormatterComponent } from './components/dashboard-editor/confi
 import { DocumentDatasourceComponent } from './components/datasource/document-datasource/document-datasource.component';
 import { AngularD3CloudModule } from 'angular-d3-cloud';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {CodemirrorModule} from '@ctrl/ngx-codemirror';
 
 @NgModule({
     declarations: [
@@ -164,7 +165,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
         MatRadioModule,
         MatTooltipModule,
         AngularD3CloudModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        CodemirrorModule
     ],
     exports: [
         DashboardEditorComponent,

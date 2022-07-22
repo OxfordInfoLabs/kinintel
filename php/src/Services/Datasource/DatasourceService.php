@@ -131,7 +131,16 @@ class DatasourceService {
      * @param $dataSourceInstanceKey
      */
     public function removeDatasourceInstance($dataSourceInstanceKey) {
+
+        // Grab the instance and from that the datasource
+        $instance = $this->datasourceDAO->getDataSourceInstanceByKey($dataSourceInstanceKey);
+        $datasource = $instance->returnDataSource();
+
+        // Remove the instance
         $this->datasourceDAO->removeDatasourceInstance($dataSourceInstanceKey);
+
+        // Call the instance delete
+        $datasource->onInstanceDelete();
     }
 
 
@@ -208,7 +217,6 @@ class DatasourceService {
     }
 
 
-
     /**
      * Update a datasource instance using a passed dataset and update mode.
      *
@@ -236,19 +244,16 @@ class DatasourceService {
             $datasourceInstance->setTitle($datasourceUpdate->getTitle());
 
             // If updatable and fields
-            if ($datasource instanceof UpdatableTabularDatasource && $datasourceUpdate->getFields()) {
+            if ($datasource instanceof UpdatableDatasource && $datasourceUpdate->getFields()) {
 
                 // Update configuration of data source.
                 $config = $datasource->getConfig();
                 $config->setColumns($datasourceUpdate->getFields());
                 $datasourceInstance->setConfig($config);
 
-                // Call update on the data source
-                $datasource->updateFields($datasourceUpdate->getFields());
-
             }
 
-            $this->datasourceDAO->saveDataSourceInstance($datasourceInstance);
+            $this->saveDataSourceInstance($datasourceInstance);
 
         }
 

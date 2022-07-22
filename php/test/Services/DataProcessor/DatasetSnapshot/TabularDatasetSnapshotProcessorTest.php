@@ -104,6 +104,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
 
         $mockAuthCredentials = MockObjectProvider::instance()->getMockInstance(SQLDatabaseCredentials::class);
@@ -122,15 +123,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ]));
 
 
-        // Check that the table was created with simple snapshot_date based PK.
-        $this->assertTrue($mockDataSource->methodWasCalled("updateFields", [
-            [
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
-                new Field("title"),
-                new Field("metric"),
-                new Field("score")
-            ]
-        ]));
+
 
     }
 
@@ -182,6 +175,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
 
         $mockAuthCredentials = MockObjectProvider::instance()->getMockInstance(SQLDatabaseCredentials::class);
@@ -195,13 +189,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         // Check that the table was created with simple snapshot_date based PK.
-        $this->assertTrue($mockDataSource->methodWasCalled("updateFields", [
-            [
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
-                new Field("title"),
-                new Field("metric"),
-                new Field("score")
-            ]
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $mockDataSourceInstance
         ]));
 
 
@@ -269,6 +258,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
 
 
@@ -325,18 +315,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Check that the table was created with snapshot and title as primary key
         // And timelapse fields
-        $this->assertTrue($mockDataSource->methodWasCalled("updateFields", [
-            [
-                new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE, true),
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
-                new Field("metric"),
-                new Field("metric_1_days_ago"),
-                new Field("metric_7_days_ago"),
-                new Field("metric_30_days_ago"),
-                new Field("score"),
-                new Field("score_5_days_ago"),
-                new Field("score_15_days_ago")
-            ]
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $mockDataSourceInstance
         ]));
 
 
