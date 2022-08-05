@@ -15,6 +15,7 @@ export class DatasetSummariseComponent implements OnInit {
     public summariseFields: any = [];
     public summariseExpressions: any = [];
     public _ = _;
+    public showDocs = false;
 
     public readonly expressionTypes = [
         'COUNT', 'SUM', 'MIN', 'MAX', 'AVG'

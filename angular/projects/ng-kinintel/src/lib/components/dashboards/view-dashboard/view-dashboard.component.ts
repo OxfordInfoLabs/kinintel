@@ -17,7 +17,8 @@ import * as _ from 'lodash';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../../services/alert.service';
-import * as moment from 'moment';
+import * as moment_ from 'moment';
+const moment = moment_;
 
 @Component({
     selector: 'ki-view-dashboard',

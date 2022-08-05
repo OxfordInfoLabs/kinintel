@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import * as moment from 'moment';
+import * as moment_ from 'moment';
+const moment = moment_;
 import {DashboardService} from '../../../../services/dashboard.service';
 import * as _ from 'lodash';
 

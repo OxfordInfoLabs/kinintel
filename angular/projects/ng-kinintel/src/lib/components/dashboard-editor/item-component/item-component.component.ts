@@ -8,7 +8,9 @@ import {AlertService} from '../../../services/alert.service';
 import {Subject, Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DomSanitizer} from '@angular/platform-browser';
-import * as moment from 'moment';
+import * as moment_ from 'moment';
+
+const moment = moment_;
 import {Router} from '@angular/router';
 import {
     EditDashboardAlertComponent
@@ -363,7 +365,9 @@ export class ItemComponentComponent implements AfterViewInit {
                     });
                 });
                 this.chartData = chartData;
-                this.dashboardItemType.labels = series;
+                this.dashboardItemType.labels = _.uniq(_.map(datasetData, item => {
+                    return item[this.dashboardItemType.xAxis];
+                }));
             }
         }
     }
@@ -520,287 +524,290 @@ export class ItemComponentComponent implements AfterViewInit {
         this.hiddenColumns = {};
 
         return this.evaluateDataset().then(data => {
-                if (Object.keys(this.tableCells).length) {
-                    Object.keys(this.tableCells).forEach(tableCell => {
-                        if (tableCell !== 'column') {
-                            data.allData.map((item, index) => {
+            if (Object.keys(this.tableCells).length) {
+                Object.keys(this.tableCells).forEach(tableCell => {
+                    if (tableCell !== 'column') {
+                        data.allData.map((item, index) => {
 
-                                if (item[tableCell]) {
-                                    const cellData = this.tableCells[tableCell].data;
-                                    switch (this.tableCells[tableCell].type) {
-                                        case 'number':
-                                            const cellNumber = parseFloat(String(item[tableCell]));
-                                            item[tableCell] = {
-                                                cellValue: cellNumber.toFixed(cellData.decimal),
-                                                initialValue: item[tableCell]
-                                            };
-                                            break;
-                                        case 'currency':
-                                            let cellCurrency: any = parseFloat(String(item[tableCell]));
+                            if (item[tableCell]) {
+                                const cellData = this.tableCells[tableCell].data;
+                                switch (this.tableCells[tableCell].type) {
+                                    case 'number':
+                                        const cellNumber = parseFloat(String(item[tableCell]));
+                                        item[tableCell] = {
+                                            cellValue: cellNumber.toFixed(cellData.decimal),
+                                            initialValue: item[tableCell]
+                                        };
+                                        break;
+                                    case 'currency':
+                                        let cellCurrency: any = parseFloat(String(item[tableCell]));
 
-                                            if (cellData.thousandsSeparator && (cellData.currency && cellData.currency.value)) {
-                                                cellCurrency = cellCurrency.toLocaleString('en-GB', {
-                                                    style: 'currency',
-                                                    currency: cellData.currency.value,
-                                                    minimumFractionDigits: cellData.decimal || 0
-                                                });
-                                            } else {
-                                                cellCurrency = cellCurrency.toFixed(cellData.decimal);
-                                                if (cellData.thousandsSeparator) {
-                                                    cellCurrency = Number(cellCurrency).toLocaleString('en-GB', {
-                                                        minimumFractionDigits: cellData.decimal || 0
-                                                    });
-                                                }
-                                                if (cellData.currency && cellData.currency.value) {
-                                                    cellCurrency = `${cellData.currency.symbol}${cellCurrency}`;
-                                                }
-                                            }
-
-                                            item[tableCell] = {cellValue: cellCurrency, initialValue: item[tableCell]};
-                                            break;
-                                        case 'percentage':
-                                            let cellPercent: any = Number(item[tableCell]);
-                                            const formatter = new Intl.NumberFormat('en-GB', {
-                                                style: 'percent',
+                                        if (cellData.thousandsSeparator && (cellData.currency && cellData.currency.value)) {
+                                            cellCurrency = cellCurrency.toLocaleString('en-GB', {
+                                                style: 'currency',
+                                                currency: cellData.currency.value,
                                                 minimumFractionDigits: cellData.decimal || 0
                                             });
-                                            cellPercent = formatter.format(cellPercent);
-
-                                            if (!cellData.thousandsSeparator) {
-                                                cellPercent = cellPercent.replace(',', '');
-                                            }
-
-                                            item[tableCell] = {cellValue: cellPercent, initialValue: item[tableCell]};
-                                            break;
-                                        case 'datetime':
-                                            const dateMoment = moment(item[tableCell]);
-                                            const dateFormat = cellData.dateFormat === 'null' ? '' : cellData.dateFormat;
-                                            const timeFormat = cellData.timeFormat === 'null' ? '' : cellData.timeFormat;
-
-                                            item[tableCell] = {
-                                                cellValue: dateMoment.format(dateFormat + ' ' + timeFormat),
-                                                initialValue: item[tableCell]
-                                            };
-                                            break;
-                                        case 'comparison':
-                                            const comparisonColumn = this.tableCells[tableCell].data.comparisonColumn;
-                                            const initialValue = _.isPlainObject(item[tableCell]) ? item[tableCell].initialValue : item[tableCell];
-                                            const comparisonValue = _.isPlainObject(data.allData[index][comparisonColumn]) ? data.allData[index][comparisonColumn].initialValue : data.allData[index][comparisonColumn];
-                                            let difference: any = Number(initialValue) - Number(comparisonValue);
-                                            let cellValue = `<div class="flex items-center space-between"><span class="font-medium">${initialValue}</span>`;
-                                            if (difference === 0) {
-                                                cellValue += `<span class="ml-1 text-blue-500 font-medium text-lg">&#61;</span>`;
-                                            }
-                                            if (difference > 0) {
-                                                if (cellData.comparisonPercentage) {
-                                                    const compareFormatter = new Intl.NumberFormat('en-GB', {
-                                                        style: 'percent',
-                                                        minimumFractionDigits: cellData.comparisonDecimals || 0
-                                                    });
-                                                    difference = compareFormatter.format(difference / comparisonValue);
-                                                }
-                                                cellValue += `<span class="ml-1 text-green-500 font-medium text-lg">&#8593;</span><span class="text-sm text-green-500">${difference}</span>`;
-                                            }
-                                            if (difference < 0) {
-                                                if (cellData.comparisonPercentage) {
-                                                    const compareFormatter = new Intl.NumberFormat('en-GB', {
-                                                        style: 'percent',
-                                                        minimumFractionDigits: cellData.comparisonDecimals || 0
-                                                    });
-                                                    difference = compareFormatter.format(difference / comparisonValue);
-                                                }
-                                                cellValue += `<span class="ml-1 text-red-500 font-medium text-lg">&#8595;</span><span class="text-sm text-red-500">${difference}</span>`;
-                                            }
-                                            cellValue += `<span class="ml-2 text-xs text-gray-400">from ${comparisonValue}</span></div>`;
-                                            item[tableCell] = {cellValue, initialValue};
-                                            break;
-                                        case 'link':
-                                            let linkValue = item[tableCell];
-                                            let anchor = '';
-                                            if (cellData.linkType === 'custom') {
-                                                const dataItem = data.allData[index] || this.dashboard.layoutSettings.parameters;
-
-                                                linkValue = this.bindParametersInString(linkValue, dataItem);
-                                                // Check if we have any column eg. [[ ]] values needing mapping
-                                                linkValue = this.mapColumnToValue(linkValue, dataItem);
-                                                anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                                    </svg></span></a>`;
-                                            } else if (cellData.linkType === 'dashboard') {
-                                                const params = {};
-                                                const dashboardLink = cellData.dashboardLink;
-                                                const dataItem = data.allData[index] || this.dashboard.layoutSettings.parameters;
-
-                                                Object.keys(cellData.dashboardLinkParams).forEach(paramKey => {
-                                                    let value = this.bindParametersInString(cellData.dashboardLinkParams[paramKey], dataItem);
-                                                    // Check if we have any column eg. [[ ]] values needing mapping
-                                                    value = this.mapColumnToValue(value, dataItem);
-
-                                                    params[paramKey] = value;
-
+                                        } else {
+                                            cellCurrency = cellCurrency.toFixed(cellData.decimal);
+                                            if (cellData.thousandsSeparator) {
+                                                cellCurrency = Number(cellCurrency).toLocaleString('en-GB', {
+                                                    minimumFractionDigits: cellData.decimal || 0
                                                 });
-                                                const urlParams = new URLSearchParams(params).toString();
-                                                linkValue = `${this.router.url.split('/')[0]}/dashboards/view/${dashboardLink.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
-                                                anchor = `<a href="${linkValue}" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                                    </svg></span></a>`;
-                                            } else {
-                                                linkValue = linkValue.includes('http') ? linkValue : `http://${linkValue}`;
-                                                anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                                    </svg></span></a>`;
                                             }
+                                            if (cellData.currency && cellData.currency.value) {
+                                                cellCurrency = `${cellData.currency.symbol}${cellCurrency}`;
+                                            }
+                                        }
 
-                                            item[tableCell] = {
-                                                cellValue: this.sanitizer.bypassSecurityTrustHtml(anchor),
-                                                initialValue: linkValue
-                                            };
-                                            break;
-                                        case 'custom':
-                                            const element: any = document.createElement('div');
-                                            const originalValue = item[tableCell];
-                                            element.innerHTML = this.bindParametersInString(cellData.customText);
+                                        item[tableCell] = {cellValue: cellCurrency, initialValue: item[tableCell]};
+                                        break;
+                                    case 'percentage':
+                                        let cellPercent: any = Number(item[tableCell]);
+                                        const formatter = new Intl.NumberFormat('en-GB', {
+                                            style: 'percent',
+                                            minimumFractionDigits: cellData.decimal || 0
+                                        });
+                                        cellPercent = formatter.format(cellPercent);
 
-                                            const kData: any = {
-                                                dataSet: data.allData
-                                            };
-                                            _.forEach(data.allData[index] || [], (value, key) => {
-                                                kData[key] = value;
+                                        if (!cellData.thousandsSeparator) {
+                                            cellPercent = cellPercent.replace(',', '');
+                                        }
+
+                                        item[tableCell] = {cellValue: cellPercent, initialValue: item[tableCell]};
+                                        break;
+                                    case 'datetime':
+                                        const dateMoment = moment(item[tableCell]);
+                                        const dateFormat = cellData.dateFormat === 'null' ? '' : cellData.dateFormat;
+                                        const timeFormat = cellData.timeFormat === 'null' ? '' : cellData.timeFormat;
+
+                                        item[tableCell] = {
+                                            cellValue: dateMoment.format(dateFormat + ' ' + timeFormat),
+                                            initialValue: item[tableCell]
+                                        };
+                                        break;
+                                    case 'comparison':
+                                        const comparisonColumn = this.tableCells[tableCell].data.comparisonColumn;
+                                        const initialValue = _.isPlainObject(item[tableCell]) ? item[tableCell].initialValue : item[tableCell];
+                                        const comparisonValue = _.isPlainObject(data.allData[index][comparisonColumn]) ? data.allData[index][comparisonColumn].initialValue : data.allData[index][comparisonColumn];
+                                        let difference: any = Number(initialValue) - Number(comparisonValue);
+                                        let cellValue = `<div class="flex items-center space-between"><span class="font-medium">${initialValue}</span>`;
+                                        if (difference === 0) {
+                                            cellValue += `<span class="ml-1 text-blue-500 font-medium text-lg">&#61;</span>`;
+                                        }
+                                        if (difference > 0) {
+                                            if (cellData.comparisonPercentage) {
+                                                const compareFormatter = new Intl.NumberFormat('en-GB', {
+                                                    style: 'percent',
+                                                    minimumFractionDigits: cellData.comparisonDecimals || 0
+                                                });
+                                                difference = compareFormatter.format(difference / comparisonValue);
+                                            }
+                                            cellValue += `<span class="ml-1 text-green-500 font-medium text-lg">&#8593;</span><span class="text-sm text-green-500">${difference}</span>`;
+                                        }
+                                        if (difference < 0) {
+                                            if (cellData.comparisonPercentage) {
+                                                const compareFormatter = new Intl.NumberFormat('en-GB', {
+                                                    style: 'percent',
+                                                    minimumFractionDigits: cellData.comparisonDecimals || 0
+                                                });
+                                                difference = compareFormatter.format(difference / comparisonValue);
+                                            }
+                                            cellValue += `<span class="ml-1 text-red-500 font-medium text-lg">&#8595;</span><span class="text-sm text-red-500">${difference}</span>`;
+                                        }
+                                        cellValue += `<span class="ml-2 text-xs text-gray-400">from ${comparisonValue}</span></div>`;
+                                        item[tableCell] = {cellValue, initialValue};
+                                        break;
+                                    case 'link':
+                                        let linkValue = item[tableCell];
+                                        let anchor = '';
+                                        if (cellData.linkType === 'custom') {
+                                            const dataItem = data.allData[index] || this.dashboard.layoutSettings.parameters;
+
+                                            linkValue = this.bindParametersInString(linkValue, dataItem);
+                                            // Check if we have any column eg. [[ ]] values needing mapping
+                                            linkValue = this.mapColumnToValue(linkValue, dataItem);
+                                            anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                                    </svg></span></a>`;
+                                        } else if (cellData.linkType === 'dashboard') {
+                                            const params = {};
+                                            const dashboardLink = cellData.dashboardLink;
+                                            const dataItem = data.allData[index] || this.dashboard.layoutSettings.parameters;
+
+                                            Object.keys(cellData.dashboardLinkParams).forEach(paramKey => {
+                                                let value = this.bindParametersInString(cellData.dashboardLinkParams[paramKey], dataItem);
+                                                // Check if we have any column eg. [[ ]] values needing mapping
+                                                value = this.mapColumnToValue(value, dataItem);
+
+                                                params[paramKey] = value;
+
                                             });
-                                            const Kinibind = window.Kinibind;
-                                            Kinibind.config = {
-                                                prefix: 'd',
-                                                templateDelimiters: ['[[', ']]']
-                                            };
-                                            const bind = new Kinibind(element, kData);
-                                            const boundHTML = bind.boundContext.els[0].innerHTML;
-                                            item[tableCell] = {
-                                                cellValue: this.sanitizer.sanitize(1, boundHTML),
-                                                initialValue: originalValue
-                                            };
-                                            element.remove();
-                                            break;
-                                        case 'hide':
-                                            this.hiddenColumns[tableCell] = true;
-                                            break;
-                                    }
+                                            const urlParams = new URLSearchParams(params).toString();
+                                            linkValue = `${this.router.url.split('/')[0]}/dashboards/view/${dashboardLink.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
+                                            anchor = `<a href="${linkValue}" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                                    </svg></span></a>`;
+                                        } else {
+                                            linkValue = linkValue.includes('http') ? linkValue : `http://${linkValue}`;
+                                            anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                                    </svg></span></a>`;
+                                        }
+
+                                        item[tableCell] = {
+                                            cellValue: this.sanitizer.bypassSecurityTrustHtml(anchor),
+                                            initialValue: linkValue
+                                        };
+                                        break;
+                                    case 'custom':
+                                        const element: any = document.createElement('div');
+                                        const originalValue = item[tableCell];
+                                        element.innerHTML = this.bindParametersInString(cellData.customText);
+
+                                        const kData: any = {
+                                            dataSet: data.allData
+                                        };
+                                        _.forEach(data.allData[index] || [], (value, key) => {
+                                            kData[key] = value;
+                                        });
+                                        const Kinibind = window.Kinibind;
+                                        Kinibind.config = {
+                                            prefix: 'd',
+                                            templateDelimiters: ['[[', ']]']
+                                        };
+                                        const bind = new Kinibind(element, kData);
+                                        const boundHTML = bind.boundContext.els[0].innerHTML;
+                                        item[tableCell] = {
+                                            cellValue: this.sanitizer.sanitize(1, boundHTML),
+                                            initialValue: originalValue
+                                        };
+                                        element.remove();
+                                        break;
+                                    case 'hide':
+                                        this.hiddenColumns[tableCell] = true;
+                                        break;
                                 }
-                                return item;
-                            });
-                        }
-                    });
-                }
-                this.dataset = data;
-                this.filterFields = _.map(this.dataset.columns, column => {
-                    return {
-                        title: column.title,
-                        name: column.name
-                    };
+                            }
+                            return item;
+                        });
+                    }
                 });
-                if (this.dashboard.layoutSettings.metric) {
-                    this.updateMetricDataValues();
-                }
+            }
+            this.dataset = data;
+            this.filterFields = _.map(this.dataset.columns, column => {
+                return {
+                    title: column.title,
+                    name: column.name
+                };
+            });
+            if (this.dashboard.layoutSettings.metric) {
+                this.updateMetricDataValues();
+            }
 
-                if (this.dashboard.layoutSettings.imageData) {
-                    this.updateImageData();
-                }
+            if (this.dashboard.layoutSettings.imageData) {
+                this.updateImageData();
+            }
 
-                if (Object.keys(this.textData).length) {
-                    this.textData.safeTextData = this.evaluateTextData(this.textData.value);
-                }
+            if (Object.keys(this.textData).length) {
+                this.textData.safeTextData = this.evaluateTextData(this.textData.value);
+            }
 
-                if (Object.keys(this.general).length) {
-                    this.general.evaluatedName = this.general.name ? this.evaluateTextData(this.general.name) : '';
-                    this.general.evaluatedDescription = this.general.description ? this.evaluateTextData(this.general.description) : '';
-                    this.general.evaluatedFooter = this.general.footer ? this.evaluateTextData(this.general.footer) : '';
-                }
+            if (Object.keys(this.general).length) {
+                this.general.evaluatedName = this.general.name ? this.evaluateTextData(this.general.name) : '';
+                this.general.evaluatedDescription = this.general.description ? this.evaluateTextData(this.general.description) : '';
+                this.general.evaluatedFooter = this.general.footer ? this.evaluateTextData(this.general.footer) : '';
+            }
 
-                setTimeout(() => {
-                    const element = document.getElementById(this.itemInstanceKey);
-                    for (const child of Array.from(element.children) as any[]) {
-                        if (child.classList.contains('item-container')) {
-                            this.wordCloud.width = child.clientWidth - 40;
-                            this.wordCloud.height = child.clientHeight - 40;
-                        }
+            setTimeout(() => {
+                const element = document.getElementById(this.itemInstanceKey);
+                for (const child of Array.from(element.children) as any[]) {
+                    if (child.classList.contains('item-container')) {
+                        this.wordCloud.width = child.clientWidth - 40;
+                        this.wordCloud.height = child.clientHeight - 40;
                     }
-                    if (Object.keys(this.wordCloud).length) {
-                        if (this.wordCloud.populationMethod === 'SINGLE') {
-                            const rowData = this.dataset.allData[this.wordCloud.row];
-                            if (rowData) {
-                                const words = _.words(rowData[this.wordCloud.column]);
-                                const count = _.countBy(words, _.identity);
+                }
+                if (Object.keys(this.wordCloud).length) {
+                    if (this.wordCloud.populationMethod === 'SINGLE') {
+                        const rowData = this.dataset.allData[this.wordCloud.row];
+                        if (rowData) {
+                            const words = _.words(rowData[this.wordCloud.column]);
+                            const count = _.countBy(words, _.identity);
 
-                                const max = _.max(_.values(count));
-                                const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 1000;
-
-                                this.wordCloud.data = _.orderBy(_.uniq(words).map(word => {
-                                    return {text: word, value: ((count[word] / max) * _.min([fontSize, 120]))};
-                                }), ['value'], ['desc']).slice(0, 100);
-                            }
-                        } else if (this.wordCloud.populationMethod === 'WHOLE') {
-                            const max = _.maxBy(this.dataset.allData, item => {
-                                return Number(item[this.wordCloud.frequency]);
-                            });
-
+                            const max = _.max(_.values(count));
                             const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 1000;
-                            this.wordCloud.data = _.orderBy(this.dataset.allData.map(item => {
-                                const text = item[this.wordCloud.column];
-                                const textValue = item[this.wordCloud.frequency];
-                                return {text, value: ((Number(textValue) / Number(max.frequency)) * _.min([fontSize, 120]))};
+
+                            this.wordCloud.data = _.orderBy(_.uniq(words).map(word => {
+                                return {text: word, value: ((count[word] / max) * _.min([fontSize, 120]))};
                             }), ['value'], ['desc']).slice(0, 100);
-
                         }
+                    } else if (this.wordCloud.populationMethod === 'WHOLE') {
+                        const max = _.maxBy(this.dataset.allData, item => {
+                            return Number(item[this.wordCloud.frequency]);
+                        });
 
+                        const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 1000;
+                        this.wordCloud.data = _.orderBy(this.dataset.allData.map(item => {
+                            const text = item[this.wordCloud.column];
+                            const textValue = item[this.wordCloud.frequency];
+
+                            return {
+                                text,
+                                value: ((Number(textValue) / Number(max[this.wordCloud.frequency])) * _.min([fontSize, 120]))
+                            };
+                        }), ['value'], ['desc']).slice(0, 100);
                     }
-                }, 0);
+
+                }
+            }, 0);
 
 
-                this.loadingItem = false;
-                this.configureClass = false;
-                this.setChartData();
+            this.loadingItem = false;
+            this.configureClass = false;
+            this.setChartData();
 
-                if (this.dashboard.alertsEnabled) {
-                    if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
-                        if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
-                            if (Array.isArray(this.dashboardDatasetInstance.parameterValues)) {
-                                this.dashboardDatasetInstance.parameterValues = {};
-                            }
-                            _.forEach(this.dashboard.layoutSettings.parameters, parameter => {
-                                this.dashboardDatasetInstance.parameterValues[parameter.name] = parameter.value;
-                            });
+            if (this.dashboard.alertsEnabled) {
+                if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
+                    if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+                        if (Array.isArray(this.dashboardDatasetInstance.parameterValues)) {
+                            this.dashboardDatasetInstance.parameterValues = {};
                         }
-                        const dashboardInstance = _.cloneDeep(this.dashboardDatasetInstance);
-                        dashboardInstance.parameterValues = this.getMappedParams(this.dashboardDatasetInstance);
-                        this.alertService.processAlertsForDashboardDatasetInstance(dashboardInstance)
-                            .then((res: any) => {
-                                if (res && res.length) {
-                                    this.alert = true;
-                                    this.alertData = res;
-                                    if (itemElement) {
-                                        itemElement.classList.add('alert');
-                                        itemElement.parentElement.classList.add('alert');
-                                    }
+                        _.forEach(this.dashboard.layoutSettings.parameters, parameter => {
+                            this.dashboardDatasetInstance.parameterValues[parameter.name] = parameter.value;
+                        });
+                    }
+                    const dashboardInstance = _.cloneDeep(this.dashboardDatasetInstance);
+                    dashboardInstance.parameterValues = this.getMappedParams(this.dashboardDatasetInstance);
+                    this.alertService.processAlertsForDashboardDatasetInstance(dashboardInstance)
+                        .then((res: any) => {
+                            if (res && res.length) {
+                                this.alert = true;
+                                this.alertData = res;
+                                if (itemElement) {
+                                    itemElement.classList.add('alert');
+                                    itemElement.parentElement.classList.add('alert');
                                 }
-                            });
-                    } else {
-                        this.resetAlertData(itemElement);
-                    }
+                            }
+                        });
                 } else {
                     this.resetAlertData(itemElement);
                 }
+            } else {
+                this.resetAlertData(itemElement);
+            }
 
-                const existing = this.dashboardService.dashboardItems.getValue();
-                existing[this.itemInstanceKey] = true;
-                this.dashboardService.dashboardItems.next(existing);
+            const existing = this.dashboardService.dashboardItems.getValue();
+            existing[this.itemInstanceKey] = true;
+            this.dashboardService.dashboardItems.next(existing);
 
-                this.endOfResults = this.dataset.allData.length < this.limit;
+            this.endOfResults = this.dataset.allData.length < this.limit;
 
-                return Promise.resolve(true);
-            }).catch(err => {
-            });
+            return Promise.resolve(true);
+        }).catch(err => {
+        });
     }
 
     private getMappedParams(dashboardDatasetInstance) {

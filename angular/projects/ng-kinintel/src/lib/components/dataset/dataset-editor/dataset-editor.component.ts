@@ -12,7 +12,8 @@ import {
     DatasetAddParameterComponent
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
-import * as moment from 'moment';
+import * as moment_ from 'moment';
+const moment = moment_;
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -432,8 +433,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public summariseData(config?, existingIndex?) {
         const clonedConfig = config ? _.clone(config) : null;
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
-            width: '1200px',
-            height: '675px',
+            width: '1100px',
+            height: '800px',
             data: {
                 availableColumns: this.filterFields,
                 config: config ? config : null
