@@ -37,7 +37,7 @@ module.exports = {
                 'cta': '#3f51b5'
             },
             backgroundColor: {
-                'primary': '#3f51b5',
+                'primary': 'rgba(63 81 181, var(--tw-bg-opacity))',
                 'secondary': '#ff4081',
                 'danger': '#f44336',
                 'success': '#4ec257'
