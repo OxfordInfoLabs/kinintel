@@ -8,7 +8,6 @@
         "declaration": false,
         "downlevelIteration": true,
         "experimentalDecorators": true,
-        "emitDecoratorMetadata": false,
         "moduleResolution": "node",
         "importHelpers": true,
         "paths": {

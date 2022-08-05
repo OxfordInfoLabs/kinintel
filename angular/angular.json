@@ -22,7 +22,6 @@
                         "main": "projects/example/src/main.ts",
                         "polyfills": "projects/example/src/polyfills.ts",
                         "tsConfig": "projects/example/tsconfig.app.json",
-                        "aot": true,
                         "allowedCommonJsDependencies": [
                             "gridstack"
                         ],
@@ -37,7 +36,13 @@
                         ],
                         "scripts": [
                             "./node_modules/kinibind/dist/kinibind.js"
-                        ]
+                        ],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "production": {
@@ -67,7 +72,8 @@
                                 }
                             ]
                         }
-                    }
+                    },
+                    "defaultConfiguration": ""
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
