@@ -222,7 +222,7 @@ export class DocumentDatasourceComponent implements OnInit {
                 this.evaluateDatasource();
             }
 
-            window.location.href = '/document-datasource/' + this.datasourceKey;
+            window.location.href = window.location.href + '/' + this.datasourceKey;
 
         } else {
             await this.datasourceService.updateDatasourceInstance(this.datasourceKey, this.datasource);

@@ -18,6 +18,9 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     @Input() title: string;
     @Input() description: string;
     @Input() exploreText: string;
+    @Input() hideNew: boolean;
+    @Input() newDocumentURL = '/document-datasource';
+    @Input() datasourceURL = '/datasource';
 
     public datasources: any = [];
     public searchText = new BehaviorSubject('');
@@ -69,7 +72,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     }
 
     public explore(datasource) {
-        this.router.navigate(['/datasource'], {fragment: datasource.key});
+        this.router.navigate([this.datasourceURL], {fragment: datasource.key});
         const datasetInstanceSummary = {
             datasetInstanceId: null,
             datasourceInstanceKey: datasource.key,
@@ -91,7 +94,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
             }
         });
         dialogRef.afterClosed().subscribe(res => {
-            this.router.navigate(['/datasource'], {fragment: null});
+            this.router.navigate([this.datasourceURL], {fragment: null});
         });
     }
 
