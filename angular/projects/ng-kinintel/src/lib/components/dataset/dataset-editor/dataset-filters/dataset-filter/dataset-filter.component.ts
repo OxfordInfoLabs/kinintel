@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {MatDialog} from '@angular/material/dialog';
-import {AvailableColumnsComponent} from '../../../dataset-editor/available-columns/available-columns.component';
 import {Subject} from 'rxjs';
 
 @Component({

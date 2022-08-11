@@ -3,7 +3,8 @@ import {Subject} from 'rxjs';
 import {DatasetService} from '../../../services/dataset.service';
 import {DatasourceService} from '../../../services/datasource.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-source-selector-dialog',

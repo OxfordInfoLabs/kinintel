@@ -10,6 +10,9 @@
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "importHelpers": true,
+        "esModuleInterop":true,
+        "allowSyntheticDefaultImports": true,
+        "allowUmdGlobalAccess": true,
         "paths": {
             "ng-kinintel/*": [
                 "projects/ng-kinintel/*",

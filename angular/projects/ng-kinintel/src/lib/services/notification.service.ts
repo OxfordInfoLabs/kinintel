@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import * as _ from 'lodash';
 import {HttpClient} from '@angular/common/http';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
 import {ProjectService} from './project.service';

@@ -3,7 +3,8 @@ import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DatasetService} from '../../services/dataset.service';
 import {DatasourceService} from '../../services/datasource.service';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-data-picker',

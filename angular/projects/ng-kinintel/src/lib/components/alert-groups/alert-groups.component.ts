@@ -3,8 +3,7 @@ import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {ProjectService} from '../../../lib/services/project.service';
 import {AlertService} from '../../../lib/services/alert.service';
-import * as moment_ from 'moment';
-const moment = moment_;
+import moment from 'moment';
 
 @Component({
     selector: 'ki-alert-groups',

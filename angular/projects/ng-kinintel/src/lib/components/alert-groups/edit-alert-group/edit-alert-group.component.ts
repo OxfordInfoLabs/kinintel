@@ -3,7 +3,8 @@ import {NotificationService} from '../../../../lib/services/notification.service
 import {AlertService} from '../../../../lib/services/alert.service';
 import {MatDialog} from '@angular/material/dialog';
 import {EditNotificationGroupComponent} from '../../notification-groups/edit-notification-group/edit-notification-group.component';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({

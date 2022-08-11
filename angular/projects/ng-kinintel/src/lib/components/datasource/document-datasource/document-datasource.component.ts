@@ -8,7 +8,8 @@ import {
     DatasetEditorPopupComponent
 } from '../../dataset/dataset-editor/dataset-editor.component';
 import {MatDialog} from '@angular/material/dialog';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-document-datasource',

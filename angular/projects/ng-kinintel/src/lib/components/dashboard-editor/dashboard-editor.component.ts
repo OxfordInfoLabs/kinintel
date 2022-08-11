@@ -13,7 +13,8 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../services/dashboard.service';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {
     DatasetAddParameterComponent
 } from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
@@ -21,8 +22,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
-import * as moment_ from 'moment';
-const moment = moment_;
+import moment from 'moment';
 
 @Component({
     selector: 'ki-dashboard-editor',

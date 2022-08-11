@@ -12,6 +12,8 @@
         "importHelpers": true,
         "target": "es2020",
         "module": "es2020",
+        "esModuleInterop":true,
+        "allowSyntheticDefaultImports": true,
         "lib": [
             "es2018",
             "dom"

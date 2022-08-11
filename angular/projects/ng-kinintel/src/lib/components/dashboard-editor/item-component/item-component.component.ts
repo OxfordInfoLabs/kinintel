@@ -2,20 +2,19 @@ import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, Vie
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
 import {Subject, Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DomSanitizer} from '@angular/platform-browser';
-import * as moment_ from 'moment';
+import moment from 'moment';
 
-const moment = moment_;
 import {Router} from '@angular/router';
 import {
     EditDashboardAlertComponent
 } from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
-import {GridItemHTMLElement} from 'gridstack';
 
 declare var window: any;
 

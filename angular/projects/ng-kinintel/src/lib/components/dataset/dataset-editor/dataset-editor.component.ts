@@ -1,5 +1,6 @@
 import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy} from '@angular/core';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.component';
@@ -12,8 +13,7 @@ import {
     DatasetAddParameterComponent
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
-import * as moment_ from 'moment';
-const moment = moment_;
+import moment from 'moment';
 
 @Component({
     selector: 'ki-dataset-editor',

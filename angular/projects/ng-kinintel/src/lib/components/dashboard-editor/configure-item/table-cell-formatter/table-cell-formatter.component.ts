@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
-import * as moment_ from 'moment';
-const moment = moment_;
+import moment from 'moment';
 import {DashboardService} from '../../../../services/dashboard.service';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-table-cell-formatter',

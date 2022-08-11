@@ -6,7 +6,8 @@ import {DatasourceService} from '../../../../services/datasource.service';
 import {ProjectService} from '../../../../services/project.service';
 import {TagService} from '../../../../services/tag.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {DatasetEditorComponent} from '../../dataset-editor/dataset-editor.component';
 import {MatStepper} from '@angular/material/stepper';
 
