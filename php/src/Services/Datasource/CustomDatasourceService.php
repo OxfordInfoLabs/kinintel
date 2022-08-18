@@ -8,11 +8,14 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
 use Kiniauth\ValueObjects\Upload\FileUpload;
 use Kiniauth\ValueObjects\Upload\UploadedFile;
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
@@ -108,10 +111,12 @@ class CustomDatasourceService {
 
         $fields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
+            new Field("section", "Section", null, Field::TYPE_STRING, true),
             new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
             new Field("phrase_length", "Phrase Length", null, Field::TYPE_INTEGER),
             new Field("frequency", "Frequency", null, Field::TYPE_INTEGER)
         ];
+
         $indexInstanceKey = "index_" . $newDatasourceKey;
         $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $documentDatasourceConfig->getTitle() . " Index", "sqldatabase", [
             "source" => "table",
@@ -123,6 +128,19 @@ class CustomDatasourceService {
         $indexDatasourceInstance->setProjectKey($projectKey);
 
         $this->datasourceService->saveDataSourceInstance($indexDatasourceInstance);
+
+        if (is_array($config)) {
+            /**
+             * @var ObjectBinder $binder
+             */
+            $binder = Container::instance()->get(ObjectBinder::class);
+            $config = $binder->bindFromArray($config);
+        }
+
+        if ($config->getCustomDocumentParser()) {
+            $parser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
+            $parser->onDocumentDatasourceCreate($config);
+        }
 
         return $newDatasourceKey;
     }

@@ -24,12 +24,15 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\Services\Util\TextAnalysis\DocumentTextExtractor;
 use Kinintel\Services\Util\TextAnalysis\PhraseExtractor;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Document\CustomDocumentData;
+use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -377,6 +380,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
 
+
         $this->assertTrue($this->bulkDataManager->methodWasCalled("replace", ["test_data", [
             [
                 "filename" => "test.txt",
@@ -385,11 +389,13 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "file_type" => "text/plain",
                 "phrases" => [
                     [
+                        "section" => "Main",
                         "phrase" => "Hello",
                         "frequency" => 1,
                         "phrase_length" => 1
                     ],
                     [
+                        "section" => "Main",
                         "phrase" => "World",
                         "frequency" => 2,
                         "phrase_length" => 1
@@ -407,18 +413,21 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         // Check replace operation was made
         $this->assertTrue($mockIndexDatasource->methodWasCalled("update", [
             new ArrayTabularDataset([
+                new Field("section"),
                 new Field("phrase"),
                 new Field("frequency"),
                 new Field("phrase_length"),
                 new Field("document_file_name")
             ], [
                 [
+                    "section" => "Main",
                     "phrase" => "Hello",
                     "frequency" => 1,
                     "phrase_length" => 1,
                     "document_file_name" => "test.txt"
                 ],
                 [
+                    "section" => "Main",
                     "phrase" => "World",
                     "frequency" => 2,
                     "phrase_length" => 1,
@@ -434,6 +443,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
     public function testIfCustomStopwordsConfigSuppliedCustomStopwordsAreLoadedFromDatasourceColumn() {
+
         $previousDatasourceService = Container::instance()->get(DatasourceService::class);
         // Set up mock objects for subordinate datasources
         $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
@@ -475,7 +485,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $documentDatasource = new DocumentDatasource(
-            new DocumentDatasourceConfig("test_data", false, false, true, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 1, 1, true, "stopwords_ds", "word"),
+            new DocumentDatasourceConfig("test_data", false, false, true, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 1, 1),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
 
@@ -505,11 +515,13 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "file_type" => "text/plain",
                 "phrases" => [
                     [
+                        "section" => "Main",
                         "phrase" => "Hello",
                         "frequency" => 1,
                         "phrase_length" => 1,
                     ],
                     [
+                        "section" => "Main",
                         "phrase" => "World",
                         "frequency" => 2,
                         "phrase_length" => 1,
@@ -520,5 +532,193 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         Container::instance()->set(DatasourceService::class, $previousDatasourceService);
     }
+
+
+    public function testIfCustomDocumentParserConfiguredForDatasourceAdditionalFieldsAreMergedOnInstanceSave() {
+
+        $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
+        Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
+        Container::instance()->set(get_class($mockDocumentParser), $mockDocumentParser);
+
+        $mockDocumentParser->returnValue("getAdditionalDocumentFields", [
+            new Field("extra1"),
+            new Field("extra2")
+        ]);
+
+        $documentDatasource = new DocumentDatasource(
+            new DocumentDatasourceConfig("test_data", false, false, true, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 1, 1, "test"),
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+
+        $existingMetaData = new TableMetaData("test_data", [
+            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("imported_date", "DATETIME"),
+            new TableColumn("file_size", "INTEGER"),
+            new TableColumn("file_type", "VARCHAR"),
+        ]);
+
+        $this->databaseConnection->returnValue("getTableMetaData", $existingMetaData, ["test_data"]);
+
+
+        // Call the instance save function
+        $documentDatasource->onInstanceSave();
+
+
+        $newMetaData = new TableMetaData("test_data", [
+            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("imported_date", "DATETIME"),
+            new TableColumn("file_size", "INTEGER"),
+            new TableColumn("file_type", "VARCHAR"),
+            new TableColumn("extra1", "VARCHAR"),
+            new TableColumn("extra2", "VARCHAR"),
+        ]);
+
+
+        $this->assertTrue($this->tableDDLGenerator->methodWasCalled("generateTableModifySQL", [
+            $existingMetaData,
+            $newMetaData,
+            $this->databaseConnection
+        ]));
+
+
+    }
+
+
+    public function testIfCustomDocumentParserConfiguredForDataSourceParseDocumentMethodIsCalledOnParserInsteadOfStandardIndexAndDataMergedIntoRow() {
+
+        $previousDatasourceService = Container::instance()->get(DatasourceService::class);
+        // Set up mock objects for subordinate datasources
+        $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+        Container::instance()->set(DatasourceService::class, $mockDatasourceService);
+
+        $mockIndexDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasourceService->returnValue("getDataSourceInstanceByKey", $mockIndexDatasourceInstance, [
+            "index_test_data"
+        ]);
+
+        $mockIndexDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockIndexDatasourceInstance->returnValue("returnDataSource", $mockIndexDatasource);
+
+        // Ensure existing data is resolved
+        $mockIndexDatasource->returnValue("applyTransformation", $mockIndexDatasource);
+
+
+        $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
+        Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
+        Container::instance()->set(get_class($mockDocumentParser), $mockDocumentParser);
+
+        $mockDocumentParser->returnValue("getAdditionalDocumentFields", [
+            new Field("extra1"),
+            new Field("extra2")
+        ]);
+
+        $documentDatasourceConfig = new DocumentDatasourceConfig("test_data", false, false, false, [], 1, 3, "test");
+
+        $documentDatasource = new DocumentDatasource($documentDatasourceConfig,
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+
+        $mockDocumentParser->returnValue("parseDocument", new CustomDocumentData([
+            "extra1" => "BINGO",
+            "extra2" => "BONGO"
+        ], [
+            "Summary" => [
+                new Phrase("hello world", 3, 2),
+                new Phrase("hello", 3, 1),
+                new Phrase("world", 3, 1)
+            ],
+            "Main" => [
+                new Phrase("our world", 3, 2),
+                new Phrase("our", 3, 1),
+                new Phrase("world", 3, 1)
+            ]
+        ]), [
+            $documentDatasourceConfig, "hello test", null
+        ]);
+
+
+        $dataset = new ArrayTabularDataset([new Field("filename"), new Field("documentSource"), new Field("file_type")], [["filename" => "test.txt", "documentSource" => "hello test", "file_type" => "application/text"]]);
+
+        $documentDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
+
+        $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("replace", ["test_data", [
+            [
+                "filename" => "test.txt",
+                "imported_date" => date("Y-m-d H:i:s"),
+                "file_size" => 10,
+                "file_type" => "application/text",
+                "extra1" => "BINGO",
+                "extra2" => "BONGO",
+                "phrases" => [
+                    [
+                        "section" => "Summary",
+                        "phrase" => "hello world",
+                        "frequency" => 3,
+                        "phrase_length" => 2
+                    ],
+                    [
+                        "section" => "Summary",
+                        "phrase" => "hello",
+                        "frequency" => 3,
+                        "phrase_length" => 1
+                    ],
+                    [
+                        "section" => "Summary",
+                        "phrase" => "world",
+                        "frequency" => 3,
+                        "phrase_length" => 1
+                    ],
+                    [
+                        "section" => "Main",
+                        "phrase" => "our world",
+                        "frequency" => 3,
+                        "phrase_length" => 2
+                    ],
+                    [
+                        "section" => "Main",
+                        "phrase" => "our",
+                        "frequency" => 3,
+                        "phrase_length" => 1
+                    ],
+                    [
+                        "section" => "Main",
+                        "phrase" => "world",
+                        "frequency" => 3,
+                        "phrase_length" => 1
+                    ]
+                ]
+            ]
+        ], ["filename", "imported_date", "file_size", "file_type", "extra1", "extra2"]]));
+
+
+        Container::instance()->set(DatasourceService::class, $previousDatasourceService);
+
+    }
+
+
+    public function testIfCustomParserConfiguredForDataSourceUpdatableMappedFieldsAreMergedIntoCoreUpdateConfig() {
+
+        $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
+        Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
+        Container::instance()->set(get_class($mockDocumentParser), $mockDocumentParser);
+
+        $mockDocumentParser->returnValue("getAdditionalDocumentUpdatableMappedFields", [
+            new UpdatableMappedField("child1", "test_child"),
+            new UpdatableMappedField("child2", "test_child2")
+        ]);
+
+        $documentDatasource = new DocumentDatasource(
+            new DocumentDatasourceConfig("test_data", false, false, true, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 1, 1, "test"),
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+        $documentDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
+
+        $this->assertEquals(3, sizeof($documentDatasource->getUpdateConfig()->getMappedFields()));
+
+
+    }
+
 
 }

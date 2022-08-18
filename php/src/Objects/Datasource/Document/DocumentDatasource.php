@@ -17,6 +17,7 @@ use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\Services\Util\TextAnalysis\DocumentTextExtractor;
 use Kinintel\Services\Util\TextAnalysis\PhraseExtractor;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -41,11 +42,19 @@ class DocumentDatasource extends SQLDatabaseDatasource {
     }
 
     public function getUpdateConfig() {
-        return new DatasourceUpdateConfig([], $this->getConfig()->isIndexContent() ? [
+
+        $updatableMappedFields = $this->getConfig()->isIndexContent() || $this->getConfig()->getCustomDocumentParser() ? [
             new UpdatableMappedField("phrases", "index_" . $this->getInstanceInfo()->getKey(), [
                 "filename" => "document_file_name"
             ])
-        ] : []);
+        ] : [];
+
+        if ($this->getConfig()->getCustomDocumentParser()) {
+            $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $this->getConfig()->getCustomDocumentParser());
+            $updatableMappedFields = array_merge($updatableMappedFields, $customDocumentParser->getAdditionalDocumentUpdatableMappedFields() ?? []);
+        }
+
+        return new DatasourceUpdateConfig([], $updatableMappedFields);
     }
 
 
@@ -60,6 +69,10 @@ class DocumentDatasource extends SQLDatabaseDatasource {
      */
     public function update($dataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
 
+        /** @var DocumentDatasourceConfig $config */
+        $config = $this->getConfig();
+
+
         $newRows = [];
         $fields = [
             new Field("filename"),
@@ -67,8 +80,23 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             new Field("file_size"),
             new Field("file_type")
         ];
-        /** @var DocumentDatasourceConfig $config */
-        $config = $this->getConfig();
+
+        // Grab custom document parser and merge fields if necessary
+
+        /**
+         * @var CustomDocumentParser $customDocumentParser
+         */
+        $customDocumentParser = null;
+        if ($config->getCustomDocumentParser()) {
+            $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
+            $fields = array_merge($fields, $customDocumentParser->getAdditionalDocumentFields());
+
+            $additionalUpdatableMappedFields = $customDocumentParser->getAdditionalDocumentUpdatableMappedFields();
+            $fields = array_merge($fields, array_map(function ($updatableField) {
+                return new Field($updatableField->getFieldName());
+            }, $additionalUpdatableMappedFields ?? []));
+        }
+
 
         if ($config->isStoreText()) {
             $fields[] = new Field("original_text");
@@ -78,9 +106,10 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("original_link");
         }
 
-        if ($config->isIndexContent()) {
+        if ($config->isIndexContent() || $config->getCustomDocumentParser()) {
             $fields[] = new Field("phrases");
         }
+
 
         foreach ($config->getStopWords() as $stopWord) {
 
@@ -176,7 +205,32 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     }
                 }
 
-                if ($config->isIndexContent()) {
+                // If we have a custom document parser, use this instead of the built in.
+                if ($customDocumentParser) {
+                    $customDocumentData = $customDocumentParser->parseDocument($config, $row["documentSource"], $row["documentFilePath"]);
+
+                    // Merge in any additional document data
+                    $mergeRowData = $customDocumentData->getAdditionalDocumentData() ?? [];
+                    $newRow = array_merge($newRow, $mergeRowData);
+
+                    // Add any phrases
+                    $indexedPhrases = $customDocumentData->getAllPhrasesIndexedBySection();
+                    $phrases = [];
+                    foreach ($indexedPhrases as $section => $sectionPhrases) {
+
+                        $sectionPhraseData = array_map(function ($phrase) use ($section) {
+                            return ["section" => $section, "phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
+                        }, $sectionPhrases ?? []);
+
+                        $phrases = array_merge($phrases, $sectionPhraseData);
+                    }
+
+                    if (sizeof($phrases) > 0) {
+                        $newRow["phrases"] = $phrases;
+                    }
+
+
+                } else if ($config->isIndexContent()) {
                     /** @var PhraseExtractor $phraseExtractor */
                     $phraseExtractor = Container::instance()->get(PhraseExtractor::class);
 
@@ -184,7 +238,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
                     /** @var Phrase $phrase */
                     $newRow["phrases"] = array_map(function ($phrase) {
-                        return ["phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
+                        return ["section" => "Main", "phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
                     }, $phrases ?? []);
 
                 }
@@ -222,6 +276,11 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
         if ($config->isStoreText()) {
             $fields[] = new Field('original_text', 'Original Text', null, Field::TYPE_LONG_STRING);
+        }
+
+        if ($config->getCustomDocumentParser()) {
+            $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
+            $fields = array_merge($fields, $customDocumentParser->getAdditionalDocumentFields());
         }
 
         // Update fields with new set.
