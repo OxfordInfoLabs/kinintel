@@ -8,7 +8,8 @@ import {DashboardService} from '../../services/dashboard.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import {MatDialog} from '@angular/material/dialog';
 import {MetadataComponent} from '../metadata/metadata.component';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-dashboards',

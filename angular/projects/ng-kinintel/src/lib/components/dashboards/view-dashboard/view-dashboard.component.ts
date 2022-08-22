@@ -13,11 +13,12 @@ import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from '../../dashboard-editor/item-component/item-component.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DashboardService} from '../../../services/dashboard.service';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../../services/alert.service';
-import * as moment from 'moment';
+import moment_ from 'moment';
 
 @Component({
     selector: 'ki-view-dashboard',
@@ -45,6 +46,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() sidenavService: any;
     @Input() dashboardId: number;
     @Input() gridOnly = false;
+    @Input() parameters: any;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -110,6 +112,10 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         if (!this.alertService) {
             this.alertService = this.kiAlertService;
+        }
+
+        if (this.parameters) {
+            this.queryParams = this.parameters;
         }
 
         this.route.queryParams.subscribe(params => {

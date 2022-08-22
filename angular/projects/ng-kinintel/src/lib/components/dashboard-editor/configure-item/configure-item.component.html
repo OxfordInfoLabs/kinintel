@@ -6,9 +6,7 @@
         <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
             <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
-                    <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
-                        Documentation
-                    </h2>
+                    <div></div>
                     <div class="ml-3 flex h-7 items-center">
                         <button type="button" (click)="openSide.next(false)"
                                 class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none">
@@ -24,7 +22,7 @@
                 </div>
             </div>
             <div class="relative flex-1 px-4 sm:px-6">
-                <ki-html-documentation></ki-html-documentation>
+                <ki-html-documentation [columns]="docColumns"></ki-html-documentation>
             </div>
         </div>
     </div>

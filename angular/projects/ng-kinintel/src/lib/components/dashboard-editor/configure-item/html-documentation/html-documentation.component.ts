@@ -1,12 +1,17 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-html-documentation',
     templateUrl: './html-documentation.component.html',
     styleUrls: ['./html-documentation.component.sass']
 })
-export class HtmlDocumentationComponent implements OnInit {
+export class HtmlDocumentationComponent implements OnInit, OnDestroy {
 
+    @Input() columns: Subject<any>;
+
+    public availableColumns: any = [];
+    public showData = false;
     public Object = Object;
     public documentation = [
         {
@@ -64,33 +69,6 @@ export class HtmlDocumentationComponent implements OnInit {
             ]
         },
         {
-            title: 'Data Access',
-            description: 'Access the underlying data via exposed variables.',
-            data: [
-                {
-                    description: 'Access top level parameters.',
-                    classes: {
-                        Variable: '{{parameterName}}',
-                        Notes: 'Access the value of parameters defined in the dataset.'
-                    }
-                },
-                {
-                    description: 'Access the whole dataset.',
-                    classes: {
-                        Variable: '[[dataSet]]',
-                        Notes: 'The whole dataset can be access via the "dataSet" variable'
-                    }
-                },
-                {
-                    description: 'Access first row field values',
-                    classes: {
-                        Variable: '[[fieldName]]',
-                        Notes: 'Each column from the first row can be accessed using the column name'
-                    }
-                }
-            ]
-        },
-        {
             title: 'Dynamic Templating',
             description: 'Attribute and template functionality for iterating and conditioning',
             data: [
@@ -123,6 +101,17 @@ export class HtmlDocumentationComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        if (this.columns) {
+            this.columns.subscribe(columns => {
+                this.availableColumns = columns;
+            });
+        }
+    }
+
+    ngOnDestroy(): void {
+        if (this.columns) {
+            this.columns.unsubscribe();
+        }
     }
 
 }

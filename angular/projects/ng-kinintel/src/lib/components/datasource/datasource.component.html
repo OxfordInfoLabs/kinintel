@@ -8,7 +8,7 @@
                 </p>
             </div>
         </div>
-        <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="isProjectAdmin">
+        <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="isProjectAdmin && !hideNew">
             <button mat-flat-button color="primary" [matMenuTriggerFor]="create">
                 Import Data
                 <mat-icon>expand_more</mat-icon>
@@ -17,7 +17,7 @@
                 <button mat-menu-item [routerLink]="['/import-data']">
                     New Tabular Datasource
                 </button>
-                <button mat-menu-item [routerLink]="['/document-datasource']">
+                <button mat-menu-item [routerLink]="[newDocumentURL]">
                     New Document Datasource
                 </button>
             </mat-menu>
@@ -79,7 +79,7 @@
                                             Edit
                                         </button>
                                         <button mat-button color="primary" *ngIf="element.type === 'document'"
-                                                [routerLink]="['/document-datasource', element.key]">
+                                                [routerLink]="[newDocumentURL, element.key]">
                                             Edit
                                         </button>
                                         <div class="divider"></div>

@@ -1,5 +1,6 @@
 import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy} from '@angular/core';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.component';
@@ -12,7 +13,7 @@ import {
     DatasetAddParameterComponent
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -432,8 +433,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public summariseData(config?, existingIndex?) {
         const clonedConfig = config ? _.clone(config) : null;
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
-            width: '1200px',
-            height: '675px',
+            width: '1100px',
+            height: '800px',
             data: {
                 availableColumns: this.filterFields,
                 config: config ? config : null

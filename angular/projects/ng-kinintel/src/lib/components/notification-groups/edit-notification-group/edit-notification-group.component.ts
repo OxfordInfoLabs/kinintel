@@ -6,7 +6,8 @@ import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {UserService} from 'ng-kiniauth';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({

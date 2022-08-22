@@ -39,6 +39,12 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
 
 
     /**
+     * @var string
+     */
+    private $customDocumentParser;
+
+
+    /**
      * @param string $tableName
      * @param boolean $storeOriginal
      * @param string $storeText
@@ -46,14 +52,17 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
      * @param StopWord[] $stopWords
      * @param integer $minPhraseLength
      * @param integer $maxPhraseLength
+     * @param string $customDocumentParser
      */
-    public function __construct($tableName = "", $storeOriginal = false, $storeText = false, $indexContent = false, $stopWords = [], $minPhraseLength = 1, $maxPhraseLength = 1) {
+    public function __construct($tableName = "", $storeOriginal = false, $storeText = false, $indexContent = false, $stopWords = [], $minPhraseLength = 1, $maxPhraseLength = 1,
+                                $customDocumentParser = null) {
         $this->storeOriginal = $storeOriginal;
         $this->storeText = $storeText;
         $this->indexContent = $indexContent;
         $this->stopWords = $stopWords;
         $this->minPhraseLength = $minPhraseLength;
         $this->maxPhraseLength = $maxPhraseLength;
+        $this->customDocumentParser = $customDocumentParser;
 
         parent::__construct(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tableName);
     }
@@ -140,6 +149,20 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
      */
     public function setStopWords($stopWords) {
         $this->stopWords = $stopWords;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomDocumentParser() {
+        return $this->customDocumentParser;
+    }
+
+    /**
+     * @param string $customDocumentParser
+     */
+    public function setCustomDocumentParser($customDocumentParser) {
+        $this->customDocumentParser = $customDocumentParser;
     }
 
 

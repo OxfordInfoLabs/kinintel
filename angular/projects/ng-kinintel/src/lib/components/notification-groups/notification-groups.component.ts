@@ -5,7 +5,8 @@ import {EditNotificationGroupComponent} from '../notification-groups/edit-notifi
 import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-notification-groups',

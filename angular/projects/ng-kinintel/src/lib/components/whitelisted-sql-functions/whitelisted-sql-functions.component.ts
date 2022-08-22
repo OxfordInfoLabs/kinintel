@@ -1,7 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {DatasetService} from '../../services/dataset.service';
 import {BehaviorSubject} from 'rxjs';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-whitelisted-sql-functions',

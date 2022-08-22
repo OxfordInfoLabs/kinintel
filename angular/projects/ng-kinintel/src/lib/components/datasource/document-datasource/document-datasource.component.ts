@@ -8,7 +8,8 @@ import {
     DatasetEditorPopupComponent
 } from '../../dataset/dataset-editor/dataset-editor.component';
 import {MatDialog} from '@angular/material/dialog';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-document-datasource',
@@ -221,7 +222,7 @@ export class DocumentDatasourceComponent implements OnInit {
                 this.evaluateDatasource();
             }
 
-            window.location.href = '/document-datasource/' + this.datasourceKey;
+            window.location.href = window.location.href + '/' + this.datasourceKey;
 
         } else {
             await this.datasourceService.updateDatasourceInstance(this.datasourceKey, this.datasource);

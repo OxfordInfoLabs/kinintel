@@ -2,14 +2,15 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {SourceSelectorDialogComponent} from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
 import {DashboardService} from '../../../services/dashboard.service';
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 import chroma from 'chroma-js';
 import {DatasetService} from '../../../services/dataset.service';
 import {EditDashboardAlertComponent} from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 import {DatasetFilterComponent} from '../../dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
 import {Router} from '@angular/router';
 import {DatasourceService} from '../../../services/datasource.service';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 
 @Component({
     selector: 'ki-configure-item',
@@ -107,6 +108,7 @@ export class ConfigureItemComponent implements OnInit {
     public openSide = new BehaviorSubject(false);
     public dataset: any;
     public _ = _;
+    public docColumns = new Subject();
 
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -175,6 +177,7 @@ export class ConfigureItemComponent implements OnInit {
             if (open) {
                 document.getElementById('sidebarWrapper2').classList.add('z-20');
                 document.getElementById('sidebarWrapper2').classList.remove('-z-10');
+                this.docColumns.next(this.filterFields);
             } else {
                 setTimeout(() => {
                     document.getElementById('sidebarWrapper2').classList.add('-z-10');
@@ -457,7 +460,9 @@ export class ConfigureItemComponent implements OnInit {
                     });
                 });
                 this.chartData = chartData;
-                this.dashboardItemType.labels = series;
+                this.dashboardItemType.labels = _.uniq(_.map(this.dataset.allData, item => {
+                    return item[this.dashboardItemType.xAxis];
+                }));
             }
         }
     }
