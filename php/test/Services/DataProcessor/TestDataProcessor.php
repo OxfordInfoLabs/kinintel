@@ -4,6 +4,7 @@
 namespace Kinintel\Test\Services\DataProcessor;
 
 
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Services\DataProcessor\DataProcessor;
 
 class TestDataProcessor implements DataProcessor {
@@ -15,7 +16,11 @@ class TestDataProcessor implements DataProcessor {
         return TestDataProcessorConfig::class;
     }
 
-    public function process($config = null) {
-        $this->processedConfig = $config;
+    /**
+     * @param DataProcessorInstance $instance
+     * @return void
+     */
+    public function process($instance) {
+        $this->processedConfig = $instance->returnConfig();
     }
 }

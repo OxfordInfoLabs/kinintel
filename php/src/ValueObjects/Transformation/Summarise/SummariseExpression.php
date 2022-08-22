@@ -22,7 +22,7 @@ class SummariseExpression {
     private $expressionType;
 
     /**
-     * Used to qualify an expression type above
+     * Used to qualify an expression type above if not custom
      *
      * @var string
      */
@@ -36,7 +36,7 @@ class SummariseExpression {
     private $customExpression;
 
     /**
-     * Used to set a custom label
+     * Used to set a custom label - required if type is custom
      *
      * @var string
      */

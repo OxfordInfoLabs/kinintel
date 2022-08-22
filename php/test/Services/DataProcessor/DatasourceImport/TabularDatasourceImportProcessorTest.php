@@ -7,6 +7,7 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\UnsupportedDatasetException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -72,9 +73,10 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ]);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
 
         try {
-            $this->processor->process($config);
+            $this->processor->process($instance);
             $this->fail("Should have thrown here");
         } catch (UnsupportedDatasetException $e) {
             $this->assertTrue(true);
@@ -103,9 +105,10 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ]);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
 
         try {
-            $this->processor->process($config);
+            $this->processor->process($instance);
             $this->fail("Should have thrown here");
         } catch (DatasourceNotUpdatableException $e) {
             $this->assertTrue(true);
@@ -144,7 +147,8 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             new TargetDatasource("target")
         ]);
 
-        $this->processor->process($config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
+        $this->processor->process($instance);
 
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [
@@ -211,8 +215,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
         ], ["source1", "source2"]);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
 
-        $this->processor->process($config);
+        $this->processor->process($instance);
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [
             new ArrayTabularDataset([new Field("bong")], [
@@ -266,8 +271,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
         ], [], $mockSourceInstance);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
 
-        $this->processor->process($config);
+        $this->processor->process($instance);
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [
             new ArrayTabularDataset([new Field("bong")], [
@@ -313,10 +319,10 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ], [], null, 1, 1);
-
+        $instance = new DataProcessorInstance("no","need","for these", $config);
 
         $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService);
-        $processor->process($config);
+        $processor->process($instance);
 
         // Expect 2 independent calls
         $this->assertTrue($mockTarget->methodWasCalled("update", [
@@ -375,8 +381,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                 new Field("shoeSize")
             ])
         ]);
+        $instance = new DataProcessorInstance("no","need","for these", $config);
 
-        $this->processor->process($config);
+        $this->processor->process($instance);
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [
             new ArrayTabularDataset([new Field("name", "Title"),
@@ -438,8 +445,9 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                 new Field("shoeSize")
             ])
         ]);
+        $instance = new DataProcessorInstance("no","need","for these", $config);
 
-        $this->processor->process($config);
+        $this->processor->process($instance);
 
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [
@@ -518,7 +526,8 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->processor->process($config);
+        $instance = new DataProcessorInstance("no","need","for these", $config);
+        $this->processor->process($instance);
 
 
         $this->assertTrue($mockTarget->methodWasCalled("update", [

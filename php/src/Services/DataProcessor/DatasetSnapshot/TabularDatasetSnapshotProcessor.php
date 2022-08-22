@@ -9,6 +9,7 @@ use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\DataProcessor\DataProcessor;
@@ -69,9 +70,10 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     /**
      * Process this snapshot
      *
-     * @param TabularDatasetSnapshotProcessorConfiguration $config
+     * @param DataProcessorInstance $instance
      */
-    public function process($config = null) {
+    public function process($instance) {
+        $config = $instance->getConfig();
 
         // Read the source dataset instance
         $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
@@ -134,6 +136,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
      * @return DatasourceInstance
      */
     private function getDatasourceInstance($instanceKey, $accountId, $projectKey) {
+        //TODO be refactored
+
         // Do a check to see if the target datasource exists
         try {
             $dataSourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);

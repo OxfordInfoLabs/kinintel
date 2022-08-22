@@ -10,5 +10,17 @@
       "source": "table",
       "tableName": "test_account_datasource"
     }
+  },
+  {
+    "accountId": 1,
+    "projectKey": "project1",
+    "key": "wordindexdatasource",
+    "title": "Word Index",
+    "type": "sqldatabase",
+    "credentialsKey": "maindb",
+    "config": {
+      "source": "table",
+      "tableName": "test_word_index"
+    }
   }
 ]

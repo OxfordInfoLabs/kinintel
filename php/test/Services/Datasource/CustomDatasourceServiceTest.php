@@ -2,6 +2,7 @@
 
 namespace Kinintel\Test\Services\Datasource;
 
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -12,12 +13,17 @@ use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
 include_once "autoloader.php";
 
-class CustomDatasourceServiceTest extends TestBase {
+class CustomDatasourceServiceTest extends TestBase
+{
 
     /**
      * @var MockObject
@@ -33,12 +39,14 @@ class CustomDatasourceServiceTest extends TestBase {
     /**
      * @return void
      */
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->customDatasourceService = new CustomDatasourceService($this->datasourceService);
     }
 
-    public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject() {
+    public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject()
+    {
 
 
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
@@ -93,7 +101,8 @@ class CustomDatasourceServiceTest extends TestBase {
     }
 
 
-    public function testIfCustomDataSourceCreationFailsInstanceIsDeleted() {
+    public function testIfCustomDataSourceCreationFailsInstanceIsDeleted()
+    {
 
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
             new Field("name"),
@@ -121,6 +130,70 @@ class CustomDatasourceServiceTest extends TestBase {
             ]));
         }
 
+
+    }
+
+    public function testCanCreateDocumentDatasourceInstanceAndIndexDatasourceInstance()
+    {
+        $fields = [
+            new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
+            new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
+            new Field("phrase_length", "Phrase Length", null, Field::TYPE_INTEGER),
+            new Field("frequency", "Frequency", null, Field::TYPE_INTEGER)
+        ];
+
+        $documentDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "document_data_set_4_" . date("U"),
+            "storeOriginal" => true, "storeText" => true, "indexContent" => true];
+        $documentIndexDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "index_document_data_set_4_" . date("U"),
+            "source" => "table", "columns" => $fields];
+
+        $expectedInstance = new DatasourceInstance("document_data_set_4_" . date("U"), "TheBestTitle", "document",
+            $documentDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
+        $expectedIndexInstance = new DatasourceInstance("index_document_data_set_4_" . date("U"), "TheBestTitle Index",
+            "sqldatabase", $documentIndexDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
+
+        $expectedInstance->setAccountId(4);
+        $expectedInstance->setProjectKey("theBestKey");
+
+        $expectedIndexInstance->setAccountId(4);
+        $expectedIndexInstance->setProjectKey("theBestKey");
+
+        $updateConfig = new DatasourceConfigUpdate("TheBestTitle", $documentDatasourceConfig);
+
+        $expectedInstanceKey = $this->customDatasourceService->createDocumentDatasourceInstance($updateConfig, "theBestKey", 4);
+
+        $this->assertEquals($expectedInstance, $this->datasourceService->getMethodCallHistory("saveDataSourceInstance")[0][0]);
+        $this->assertEquals($expectedIndexInstance, $this->datasourceService->getMethodCallHistory("saveDataSourceInstance")[1][0]);
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [$expectedInstance]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [$expectedIndexInstance]));
+        $this->assertEquals("document_data_set_4_" . date("U"), $expectedInstanceKey);
+    }
+
+    public function testCanCreateTabularSnapshotDatasourceInstance()
+    {
+
+        $returnInstance = $this->customDatasourceService->createTabularSnapshotDatasourceInstance("My Test Instance",
+            [new Field("Field1"), new Field("Field2")], "dummydummy", 53
+        );
+
+        $this->assertEquals("snapshot_data_set_53_" . date("U"), $returnInstance->getKey());
+
+        $expectedInstance = new DatasourceInstance("snapshot_data_set_53_" . date("U"), "My Test Instance",
+            "snapshot", [
+                "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
+                "tableName" => "snapshot_data_set_53_" . date("U"),
+                "columns" => [new Field("Field1"), new Field("Field2")]
+            ], "dataset_snapshot");
+        $expectedInstance->setProjectKey("dummydummy");
+        $expectedInstance->setAccountId(53);
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $expectedInstance
+        ]));
+
+        $this->assertEquals($expectedInstance, $returnInstance);
 
     }
 

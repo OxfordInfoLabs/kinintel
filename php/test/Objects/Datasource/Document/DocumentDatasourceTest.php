@@ -5,14 +5,11 @@ namespace Kinintel\Objects\Datasource\Document;
 
 use Kiniauth\Objects\Attachment\AttachmentSummary;
 use Kiniauth\Services\Attachment\AttachmentService;
-use Kiniauth\Services\Attachment\AttachmentStorage;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
-use Kinikit\MVC\ContentSource\FileContentSource;
 use Kinikit\Persistence\Database\BulkData\BulkDataManager;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
@@ -24,17 +21,16 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\Services\Util\TextAnalysis\DocumentTextExtractor;
-use Kinintel\Services\Util\TextAnalysis\PhraseExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\PhraseExtractor;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
-use Kinintel\ValueObjects\Util\TextAnalysis\Phrase;
-use Kinintel\ValueObjects\Util\TextAnalysis\StopWord;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;
 
 include_once "autoloader.php";
 

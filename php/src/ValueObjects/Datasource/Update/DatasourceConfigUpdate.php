@@ -15,6 +15,17 @@ class DatasourceConfigUpdate {
     private $config;
 
     /**
+     * @param string $title
+     * @param mixed $config
+     */
+    public function __construct($title, $config)
+    {
+        $this->title = $title;
+        $this->config = $config;
+    }
+
+
+    /**
      * @return string
      */
     public function getTitle(): string {

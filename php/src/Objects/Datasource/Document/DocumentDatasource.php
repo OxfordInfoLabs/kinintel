@@ -2,14 +2,12 @@
 
 namespace Kinintel\Objects\Datasource\Document;
 
-use Kiniauth\Objects\Application\Setting;
 use Kiniauth\Objects\Attachment\AttachmentSummary;
 use Kiniauth\Services\Application\SettingsService;
 use Kiniauth\Services\Attachment\AttachmentService;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -17,14 +15,13 @@ use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\Services\Util\TextAnalysis\DocumentTextExtractor;
-use Kinintel\Services\Util\TextAnalysis\PhraseExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\PhraseExtractor;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
-use Kinintel\ValueObjects\Util\TextAnalysis\Phrase;
-use Kinintel\ValueObjects\Util\TextAnalysis\StopWord;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
 
 /**
  * Built in document datasource

@@ -3,11 +3,15 @@
 
 namespace Kinintel\Services\DataProcessor;
 
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
+
 /**
  * @implementation tabulardatasourceimport \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceImportProcessor
  * @implementation tabulardatasetsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor
+ * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
  */
-interface DataProcessor {
+interface DataProcessor
+{
 
 
     /**
@@ -18,11 +22,13 @@ interface DataProcessor {
      */
     public function getConfigClass();
 
+
     /**
      * Main process method.  Receives config which should be typed according
      * to the config class declared above.
+     * @param DataProcessorInstance $instance
      */
-    public function process($config = null);
+    public function process($instance);
 
 
 }

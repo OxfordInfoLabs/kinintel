@@ -19,7 +19,8 @@ use Kinintel\Services\DataProcessor\DataProcessor;
  * @table ki_dataprocessor_instance
  * @generate
  */
-class DataProcessorInstance extends DataProcessorInstanceSummary {
+class DataProcessorInstance extends DataProcessorInstanceSummary
+{
 
     // use account project trait
     use AccountProject;
@@ -44,7 +45,8 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      * @param string $type
      * @param mixed $config
      */
-    public function __construct($key, $title, $type, $config = [], $projectKey = null, $accountId = null) {
+    public function __construct($key, $title, $type, $config = [], $projectKey = null, $accountId = null)
+    {
         parent::__construct($key, $title);
 
         $this->type = $type;
@@ -57,28 +59,32 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     /**
      * @return string
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
     /**
      * @param string $type
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
     }
 
     /**
      * @return mixed
      */
-    public function getConfig() {
+    public function getConfig()
+    {
         return $this->config;
     }
 
     /**
      * @param mixed $config
      */
-    public function setConfig($config) {
+    public function setConfig($config)
+    {
         $this->config = $config;
     }
 
@@ -86,14 +92,16 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     /**
      * @param string $key
      */
-    public function setKey($key) {
+    public function setKey($key)
+    {
         $this->key = $key;
     }
 
     /**
      * @param string $title
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
     }
 
@@ -102,7 +110,8 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      * Validate particularly the configuration according to the related
      * data processor
      */
-    public function validate() {
+    public function validate()
+    {
         try {
             $this->returnProcessorAndConfig();
             return [];
@@ -115,9 +124,10 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     /**
      * Process using the underlying processor
      */
-    public function process() {
+    public function process()
+    {
         list ($processor, $config) = $this->returnProcessorAndConfig();
-        $processor->process($config);
+        $processor->process($this);
     }
 
 
@@ -126,13 +136,15 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      *
      * @return mixed
      */
-    public function returnConfig() {
+    public function returnConfig()
+    {
         list ($processor, $config) = $this->returnProcessorAndConfig();
         return $config;
     }
 
     // Return processor and config
-    private function returnProcessorAndConfig() {
+    private function returnProcessorAndConfig()
+    {
         $validationErrors = [];
         $dataProcessor = null;
         $config = [];
@@ -144,7 +156,12 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
 
             // If a config class, map it and validate
             if ($dataProcessor->getConfigClass()) {
-                $config = $objectBinder->bindFromArray($this->getConfig(), $dataProcessor->getConfigClass());
+
+                if (is_object($this->config)) {
+                    $config = $this->config;
+                } else {
+                    $config = $objectBinder->bindFromArray($this->getConfig(), $dataProcessor->getConfigClass());
+                }
 
                 if ($validator->validateObject($config))
                     $validationErrors["config"] = $validator->validateObject($config);

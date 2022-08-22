@@ -13,6 +13,7 @@ use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinintel\Controllers\Account\Datasource;
 use Kinintel\Controllers\API\Dataset;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -114,7 +115,9 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, "mytestsnapshot");
-        $this->processor->process($config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshotprocessor", $config);
+
+        $this->processor->process($instance);
 
 
         // Check that the datasource instance was saved
@@ -185,7 +188,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, "mytestsnapshot");
-        $this->processor->process($config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshotprocessor", $config);
+        $this->processor->process($instance);
 
 
         // Check that the table was created with simple snapshot_date based PK.
@@ -308,9 +312,10 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             ]
         );
 
+        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshotprocessor", $config);
 
         // Process
-        $this->processor->process($config);
+        $this->processor->process($instance);
 
 
         // Check that the table was created with snapshot and title as primary key

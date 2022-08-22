@@ -10,13 +10,20 @@ use Kiniauth\ValueObjects\Upload\FileUpload;
 use Kiniauth\ValueObjects\Upload\UploadedFile;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Validation\FieldValidationError;
+use Kinikit\Core\Validation\ValidationException;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
-class CustomDatasourceService {
+class CustomDatasourceService
+{
 
     /**
      * @var DatasourceService
@@ -27,7 +34,8 @@ class CustomDatasourceService {
     /**
      * @param DatasourceService $datasourceService
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService)
+    {
         $this->datasourceService = $datasourceService;
     }
 
@@ -39,7 +47,8 @@ class CustomDatasourceService {
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
+    {
 
         // Create a new data source key
         $newDatasourceKey = "custom_data_set_" . ($accountId ? $accountId . "_" : "") . date("U");
@@ -82,29 +91,58 @@ class CustomDatasourceService {
 
     }
 
+    /**
+     * Create new snapshot datasource instance and return the snapshot instance.
+     * The datasource type is SQLDatabaseDatasource
+     *
+     * @param Field[] $fields
+     * @param string $projectKey
+     * @param integer $accountId
+     *
+     * @return DatasourceInstance
+     */
+    public function createTabularSnapshotDatasourceInstance($title, $fields = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
+    {
+        $newInstanceKey = "snapshot_data_set_$accountId" . "_" . date("U");
+
+        // Create a new data source instance with underlying datasource type SQLDatabaseDatasource and save it.
+        $dataSourceInstance = new DatasourceInstance($newInstanceKey, $title, "snapshot",
+            [
+                "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
+                "tableName" => $newInstanceKey,
+                "columns" => $fields
+            ], "dataset_snapshot");
+        $dataSourceInstance->setAccountId($accountId);
+        $dataSourceInstance->setProjectKey($projectKey);
+
+        // Save the datasource instance and return a new one
+        $this->datasourceService->saveDataSourceInstance($dataSourceInstance);
+
+        return $dataSourceInstance;
+    }
 
     /**
-     * Create new document datasource instance
+     * Create new document datasource instance (neglects custom tablenames)
      *
-     * @param $documentDatasourceConfig
+     * @param DatasourceConfigUpdate $datasourceConfigUpdate
      * @param $projectKey
      * @param $accountId
      * @return string
      * @throws \Kinikit\Core\Validation\ValidationException
      */
-    public function createDocumentDatasourceInstance($documentDatasourceConfig, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function createDocumentDatasourceInstance($datasourceConfigUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
+    {
 
         $newDatasourceKey = "document_data_set_$accountId" . "_" . date("U");
-        $config = $documentDatasourceConfig->getConfig();
+        $config = $datasourceConfigUpdate->getConfig();
         $config["tableName"] = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
-        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $documentDatasourceConfig->getTitle(), "document", $config, Configuration::readParameter("custom.datasource.credentials.key"));
+        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceConfigUpdate->getTitle(), "document", $config, Configuration::readParameter("custom.datasource.credentials.key"));
 
         // Set account id and project key
         $datasourceInstance->setAccountId($accountId);
         $datasourceInstance->setProjectKey($projectKey);
 
         $this->datasourceService->saveDataSourceInstance($datasourceInstance);
-
 
         $fields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
@@ -113,7 +151,7 @@ class CustomDatasourceService {
             new Field("frequency", "Frequency", null, Field::TYPE_INTEGER)
         ];
         $indexInstanceKey = "index_" . $newDatasourceKey;
-        $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $documentDatasourceConfig->getTitle() . " Index", "sqldatabase", [
+        $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $datasourceConfigUpdate->getTitle() . " Index", "sqldatabase", [
             "source" => "table",
             "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $indexInstanceKey,
             "columns" => $fields
@@ -137,7 +175,8 @@ class CustomDatasourceService {
      * @return void
      * @throws \Kinikit\Core\Validation\ValidationException
      */
-    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $longRunningTask = null) {
+    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $longRunningTask = null)
+    {
 
         $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey);
 

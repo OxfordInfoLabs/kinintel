@@ -1,0 +1,31 @@
+[
+  {
+    "key": "wordindexeuclideanmatch",
+    "type": "distanceandclustering",
+    "title": "Word Index Euclidean Match",
+    "accountId": 1,
+    "projectKey": "project1",
+    "config": {
+      "datasourceKey": "wordindexdatasource",
+      "keyFieldName": "document",
+      "componentFieldName": "word",
+      "valueFieldName": "frequency",
+      "distanceMetric": "euclidean"
+    }
+  },
+
+  {
+    "key": "wordindexpearsonmatch",
+    "type": "distanceandclustering",
+    "title": "Word Index Pearson Match",
+    "accountId": 1,
+    "projectKey": "project1",
+    "config": {
+      "datasourceKey": "wordindexdatasource",
+      "keyFieldName": "document",
+      "componentFieldName": "word",
+      "valueFieldName": "frequency",
+      "distanceMetric": "pearson"
+    }
+  }
+]

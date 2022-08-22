@@ -6,6 +6,7 @@ namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\UnsupportedDatasetException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
@@ -56,9 +57,10 @@ class TabularDatasourceImportProcessor implements DataProcessor {
     /**
      * Process a datasource import
      *
-     * @param TabularDatasourceImportProcessorConfiguration $config
+     * @param DataProcessorInstance $instance
      */
-    public function process($config = null) {
+    public function process($instance) {
+        $config = $instance->getConfig();
 
         // Read and write chunk size
         $sourceReadChunkSize = $config->getSourceReadChunkSize();

@@ -3,7 +3,7 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\Document;
 
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
-use Kinintel\ValueObjects\Util\TextAnalysis\StopWord;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;
 
 class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
 
