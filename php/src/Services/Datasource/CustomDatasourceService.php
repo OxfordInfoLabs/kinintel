@@ -20,6 +20,7 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
@@ -172,7 +173,7 @@ class CustomDatasourceService
              * @var ObjectBinder $binder
              */
             $binder = Container::instance()->get(ObjectBinder::class);
-            $config = $binder->bindFromArray($config);
+            $config = $binder->bindFromArray($config, DocumentDatasourceConfig::class);
         }
 
         if ($config->getCustomDocumentParser()) {
