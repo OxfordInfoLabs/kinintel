@@ -2,10 +2,10 @@
 
 namespace Kinintel\Services\Util\Analysis\TextAnalysis;
 /**
- * @implementation text/plain \Kinintel\Services\Util\TextAnalysis\Extractors\TextTextExtractor
- * @implementation text/html \Kinintel\Services\Util\TextAnalysis\Extractors\HTMLTextExtractor
- * @implementation application/vnd.openxmlformats-officedocument.wordprocessingml.document \Kinintel\Services\Util\TextAnalysis\Extractors\DocxTextExtractor
- * @implementation application/pdf \Kinintel\Services\Util\TextAnalysis\Extractors\PDFTextExtractor
+ * @implementation text/plain \Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\TextTextExtractor
+ * @implementation text/html \Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\HTMLTextExtractor
+ * @implementation application/vnd.openxmlformats-officedocument.wordprocessingml.document \Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\DocxTextExtractor
+ * @implementation application/pdf \Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\PDFTextExtractor
  *
  */
 interface DocumentTextExtractor {

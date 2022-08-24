@@ -4,7 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Document;
 
 
-use Kinintel\ValueObjects\Util\TextAnalysis\Phrase;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
 
 class CustomDocumentData {
 
