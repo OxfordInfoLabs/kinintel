@@ -51,11 +51,11 @@ class CustomDatasourceService
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
+    public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
     {
 
         // Create a new data source key
-        $newDatasourceKey = "custom_data_set_" . ($accountId ? $accountId . "_" : "") . date("U");
+        $newDatasourceKey = $datasourceKey ?? "custom_data_set_" . ($accountId ? $accountId . "_" : "") . date("U");
 
         try {
 
@@ -178,7 +178,7 @@ class CustomDatasourceService
 
         if ($config->getCustomDocumentParser()) {
             $parser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
-            $parser->onDocumentDatasourceCreate($config);
+            $parser->onDocumentDatasourceCreate($config, $datasourceInstance, $accountId, $projectKey);
         }
 
         return $newDatasourceKey;

@@ -65,11 +65,68 @@ class CustomDatasourceServiceTest extends TestBase
         $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
         $this->datasourceService->returnValue("saveDataSourceInstance", $mockInstance);
 
-        $newDatasourceKey = $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, "myproject", 1);
+        $newDatasourceKey = $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, null, "myproject", 1);
 
         $expectedDatasourceInstance = new DatasourceInstance($newDatasourceKey, "Hello world", "custom", [
             "source" => "table",
             "tableName" => "custom." . $newDatasourceKey,
+            "columns" => [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ]
+        ], "test");
+        $expectedDatasourceInstance->setAccountId(1);
+        $expectedDatasourceInstance->setProjectKey("myproject");
+
+        // Check datasource was saved
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $expectedDatasourceInstance
+        ]));
+
+
+        $addDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+
+        $this->assertTrue($mockDatasource->methodWasCalled("update", [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]));
+
+
+    }
+
+    public function testIfDatasourceKeySuppliedItIsUsedOnCreateCustomDatasourceUsingUpdateWithStructureObject()
+    {
+
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+            new Field("name"),
+            new Field("age", null, null, Field::TYPE_INTEGER)
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+
+        $mockInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDatasourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+        $mockInstance->returnValue("returnDataSource", $mockDatasource);
+        $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
+        $this->datasourceService->returnValue("saveDataSourceInstance", $mockInstance);
+
+        $newDatasourceKey = $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, "bingbango", "myproject", 1);
+
+        $this->assertEquals("bingbango", $newDatasourceKey);
+
+        $expectedDatasourceInstance = new DatasourceInstance($newDatasourceKey, "Hello world", "custom", [
+            "source" => "table",
+            "tableName" => "custom.bingbango",
             "columns" => [
                 new Field("name"),
                 new Field("age", null, null, Field::TYPE_INTEGER)
@@ -121,7 +178,7 @@ class CustomDatasourceServiceTest extends TestBase
         $this->datasourceService->throwException("saveDataSourceInstance", new \Exception("RANDOM FAILURE"));
 
         try {
-            $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, "myproject", 1);
+            $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, null, "myproject", 1);
             $this->fail("Should have thrown here");
         } catch (\Exception $e) {
             $this->assertEquals("RANDOM FAILURE", $e->getMessage());

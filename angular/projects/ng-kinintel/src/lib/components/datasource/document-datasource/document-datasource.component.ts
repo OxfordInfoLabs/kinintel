@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {BehaviorSubject, merge} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
@@ -9,6 +9,7 @@ import {
 } from '../../dataset/dataset-editor/dataset-editor.component';
 import {MatDialog} from '@angular/material/dialog';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 
 @Component({
@@ -18,9 +19,13 @@ const _ = lodash.default;
 })
 export class DocumentDatasourceComponent implements OnInit {
 
+    @Input() showCustomParser: boolean;
+
     public datasourceKey: any;
     public searchText = new BehaviorSubject('');
+    public searchParser = new BehaviorSubject('');
     public datasources: any = [];
+    public documentParsers: any = [];
     public selectedDatasource: any;
     public datasource: any = {config: {stopWords: []}};
     public evaluatedDatasource: any;
@@ -70,7 +75,7 @@ export class DocumentDatasourceComponent implements OnInit {
             }
         });
 
-        merge(this.searchText)
+        this.searchText
             .pipe(
                 debounceTime(300),
                 // distinctUntilChanged(),
@@ -79,6 +84,18 @@ export class DocumentDatasourceComponent implements OnInit {
                 )
             ).subscribe((datasources: any) => {
             this.datasources = datasources;
+        });
+
+        this.searchParser
+            .pipe(
+                debounceTime(300),
+                // distinctUntilChanged(),
+                switchMap(() =>
+                    this.getDocumentParsers()
+                )
+            ).subscribe((parsers: any) => {
+            this.datasource.config.customDocumentParser = this.searchParser.getValue();
+            this.documentParsers = parsers;
         });
     }
 
@@ -213,6 +230,10 @@ export class DocumentDatasourceComponent implements OnInit {
         stopWord.selectedDatasource = await this.datasetService.evaluateDataset(datasetInstanceSummary, '0', '1');
     }
 
+    public updateCustomParser(value) {
+        this.datasource.config.customDocumentParser = value;
+    }
+
     public async save() {
         if (!this.datasourceKey) {
             this.datasourceKey = await this.datasourceService.createDocumentDatasource(this.datasource);
@@ -238,6 +259,22 @@ export class DocumentDatasourceComponent implements OnInit {
             '0'
         ).pipe(map((datasources: any) => {
                 return datasources;
+            })
+        );
+    }
+
+    private getDocumentParsers() {
+        return this.datasourceService.getDatasources(
+            this.searchText.getValue() || '',
+            '10',
+            '0'
+        ).pipe(map((datasources: any) => {
+                return [
+                    {
+                        title: 'Plenipot 133',
+                        value: 'plenipot133'
+                    }
+                ];
             })
         );
     }

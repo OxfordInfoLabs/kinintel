@@ -50,7 +50,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
         if ($this->getConfig()->getCustomDocumentParser()) {
             $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $this->getConfig()->getCustomDocumentParser());
-            $updatableMappedFields = array_merge($updatableMappedFields, $customDocumentParser->getAdditionalDocumentUpdatableMappedFields() ?? []);
+            $updatableMappedFields = array_merge($updatableMappedFields, $customDocumentParser->getAdditionalDocumentUpdatableMappedFields($this->getConfig(), $this->getInstanceInfo()) ?? []);
         }
 
         return new DatasourceUpdateConfig([], $updatableMappedFields);
@@ -90,7 +90,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
             $fields = array_merge($fields, $customDocumentParser->getAdditionalDocumentFields());
 
-            $additionalUpdatableMappedFields = $customDocumentParser->getAdditionalDocumentUpdatableMappedFields();
+            $additionalUpdatableMappedFields = $customDocumentParser->getAdditionalDocumentUpdatableMappedFields($this->getConfig(), $this->getInstanceInfo());
             $fields = array_merge($fields, array_map(function ($updatableField) {
                 return new Field($updatableField->getFieldName());
             }, $additionalUpdatableMappedFields ?? []));

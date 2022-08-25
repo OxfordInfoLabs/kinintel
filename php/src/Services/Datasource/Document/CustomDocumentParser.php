@@ -30,9 +30,11 @@ abstract class CustomDocumentParser {
      * Return an array of additional updatable mapped fields to be merged into the update config for the
      * document datasource.
      *
+     * @param $datasourceConfig
+     * @param $documentDatasourceInfo
      * @return array
      */
-    public function getAdditionalDocumentUpdatableMappedFields() {
+    public function getAdditionalDocumentUpdatableMappedFields($datasourceConfig, $documentDatasourceInfo) {
         return [];
     }
 
@@ -41,8 +43,11 @@ abstract class CustomDocumentParser {
      * Function called when document datasource is created to perform additional logic as required.
      *
      * @param DocumentDatasourceConfig $datasourceConfig
+     * @param $documentDatasourceInfo
+     * @param $accountId
+     * @param $projectKey
      */
-    public function onDocumentDatasourceCreate($datasourceConfig) {
+    public function onDocumentDatasourceCreate($datasourceConfig, $documentDatasourceInfo, $accountId, $projectKey) {
     }
 
 

@@ -54,7 +54,7 @@
                         <tr class="border-t border-gray-200">
                             <th colspan="2" scope="colgroup"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 py-3.5 px-4 text-left text-xs font-semibold text-gray-900">
-                                <span *ngIf="!admin">Project&nbsp;</span>Datasources
+                                <span *ngIf="!admin">Project&nbsp;</span>{{title || 'Datasources'}}
                             </th>
                         </tr>
                         <tr *ngFor="let element of datasources; let i = index" class="hover:bg-gray-50">
