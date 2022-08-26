@@ -94,7 +94,6 @@ export class DocumentDatasourceComponent implements OnInit {
                     this.getDocumentParsers()
                 )
             ).subscribe((parsers: any) => {
-            this.datasource.config.customDocumentParser = this.searchParser.getValue();
             this.documentParsers = parsers;
         });
     }

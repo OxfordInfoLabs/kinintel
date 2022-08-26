@@ -282,12 +282,11 @@
                             <label class="mb-4 text-sm">
                                 Select Custom Document Parser
                                 <input type="text" [matAutocomplete]="autoParsers"
-                                       [value]="datasource.config.customDocumentParser || ''"
+                                       [(ngModel)]="datasource.config.customDocumentParser"
                                        (keyup)="searchParser.next($event.target.value)"
                                        placeholder="Search for a custom parser">
-                                <mat-autocomplete #autoParsers="matAutocomplete" [displayWith]="displayFn">
-                                    <mat-option *ngFor="let parser of documentParsers" [value]="parser.value"
-                                                (onSelectionChange)="updateCustomParser($event.source.value)">
+                                <mat-autocomplete #autoParsers="matAutocomplete">
+                                    <mat-option *ngFor="let parser of documentParsers" [value]="parser.value">
                                         {{parser.title}}
                                     </mat-option>
                                 </mat-autocomplete>
