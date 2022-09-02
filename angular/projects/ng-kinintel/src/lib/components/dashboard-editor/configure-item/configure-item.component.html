@@ -88,22 +88,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-1/2">
-                    <div class="p-4">
-                        <label class="mb-2">
-                            Title
-                            <input type="text" [(ngModel)]="general.name">
-                            <small class="font-normal">Title of the item</small>
-                        </label>
-                        <label class="mb-2">
-                            Description
-                            <textarea class="font-mono w-full"
-                                      cols="30" rows="5" [(ngModel)]="general.description"></textarea>
-                            <small class="font-normal">Description of the data item.</small>
-                        </label>
+                <div class="flex justify-between">
+                    <div class="w-1/2">
+                        <div class="p-4">
+                            <label class="mb-2">
+                                Title
+                                <input type="text" [(ngModel)]="general.name">
+                                <small class="font-normal">Title of the item</small>
+                            </label>
+                            <label class="mb-2">
+                                Description
+                                <textarea class="font-mono w-full"
+                                          cols="30" rows="5" [(ngModel)]="general.description"></textarea>
+                                <small class="font-normal">Description of the data item.</small>
+                            </label>
 
+                        </div>
+                    </div>
+                    <div class="w-1/2">
+                        <div class="p-4">
+                            <div class="flex items-center">
+                                <mat-checkbox class="mr-2" [(ngModel)]="general.transparent"></mat-checkbox>
+                                <p class="mb-0 mt-1">Transparent background</p>
+                            </div>
+                            <small class="mb-4 block font-normal">Make this dashboard items background transparent - requires page refesh to take affect</small>
+                        </div>
                     </div>
                 </div>
+
 
             </mat-tab>
             <mat-tab label="Footer">
@@ -349,6 +361,11 @@
                 </div>
                 <div class="w-1/2">
                     <div class="p-4">
+                        <div class="mb-4 flex items-center">
+                            <mat-checkbox class="mr-2" [(ngModel)]="tabular.expandRows"></mat-checkbox>
+                            <p class="mb-0 mt-1">Expand rows. By default rows are compressed and restrict wrapping.</p>
+                        </div>
+
                         <div class="mb-4 flex items-center">
                             <mat-checkbox class="mr-2" [(ngModel)]="tabular.actionRows"></mat-checkbox>
                             <p class="mb-0 mt-1">Make table rows clickable</p>

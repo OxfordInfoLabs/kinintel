@@ -335,10 +335,17 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             }
         }
 
-        // attach component to the appRef so that so that it will be dirty checked.
+        // attach component to the appRef so that it will be dirty checked.
         this.applicationRef.attachView(componentRef.hostView);
 
-        element.classList.add('shadow');
+        const generalSettings = this.dashboard.layoutSettings.general ? this.dashboard.layoutSettings.general[instanceId] : null;
+        if (generalSettings && generalSettings.transparent) {
+            element.classList.add('bg-transparent');
+            element.classList.remove('bg-white', 'shadow');
+        } else {
+            element.classList.add('bg-white', 'shadow');
+            element.classList.remove('bg-transparent');
+        }
 
         return componentRef;
     }

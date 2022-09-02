@@ -158,14 +158,17 @@
                     <ng-template ngFor let-column [ngForOf]="dataset.columns" let-i=index>
                         <td *ngIf="!hiddenColumns[column.name]"
                             [title]="(tableCells[column.name] && tableCells[column.name].maxWidth) ? dataItem[column.name] : ''"
-                            class="whitespace-nowrap border-b border-gray-200  px-3 py-2 text-sm text-gray-500 "
-                            [ngClass]="{'font-medium text-gray-900': i === 0}"
-                            [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
-                            <ng-template [ngIf]="_.isPlainObject(dataItem[column.name])">
+                            class="border-b border-gray-200  px-3 py-2 text-sm text-gray-500 "
+                            [ngClass]="{'whitespace-nowrap': !tabular.expandRows, 'font-medium text-gray-900': i === 0}"
+                            [ngStyle]="{'width': tabular.expandRows ? 100 / dataset.columns.length + '%' : '', 'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
+                            <ng-template [ngIf]="tabular.expandRows">
+                                <div [innerHTML]="dataItem[column.name]"></div>
+                            </ng-template>
+                            <ng-template [ngIf]="!tabular.expandRows && _.isPlainObject(dataItem[column.name])">
                                 <div [innerHTML]="dataItem[column.name].cellValue"
                                      [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
                             </ng-template>
-                            <ng-template [ngIf]="!_.isPlainObject(dataItem[column.name])">
+                            <ng-template [ngIf]="!tabular.expandRows &&!_.isPlainObject(dataItem[column.name])">
                                 <ng-template
                                     [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
                                     {{dataItem[column.name]}}

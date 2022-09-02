@@ -437,7 +437,7 @@ export class ItemComponentComponent implements AfterViewInit {
                 params[paramKey] = value;
             });
             const urlParams = new URLSearchParams(params).toString();
-            window.location.href = `/dashboards/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
+            window.location.href = `/dashboards/view/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
         } else if (cta.type === 'custom') {
             let url = cta.link;
 
