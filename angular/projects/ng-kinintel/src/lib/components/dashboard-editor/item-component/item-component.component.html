@@ -162,13 +162,14 @@
                             [ngClass]="{'whitespace-nowrap': !tabular.expandRows, 'font-medium text-gray-900': i === 0}"
                             [ngStyle]="{'width': tabular.expandRows ? 100 / dataset.columns.length + '%' : '', 'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
                             <ng-template [ngIf]="tabular.expandRows">
-                                <div [innerHTML]="dataItem[column.name]"></div>
+                                <div *ngIf="!_.isPlainObject(dataItem[column.name])" [innerHTML]="dataItem[column.name]"></div>
+                                <div *ngIf="_.isPlainObject(dataItem[column.name])" [innerHTML]="dataItem[column.name].cellValue"></div>
                             </ng-template>
                             <ng-template [ngIf]="!tabular.expandRows && _.isPlainObject(dataItem[column.name])">
                                 <div [innerHTML]="dataItem[column.name].cellValue"
                                      [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
                             </ng-template>
-                            <ng-template [ngIf]="!tabular.expandRows &&!_.isPlainObject(dataItem[column.name])">
+                            <ng-template [ngIf]="!tabular.expandRows && !_.isPlainObject(dataItem[column.name])">
                                 <ng-template
                                     [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
                                     {{dataItem[column.name]}}

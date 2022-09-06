@@ -270,8 +270,8 @@ export class DocumentDatasourceComponent implements OnInit {
         ).pipe(map((datasources: any) => {
                 return [
                     {
-                        title: 'Plenipot 133',
-                        value: 'plenipot133'
+                        title: 'Plenipot Bucharest 22',
+                        value: 'plenipotBucharest22'
                     }
                 ];
             })

@@ -104,6 +104,10 @@ export class ItemComponentComponent implements AfterViewInit {
     public async init(evaluate = false) {
         this.mapLayoutSettingsToComponentData();
 
+        if (this.tabular && this.tabular.limit) {
+            this.limit = this.tabular.limit;
+        }
+
         if (!this.datasourceService) {
             this.datasourceService = this.kiDatasourceService;
         }
@@ -483,6 +487,11 @@ export class ItemComponentComponent implements AfterViewInit {
 
     public pageSizeChange(value) {
         this.limit = value;
+
+        // If we change the table limit - we also want to save the dashboard automatically to keep the changes
+        this.tabular.limit = this.limit;
+        this.dashboardService.saveDashboard(this.dashboard);
+
         this.evaluate(true);
     }
 
