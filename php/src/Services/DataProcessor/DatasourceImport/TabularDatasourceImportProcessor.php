@@ -60,7 +60,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
      * @param DataProcessorInstance $instance
      */
     public function process($instance) {
-        $config = $instance->getConfig();
+        $config = $instance->returnConfig();
 
         // Read and write chunk size
         $sourceReadChunkSize = $config->getSourceReadChunkSize();
@@ -90,6 +90,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                 if ($sourceReadChunkSize)
                     $offset += $sourceReadChunkSize;
+
             } while ($readEntries >= ($sourceReadChunkSize ?? PHP_INT_MAX));
 
 
@@ -108,6 +109,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                     $offset = $sourceReadChunkSize ? 0 : null;
                     do {
+
                         $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
 
                         if ($sourceDataset) {
