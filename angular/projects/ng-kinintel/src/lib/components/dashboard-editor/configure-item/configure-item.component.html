@@ -310,10 +310,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-1/2 p-4">
-                    <textarea class="font-mono w-full"
-                              cols="30" rows="10" [(ngModel)]="textData.value"></textarea>
-                </div>
+                <ngx-codemirror
+                    [(ngModel)]="textData.value"
+                    [options]="{lineNumbers: true,theme: 'ttcn',mode: 'htmlmixed',autoRefresh: true,smartIndent: true,extraKeys: {'Ctrl-Space': 'autocomplete'}}">
+
+                </ngx-codemirror>
             </mat-tab>
             <mat-tab label="Image" *ngIf="dashboardItemType.type === 'image'">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">

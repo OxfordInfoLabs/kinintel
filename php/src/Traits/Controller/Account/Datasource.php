@@ -138,11 +138,12 @@ trait Datasource {
      *
      * @param DatasourceUpdateWithStructure $datasourceUpdate
      * @param string $projectKey
+     * @param string $datasourceKey
      *
      * @return string
      */
-    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null) {
-        return $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, $projectKey);
+    public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $datasourceKey = null) {
+        return $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, $datasourceKey, $projectKey);
     }
 
 
