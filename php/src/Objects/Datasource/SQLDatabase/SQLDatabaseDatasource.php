@@ -244,7 +244,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * Materialise this dataset using a SQL query
      *
      * @param array $parameterValues
-     * @return Dataset|void
+     * @return SQLResultSetTabularDataset
      */
     public function materialiseDataset($parameterValues = []) {
 

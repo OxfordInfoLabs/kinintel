@@ -3,6 +3,7 @@
 namespace Kinintel\Services\Util\Analysis\TextAnalysis\Extractors;
 
 use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
+use Smalot\PdfParser\Config;
 
 class PDFTextExtractor implements DocumentTextExtractor {
 
@@ -13,7 +14,10 @@ class PDFTextExtractor implements DocumentTextExtractor {
      * @return array|mixed|string|string[]|null
      */
     public function extractTextFromString($string) {
-        $parser = new \Smalot\PdfParser\Parser();
+        $config = new Config();
+        $config->setHorizontalOffset("");
+        $config->setFontSpaceLimit(-60);
+        $parser = new \Smalot\PdfParser\Parser([], $config);
         $pdf = $parser->parseContent($string);
         $text = $pdf->getText();
         return preg_replace("/\r|\n/", "", $text);
@@ -27,7 +31,10 @@ class PDFTextExtractor implements DocumentTextExtractor {
      * @throws \Exception
      */
     public function extractTextFromFile($filePath) {
-        $parser = new \Smalot\PdfParser\Parser();
+        $config = new Config();
+        $config->setHorizontalOffset("");
+        $config->setFontSpaceLimit(-60);
+        $parser = new \Smalot\PdfParser\Parser([], $config);
         $pdf = $parser->parseFile($filePath);
         $text = $pdf->getText();
         return preg_replace("/\r|\n/", "", $text);
