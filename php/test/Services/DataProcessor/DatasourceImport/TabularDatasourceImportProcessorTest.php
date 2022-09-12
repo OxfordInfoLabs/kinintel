@@ -24,10 +24,10 @@ use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
 
-class TabularDatasourceImportProcessorTest extends TestBase {
+class tabulardatasourceimportTest extends TestBase {
 
     /**
-     * @var TabularDatasourceImportProcessor
+     * @var tabulardatasourceimport
      */
     private $processor;
 
@@ -73,7 +73,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         try {
             $this->processor->process($instance);
@@ -105,7 +105,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         try {
             $this->processor->process($instance);
@@ -147,7 +147,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             new TargetDatasource("target")
         ]);
 
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
         $this->processor->process($instance);
 
 
@@ -215,7 +215,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
         ], ["source1", "source2"]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -246,6 +246,8 @@ class TabularDatasourceImportProcessorTest extends TestBase {
     public function testExplicitSourceDatasetInstanceAndTargetImportResultsInAReplaceUpdateOnTargetDataset() {
 
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $mockSourceInstance->returnValue("getTitle", "Test Dataset");
+        $mockSourceInstance->returnValue("getDatasourceInstanceKey", "test");
 
         $dataSet = new ArrayTabularDataset([new Field("bong")], [
             [
@@ -271,7 +273,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
         ], [], $mockSourceInstance);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimportprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -319,7 +321,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ], [], null, 1, 1);
-        $instance = new DataProcessorInstance("no","need","for these", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService);
         $processor->process($instance);
@@ -381,7 +383,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                 new Field("shoeSize")
             ])
         ]);
-        $instance = new DataProcessorInstance("no","need","for these", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -445,7 +447,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                 new Field("shoeSize")
             ])
         ]);
-        $instance = new DataProcessorInstance("no","need","for these", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -526,7 +528,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $instance = new DataProcessorInstance("no","need","for these", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
         $this->processor->process($instance);
 
 

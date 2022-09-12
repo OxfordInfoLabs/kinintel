@@ -90,6 +90,17 @@ trait Datasource {
         return $this->datasourceService->saveDataSourceInstance($instance)->getKey();
     }
 
+
+    /**
+     * @http DELETE /$key
+     *
+     * @param $key
+     */
+    public function deleteDatasourceInstance($key) {
+        $this->datasourceService->removeDatasourceInstance($key);
+    }
+
+
     /**
      * Filter datasource instances
      *

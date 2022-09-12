@@ -28,6 +28,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceInstanceInfo;
 use Kinintel\ValueObjects\Datasource\Document\CustomDocumentData;
 use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -38,8 +39,7 @@ use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;
 
 include_once "autoloader.php";
 
-class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
-{
+class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * @var MockObject
@@ -71,8 +71,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
 
 
     // Setup
-    public function setUp(): void
-    {
+    public function setUp(): void {
 
 
         $this->databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
@@ -89,8 +88,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testOnInstanceSaveForNewDatasourceInstanceTableCreatedCorrectlyForCoreFields()
-    {
+    public function testOnInstanceSaveForNewDatasourceInstanceTableCreatedCorrectlyForCoreFields() {
 
         $sqlDatabaseDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data"),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
@@ -117,8 +115,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
 
     }
 
-    public function testOriginalLinkAndContentTextAreStoredWhenSaved()
-    {
+    public function testOriginalLinkAndContentTextAreStoredWhenSaved() {
         $sqlDatabaseDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", true, true),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
@@ -145,8 +142,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
 
     }
 
-    public function testOnInstanceSaveForUpdatedConfigurationModifyIsPerformed()
-    {
+    public function testOnInstanceSaveForUpdatedConfigurationModifyIsPerformed() {
         $sqlDatabaseDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", true, true),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
@@ -182,8 +178,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testOnUpdateWithDefaultOptionsDatasetIsMappedUpdatedCorrectly()
-    {
+    public function testOnUpdateWithDefaultOptionsDatasetIsMappedUpdatedCorrectly() {
         $documentDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data"),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
@@ -204,8 +199,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
 
     }
 
-    public function testCanSupplyDocumentFileInsteadOfSource()
-    {
+    public function testCanSupplyDocumentFileInsteadOfSource() {
 
         $documentDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data"),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
@@ -224,8 +218,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
 
     }
 
-    public function testIfStoreTextSuppliedInConfigTextVersionIsPopulatedCorrectly()
-    {
+    public function testIfStoreTextSuppliedInConfigTextVersionIsPopulatedCorrectly() {
         $documentDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", false, true),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
@@ -270,8 +263,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testIfStoreOriginalSetOriginalDocumentIsStoredUsingConfiguredAttachmentStorage()
-    {
+    public function testIfStoreOriginalSetOriginalDocumentIsStoredUsingConfiguredAttachmentStorage() {
 
         $mockAttachmentService = MockObjectProvider::instance()->getMockInstance(AttachmentService::class);
         Container::instance()->set(AttachmentService::class, $mockAttachmentService);
@@ -313,8 +305,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testIfIndexWordsSetWithDefaultOptionsUpdateConfigurationIsDefinedCorrectlyAndDatasetContainsPhrases()
-    {
+    public function testIfIndexWordsSetWithDefaultOptionsUpdateConfigurationIsDefinedCorrectlyAndDatasetContainsPhrases() {
         $previousDatasourceService = Container::instance()->get(DatasourceService::class);
 
         $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
@@ -449,8 +440,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testIfCustomStopwordsConfigSuppliedCustomStopwordsAreLoadedFromDatasourceColumn()
-    {
+    public function testIfCustomStopwordsConfigSuppliedCustomStopwordsAreLoadedFromDatasourceColumn() {
 
         $previousDatasourceService = Container::instance()->get(DatasourceService::class);
         // Set up mock objects for subordinate datasources
@@ -542,8 +532,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testIfCustomDocumentParserConfiguredForDatasourceAdditionalFieldsAreMergedOnInstanceSave()
-    {
+    public function testIfCustomDocumentParserConfiguredForDatasourceAdditionalFieldsAreMergedOnInstanceSave() {
 
         $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
         Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
@@ -593,8 +582,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testIfCustomDocumentParserConfiguredForDataSourceParseDocumentMethodIsCalledOnParserInsteadOfStandardIndexAndDataMergedIntoRow()
-    {
+    public function testIfCustomDocumentParserConfiguredForDataSourceParseDocumentMethodIsCalledOnParserInsteadOfStandardIndexAndDataMergedIntoRow() {
 
         $previousDatasourceService = Container::instance()->get(DatasourceService::class);
         // Set up mock objects for subordinate datasources
@@ -708,8 +696,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testIfCustomParserConfiguredForDataSourceUpdatableMappedFieldsAreMergedIntoCoreUpdateConfig()
-    {
+    public function testIfCustomParserConfiguredForDataSourceUpdatableMappedFieldsAreMergedIntoCoreUpdateConfig() {
 
         $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
         Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
@@ -728,6 +715,81 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals(3, sizeof($documentDatasource->getUpdateConfig()->getMappedFields()));
 
+
+    }
+
+    public function testOnInstanceDeleteWithoutIndexContentSetMainDataSourceIsDroppedAlongWithIndex() {
+
+        $sqlDatabaseDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", true, true),
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+
+        $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE test_data", ["test_data"]);
+
+        $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE index_test_data", ["index_test_data"]);
+
+        // Do instance delete
+        $sqlDatabaseDatasource->onInstanceDelete();
+
+        // Check main instance deleted
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE test_data"]));
+
+        // Check index table deleted
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE index_test_data"]));
+
+
+    }
+
+    public function testIfIndexTableDeleteFailsNoExceptionIsRaised() {
+
+
+        $sqlDatabaseDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", true, true),
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+
+        $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE test_data", ["test_data"]);
+
+        $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE index_test_data", ["index_test_data"]);
+
+        $this->databaseConnection->throwException("executeScript", new SQLException("Table does not exist"), ["DROP TABLE index_test_data"]);
+
+        // Do instance delete
+        $sqlDatabaseDatasource->onInstanceDelete();
+
+        // Check main instance deleted
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE test_data"]));
+
+        // Check index table deleted
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE index_test_data"]));
+
+    }
+
+
+    public function testIfCustomParserConfiguredForDatasourceOnInstanceDeleteIsCalledOnCustomParserWhenOnInstanceDeleteCalledOnDatasourceToEnsureResourcesCleanedUpEffectively() {
+
+        $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
+        Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
+        Container::instance()->set(get_class($mockDocumentParser), $mockDocumentParser);
+
+
+        $config = new DocumentDatasourceConfig("test_data", false, false, true, [new StopWord(true), new StopWord(false, true, null, null, 3, ["a", "the"])], 1, 1, "test");
+
+        $documentDatasource = new DocumentDatasource(
+            $config,
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+
+        $instance = new DatasourceInstance("test", "Test", "test");
+        $documentDatasource->setInstanceInfo($instance);
+
+
+        // Call on instance delete
+        $documentDatasource->onInstanceDelete();
+
+        // Check method called on parser
+        $this->assertTrue($mockDocumentParser->methodWasCalled("onDocumentDatasourceDelete", [
+            $config, new DatasourceInstanceInfo($instance)
+        ]));
 
     }
 

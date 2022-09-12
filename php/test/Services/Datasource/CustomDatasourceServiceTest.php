@@ -22,8 +22,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
 include_once "autoloader.php";
 
-class CustomDatasourceServiceTest extends TestBase
-{
+class CustomDatasourceServiceTest extends TestBase {
 
     /**
      * @var MockObject
@@ -39,14 +38,12 @@ class CustomDatasourceServiceTest extends TestBase
     /**
      * @return void
      */
-    public function setUp(): void
-    {
+    public function setUp(): void {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->customDatasourceService = new CustomDatasourceService($this->datasourceService);
     }
 
-    public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject()
-    {
+    public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
@@ -100,8 +97,7 @@ class CustomDatasourceServiceTest extends TestBase
 
     }
 
-    public function testIfDatasourceKeySuppliedItIsUsedOnCreateCustomDatasourceUsingUpdateWithStructureObject()
-    {
+    public function testIfDatasourceKeySuppliedItIsUsedOnCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
@@ -158,8 +154,7 @@ class CustomDatasourceServiceTest extends TestBase
     }
 
 
-    public function testIfCustomDataSourceCreationFailsInstanceIsDeleted()
-    {
+    public function testIfCustomDataSourceCreationFailsInstanceIsDeleted() {
 
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
             new Field("name"),
@@ -190,10 +185,10 @@ class CustomDatasourceServiceTest extends TestBase
 
     }
 
-    public function testCanCreateDocumentDatasourceInstanceAndIndexDatasourceInstance()
-    {
+    public function testCanCreateDocumentDatasourceInstanceAndIndexDatasourceInstance() {
         $fields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
+            new Field("section", "Section", null, Field::TYPE_STRING, true),
             new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
             new Field("phrase_length", "Phrase Length", null, Field::TYPE_INTEGER),
             new Field("frequency", "Frequency", null, Field::TYPE_INTEGER)
@@ -227,8 +222,7 @@ class CustomDatasourceServiceTest extends TestBase
         $this->assertEquals("document_data_set_4_" . date("U"), $expectedInstanceKey);
     }
 
-    public function testCanCreateTabularSnapshotDatasourceInstance()
-    {
+    public function testCanCreateTabularSnapshotDatasourceInstance() {
 
         $returnInstance = $this->customDatasourceService->createTabularSnapshotDatasourceInstance("My Test Instance",
             [new Field("Field1"), new Field("Field2")], "dummydummy", 53
