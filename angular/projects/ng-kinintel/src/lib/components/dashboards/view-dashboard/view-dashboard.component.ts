@@ -47,6 +47,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() dashboardId: number;
     @Input() gridOnly = false;
     @Input() parameters: any;
+    @Input() hideToolbar = false;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;

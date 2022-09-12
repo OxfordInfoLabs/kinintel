@@ -47,6 +47,10 @@ export class DatasourceService {
         return this.http.get(this.config.backendURL + '/datasource/' + key).toPromise();
     }
 
+    public deleteDatasource(key) {
+        return this.http.delete(this.config.backendURL + '/datasource/' + key).toPromise();
+    }
+
     public getEvaluatedParameters(evaluatedDatasource) {
         return this.http.get(this.config.backendURL + '/datasource/parameters/' +
             (evaluatedDatasource.key || evaluatedDatasource.datasourceInstanceKey)).toPromise();

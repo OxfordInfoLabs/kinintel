@@ -313,7 +313,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         $datasourceService = Container::instance()->get(DatasourceService::class);
 
         try {
-            $datasourceService->removeDatasourceInstance("index_" . $this->getConfig()->getTableName());
+            $datasourceService->removeDatasourceInstance("index_" . $this->getInstanceInfo()->getKey());
         } catch (\Exception $e) {
             // Success
         }

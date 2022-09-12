@@ -98,6 +98,14 @@ export class DatasourceComponent implements OnInit, OnDestroy {
         });
     }
 
+    public async delete(key) {
+        const message = 'Are you sure you would like to delete this item?';
+        if (window.confirm(message)) {
+            await this.datasourceService.deleteDatasource(key);
+            this.reload.next(Date.now());
+        }
+    }
+
     public increaseOffset() {
         this.page = this.page + 1;
         this.offset = (this.limit * this.page) - this.limit;
