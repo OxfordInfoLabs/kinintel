@@ -308,18 +308,14 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $customDocumentParser->onDocumentDatasourceDelete($config, $this->getInstanceInfo());
         }
 
-        // Otherwise we delete the index table
-        else {
+        // Drop the index table if it exists
+        /** @var DatasourceService $datasourceService */
+        $datasourceService = Container::instance()->get(DatasourceService::class);
 
-            // Drop the index table if it exists
-            $databaseConnection = $this->returnDatabaseConnection();
-            $dropSQL = $this->tableDDLGenerator->generateTableDropSQL("index_" . $this->getConfig()->getTableName());
-
-            try {
-                $databaseConnection->executeScript($dropSQL);
-            } catch (SQLException $e) {
-                // Don't worry if this fails
-            }
+        try {
+            $datasourceService->removeDatasourceInstance("index_" . $this->getConfig()->getTableName());
+        } catch (\Exception $e) {
+            // Success
         }
     }
 

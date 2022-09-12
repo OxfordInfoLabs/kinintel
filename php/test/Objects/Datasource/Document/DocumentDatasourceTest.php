@@ -726,7 +726,11 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE test_data", ["test_data"]);
 
-        $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE index_test_data", ["index_test_data"]);
+        $originalDatasourceService = Container::instance()->get(DatasourceService::class);
+        $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+        Container::instance()->set(DatasourceService::class, $mockDatasourceService);
+
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
 
         // Do instance delete
         $sqlDatabaseDatasource->onInstanceDelete();
@@ -735,7 +739,11 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE test_data"]));
 
         // Check index table deleted
-        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE index_test_data"]));
+        $this->assertTrue($mockDatasourceService->methodWasCalled("removeDatasourceInstance", [
+            "index_test_data"
+        ]));
+
+        Container::instance()->set(DatasourceService::class, $originalDatasourceService);
 
 
     }
@@ -749,9 +757,13 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE test_data", ["test_data"]);
 
-        $this->tableDDLGenerator->returnValue("generateTableDropSQL", "DROP TABLE index_test_data", ["index_test_data"]);
+        $originalDatasourceService = Container::instance()->get(DatasourceService::class);
+        $mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+        Container::instance()->set(DatasourceService::class, $mockDatasourceService);
 
-        $this->databaseConnection->throwException("executeScript", new SQLException("Table does not exist"), ["DROP TABLE index_test_data"]);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
+
+        $mockDatasourceService->throwException("removeDatasourceInstance", new SQLException("Bad Table"), ["index_test_data"]);
 
         // Do instance delete
         $sqlDatabaseDatasource->onInstanceDelete();
@@ -760,8 +772,11 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE test_data"]));
 
         // Check index table deleted
-        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", ["DROP TABLE index_test_data"]));
+        $this->assertTrue($mockDatasourceService->methodWasCalled("removeDatasourceInstance", [
+            "index_test_data"
+        ]));
 
+        Container::instance()->set(DatasourceService::class, $originalDatasourceService);
     }
 
 
