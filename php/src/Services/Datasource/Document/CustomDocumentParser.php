@@ -5,6 +5,7 @@ namespace Kinintel\Services\Datasource\Document;
 
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceInstanceInfo;
 use Kinintel\ValueObjects\Datasource\Document\CustomDocumentData;
 
 /**
@@ -48,6 +49,16 @@ abstract class CustomDocumentParser {
      * @param $projectKey
      */
     public function onDocumentDatasourceCreate($datasourceConfig, $documentDatasourceInfo, $accountId, $projectKey) {
+    }
+
+
+    /**
+     * Function called when document datasource is deleted to perform additional logic as required.
+     *
+     * @param DocumentDatasourceConfig $datasourceConfig
+     * @param DatasourceInstanceInfo $datasourceInstanceInfo
+     */
+    public function onDocumentDatasourceDelete($datasourceConfig, $datasourceInstanceInfo) {
     }
 
 

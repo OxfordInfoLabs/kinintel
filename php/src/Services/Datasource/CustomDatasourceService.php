@@ -51,7 +51,7 @@ class CustomDatasourceService
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
+    public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom")
     {
 
         // Create a new data source key
@@ -62,7 +62,7 @@ class CustomDatasourceService
             $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
             $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
-            $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), "custom", [
+            $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), $type, [
                 "source" => "table",
                 "tableName" => $tableName,
                 "columns" => $datasourceUpdate->getFields()

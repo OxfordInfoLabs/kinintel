@@ -11,6 +11,7 @@ use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
@@ -284,6 +285,38 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
         // Update fields with new set.
         parent::updateFields($fields);
+    }
+
+
+    /**
+     * Ensure we clear up the index table as a minimum as well as the main table
+     *
+     * @return mixed|void
+     */
+    public function onInstanceDelete() {
+        parent::onInstanceDelete();
+
+        /** @var DocumentDatasourceConfig $config */
+        $config = $this->getConfig();
+
+        // If custom document parser in play we delegate to that for the instance delete
+        if ($config->getCustomDocumentParser()) {
+            /**
+             * @var CustomDocumentParser $customDocumentParser
+             */
+            $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
+            $customDocumentParser->onDocumentDatasourceDelete($config, $this->getInstanceInfo());
+        }
+
+        // Drop the index table if it exists
+        /** @var DatasourceService $datasourceService */
+        $datasourceService = Container::instance()->get(DatasourceService::class);
+
+        try {
+            $datasourceService->removeDatasourceInstance("index_" . $this->getInstanceInfo()->getKey());
+        } catch (\Exception $e) {
+            // Success
+        }
     }
 
 

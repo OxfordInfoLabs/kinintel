@@ -80,7 +80,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     /**
      * @var TableDDLGenerator
      */
-    private $tableDDLGenerator;
+    protected $tableDDLGenerator;
 
 
     /**

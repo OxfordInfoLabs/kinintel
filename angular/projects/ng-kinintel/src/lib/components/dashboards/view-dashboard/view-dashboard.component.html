@@ -1,6 +1,6 @@
 <ng-template [ngIf]="!gridOnly">
 
-    <div class="dashboard-header align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
+    <div *ngIf="!hideToolbar" class="dashboard-header align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
 
         <h2 class="dashboard-title ml-2">{{dashboard.title}}</h2>
 

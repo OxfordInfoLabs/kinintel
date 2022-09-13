@@ -115,7 +115,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, "mytestsnapshot");
-        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshotprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshot", $config);
 
         $this->processor->process($instance);
 
@@ -188,7 +188,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, "mytestsnapshot");
-        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshotprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshot", $config);
         $this->processor->process($instance);
 
 
@@ -312,7 +312,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             ]
         );
 
-        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshotprocessor", $config);
+        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshot", $config);
 
         // Process
         $this->processor->process($instance);

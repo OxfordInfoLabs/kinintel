@@ -73,7 +73,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
      * @param DataProcessorInstance $instance
      */
     public function process($instance) {
-        $config = $instance->getConfig();
+
+        $config = $instance->returnConfig();
 
         // Read the source dataset instance
         $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
