@@ -27,19 +27,19 @@ class StopWord {
     /**
      * @var integer
      */
-    private $minPhraseLength;
+    private $includeStopwordsAtLength;
 
     /**
      * @var mixed
      */
     private $list;
 
-    public function __construct($builtIn = true, $custom = false, $datasourceKey = null, $datasourceColumn = null, $minPhraseLength = 1, $list = []) {
+    public function __construct($builtIn = true, $custom = false, $datasourceKey = null, $datasourceColumn = null, $includeStopwordsAtLength = 2, $list = []) {
         $this->builtIn = $builtIn;
         $this->custom = $custom;
         $this->datasourceKey = $datasourceKey;
         $this->datasourceColumn = $datasourceColumn;
-        $this->minPhraseLength = $minPhraseLength;
+        $this->includeStopwordsAtLength = $includeStopwordsAtLength;
         $this->list = $list;
     }
 
@@ -103,14 +103,14 @@ class StopWord {
      * @return int
      */
     public function getMinPhraseLength() {
-        return $this->minPhraseLength;
+        return $this->includeStopwordsAtLength;
     }
 
     /**
      * @param int $minPhraseLength
      */
     public function setMinPhraseLength($minPhraseLength) {
-        $this->minPhraseLength = $minPhraseLength;
+        $this->includeStopwordsAtLength = $minPhraseLength;
     }
 
     /**

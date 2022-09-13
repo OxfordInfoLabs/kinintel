@@ -17,7 +17,7 @@ class HierarchicalCluster
      * @param DistanceCalculator $calculator
      * @return ArrayTabularDataset
      */
-    public function   process($sourceDataset, $calculator)
+    public function process($sourceDataset, $calculator)
     {
         $sourceData = $sourceDataset->getAllData();
         $clustArray = [];

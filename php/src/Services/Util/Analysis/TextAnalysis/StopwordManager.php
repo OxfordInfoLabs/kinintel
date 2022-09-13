@@ -26,7 +26,6 @@ class StopwordManager {
         }
 
         $stopwords = file($this->fileResolver->resolveFile( "Config/stopwords/{$languageKey}.txt"), FILE_IGNORE_NEW_LINES);
-
         $this->stopwords[$languageKey] = $stopwords;
         return $stopwords;
     }

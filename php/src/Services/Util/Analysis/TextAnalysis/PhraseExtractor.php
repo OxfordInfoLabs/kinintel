@@ -31,7 +31,6 @@ class PhraseExtractor {
      * @return Phrase[]
      */
     public function extractPhrases($text, $maxPhraseLength = 1, $minPhraseLength = 1, $stopWords = [], $language = 'EN') {
-
         foreach ($stopWords as $stopWord) {
             if ($stopWord->isBuiltIn()) {
                 $stopWord->setList($this->stopwordManager->getStopwordsByLanguage($language) ?? []);
@@ -55,7 +54,6 @@ class PhraseExtractor {
                             $phrase[] = $nextSafeWord;
                             $phrases[] = implode(" ", $phrase);
                         }
-
                     } else {
                         break;
                     }
@@ -103,7 +101,7 @@ class PhraseExtractor {
      * Check if the supplied word is contained in any of the stop word lists. Also check the current phrase length
      * against the supplied min length settings.
      *
-     * @param string $word
+     * @param string $word Lower case word to check
      * @param StopWord[] $stopWords
      * @param integer $phraseLength
      * @return string
@@ -111,16 +109,16 @@ class PhraseExtractor {
     private function isSafeWord($word, $stopWords, $phraseLength) {
         if (sizeof($stopWords) > 0) {
             $safeWord = '';
-
-            foreach ($stopWords as $stopWord) {
-                if (in_array($word, $stopWord->getList())) {
+            foreach ($stopWords as $stopWord) { //For each list of stop words
+                if (in_array($word, $stopWord->getList())) { //If the current word is in the list
+                    //If this is not a minimal length stop word (so we keep "in correlation with" but throw out "in")
                     if ($stopWord->getMinPhraseLength() && ($phraseLength + 1 >= $stopWord->getMinPhraseLength())) {
                         $safeWord = $word;
-                    } else {
+                    } else { //return ""
                         $safeWord = '';
                         break;
                     }
-                } else {
+                } else { //Current word is not in the list
                     $safeWord = $word;
                 }
             }

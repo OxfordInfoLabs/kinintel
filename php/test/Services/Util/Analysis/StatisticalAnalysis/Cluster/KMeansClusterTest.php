@@ -73,6 +73,9 @@ class KMeansClusterTest extends TestCase
             ["id"=>3,"elements"=>["D"],"size"=>1]
 
         ];
+
+        print_r($resultsDataset->getAllData());
+
         $this->assertTrue($resultsDataset instanceof ArrayTabularDataset);
         $this->assertEquals($expectedColumns, $resultsDataset->getColumns());
         $this->assertEquals($expectedResults, $resultsDataset->getAllData());
