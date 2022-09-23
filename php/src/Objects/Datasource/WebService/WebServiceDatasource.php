@@ -15,6 +15,7 @@ use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\WebService\SubstitutionParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -54,14 +55,15 @@ class WebServiceDatasource extends BaseDatasource {
     private static $supportedAuthenticationCredentials = [
         BasicAuthenticationCredentials::class,
         QueryParameterAuthenticationCredentials::class,
-        HTTPHeaderAuthenticationCredentials::class
+        HTTPHeaderAuthenticationCredentials::class,
+        SubstitutionParameterAuthenticationCredentials::class
     ];
 
 
     public function __construct($config = null, $authenticationCredentials = null, $validator = null, $instanceKey = null, $instanceTitle = null, $instanceParameters = []) {
 
         // Construct parent
-        parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle,$instanceParameters);
+        parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle, $instanceParameters);
 
         $this->dispatcher = Container::instance()->get(HttpRequestDispatcher::class);
         $this->parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
@@ -178,11 +180,10 @@ class WebServiceDatasource extends BaseDatasource {
         if ($config->getPayloadTemplate() && $config->getMethod() != Request::METHOD_GET) {
             $payload = $this->parameterisedStringEvaluator->evaluateString($config->getPayloadTemplate(), [], $parameterValues);
         }
-        Logger::log($payload);
 
         // Create a new HttpRequest for this request
-        $urlEncodedParams =[];
-        foreach ($parameterValues as $key => $parameterValue){
+        $urlEncodedParams = [];
+        foreach ($parameterValues as $key => $parameterValue) {
             $urlEncodedParams[$key] = urlencode($parameterValue);
         }
         $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $urlEncodedParams);
