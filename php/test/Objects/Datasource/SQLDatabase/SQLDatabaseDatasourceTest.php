@@ -101,15 +101,17 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, 255, 2, "", true),
-            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, 2, "", false),
-            new TableColumn("date_started", TableColumn::SQL_DATE_TIME, 255, 2, "", false),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
+            new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
+            new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
             new TableColumn("age", TableColumn::SQL_DOUBLE)
         ]));
 
         $expectedColumns = [
             new Field("id", "Id", null, Field::TYPE_INTEGER, true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
+            new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
             new Field("age", "Age", null, Field::TYPE_FLOAT, false)
         ];
@@ -495,7 +497,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         // Expect create table statement created using ddl generator
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
-            new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
         ]);
 
@@ -508,6 +511,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
+            new Field("what", null, null, Field::TYPE_MEDIUM_STRING, false),
             new Field("how_many", null, null, Field::TYPE_INTEGER)
         ]);
 
@@ -545,7 +549,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         // Expect create table statement created using ddl generator
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
-            new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, true),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ]);
 
@@ -584,7 +588,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $existingMetaData = new TableMetaData("mytable", [
             new TableColumn("which", TableColumn::SQL_DATE, null, null, null, true),
-            new TableColumn("what", TableColumn::SQL_VARCHAR, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 255, null, null, true),
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
         ]);
 
@@ -596,7 +600,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         // Expect create table statement created using ddl generator
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, false),
-            new TableColumn("why", TableColumn::SQL_VARCHAR, null, null, null, false),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, false),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, true, true, false, "how_many")
         ]);
 

@@ -88,6 +88,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     const FIELD_TYPE_SQL_TYPE_MAP = [
         Field::TYPE_STRING => TableColumn::SQL_VARCHAR,
+        Field::TYPE_MEDIUM_STRING => TableColumn::SQL_VARCHAR,
         Field::TYPE_INTEGER => TableColumn::SQL_INTEGER,
         Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
         Field::TYPE_DATE => TableColumn::SQL_DATE,
@@ -96,12 +97,21 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB
     ];
 
+    const FIELD_TYPE_LENGTH_MAP = [
+        Field::TYPE_STRING => 255,
+        Field::TYPE_MEDIUM_STRING => 2000
+    ];
+
     const FIELD_SQL_TYPE_TYPE_MAP = [
         TableColumn::SQL_DOUBLE => Field::TYPE_FLOAT,
         TableColumn::SQL_DATE_TIME => Field::TYPE_DATE_TIME,
         TableColumn::SQL_DATE => Field::TYPE_DATE,
         TableColumn::SQL_INT => Field::TYPE_INTEGER,
-        TableColumn::SQL_VARCHAR => Field::TYPE_STRING,
+        TableColumn::SQL_VARCHAR => [
+            0 => Field::TYPE_STRING,
+            255 => Field::TYPE_MEDIUM_STRING,
+            2000 => Field::TYPE_LONG_STRING
+        ],
         TableColumn::SQL_BIGINT => Field::TYPE_INTEGER,
         TableColumn::SQL_BLOB => Field::TYPE_LONG_STRING,
         TableColumn::SQL_LONGBLOB => Field::TYPE_LONG_STRING,
@@ -275,10 +285,23 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
             foreach ($tableMetaData->getColumns() as $column) {
-                $columns[] = new Field($column->getName(), null, null, self::FIELD_SQL_TYPE_TYPE_MAP[$column->getType()] ?? Field::TYPE_STRING,
+
+                $columnSpec = self::FIELD_SQL_TYPE_TYPE_MAP[$column->getType()] ?? Field::TYPE_STRING;
+                if (is_array($columnSpec)) {
+                    foreach ($columnSpec as $length => $item) {
+                        if ($column->getLength() > $length) {
+                            $fieldType = $item;
+                        }
+                    }
+                } else {
+                    $fieldType = $columnSpec;
+                }
+
+                $columns[] = new Field($column->getName(), null, null, $fieldType,
                     $column->isPrimaryKey());
             }
         }
+
 
         // Return a tabular dataset
         return new SQLResultSetTabularDataset($resultSet, $columns);
@@ -466,14 +489,16 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
-            $type = self::FIELD_TYPE_SQL_TYPE_MAP[$field->getType()] ?? TableColumn::SQL_VARCHAR;
-            $primaryKey = $field->isKeyField() || ($field->getType() == Field::TYPE_ID);
-            $autoIncrement = ($field->getType() == Field::TYPE_ID);
+            $fieldType = $field->getType() ?? Field::TYPE_STRING;
+            $type = self::FIELD_TYPE_SQL_TYPE_MAP[$fieldType] ?? TableColumn::SQL_VARCHAR;
+            $length = self::FIELD_TYPE_LENGTH_MAP[$fieldType] ?? null;
+            $primaryKey = $field->isKeyField() || ($fieldType == Field::TYPE_ID);
+            $autoIncrement = ($fieldType == Field::TYPE_ID);
 
             if ($field instanceof DatasourceUpdateField) {
-                $columns[] = new UpdatableTableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement, false, $field->getOriginalName());
+                $columns[] = new UpdatableTableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement, false, $field->getOriginalName());
             } else {
-                $columns[] = new TableColumn($field->getName(), $type, null, null, null, $primaryKey, $autoIncrement);
+                $columns[] = new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement);
             }
         }
 
