@@ -112,7 +112,6 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         // Update this data set with the source dataset.
         $this->update($sourceDataset);
 
-
         // Match columns in configuration with those from the source dataset
         $this->getConfig()->setColumns($columns);
 
