@@ -345,7 +345,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
 
                     $joinColumnStrings[] = $childTableAlias . "." . $columnSpec;
-                    $newColumns[] = new Field($columnName, $joinColumn->getTitle());
+                    $newColumns[] = new Field($columnName, $joinColumn->getTitle(), null, $joinColumn->getType());
                 }
 
 
