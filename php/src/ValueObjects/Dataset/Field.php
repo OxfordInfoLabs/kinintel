@@ -48,12 +48,14 @@ class Field {
 
     // Generic field types
     const TYPE_STRING = "string";
+    const TYPE_MEDIUM_STRING = "mediumstring";
+    const TYPE_LONG_STRING = "longstring";
     const TYPE_INTEGER = "integer";
     const TYPE_FLOAT = "float";
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
     const TYPE_ID = "id";
-    const TYPE_LONG_STRING = "longstring";
+
 
     /**
      * Field constructor.

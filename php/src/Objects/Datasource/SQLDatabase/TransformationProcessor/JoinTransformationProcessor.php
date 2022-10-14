@@ -216,7 +216,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     }
                     $newColumns = array_merge($newColumns, Field::toPlainFields($materialisedJoinSet->getColumns()));
 
-
                     // Create new join dataset.
                     $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
 
@@ -346,9 +345,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
 
                     $joinColumnStrings[] = $childTableAlias . "." . $columnSpec;
-                    $newColumns[] = new Field($columnName, $joinColumn->getTitle());
+                    $newColumns[] = new Field($columnName, $joinColumn->getTitle(), null, $joinColumn->getType());
                 }
-
 
 
                 $childSelectColumns = join(",", $joinColumnStrings);

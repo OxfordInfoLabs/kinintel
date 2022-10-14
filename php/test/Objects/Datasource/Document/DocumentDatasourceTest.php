@@ -100,10 +100,10 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->onInstanceSave();
 
         $newMetaData = new TableMetaData("test_data", [
-            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("filename", "VARCHAR", 255, null, null, true),
             new TableColumn("imported_date", "DATETIME"),
             new TableColumn("file_size", "INTEGER"),
-            new TableColumn("file_type", "VARCHAR"),
+            new TableColumn("file_type", "VARCHAR", 255),
         ]);
 
 
@@ -126,11 +126,11 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->onInstanceSave();
 
         $newMetaData = new TableMetaData("test_data", [
-            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("filename", "VARCHAR", 255, null, null, true),
             new TableColumn("imported_date", "DATETIME"),
             new TableColumn("file_size", "INTEGER"),
-            new TableColumn("file_type", "VARCHAR"),
-            new TableColumn("original_link", "VARCHAR"),
+            new TableColumn("file_type", "VARCHAR", 255),
+            new TableColumn("original_link", "VARCHAR", 255),
             new TableColumn("original_text", "LONGBLOB"),
         ]);
 
@@ -147,10 +147,10 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
         $existingMetaData = new TableMetaData("test_data", [
-            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("filename", "VARCHAR", 255, null, null, true),
             new TableColumn("imported_date", "DATETIME"),
             new TableColumn("file_size", "INTEGER"),
-            new TableColumn("file_type", "VARCHAR"),
+            new TableColumn("file_type", "VARCHAR", 255),
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", $existingMetaData, ["test_data"]);
@@ -161,11 +161,11 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $newMetaData = new TableMetaData("test_data", [
-            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("filename", "VARCHAR", 255, null, null, true),
             new TableColumn("imported_date", "DATETIME"),
             new TableColumn("file_size", "INTEGER"),
-            new TableColumn("file_type", "VARCHAR"),
-            new TableColumn("original_link", "VARCHAR"),
+            new TableColumn("file_type", "VARCHAR", 255),
+            new TableColumn("original_link", "VARCHAR", 255),
             new TableColumn("original_text", "LONGBLOB"),
         ]);
 
@@ -549,10 +549,10 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $existingMetaData = new TableMetaData("test_data", [
-            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("filename", "VARCHAR", 255, null, null, true),
             new TableColumn("imported_date", "DATETIME"),
             new TableColumn("file_size", "INTEGER"),
-            new TableColumn("file_type", "VARCHAR"),
+            new TableColumn("file_type", "VARCHAR", 255),
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", $existingMetaData, ["test_data"]);
@@ -563,12 +563,12 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $newMetaData = new TableMetaData("test_data", [
-            new TableColumn("filename", "VARCHAR", null, null, null, true),
+            new TableColumn("filename", "VARCHAR", 255, null, null, true),
             new TableColumn("imported_date", "DATETIME"),
             new TableColumn("file_size", "INTEGER"),
-            new TableColumn("file_type", "VARCHAR"),
-            new TableColumn("extra1", "VARCHAR"),
-            new TableColumn("extra2", "VARCHAR"),
+            new TableColumn("file_type", "VARCHAR", 255),
+            new TableColumn("extra1", "VARCHAR", 255),
+            new TableColumn("extra2", "VARCHAR", 255),
         ]);
 
 
