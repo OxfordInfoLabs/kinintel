@@ -5,6 +5,7 @@ namespace Kinintel\ValueObjects\Dataset;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Services\Util\ValueFunctionEvaluator;
 
@@ -67,7 +68,7 @@ class Field {
      */
     public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false) {
 
-        $name = preg_split("/\W/", $name)[0];
+        $name = preg_split("/[^\w-]/", $name)[0];
         $this->name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $name);
 
         // If no title supplied, make one using the name

@@ -26,17 +26,25 @@ class DatasourceUpdate {
      */
     private $deletes;
 
+
+    /**
+     * @var mixed[]
+     */
+    private $replaces;
+
     /**
      * DatasourceUpdate constructor.
      *
      * @param mixed[] $adds
      * @param mixed[] $updates
      * @param mixed[] $deletes
+     * @param mixed[] $replaces
      */
-    public function __construct($adds = [], $updates = [], $deletes = []) {
+    public function __construct($adds = [], $updates = [], $deletes = [], $replaces = []) {
         $this->adds = $adds;
         $this->updates = $updates;
         $this->deletes = $deletes;
+        $this->replaces = $replaces;
     }
 
     /**
@@ -79,6 +87,20 @@ class DatasourceUpdate {
      */
     public function setDeletes($deletes) {
         $this->deletes = $deletes;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getReplaces() {
+        return $this->replaces;
+    }
+
+    /**
+     * @param mixed[] $replaces
+     */
+    public function setReplaces($replaces) {
+        $this->replaces = $replaces;
     }
 
 

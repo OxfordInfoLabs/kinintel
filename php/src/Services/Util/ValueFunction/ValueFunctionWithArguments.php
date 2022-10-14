@@ -7,7 +7,7 @@ namespace Kinintel\Services\Util\ValueFunction;
  * Field value function with arguments in classic function(arg1,arg2) format
  *
  * Class FieldValueFunctionWithArguments
- * @package Kinintel\ValueObjects\Dataset\FieldValueFunction
+ * @package Kinintel\ValueObjects\Dataset\ValueFunction
  */
 abstract class ValueFunctionWithArguments implements ValueFunction {
 

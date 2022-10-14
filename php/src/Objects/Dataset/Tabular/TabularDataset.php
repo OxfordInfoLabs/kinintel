@@ -75,6 +75,20 @@ abstract class TabularDataset implements Dataset {
         return $this->columns;
     }
 
+
+    /**
+     * Return a column by key
+     *
+     * @return Field
+     */
+    public function getColumnByName($name) {
+        foreach ($this->getColumns() ?? [] as $column) {
+            if ($column->getName() == $name)
+                return $column;
+        }
+        return null;
+    }
+
     /**
      * Disable row data caching - used programmatically when we know a dataset
      * will only be read once.
