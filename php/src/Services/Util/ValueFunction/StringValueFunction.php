@@ -1,20 +1,10 @@
 <?php
 
-
 namespace Kinintel\Services\Util\ValueFunction;
 
-
-use AWS\CRT\Log;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Util\ObjectArrayUtils;
-
-class ArrayValueFunction extends ValueFunctionWithArguments
-{
-
+class StringValueFunction extends ValueFunctionWithArguments {
     const supportedFunctions = [
-        "memberValues",
-        "join",
-        "slice"
+        "substring"
     ];
 
     /**
@@ -40,27 +30,17 @@ class ArrayValueFunction extends ValueFunctionWithArguments
     protected function applyFunctionWithArgs($functionName, $functionArgs, $value, $dataItem)
     {
 
-        if (is_array($value)) {
+        if (is_string($value)) {
 
-            if ($functionName == "memberValues") {
-                $member = $functionArgs[0] ?? "";
-                $values = [];
-                foreach ($value as $item) {
-                    $values[] = $item[$member] ?? null;
-                }
-                return $values;
-            }
-
-            if ($functionName == "join") {
-                $separator = $functionArgs[0] ?? ",";
-                return implode($separator, $value);
-            }
-
-            if ($functionName == "slice") {
+            if ($functionName == "substring") {
                 $offset = $functionArgs[0];
                 $length = $functionArgs[1] ?? null;
 
-                return array_slice($value, $offset, $length);
+                if ($length) {
+                    return substr($value, $offset, $length);
+                } else {
+                    return substr($value, $offset);
+                }
             }
 
             return $value;

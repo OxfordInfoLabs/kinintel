@@ -223,12 +223,12 @@ class DatasourceService {
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdate $datasourceUpdate
      */
-    public function updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
+    public function updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate, $allowInsecure = false) {
 
         // Grab the instance
         $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
 
-        if ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn()) {
+        if (!$allowInsecure && ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn())) {
             throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstanceKey);
         }
 
@@ -260,25 +260,32 @@ class DatasourceService {
 
         // Perform the various updates required
         if ($datasourceUpdate->getAdds()) {
-            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
-                    return new Field($columnName);
-                }, array_keys($datasourceUpdate->getAdds()[0]));
+            $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
+                return new Field($columnName);
+            }, array_keys($datasourceUpdate->getAdds()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
         }
 
         if ($datasourceUpdate->getUpdates()) {
-            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
-                    return new Field($columnName);
-                }, array_keys($datasourceUpdate->getUpdates()[0]));
+            $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
+                return new Field($columnName);
+            }, array_keys($datasourceUpdate->getUpdates()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
         }
 
 
         if ($datasourceUpdate->getDeletes()) {
-            $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
-                    return new Field($columnName);
-                }, array_keys($datasourceUpdate->getDeletes()[0]));
+            $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
+                return new Field($columnName);
+            }, array_keys($datasourceUpdate->getDeletes()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
+        }
+
+        if ($datasourceUpdate->getReplaces()) {
+            $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
+                return new Field($columnName);
+            }, array_keys($datasourceUpdate->getReplaces()[0]));
+            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getReplaces()), UpdatableDatasource::UPDATE_MODE_REPLACE);
         }
 
     }

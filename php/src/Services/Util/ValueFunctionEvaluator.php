@@ -8,6 +8,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Services\Util\ValueFunction\ArrayValueFunction;
 use Kinintel\Services\Util\ValueFunction\ConversionValueFunction;
 use Kinintel\Services\Util\ValueFunction\DateFormatValueFunction;
+use Kinintel\Services\Util\ValueFunction\StringValueFunction;
 use Kinintel\Services\Util\ValueFunction\ValueFunction;
 use Kinintel\Services\Util\ValueFunction\LogicValueFunction;
 use Kinintel\Services\Util\ValueFunction\RegExValueFunction;
@@ -33,7 +34,8 @@ class ValueFunctionEvaluator {
             new DateFormatValueFunction(),
             new LogicValueFunction(),
             new ConversionValueFunction(),
-            new ArrayValueFunction()
+            new ArrayValueFunction(),
+            new StringValueFunction()
         ];
     }
 

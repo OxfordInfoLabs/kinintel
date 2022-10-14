@@ -66,7 +66,6 @@ class ZipCompressor implements Compressor {
             return $parameterisedStringEvaluator->evaluateString($filename, [], $parameterValues);
         }, $rawEntryFilenames);
 
-
         $result = $zip->extractTo($zipFile . "-extracted", $entryFilenames);
 
         if ($result === false) {

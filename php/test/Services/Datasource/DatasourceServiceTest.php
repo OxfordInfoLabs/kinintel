@@ -578,7 +578,11 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Mr Smith", "age" => 22],
             ["name" => "Mrs Apple", "age" => 72]
         ], [
-                ["name" => "Going away", "age" => 33]
+            ["name" => "Going away", "age" => 33]
+        ],
+            [
+                ["name" => "Replace me", "age" => 88],
+                ["name" => "Replace me twice", "age" => 65]
             ]
         );
 
@@ -605,6 +609,14 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Going away", "age" => 33]
         ]);
 
+        $replaceDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ],[
+            ["name" => "Replace me", "age" => 88],
+            ["name" => "Replace me twice", "age" => 65]
+        ]);
+
         $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
@@ -619,6 +631,9 @@ class DatasourceServiceTest extends TestBase {
             $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
         ]));
 
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
 
     }
 
