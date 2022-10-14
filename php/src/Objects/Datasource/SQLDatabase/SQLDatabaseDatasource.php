@@ -272,7 +272,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
 
-
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
@@ -282,7 +281,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
             $columns = [];
             $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
-
 
             foreach ($tableMetaData->getColumns() as $column) {
 
