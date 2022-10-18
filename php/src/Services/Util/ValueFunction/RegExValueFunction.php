@@ -21,6 +21,6 @@ class RegExValueFunction implements ValueFunction {
      */
     public function applyFunction($functionString, $value, $dataItem) {
         preg_match($functionString, $value, $fieldMatches);
-        return $fieldMatches[1] ?? $fieldMatches[0] ?? null;
+        return isset($fieldMatches[1]) ? join("", array_slice($fieldMatches, 1)) : ($fieldMatches[0] ?? null);
     }
 }

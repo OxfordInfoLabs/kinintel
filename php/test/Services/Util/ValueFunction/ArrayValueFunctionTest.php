@@ -5,7 +5,6 @@ namespace Kinintel\Test\Services\Util\ValueFunction;
 
 use Kinintel\Services\Util\ValueFunction\ArrayValueFunction;
 
-
 include_once "autoloader.php";
 
 class ArrayValueFunctionTest extends \PHPUnit\Framework\TestCase {
@@ -46,6 +45,18 @@ class ArrayValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $array = ["Mark", "James", "Mary"];
         $this->assertEquals("Mark,James,Mary", $function->applyFunction("join ,", $array, null));
         $this->assertEquals("Mark;James;Mary", $function->applyFunction("join ;", $array, null));
+
+    }
+
+    public function testCanSliceArrayBetweenIndexes() {
+        $function = new ArrayValueFunction();
+        $this->assertTrue($function->doesFunctionApply("slice"));
+
+        $array = ["Mark", "James", "Mary"];
+        $this->assertEquals(["James", "Mary"], $function->applyFunction("slice 1", $array, null));
+        $this->assertEquals(["James"], $function->applyFunction("slice 1 1", $array, null));
+        $this->assertEquals(["Mary"], $function->applyFunction("slice 2 1", $array, null));
+        $this->assertEquals(["Mark", "James"], $function->applyFunction("slice 0 2", $array, null));
 
     }
 
