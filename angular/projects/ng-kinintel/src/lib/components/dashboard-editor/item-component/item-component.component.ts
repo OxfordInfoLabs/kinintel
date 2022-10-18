@@ -108,6 +108,11 @@ export class ItemComponentComponent implements AfterViewInit {
             this.limit = this.tabular.limit;
         }
 
+        if (this.general && this.general.limit) {
+            this.limit = this.general.limit;
+            this.offset = this.general.offset;
+        }
+
         if (!this.datasourceService) {
             this.datasourceService = this.kiDatasourceService;
         }
@@ -381,47 +386,17 @@ export class ItemComponentComponent implements AfterViewInit {
 
     public updateMetricDataValues() {
         if (this.metric.main) {
-            this.metric.mainValue = this.dataset.allData[0][this.metric.main];
-        }
-
-        if (this.metric.mainFormat) {
-            if (this.metric.mainFormatDecimals) {
-                this.metric.mainValue = Number(this.metric.mainValue).toFixed(this.metric.mainFormatDecimals);
-            }
-            if (this.metric.mainFormat === 'Currency' && this.metric.mainFormatCurrency) {
-                const currency = _.find(this.currencies, {value: this.metric.mainFormatCurrency});
-                if (currency) {
-                    this.metric.mainValue = currency.symbol + '' + this.metric.mainValue;
-                }
-            }
-            if (this.metric.mainFormat === 'Percentage') {
-                this.metric.mainValue = this.metric.mainValue + '%';
-            }
+            this.metric.mainValue = _.isNaN(Number(this.dataset.allData[0][this.metric.main])) ? this.dataset.allData[0][this.metric.main] : Number(this.dataset.allData[0][this.metric.main]);
+            this.metric.title = _.startCase(this.metric.main);
         }
 
         if (this.metric.subMetric) {
-            this.metric.subValue = this.dataset.allData[0][this.metric.subMetric];
+            this.metric.subValue = Number(this.dataset.allData[0][this.metric.subMetric]);
+            this.metric.subTitle = _.startCase(this.metric.subMetric);
         }
 
-        if (this.metric.subMetricFormat) {
-            if (this.metric.subMetricFormatDecimals) {
-                this.metric.subValue = Number(this.metric.subValue).toFixed(this.metric.subMetricFormatDecimals);
-            }
-            if (this.metric.subMetricFormat === 'Currency' && this.metric.subMetricFormatCurrency) {
-                const currency = _.find(this.currencies, {value: this.metric.subMetricFormatCurrency});
-                if (currency) {
-                    this.metric.subValue = currency.symbol + '' + this.metric.subValue;
-                }
-            }
-            if (this.metric.subMetricFormat === 'Percentage') {
-                this.metric.subValue = this.metric.subValue + '%';
-            }
-        }
-
-        if (this.metric.showSubChange && !_.isNil(this.metric.subValue) && String(this.metric.subValue).length) {
-            const changeClass = `${parseInt(this.metric.subValue, 10) > 0 ? 'up' : 'down'}`;
-            const icon = `${parseInt(this.metric.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
-            this.metric.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metric.subValue}</span>`;
+        if (this.metric.showSubChange) {
+            this.metric.difference = Math.abs(this.metric.mainValue - this.metric.subValue);
         }
     }
 
@@ -491,6 +466,59 @@ export class ItemComponentComponent implements AfterViewInit {
         // If we change the table limit - we also want to save the dashboard automatically to keep the changes
         this.tabular.limit = this.limit;
         this.dashboardService.saveDashboard(this.dashboard);
+
+        this.evaluate(true);
+    }
+
+    public sortHeader(columnObject) {
+        const column = columnObject.name;
+        let direction = '';
+
+        const existingMultiSort = _.find(this.dashboardDatasetInstance.transformationInstances, {type: 'multisort'});
+
+        let existingColumnIndex = -1;
+        if (existingMultiSort) {
+            existingColumnIndex = _.findIndex(existingMultiSort.config.sorts, {fieldName: column});
+        }
+
+        if (!existingMultiSort || existingColumnIndex === -1) {
+            direction = 'asc';
+        } else if (existingColumnIndex >= 0 && existingMultiSort.config.sorts[existingColumnIndex].direction === 'asc') {
+            direction = 'desc';
+        } else if (existingColumnIndex >= 0 && existingMultiSort.config.sorts[existingColumnIndex].direction === 'desc') {
+            direction = '';
+        } else if (existingColumnIndex >= 0 && !existingMultiSort.config.sorts[existingColumnIndex].direction) {
+            direction = 'asc';
+        }
+
+        columnObject.direction = direction;
+
+        if (existingMultiSort) {
+            const existingIndex = _.findIndex(existingMultiSort.config.sorts, {fieldName: column});
+            if (direction) {
+                if (existingIndex > -1) {
+                    existingMultiSort.config.sorts[existingIndex] = {fieldName: column, direction};
+                } else {
+                    existingMultiSort.config.sorts.push({fieldName: column, direction});
+                }
+            } else {
+                existingMultiSort.config.sorts.splice(existingIndex, 1);
+                if (!existingMultiSort.config.sorts.length) {
+                    _.remove(this.dashboardDatasetInstance.transformationInstances, {type: 'multisort'});
+                }
+            }
+        } else {
+            if (direction) {
+                this.dashboardDatasetInstance.transformationInstances.push(
+                    {
+                        type: 'multisort',
+                        config: {
+                            sorts: [{fieldName: column, direction}]
+                        }
+                    }
+                );
+            }
+        }
 
         this.evaluate(true);
     }
@@ -627,7 +655,7 @@ export class ItemComponentComponent implements AfterViewInit {
                                         item[tableCell] = {cellValue, initialValue};
                                         break;
                                     case 'link':
-                                        let linkValue = item[tableCell];
+                                        let linkValue = cellData.customLink;
                                         let anchor = '';
                                         if (cellData.linkType === 'custom') {
                                             const dataItem = data.allData[index] || this.dashboard.layoutSettings.parameters;
@@ -706,6 +734,18 @@ export class ItemComponentComponent implements AfterViewInit {
                 });
             }
             this.dataset = data;
+
+            const existingMultiSort = _.find(this.dashboardDatasetInstance.transformationInstances, {type: 'multisort'});
+
+            if (existingMultiSort && existingMultiSort.config.sorts.length) {
+                existingMultiSort.config.sorts.forEach(sort => {
+                    const column = _.find(this.dataset.columns, {name: sort.fieldName});
+                    if (column) {
+                        column.direction = sort.direction;
+                    }
+                });
+            }
+
             this.filterFields = _.map(this.dataset.columns, column => {
                 return {
                     title: column.title,

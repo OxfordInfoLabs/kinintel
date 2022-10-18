@@ -14,6 +14,9 @@ import {
 } from './dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import moment from 'moment';
+import {
+    UpstreamChangesConfirmationComponent
+} from '../dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -26,6 +29,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     @Input() environment: any = {};
     @Input() admin: boolean;
     @Input() dashboardParameters: any;
+    @Input() dashboardLayoutSettings: any;
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() datasetInstanceSummaryChange = new EventEmitter();
@@ -174,8 +178,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-    public disableTransformation(transformation) {
+    public disableTransformation(transformation, index) {
         transformation.exclude = !transformation.exclude;
+        this.showPerTerminatingFilters(transformation);
         this.evaluateDataset();
     }
 
@@ -388,6 +393,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     public pageSizeChange(value) {
         this.limit = value;
+        localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, this.limit.toString());
         this.evaluateDataset(true);
     }
 
@@ -447,19 +453,25 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     // Check if anything has changed
                     if (!_.isEqual(clonedConfig, summariseTransformation) && (existingIndex + 1) < this.datasetInstanceSummary.transformationInstances.length) {
                         // Things have changed, ask user to confirm
-                        const message = 'You have made changes which may result in upstream transformations becoming incompatible, causing' +
-                            ' the evaluation to fail. In order to proceed we will need to remove the affected transformations. Do ' +
-                            'you want to proceed?';
-                        if (window.confirm(message)) {
-                            for (let i = existingIndex; i < this.datasetInstanceSummary.transformationInstances.length; i++) {
-                                this.datasetInstanceSummary.transformationInstances.splice(i, 1);
+
+                        this.dialog.open(UpstreamChangesConfirmationComponent, {
+                            width: '700px',
+                            height: '275px'
+                        }).afterClosed().subscribe(res => {
+                            if (res) {
+                                if (res === 'remove') {
+                                    for (let i = existingIndex; i < this.datasetInstanceSummary.transformationInstances.length; i++) {
+                                        this.datasetInstanceSummary.transformationInstances.splice(i, 1);
+                                    }
+                                }
+
+                                this.datasetInstanceSummary.transformationInstances[existingIndex] = {
+                                    type: 'summarise',
+                                    config: summariseTransformation
+                                };
+                                this.evaluateDataset(true);
                             }
-                            this.datasetInstanceSummary.transformationInstances[existingIndex] = {
-                                type: 'summarise',
-                                config: summariseTransformation
-                            };
-                            this.evaluateDataset(true);
-                        }
+                        });
                     } else {
                         this.datasetInstanceSummary.transformationInstances[existingIndex] = {
                             type: 'summarise',
@@ -638,7 +650,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 transformation._disable = summarise < summariseTotal;
                 transformation._active = summarise === summariseTotal;
 
-                this.hidePreTerminatingFilters(index);
+                if (!transformation.exclude) {
+                    this.hidePreTerminatingFilters(index);
+                }
 
                 return true;
             }
@@ -648,7 +662,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 transformation._disable = join < joinTotal;
                 transformation._active = join === joinTotal;
 
-                this.hidePreTerminatingFilters(index);
+                if (!transformation.exclude) {
+                    this.hidePreTerminatingFilters(index);
+                }
 
                 return true;
             }
@@ -678,6 +694,15 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         this.datasetInstanceSummary.transformationInstances.forEach((transformation, index) => {
             if (transformation.type === 'filter') {
                 transformation.hide = transformation.exclude || terminatingIndex > index;
+            }
+        });
+    }
+
+    private showPerTerminatingFilters(transformation) {
+        const terminatingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, transformation);
+        this.datasetInstanceSummary.transformationInstances.forEach((transformationInstance, index) => {
+            if (transformationInstance.type === 'filter') {
+                transformationInstance.hide = !(terminatingIndex > index);
             }
         });
     }
@@ -774,6 +799,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                         clonedDatasetInstance.parameterValues[param.name] = moment(value).format('YYYY-MM-DD HH:mm:ss');
                     }
                 });
+
+                if (this.dashboardLayoutSettings) {
+                    this.dashboardLayoutSettings.limit = this.limit;
+                    this.dashboardLayoutSettings.offset = this.offset;
+                }
 
                 this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
                     clonedDatasetInstance,
