@@ -23,12 +23,12 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     /**
      * @var int
      */
-    private $sourceReadChunkSize = null;
+    private $sourceReadChunkSize;
 
     /**
      * @var int
      */
-    private $targetWriteChunkSize = 500;
+    private $targetWriteChunkSize;
 
     /**
      * @param string[] $sourceDatasourceKeys
@@ -37,12 +37,12 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
      */
-    public function __construct($sourceDatasourceKeys, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $sourceReadChunkSize = 200, $targetWriteChunkSize = 200) {
+    public function __construct($sourceDatasourceKeys, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
-        $this->sourceReadChunkSize = $sourceReadChunkSize;
-        $this->targetWriteChunkSize = $targetWriteChunkSize;
+        $this->sourceReadChunkSize = $sourceReadChunkSize ?: PHP_INT_MAX;
+        $this->targetWriteChunkSize = $targetWriteChunkSize ?: 500;
     }
 
     /**

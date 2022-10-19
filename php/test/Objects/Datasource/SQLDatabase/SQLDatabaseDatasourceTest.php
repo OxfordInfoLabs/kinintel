@@ -32,6 +32,8 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -124,6 +126,46 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new SQLResultSetTabularDataset($resultSet, $expectedColumns, true), $dataSet);
     }
 
+
+    public function testParameterisedTableNameIsEvaluatedCorrectlyOnMaterialise() {
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE,
+            "{{testParam}}"),
+            $this->authCredentials, null, $this->validator);
+
+
+        $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
+
+        $this->databaseConnection->returnValue("query", $resultSet, [
+            "SELECT * FROM BINGO_BONGO", []
+        ]);
+
+        $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true),
+            new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
+            new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
+            new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
+            new TableColumn("age", TableColumn::SQL_DOUBLE)
+        ]));
+
+        $expectedColumns = [
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true),
+            new Field("name", "Name", null, Field::TYPE_STRING, false),
+            new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
+            new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
+            new Field("age", "Age", null, Field::TYPE_FLOAT, false)
+        ];
+
+        /**
+         * @var SQLResultSetTabularDataset $dataSet
+         */
+        $dataSet = $sqlDatabaseDatasource->materialiseDataset(["testParam" => "BINGO_BONGO"]);
+
+        $this->assertEquals(new SQLResultSetTabularDataset($resultSet, $expectedColumns, true), $dataSet);
+
+
+    }
 
     public function testColumnsPassedThroughToDataSetIfSupplied() {
 
@@ -647,5 +689,24 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             "TABLE DELETE"
         ]));
     }
+
+    public function testCanAddCustomCredentials() {
+
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable");
+
+        $datasource = new SQLDatabaseDatasource($config,
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+        $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
+
+        SQLDatabaseDatasource::addCredentialsClass(FTPAuthenticationCredentials::class);
+
+        $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class, FTPAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
+
+
+    }
+
 
 }

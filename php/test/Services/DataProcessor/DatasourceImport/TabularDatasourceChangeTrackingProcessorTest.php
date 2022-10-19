@@ -37,7 +37,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testNewFileCreatedInDataDirectoryOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, PHP_INT_MAX);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -95,15 +95,15 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test2/deletes.txt"));
 
-        $this->assertStringContainsString("Joe Bloggs|22\nJames Bond|56\nAndrew Smith|30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
-        $this->assertStringContainsString("Peter Storm|15\nIron Man|40", file_get_contents("Files/change_tracking_processors/test/test2/previous.txt"));
+        $this->assertStringContainsString("Joe Bloggs||22\nJames Bond||56\nAndrew Smith||30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
+        $this->assertStringContainsString("Peter Storm||15\nIron Man||40", file_get_contents("Files/change_tracking_processors/test/test2/previous.txt"));
 
     }
 
 
     public function testCanCopyToPreviousOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -154,8 +154,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
         mkdir("Files/change_tracking_processors/test/test2", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/new.txt", "Joe Bloggs|22\nJames Bond|56\nPeter Storm|15");
-        file_put_contents("Files/change_tracking_processors/test/test2/previous.txt", "Joe Bloggs|22\nPeter Storm|15");
+        file_put_contents("Files/change_tracking_processors/test/test1/new.txt", "Joe Bloggs||22\nJames Bond||56\nPeter Storm||15");
+        file_put_contents("Files/change_tracking_processors/test/test2/previous.txt", "Joe Bloggs||22\nPeter Storm||15");
 
 
         // Actually process
@@ -167,11 +167,11 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test2/deletes.txt"));
 
-        $this->assertStringContainsString("Joe Bloggs|22\nJames Bond|56\nAndrew Smith|30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
+        $this->assertStringContainsString("Joe Bloggs||22\nJames Bond||56\nAndrew Smith||30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
     }
 
     public function testCanDetectAdds() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -224,8 +224,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         mkdir("Files/change_tracking_processors/test/test2", 0777, true);
 
 
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs|22\nJames Bond|56\nPeter Storm|15");
-        file_put_contents("Files/change_tracking_processors/test/test2/adds.txt", "James Bond|56");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nJames Bond||56\nPeter Storm||15");
+        file_put_contents("Files/change_tracking_processors/test/test2/adds.txt", "James Bond||56");
 
 
         // Actually process
@@ -234,14 +234,14 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         // Expect the new and previous files to exist
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
 
-        $this->assertStringContainsString("Andrew Smith|30", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
-        $this->assertStringContainsString("Iron Man|40", file_get_contents("Files/change_tracking_processors/test/test2/adds.txt"));
-        $this->assertStringNotContainsString("James Bond|56", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
+        $this->assertStringContainsString("Andrew Smith||30", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
+        $this->assertStringContainsString("Iron Man||40", file_get_contents("Files/change_tracking_processors/test/test2/adds.txt"));
+        $this->assertStringNotContainsString("James Bond||56", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
 
     }
 
     public function testCanDetectDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -292,8 +292,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
         mkdir("Files/change_tracking_processors/test/test2", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs|22\nJames Bond|56\nPeter Storm|15\nJohn Smith|76\nAlexander Hamilton|32");
-        file_put_contents("Files/change_tracking_processors/test/test2/deletes.txt", "William Williamson|91");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nJames Bond||56\nPeter Storm||15\nJohn Smith||76\nAlexander Hamilton||32");
+        file_put_contents("Files/change_tracking_processors/test/test2/deletes.txt", "William Williamson||91");
 
 
         // Actually process
@@ -302,13 +302,13 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         // Expect the new and previous files to exist
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/deletes.txt"));
 
-        $this->assertStringContainsString("John Smith|76\nAlexander Hamilton|32", file_get_contents("Files/change_tracking_processors/test/test1/deletes.txt"));
-        $this->assertStringNotContainsString("William Williamson|91", file_get_contents("Files/change_tracking_processors/test/test2/deletes.txt"));
+        $this->assertStringContainsString("John Smith||76\nAlexander Hamilton||32", file_get_contents("Files/change_tracking_processors/test/test1/deletes.txt"));
+        $this->assertStringNotContainsString("William Williamson||91", file_get_contents("Files/change_tracking_processors/test/test2/deletes.txt"));
     }
 
 
     public function testCanWriteToTargetDataSources() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -354,7 +354,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
     public function testCanWriteToTargetDataSourcesWithDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -397,7 +397,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs|22\nPeter Storm|15");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nPeter Storm||15");
 
 
         $this->processor->process($processorInstance);
@@ -407,7 +407,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanWriteToTargetDataSourcesWithUpdates() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -447,7 +447,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs|21\nAndrew Smith|30");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||21\nAndrew Smith||30");
 
 
         $this->processor->process($processorInstance);
@@ -457,7 +457,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanWriteToTargetDataSourcesWithAddsUpdatesAndDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -509,7 +509,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs|22\nAndrew Smith|29\nIron Man|40");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nAndrew Smith||29\nIron Man||40");
 
 
         $this->processor->process($processorInstance);
@@ -520,7 +520,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanWriteToTargetDataSourcesWithEmptyDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, 50);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -581,7 +581,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $targetWriteSize = 500;
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, 50, $targetWriteSize);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null, $targetWriteSize);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -613,7 +613,42 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->processor->process($processorInstance);
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate1, true]));
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate2, true]));
+    }
+
+    public function testCanReadGivenChunkSize() {
+
+        $sourceReadChunkSize = 500;
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, $sourceReadChunkSize, 750);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
 
 
+        $data = [];
+
+        for ($i=0; $i < 750; $i++) {
+            $data[$i]["name"] = $i;
+            $data[$i]["age"] = 10;
+        }
+
+
+        $testDatasetFull = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], $data);
+        $testDatasetFirst = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], array_slice($data, 0, $sourceReadChunkSize));
+        $testDatasetSecond = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], array_slice($data, $sourceReadChunkSize, $sourceReadChunkSize));
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDatasetFull, [
+            "test1", [], [], 0, 1
+        ]);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDatasetFirst, [
+            "test1", [], [], 0, $sourceReadChunkSize
+        ]);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDatasetSecond, [
+            "test1", [], [], $sourceReadChunkSize, $sourceReadChunkSize
+        ]);
+
+        $expectedUpdate1 = new DatasourceUpdate([], [], [], $data);
+
+        $this->processor->process($processorInstance);
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate1, true]));
     }
 }

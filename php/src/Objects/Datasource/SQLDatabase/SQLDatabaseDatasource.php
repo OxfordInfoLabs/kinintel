@@ -30,6 +30,7 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
@@ -81,6 +82,12 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @var TableDDLGenerator
      */
     protected $tableDDLGenerator;
+
+
+    /**
+     * @var string[]
+     */
+    private static $additionalCredentialClasses = [];
 
 
     /**
@@ -143,6 +150,16 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
     /**
+     * Add a credentials class statically
+     *
+     * @param $className
+     */
+    public static function addCredentialsClass($className) {
+        self::$additionalCredentialClasses[] = $className;
+    }
+
+
+    /**
      * Return the config class for this datasource
      *
      * @return string
@@ -157,10 +174,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @return string[]
      */
     public function getSupportedCredentialClasses() {
-        return [
+        return array_merge([
             SQLiteAuthenticationCredentials::class,
             MySQLAuthenticationCredentials::class
-        ];
+        ], self::$additionalCredentialClasses);
     }
 
     /**
@@ -434,9 +451,15 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $config = $this->getConfig();
 
+        /**
+         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
+         */
+        $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
+
         // If a tabular based source, create base clause
         if ($config->getSource() == SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
-            $query = new SQLQuery("*", $config->getTableName());
+            $tableName = $parameterisedStringEvaluator->evaluateString($config->getTableName(), [], $parameterValues);
+            $query = new SQLQuery("*", $tableName);
         } else {
             /**
              * @var TemplateParser $templateParser
