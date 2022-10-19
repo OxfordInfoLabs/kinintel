@@ -4,7 +4,10 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -36,7 +39,28 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      * @return SQLQuery
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
-        $dataSource->getConfig()->setColumns($transformation->getColumns());
+
+        $dataSourceConfig = $dataSource->getConfig();
+
+        $newColumns = [];
+        if (is_array($dataSourceConfig->getColumns())) {
+            $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $dataSourceConfig->getColumns());
+            foreach ($transformation->getColumns() as $newColumn) {
+                $existingColumn = $existingColumns[$newColumn->getName()] ?? null;
+                if ($existingColumn) {
+                    $newColumns[] = new Field($existingColumn->getName(), $newColumn->getTitle(), null,
+                        $existingColumn->getType(), $existingColumn->isKeyField());
+                } else {
+                    $newColumns[] = $newColumn;
+                }
+            }
+        } else {
+            $newColumns = $transformation->getColumns();
+        }
+
+
+
+        $dataSourceConfig->setColumns($newColumns);
         return $query;
     }
 }

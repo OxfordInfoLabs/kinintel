@@ -1,0 +1,120 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Available Data Items</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content p-0">
+        <div class="flex">
+            <div class="relative flex-grow focus-within:z-10">
+                <div
+                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <input type="text"
+                       class="block w-full rounded-none pl-10 border-t-1 border-l-0 border-gray-300"
+                       placeholder="Search for a dashboard, stored query, or other data item."
+                       (keyup)="searchText.next($event.target.value)">
+            </div>
+        </div>
+        <table class="min-w-full">
+            <tbody class="bg-white">
+                <tr class="border-t border-gray-200">
+                    <th colspan="5" scope="colgroup" class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
+                        Project Dashboards</th>
+                </tr>
+
+                <tr *ngFor="let dashboard of projectDashboards" class="border-t border-gray-300">
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        {{dashboard.title}}
+                    </td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <a (click)="selectDashboard(dashboard)" class="text-primary">Select</a>
+                    </td>
+                </tr>
+
+            </tbody>
+
+            <tbody class="bg-white">
+            <tr class="border-t border-gray-200">
+                <th colspan="5" scope="colgroup" class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
+                    Shared Dashboards</th>
+            </tr>
+
+            <tr *ngFor="let dashboard of sharedDashboards" class="border-t border-gray-300">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{dashboard.title}}</td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <a (click)="selectDashboard(dashboard)" class="text-primary">Select</a>
+                </td>
+            </tr>
+
+            </tbody>
+
+            <tbody class="bg-white">
+            <tr class="border-t border-gray-200">
+                <th colspan="5" scope="colgroup" class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
+                    Stored Queries</th>
+            </tr>
+
+            <tr *ngFor="let query of storedQueries" class="border-t border-gray-300">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                    {{query.title}}
+                </td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <a (click)="selectQuery(query)" class="text-primary">Select</a>
+                </td>
+            </tr>
+
+            </tbody>
+            <tbody class="bg-white">
+            <tr class="border-t border-gray-200">
+                <th colspan="5" scope="colgroup" class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
+                    My Data</th>
+            </tr>
+
+            <tr *ngFor="let datasource of datasources" class="border-t border-gray-300">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                    {{datasource.title}}
+                </td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <a (click)="selectDatasource(datasource)" class="text-primary">Select</a>
+                </td>
+            </tr>
+
+            </tbody>
+            <tbody class="bg-white">
+            <tr class="border-t border-gray-200">
+                <th colspan="5" scope="colgroup" class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
+                    Data Packages</th>
+            </tr>
+
+            <tr *ngFor="let dataPackage of dataPackages" class="border-t border-gray-300">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                    {{dataPackage.title}}
+                </td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <a (click)="selectQuery(dataPackage)" class="text-primary">Select</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+
+        <div></div>
+    </div>
+
+</div>
+
+

@@ -24,7 +24,8 @@ module.exports = {
                 indigo: colors.indigo,
                 red: colors.rose,
                 yellow: colors.amber,
-                blue: colors.blue
+                blue: colors.blue,
+                orange: colors.orange
             },
             zIndex: {
                 '-10': '-10',
@@ -41,6 +42,16 @@ module.exports = {
                 'secondary': '#ff4081',
                 'danger': '#f44336',
                 'success': '#4ec257'
+            },
+            borderColor: {
+                'primary': '#3f51b5',
+                'secondary': '#ff4081',
+                'danger': '#f44336',
+                'success': '#4ec257'
+            },
+            strokeWidth: {
+                '3': '3',
+                '4': '4',
             }
         }
     },

@@ -469,47 +469,17 @@ export class ConfigureItemComponent implements OnInit {
 
     public updateMetricDataValues() {
         if (this.metric.main) {
-            this.metric.mainValue = this.dataset.allData[0][this.metric.main];
-        }
-
-        if (this.metric.mainFormat) {
-            if (this.metric.mainFormatDecimals) {
-                this.metric.mainValue = Number(this.metric.mainValue).toFixed(this.metric.mainFormatDecimals);
-            }
-            if (this.metric.mainFormat === 'Currency' && this.metric.mainFormatCurrency) {
-                const currency = _.find(this.currencies, {value: this.metric.mainFormatCurrency});
-                if (currency) {
-                    this.metric.mainValue = currency.symbol + '' + this.metric.mainValue;
-                }
-            }
-            if (this.metric.mainFormat === 'Percentage') {
-                this.metric.mainValue = this.metric.mainValue + '%';
-            }
+            this.metric.mainValue = _.isNaN(Number(this.dataset.allData[0][this.metric.main])) ? this.dataset.allData[0][this.metric.main] : Number(this.dataset.allData[0][this.metric.main]);
+            this.metric.title = _.startCase(this.metric.main);
         }
 
         if (this.metric.subMetric) {
-            this.metric.subValue = this.dataset.allData[0][this.metric.subMetric];
+            this.metric.subValue = Number(this.dataset.allData[0][this.metric.subMetric]);
+            this.metric.subTitle = _.startCase(this.metric.subMetric);
         }
 
-        if (this.metric.subMetricFormat) {
-            if (this.metric.subMetricFormatDecimals) {
-                this.metric.subValue = Number(this.metric.subValue).toFixed(this.metric.subMetricFormatDecimals);
-            }
-            if (this.metric.subMetricFormat === 'Currency' && this.metric.subMetricFormatCurrency) {
-                const currency = _.find(this.currencies, {value: this.metric.subMetricFormatCurrency});
-                if (currency) {
-                    this.metric.subValue = currency.symbol + '' + this.metric.subValue;
-                }
-            }
-            if (this.metric.subMetricFormat === 'Percentage') {
-                this.metric.subValue = this.metric.subValue + '%';
-            }
-        }
-
-        if (this.metric.showSubChange && !_.isNil(this.metric.subValue) && String(this.metric.subValue).length) {
-            const changeClass = `${parseInt(this.metric.subValue, 10) > 0 ? 'up' : 'down'}`;
-            const icon = `${parseInt(this.metric.subValue, 10) > 0 ? '&#8593;' : '&#8595;'}`;
-            this.metric.subValue = `<span class="sub-change ${changeClass}">${icon}&nbsp;${this.metric.subValue}</span>`;
+        if (this.metric.showSubChange) {
+            this.metric.difference = Math.abs(this.metric.mainValue - this.metric.subValue);
         }
     }
 

@@ -68,7 +68,7 @@ export class ProjectPickerComponent implements OnInit {
     public activateProject(project) {
         this.projectService.setActiveProject(project);
         this.tagService.resetActiveTag();
-        this.dialogRef.close();
+        this.dialogRef.close(project);
     }
 
     private getProjects() {

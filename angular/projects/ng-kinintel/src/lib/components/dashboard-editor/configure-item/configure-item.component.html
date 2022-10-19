@@ -55,7 +55,7 @@
             </div>
 
             <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(datasetInstanceSummary)]="dashboardDatasetInstance"
-                               (dataLoaded)="dataLoaded($event)" [admin]="admin"
+                               (dataLoaded)="dataLoaded($event)" [admin]="admin" [dashboardLayoutSettings]="general"
                                [dashboardParameters]="dashboard.layoutSettings.parameters"></ki-dataset-editor>
         </div>
     </rsz-layout>
@@ -347,7 +347,7 @@
                     </div>
                 </div>
             </mat-tab>
-            <mat-tab label="Rows" *ngIf="dashboardItemType.type === 'table'">
+            <mat-tab label="Table" *ngIf="dashboardItemType.type === 'table'">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">
                     <div class="md:flex md:items-center md:justify-between md:space-x-5">
                         <div class="flex items-start flex-1">
@@ -365,6 +365,11 @@
                         <div class="mb-4 flex items-center">
                             <mat-checkbox class="mr-2" [(ngModel)]="tabular.expandRows"></mat-checkbox>
                             <p class="mb-0 mt-1">Expand rows. By default rows are compressed and restrict wrapping.</p>
+                        </div>
+
+                        <div class="mb-4 flex items-center">
+                            <mat-checkbox class="mr-2" [(ngModel)]="tabular.hidePager"></mat-checkbox>
+                            <p class="mb-0 mt-1">Hide the pager at the bottom of the table.</p>
                         </div>
 
                         <div class="mb-4 flex items-center">
@@ -528,34 +533,6 @@
                                 </option>
                             </select>
                         </label>
-                        <label class="mb-4">
-                            Main Metric Format
-                            <select [(ngModel)]="metric.mainFormat" (ngModelChange)="updateMetricDataValues()">
-                                <option value="">Automatic</option>
-                                <option [value]="format" *ngFor="let format of metricFormats">
-                                    {{format}}
-                                </option>
-                            </select>
-                        </label>
-                        <ng-template [ngIf]="metric.mainFormat">
-                            <label class="mb-4">
-                                Decimals
-                                <input type="number" [(ngModel)]="metric.mainFormatDecimals"
-                                       (ngModelChange)="updateMetricDataValues()">
-                            </label>
-                        </ng-template>
-                        <ng-template [ngIf]="metric.mainFormat === 'Currency'">
-                            <label class="mb-4">
-                                Currency
-                                <select [(ngModel)]="metric.mainFormatCurrency"
-                                        (ngModelChange)="updateMetricDataValues()">
-                                    <option value="">-- Select Currency --</option>
-                                    <option [value]="currency.value" *ngFor="let currency of currencies">
-                                        {{currency.name}}
-                                    </option>
-                                </select>
-                            </label>
-                        </ng-template>
 
                         <hr>
 
@@ -568,34 +545,6 @@
                                 </option>
                             </select>
                         </label>
-                        <label class="mb-4">
-                            Sub Metric Format
-                            <select [(ngModel)]="metric.subMetricFormat" (ngModelChange)="updateMetricDataValues()">
-                                <option value="">Automatic</option>
-                                <option [value]="format" *ngFor="let format of metricFormats">
-                                    {{format}}
-                                </option>
-                            </select>
-                        </label>
-                        <ng-template [ngIf]="metric.subMetricFormat">
-                            <label class="mb-4">
-                                Decimals
-                                <input type="number" [(ngModel)]="metric.subMetricFormatDecimals"
-                                       (ngModelChange)="updateMetricDataValues()">
-                            </label>
-                        </ng-template>
-                        <ng-template [ngIf]="metric.subMetricFormat === 'Currency'">
-                            <label class="mb-4">
-                                Currency
-                                <select [(ngModel)]="metric.subMetricFormatCurrency"
-                                        (ngModelChange)="updateMetricDataValues()">
-                                    <option value="">-- Select Currency --</option>
-                                    <option [value]="currency.value" *ngFor="let currency of currencies">
-                                        {{currency.name}}
-                                    </option>
-                                </select>
-                            </label>
-                        </ng-template>
 
                         <mat-slide-toggle [(ngModel)]="metric.showSubChange" class="mb-4"
                                           (ngModelChange)="updateMetricDataValues()">
@@ -606,11 +555,30 @@
                     <div class="w-6/12 p-4">
                         <p><b>Preview</b></p>
 
-                        <div class="metric-preview">
+                        <div class="shadow p-4 flex items-center metric-preview">
 
-                            <div class="metric-item">
-                                <div class="main">{{metric.mainValue}}</div>
-                                <div class="sub-metric" [innerHTML]="metric.subValue"></div>
+                            <div class="w-full">
+                                <dt class="text-base font-normal text-gray-900">{{metric.title}}</dt>
+                                <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                                    <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
+                                        {{metric.mainValue}}
+                                        <span *ngIf="metric.subMetric" class="ml-2 text-sm font-medium text-gray-500">from {{metric.subValue}}
+                                            <span class="text-xs">({{metric.subTitle}})</span></span>
+                                    </div>
+
+                                    <div *ngIf="metric.showSubChange" class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
+                                         [ngClass]="{'bg-green-100 text-green-800': metric.mainValue >= metric.subValue, 'bg-red-100 text-red-800': metric.mainValue < metric.subValue}">
+                                        <!-- Heroicon name: mini/arrow-up -->
+                                        <svg *ngIf="metric.mainValue >= metric.subValue" class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clip-rule="evenodd" />
+                                        </svg>
+                                        <svg *ngIf="metric.mainValue < metric.subValue " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                             class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500">
+                                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clip-rule="evenodd" />
+                                        </svg>
+                                        {{metric.difference}}
+                                    </div>
+                                </dd>
                             </div>
 
                         </div>

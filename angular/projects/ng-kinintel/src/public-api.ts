@@ -25,5 +25,7 @@ export * from './lib/components/datasource/create-datasource/create-datasource.c
 export * from './lib/components/metadata/metadata.component';
 export * from './lib/components/data-explorer/data-explorer.component';
 export * from './lib/components/datasource/document-datasource/document-datasource.component';
+export * from './lib/components/project-settings/project-settings.component';
+export * from './lib/components/dataset/dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
 
 export * from './lib/ng-kinintel.module';

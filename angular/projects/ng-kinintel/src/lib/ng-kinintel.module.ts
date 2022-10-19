@@ -80,6 +80,9 @@ import { DocumentDatasourceComponent } from './components/datasource/document-da
 import { AngularD3CloudModule } from 'angular-d3-cloud';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {CodemirrorModule} from '@ctrl/ngx-codemirror';
+import { ProjectSettingsComponent } from './components/project-settings/project-settings.component';
+import { ProjectLinkSelectionComponent } from './components/project-settings/project-link-selection/project-link-selection.component';
+import { UpstreamChangesConfirmationComponent } from './components/dataset/dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
 
 @NgModule({
     declarations: [
@@ -130,7 +133,10 @@ import {CodemirrorModule} from '@ctrl/ngx-codemirror';
         DataPickerComponent,
         CreateDatasetComponent,
         TableCellFormatterComponent,
-        DocumentDatasourceComponent
+        DocumentDatasourceComponent,
+        ProjectSettingsComponent,
+        ProjectLinkSelectionComponent,
+        UpstreamChangesConfirmationComponent
     ],
     imports: [
         BrowserModule,
@@ -191,7 +197,9 @@ import {CodemirrorModule} from '@ctrl/ngx-codemirror';
         ViewDashboardComponent,
         FeedsComponent,
         CreateDatasourceComponent,
-        DocumentDatasourceComponent
+        DocumentDatasourceComponent,
+        ProjectSettingsComponent,
+        UpstreamChangesConfirmationComponent
     ]
 })
 export class NgKinintelModule {

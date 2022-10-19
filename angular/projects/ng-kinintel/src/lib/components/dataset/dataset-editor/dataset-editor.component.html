@@ -45,9 +45,6 @@
             <mat-icon>functions</mat-icon>
         </button>
         <div class="divider"></div>
-        <button mat-button matTooltip="Set paging marker" class="align-center" (click)="addPagingMarker()">
-            <mat-icon>push_pin</mat-icon>
-        </button>
         <button mat-button matTooltip="Join another dataset" class="align-center" (click)="joinData()">
             <mat-icon>merge_type</mat-icon>
         </button>
@@ -180,7 +177,7 @@
                   (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
 
             <button [title]="transformation.exclude ? 'Re-enable this transformation' : 'Disable this transformation'"
-                    mat-icon-button (click)="disableTransformation(transformation)">
+                    mat-icon-button (click)="disableTransformation(transformation, i)">
                 <mat-icon *ngIf="!transformation.exclude">block</mat-icon>
                 <mat-icon *ngIf="transformation.exclude">replay</mat-icon>
             </button>

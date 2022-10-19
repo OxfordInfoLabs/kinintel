@@ -41,6 +41,14 @@ export class ProjectService {
         return this.http.delete(this.config.backendURL + '/project/' + key).toPromise();
     }
 
+    public async updateProjectSettings(projectKey, settings) {
+        await this.http.put(this.config.backendURL + '/project/' + projectKey + '/settings', settings)
+            .toPromise();
+        const project = await this.getProject(projectKey);
+        this.setActiveProject(project);
+        return project;
+    }
+
     public setActiveProject(project) {
         this.activeProject.next(project);
         localStorage.setItem('activeProject', JSON.stringify(project));
@@ -65,4 +73,5 @@ export class ProjectService {
         }
         return false;
     }
+
 }

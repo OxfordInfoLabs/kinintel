@@ -19,6 +19,8 @@ class HTMLTextExtractor implements DocumentTextExtractor {
             $string = "<body" . $string;
         }
 
+        $string = str_replace('><', '> <', $string);
+
         $string = strip_tags($string);
         return preg_replace("/\r|\n/", "", $string);
     }
