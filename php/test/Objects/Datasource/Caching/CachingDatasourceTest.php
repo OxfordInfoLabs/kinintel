@@ -78,7 +78,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
                 null, $this->cacheDatasourceInstance, 7), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 
@@ -153,7 +153,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Check augmented source data updated in cache data source
         $this->assertTrue($this->cacheDatasource->methodWasCalled("update",
-            [$enhancedData, UpdatableDatasource::UPDATE_MODE_ADD]
+            [$enhancedData, UpdatableDatasource::UPDATE_MODE_REPLACE]
         ));
 
 
@@ -165,7 +165,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
                 null, $this->cacheDatasourceInstance, 7), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 
@@ -238,7 +238,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig("testsource", null,
                 "testcache", null, 5, 12), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 
@@ -316,7 +316,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
                 null, $this->cacheDatasourceInstance, 7, null, true), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 
@@ -401,7 +401,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
                 null, $this->cacheDatasourceInstance, 7), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 
@@ -486,7 +486,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
                 null, $this->cacheDatasourceInstance, 7,
                 null, false, CachingDatasourceConfig::CACHE_MODE_INCREMENTAl), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 
@@ -557,7 +557,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Check augmented source data updated in cache data source
         $this->assertTrue($this->cacheDatasource->methodWasCalled("update",
-            [$enhancedData, UpdatableDatasource::UPDATE_MODE_ADD]
+            [$enhancedData, UpdatableDatasource::UPDATE_MODE_REPLACE]
         ));
 
         $this->assertTrue($this->cacheDatasource->methodWasCalled("applyTransformation", [
@@ -576,7 +576,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
                 null, $this->cacheDatasourceInstance, 7, null,
                 false, CachingDatasourceConfig::CACHE_MODE_UPDATE), null, null, [], [], [
-                new Parameter("param1","Param 1"),
+                new Parameter("param1", "Param 1"),
                 new Parameter("param2", "Param 2")
             ]);
 

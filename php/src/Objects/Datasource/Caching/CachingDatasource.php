@@ -198,7 +198,7 @@ class CachingDatasource extends BaseDatasource {
 
 
             // Set update mode according to cache mode
-            $updateMode = $config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_UPDATE ? UpdatableDatasource::UPDATE_MODE_REPLACE : UpdatableDatasource::UPDATE_MODE_ADD;
+            $updateMode = $config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_UPDATE ? UpdatableDatasource::UPDATE_MODE_REPLACE : UpdatableDatasource::UPDATE_MODE_REPLACE;
 
             // Insert in batches of 50
             $batch = [];
