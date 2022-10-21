@@ -13,15 +13,42 @@ class HTMLTextExtractor implements DocumentTextExtractor {
      * @return mixed|string
      */
     public function extractTextFromString($string) {
-        $exploded = explode("<body", $string);
-        if (sizeof($exploded) > 1) {
-            $string = $exploded[1];
-            $string = "<body" . $string;
+        $excludedTags = [
+            "script",
+            "style"
+        ];
+
+        $cleanDom = new \DOMDocument();
+        $dom = new \DOMDocument();
+        $dom->loadHTML($string, LIBXML_NOERROR);
+
+        $body = $dom->getElementsByTagName("body")->item(0);
+        foreach ($body->childNodes as $childNode) {
+            $cleanDom->appendChild($cleanDom->importNode($childNode, true));
         }
 
-        $string = str_replace('><', '> <', $string);
+        $removals = [];
+        foreach ($excludedTags as $excludedTag) {
+            $tags = $cleanDom->getElementsByTagName($excludedTag);
 
+            foreach ($tags as $item) {
+                $removals[] = $item;
+            }
+        }
+
+        foreach ($removals as $item) {
+            $item->parentNode->removeChild($item);
+        }
+
+        $string = $cleanDom->saveHTML();
+        $string = str_replace('><', '> <', $string);
         $string = strip_tags($string);
+        $string = html_entity_decode($string);
+        $string = urldecode($string);
+        $string = preg_replace('/[^A-Za-z0-9]/', ' ', $string);
+        $string = preg_replace('/ +/', ' ', $string);
+        $string = trim($string);
+
         return preg_replace("/\r|\n/", "", $string);
     }
 
