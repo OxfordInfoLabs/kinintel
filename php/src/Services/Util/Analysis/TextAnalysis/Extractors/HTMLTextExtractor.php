@@ -23,24 +23,27 @@ class HTMLTextExtractor implements DocumentTextExtractor {
         $dom->loadHTML($string, LIBXML_NOERROR);
 
         $body = $dom->getElementsByTagName("body")->item(0);
-        foreach ($body->childNodes as $childNode) {
-            $cleanDom->appendChild($cleanDom->importNode($childNode, true));
-        }
-
-        $removals = [];
-        foreach ($excludedTags as $excludedTag) {
-            $tags = $cleanDom->getElementsByTagName($excludedTag);
-
-            foreach ($tags as $item) {
-                $removals[] = $item;
+        if ($body && $body->hasChildNodes()) {
+            foreach ($body->childNodes as $childNode) {
+                $cleanDom->appendChild($cleanDom->importNode($childNode, true));
             }
+
+            $removals = [];
+            foreach ($excludedTags as $excludedTag) {
+                $tags = $cleanDom->getElementsByTagName($excludedTag);
+
+                foreach ($tags as $item) {
+                    $removals[] = $item;
+                }
+            }
+
+            foreach ($removals as $item) {
+                $item->parentNode->removeChild($item);
+            }
+
+            $string = $cleanDom->saveHTML();
         }
 
-        foreach ($removals as $item) {
-            $item->parentNode->removeChild($item);
-        }
-
-        $string = $cleanDom->saveHTML();
         $string = str_replace('><', '> <', $string);
         $string = strip_tags($string);
         $string = html_entity_decode($string);
