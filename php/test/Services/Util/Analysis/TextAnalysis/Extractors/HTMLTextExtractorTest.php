@@ -24,7 +24,7 @@ class HTMLTextExtractorTest extends \PHPUnit\Framework\TestCase {
 
         $output = $this->htmlExtractor->extractTextFromString($htmlString);
 
-        $this->assertEquals(" Hello World ", $output);
+        $this->assertEquals("Hello World", $output);
     }
 
     public function testCanExtractTextFromHTMLFile() {
@@ -32,7 +32,7 @@ class HTMLTextExtractorTest extends \PHPUnit\Framework\TestCase {
 
         $output = $this->htmlExtractor->extractTextFromFile($file);
 
-        $this->assertEquals(" Hello World ", $output);
+        $this->assertEquals("Hello World", $output);
     }
 
 }
