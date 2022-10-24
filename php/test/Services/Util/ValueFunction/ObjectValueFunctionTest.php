@@ -20,22 +20,5 @@ class ObjectValueFunctionTest extends TestCase {
 
     }
 
-    public function testCanReturnMultipleMembers() {
-        $function = new ObjectValueFunction();
-        $this->assertTrue($function->doesFunctionApply("member"));
 
-        $testArray = ["item1" => [
-            "sub1" => [1,2,3],
-            "sub2" => "element"
-        ], "item2" => [
-            "sub1" => [4,5,6],
-            "sub2" => [
-                "subSub1" => 10
-            ]
-        ]];
-
-        $this->assertEquals(["sub1" => [1,2,3], "sub2" => "element"], $function->applyFunction("member 'item1'", $testArray, null));
-        $this->assertEquals(["sub1" => [4,5,6], "sub2" => ["subSub1" => 10]], $function->applyFunction("member 'item2'", $testArray, null));
-
-    }
 }
