@@ -22,11 +22,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
      */
     private $datasourceService;
 
-
-    // Batch size for insertion into target
-    const TARGET_BATCH_SIZE = 500;
-
-
     /**
      * Datasource service
      *
@@ -90,11 +85,9 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             }
 
             // Create the new file
-            print_r("WRITING DATASOURCE " . $datasourceKey . " TO FILES\n");
             $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
 
             // Track changes between the new and previous
-            print_r("DIFFING\n");
             passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
             passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
@@ -104,7 +97,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $targetChangeDatasourceKey = $config->getTargetChangeDatasourceKey();
 
 
-            print_r("CONSTRUCTING UPDATE OBJECTS\n");
             $this->analyseChanges($fieldKeys, $directory, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
 
             // Copy the new file across to the previous
@@ -121,9 +113,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         do {
             $lineCount = 0;
 
-            Logger::log("Query Started: " . date("h:i:s"));
             $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
-            Logger::log("Query Ended: " . date("h:i:s"));
 
             $nextItem = $evaluated->nextDataItem();
 
@@ -132,17 +122,15 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             }
 
             do {
-                Logger::log("Line Start: " . date("h:i:s"));
 
                 $nextLine = "";
                 foreach ($nextItem as $key => $value) {
-                    $nextLine .= $value . "||";
+                    $nextLine .= $value . "#|!";
                 }
-                file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -2) . "\n", FILE_APPEND);
+                file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
                 $lineCount++;
 
                 $nextItem = $evaluated->nextDataItem();
-                Logger::log("Line End: " . date("h:i:s"));
 
             } while ($nextItem);
 
@@ -186,13 +174,13 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $deleteFileStream = new ReadOnlyFileStream($directory . "/deletes.txt");
 
         while ($line = $deleteFileStream->readLine()) {
-            $explodedLine = explode("||", $line);
+            $explodedLine = explode("#|!", $line);
             if (sizeof($explodedLine) > 1) {
                 $pkElements = [];
                 foreach ($keyFieldKeysAsIndex as $key) {
                     $pkElements[] = $explodedLine[$key] ?? "";
                 }
-                $deletedItems[implode("||", $pkElements)] = 1;
+                $deletedItems[implode("#|!", $pkElements)] = 1;
             }
         }
 
@@ -200,7 +188,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         // Loop through adds.txt
 
         $addFileStream = new ReadOnlyFileStream($directory . "/adds.txt");
-
         while ($addLine = $addFileStream->readLine()) {
 
             // Ignore an empty line
@@ -209,13 +196,13 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             }
 
             // Explode the line
-            $explodedAddLine = explode("||", $addLine);
+            $explodedAddLine = explode("#|!", $addLine);
 
             $pkElements = [];
             foreach ($keyFieldKeysAsIndex as $key) {
                 $pkElements[] = $explodedAddLine[$key] ?? "";
             }
-            $addKey = implode("||", $pkElements);
+            $addKey = implode("#|!", $pkElements);
 
 
             // Identify if exists delete entry with same primary fields
@@ -276,14 +263,14 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $trueDeletes = [];
         while ($line = $deleteFileStream->readLine()) {
             // Test whether the line still exists in the deleted items array
-            $explodedLine = explode("||", $line);
+            $explodedLine = explode("#|!", $line);
             $pkElements = [];
 
             foreach ($keyFieldKeysAsIndex as $key) {
                 $pkElements[] = $explodedLine[$key] ?? "";
             }
 
-            if (isset($deletedItems[implode("||", $pkElements)])) {
+            if (isset($deletedItems[implode("#|!", $pkElements)])) {
                 for ($i = 0; $i < sizeof($explodedLine); $i++) {
                     $trueDeletes[$delCount][$fieldKeys[$i]->getName()] = $explodedLine[$i];
                 }

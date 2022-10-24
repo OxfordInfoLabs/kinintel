@@ -34,9 +34,8 @@ class ObjectValueFunctionTest extends TestCase {
             ]
         ]];
 
-        $this->assertEquals([1,2,3], $function->applyFunction("member 'item1' | member 'sub1'", $testArray, null));
-        $this->assertEquals("element", $function->applyFunction("member 'item1' | member 'sub2'", $testArray, null));
-        $this->assertEquals(10, $function->applyFunction("member 'item2' | member 'sub2' | member subSub1", $testArray, null));
+        $this->assertEquals(["sub1" => [1,2,3], "sub2" => "element"], $function->applyFunction("member 'item1'", $testArray, null));
+        $this->assertEquals(["sub1" => [4,5,6], "sub2" => ["subSub1" => 10]], $function->applyFunction("member 'item2'", $testArray, null));
 
     }
 }

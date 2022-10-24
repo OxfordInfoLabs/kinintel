@@ -95,8 +95,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test2/deletes.txt"));
 
-        $this->assertStringContainsString("Joe Bloggs||22\nJames Bond||56\nAndrew Smith||30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
-        $this->assertStringContainsString("Peter Storm||15\nIron Man||40", file_get_contents("Files/change_tracking_processors/test/test2/previous.txt"));
+        $this->assertStringContainsString("Joe Bloggs#|!22\nJames Bond#|!56\nAndrew Smith#|!30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
+        $this->assertStringContainsString("Peter Storm#|!15\nIron Man#|!40", file_get_contents("Files/change_tracking_processors/test/test2/previous.txt"));
 
     }
 
@@ -154,8 +154,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
         mkdir("Files/change_tracking_processors/test/test2", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/new.txt", "Joe Bloggs||22\nJames Bond||56\nPeter Storm||15");
-        file_put_contents("Files/change_tracking_processors/test/test2/previous.txt", "Joe Bloggs||22\nPeter Storm||15");
+        file_put_contents("Files/change_tracking_processors/test/test1/new.txt", "Joe Bloggs#|!22\nJames Bond#|!56\nPeter Storm#|!15");
+        file_put_contents("Files/change_tracking_processors/test/test2/previous.txt", "Joe Bloggs#|!22\nPeter Storm#|!15");
 
 
         // Actually process
@@ -167,7 +167,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test2/deletes.txt"));
 
-        $this->assertStringContainsString("Joe Bloggs||22\nJames Bond||56\nAndrew Smith||30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
+        $this->assertStringContainsString("Joe Bloggs#|!22\nJames Bond#|!56\nAndrew Smith#|!30", file_get_contents("Files/change_tracking_processors/test/test1/new.txt"));
     }
 
     public function testCanDetectAdds() {
@@ -224,8 +224,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         mkdir("Files/change_tracking_processors/test/test2", 0777, true);
 
 
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nJames Bond||56\nPeter Storm||15");
-        file_put_contents("Files/change_tracking_processors/test/test2/adds.txt", "James Bond||56");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs#|!22\nJames Bond#|!56\nPeter Storm#|!15");
+        file_put_contents("Files/change_tracking_processors/test/test2/adds.txt", "James Bond#|!56");
 
 
         // Actually process
@@ -234,9 +234,9 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         // Expect the new and previous files to exist
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
 
-        $this->assertStringContainsString("Andrew Smith||30", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
-        $this->assertStringContainsString("Iron Man||40", file_get_contents("Files/change_tracking_processors/test/test2/adds.txt"));
-        $this->assertStringNotContainsString("James Bond||56", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
+        $this->assertStringContainsString("Andrew Smith#|!30", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
+        $this->assertStringContainsString("Iron Man#|!40", file_get_contents("Files/change_tracking_processors/test/test2/adds.txt"));
+        $this->assertStringNotContainsString("James Bond#|!56", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
 
     }
 
@@ -292,8 +292,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
         mkdir("Files/change_tracking_processors/test/test2", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nJames Bond||56\nPeter Storm||15\nJohn Smith||76\nAlexander Hamilton||32");
-        file_put_contents("Files/change_tracking_processors/test/test2/deletes.txt", "William Williamson||91");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs#|!22\nJames Bond#|!56\nPeter Storm#|!15\nJohn Smith#|!76\nAlexander Hamilton#|!32");
+        file_put_contents("Files/change_tracking_processors/test/test2/deletes.txt", "William Williamson#|!91");
 
 
         // Actually process
@@ -302,8 +302,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         // Expect the new and previous files to exist
         $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/deletes.txt"));
 
-        $this->assertStringContainsString("John Smith||76\nAlexander Hamilton||32", file_get_contents("Files/change_tracking_processors/test/test1/deletes.txt"));
-        $this->assertStringNotContainsString("William Williamson||91", file_get_contents("Files/change_tracking_processors/test/test2/deletes.txt"));
+        $this->assertStringContainsString("John Smith#|!76\nAlexander Hamilton#|!32", file_get_contents("Files/change_tracking_processors/test/test1/deletes.txt"));
+        $this->assertStringNotContainsString("William Williamson#|!91", file_get_contents("Files/change_tracking_processors/test/test2/deletes.txt"));
     }
 
 
@@ -397,7 +397,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nPeter Storm||15");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs#|!22\nPeter Storm#|!15");
 
 
         $this->processor->process($processorInstance);
@@ -447,7 +447,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||21\nAndrew Smith||30");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs#|!21\nAndrew Smith#|!30");
 
 
         $this->processor->process($processorInstance);
@@ -509,7 +509,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         mkdir("Files/change_tracking_processors/test/test1", 0777, true);
-        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs||22\nAndrew Smith||29\nIron Man||40");
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "Joe Bloggs#|!22\nAndrew Smith#|!29\nIron Man#|!40");
 
 
         $this->processor->process($processorInstance);

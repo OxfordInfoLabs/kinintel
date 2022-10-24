@@ -278,7 +278,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $query = $this->buildQuery($parameterValues);
 
-
         /**
          * @var DatabaseConnection $dbConnection
          */

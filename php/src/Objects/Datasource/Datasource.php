@@ -23,6 +23,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation custom \Kinintel\Objects\Datasource\CustomDataSource
  * @implementation snapshot \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  * @implementation document \Kinintel\Objects\Datasource\Document\DocumentDatasource
+ * @implementation googlebucket \Kinintel\Objects\Datasource\Google\GoogleBucketFileDatasource
  */
 interface Datasource {
 
