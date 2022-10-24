@@ -21,7 +21,7 @@ class HTMLTextExtractor implements DocumentTextExtractor {
 
             $cleanDom = new \DOMDocument();
             $dom = new \DOMDocument();
-            $dom->loadHTML($string, LIBXML_NOERROR);
+            $dom->loadHTML($string, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING);
 
             $body = $dom->getElementsByTagName("body")->item(0);
             if ($body && $body->hasChildNodes()) {
