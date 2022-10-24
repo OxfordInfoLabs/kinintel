@@ -130,7 +130,9 @@ class SQLClauseSanitiser {
         "MONTH" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
             "description" => "Extract the numerical month value from a date"],
         "YEAR" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
-            "description" => "Extract the numerical year value from a date"]
+            "description" => "Extract the numerical year value from a date"],
+        "NOW" => ["params" => [], "category" => self::DATE_WHITELISTED_FUNCTION,
+            "description" => "Return the current data and time"]
     ];
 
     /**
