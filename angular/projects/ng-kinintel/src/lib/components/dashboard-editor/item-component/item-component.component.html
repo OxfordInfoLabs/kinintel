@@ -135,12 +135,12 @@
         </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'image'">
-            <div class="w-auto h-full">
-                <img *ngIf="imageData.source" [src]="imageData.source" alt=""
+            <div *ngIf="imageData.source" class="w-auto h-full">
+                <img [src]="imageData.source" alt=""
                      (error)="imageError = true">
             </div>
 
-            <div *ngIf="!imageData.source || imageError" class="relative flex items-center justify-center">
+            <div *ngIf="!imageData.source || imageError" class="h-full relative flex items-center justify-center">
                 <p class="z-10 text-lg">No image</p>
                 <svg xmlns="http://www.w3.org/2000/svg" class="filter blur-sm absolute w-auto h-full text-gray-300"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
