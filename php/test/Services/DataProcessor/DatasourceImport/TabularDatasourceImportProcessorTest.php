@@ -24,10 +24,10 @@ use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
 
-class tabulardatasourceimportTest extends TestBase {
+class TabularDatasourceImportProcessorTest extends TestBase {
 
     /**
-     * @var tabulardatasourceimport
+     * @var TabularDatasourceImportProcessor
      */
     private $processor;
 

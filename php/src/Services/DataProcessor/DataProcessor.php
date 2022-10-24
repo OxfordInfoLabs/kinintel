@@ -10,6 +10,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @implementation tabulardatasourceimport \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceImportProcessor
  * @implementation tabulardatasetsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor
  * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
+ * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor
  */
 interface         DataProcessor
 {

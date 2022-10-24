@@ -19,6 +19,8 @@ namespace Kinintel\ValueObjects\Authentication;
  * @implementation mysql \Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials
  * @implementation sqlite \Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials
  *
+ * @implementation google-cloud \Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials
+ *
  */
 interface AuthenticationCredentials {
 }
