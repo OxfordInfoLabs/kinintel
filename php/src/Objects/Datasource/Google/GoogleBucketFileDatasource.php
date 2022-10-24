@@ -5,9 +5,11 @@ namespace Kinintel\Objects\Datasource\Google;
 use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Psr7\Stream;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Stream\ReadOnlyMultiStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\Google\GoogleBucketFileDatasourceConfig;
 
@@ -33,13 +35,25 @@ class GoogleBucketFileDatasource extends BaseDatasource {
          */
         $credentials = $this->getAuthenticationCredentials();
 
+        /**
+         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
+         */
+        $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
+
         if ($config) {
+
             $googleClient = new StorageClient(["keyFile" => json_decode($credentials->getJsonString(), true)]);
 
             $bucket = $googleClient->bucket($config->getBucket());
 
-            if ($config->getFilePath()) {
-                $object = $bucket->object($config->getFilePath());
+            $folder = $parameterisedStringEvaluator->evaluateString($config->getFolder(), [], []);
+            $config->setFolder($folder);
+
+            $filePath = $parameterisedStringEvaluator->evaluateString($config->getFilePath(), [], []);
+            $config->setFilePath($filePath);
+
+            if ($filePath) {
+                $object = $bucket->object($filePath);
 
                 $stream = new ReadOnlyGuzzleStream($object->downloadAsStream());
 
@@ -48,10 +62,10 @@ class GoogleBucketFileDatasource extends BaseDatasource {
                 return $config->returnFormatter()->format($stream, $config->returnEvaluatedColumns($parameterValues), $limit, $offset);
             }
 
-            if ($config->getFolder()) {
+            if ($folder) {
                 $streams = [];
 
-                foreach ($bucket->objects(["prefix" => $config->getFolder()]) as $object) {
+                foreach ($bucket->objects(["prefix" => $folder]) as $object) {
                     if ($object->info()["size"] > 0) {
                         $streams[] = new ReadOnlyGuzzleStream($object->downloadAsStream());
                     }

@@ -93,4 +93,21 @@ class GoogleBucketFileDatasourceTest extends TestCase {
             ["name" => "Norman", "age" => 51], $dataSet->nextDataItem());
 
     }
+
+
+    public function testCanEvaluteParameterisedFolderName() {
+        $config = new GoogleBucketFileDatasourceConfig("kinintel-unit-test", "{{2_DAYS_AGO | dateConvert 'Y-m-d H:i:s' 'Ym'}}", null);
+        $config->setResultFormat("sv");
+        $config->setResultFormatConfig(new SVResultFormatter());
+        $config->setColumns([
+            new Field("name"),
+            new Field("age")
+        ]);
+
+
+        $month = new \DateTime();
+        $month->sub(new \DateInterval("P2D"));
+
+        $this->assertEquals($month->format("Ym"), $config->getFolder());
+    }
 }
