@@ -353,11 +353,9 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         $writeRows = [];
         while ($row = $summarisedData->nextDataItem()) {
-            print_r($row);
             $writeRows[] = $row;
             if (sizeof($writeRows) == $targetWriteChunkSize) {
                 $this->datasourceService->updateDatasourceInstance($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
-                print_r("done a write");
                 $writeRows = [];
             }
         }
