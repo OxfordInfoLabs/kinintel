@@ -124,8 +124,6 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                         $paramSet = $this->addTargetSourceParametersIfRequired($config, $paramSet);
                         $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
 
-                        print_r($paramSet);
-
                         if ($sourceDataset) {
 
                             if (!($sourceDataset instanceof TabularDataset)) {
