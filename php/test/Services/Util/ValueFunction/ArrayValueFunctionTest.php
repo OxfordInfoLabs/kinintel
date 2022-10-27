@@ -60,4 +60,15 @@ class ArrayValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanPickItemFromArray() {
+        $function = new ArrayValueFunction();
+        $this->assertTrue($function->doesFunctionApply("item"));
+
+        $array = ["Steve", 34, []];
+        $this->assertEquals("Steve", $function->applyFunction("item 0", $array, null));
+        $this->assertEquals(34, $function->applyFunction("item 1", $array, null));
+        $this->assertEquals([], $function->applyFunction("item 2", $array, null));
+        $this->assertEquals(null, $function->applyFunction("item 3", $array, null));
+
+    }
 }

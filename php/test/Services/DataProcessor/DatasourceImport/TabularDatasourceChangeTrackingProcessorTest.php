@@ -13,6 +13,11 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Transformation\Formula\Expression;
+use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 
@@ -37,7 +42,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testNewFileCreatedInDataDirectoryOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, [], PHP_INT_MAX);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -589,11 +594,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $data = [];
 
-        for ($i=0; $i < 1250; $i++) {
+        for ($i = 0; $i < 1250; $i++) {
             $data[$i]["name"] = $i;
             $data[$i]["age"] = 10;
         }
-
 
 
         $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], $data);
@@ -606,7 +610,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
-        $expectedUpdate1 = new DatasourceUpdate([], [], [], array_slice($data, 0 ,$targetWriteSize));
+        $expectedUpdate1 = new DatasourceUpdate([], [], [], array_slice($data, 0, $targetWriteSize));
         $expectedUpdate2 = new DatasourceUpdate([], [], [], array_slice($data, $targetWriteSize, $targetWriteSize));
 
 
@@ -618,7 +622,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     public function testCanReadGivenChunkSize() {
 
         $sourceReadChunkSize = 500;
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, $sourceReadChunkSize, 750);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null, [], $sourceReadChunkSize, 750);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -626,7 +630,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $data = [];
 
-        for ($i=0; $i < 750; $i++) {
+        for ($i = 0; $i < 750; $i++) {
             $data[$i]["name"] = $i;
             $data[$i]["age"] = 10;
         }
@@ -650,5 +654,90 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $this->processor->process($processorInstance);
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate1, true]));
+    }
+
+
+    public function testCanWriteToTargetSummaryDataSourceGivenSummaryField() {
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test1", null, "test", ["name"]);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
+
+        $now = new \DateTime();
+
+        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ],
+            [
+                "name" => "James Bond",
+                "age" => 56
+            ],
+            [
+                "name" => "Joe Bloggs",
+                "age" => 30
+            ]
+        ]);
+
+        $summarisedData = new ArrayTabularDataset([new Field("summary_date"), new Field("month"), new Field("month_name"), new Field("year"), new Field("name"), new Field("total")], [
+            [
+                "summary_date" => $now->format("Y-m-d H:i:s"),
+                "month" => $now->format("m"),
+                "month_name" => $now->format("F"),
+                "year" => $now->format("Y"),
+                "name" => "Joe Bloggs",
+                "total" => 2
+            ], [
+                "summary_date" => $now->format("Y-m-d H:i:s"),
+                "month" => $now->format("m"),
+                "month_name" => $now->format("F"),
+                "year" => $now->format("Y"),
+                "name" => "James Bond",
+                "total" => 1
+            ]
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test1", [], [], 0, 1
+        ]);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test1", [], [], 0, PHP_INT_MAX
+        ]);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $summarisedData, [
+            "test1", [], [new TransformationInstance("formula", new FormulaTransformation([
+                new Expression("Summary Date", "NOW()"),
+                new Expression("Month", "MONTH(NOW())"),
+                new Expression("Month Name", "MONTHNAME(NOW())"),
+                new Expression("Year", "YEAR(NOW())")
+            ])),
+                new TransformationInstance("summarise", new SummariseTransformation(array_merge(["summaryDate", "month", "monthName", "year"], $processorConfig->getSummaryFields()), [
+                    new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total")
+                ]))
+            ]
+        ]);
+
+
+        $expectedUpdate = new DatasourceUpdate([[
+            "summary_date" => $now->format("Y-m-d H:i:s"),
+            "month" => $now->format("m"),
+            "month_name" => $now->format("F"),
+            "year" => $now->format("Y"),
+            "name" => "Joe Bloggs",
+            "total" => 2
+        ], [
+            "summary_date" => $now->format("Y-m-d H:i:s"),
+            "month" => $now->format("m"),
+            "month_name" => $now->format("F"),
+            "year" => $now->format("Y"),
+            "name" => "James Bond",
+            "total" => 1
+        ]]);
+
+        print_r($expectedUpdate);
+
+        $this->processor->process($processorInstance);
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
     }
 }

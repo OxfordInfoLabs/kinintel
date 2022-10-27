@@ -56,6 +56,14 @@ class ValueFunctionEvaluatorTest extends TestBase {
         $now = new \DateTime();
         $now->sub(new \DateInterval("PT3H"));
         $this->assertEquals($now->format("d/m/Y H:i"), $this->evaluator->evaluateString("[[3_HOURS_AGO | dateConvert 'Y-m-d H:i:s' 'd/m/Y H:i']]"));
+
+        $now = new \DateTime();
+        $now->sub(new \DateInterval("PT4M"));
+        $this->assertEquals($now->format("d/m/Y H:i"), $this->evaluator->evaluateString("[[4_MINUTES_AGO | dateConvert 'Y-m-d H:i:s' 'd/m/Y H:i']]"));
+
+        $now = new \DateTime();
+        $now->sub(new \DateInterval("PT25S"));
+        $this->assertEquals($now->format("d/m/Y H:i"), $this->evaluator->evaluateString("[[25_SECONDS_AGO | dateConvert 'Y-m-d H:i:s' 'd/m/Y H:i']]"));
     }
 
 

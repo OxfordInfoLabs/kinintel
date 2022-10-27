@@ -4,6 +4,7 @@
 namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
@@ -16,7 +17,11 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetDatasource;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetField;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetSourceParameterMapping;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 
 class TabularDatasourceImportProcessor implements DataProcessor {
@@ -84,9 +89,15 @@ class TabularDatasourceImportProcessor implements DataProcessor {
             $offset = $sourceReadChunkSize ? 0 : null;
             do {
 
-                $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($config->getSourceDataset(), null, null, $offset, $sourceReadChunkSize);
+                $parameters = $this->addTargetSourceParametersIfRequired($config);
 
-                $readEntries = $this->populateTargetDatasources($sourceDataset, $targetDatasources, $targetWriteChunkSize);
+                $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($config->getSourceDataset(), $parameters, null, $offset, $sourceReadChunkSize);
+
+                if ($sourceDataset) {
+                    $readEntries = $this->populateTargetDatasources($sourceDataset, $targetDatasources, $targetWriteChunkSize);
+                } else {
+                    $readEntries = 0;
+                }
 
                 if ($sourceReadChunkSize)
                     $offset += $sourceReadChunkSize;
@@ -109,7 +120,11 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                     $offset = $sourceReadChunkSize ? 0 : null;
                     do {
+
+                        $paramSet = $this->addTargetSourceParametersIfRequired($config, $paramSet);
                         $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
+
+                        print_r($paramSet);
 
                         if ($sourceDataset) {
 
@@ -223,5 +238,43 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
     }
 
+
+    /**
+     * @param TabularDatasourceImportProcessorConfiguration $config
+     *
+     */
+    private function addTargetSourceParametersIfRequired($config, $parameters = []) {
+
+        if ($config->getTargetSourceParameterMapping()) {
+            $targetSourceParameterMapping = $config->getTargetSourceParameterMapping();
+            $targetDatasourceKey = $config->getTargetDatasources()[$targetSourceParameterMapping->getTargetDatasourceIndex()]->getKey();
+
+
+            switch ($targetSourceParameterMapping->getTargetValueRule()) {
+                case TargetSourceParameterMapping::VALUE_RULE_LATEST:
+                    $expressionType = SummariseExpression::EXPRESSION_TYPE_MAX;
+                    break;
+                case TargetSourceParameterMapping::VALUE_RULE_EARLIEST:
+                    $expressionType = SummariseExpression::EXPRESSION_TYPE_MIN;
+                    break;
+            }
+
+
+            $returnedData = $this->datasourceService->getEvaluatedDataSource($targetDatasourceKey, [], [
+                new TransformationInstance("summarise",new SummariseTransformation([], [
+                    new SummariseExpression($expressionType, $targetSourceParameterMapping->getTargetDatasourceField(), null, "Parameter Value")
+                ]))
+            ])->getAllData();
+
+            $parameterValue = $returnedData[0]["parameterValue"] ?? null ?: $targetSourceParameterMapping->getDefaultValue() ?: null;
+
+            $parameters[$targetSourceParameterMapping->getSourceParameterName()] = $parameterValue;
+
+            Logger::log($parameterValue);
+
+        }
+
+        return $parameters;
+    }
 
 }

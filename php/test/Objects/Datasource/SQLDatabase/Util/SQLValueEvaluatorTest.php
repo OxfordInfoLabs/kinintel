@@ -90,6 +90,17 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals([(new \DateTime())->sub(new \DateInterval("PT5H"))->format("Y-m-d H:i:s")], $parameters);
         $this->assertEquals("?", $value);
 
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("4_MINUTES_AGO", [], null, $parameters);
+        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("PT4M"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertEquals("?", $value);
+
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("25_SECONDS_AGO", [], null, $parameters);
+        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("PT25S"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertEquals("?", $value);
 
     }
 

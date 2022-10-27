@@ -128,6 +128,14 @@ class ValueFunctionEvaluator {
                 return (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s");
             }, $expression);
 
+            $expression = preg_replace_callback("/([0-9]+)_MINUTES_AGO/", function($matches) use (&$outputParameters) {
+                return (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "M"))->format("Y-m-d H:i:s");
+            }, $expression);
+
+            $expression = preg_replace_callback("/([0-9]+)_SECONDS_AGO/", function($matches) use (&$outputParameters) {
+                return (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "S"))->format("Y-m-d H:i:s");
+            }, $expression);
+
         }
 
         return $expression;

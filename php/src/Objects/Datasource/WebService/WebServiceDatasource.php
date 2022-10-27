@@ -181,12 +181,21 @@ class WebServiceDatasource extends BaseDatasource {
             $payload = $this->parameterisedStringEvaluator->evaluateString($config->getPayloadTemplate(), [], $parameterValues);
         }
 
-        // Create a new HttpRequest for this request
-        $urlEncodedParams = [];
-        foreach ($parameterValues as $key => $parameterValue) {
-            $urlEncodedParams[$key] = urlencode($parameterValue);
+        // Evaluate params
+        $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
+
+        // Encode URL to prevent transfer issues
+        $explodedUrl = explode("?", $url, 2);
+        $url = $explodedUrl[0];
+        if (sizeof($explodedUrl) > 1) {
+            parse_str($explodedUrl[1], $queryParams);
+            $newParams = [];
+            foreach ($queryParams as $param => $value) {
+                $newParams[] = $param . "=" . urlencode($value);
+            }
+            $url .= "?" . join("&", $newParams);
         }
-        $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $urlEncodedParams);
+
         $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
         // Inject authentication if required

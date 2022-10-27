@@ -49,6 +49,14 @@ class TabularDatasourceImportProcessorConfiguration {
 
 
     /**
+     * Mapping of target existing values to source parameters.  Very useful when we want to seed reads
+     * based upon last stored values.
+     *
+     * @var TargetSourceParameterMapping
+     */
+    private $targetSourceParameterMapping;
+
+    /**
      * An array of target datasources being fed by the source datasource.
      *
      * @var TargetDatasource[]
@@ -81,14 +89,16 @@ class TabularDatasourceImportProcessorConfiguration {
      * @param DatasetInstance $sourceDataset
      * @param integer $sourceReadChunkSize
      * @param integer $targetWriteChunkSize
+     * @param TargetSourceParameterMapping $targetSourceParameterMapping
      */
-    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $sourceReadChunkSize = null, $targetWriteChunkSize = 25) {
+    public function __construct($sourceDatasourceKey = null, $targetDatasources = [], $sourceDatasourceKeys = [], $sourceDataset = null, $sourceReadChunkSize = null, $targetWriteChunkSize = 25, $targetSourceParameterMapping = null) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->targetDatasources = $targetDatasources;
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->sourceDataset = $sourceDataset;
         $this->sourceReadChunkSize = $sourceReadChunkSize;
         $this->targetWriteChunkSize = $targetWriteChunkSize;
+        $this->targetSourceParameterMapping = $targetSourceParameterMapping;
     }
 
 
@@ -189,6 +199,20 @@ class TabularDatasourceImportProcessorConfiguration {
      */
     public function setTargetWriteChunkSize($targetWriteChunkSize) {
         $this->targetWriteChunkSize = $targetWriteChunkSize;
+    }
+
+    /**
+     * @return TargetSourceParameterMapping
+     */
+    public function getTargetSourceParameterMapping() {
+        return $this->targetSourceParameterMapping;
+    }
+
+    /**
+     * @param TargetSourceParameterMapping $targetSourceParameterMapping
+     */
+    public function setTargetSourceParameterMapping($targetSourceParameterMapping) {
+        $this->targetSourceParameterMapping = $targetSourceParameterMapping;
     }
 
 

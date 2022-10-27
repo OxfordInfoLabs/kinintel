@@ -20,7 +20,11 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetDatasource;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetField;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetSourceParameterMapping;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 
@@ -73,7 +77,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         try {
             $this->processor->process($instance);
@@ -105,7 +109,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         try {
             $this->processor->process($instance);
@@ -147,7 +151,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             new TargetDatasource("target")
         ]);
 
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
         $this->processor->process($instance);
 
 
@@ -215,7 +219,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
         ], ["source1", "source2"]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -273,7 +277,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration(null, [
             new TargetDatasource("target")
         ], [], $mockSourceInstance);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -321,7 +325,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
             new TargetDatasource("target")
         ], [], null, 1, 1);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         $processor = new TabularDatasourceImportProcessor($this->datasourceService, $this->datasetService);
         $processor->process($instance);
@@ -383,7 +387,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                 new Field("shoeSize")
             ])
         ]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -447,7 +451,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
                 new Field("shoeSize")
             ])
         ]);
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
 
         $this->processor->process($instance);
 
@@ -528,7 +532,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $instance = new DataProcessorInstance("no","need","tabulardatasourceimport", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
         $this->processor->process($instance);
 
 
@@ -558,4 +562,102 @@ class TabularDatasourceImportProcessorTest extends TestBase {
     }
 
 
+    public function testIfTargetSourceParameterMappingPassedTargetValueIsLookedUpAndSuppliedAsParameterToSourceDataSource() {
+
+        // Configure target
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "targetsource"
+        ]);
+
+
+        // Programme a call to the target datasource to return latest data for from date.
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("parameterValue")],
+            [["parameterValue" => '2022-01-01 10:23:44']]),
+            ["targetsource", [], [
+                new TransformationInstance("summarise", new SummariseTransformation([], [
+                    new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "lastUpdated", null, "Parameter Value")
+                ]))
+            ]
+            ]);
+
+
+        $config = new TabularDatasourceImportProcessorConfiguration("inputsource", [new TargetDatasource("targetsource")], [], null, 2, 2, new TargetSourceParameterMapping("fromDate", 0, "lastUpdated", TargetSourceParameterMapping::VALUE_RULE_LATEST, 255));
+
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
+        $this->processor->process($instance);
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+            "inputsource", ["fromDate" => "2022-01-01 10:23:44"], null, 0, 2
+        ]));
+
+    }
+
+    public function testIfTargetSourceParameterMappingPassedTargetValueIsLookedUpAndSuppliedAsParameterToSourceDataSet() {
+
+        // Configure target
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "targetsource"
+        ]);
+
+
+        // Programme a call to the target datasource to return latest data for from date.
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("parameterValue")],
+            [["parameterValue" => '2022-01-01 10:23:44']]),
+            ["targetsource", [], [
+                new TransformationInstance("summarise",new SummariseTransformation([], [
+                    new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "lastUpdated", null, "Parameter Value")
+                ]))
+            ]
+            ]);
+
+
+        $config = new TabularDatasourceImportProcessorConfiguration(null, [new TargetDatasource("targetsource")], [], "inputset", 2, 2, new TargetSourceParameterMapping("fromDate", 0, "lastUpdated"));
+
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
+        $this->processor->process($instance);
+
+        $this->assertTrue($this->datasetService->methodWasCalled("getEvaluatedDataSetForDataSetInstance", [
+            "inputset", ["fromDate" => "2022-01-01 10:23:44"], null, 0, 2
+        ]));
+
+    }
+
+    public function testIfTargetSourceParameterMappingPassedDefaultValueIsUsedIfNoTargetValueReturnedAndIsSuppliedAsParameterToSourceDataSource() {
+
+        // Configure target
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "targetsource"
+        ]);
+
+
+        // Programme a call to the target datasource to return latest data for from date.
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("parameterValue")],
+            [["parameterValue" => null]]),
+            ["targetsource", [], [
+                new TransformationInstance("summarise", new SummariseTransformation([], [
+                    new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MIN, "lastUpdated", null, "Parameter Value")
+                ]))
+            ]
+            ]);
+
+
+        $config = new TabularDatasourceImportProcessorConfiguration("inputsource", [new TargetDatasource("targetsource")], [], null, 2, 2, new TargetSourceParameterMapping("fromDate", 0, "lastUpdated", TargetSourceParameterMapping::VALUE_RULE_EARLIEST, 255));
+
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
+        $this->processor->process($instance);
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+            "inputsource", ["fromDate" => 255], null, 0, 2
+        ]));
+
+    }
 }

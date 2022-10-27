@@ -21,6 +21,16 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     private $targetChangeDatasourceKey;
 
     /**
+     * @var string
+     */
+    private $targetSummaryDatasourceKey;
+
+    /**
+     * @var string[]
+     */
+    private $summaryFields;
+
+    /**
      * @var int
      */
     private $sourceReadChunkSize;
@@ -34,13 +44,17 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param string[] $sourceDatasourceKeys
      * @param string $targetLatestDatasourceKey
      * @param string $targetChangeDatasourceKey
+     * @param string $targetSummaryDatasourceKey
+     * @param string[] $summaryFields
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
      */
-    public function __construct($sourceDatasourceKeys, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
+    public function __construct($sourceDatasourceKeys, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
+        $this->targetSummaryDatasourceKey = $targetSummaryDatasourceKey;
+        $this->summaryFields = $summaryFields;
         $this->sourceReadChunkSize = $sourceReadChunkSize ?: PHP_INT_MAX;
         $this->targetWriteChunkSize = $targetWriteChunkSize ?: 500;
     }
@@ -85,6 +99,34 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     public function setTargetChangeDatasourceKey($targetChangeDatasourceKey) {
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetSummaryDatasourceKey() {
+        return $this->targetSummaryDatasourceKey;
+    }
+
+    /**
+     * @param string $targetSummaryDatasourceKey
+     */
+    public function setTargetSummaryDatasourceKey($targetSummaryDatasourceKey) {
+        $this->targetSummaryDatasourceKey = $targetSummaryDatasourceKey;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSummaryFields() {
+        return $this->summaryFields;
+    }
+
+    /**
+     * @param string[] $summaryFields
+     */
+    public function setSummaryFields($summaryFields) {
+        $this->summaryFields = $summaryFields;
     }
 
     /**

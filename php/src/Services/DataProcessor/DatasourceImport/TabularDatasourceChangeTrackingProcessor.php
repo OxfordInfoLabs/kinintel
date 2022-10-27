@@ -7,12 +7,19 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Util\Logging\CodeTimer;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
+use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Transformation\Formula\Expression;
+use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
+use Kinintel\ValueObjects\Transformation\Transformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
@@ -50,6 +57,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
      */
     public function process($instance) {
 
+        // Initialise various variables
         /**
          * @var TabularDatasourceChangeTrackingProcessorConfiguration $config
          */
@@ -58,13 +66,19 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $sourceReadChunkSize = $config->getSourceReadChunkSize() ?? PHP_INT_MAX;
         $targetWriteChunkSize = $config->getTargetWriteChunkSize();
 
-        $datasourceKeys = $config->getSourceDatasourceKeys();
+        $targetLatestDatasourceKey = $config->getTargetLatestDatasourceKey();
+        $targetChangeDatasourceKey = $config->getTargetChangeDatasourceKey();
 
-        // Assuming all datasources have the same keys
+        $datasourceKeys = $config->getSourceDatasourceKeys();
+        $targetSummaryDatasourceKey = $config->getTargetSummaryDatasourceKey();
+
+        // Assuming all datasources have the same keys - would be daft otherwise
         $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
 
-        $setDate = date('Y-m-d H:i:s');
+        $setDate = new \DateTime();
 
+
+        // Iterate through each source datasource
         foreach ($datasourceKeys as $datasourceKey) {
             $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
 
@@ -91,18 +105,17 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
             passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
-            // Write to Tables
-
-            $targetLatestDatasourceKey = $config->getTargetLatestDatasourceKey();
-            $targetChangeDatasourceKey = $config->getTargetChangeDatasourceKey();
-
-
-            $this->analyseChanges($fieldKeys, $directory, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+            // Identify and changes and write to the latest and changes tables
+            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
 
             // Copy the new file across to the previous
             copy($directory . "/new.txt", $directory . "/previous.txt");
         }
 
+        // Finally, add to the summary table given the new latest table
+        if ($targetSummaryDatasourceKey) {
+            $this->createSummary($targetLatestDatasourceKey, $targetSummaryDatasourceKey, $config->getSummaryFields(), $sourceReadChunkSize, $targetWriteChunkSize, $setDate);
+        }
     }
 
 
@@ -110,17 +123,17 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         $offset = 0;
 
+        // Read the datasource in chunks
         do {
             $lineCount = 0;
-
             $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
-
             $nextItem = $evaluated->nextDataItem();
 
             if (!$nextItem) {
                 return;
             }
 
+            // For each chunk, format each entry and write to new.txt
             do {
 
                 $nextLine = "";
@@ -142,7 +155,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
     private function analyseChanges($fieldKeys, $directory, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize) {
 
-        $deleteFileItems = explode("\n", file_get_contents($directory . "/deletes.txt"));
 
         // Initialise some variables
 
@@ -184,8 +196,9 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             }
         }
 
+        $deleteFileItems = explode("\n", file_get_contents($directory . "/deletes.txt"));
 
-        // Loop through adds.txt
+        // Iterate through adds.txt
 
         $addFileStream = new ReadOnlyFileStream($directory . "/adds.txt");
         while ($addLine = $addFileStream->readLine()) {
@@ -292,16 +305,19 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
     private function updateTargetDatasources($data, $updateType, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey) {
 
+        // Initialise variables according to the update type
         $adds = $updateType == "ADD" ? $data : [];
         $updates = $updateType == "UPDATE" ? $data : [];
         $deletes = $updateType == "DELETE" ? $data : [];
 
+
+        // Carry out the update to the latest table
         $datasourceLatestUpdate = new DatasourceUpdate([], $updates, $deletes, $adds);
 
         $this->datasourceService->updateDatasourceInstance($targetLatestDatasourceKey, $datasourceLatestUpdate, true);
 
 
-        // Here onwards is constructing the DatasourceUpdate for change logging
+        // Construct the changes update and update the changes table
 
         $changeType = new Field("change_type");
         $changeDate = new Field("change_date");
@@ -315,6 +331,40 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         $this->datasourceService->updateDatasourceInstance($targetChangeDatasourceKey, $datasourceChangesUpdate, true);
 
+    }
+
+    private function createSummary($targetLatestDatasourceKey, $targetSummaryDatasourceKey, $summaryFields, $sourceReadChunkSize, $targetWriteChunkSize, $setDate) {
+
+
+        /**
+         * @var SQLResultSetTabularDataset $summarisedData
+         */
+        $summarisedData = $this->datasourceService->getEvaluatedDataSource($targetLatestDatasourceKey, [], [
+            new TransformationInstance("formula", new FormulaTransformation([new Expression("Summary Date", "NOW()"),
+                new Expression("Month", "MONTH(NOW())"),
+                new Expression("Month Name", "MONTHNAME(NOW())"),
+                new Expression("Year", "YEAR(NOW())")
+            ])),
+            new TransformationInstance("summarise", new SummariseTransformation(array_merge(["summaryDate", "month", "monthName", "year"], $summaryFields), [
+                new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total")
+            ]))
+
+        ]);
+
+        $writeRows = [];
+        while ($row = $summarisedData->nextDataItem()) {
+            print_r($row);
+            $writeRows[] = $row;
+            if (sizeof($writeRows) == $targetWriteChunkSize) {
+                $this->datasourceService->updateDatasourceInstance($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
+                print_r("done a write");
+                $writeRows = [];
+            }
+        }
+
+        if (sizeof($writeRows)) {
+            $this->datasourceService->updateDatasourceInstance($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
+        }
     }
 
 }

@@ -79,6 +79,7 @@ class GoogleBucketFileDatasource extends BaseDatasource {
                 return $config->returnFormatter()->format($multiStream, $config->returnEvaluatedColumns($parameterValues), $limit, $offset);
 
             }
+
         }
 
 

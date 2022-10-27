@@ -14,7 +14,8 @@ class ArrayValueFunction extends ValueFunctionWithArguments
     const supportedFunctions = [
         "memberValues",
         "join",
-        "slice"
+        "slice",
+        "item"
     ];
 
     /**
@@ -61,6 +62,10 @@ class ArrayValueFunction extends ValueFunctionWithArguments
                 $length = $functionArgs[1] ?? null;
 
                 return array_slice($value, $offset, $length);
+            }
+
+            if ($functionName == "item") {
+                return $value[$functionArgs[0]] ?? null;
             }
 
             return $value;
