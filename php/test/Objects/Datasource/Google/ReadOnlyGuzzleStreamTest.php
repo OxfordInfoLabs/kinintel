@@ -4,7 +4,8 @@ namespace Kinintel\Objects\Datasource\Google;
 
 use GuzzleHttp\Psr7\Stream;
 use Kinikit\Core\Stream\StreamException;
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
+
 
 include_once "autoloader.php";
 

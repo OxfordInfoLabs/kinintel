@@ -4,6 +4,7 @@
 namespace Kinintel\Services\Datasource;
 
 
+use AWS\CRT\Log;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Configuration\Configuration;
@@ -235,6 +236,7 @@ class DatasourceService {
         // Grab the datasource.
         $datasource = $datasourceInstance->returnDataSource();
 
+
         if (!($datasource instanceof UpdatableDatasource)) {
             throw new DatasourceNotUpdatableException($datasource);
         }
@@ -253,16 +255,27 @@ class DatasourceService {
 
             }
 
+
+
             $this->saveDataSourceInstance($datasourceInstance);
 
         }
 
 
+
         // Perform the various updates required
         if ($datasourceUpdate->getAdds()) {
-            $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
-                return new Field($columnName);
-            }, array_keys($datasourceUpdate->getAdds()[0]));
+            if ($datasource->getConfig()->getColumns()) {
+                $fields = [];
+                foreach ($datasource->getConfig()->getColumns() as $column) {
+                    if ($column->getType() !== Field::TYPE_ID)
+                        $fields[] = $column;
+                }
+            } else {
+                $fields = array_map(function ($columnName) {
+                    return new Field($columnName);
+                }, array_keys($datasourceUpdate->getAdds()[0]));
+            }
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
         }
 

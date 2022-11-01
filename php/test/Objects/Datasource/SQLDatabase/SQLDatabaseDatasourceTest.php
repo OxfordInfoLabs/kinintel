@@ -643,7 +643,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, false),
             new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, false),
-            new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, true, true, false, "how_many")
+            new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, 11, null, null, true, true, false, "how_many")
         ]);
 
         $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [

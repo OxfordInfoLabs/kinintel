@@ -16,7 +16,8 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredenti
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Query\SQLQueryDataProcessorConfiguration;
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
+
 
 include_once "autoloader.php";
 

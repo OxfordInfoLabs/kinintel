@@ -612,7 +612,7 @@ class DatasourceServiceTest extends TestBase {
         $replaceDatasource = new ArrayTabularDataset([
             new Field("name"),
             new Field("age")
-        ],[
+        ], [
             ["name" => "Replace me", "age" => 88],
             ["name" => "Replace me twice", "age" => 65]
         ]);
@@ -728,5 +728,47 @@ class DatasourceServiceTest extends TestBase {
 
     }
 
+
+    public function testIdFieldsAreRemovedFromColumnListWhenAddingDataWithStructure() {
+
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = new TabularResultsDatasourceConfig([]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("My Source", [
+            new Field("id", "Id", null, Field::TYPE_ID),
+            new Field("age")
+        ], [
+            ["id" => "Joe Bloggs", "age" => 12],
+            ["id" => "Mary Jane", "age" => 7]
+        ]);
+
+        $addDatasource = new ArrayTabularDataset([
+            new Field("age")
+        ], [
+            ["id" => "Joe Bloggs", "age" => 12],
+            ["id" => "Mary Jane", "age" => 7]
+        ]);
+
+
+        $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]));
+
+    }
 
 }
