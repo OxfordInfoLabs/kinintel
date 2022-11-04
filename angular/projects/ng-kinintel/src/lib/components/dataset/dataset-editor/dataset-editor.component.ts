@@ -357,7 +357,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 config: transformation.config
             };
         }
-        console.log(data);
+
         const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
             width: '1200px',
             height: '800px',
