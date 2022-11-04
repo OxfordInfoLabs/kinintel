@@ -10,6 +10,9 @@ db.logFile = DB/db.log
 
 files.root = Files
 
+snapshot.datasource.credentials.key = test
+snapshot.datasource.table.prefix = snapshot.
+
 custom.datasource.credentials.key = test
 custom.datasource.table.prefix = custom.
 

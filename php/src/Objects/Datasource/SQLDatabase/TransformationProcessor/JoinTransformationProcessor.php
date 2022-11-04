@@ -185,6 +185,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 $newJoinData = [];
                 while ($parentRow = $parentDataset->nextDataItem()) {
 
+
                     // Set any column parameters accordingly
                     $columnValues = [];
                     foreach ($columnParameters as $parameterName => $columnName) {
@@ -199,10 +200,16 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                     }
 
 
-                    $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
+                    try {
+                        $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
 
-                    while ($joinRow = $materialisedJoinSet->nextDataItem()) {
-                        $newJoinData[] = array_merge($columnValues, $joinRow);
+                        while ($joinRow = $materialisedJoinSet->nextDataItem()) {
+                            $newJoinData[] = array_merge($columnValues, $joinRow);
+                        }
+                    } catch (\Exception $e) {
+                        Logger::log($e->getMessage());
+                        // Catch any errors on materialise and set join data to blank.
+                        $newJoinData[] = $columnValues;
                     }
 
                 }
@@ -228,11 +235,11 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 if (isset($joinDataSet) && !isset($joinDatasource)) {
 
+
                     $joinDatasource = $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet, $joinDatasourceParameterValues,
                         []);
 
                 }
-
 
                 $joinDatasource = new DefaultDatasource($joinDatasource);
 

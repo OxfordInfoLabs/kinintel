@@ -4,6 +4,7 @@
 namespace Kinintel\Services\DataProcessor\DatasetSnapshot;
 
 
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -137,7 +138,9 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
      * @return DatasourceInstance
      */
     private function getDatasourceInstance($instanceKey, $accountId, $projectKey) {
-        //TODO be refactored
+
+        $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
+        $tablePrefix = Configuration::readParameter("snapshot.datasource.table.prefix");
 
         // Do a check to see if the target datasource exists
         try {
@@ -148,11 +151,10 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $dataSourceInstance = new DatasourceInstance($instanceKey, $instanceKey, "snapshot",
                 [
                     "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
-                    "tableName" => $instanceKey
-                ], "dataset_snapshot");
+                    "tableName" => $tablePrefix . $instanceKey
+                ], $credentialsKey);
             $dataSourceInstance->setAccountId($accountId);
             $dataSourceInstance->setProjectKey($projectKey);
-
 
             // Save the datasource instance and return a new one
             $dataSourceInstance = $this->datasourceService->saveDataSourceInstance($dataSourceInstance);
