@@ -197,6 +197,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         if ($config->isCreateHistory()) {
             try {
                 $dataSourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);
+                $this->datasourceService->removeDatasourceInstance($instanceKey);
             } catch (ObjectNotFoundException $e) {
 
                 // Create a new data source instance and save it.

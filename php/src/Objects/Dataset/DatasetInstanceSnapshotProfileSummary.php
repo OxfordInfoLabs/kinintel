@@ -84,15 +84,13 @@ class DatasetInstanceSnapshotProfileSummary {
      * @param string $processorType
      * @param mixed $processorConfig
      * @param string $trigger
-     * @param bool $create_history
-     * @param bool $create_latest
      * @param ScheduledTaskTimePeriod[] $taskTimePeriods
      * @param string $taskStatus
      * @param string $taskLastStartTime
      * @param string $taskLastEndTime
      * @param string $taskNextStartTime
      */
-    public function __construct($title, $processorType, $processorConfig, $trigger = self::TRIGGER_SCHEDULE, $create_history = true, $create_latest = true, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null,
+    public function __construct($title, $processorType, $processorConfig, $trigger = self::TRIGGER_SCHEDULE, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null,
                                 $taskLastEndTime = null, $taskNextStartTime = null, $id = null) {
         $this->title = $title;
         $this->taskTimePeriods = $taskTimePeriods;
@@ -104,8 +102,6 @@ class DatasetInstanceSnapshotProfileSummary {
         $this->taskNextStartTime = $taskNextStartTime instanceof \DateTime ? $taskNextStartTime->format("d/m/Y H:i:s") : "";
         $this->id = $id;
         $this->trigger = $trigger;
-        $this->create_history = $create_history;
-        $this->create_latest = $create_latest;
     }
 
     /**
@@ -149,34 +145,6 @@ class DatasetInstanceSnapshotProfileSummary {
      */
     public function setTrigger($trigger) {
         $this->trigger = $trigger;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCreateHistory() {
-        return $this->create_history;
-    }
-
-    /**
-     * @param bool $create_history
-     */
-    public function setCreateHistory($create_history) {
-        $this->create_history = $create_history;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCreateLatest() {
-        return $this->create_latest;
-    }
-
-    /**
-     * @param bool $create_latest
-     */
-    public function setCreateLatest($create_latest) {
-        $this->create_latest = $create_latest;
     }
 
     /**

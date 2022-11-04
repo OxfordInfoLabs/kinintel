@@ -179,7 +179,7 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
         $dataProcessor = $this->dataProcessorInstance ?? new DataProcessorInstance(null, null, null);
 
         return new DatasetInstanceSnapshotProfileSummary($this->title,
-            $dataProcessor->getType(), $dataProcessor->getConfig(), $this->trigger, true, true, $scheduledTask->getTimePeriods(), $scheduledTask->getStatus(), $scheduledTask->getLastStartTime(),
+            $dataProcessor->getType(), $dataProcessor->getConfig(), $this->trigger, $scheduledTask->getTimePeriods(), $scheduledTask->getStatus(), $scheduledTask->getLastStartTime(),
             $scheduledTask->getLastEndTime(), $scheduledTask->getNextStartTime(), $this->id
         );
     }
