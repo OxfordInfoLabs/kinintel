@@ -106,7 +106,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
     const FIELD_TYPE_LENGTH_MAP = [
         Field::TYPE_STRING => 255,
-        Field::TYPE_MEDIUM_STRING => 2000
+        Field::TYPE_MEDIUM_STRING => 2000,
+        Field::TYPE_ID => 11
     ];
 
     const FIELD_SQL_TYPE_TYPE_MAP = [
