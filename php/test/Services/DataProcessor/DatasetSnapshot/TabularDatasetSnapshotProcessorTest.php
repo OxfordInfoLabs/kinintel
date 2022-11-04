@@ -128,7 +128,6 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $mockDataSourceInstancePending = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
 
 
-
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockDataSourceInstance, [
             "mytestsnapshot"
         ]);
@@ -229,7 +228,6 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["snapshot_date" => $now, "title" => "Item 13", "metric" => 13, "score" => 13]
             ])
         ]));
-
 
 
         // Check all latest is updated as expected
@@ -344,7 +342,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             ]
         );
 
-        $instance = new DataProcessorInstance("no","need","tabulardatasetsnapshot", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
 
         // Process
         $this->processor->process($instance);

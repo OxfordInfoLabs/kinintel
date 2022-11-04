@@ -74,4 +74,34 @@ export class ProjectService {
         return false;
     }
 
+    public setDataItemPagingValue(limit, offset, page, itemName?) {
+        const projectKey = this.activeProject.getValue() ? this.activeProject.getValue().projectKey : '';
+        itemName = itemName || window.location.pathname + projectKey;
+        sessionStorage.setItem(itemName + 'Limit', String(limit));
+        sessionStorage.setItem(itemName + 'Offset', String(offset));
+        sessionStorage.setItem(itemName + 'Page', String(page));
+    }
+
+    public getDataItemPagingValues(itemName?) {
+        const projectKey = this.activeProject.getValue() ? this.activeProject.getValue().projectKey : '';
+        itemName = itemName || window.location.pathname + projectKey;
+        const values: any = {};
+
+        const limitValue = sessionStorage.getItem(itemName + 'Limit');
+        if (limitValue) {
+            values.limit = Number(limitValue);
+        }
+
+        const offsetValue = sessionStorage.getItem(itemName + 'Offset');
+        if (offsetValue) {
+            values.offset = Number(offsetValue);
+        }
+
+        const pageValue = sessionStorage.getItem(itemName + 'Page');
+        if (pageValue) {
+            values.page = Number(pageValue);
+        }
+
+        return values;
+    }
 }

@@ -12,7 +12,7 @@ import {MatButtonModule} from '@angular/material/button';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { DatasetComponent } from './views/dataset/dataset.component';
 import { DatasourceComponent } from './views/datasource/datasource.component';
-import {NgKinintelModule} from 'ng-kinintel';
+import {DashboardChangesGuard, NgKinintelModule} from 'ng-kinintel';
 import { LoginComponent } from './views/login/login.component';
 import {NgKiniAuthModule} from 'ng-kiniauth';
 import {environment} from '../environments/environment';
@@ -89,7 +89,8 @@ import { DocumentDatasourceComponent } from './views/datasource/document-datasou
             provide: HTTP_INTERCEPTORS,
             useClass: SessionInterceptor,
             multi: true
-        }
+        },
+        DashboardChangesGuard
     ],
     bootstrap: [RouterComponent]
 })

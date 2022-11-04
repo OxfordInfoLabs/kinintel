@@ -6,7 +6,6 @@ namespace Kinintel\Objects\Feed;
 
 use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
-use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 
 class FeedSummary extends ActiveRecord {
 
@@ -56,6 +55,13 @@ class FeedSummary extends ActiveRecord {
      */
     protected $exporterConfiguration;
 
+    /**
+     * Cache time for this feed in seconds.
+     *
+     * @var int
+     */
+    protected $cacheTimeSeconds = 0;
+
 
     /**
      * @var DatasetInstanceSearchResult
@@ -65,21 +71,27 @@ class FeedSummary extends ActiveRecord {
      */
     protected $datasetLabel;
 
+
+
+
     /**
      * FeedSummary constructor.
+     *
      * @param string $path
      * @param int $datasetInstanceId
      * @param string[] $exposedParameterNames
      * @param string $exporterKey
      * @param mixed $exporterConfiguration
+     * @param int $cacheTimeSeconds
      */
-    public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $id = null) {
+    public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $cacheTimeSeconds = 0, $id = null) {
         $this->path = $path;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->exposedParameterNames = $exposedParameterNames;
         $this->exporterKey = $exporterKey;
         $this->exporterConfiguration = $exporterConfiguration;
         $this->id = $id;
+        $this->cacheTimeSeconds = $cacheTimeSeconds;
     }
 
 
@@ -172,6 +184,20 @@ class FeedSummary extends ActiveRecord {
      */
     public function setDatasetLabel($datasetLabel) {
         $this->datasetLabel = $datasetLabel;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCacheTimeSeconds() {
+        return $this->cacheTimeSeconds;
+    }
+
+    /**
+     * @param int $cacheTimeSeconds
+     */
+    public function setCacheTimeSeconds($cacheTimeSeconds) {
+        $this->cacheTimeSeconds = $cacheTimeSeconds;
     }
 
 

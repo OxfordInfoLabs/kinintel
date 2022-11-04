@@ -44,41 +44,50 @@
 </div>
 
 <ng-template [ngIf]="!itemLocked">
-    <button mat-icon-button class="edit-widget" *ngIf="viewOnly && editAlerts"
-            [matMenuTriggerFor]="alertMenu">
-        <mat-icon>add_alert</mat-icon>
-    </button>
-    <mat-menu #alertMenu="matMenu" class="no-menu-padding">
-        <button mat-menu-item (click)="editItemAlerts(null)">
-            <mat-icon>add</mat-icon>
-            <span>New Alert</span>
-        </button>
-        <ng-template [ngIf]="dashboardDatasetInstance">
-            <div mat-menu-item class="flex items-center justify-between p-0 "
-                 [ngClass]="{'border border-t border-b-0 border-r-0 border-l-0 border-solid border-gray-200': i === 0}"
-                 *ngFor="let alert of dashboardDatasetInstance.alerts; let i = index">
-                <div class="px-4 flex items-center" (click)="editItemAlerts(alert, i)">
-                    <mat-icon>edit</mat-icon>
-                    <span>{{alert.title}}</span>
-                </div>
-                <div class="flex items-center">
-                    <div class="mx-2 divider"></div>
-                    <button mat-icon-button (click)="removeAlert($event, alert, i)">
-                        <mat-icon class="mx-2 text-red-600 m-0">highlight_off</mat-icon>
-                    </button>
-                </div>
-
-            </div>
-        </ng-template>
-    </mat-menu>
-
-    <button *ngIf="!dragItem && !viewOnly" mat-icon-button class="edit-widget "
+    <button *ngIf="!dragItem" mat-icon-button class="edit-widget "
             [matMenuTriggerFor]="editMenu">
         <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #editMenu="matMenu">
-        <button mat-menu-item (click)="configure()">Edit Item</button>
-        <button mat-menu-item (click)="removeWidget($event)">Delete Item</button>
+        <ng-template [ngIf]="!viewOnly">
+            <button mat-menu-item (click)="configure()">
+                <mat-icon>edit</mat-icon>
+                Edit Item</button>
+            <button mat-menu-item (click)="exportData()">
+                <mat-icon>file_download</mat-icon>
+                Export Data</button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="removeWidget($event)">
+                <mat-icon class="text-red-600">delete</mat-icon>
+                Delete Item</button>
+        </ng-template>
+        <ng-template [ngIf]="viewOnly">
+            <button mat-menu-item (click)="exportData()">
+                <mat-icon>file_download</mat-icon>
+                Export Data</button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="editItemAlerts(null)">
+                <mat-icon color="primary">add</mat-icon>
+                <span>New Alert</span>
+            </button>
+            <ng-template [ngIf]="dashboardDatasetInstance">
+                <div mat-menu-item class="flex items-center justify-between p-0 "
+                     [ngClass]="{'border border-t border-b-0 border-r-0 border-l-0 border-solid border-gray-200': i === 0}"
+                     *ngFor="let alert of dashboardDatasetInstance.alerts; let i = index">
+                    <div class="px-4 flex items-center" (click)="editItemAlerts(alert, i)">
+                        <mat-icon>edit</mat-icon>
+                        <span>{{alert.title}}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="mx-2 divider"></div>
+                        <button mat-icon-button (click)="removeAlert($event, alert, i)">
+                            <mat-icon class="mx-2 text-red-600 m-0">highlight_off</mat-icon>
+                        </button>
+                    </div>
+
+                </div>
+            </ng-template>
+        </ng-template>
     </mat-menu>
 </ng-template>
 
@@ -223,27 +232,10 @@
                 </tr>
                 </tbody>
             </table>
-            <div *ngIf="!tabular.hidePager" class="p-4 sticky left-0 flex items-center justify-between">
-                <select [value]="limit" (change)="pageSizeChange($event.target.value)"
-                        class="mr-8 ">
-                    <option [value]="1">1</option>
-                    <option [value]="5">5</option>
-                    <option [value]="10">10</option>
-                    <option [value]="25">25</option>
-                    <option [value]="50">50</option>
-                    <option [value]="100">100</option>
-                    <option [value]="250">250</option>
-                    <option [value]="1000">1000</option>
-                </select>
-                <div>
-                    <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
-                        <mat-icon>chevron_left</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
-                        <mat-icon>chevron_right</mat-icon>
-                    </button>
-                </div>
-            </div>
+
+            <div *ngIf="!dataset.allData.length"
+                class="no-table-records text-sm text-gray-500 flex m-0 justify-center items-center">
+                No records to show</div>
         </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'words'">
@@ -258,6 +250,31 @@
             ></angular-d3-cloud>
         </ng-template>
 
+    </div>
+
+    <div *ngIf="dashboardItemType.type === 'table' && !tabular.hidePager"
+         class="flex items-center justify-between px-2 border-t border-gray-200 h-12 bg-gray-50 w-full">
+        <div class="text-xs text-gray-400">
+            Showing {{offset + 1}} - {{(page * limit) - (limit - dataset.allData.length)}}</div>
+        <div class="flex items-center justify-center">
+            <button mat-icon-button (click)="decreaseOffset()" [disabled]="page <= 1">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+                    class="p-1 mx-2">
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+                <option [value]="250">250</option>
+                <option [value]="1000">1000</option>
+            </select>
+            <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+        </div>
     </div>
 
     <div class="footer w-full bg-gray-50 px-5 py-1 text-gray-600 border-b border-gray-200 text-xs"

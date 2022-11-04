@@ -286,12 +286,12 @@ trait Dataset {
      *
      * @http PATCH /snapshotprofile/$datasetInstanceId
      *
-     * @param $snapshotProfileId
      * @param $datasetInstanceId
+     * @param $snapshotProfileId
      *
      */
-    public function triggerSnapshot($snapshotProfileId, $datasetInstanceId) {
-        $this->datasetService->triggerSnapshot($snapshotProfileId, $datasetInstanceId);
+    public function triggerSnapshot($datasetInstanceId, $snapshotProfileId) {
+        $this->datasetService->triggerSnapshot($datasetInstanceId, $snapshotProfileId);
     }
 
 

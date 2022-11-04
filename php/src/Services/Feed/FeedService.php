@@ -98,7 +98,7 @@ class FeedService {
     public function isFeedURLAvailable($feedUrl, $currentItemId = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         // Use feed validator
-        $feed = new Feed(new FeedSummary($feedUrl, null, null, null, null, $currentItemId), null, $accountId);
+        $feed = new Feed(new FeedSummary($feedUrl, null, null, null, null, 0, $currentItemId), null, $accountId);
         return sizeof($feed->validate()) == 0;
     }
 
@@ -161,7 +161,7 @@ class FeedService {
         }
 
         // Export and return result directly
-        return $this->datasetService->exportDatasetInstance($datasetInstanceSummary, $feed->getExporterKey(), $feed->getExporterConfiguration(), $exportParameters, [], $offset, $limit, false);
+        return $this->datasetService->exportDatasetInstance($datasetInstanceSummary, $feed->getExporterKey(), $feed->getExporterConfiguration(), $exportParameters, [], $offset, $limit, false, $feed->getCacheTimeSeconds());
 
     }
 

@@ -3,6 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DatasetService} from '../../../services/dataset.service';
 import * as fileSaver from 'file-saver';
 import * as lodash from 'lodash';
+import {MatSnackBar} from '@angular/material/snack-bar';
 const _ = lodash.default;
 
 @Component({
@@ -17,7 +18,8 @@ export class ExportDataComponent implements OnInit {
 
     constructor(public dialogRef: MatDialogRef<ExportDataComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private snackBar: MatSnackBar) {
     }
 
     ngOnInit(): void {
@@ -35,6 +37,11 @@ export class ExportDataComponent implements OnInit {
             const type = res.type.split('/')[1];
             const filename = _.kebabCase(this.exportDataset.dataSetInstanceSummary.title) + '-' + Date.now();
             fileSaver.saveAs(res, filename + '.' + type);
+            this.dialogRef.close();
+            this.snackBar.open('Data Exported Successfully.', 'Close', {
+                duration: 3000,
+                verticalPosition: 'top'
+            });
         });
     }
 

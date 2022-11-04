@@ -14,6 +14,7 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\ContentSource\ContentSource;
 use Kinikit\MVC\Response\Download;
+use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -619,7 +620,7 @@ class DatasetService {
      * @return Response
      *
      */
-    public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25, $streamAsDownload = true) {
+    public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25, $streamAsDownload = true, $cacheTime = 0) {
 
         /**
          * Get an exporter instance
@@ -638,12 +639,17 @@ class DatasetService {
         // Export the dataset using exporter
         $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);
 
+        // Add headers to the party
+        $headers = [
+            Headers::HEADER_CACHE_CONTROL => "public, max-age=" . $cacheTime
+        ];
+
         // Return a new download or regular response depending upon then
         if ($streamAsDownload) {
             $filename = str_replace(" ", "_", strtolower($datasetInstance->getTitle())) . "-" . date("U") . "." . $exporter->getDownloadFileExtension($exporterConfiguration);
-            return new Download($contentSource, $filename);
+            return new Download($contentSource, $filename, 200, $headers);
         } else {
-            return new SimpleResponse($contentSource);
+            return new SimpleResponse($contentSource, 200, $headers);
         }
     }
 

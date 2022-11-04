@@ -23,10 +23,10 @@ export class DataExplorerComponent implements OnInit {
     public snapshotProfiles: any = [];
     public editTitle = false;
     public accountId: any;
+    public newTitle: string;
+    public newDescription: string;
 
     private columns: any = [];
-    private newTitle: string;
-    private newDescription: string;
     private datasetTitle: string;
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
@@ -65,11 +65,6 @@ export class DataExplorerComponent implements OnInit {
             height: '530px',
             data: {
                 datasetInstanceSummary: Object.assign({}, this.datasetInstanceSummary)
-            }
-        });
-        dialogRef.afterClosed().subscribe(exportDataset => {
-            if (exportDataset) {
-                this.loadSnapshotProfiles();
             }
         });
     }
@@ -131,8 +126,8 @@ export class DataExplorerComponent implements OnInit {
 
     private saveDataset() {
         this.datasetService.saveDataset(this.datasetInstanceSummary, this.accountId).then(() => {
-            this.dialogRef.close();
-            this.router.navigate(['/dataset']);
+            this.dialogRef.close(true);
+            // this.router.navigate(['/dataset']);
         });
     }
 

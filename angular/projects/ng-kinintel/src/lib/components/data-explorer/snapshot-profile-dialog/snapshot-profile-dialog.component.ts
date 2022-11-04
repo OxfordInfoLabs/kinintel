@@ -15,6 +15,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
     public snapshot: any;
     public columns: any = [];
     public newTimeLapse: any;
+    public _ = _;
     public defaultOffsets = [
         {
             label: '1 Day Ago',
@@ -46,12 +47,21 @@ export class SnapshotProfileDialogComponent implements OnInit {
         this.snapshot = this.data.snapshot || {
             processorType: 'tabulardatasetsnapshot',
             taskTimePeriods: [],
+            trigger: 'scheduled',
             processorConfig: {
                 keyFieldNames: [],
-                timeLapsedFields: []
+                timeLapsedFields: [],
+                createHistory: true,
+                createLatest: true
             }
         };
         this.datasetInstanceId = this.data.datasetInstanceId || null;
+    }
+
+    public updateCreateHistory(value) {
+        if (value) {
+            this.snapshot.processorConfig.createLatest = true;
+        }
     }
 
     public removeTimeLapsedField(index) {

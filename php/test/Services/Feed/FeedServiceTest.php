@@ -8,6 +8,7 @@ use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
+use Kinikit\MVC\Request\Headers;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Controllers\Account\Dataset;
@@ -60,7 +61,7 @@ class FeedServiceTest extends TestBase {
         $reFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Hello"
-        ], $feedId);
+        ], 0, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, null, null, "test-json"));
         $this->assertEquals($expected, $reFeed);
 
@@ -71,7 +72,7 @@ class FeedServiceTest extends TestBase {
         $reReFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Goodbye"
-        ], $feedId);
+        ], 0, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, null, null, "test-json"));
         $this->assertEquals($expected, $reReFeed);
 
@@ -227,10 +228,68 @@ class FeedServiceTest extends TestBase {
             [],
             0,
             50,
-            false
+            false,
+            0
         ]);
 
         $response = $this->feedService->evaluateFeed("filter/feed3");
+        $this->assertEquals($expectedResponse, $response);
+
+    }
+
+    public function testCacheTimePassedThroughToExportServiceIfSuppliedAsFeedConfig() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+
+        $feedSummary = new FeedSummary("filter/feed4", 2, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $feedId = $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            ["param1" => "",
+                "param2" => ""],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("filter/feed4");
+        $this->assertEquals($expectedResponse, $response);
+
+        $feedSummary = $this->feedService->getFeedById($feedId);
+        $feedSummary->setCacheTimeSeconds(120);
+        $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BANGO"));
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            ["param1" => "",
+                "param2" => ""],
+            [],
+            0,
+            50,
+            false,
+            120
+        ]);
+
+        $response = $this->feedService->evaluateFeed("filter/feed4");
         $this->assertEquals($expectedResponse, $response);
 
     }

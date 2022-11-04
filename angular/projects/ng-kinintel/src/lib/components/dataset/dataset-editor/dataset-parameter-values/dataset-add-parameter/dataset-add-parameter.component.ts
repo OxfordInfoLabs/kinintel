@@ -13,6 +13,8 @@ export class DatasetAddParameterComponent implements OnInit {
 
     public parameter: any = {type: 'text', multiple: false, defaultValue: null};
 
+    private updateName = true;
+
     constructor(public dialogRef: MatDialogRef<DatasetAddParameterComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any) {
     }
@@ -20,11 +22,14 @@ export class DatasetAddParameterComponent implements OnInit {
     ngOnInit(): void {
         if (this.data && this.data.parameter) {
             this.parameter = this.data.parameter;
+            this.updateName = !this.parameter.name;
         }
     }
 
     public setName() {
-        this.parameter.name = _.camelCase(this.parameter.title);
+        if (this.updateName) {
+            this.parameter.name = _.camelCase(this.parameter.title);
+        }
     }
 
 }
