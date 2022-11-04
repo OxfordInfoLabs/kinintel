@@ -27,6 +27,15 @@ class TabularDatasetSnapshotProcessorConfiguration {
      */
     private $snapshotIdentifier;
 
+    /**
+     * @var bool
+     */
+    private $createHistory;
+
+    /**
+     * @var bool
+     */
+    private $createLatest;
 
     /**
      * Key field names - used for indexing target snapshot table
@@ -42,14 +51,18 @@ class TabularDatasetSnapshotProcessorConfiguration {
 
     /**
      * TabularDatasetSnapshotProcessorConfiguration constructor.
+     * @param bool $createHistory
+     * @param bool $createLatest
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
+        $this->createLatest = $createLatest;
+        $this->createHistory = $createHistory;
     }
 
     /**
@@ -107,6 +120,34 @@ class TabularDatasetSnapshotProcessorConfiguration {
      */
     public function setTimeLapsedFields($timeLapsedFields) {
         $this->timeLapsedFields = $timeLapsedFields;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCreateHistory() {
+        return $this->createHistory;
+    }
+
+    /**
+     * @param bool $createHistory
+     */
+    public function setCreateHistory($createHistory) {
+        $this->createHistory = $createHistory;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCreateLatest() {
+        return $this->createLatest;
+    }
+
+    /**
+     * @param bool $createLatest
+     */
+    public function setCreateLatest($createLatest) {
+        $this->createLatest = $createLatest;
     }
 
 

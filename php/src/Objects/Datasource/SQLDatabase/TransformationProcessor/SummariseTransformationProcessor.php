@@ -33,7 +33,7 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
     public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
 
         // Unset any explicit columns from the datasource config
-       // $datasource->getConfig()->setColumns([]);
+        // $datasource->getConfig()->setColumns([]);
 
         return $datasource;
     }
@@ -60,9 +60,11 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
             $columns = [];
             $databaseConnection = $dataSource->returnDatabaseConnection();
 
-            $groupByClauses = $transformation->getSummariseFieldNames();
-            foreach ($groupByClauses as $groupByClause) {
-                $columns[] = new Field($groupByClause);
+            $summariseFieldNames = $transformation->getSummariseFieldNames();
+            $groupByClauses = [];
+            foreach ($summariseFieldNames as $summariseFieldName) {
+                $groupByClauses[] = $databaseConnection->escapeColumn($summariseFieldName);
+                $columns[] = new Field($summariseFieldName);
             }
 
             $evaluatedExpressions = [];
@@ -76,6 +78,7 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
 
 
             $evaluatedExpressions = array_merge($groupByClauses, $evaluatedExpressions);
+
             if (sizeof($groupByClauses))
                 $query->setGroupByClause(join(", ", $evaluatedExpressions), join(", ", $groupByClauses), [], $clauseParameters);
             else if (sizeof($evaluatedExpressions))

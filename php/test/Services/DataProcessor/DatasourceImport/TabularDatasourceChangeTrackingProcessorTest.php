@@ -582,6 +582,64 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
 
+    public function testCanWriteWithNullForEmptyField() {
+
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
+
+
+        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age", null, Field::TYPE_STRING, false)], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ],
+            [
+                "name" => "James Bond",
+                "age" => 56
+            ],
+            [
+                "name" => "Andrew Smith",
+            ],
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ]
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test1", [], [], 0, 1
+        ]);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test1", [], [], 0, PHP_INT_MAX
+        ]);
+
+        $expectedUpdate = new DatasourceUpdate([], [], [], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ],
+            [
+                "name" => "James Bond",
+                "age" => 56
+            ],
+            [
+                "name" => "Andrew Smith",
+                "age" => null
+            ],
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ]]);
+
+
+        $this->processor->process($processorInstance);
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+
+    }
+
     public function testCanUpdateWithChunks() {
 
         $targetWriteSize = 500;
@@ -734,8 +792,6 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             "name" => "James Bond",
             "total" => 1
         ]]);
-
-        print_r($expectedUpdate);
 
         $this->processor->process($processorInstance);
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));

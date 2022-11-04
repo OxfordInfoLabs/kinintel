@@ -5,6 +5,7 @@ namespace Kinintel\Services\Dataset;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskInterceptor;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
@@ -389,9 +390,36 @@ class DatasetService {
             if ($snapshotProfile->getDatasetInstanceId() != $datasetInstanceId)
                 throw new ObjectNotFoundException(DatasetInstanceSnapshotProfile::class, $snapshotProfileSummary->getId());
 
-            $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());
-            $snapshotProfile->getScheduledTask()->setTimePeriods($snapshotProfileSummary->getTaskTimePeriods());
+            if ($snapshotProfileSummary->getTrigger() == DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE) {
 
+                if (!$snapshotProfile->getScheduledTask()) {
+                    $dataProcessorKey = $processorConfig["snapshotIdentifier"];
+                    $snapshotProfile->setScheduledTask(new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
+                        [
+                            "dataProcessorKey" => $dataProcessorKey
+                        ], $snapshotProfileSummary->getTaskTimePeriods()), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId()));
+                }
+
+
+                $snapshotProfile->setTrigger(DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE);
+
+                $snapshotProfile->getScheduledTask()->setTimePeriods($snapshotProfileSummary->getTaskTimePeriods());
+            } else {
+
+                if (!$snapshotProfile->getScheduledTask()) {
+                    $dataProcessorKey = $processorConfig["snapshotIdentifier"];
+                    $snapshotProfile->setScheduledTask(new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
+                        [
+                            "dataProcessorKey" => $dataProcessorKey
+                        ], []), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId()));
+                }
+
+                $snapshotProfile->setTrigger(DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC);
+                $snapshotProfile->getScheduledTask()->setTimePeriods([]);
+            }
+
+
+            $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());
 
             $processorConfig["snapshotIdentifier"] = $snapshotProfile->getDataProcessorInstance()->getKey();
             $snapshotProfile->getDataProcessorInstance()->setConfig($processorConfig);
@@ -412,12 +440,16 @@ class DatasetService {
                 $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
 
 
-            $snapshotProfile = new DatasetInstanceSnapshotProfile($datasetInstanceId, $snapshotProfileSummary->getTitle(),
-                new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
+            $scheduledTask = $snapshotProfileSummary->getTrigger() == DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE ? new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
+                [
+                    "dataProcessorKey" => $dataProcessorKey
+                ], $snapshotProfileSummary->getTaskTimePeriods()), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId())
+                : new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
                     [
                         "dataProcessorKey" => $dataProcessorKey
-                    ], $snapshotProfileSummary->getTaskTimePeriods()), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId()),
-                $dataProcessorInstance);
+                    ], []), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
+
+            $snapshotProfile = new DatasetInstanceSnapshotProfile($datasetInstanceId, $snapshotProfileSummary->getTitle(), $snapshotProfileSummary->getTrigger(), $scheduledTask, $dataProcessorInstance);
 
 
         }
@@ -451,6 +483,36 @@ class DatasetService {
             $profile->remove();
         }
 
+
+    }
+
+
+    /**
+     * Trigger a snapshot manually
+     *
+     * @param $datasetInstanceId
+     * @param $snapshotProfileId
+     *
+     */
+    public function triggerSnapshot($datasetInstanceId, $snapshotProfileId) {
+
+        // Security check to ensure we can access the parent instance
+        DatasetInstance::fetch($datasetInstanceId);
+
+        // Grab the profile
+        /**
+         * @var DatasetInstanceSnapshotProfile $profile
+         */
+        $profile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
+
+        $task = $profile->getScheduledTask();
+        $task->setNextStartTime(new \DateTime());
+
+        // Suppress normal schedule behaviour here
+        $preDisabled = ScheduledTaskInterceptor::$disabled;
+        ScheduledTaskInterceptor::$disabled = true;
+        $task->save();
+        ScheduledTaskInterceptor::$disabled = $preDisabled;
 
     }
 

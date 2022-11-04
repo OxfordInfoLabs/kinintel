@@ -17,12 +17,18 @@ class DatasetInstanceSnapshotProfileSearchResult {
     private $id;
 
     /**
-     * The datasource instance key for the snapshot
+     * The datasource instance key for the historical snapshot if available
      *
      * @var string
      */
-    private $snapshotProfileDatasourceInstanceKey;
+    private $snapshotProfileHistoricalDatasourceInstanceKey;
 
+    /**
+     * The datasource instance key for the latest snapshot if available
+     *
+     * @var string
+     */
+    private $snapshotProfileLatestDatasourceInstanceKey;
     /**
      * The dataset instance id for which this snapshot profile belongs
      *
@@ -81,7 +87,14 @@ class DatasetInstanceSnapshotProfileSearchResult {
         $this->id = $snapshotProfile->getId();
         $this->snapshotProfileTitle = $snapshotProfile->getTitle();
 
-        $this->snapshotProfileDatasourceInstanceKey = $snapshotProfile->getDataProcessorInstance()->getKey();
+        $dataProcessorInstance = $snapshotProfile->getDataProcessorInstance();
+
+        /**
+         * @var TabularDatasetSnapshotProcessorConfiguration $processorConfig
+         */
+        $processorConfig = $dataProcessorInstance->returnConfig();
+        $this->snapshotProfileHistoricalDatasourceInstanceKey = $processorConfig->isCreateHistory() ? $dataProcessorInstance->getKey() : null;
+        $this->snapshotProfileLatestDatasourceInstanceKey = $processorConfig->isCreateLatest() ? $dataProcessorInstance->getKey() . "_latest" : null;
 
         $this->taskStatus = $snapshotProfile->getScheduledTask()->getStatus();
         $this->taskLastStartTime = $snapshotProfile->getScheduledTask()->getLastStartTime() ?
@@ -113,15 +126,29 @@ class DatasetInstanceSnapshotProfileSearchResult {
     /**
      * @return string
      */
-    public function getSnapshotProfileDatasourceInstanceKey() {
-        return $this->snapshotProfileDatasourceInstanceKey;
+    public function getSnapshotProfileHistoricalDatasourceInstanceKey() {
+        return $this->snapshotProfileHistoricalDatasourceInstanceKey;
     }
 
     /**
-     * @param string $snapshotProfileDatasourceInstanceKey
+     * @param string $snapshotProfileHistoricalDatasourceInstanceKey
      */
-    public function setSnapshotProfileDatasourceInstanceKey($snapshotProfileDatasourceInstanceKey) {
-        $this->snapshotProfileDatasourceInstanceKey = $snapshotProfileDatasourceInstanceKey;
+    public function setSnapshotProfileHistoricalDatasourceInstanceKey($snapshotProfileHistoricalDatasourceInstanceKey) {
+        $this->snapshotProfileHistoricalDatasourceInstanceKey = $snapshotProfileHistoricalDatasourceInstanceKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSnapshotProfileLatestDatasourceInstanceKey() {
+        return $this->snapshotProfileLatestDatasourceInstanceKey;
+    }
+
+    /**
+     * @param string $snapshotProfileLatestDatasourceInstanceKey
+     */
+    public function setSnapshotProfileLatestDatasourceInstanceKey($snapshotProfileLatestDatasourceInstanceKey) {
+        $this->snapshotProfileLatestDatasourceInstanceKey = $snapshotProfileLatestDatasourceInstanceKey;
     }
 
     /**

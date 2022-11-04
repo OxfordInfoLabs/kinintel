@@ -406,7 +406,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      *
      */
     public function onInstanceSave() {
+        Logger::log("oooooo");
+        Logger::log($this->getConfig());
         $this->updateFields($this->getConfig()->getColumns());
+        Logger::log("Wahey");
     }
 
 
