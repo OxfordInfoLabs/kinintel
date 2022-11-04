@@ -169,7 +169,6 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 }
 
                 $writeData = new ArrayTabularDataset($fieldsLatest, $writeDataArray);
-                print_r($fieldsLatest);
 
                 $dataSourceLatest->update($writeData);
                 $offset += self::DATA_LIMIT;
