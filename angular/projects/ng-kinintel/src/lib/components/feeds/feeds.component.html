@@ -114,26 +114,30 @@ curl -H "API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>" -H "API-SEC
                         <tbody>
                         <tr>
                             <td colspan="4"
-                                class="whitespace-nowrap border-b border-gray-200 py-3 px-4 text-sm font-medium text-gray-900">
-                                <div class="paging-toolbar flex align-center justify-end">
-                                    <select [value]="limit" (change)="pageSizeChange($event.target.value)"
-                                            class="mr-8">
-                                        <option [value]="1">1</option>
-                                        <option [value]="5">5</option>
-                                        <option [value]="10">10</option>
-                                        <option [value]="25">25</option>
-                                        <option [value]="50">50</option>
-                                        <option [value]="100">100</option>
-                                        <option [value]="250">250</option>
-                                        <option [value]="1000">1000</option>
-                                    </select>
-                                    <button mat-icon-button class="mr-4" (click)="decreaseOffset()"
-                                            [disabled]="page <= 1">
-                                        <mat-icon>chevron_left</mat-icon>
-                                    </button>
-                                    <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
-                                        <mat-icon>chevron_right</mat-icon>
-                                    </button>
+                                class="bg-gray-50 whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-900">
+                                <div class="paging-toolbar flex align-center justify-between">
+                                    <div class="text-xs text-gray-400">
+                                        Showing {{offset + 1}} - {{(page * limit) - (limit - feeds.length)}}</div>
+                                    <div class="flex items-center justify-center">
+                                        <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+                                                class="mr-8 p-2">
+                                            <option [value]="1">1</option>
+                                            <option [value]="5">5</option>
+                                            <option [value]="10">10</option>
+                                            <option [value]="25">25</option>
+                                            <option [value]="50">50</option>
+                                            <option [value]="100">100</option>
+                                            <option [value]="250">250</option>
+                                            <option [value]="1000">1000</option>
+                                        </select>
+                                        <button mat-icon-button class="mr-4" (click)="decreaseOffset()"
+                                                [disabled]="page <= 1">
+                                            <mat-icon>chevron_left</mat-icon>
+                                        </button>
+                                        <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+                                            <mat-icon>chevron_right</mat-icon>
+                                        </button>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
