@@ -6,6 +6,8 @@ import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasourceService} from '../../services/datasource.service';
 import {ProjectService} from '../../services/project.service';
 import {Router} from '@angular/router';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-datasource',
@@ -40,6 +42,16 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.searchText.subscribe(() => {
+            this.page = 1;
+            this.offset = 0;
+        });
+
+        const pagingValues = this.projectService.getDataItemPagingValues();
+        this.limit = pagingValues.limit || 10;
+        this.offset = pagingValues.offset || 0;
+        this.page = pagingValues.page || 1;
+
         this.isProjectAdmin = this.projectService.isActiveProjectAdmin();
 
         this.projectSub = this.projectService.activeProject.subscribe(() => {
@@ -55,11 +67,6 @@ export class DatasourceComponent implements OnInit, OnDestroy {
                 )
             ).subscribe((sources: any) => {
             this.datasources = sources;
-        });
-
-        this.searchText.subscribe(() => {
-            this.page = 1;
-            this.offset = 0;
         });
     }
 
@@ -126,6 +133,8 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     }
 
     private getDatasources() {
+        this.projectService.setDataItemPagingValue(this.limit, this.offset, this.page);
+
         return this.datasourceService.getDatasources(
             this.searchText.getValue() || '',
             this.limit.toString(),

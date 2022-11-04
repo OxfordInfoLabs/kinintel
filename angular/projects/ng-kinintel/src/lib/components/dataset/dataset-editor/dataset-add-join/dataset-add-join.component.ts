@@ -256,7 +256,9 @@ export class DatasetAddJoinComponent implements OnInit {
             requiredParams = await this.datasetService.getEvaluatedParameters(this.selectedSource);
         }
 
-        this.createParameterStructure(requiredParams);
+        const existingJoinedParameters = this.joinTransformation.config.joinParameterMappings || [];
+
+        this.createParameterStructure(requiredParams, existingJoinedParameters);
 
         if (!this.requiredParameters || !this.requiredParameters.length) {
             this.getJoinColumns(reset);
@@ -307,10 +309,22 @@ export class DatasetAddJoinComponent implements OnInit {
         this.dialogRef.close(this.joinTransformation);
     }
 
-    private createParameterStructure(requiredParameters) {
+    private createParameterStructure(requiredParameters, existingValue = []) {
         this.requiredParameters = requiredParameters.map(param => {
             param.type = 'join';
             param.selectedType = 'Column';
+
+            const existing = _.find(existingValue, {parameterName: param.name});
+            if (existing) {
+                if (existing.sourceColumnName) {
+                    param.value = existing.sourceColumnName;
+                }
+                if (existing.sourceParameterName) {
+                    param.selectedType = 'Parameter';
+                    param.value = existing.sourceParameterName;
+                }
+            }
+
             param.values = [
                 {
                     label: 'Column',

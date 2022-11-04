@@ -21,6 +21,7 @@ export class FeedComponent implements OnInit {
     public feedDataset: any;
     public parameters: any = [];
     public error = '';
+    public cacheEnabled = false;
 
     constructor(public dialogRef: MatDialogRef<FeedComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -41,6 +42,10 @@ export class FeedComponent implements OnInit {
 
         this.feedUrl = this.data.feedUrl;
 
+        if (!this.feed.cacheTimeSeconds) {
+            this.feed.cacheTimeSeconds = 0;
+        }
+
         merge(this.searchText)
             .pipe(
                 debounceTime(300),
@@ -51,6 +56,12 @@ export class FeedComponent implements OnInit {
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
         });
+    }
+
+    public updateCacheEnabled(value) {
+        if (!value) {
+            this.feed.cacheTimeSeconds = 0;
+        }
     }
 
     public displayFn(dataset): string {

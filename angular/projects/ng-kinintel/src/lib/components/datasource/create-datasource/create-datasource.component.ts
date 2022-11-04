@@ -360,7 +360,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
         if (!_.find(this.columns, {keyField: true}) &&
             !_.find(this.columns, {type: 'id'})) {
-            window.alert('Please select one of your fields as the "Primary Key"');
+            window.alert('Please select one of your fields as the "Unique Key"');
             return;
         }
 
@@ -563,7 +563,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
         switch (Number(code)) {
             case 23000:
-                message = 'Duplicate Primary Key Found. Please check for duplicate values in unique identity column.';
+                message = 'Duplicate Unique Key Found. Please check for duplicate values in unique identity column.';
                 break;
         }
 

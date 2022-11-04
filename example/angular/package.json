@@ -34,6 +34,7 @@
     "chart.js": "^2.9.3",
     "chroma-js": "^2.1.2",
     "codemirror": "^5.64.0",
+    "deep-equal": "^2.1.0",
     "file-saver": "^2.0.5",
     "gridstack": "^4.2.1",
     "js-sha512": "^0.8.0",

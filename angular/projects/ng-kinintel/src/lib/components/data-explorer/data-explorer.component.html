@@ -24,7 +24,7 @@
             <mat-radio-button class="mt-0" [value]="null">Data Package</mat-radio-button>
             <mat-radio-button class="mt-0 ml-2" [value]="0">Stored Query</mat-radio-button>
         </mat-radio-group>
-        <button [ngClass]="{'ml-4': admin}" mat-button mat-dialog-close>
+        <button [ngClass]="{'ml-4': admin}" mat-button [mat-dialog-close]="true">
             Exit
             <mat-icon>exit_to_app</mat-icon>
         </button>
@@ -41,6 +41,7 @@
                     [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
             <div class="cell-contents no-p">
                 <ki-dataset-editor [(datasetInstanceSummary)]="datasetInstanceSummary"
+                                   [accountId]="accountId" [newTitle]="newTitle" [newDescription]="newDescription"
                                    (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
             </div>
         </rsz-layout>
@@ -166,7 +167,7 @@
 </div>
 
 <div class="configure-footer">
-    <button mat-stroked-button mat-dialog-close color="primary">
+    <button mat-stroked-button [mat-dialog-close]="true" color="primary">
         Cancel
     </button>
     <div class="align-center">
@@ -178,7 +179,7 @@
             Export Data
         </button>
         <button mat-flat-button color="primary" (click)="saveChanges()">
-            Save Changes
+            Save & Exit
         </button>
     </div>
 

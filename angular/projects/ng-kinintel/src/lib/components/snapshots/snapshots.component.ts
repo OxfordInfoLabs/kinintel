@@ -113,6 +113,11 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         }
     }
 
+    public async triggerSnapshot(snapshotProfileId, datasetInstanceId, snapshot) {
+        await this.datasetService.triggerSnapshot(snapshotProfileId, datasetInstanceId);
+        snapshot.reload.next(Date.now());
+    }
+
     public view(datasourceKey) {
         const datasetInstanceSummary = {
             datasetInstanceId: null,
@@ -162,10 +167,10 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.tagService.resetActiveTag();
     }
 
-    public delete(datasetId, snapshot) {
+    public delete(snapshotProfileId, datasetInstanceId, snapshot) {
         const message = 'Are you sure you would like to remove this Snapshot?';
         if (window.confirm(message)) {
-            this.datasetService.removeDataset(datasetId).then(() => {
+            this.datasetService.removeSnapshotProfile(snapshotProfileId, datasetInstanceId).then(() => {
                 snapshot.reload.next(Date.now());
             });
         }
