@@ -11,64 +11,123 @@
     </div>
 
     <div class="dialog-content">
-        <label class="mb-2">
-            Path
-            <div class="flex">
-                  <span
-                      class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                    {{feedUrl}}
-                  </span>
-                <input type="text" class="w-full rounded-l-none" [ngClass]="{'border-red-600': !!error}"
-                       placeholder="my-new-data-feed" [(ngModel)]="feed.path">
+        <div class="space-y-8 divide-y divide-gray-200">
+            <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+
+                <div class="space-y-6 sm:space-y-5">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Setup feed</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following information in order to
+                            configure your feed endpoint.</p>
+                    </div>
+                    <div class="space-y-6 sm:space-y-5">
+                        <div
+                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Feed Path
+                            </label>
+                            <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                <div class="flex">
+                                  <span
+                                      class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                    {{feedUrl}}
+                                  </span>
+                                    <input type="text" class="w-full rounded-l-none"
+                                           [ngClass]="{'border-red-600': !!error}"
+                                           placeholder="my-new-data-feed" [(ngModel)]="feed.path">
+                                </div>
+                                <small *ngIf="!error" class="font-normal">The path used to identify this feed</small>
+                                <small *ngIf="error" class="font-normal text-red-600">{{error}}</small>
+
+                            </div>
+                        </div>
+
+                        <div
+                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Feed Data
+                            </label>
+                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                                <input type="text" class="w-full" [matAutocomplete]="autoDatasets"
+                                       [value]="feed.datasetLabel ? feed.datasetLabel.title : ''"
+                                       (keyup)="searchText.next($event.target.value)" placeholder="Search for a query">
+                                <mat-autocomplete #autoDatasets="matAutocomplete" [displayWith]="displayFn">
+                                    <mat-option *ngFor="let dataset of datasets" [value]="dataset"
+                                                (onSelectionChange)="updateFeedDataset($event)">
+                                        {{dataset.title}}
+                                    </mat-option>
+                                </mat-autocomplete>
+                                <small class="font-normal">Start typing name to view available stored queries</small>
+                            </div>
+                        </div>
+
+                        <div
+                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Caching Options
+                            </label>
+                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                                <mat-checkbox class="example-margin" [(ngModel)]="cacheEnabled"
+                                    (ngModelChange)="updateCacheEnabled($event)">
+                                    Enable Feed Caching</mat-checkbox>
+
+                                <div class="flex mt-4" *ngIf="cacheEnabled">
+                                      <span
+                                          class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                        Cache time in seconds
+                                      </span>
+                                    <input type="number" class="w-full rounded-l-none flex-1" placeholder="time in seconds"
+                                           [(ngModel)]="feed.cacheTimeSeconds">
+                                </div>
+                                <small class="font-normal">Enable caching to reduce requests to the server. Setting
+                                    cache to zero will disable caching.</small>
+                            </div>
+                        </div>
+
+                        <div
+                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Export Type
+                            </label>
+                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                                <select [(ngModel)]="feed.exporterKey">
+                                    <option value="sv">Separated Value</option>
+                                    <option value="json">JSON</option>
+                                </select>
+
+                                <ng-template [ngIf]="feed.exporterKey === 'sv'">
+                                    <mat-checkbox class="mb-2"
+                                                  [(ngModel)]="feed.exporterConfiguration.includeHeaderRow">
+                                        Include header row
+                                    </mat-checkbox>
+                                    <label class="mb-2">
+                                        Separator
+                                        <input type="text" [(ngModel)]="feed.exporterConfiguration.separator">
+                                        <small class="font-normal">Enter the character used to separate the
+                                            values.</small>
+                                    </label>
+                                </ng-template>
+                            </div>
+                        </div>
+
+                        <div *ngIf="feedDataset && parameters.length"
+                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Exposed Parameters
+                            </label>
+                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                                <mat-selection-list [(ngModel)]="feed.exposedParameterNames">
+                                    <mat-list-option checkboxPosition="before" [value]="param.name"
+                                                     *ngFor="let param of parameters">
+                                        {{param.title}}
+                                    </mat-list-option>
+                                </mat-selection-list>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <small *ngIf="!error" class="font-normal">The path used to identify this feed</small>
-            <small *ngIf="error" class="font-normal text-red-600">{{error}}</small>
-        </label>
-
-        <label class="mb-4">
-            Query
-            <input type="text" [matAutocomplete]="autoDatasets"
-                   [value]="feed.datasetLabel ? feed.datasetLabel.title : ''"
-                   (keyup)="searchText.next($event.target.value)" placeholder="Search for a query">
-            <mat-autocomplete #autoDatasets="matAutocomplete" [displayWith]="displayFn">
-                <mat-option *ngFor="let dataset of datasets" [value]="dataset"
-                            (onSelectionChange)="updateFeedDataset($event)">
-                    {{dataset.title}}
-                </mat-option>
-            </mat-autocomplete>
-            <small class="font-normal">Start typing name to view available stored queries</small>
-        </label>
-
-        <label class="mb-4">
-            Export Type
-            <select [(ngModel)]="feed.exporterKey">
-                <option value="sv">Separated Value</option>
-                <option value="json">JSON</option>
-            </select>
-        </label>
-
-        <ng-template [ngIf]="feed.exporterKey === 'sv'">
-            <mat-checkbox class="mb-2"
-                          [(ngModel)]="feed.exporterConfiguration.includeHeaderRow">
-                Include header row
-            </mat-checkbox>
-            <label class="mb-2">
-                Separator
-                <input type="text" [(ngModel)]="feed.exporterConfiguration.separator">
-                <small class="font-normal">Enter the character used to separate the values.</small>
-            </label>
-        </ng-template>
-
-        <ng-template [ngIf]="feedDataset && parameters.length">
-            <label class="">Exposed Parameters</label>
-            <mat-selection-list [(ngModel)]="feed.exposedParameterNames">
-                <mat-list-option checkboxPosition="before" [value]="param.name"
-                                 *ngFor="let param of parameters">
-                    {{param.title}}
-                </mat-list-option>
-            </mat-selection-list>
-        </ng-template>
-
+        </div>
     </div>
 
     <div class="dialog-footer">

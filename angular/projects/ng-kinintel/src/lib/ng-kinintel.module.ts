@@ -83,6 +83,7 @@ import {CodemirrorModule} from '@ctrl/ngx-codemirror';
 import { ProjectSettingsComponent } from './components/project-settings/project-settings.component';
 import { ProjectLinkSelectionComponent } from './components/project-settings/project-link-selection/project-link-selection.component';
 import { UpstreamChangesConfirmationComponent } from './components/dataset/dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
+import {DashboardChangesGuard} from './guards/dashboard-changes.guard';
 
 @NgModule({
     declarations: [
@@ -200,7 +201,8 @@ import { UpstreamChangesConfirmationComponent } from './components/dataset/datas
         DocumentDatasourceComponent,
         ProjectSettingsComponent,
         UpstreamChangesConfirmationComponent
-    ]
+    ],
+    providers: [DashboardChangesGuard]
 })
 export class NgKinintelModule {
     static forRoot(conf?: KinintelModuleConfig): ModuleWithProviders<NgKinintelModule> {

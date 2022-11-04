@@ -1,13 +1,19 @@
-<div class="flex items-center flex-wrap w-full justify-end border-b">
-    <button mat-button matTooltip="Import data from .CSV file" class="align-center"
-            (click)="import()">
-        <mat-icon>upload_file</mat-icon>
-    </button>
-
-    <button mat-button matTooltip="Save changes" class="align-center"
-            (click)="save()">
-        <mat-icon>save</mat-icon>
-    </button>
+<div class="border-b w-full flex items-center justify-between ">
+    <div class="leading-5 px-4 text-xs uppercase tracking-wider font-medium border-r-2 text-gray-600">
+        Operations
+    </div>
+    <div class="flex items-center flex-wrap w-full justify-end bg-white">
+        <button (click)="import()"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">upload_file</mat-icon>
+            upload
+        </button>
+        <button (click)="save()"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">save</mat-icon>
+            save
+        </button>
+    </div>
 </div>
 <div class="flex create-datasource-container">
     <div class="flex-1 relative overflow-y-scroll table-scroll">

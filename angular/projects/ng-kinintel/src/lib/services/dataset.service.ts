@@ -118,6 +118,12 @@ export class DatasetService {
             .toPromise();
     }
 
+    public triggerSnapshot(snapshotProfileId, datasetInstanceId) {
+        return this.http.patch(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
+            snapshotProfileId)
+            .toPromise();
+    }
+
     public updateMetadata(dashboardSearchResult) {
         return this.http.patch(this.config.backendURL + '/dataset', dashboardSearchResult).toPromise();
     }

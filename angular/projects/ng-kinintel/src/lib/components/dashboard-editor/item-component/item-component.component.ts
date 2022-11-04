@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
@@ -6,7 +6,7 @@ import * as lodash from 'lodash';
 const _ = lodash.default;
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
-import {Subject, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import moment from 'moment';
@@ -15,6 +15,8 @@ import {Router} from '@angular/router';
 import {
     EditDashboardAlertComponent
 } from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
+import {ExportDataComponent} from '../../data-explorer/export-data/export-data.component';
+import {Location} from '@angular/common';
 
 declare var window: any;
 
@@ -83,10 +85,10 @@ export class ItemComponentComponent implements AfterViewInit {
     ];
     public limit = 25;
     public page = 1;
+    public offset = 0;
     public endOfResults = false;
     public itemLocked = false;
 
-    private offset = 0;
     private itemLoadedSub: Subscription;
 
     constructor(private dialog: MatDialog,
@@ -95,7 +97,8 @@ export class ItemComponentComponent implements AfterViewInit {
                 private kiAlertService: AlertService,
                 private dashboardService: DashboardService,
                 private sanitizer: DomSanitizer,
-                private router: Router) {
+                private router: Router,
+                private location: Location) {
     }
 
     ngAfterViewInit() {
@@ -193,6 +196,11 @@ export class ItemComponentComponent implements AfterViewInit {
         if (this.dashboardItemType.type === 'heading') {
             this.dashboardItemType._editing = true;
         } else {
+            const queryParams: any = {};
+            if (this.admin) {
+                queryParams.a = true;
+            }
+            this.router.navigate([window.location.pathname], {queryParams, fragment: _.kebabCase(this.dashboard.title)});
             const dialogRef = this.dialog.open(ConfigureItemComponent, {
                 width: '100vw',
                 height: '100vh',
@@ -211,11 +219,11 @@ export class ItemComponentComponent implements AfterViewInit {
             dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
                 if (dashboardDatasetInstance) {
                     this.dashboardDatasetInstance = dashboardDatasetInstance;
+                    this.location.back();
                     this.init(true);
                 }
             });
         }
-
     }
 
     public load() {
@@ -274,6 +282,18 @@ export class ItemComponentComponent implements AfterViewInit {
             this.dashboardDatasetInstance.alerts.splice(i, 1);
             this.reloadAlert();
         }
+    }
+
+    public exportData() {
+        const datasetInstanceSummary = this.prepareDatasetInstanceSummaryForEvaluation();
+
+        const dialogRef = this.dialog.open(ExportDataComponent, {
+            width: '600px',
+            height: '530px',
+            data: {
+                datasetInstanceSummary
+            }
+        });
     }
 
     public updateHeading(event) {
@@ -734,6 +754,8 @@ export class ItemComponentComponent implements AfterViewInit {
                 });
             }
             this.dataset = data;
+            const returnedDataLength = this.dataset.allData.length;
+            this.dataset.allData = this.dataset.allData.slice(0, this.limit);
 
             const existingMultiSort = _.find(this.dashboardDatasetInstance.transformationInstances, {type: 'multisort'});
 
@@ -846,12 +868,11 @@ export class ItemComponentComponent implements AfterViewInit {
             } else {
                 this.resetAlertData(itemElement);
             }
-
             const existing = this.dashboardService.dashboardItems.getValue();
             existing[this.itemInstanceKey] = true;
             this.dashboardService.dashboardItems.next(existing);
 
-            this.endOfResults = this.dataset.allData.length < this.limit;
+            this.endOfResults = returnedDataLength <= this.limit;
 
             return Promise.resolve(true);
         }).catch(err => {
@@ -913,6 +934,22 @@ export class ItemComponentComponent implements AfterViewInit {
     }
 
     private evaluateDataset(limit?, offset?) {
+        const datasetInstanceSummary = this.prepareDatasetInstanceSummaryForEvaluation();
+
+        this.hiddenColumns = {};
+
+        if (!limit) {
+            limit = Number(this.limit) + 1;
+        }
+
+        return this.datasetService.evaluateDataset(
+            datasetInstanceSummary,
+            String(offset || this.offset),
+            String(limit)
+        );
+    }
+
+    private prepareDatasetInstanceSummaryForEvaluation() {
         const mappedParams = this.getMappedParams(this.dashboardDatasetInstance);
 
         const datasetInstanceSummary = {
@@ -937,12 +974,6 @@ export class ItemComponentComponent implements AfterViewInit {
             });
         }
 
-        this.hiddenColumns = {};
-
-        return this.datasetService.evaluateDataset(
-            datasetInstanceSummary,
-            String(offset || this.offset),
-            String(limit || this.limit)
-        );
+        return datasetInstanceSummary;
     }
 }

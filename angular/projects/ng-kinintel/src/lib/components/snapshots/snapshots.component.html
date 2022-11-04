@@ -48,6 +48,9 @@
                         <tr>
                             <th scope="col"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
                                 {{environment.tagLabel}} Snapshots
                             </th>
                             <th scope="col"
@@ -70,7 +73,14 @@
                         </thead>
                         <tbody class="bg-white">
                         <tr *ngFor="let snapshot of snapshots.tag.data">
-                            <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+                            <td>
+                                <button color="primary" matTooltip="Trigger snapshot to run now" mat-icon-button
+                                        (click)="triggerSnapshot(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.tag)">
+                                    <mat-icon>play_arrow</mat-icon>
+                                </button>
+                            </td>
+                            <td (click)="snapshot.taskStatus !== 'PENDING' ? view(snapshot.snapshotProfileDatasourceInstanceKey) : null"
+                                class="cursor-pointer hover:underline whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
                                 {{snapshot.fullTitle}}
                             </td>
                             <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
@@ -84,26 +94,31 @@
                             </td>
                             <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
                                 <div class="flex items-center justify-end">
-                                    <button mat-button color="primary" [disabled]="snapshot.taskStatus === 'PENDING'"
-                                            (click)="view(snapshot.snapshotProfileDatasourceInstanceKey)">
-                                        View
+                                    <button *ngIf="snapshot.snapshotProfileHistoricalDatasourceInstanceKey" mat-button color="primary"
+                                            [disabled]="snapshot.taskStatus === 'PENDING'"
+                                            (click)="view(snapshot.snapshotProfileHistoricalDatasourceInstanceKey)">
+                                        View Historical
+                                    </button>
+                                    <button *ngIf="snapshot.snapshotProfileLatestDatasourceInstanceKey" mat-button color="primary"
+                                            [disabled]="snapshot.taskStatus === 'PENDING'"
+                                            (click)="view(snapshot.snapshotProfileLatestDatasourceInstanceKey)">
+                                        View Latest
                                     </button>
                                     <div class="divider"></div>
                                     <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
-                                        <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">View
-                                            Parent
-                                            Dataset
+                                        <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
+                                            View Parent Query
                                         </button>
-                                        <button mat-menu-item (click)="delete(snapshot.id, snapshots.tag)">Delete Snapshot</button>
+                                        <button mat-menu-item (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshot)">Delete Snapshot</button>
                                     </mat-menu>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="5"
+                            <td colspan="6"
                                 class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
                                 <div class="paging-toolbar flex align-center justify-end">
                                     <select [value]="snapshots.tag.limit" (change)="pageSizeChange($event.target.value, snapshots.tag)"
@@ -133,6 +148,9 @@
                         <tr>
                             <th scope="col"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
                                 Project Snapshots
                             </th>
                             <th scope="col"
@@ -155,7 +173,14 @@
                         </thead>
                         <tbody class="bg-white">
                         <tr *ngFor="let snapshot of snapshots.project.data">
-                            <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+                            <td>
+                                <button color="primary" matTooltip="Trigger snapshot to run now" mat-icon-button
+                                        (click)="triggerSnapshot(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.project)">
+                                    <mat-icon>play_arrow</mat-icon>
+                                </button>
+                            </td>
+                            <td (click)="snapshot.taskStatus !== 'PENDING' ? view(snapshot.snapshotProfileDatasourceInstanceKey) : null"
+                                class="cursor-pointer hover:underline whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
                                 {{snapshot.fullTitle}}
                             </td>
                             <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
@@ -169,26 +194,31 @@
                             </td>
                             <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
                                 <div class="flex items-center justify-end">
-                                    <button mat-button color="primary" [disabled]="snapshot.taskStatus === 'PENDING'"
-                                            (click)="view(snapshot.snapshotProfileDatasourceInstanceKey)">
-                                        View
+                                    <button *ngIf="snapshot.snapshotProfileHistoricalDatasourceInstanceKey" mat-button color="primary"
+                                            [disabled]="snapshot.taskStatus === 'PENDING'"
+                                            (click)="view(snapshot.snapshotProfileHistoricalDatasourceInstanceKey)">
+                                        View Historical
+                                    </button>
+                                    <button *ngIf="snapshot.snapshotProfileLatestDatasourceInstanceKey" mat-button color="primary"
+                                            [disabled]="snapshot.taskStatus === 'PENDING'"
+                                            (click)="view(snapshot.snapshotProfileLatestDatasourceInstanceKey)">
+                                        View Latest
                                     </button>
                                     <div class="divider"></div>
                                     <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
-                                        <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">View
-                                            Parent
-                                            Dataset
+                                        <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
+                                            View Parent Query
                                         </button>
-                                        <button mat-menu-item (click)="delete(snapshot.id, snapshots.project)">Delete Snapshot</button>
+                                        <button mat-menu-item (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshot)">Delete Snapshot</button>
                                     </mat-menu>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="5"
+                            <td colspan="6"
                                 class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
                                 <div class="paging-toolbar flex align-center justify-end">
                                     <select [value]="snapshots.project.limit" (change)="pageSizeChange($event.target.value, snapshots.project)"

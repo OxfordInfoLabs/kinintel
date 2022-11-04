@@ -81,7 +81,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     public editFeed(feed?) {
         const dialogRef = this.dialog.open(FeedComponent, {
-            width: '800px',
+            width: '900px',
             height: '650px',
             data: {feed, feedUrl: this.feedUrl}
         });

@@ -18,6 +18,7 @@ import {ViewDashboardComponent} from './views/dashboards/view-dashboard/view-das
 import {FeedsComponent} from './views/feeds/feeds.component';
 import {CreateDatasourceComponent} from './views/datasource/create-datasource/create-datasource.component';
 import {DocumentDatasourceComponent} from './views/datasource/document-datasource/document-datasource.component';
+import {DashboardChangesGuard} from 'ng-kinintel';
 
 const routes: Routes = [
     {
@@ -34,7 +35,8 @@ const routes: Routes = [
             },
             {
                 path: 'dashboards/:dashboard',
-                component: DashboardComponent
+                component: DashboardComponent,
+                canDeactivate: [DashboardChangesGuard]
             },
             {
                 path: 'dashboards/copy/:dashboard',

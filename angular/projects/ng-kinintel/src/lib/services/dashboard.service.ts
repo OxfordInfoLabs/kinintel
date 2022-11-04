@@ -11,6 +11,7 @@ import {BehaviorSubject} from 'rxjs';
 export class DashboardService {
 
     public dashboardItems = new BehaviorSubject({});
+    public dirtyDashboard = new BehaviorSubject(false);
 
     constructor(private config: KinintelModuleConfig,
                 private http: HttpClient,

@@ -1,7 +1,18 @@
 import {
-    AfterViewInit, ApplicationRef,
-    Component, ComponentFactoryResolver, EmbeddedViewRef, HostBinding, Injector, Input, OnDestroy,
+    AfterViewInit,
+    ApplicationRef,
+    Component,
+    ComponentFactoryResolver,
+    EmbeddedViewRef,
+    EventEmitter,
+    HostBinding,
+    HostListener,
+    Injector,
+    Input, OnChanges,
+    OnDestroy,
     OnInit,
+    Output,
+    SimpleChanges,
     ViewChild,
     ViewContainerRef,
     ViewEncapsulation
@@ -11,9 +22,16 @@ import {GridItemHTMLElement, GridStack, GridStackNode} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
-import {ActivatedRoute, Router} from '@angular/router';
+import {
+    ActivatedRoute, ActivatedRouteSnapshot,
+    CanDeactivate,
+    Router,
+    RouterStateSnapshot,
+    UrlTree
+} from '@angular/router';
 import {DashboardService} from '../../services/dashboard.service';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {
     DatasetAddParameterComponent
@@ -21,7 +39,7 @@ import {
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
-import {BehaviorSubject, Subject, Subscription} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import moment from 'moment';
 
 @Component({
@@ -136,10 +154,12 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             value: '10px'
         }
     ];
+    public clonedDashboard: any;
+    public grid: GridStack;
 
-    private grid: GridStack;
     private queryParams: any = {};
     private routeURL: string;
+    private initialGrid: any;
 
     public static myClone(event) {
         return event.target.cloneNode(true);
@@ -282,8 +302,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public changeDateType(event, parameter, value) {
@@ -294,10 +312,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public updatePeriodValue(value, period, parameter) {
         parameter.value = `${value}_${period}_AGO`;
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
-
 
     public editDashboardItems() {
         this.showEditPanel = !this.showEditPanel;
@@ -322,6 +337,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public toggleNotifications() {
         this.dashboard.alertsEnabled = !this.dashboard.alertsEnabled;
+        this.reloadDashboard();
+    }
+
+    public reloadDashboard() {
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }
@@ -365,13 +384,6 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         if (window.confirm(message)) {
             delete this.dashboard.layoutSettings.parameters[parameter.name];
         }
-    }
-
-    public setParameterValue(parameter, value) {
-        parameter.value = value;
-        this.dashboardService.dashboardItems.next({});
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public save(showSaved = true) {

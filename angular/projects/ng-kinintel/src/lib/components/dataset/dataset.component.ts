@@ -57,6 +57,16 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.searchText.subscribe(() => {
+            this.page = 1;
+            this.offset = 0;
+        });
+
+        const pagingValues = this.projectService.getDataItemPagingValues();
+        this.limit = pagingValues.limit || 10;
+        this.offset = pagingValues.offset || 0;
+        this.page = pagingValues.page || 1;
+
         this.route.params.subscribe(param => {
             if (param.id) {
                 this.view(param.id);
@@ -90,10 +100,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
         this.getCategories();
 
-        this.searchText.subscribe(() => {
-            this.page = 1;
-            this.offset = 0;
-        });
+
     }
 
     ngOnDestroy() {
@@ -209,12 +216,16 @@ export class DatasetComponent implements OnInit, OnDestroy {
             }
         });
         dialogRef.afterClosed().subscribe(res => {
-            this.router.navigate([this.url || '/dataset'], {fragment: null});
-            this.reload.next(Date.now());
+            if (res) {
+                this.router.navigate([this.url || '/dataset'], {fragment: null});
+                this.reload.next(Date.now());
+            }
         });
     }
 
     private getDatasets() {
+        this.projectService.setDataItemPagingValue(this.limit, this.offset, this.page);
+
         const checkedCategories = _.filter(this.categories, 'checked');
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',

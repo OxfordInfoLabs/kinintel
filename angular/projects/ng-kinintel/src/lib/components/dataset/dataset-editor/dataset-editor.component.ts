@@ -1,5 +1,6 @@
 import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy} from '@angular/core';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
@@ -17,6 +18,9 @@ import moment from 'moment';
 import {
     UpstreamChangesConfirmationComponent
 } from '../dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
+import {
+    DatasetNameDialogComponent
+} from '../dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -30,6 +34,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     @Input() admin: boolean;
     @Input() dashboardParameters: any;
     @Input() dashboardLayoutSettings: any;
+    @Input() accountId;
+    @Input() newTitle;
+    @Input() newDescription;
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() datasetInstanceSummaryChange = new EventEmitter();
@@ -61,10 +68,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public longRunning = false;
     public sideOpen = false;
     public openSide = new BehaviorSubject(false);
-
     public limit = 25;
-    private offset = 0;
+    public offset = 0;
+
     private evaluateSub: Subscription;
+    private resultsSub: Subscription;
+    private datasetTitle: string;
 
     constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -90,6 +99,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         if (Array.isArray(this.datasetInstanceSummary.parameterValues)) {
             this.datasetInstanceSummary.parameterValues = {};
+        }
+
+        if (!this.datasetInstanceSummary.id) {
+            this.datasetTitle = this.datasetInstanceSummary.title;
         }
 
         this.evaluateDataset();
@@ -344,6 +357,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 config: transformation.config
             };
         }
+        console.log(data);
         const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
             width: '1200px',
             height: '800px',
@@ -566,7 +580,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
-        this.evaluateDataset(true);
     }
 
     public changeDateType(event, parameter, value) {
@@ -577,7 +590,43 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     public updatePeriodValue(value, period, parameter) {
         parameter.value = `${value}_${period}_AGO`;
-        this.evaluateDataset(true);
+    }
+
+    public cancelEvaluate() {
+        if (this.resultsSub) {
+            this.resultsSub.unsubscribe();
+        }
+
+        this.longRunning = false;
+    }
+
+    public save() {
+        if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
+            const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
+                width: '475px',
+                height: '150px',
+                data: {
+                    title: this.newTitle,
+                    description: this.newDescription
+                }
+            });
+            dialogRef.afterClosed().subscribe(res => {
+                if (res) {
+                    this.datasetInstanceSummary.title = res;
+                    this.saveDataset();
+                }
+            });
+        } else {
+            this.saveDataset();
+        }
+    }
+
+    private async saveDataset() {
+        await this.datasetService.saveDataset(this.datasetInstanceSummary, this.accountId);
+        this.snackBar.open('Dataset successfully saved.', 'Close', {
+            verticalPosition: 'top',
+            duration: 3000
+        });
     }
 
     private excludeUpstreamTransformations(transformation) {
@@ -618,8 +667,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     private loadData() {
-        this.tableData = this.dataset.allData;
-        this.endOfResults = this.tableData.length < this.limit;
+        this.tableData = this.dataset.allData.slice(0, this.limit);
+        this.endOfResults = this.dataset.allData.length <= this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
@@ -707,160 +756,78 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public evaluateDataset(resetPager?) {
+    public async evaluateDataset(resetPager?) {
         if (resetPager) {
             this.resetPager();
         }
 
-        return this.datasetService.getEvaluatedParameters(this.datasetInstanceSummary)
-            .then((values: any) => {
-                const paramValues = values.map(value => {
-                    value._locked = !_.find(this.datasetInstanceSummary.parameters, {name: value.name});
-                    return value;
-                });
+        const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
 
-                this.focusParams = false;
-                const parameterValues = {};
-                paramValues.forEach(paramValue => {
-                    const existParam = _.find(this.parameterValues, {name: paramValue.name});
-                    if (!existParam || (existParam && _.isNil(existParam.value))) {
-                        const existingValue = this.datasetInstanceSummary.parameterValues[paramValue.name];
-                        paramValue.value = _.isNil(existingValue) ? paramValue.defaultValue : existingValue;
-                        parameterValues[paramValue.name] = paramValue;
-                        this.focusParams = !existingValue;
-                    } else {
-                        parameterValues[existParam.name] = existParam;
-                    }
-                });
-                this.parameterValues = _.values(parameterValues);
-                this.parameterValues.forEach(param => {
-                    if (param.type === 'date' || param.type === 'datetime') {
-                        if (!param._dateType && param.value) {
-                            const isPeriod = param.value.includes('AGO');
-                            param._dateType = isPeriod ? 'period' : 'picker';
-                            if (isPeriod) {
-                                const periodValues = param.value.split('_');
-                                param._periodValue = periodValues[0];
-                                param._period = periodValues[1];
-                            }
-                        }
-                    }
-                    if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
-                        if (_.isString(param.value) && param.value.includes('{{')) {
-                            const paramKey = param.value.replace('{{', '').replace('}}', '');
-                            if (this.dashboardParameters[paramKey]) {
-                                param.value = this.dashboardParameters[paramKey].value;
-                            }
-                        }
+        const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
+        let finished = false;
 
-                        // If no value has been set default to the dashboard param value
-                        if (!param.value && this.dashboardParameters[param.name]) {
-                            param.value = this.dashboardParameters[param.name].value;
-                        }
-                    }
+        if (this.dashboardLayoutSettings) {
+            this.dashboardLayoutSettings.limit = this.limit;
+            this.dashboardLayoutSettings.offset = this.offset;
+        }
 
-                    this.datasetInstanceSummary.parameterValues[param.name] = param.value;
-                });
+        const limit = Number(this.limit) + 1;
 
-                if (this.datasetInstanceSummary && this.datasetInstanceSummary.id) {
-                    localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, (this.limit).toString());
-                } else if (this.datasetInstanceSummary.instanceKey) {
-                    localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.instanceKey, (this.limit).toString());
-                }
-
-                // Clone the current instance object, so we can remove any excluded transformations, without affecting
-                // the original object which the gui uses to draw transformation items.
-                const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
-                _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
-
-                this.parameterValues.forEach(param => {
-                    clonedDatasetInstance.parameterValues[param.name] = param.value;
-                });
-
-                // Merge in global dashboard params
-                if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
-                    _.forEach(this.dashboardParameters, (param, name) => {
-                        if (!clonedDatasetInstance.parameterValues[name]) {
-                            clonedDatasetInstance.parameterValues[name] = param.value;
-                        }
+        this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
+            clonedDatasetInstance,
+            String(this.offset),
+            String(limit),
+            trackingKey
+        ).subscribe(dataset => {
+            finished = true;
+            this.dataset = dataset;
+            return this.loadData();
+        }, err => {
+            finished = true;
+            if (err.error && err.error.message) {
+                const message = err.error.message.toLowerCase();
+                if (!message.includes('parameter') && !message.includes('required')) {
+                    this.snackBar.open(err.error.message, 'Close', {
+                        verticalPosition: 'top'
                     });
                 }
+            }
+            // If the evaluate fails we still want to publish the instance and set the terminating transformations
+            this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
+            this.setTerminatingTransformations();
+            return true;
+        });
 
-                const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
-                let finished = false;
-
-                // Ensure we send back any dates in correct format
-                const datetimeParams = _.filter(clonedDatasetInstance.parameters, param => {
-                    return param.type === 'date' || param.type === 'datetime';
-                });
-                datetimeParams.forEach(param => {
-                    const value = clonedDatasetInstance.parameterValues[param.name];
-                    if (value && !value.includes('AGO')) {
-                        clonedDatasetInstance.parameterValues[param.name] = moment(value).format('YYYY-MM-DD HH:mm:ss');
-                    }
-                });
-
-                if (this.dashboardLayoutSettings) {
-                    this.dashboardLayoutSettings.limit = this.limit;
-                    this.dashboardLayoutSettings.offset = this.offset;
-                }
-
-                this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
-                    clonedDatasetInstance,
-                    String(this.offset),
-                    String(this.limit),
-                    trackingKey
-                ).subscribe(dataset => {
-                    finished = true;
-                    this.dataset = dataset;
-                    return this.loadData();
-                }, err => {
-                    finished = true;
-                    if (err.error && err.error.message) {
-                        const message = err.error.message.toLowerCase();
-                        if (!message.includes('parameter') && !message.includes('required')) {
-                            this.snackBar.open(err.error.message, 'Close', {
-                                verticalPosition: 'top'
-                            });
-                        }
-                    }
-                    // If the evaluate fails we still want to publish the instance and set the terminating transformations
-                    this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
-                    this.setTerminatingTransformations();
-                    return true;
-                });
-
-                setTimeout(() => {
-                    if (!finished) {
-                        this.longRunning = true;
-                        this.evaluateSub.unsubscribe();
-                        const resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
-                            .subscribe((results: any) => {
-                                if (results.status === 'COMPLETED') {
-                                    resultsSub.unsubscribe();
-                                    this.dataset = results.result;
-                                    this.longRunning = false;
-                                    return this.loadData();
-                                } else if (results.status === 'FAILED') {
-                                    resultsSub.unsubscribe();
-                                    this.longRunning = false;
-                                    const errorMessage = results.result;
-                                    if (errorMessage) {
-                                        const message = errorMessage.toLowerCase();
-                                        if (!message.includes('parameter') && !message.includes('required')) {
-                                            this.snackBar.open(errorMessage, 'Close', {
-                                                verticalPosition: 'top'
-                                            });
-                                        }
-                                    }
-                                    // If the evaluate fails we still want to publish the instance and set the terminating transformations
-                                    this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
-                                    this.setTerminatingTransformations();
+        setTimeout(() => {
+            if (!finished) {
+                this.longRunning = true;
+                this.evaluateSub.unsubscribe();
+                this.resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
+                    .subscribe((results: any) => {
+                        if (results.status === 'COMPLETED') {
+                            this.resultsSub.unsubscribe();
+                            this.dataset = results.result;
+                            this.longRunning = false;
+                            return this.loadData();
+                        } else if (results.status === 'FAILED') {
+                            this.resultsSub.unsubscribe();
+                            this.longRunning = false;
+                            const errorMessage = results.result;
+                            if (errorMessage) {
+                                const message = errorMessage.toLowerCase();
+                                if (!message.includes('parameter') && !message.includes('required')) {
+                                    this.snackBar.open(errorMessage, 'Close', {
+                                        verticalPosition: 'top'
+                                    });
                                 }
-                            });
-                    }
-                }, 3000);
-            });
+                            }
+                            // If the evaluate fails we still want to publish the instance and set the terminating transformations
+                            this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
+                            this.setTerminatingTransformations();
+                        }
+                    });
+            }
+        }, 3000);
 
     }
 
@@ -885,6 +852,94 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     private resetPager() {
         this.offset = 0;
         this.page = 1;
+    }
+
+    private async prepareDatasetInstanceForEvaluation() {
+        const values: any = await this.datasetService.getEvaluatedParameters(this.datasetInstanceSummary);
+
+        const paramValues = values.map(value => {
+            value._locked = !_.find(this.datasetInstanceSummary.parameters, {name: value.name});
+            return value;
+        });
+
+        this.focusParams = false;
+        const parameterValues = {};
+        paramValues.forEach(paramValue => {
+            const existParam = _.find(this.parameterValues, {name: paramValue.name});
+            if (!existParam || (existParam && _.isNil(existParam.value))) {
+                const existingValue = this.datasetInstanceSummary.parameterValues[paramValue.name];
+                paramValue.value = _.isNil(existingValue) ? paramValue.defaultValue : existingValue;
+                parameterValues[paramValue.name] = paramValue;
+                this.focusParams = !existingValue;
+            } else {
+                parameterValues[existParam.name] = existParam;
+            }
+        });
+        this.parameterValues = _.values(parameterValues);
+
+        if (this.datasetInstanceSummary && this.datasetInstanceSummary.id) {
+            localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, (this.limit).toString());
+        } else if (this.datasetInstanceSummary.instanceKey) {
+            localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.instanceKey, (this.limit).toString());
+        }
+
+        // Clone the current instance object, so we can remove any excluded transformations, without affecting
+        // the original object which the gui uses to draw transformation items.
+        const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
+        _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
+
+        this.parameterValues.forEach(param => {
+            if (param.type === 'date' || param.type === 'datetime') {
+                if (!param._dateType && param.value) {
+                    const isPeriod = param.value.includes('AGO');
+                    param._dateType = isPeriod ? 'period' : 'picker';
+                    if (isPeriod) {
+                        const periodValues = param.value.split('_');
+                        param._periodValue = periodValues[0];
+                        param._period = periodValues[1];
+                    }
+                }
+            }
+            if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
+                if (_.isString(param.value) && param.value.includes('{{')) {
+                    const paramKey = param.value.replace('{{', '').replace('}}', '');
+                    if (this.dashboardParameters[paramKey]) {
+                        clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[paramKey].value;
+                    }
+                }
+
+                // If no value has been set default to the dashboard param value
+                if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
+                    clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[param.name].value;
+                }
+            } else {
+                clonedDatasetInstance.parameterValues[param.name] = param.value;
+            }
+
+            this.datasetInstanceSummary.parameterValues[param.name] = param.value;
+        });
+
+        // Merge in global dashboard params
+        if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
+            _.forEach(this.dashboardParameters, (param, name) => {
+                if (!clonedDatasetInstance.parameterValues[name]) {
+                    clonedDatasetInstance.parameterValues[name] = param.value;
+                }
+            });
+        }
+
+        // Ensure we send back any dates in correct format
+        const datetimeParams = _.filter(clonedDatasetInstance.parameters, param => {
+            return param.type === 'date' || param.type === 'datetime';
+        });
+        datetimeParams.forEach(param => {
+            const value = clonedDatasetInstance.parameterValues[param.name];
+            if (value && !value.includes('AGO')) {
+                clonedDatasetInstance.parameterValues[param.name] = moment(value).format('YYYY-MM-DD HH:mm:ss');
+            }
+        });
+
+        return clonedDatasetInstance;
     }
 
 }
