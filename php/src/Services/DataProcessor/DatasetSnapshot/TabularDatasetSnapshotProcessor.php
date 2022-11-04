@@ -169,7 +169,6 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 }
 
                 $writeData = new ArrayTabularDataset($fieldsLatest, $writeDataArray);
-                print_r($fieldsLatest);
 
                 $dataSourceLatest->update($writeData);
                 $offset += self::DATA_LIMIT;
@@ -201,6 +200,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         if ($config->isCreateHistory()) {
             try {
                 $dataSourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);
+                $this->datasourceService->removeDatasourceInstance($instanceKey);
             } catch (ObjectNotFoundException $e) {
 
 
