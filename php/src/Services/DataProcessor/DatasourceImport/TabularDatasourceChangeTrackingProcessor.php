@@ -225,7 +225,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 // If not a duplicate, it is an update
                 if (!in_array($addLine, $deleteFileItems)) {
                     for ($j = 0; $j < sizeof($explodedAddLine); $j++) {
-                        $trueUpdates[$updateCount][$fieldKeys[$j]->getName()] = $explodedAddLine[$j];
+                        $trueUpdates[$updateCount][$fieldKeys[$j]->getName()] = trim($explodedAddLine[$j]) != "" ? trim($explodedAddLine[$j]) : null;
                     }
                     $updateCount++;
                 }
@@ -243,7 +243,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             // Must be an add otherwise
             for ($i = 0; $i < sizeof($explodedAddLine); $i++) {
                 if (isset($fieldKeys[$i])) {
-                    $trueAdds[$addCount][$fieldKeys[$i]->getName()] = $explodedAddLine[$i];
+                    $trueAdds[$addCount][$fieldKeys[$i]->getName()] = trim($explodedAddLine[$i]) != "" ? trim($explodedAddLine[$i]) : null;
                 }
             }
             $addCount++;
@@ -262,12 +262,12 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         // Clear up any leftovers
 
-        if ($addCount > 0)
+        if ($addCount > 0) {
             $this->updateTargetDatasources($trueAdds, "ADD", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
-
-        if ($updateCount > 0)
+        }
+        if ($updateCount > 0) {
             $this->updateTargetDatasources($trueUpdates, "UPDATE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
-
+        }
 
         // Process the remaining delete items
 
@@ -285,7 +285,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
             if (isset($deletedItems[implode("#|!", $pkElements)])) {
                 for ($i = 0; $i < sizeof($explodedLine); $i++) {
-                    $trueDeletes[$delCount][$fieldKeys[$i]->getName()] = $explodedLine[$i];
+                    $trueDeletes[$delCount][$fieldKeys[$i]->getName()] = trim($explodedLine[$i]) != "" ? trim($explodedLine[$i]) : null;
                 }
                 $delCount++;
             }

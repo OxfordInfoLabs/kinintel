@@ -35,6 +35,12 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
 
 
     /**
+     * @var string
+     * @values adhoc,scheduled
+     */
+    private $trigger;
+
+    /**
      * @var ScheduledTask
      * @manyToOne
      * @parentJoinColumns scheduled_task_id
@@ -65,14 +71,16 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
      * DatasetInstanceSnapshotProfile constructor.
      * @param integer $datasetInstanceId
      * @param string $title
+     * @param string $trigger
      * @param ScheduledTask $scheduledTask
      * @param DataProcessorInstance $dataProcessorInstance
      */
-    public function __construct($datasetInstanceId, $title, $scheduledTask, $dataProcessorInstance) {
+    public function __construct($datasetInstanceId, $title, $trigger = DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, $scheduledTask, $dataProcessorInstance) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->title = $title;
         $this->scheduledTask = $scheduledTask;
         $this->dataProcessorInstance = $dataProcessorInstance;
+        $this->trigger = $trigger;
     }
 
 
@@ -113,6 +121,20 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
     }
 
     /**
+     * @return string
+     */
+    public function getTrigger() {
+        return $this->trigger;
+    }
+
+    /**
+     * @param string $trigger
+     */
+    public function setTrigger($trigger) {
+        $this->trigger = $trigger;
+    }
+
+    /**
      * @return ScheduledTask
      */
     public function getScheduledTask() {
@@ -148,7 +170,6 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
     }
 
 
-
     /**
      * Return a summary object
      */
@@ -158,7 +179,7 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
         $dataProcessor = $this->dataProcessorInstance ?? new DataProcessorInstance(null, null, null);
 
         return new DatasetInstanceSnapshotProfileSummary($this->title,
-            $scheduledTask->getTimePeriods(), $dataProcessor->getType(), $dataProcessor->getConfig(), $scheduledTask->getStatus(), $scheduledTask->getLastStartTime(),
+            $dataProcessor->getType(), $dataProcessor->getConfig(), $this->trigger, true, true, $scheduledTask->getTimePeriods(), $scheduledTask->getStatus(), $scheduledTask->getLastStartTime(),
             $scheduledTask->getLastEndTime(), $scheduledTask->getNextStartTime(), $this->id
         );
     }

@@ -281,6 +281,19 @@ trait Dataset {
         $this->datasetService->removeSnapshotProfile($datasetInstanceId, $snapshotProfileId);
     }
 
+    /**
+     * Trigger an adhoc snapshot
+     *
+     * @http PATCH /snapshotprofile/$datasetInstanceId
+     *
+     * @param $snapshotProfileId
+     * @param $datasetInstanceId
+     *
+     */
+    public function triggerSnapshot($snapshotProfileId, $datasetInstanceId) {
+        $this->datasetService->triggerSnapshot($snapshotProfileId, $datasetInstanceId);
+    }
+
 
     /**
      * Get the installed whitelisted SQL functions
