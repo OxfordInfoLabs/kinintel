@@ -253,6 +253,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["title" => "Item 13", "metric" => 13, "score" => 13]
             ])
         ]));
+
     }
 
 
@@ -294,6 +295,9 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
+        $mockDataSourceInstance->returnValue("getConfig", [
+           "tableName"=> "test"
+        ]);
 
 
         $mockAuthCredentials = MockObjectProvider::instance()->getMockInstance(SQLDatabaseCredentials::class);
@@ -325,7 +329,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             $sevenDaysAgo . "||Item 2" => ["snapshot_date" => $sevenDaysAgo, "title" => "Item 2", "metric" => 222, "score" => 222],
             $fifteenDaysAgo . "||Item 2" => ["snapshot_date" => $fifteenDaysAgo, "title" => "Item 2", "metric" => 2222, "score" => 2222],
         ], [
-                new TableMapping("mytestsnapshot", [], $mockDatabaseConnection, ["snapshot_date", "title"]),
+                new TableMapping("test", [], $mockDatabaseConnection, ["snapshot_date", "title"]),
                 [
                     [$oneDayAgo, "Item 1"],
                     [$sevenDaysAgo, "Item 1"],
@@ -356,6 +360,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $now = date("Y-m-d H:i:s");
+
 
         // Check all data was updated as expected
         $this->assertTrue($mockDataSource->methodWasCalled("update", [

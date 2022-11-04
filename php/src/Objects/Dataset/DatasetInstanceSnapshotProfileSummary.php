@@ -67,14 +67,6 @@ class DatasetInstanceSnapshotProfileSummary {
      */
     const TRIGGER_ADHOC = "adhoc";
     const TRIGGER_SCHEDULE = "scheduled";
-    /**
-     * @var bool
-     */
-    private $create_history;
-    /**
-     * @var bool
-     */
-    private $create_latest;
 
 
     /**

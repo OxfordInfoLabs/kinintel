@@ -6,6 +6,7 @@ namespace Kinintel\Services\DataProcessor\DatasetSnapshot;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
@@ -87,7 +88,12 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
 
         // Get the datasource instance, creating if necessary
-        list($dataSourceInstance, $dataSourceInstanceLatest, $dataSourceInstancePending) = $this->getDatasourceInstances($config->getSnapshotIdentifier(), $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config);
+        $instanceKey = $config->getSnapshotIdentifier();
+
+
+        list($dataSourceInstance, $dataSourceInstanceLatest, $dataSourceInstancePending) = $this->getDatasourceInstances(
+            $instanceKey, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config);
+
 
         // Grab the target data sources and database connections
         if ($config->isCreateHistory()) {
@@ -96,9 +102,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         }
         if ($config->isCreateLatest()) {
             $dataSourceLatest = $dataSourceInstanceLatest->returnDataSource();
-            $databaseConnectionLatest = $dataSourceLatest->getAuthenticationCredentials()->returnDatabaseConnection();
             $dataSourcePending = $dataSourceInstancePending->returnDataSource();
-            $databaseConnectionPending = $dataSourcePending->getAuthenticationCredentials()->returnDatabaseConnection();
         }
 
         // Evaluate time lapse data
@@ -123,7 +127,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
                 $columns = Field::toPlainFields($dataset->getColumns());
-                if ($config->isCreateHistory()) $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstance, $dataSource);
+                if ($config->isCreateHistory())
+                    $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstance, $dataSource);
                 if ($config->isCreateLatest()) {
                     $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstancePending, $dataSourcePending);
                     $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
@@ -133,19 +138,19 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // Grab all data
             $sourceData = $dataset->getAllData();
 
+            $historyTableName = $dataSourceInstance->getConfig()["tableName"];
+            $writeData = $this->generateUpdateData($sourceData, $now, $historyTableName, $config->getKeyFieldNames(), $columnTimeLapses, $distinctTimeLapses, $databaseConnection);
+
             // Generate timelapse data, create update and update data sources
             if ($config->isCreateHistory()) {
-                $writeData = $this->generateUpdateData($sourceData, $now, $config->getSnapshotIdentifier(), $config->getKeyFieldNames(), $columnTimeLapses, $distinctTimeLapses, $databaseConnection);
                 $updateDataSet = new ArrayTabularDataset($fields, $writeData);
                 $dataSource->update($updateDataSet);
             }
 
             if ($config->isCreateLatest()) {
-                $writeDataPending = $this->generateUpdateData($sourceData, $now, $config->getSnapshotIdentifier(), $config->getKeyFieldNames(), $columnTimeLapses, $distinctTimeLapses, $databaseConnectionPending);
-                $updateDataSet = new ArrayTabularDataset($fields, $writeDataPending);
+                $updateDataSet = new ArrayTabularDataset($fields, $writeData);
                 $dataSourcePending->update($updateDataSet);
             }
-
 
             $offset += self::DATA_LIMIT;
         } while (sizeof($sourceData) == self::DATA_LIMIT);
@@ -153,12 +158,14 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
         // Replace the latest
         if ($config->isCreateLatest()) {
-            $pendingDataSet = $this->datasourceService->getEvaluatedDataSource($config->getSnapshotIdentifier() . "_pending", [],
+
+            $pendingDataSet = $this->datasourceService->getEvaluatedDataSource($instanceKey . "_pending", [],
                 [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))]);
             $pendingData = $pendingDataSet->getAllData();
             $dataSourceLatest->onInstanceDelete();
 
-            $dataSourceInstanceLatest = $this->getDatasourceInstances($config->getSnapshotIdentifier(), $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config)[1];
+
+            $dataSourceInstanceLatest = $this->getDatasourceInstances($instanceKey, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config)[1];
             $dataSourceLatest = $dataSourceInstanceLatest->returnDataSource();
             $fieldsLatest = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
             $offset = 0;
@@ -200,7 +207,6 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         if ($config->isCreateHistory()) {
             try {
                 $dataSourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);
-                $this->datasourceService->removeDatasourceInstance($instanceKey);
             } catch (ObjectNotFoundException $e) {
 
 
@@ -231,6 +237,14 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             }
             try {
                 $dataSourceInstancePending = $this->datasourceService->getDataSourceInstanceByKey($instanceKeyPending);
+
+                $pendingDatasource = $dataSourceInstancePending->returnDataSource();
+
+                try {
+                    $pendingDatasource->onInstanceDelete();
+                } catch (SQLException $e) {
+                    // OK
+                }
             } catch (ObjectNotFoundException $e) {
                 $dataSourceInstancePending = new DatasourceInstance($instanceKeyPending, $instanceKeyPending, "snapshot",
                     [
