@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
+import {BehaviorSubject, interval, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -51,6 +51,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     private tagSub: Subscription;
     private reload = new Subject();
     private tagDataSub: Subscription;
+    private projectChanges: Subscription;
+    private tagChanges: Subscription;
 
     constructor(private dialog: MatDialog,
                 private tagService: TagService,
@@ -72,8 +74,21 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                             switchMap(() =>
                                 this.getSnapshots(this.snapshots.tag)
                             )
-                        ).subscribe((dashboards: any) => {
-                            this.snapshots.tag.data = dashboards;
+                        ).subscribe((snapshots: any) => {
+                            this.snapshots.tag.data = snapshots;
+                        });
+
+                    this.tagChanges = interval(3000)
+                        .pipe(
+                            switchMap(() =>
+                                this.datasetService.listSnapshotProfiles(
+                                    this.searchText.getValue() || '', String(this.snapshots.tag.limit), String(this.snapshots.tag.offset)).pipe(
+                                    map(result => {
+                                        return result;
+                                    }))
+                            )
+                        ).subscribe(snapshots => {
+                            this.snapshots.tag.data = snapshots;
                         });
                 } else {
                     this.activeTag = null;
@@ -96,6 +111,19 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             this.snapshots.project.data = snapshots;
         });
 
+        this.projectChanges = interval(3000)
+            .pipe(
+                switchMap(() =>
+                    this.datasetService.listSnapshotProfiles(
+                        this.searchText.getValue() || '', String(this.snapshots.project.limit), String(this.snapshots.project.offset), 'NONE').pipe(
+                        map(result => {
+                            return result;
+                        }))
+                )
+            ).subscribe(snapshots => {
+                this.snapshots.project.data = snapshots;
+            });
+
         this.searchText.subscribe(() => {
             _.forEach(this.snapshots, snapshot => {
                 snapshot.page = 1;
@@ -111,6 +139,10 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         if (this.tagDataSub) {
             this.tagDataSub.unsubscribe();
         }
+        if (this.tagChanges) {
+            this.tagChanges.unsubscribe();
+        }
+        this.projectChanges.unsubscribe();
     }
 
     public async triggerSnapshot(snapshotProfileId, datasetInstanceId, snapshot) {
