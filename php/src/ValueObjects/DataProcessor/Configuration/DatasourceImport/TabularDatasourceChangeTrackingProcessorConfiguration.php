@@ -8,8 +8,15 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @var string[]
+     * @requiredEither $sourceDataset
      */
     private $sourceDatasourceKeys;
+
+    /**
+     * @var DatasetInstance
+     */
+    private $sourceDataset;
+
     /**
      * @var string
      */
@@ -42,6 +49,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @param string[] $sourceDatasourceKeys
+     * @param DatasetInstance $sourceDataset
      * @param string $targetLatestDatasourceKey
      * @param string $targetChangeDatasourceKey
      * @param string $targetSummaryDatasourceKey
@@ -49,7 +57,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
      */
-    public function __construct($sourceDatasourceKeys, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
+    public function __construct($sourceDatasourceKeys = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -57,6 +65,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->summaryFields = $summaryFields;
         $this->sourceReadChunkSize = $sourceReadChunkSize ?: PHP_INT_MAX;
         $this->targetWriteChunkSize = $targetWriteChunkSize ?: 500;
+        $this->sourceDataset = $sourceDataset;
     }
 
     /**
@@ -71,6 +80,20 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     public function setSourceDatasourceKeys($sourceDatasourceKeys) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
+    }
+
+    /**
+     * @return DatasetInstance
+     */
+    public function getSourceDataset() {
+        return $this->sourceDataset;
+    }
+
+    /**
+     * @param DatasetInstance $sourceDataset
+     */
+    public function setSourceDataset($sourceDataset) {
+        $this->sourceDataset = $sourceDataset;
     }
 
     /**

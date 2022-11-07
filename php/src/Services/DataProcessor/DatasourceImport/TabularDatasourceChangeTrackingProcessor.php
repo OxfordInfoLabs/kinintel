@@ -7,9 +7,11 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Util\Logging\CodeTimer;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
+use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -30,12 +32,19 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
     private $datasourceService;
 
     /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+    /**
      * Datasource service
      *
      * @param DatasourceService $datasourceService
+     * @param DatasetService $datasetService
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService, $datasetService) {
         $this->datasourceService = $datasourceService;
+        $this->datasetService = $datasetService;
     }
 
 
@@ -72,61 +81,120 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $datasourceKeys = $config->getSourceDatasourceKeys();
         $targetSummaryDatasourceKey = $config->getTargetSummaryDatasourceKey();
 
-        // Assuming all datasources have the same keys - would be daft otherwise
-        $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
 
         $setDate = new \DateTime();
 
+//        if ($config->getSourceDataset()) {
+//
+//            $sourceDatasetInstance = $config->getSourceDataset();
+//
+//            $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
+//
+//            $newFile = $directory . "/new.txt";
+//            $previousFile = $directory . "/previous.txt";
+//            $this->initialiseFiles($directory);
+//
+//            // Create the new file
+//            $this->writeDatasetToFile($directory, "new.txt", $sourceDatasetInstance, $sourceReadChunkSize);
+//
+//            // Track changes between the new and previous
+//            passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
+//            passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+//
+//            // Identify and changes and write to the latest and changes tables
+//            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+//
+//            // Copy the new file across to the previous
+//            copy($directory . "/new.txt", $directory . "/previous.txt");
 
-        // Iterate through each source datasource
-        foreach ($datasourceKeys as $datasourceKey) {
-            $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
-
-            $newFile = $directory . "/new.txt";
-            $previousFile = $directory . "/previous.txt";
-
-            // If directory does not exist, create it.
-            if (!file_exists($directory))
-                mkdir($directory, 0777, true);
-
-            // Delete new file if it exists and copy to previous
-            if (file_exists($directory . "/new.txt")) {
-                unlink($directory . "/new.txt");
-            }
-
-            if (!file_exists($directory . "/previous.txt")) {
-                touch($directory . "/previous.txt");
-            }
-
-            // Create the new file
-            $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
-
-            // Track changes between the new and previous
-            passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
-            passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
-
-            // Identify and changes and write to the latest and changes tables
-            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
-
-            // Copy the new file across to the previous
-            copy($directory . "/new.txt", $directory . "/previous.txt");
+        if ($config->getSourceDataset()) {
+            $datasourceKeys = [$config->getSourceDataset()->getDatasourceInstanceKey()];
         }
+
+            // Assuming all datasources have the same keys - would be daft otherwise
+            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
+
+            // Iterate through each source datasource
+            foreach ($datasourceKeys as $datasourceKey) {
+                $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
+
+                $newFile = $directory . "/new.txt";
+                $previousFile = $directory . "/previous.txt";
+
+                $this->initialiseFiles($directory);
+
+                // Create the new file
+                $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
+
+                // Track changes between the new and previous
+                passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
+                passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+
+                // Identify and changes and write to the latest and changes tables
+                $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+
+                // Copy the new file across to the previous
+                copy($directory . "/new.txt", $directory . "/previous.txt");
+            }
 
         // Finally, add to the summary table given the new latest table
         if ($targetSummaryDatasourceKey) {
             $this->createSummary($targetLatestDatasourceKey, $targetSummaryDatasourceKey, $config->getSummaryFields(), $sourceReadChunkSize, $targetWriteChunkSize, $setDate);
         }
+
     }
 
 
     private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize) {
 
         $offset = 0;
-
         // Read the datasource in chunks
         do {
             $lineCount = 0;
             $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
+            $nextItem = $evaluated->nextDataItem();
+
+            if (!$nextItem) {
+                return;
+            }
+
+            // For each chunk, format each entry and write to new.txt
+            do {
+
+                $nextLine = "";
+
+                foreach ($nextItem as $key => $value) {
+                    $nextLine .= $value . "#|!";
+                }
+                file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
+                $lineCount++;
+
+                $nextItem = $evaluated->nextDataItem();
+
+            } while ($nextItem);
+
+            $offset += $sourceReadChunkSize;
+
+        } while ($lineCount == $sourceReadChunkSize);
+
+    }
+
+    /**
+     * @param $directory
+     * @param $fileName
+     * @param DatasetInstance $datasetInstance
+     * @param $sourceReadChunkSize
+     * @return void
+     */
+    private function writeDatasetToFile($directory, $fileName, $datasetInstance, $sourceReadChunkSize) {
+
+        $offset = 0;
+        print_r($datasetInstance->getDatasourceInstanceKey());
+
+        // Read the datasource in chunks
+        do {
+            $lineCount = 0;
+
             $nextItem = $evaluated->nextDataItem();
 
             if (!$nextItem) {
@@ -256,12 +324,9 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 $trueAdds = [];
                 $addCount = 0;
             }
-
-
         }
 
         // Clear up any leftovers
-
         if ($addCount > 0) {
             $this->updateTargetDatasources($trueAdds, "ADD", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
         }
@@ -362,6 +427,25 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         if (sizeof($writeRows)) {
             $this->datasourceService->updateDatasourceInstance($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
+        }
+    }
+
+    /**
+     * @param $directory
+     * @return void
+     */
+    public function initialiseFiles($directory) {
+        // If directory does not exist, create it.
+        if (!file_exists($directory))
+            mkdir($directory, 0777, true);
+
+        // Delete new file if it exists and copy to previous
+        if (file_exists($directory . "/new.txt")) {
+            unlink($directory . "/new.txt");
+        }
+
+        if (!file_exists($directory . "/previous.txt")) {
+            touch($directory . "/previous.txt");
         }
     }
 

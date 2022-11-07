@@ -5,9 +5,11 @@ namespace Kinintel\Services\DataProcessor\DatasourceImport;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
+use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
@@ -29,6 +31,11 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     private $datasourceService;
 
     /**
+     * @var MockObject
+     */
+    private $datasetService;
+
+    /**
      * @var TabularDatasourceChangeTrackingProcessor
      */
     private $processor;
@@ -36,13 +43,14 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function setUp(): void {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-        $this->processor = new TabularDatasourceChangeTrackingProcessor($this->datasourceService);
+        $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
+        $this->processor = new TabularDatasourceChangeTrackingProcessor($this->datasourceService, $this->datasetService);
         passthru("rm -rf Files/change_tracking_processors");
     }
 
     public function testNewFileCreatedInDataDirectoryOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, [], PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, null, [], PHP_INT_MAX);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -108,7 +116,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testCanCopyToPreviousOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -176,7 +184,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanDetectAdds() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -246,7 +254,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanDetectDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -313,7 +321,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
     public function testCanWriteToTargetDataSources() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -359,7 +367,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
     public function testCanWriteToTargetDataSourcesWithDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -412,7 +420,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanWriteToTargetDataSourcesWithUpdates() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -462,7 +470,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanWriteToTargetDataSourcesWithAddsUpdatesAndDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -525,7 +533,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanWriteToTargetDataSourcesWithEmptyDeletes() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -584,7 +592,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testCanWriteWithNullForEmptyField() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -644,7 +652,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $targetWriteSize = 500;
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null, $targetWriteSize);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null, $targetWriteSize);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -680,7 +688,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     public function testCanReadGivenChunkSize() {
 
         $sourceReadChunkSize = 500;
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test", null, null, [], $sourceReadChunkSize, 750);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test", null, null, [], $sourceReadChunkSize, 750);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -716,7 +724,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
     public function testCanWriteToTargetSummaryDataSourceGivenSummaryField() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], "test1", null, "test", ["name"]);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1"], null, "test1", null, "test", ["name"]);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -794,6 +802,49 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         $this->processor->process($processorInstance);
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+    }
+
+    public function testCanProcessDataset() {
+        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ],
+            [
+                "name" => "James Bond",
+                "age" => 56
+            ],
+            [
+                "name" => "Joe Bloggs",
+                "age" => 30
+            ]
+        ]);
+
+        $dataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $dataSetInstance->returnValue("getTitle", "test");
+        $dataSetInstance->returnValue("getDatasourceInstanceKey", "test");
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test", [], [], 0, 1
+        ]);
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test", [], [], 0, PHP_INT_MAX
+        ]);
+
+
+
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration([], $dataSetInstance, "test1", null, null, [], 0 ,PHP_INT_MAX);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
+
+
+        $expectedUpdate = new DatasourceUpdate([],[],[], $testDataset->getAllData());
+
+        $this->processor->process($processorInstance);
+
+
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
     }
 }

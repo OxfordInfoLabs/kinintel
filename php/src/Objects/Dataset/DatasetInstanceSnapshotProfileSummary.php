@@ -62,11 +62,7 @@ class DatasetInstanceSnapshotProfileSummary {
      */
     private $processorConfig;
 
-    /**
-     * Trigger constants
-     */
-    const TRIGGER_ADHOC = "adhoc";
-    const TRIGGER_SCHEDULE = "scheduled";
+
     /**
      * @var bool
      */
