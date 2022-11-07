@@ -375,7 +375,6 @@ class DatasetServiceTest extends TestBase {
         // Log in as a person with projects and tags
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-
         $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
         $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
 
@@ -419,7 +418,7 @@ class DatasetServiceTest extends TestBase {
             ]
         ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ]);
+        ] );
 
         $profile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
 
@@ -599,7 +598,7 @@ class DatasetServiceTest extends TestBase {
 
 
         $snapshotProfile1 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
             new ScheduledTaskTimePeriod(null, null, 0, 0)
         ]);
 
@@ -616,7 +615,7 @@ class DatasetServiceTest extends TestBase {
 
 
         $snapshotProfile3 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
             new ScheduledTaskTimePeriod(null, null, 0, 0)
         ]);
 
@@ -624,7 +623,7 @@ class DatasetServiceTest extends TestBase {
 
 
         $snapshotProfile4 = new DatasetInstanceSnapshotProfileSummary("Weekly Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
             new ScheduledTaskTimePeriod(null, 1, 0, 0)
         ]);
 
@@ -945,7 +944,7 @@ class DatasetServiceTest extends TestBase {
 
         // Create and save a snapshot for the new instance.
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
         ]);
 

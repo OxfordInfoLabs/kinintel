@@ -450,7 +450,11 @@ class DatasetService {
                         "dataProcessorKey" => $dataProcessorKey
                     ], []), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
 
+
+
+
             $snapshotProfile = new DatasetInstanceSnapshotProfile($datasetInstanceId, $snapshotProfileSummary->getTitle(), $snapshotProfileSummary->getTrigger(), $scheduledTask, $dataProcessorInstance);
+
 
 
         }
