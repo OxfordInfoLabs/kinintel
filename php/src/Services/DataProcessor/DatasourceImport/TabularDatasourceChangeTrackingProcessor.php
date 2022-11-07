@@ -111,31 +111,31 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $datasourceKeys = [$config->getSourceDataset()->getDatasourceInstanceKey()];
         }
 
-            // Assuming all datasources have the same keys - would be daft otherwise
-            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
+        // Assuming all datasources have the same keys - would be daft otherwise
+        $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
 
-            // Iterate through each source datasource
-            foreach ($datasourceKeys as $datasourceKey) {
-                $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
+        // Iterate through each source datasource
+        foreach ($datasourceKeys as $datasourceKey) {
+            $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
 
-                $newFile = $directory . "/new.txt";
-                $previousFile = $directory . "/previous.txt";
+            $newFile = $directory . "/new.txt";
+            $previousFile = $directory . "/previous.txt";
 
-                $this->initialiseFiles($directory);
+            $this->initialiseFiles($directory);
 
-                // Create the new file
-                $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
+            // Create the new file
+            $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
 
-                // Track changes between the new and previous
-                passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
-                passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+            // Track changes between the new and previous
+            passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
+            passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
-                // Identify and changes and write to the latest and changes tables
-                $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+            // Identify and changes and write to the latest and changes tables
+            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
 
-                // Copy the new file across to the previous
-                copy($directory . "/new.txt", $directory . "/previous.txt");
-            }
+            // Copy the new file across to the previous
+            copy($directory . "/new.txt", $directory . "/previous.txt");
+        }
 
         // Finally, add to the summary table given the new latest table
         if ($targetSummaryDatasourceKey) {
