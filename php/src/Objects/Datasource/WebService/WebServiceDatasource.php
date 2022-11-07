@@ -209,7 +209,6 @@ class WebServiceDatasource extends BaseDatasource {
 
             // Dispatch the request and return a response
             $response = $this->dispatcher->dispatch($request);
-
             $attempts++;
 
         } while ($attempts <= $config->getMaxRetries() && in_array($response->getStatusCode(), $config->getRetryResponseCodes() ?? []));

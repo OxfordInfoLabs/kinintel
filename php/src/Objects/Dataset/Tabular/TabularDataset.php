@@ -125,7 +125,9 @@ abstract class TabularDataset implements Dataset {
                     $value = $dataItem[$columnName] ?? null;
                 }
 
+
                 $valueExpression = $column->getValueExpression();
+                
                 $hasColumnValue = $hasColumnValue
                     || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
 
