@@ -84,32 +84,35 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         $setDate = new \DateTime();
 
-//        if ($config->getSourceDataset()) {
-//
-//            $sourceDatasetInstance = $config->getSourceDataset();
-//
-//            $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
-//
-//            $newFile = $directory . "/new.txt";
-//            $previousFile = $directory . "/previous.txt";
-//            $this->initialiseFiles($directory);
-//
-//            // Create the new file
-//            $this->writeDatasetToFile($directory, "new.txt", $sourceDatasetInstance, $sourceReadChunkSize);
-//
-//            // Track changes between the new and previous
-//            passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
-//            passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
-//
-//            // Identify and changes and write to the latest and changes tables
-//            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
-//
-//            // Copy the new file across to the previous
-//            copy($directory . "/new.txt", $directory . "/previous.txt");
-
         if ($config->getSourceDataset()) {
-            $datasourceKeys = [$config->getSourceDataset()->getDatasourceInstanceKey()];
-        }
+
+            $sourceDatasetInstance = $config->getSourceDataset();
+            $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDatasetInstance, [], null, 0, 1);
+            $fieldKeys = $sourceDataset->getColumns();
+
+
+            $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
+
+            $newFile = $directory . "/new.txt";
+            $previousFile = $directory . "/previous.txt";
+            $this->initialiseFiles($directory);
+
+            // Create the new file
+            $this->writeDatasetToFile($sourceDatasetInstance, $directory, "new.txt", $sourceReadChunkSize);
+
+            // Track changes between the new and previous
+            passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
+            passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+
+            // Identify and changes and write to the latest and changes tables
+            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+
+            // Copy the new file across to the previous
+            if (file_exists($directory . "/new.txt")) {
+                copy($directory . "/new.txt", $directory . "/previous.txt");
+            }
+
+        } elseif ($config->getSourceDatasourceKeys()) {
 
             // Assuming all datasources have the same keys - would be daft otherwise
             $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
@@ -134,8 +137,13 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
 
                 // Copy the new file across to the previous
-                copy($directory . "/new.txt", $directory . "/previous.txt");
+                if (file_exists($directory . "/new.txt")) {
+                    copy($directory . "/new.txt", $directory . "/previous.txt");
+                }
             }
+
+        }
+
 
         // Finally, add to the summary table given the new latest table
         if ($targetSummaryDatasourceKey) {
@@ -146,7 +154,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
 
     private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize) {
-
         $offset = 0;
         // Read the datasource in chunks
         do {
@@ -154,6 +161,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
             $nextItem = $evaluated->nextDataItem();
 
+            print_r($nextItem);
             if (!$nextItem) {
                 return;
             }
@@ -179,23 +187,16 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
     }
 
-    /**
-     * @param $directory
-     * @param $fileName
-     * @param DatasetInstance $datasetInstance
-     * @param $sourceReadChunkSize
-     * @return void
-     */
-    private function writeDatasetToFile($directory, $fileName, $datasetInstance, $sourceReadChunkSize) {
 
+    private function writeDatasetToFile($sourceDatasetInstance, $directory, $fileName, $sourceReadChunkSize) {
         $offset = 0;
-        print_r($datasetInstance->getDatasourceInstanceKey());
 
         // Read the datasource in chunks
         do {
             $lineCount = 0;
+            $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDatasetInstance, [], null, $offset, $sourceReadChunkSize);
 
-            $nextItem = $evaluated->nextDataItem();
+            $nextItem = $sourceDataset->nextDataItem();
 
             if (!$nextItem) {
                 return;
@@ -211,7 +212,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
                 $lineCount++;
 
-                $nextItem = $evaluated->nextDataItem();
+                $nextItem = $sourceDataset->nextDataItem();
 
             } while ($nextItem);
 

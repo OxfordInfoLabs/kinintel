@@ -60,7 +60,7 @@ class DataProcessorService {
             if (isset($validationErrors["type"]["invalidtype"])) {
                 throw new InvalidDataProcessorTypeException($instance->getType());
             } else if (isset($validationErrors["config"])) {
-                throw new InvalidDataProcessorConfigException($instance->getConfig());
+                throw new InvalidDataProcessorConfigException($validationErrors);
             } else {
                 throw new ValidationException($validationErrors);
             }

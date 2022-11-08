@@ -8,7 +8,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @var string[]
-     * @requiredEither $sourceDataset
+     * @requiredEither sourceDataset
      */
     private $sourceDatasourceKeys;
 

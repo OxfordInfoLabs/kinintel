@@ -23,6 +23,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use phpseclib3\Crypt\EC\Curves\prime192v2;
 
 class TabularDatasetSnapshotProcessor implements DataProcessor {
 
@@ -43,6 +44,11 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
      */
     private $tableMapper;
 
+
+    /**
+     * @var integer
+     */
+    private $idCounter = 0;
 
     // Data limit
     const DATA_LIMIT = 50000;
@@ -105,18 +111,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $dataSourcePending = $dataSourceInstancePending->returnDataSource();
         }
 
-        // Evaluate time lapse data
-        $columnTimeLapses = [];
-        $distinctTimeLapses = [];
-        foreach ($config->getTimeLapsedFields() ?? [] as $timeLapsedFieldSet) {
-            foreach ($timeLapsedFieldSet->getFieldNames() as $fieldName) {
-                $columnTimeLapses[$fieldName] = array_merge($columnTimeLapses[$fieldName] ?? [], $timeLapsedFieldSet->getDayOffsets());
-            }
-            foreach ($timeLapsedFieldSet->getDayOffsets() as $dayOffset) {
-                $distinctTimeLapses[$dayOffset] = (new \DateTime())->sub(new \DateInterval("P" . $dayOffset . "D"))->format("Y-m-d");
-            }
-        }
-
+        // Evaluate any time lapse data
+        list($columnTimeLapses, $distinctTimeLapses) = $this->evaluateTimeLapseData($instanceKey, $config);
 
         // Now process the Dataset progressively in blocks of 10 to control processing rate.
         $offset = 0;
@@ -159,27 +155,22 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         // Replace the latest
         if ($config->isCreateLatest()) {
 
-            $pendingDataSet = $this->datasourceService->getEvaluatedDataSource($instanceKey . "_pending", [],
-                [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))]);
-            $pendingData = $pendingDataSet->getAllData();
             $dataSourceLatest->onInstanceDelete();
 
-
-            $dataSourceInstanceLatest = $this->getDatasourceInstances($instanceKey, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config)[1];
-            $dataSourceLatest = $dataSourceInstanceLatest->returnDataSource();
             $fieldsLatest = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
             $offset = 0;
             do {
-                $writeDataArray = array_slice($pendingData, $offset, self::DATA_LIMIT);
-                foreach ($writeDataArray as &$entry) {
+                $pendingDataSet = $this->datasourceService->getEvaluatedDataSource($instanceKey . "_pending", [],
+                    [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], $offset, self::DATA_LIMIT);
+                $pendingData = $pendingDataSet->getAllData();
+                foreach ($pendingData as &$entry) {
                     unset($entry["snapshot_date"]);
                 }
 
-                $writeData = new ArrayTabularDataset($fieldsLatest, $writeDataArray);
-
+                $writeData = new ArrayTabularDataset($fieldsLatest, $pendingData);
                 $dataSourceLatest->update($writeData);
                 $offset += self::DATA_LIMIT;
-            } while (sizeof(array_slice($pendingData, $offset - self::DATA_LIMIT)) > self::DATA_LIMIT);
+            } while (sizeof($pendingData) == self::DATA_LIMIT);
 
         }
     }
@@ -274,6 +265,11 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         // Create fields array
         if (!$latest) $fields = [new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true)];
 
+        // Ensure we have an id if no key fields supplied
+        if ($keyFieldNames == []) {
+            $fields[] = new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_INTEGER, true);
+        }
+
         // Add each column and any timelapse variations required
         foreach ($columns as $column) {
 
@@ -322,6 +318,9 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                     $pks[] = $pk;
                 }
 
+            } else {
+                $updateDataItem["snapshot_item_id"] = $this->idCounter;
+                $this->idCounter++;
             }
 
             $updateData[] = $updateDataItem;
@@ -363,8 +362,34 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
     }
 
-    private function doUpdate() {
+    /**
+     * @param TabularDatasetSnapshotProcessorConfiguration $config
+     * @param string
+     * @return array[]
+     */
+    private function evaluateTimeLapseData($dataSourceInstanceKey, $config) {
+        $columnTimeLapses = [];
+        $distinctTimeLapses = [];
+        foreach ($config->getTimeLapsedFields() ?? [] as $timeLapsedFieldSet) {
+            foreach ($timeLapsedFieldSet->getFieldNames() as $fieldName) {
+                $columnTimeLapses[$fieldName] = array_merge($columnTimeLapses[$fieldName] ?? [], $timeLapsedFieldSet->getDayOffsets());
+            }
+            foreach ($timeLapsedFieldSet->getDayOffsets() as $dayOffset) {
+                $date = (new \DateTime())->sub(new \DateInterval("P" . $dayOffset . "D"))->format("Y-m-d");
+                try {
+                    $evaluateDatasource = $this->datasourceService->getEvaluatedDataSource($dataSourceInstanceKey, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", $date, "eq")]))], 0, 1);
+                    if ($nextLine = $evaluateDatasource->nextRawDataItem()) {
+                        $distinctTimeLapses[$dayOffset] = $nextLine;
+                    } else {
+                        $distinctTimeLapses[$dayOffset] = null;
+                    }
+                } catch (ObjectNotFoundException $e) {
+                    // This is OK
+                }
+            }
+        }
 
+        return [$columnTimeLapses, $distinctTimeLapses];
     }
 
 

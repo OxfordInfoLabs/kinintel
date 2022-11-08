@@ -806,6 +806,13 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanProcessDataset() {
+        $testMetaDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ]
+        ]);
+
         $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
             [
                 "name" => "Joe Bloggs",
@@ -816,31 +823,34 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
                 "age" => 56
             ],
             [
-                "name" => "Joe Bloggs",
+                "name" => "John Smith",
                 "age" => 30
             ]
         ]);
 
+
         $dataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
-        $dataSetInstance->returnValue("getTitle", "test");
-        $dataSetInstance->returnValue("getDatasourceInstanceKey", "test");
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
-            "test", [], [], 0, 1
-        ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
-            "test", [], [], 0, PHP_INT_MAX
-        ]);
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", $testMetaDataset, [$dataSetInstance, [], [], 0, 1]);
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", $testDataset, [$dataSetInstance, [], [], 0, PHP_INT_MAX]);
 
 
-
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration([], $dataSetInstance, "test1", null, null, [], 0 ,PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration([], $dataSetInstance, "test", null, null, []);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
 
 
-        $expectedUpdate = new DatasourceUpdate([],[],[], $testDataset->getAllData());
+        $expectedUpdate = new DatasourceUpdate([], [], [], [[
+            "name" => "Joe Bloggs",
+            "age" => 22
+        ], [
+            "name" => "James Bond",
+            "age" => 56
+        ], [
+            "name" => "John Smith",
+            "age" => 30
+        ]]);
 
         $this->processor->process($processorInstance);
 
