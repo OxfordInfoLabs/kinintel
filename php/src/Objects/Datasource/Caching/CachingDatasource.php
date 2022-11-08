@@ -203,6 +203,7 @@ class CachingDatasource extends BaseDatasource {
             // Insert in batches of 50
             $batch = [];
             while ($sourceItem = $sourceDataset->nextDataItem()) {
+
                 $noSourceResults = false;
                 $batch[] = array_merge([$config->getCacheDatasourceParametersField() => $encodedParameters,
                     $config->getCacheDatasourceCachedTimeField() => $now], $sourceItem);
