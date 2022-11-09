@@ -19,6 +19,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -206,7 +207,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("title", "Title", null, Field::TYPE_STRING, true),
                 new Field("metric"),
                 new Field("score")
-            ], $firstDatasetWithDate)
+            ], $firstDatasetWithDate), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -220,7 +221,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["snapshot_date" => $now, "title" => "Item 11", "metric" => 11, "score" => 11],
                 ["snapshot_date" => $now, "title" => "Item 12", "metric" => 12, "score" => 12],
                 ["snapshot_date" => $now, "title" => "Item 13", "metric" => 13, "score" => 13]
-            ])
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -231,7 +232,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("title", "Title", null, Field::TYPE_STRING, true),
                 new Field("metric"),
                 new Field("score")
-            ], $firstDatasetWithDate)
+            ], $firstDatasetWithDate), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
         $this->assertTrue($mockDataSourcePending->methodWasCalled("update", [
@@ -244,7 +245,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["snapshot_date" => $now, "title" => "Item 11", "metric" => 11, "score" => 11],
                 ["snapshot_date" => $now, "title" => "Item 12", "metric" => 12, "score" => 12],
                 ["snapshot_date" => $now, "title" => "Item 13", "metric" => 13, "score" => 13]
-            ])
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -257,7 +258,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("title", "Title", null, Field::TYPE_STRING, true),
                 new Field("metric"),
                 new Field("score")
-            ], $firstDataset)
+            ], $firstDataset), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
         $this->assertTrue($mockDataSourceLatest->methodWasCalled("update", [
@@ -269,7 +270,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["title" => "Item 11", "metric" => 11, "score" => 11],
                 ["title" => "Item 12", "metric" => 12, "score" => 12],
                 ["title" => "Item 13", "metric" => 13, "score" => 13]
-            ])
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
     }
@@ -414,7 +415,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 ["snapshot_date" => $now, "title" => "Item 2", "metric" => 2,
                     "metric_1_days_ago" => 22, "metric_7_days_ago" => 222, "metric_30_days_ago" => null,
                     "score" => 2, "score_5_days_ago" => null, "score_15_days_ago" => 2222],
-            ])
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -507,7 +508,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ]));
 
         // Check all data was updated as expected
-        $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate]));
+        $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate, UpdatableDatasource::UPDATE_MODE_REPLACE]));
 
     }
 }

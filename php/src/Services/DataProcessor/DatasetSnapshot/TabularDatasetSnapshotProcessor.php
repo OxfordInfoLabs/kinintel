@@ -14,6 +14,7 @@ use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -140,12 +141,12 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // Generate timelapse data, create update and update data sources
             if ($config->isCreateHistory()) {
                 $updateDataSet = new ArrayTabularDataset($fields, $writeData);
-                $dataSource->update($updateDataSet);
+                $dataSource->update($updateDataSet,UpdatableDatasource::UPDATE_MODE_REPLACE);
             }
 
             if ($config->isCreateLatest()) {
                 $updateDataSet = new ArrayTabularDataset($fields, $writeData);
-                $dataSourcePending->update($updateDataSet);
+                $dataSourcePending->update($updateDataSet, UpdatableDatasource::UPDATE_MODE_REPLACE);
             }
 
             $offset += self::DATA_LIMIT;
@@ -168,7 +169,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 }
 
                 $writeData = new ArrayTabularDataset($fieldsLatest, $pendingData);
-                $dataSourceLatest->update($writeData);
+                $dataSourceLatest->update($writeData, UpdatableDatasource::UPDATE_MODE_REPLACE);
                 $offset += self::DATA_LIMIT;
             } while (sizeof($pendingData) == self::DATA_LIMIT);
 
@@ -379,7 +380,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 try {
                     $evaluateDatasource = $this->datasourceService->getEvaluatedDataSource($dataSourceInstanceKey, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", $date, "eq")]))], 0, 1);
                     if ($nextLine = $evaluateDatasource->nextRawDataItem()) {
-                        $distinctTimeLapses[$dayOffset] = $nextLine;
+                        $distinctTimeLapses[$dayOffset] = $nextLine["snapshot_date"];
                     } else {
                         $distinctTimeLapses[$dayOffset] = null;
                     }
@@ -388,6 +389,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 }
             }
         }
+
 
         return [$columnTimeLapses, $distinctTimeLapses];
     }
