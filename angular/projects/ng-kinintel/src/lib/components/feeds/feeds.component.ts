@@ -7,6 +7,7 @@ import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasetService} from '../../services/dataset.service';
 import {FeedComponent} from './feed/feed.component';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'ki-feeds',
@@ -32,6 +33,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
     constructor(private dialog: MatDialog,
                 private feedService: FeedService,
                 private datasetService: DatasetService,
+                private router: Router,
                 public config: KinintelModuleConfig) {
     }
 
@@ -101,9 +103,15 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 data: {
                     datasetInstanceSummary,
                     showChart: false,
-                    admin: this.admin
+                    admin: this.admin,
+                    breadcrumb: 'Feeds'
                 }
             });
+            dialogRef.afterClosed().subscribe(res => {
+                if (res && res.breadcrumb) {
+                    return this.router.navigate([res.breadcrumb], {fragment: null});
+                }
+            })
         });
     }
 

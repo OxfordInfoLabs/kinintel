@@ -8,6 +8,7 @@ import {ProjectService} from '../../services/project.service';
 import {DatasetService} from '../../services/dataset.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as lodash from 'lodash';
+import {Router} from '@angular/router';
 const _ = lodash.default;
 
 @Component({
@@ -58,6 +59,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 private tagService: TagService,
                 private projectService: ProjectService,
                 private datasetService: DatasetService,
+                private router: Router,
                 public config: KinintelModuleConfig) {
     }
 
@@ -111,18 +113,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             this.snapshots.project.data = snapshots;
         });
 
-        this.projectChanges = interval(3000)
-            .pipe(
-                switchMap(() =>
-                    this.datasetService.listSnapshotProfiles(
-                        this.searchText.getValue() || '', String(this.snapshots.project.limit), String(this.snapshots.project.offset), 'NONE').pipe(
-                        map(result => {
-                            return result;
-                        }))
-                )
-            ).subscribe(snapshots => {
-                this.snapshots.project.data = snapshots;
-            });
+
 
         this.searchText.subscribe(() => {
             _.forEach(this.snapshots, snapshot => {
@@ -139,10 +130,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         if (this.tagDataSub) {
             this.tagDataSub.unsubscribe();
         }
-        if (this.tagChanges) {
-            this.tagChanges.unsubscribe();
-        }
-        this.projectChanges.unsubscribe();
+        this.stopSnapshotWatch();
     }
 
     public async triggerSnapshot(snapshotProfileId, datasetInstanceId, snapshot) {
@@ -158,40 +146,12 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             parameterValues: {},
             parameters: []
         };
-        const dialogRef = this.dialog.open(DataExplorerComponent, {
-            width: '100vw',
-            height: '100vh',
-            maxWidth: '100vw',
-            maxHeight: '100vh',
-            hasBackdrop: false,
-            data: {
-                datasetInstanceSummary,
-                showChart: false,
-                admin: this.admin
-            }
-        });
-        dialogRef.afterClosed().subscribe(res => {
-            this.reload.next(Date.now());
-        });
+        this.openDialogEditor(datasetInstanceSummary);
     }
 
     public viewParent(parentDatasetInstanceId) {
         this.datasetService.getDataset(parentDatasetInstanceId).then(datasetInstanceSummary => {
-            const dialogRef = this.dialog.open(DataExplorerComponent, {
-                width: '100vw',
-                height: '100vh',
-                maxWidth: '100vw',
-                maxHeight: '100vh',
-                hasBackdrop: false,
-                data: {
-                    datasetInstanceSummary,
-                    showChart: false,
-                    admin: this.admin
-                }
-            });
-            dialogRef.afterClosed().subscribe(res => {
-                this.reload.next(Date.now());
-            });
+            this.openDialogEditor(datasetInstanceSummary);
         });
     }
 
@@ -227,6 +187,30 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         snapshot.reload.next(Date.now());
     }
 
+    private openDialogEditor(datasetInstanceSummary) {
+        const dialogRef = this.dialog.open(DataExplorerComponent, {
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            hasBackdrop: false,
+            data: {
+                datasetInstanceSummary,
+                showChart: false,
+                admin: this.admin,
+                breadcrumb: 'Snapshots'
+            }
+        });
+        this.stopSnapshotWatch();
+        dialogRef.afterClosed().subscribe(res => {
+            if (res && res.breadcrumb) {
+                return this.router.navigate([res.breadcrumb], {fragment: null});
+            }
+            this.reload.next(Date.now());
+            this.watchSnapshotChanges();
+        });
+    }
+
     private getSnapshots(snapshot, tags?) {
         return this.datasetService.listSnapshotProfiles(
             this.searchText.getValue() || '',
@@ -238,6 +222,30 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 return snapshots;
             })
         );
+    }
+
+    private watchSnapshotChanges() {
+        this.projectChanges = interval(3000)
+            .pipe(
+                switchMap(() =>
+                    this.datasetService.listSnapshotProfiles(
+                        this.searchText.getValue() || '', String(this.snapshots.project.limit), String(this.snapshots.project.offset), 'NONE').pipe(
+                        map(result => {
+                            return result;
+                        }))
+                )
+            ).subscribe(snapshots => {
+                this.snapshots.project.data = snapshots;
+            });
+    }
+
+    private stopSnapshotWatch() {
+        if (this.projectChanges) {
+            this.projectChanges.unsubscribe();
+        }
+        if (this.tagChanges) {
+            this.tagChanges.unsubscribe();
+        }
     }
 
 }

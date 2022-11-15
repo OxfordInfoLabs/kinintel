@@ -1,4 +1,4 @@
-<div class="configure-header border-b border-gray-200">
+<div class="bg-gray-50 configure-header border-b border-gray-200">
     <div class="w-full flex items-center">
         <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.title && !editTitle">
             <div (click)="editTitle = !editTitle">{{datasetInstanceSummary.title}}</div>
@@ -11,11 +11,6 @@
             Data Explorer
         </ng-template>
 
-        <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.originDataItemTitle">
-            <span class="border border-gray-200 text-xs px-2 py-1 rounded-xl ml-2 font-thin bg-gray-100">
-                <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
-                &nbsp;{{datasetInstanceSummary.originDataItemTitle}}</span>
-        </ng-template>
     </div>
 
     <div class="flex items-center">
@@ -24,14 +19,51 @@
             <mat-radio-button class="mt-0" [value]="null">Data Package</mat-radio-button>
             <mat-radio-button class="mt-0 ml-2" [value]="0">Stored Query</mat-radio-button>
         </mat-radio-group>
-        <button [ngClass]="{'ml-4': admin}" mat-button [mat-dialog-close]="true">
-            Exit
-            <mat-icon>exit_to_app</mat-icon>
-        </button>
     </div>
 
 </div>
+<nav class="h-10 flex border-b border-gray-200 bg-white" aria-label="Breadcrumb">
+    <ol role="list" class="flex w-full px-4">
+        <li class="flex">
+            <div class="flex items-center">
+                <a [mat-dialog-close]="{breadcrumb: '/'}" class="text-gray-400 hover:text-gray-500">
+                    <!-- Heroicon name: mini/home -->
+                    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="sr-only">Home</span>
+                </a>
+            </div>
+        </li>
 
+        <li class="flex">
+            <div class="flex items-center">
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                </svg>
+                <a [mat-dialog-close]="true"
+                   class="capitalize ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    {{breadcrumb}}</a>
+            </div>
+        </li>
+
+        <li class="flex" *ngIf="datasetInstanceSummary">
+            <div class="flex items-center">
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                </svg>
+                <a class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" aria-current="page">
+                    {{datasetInstanceSummary.title || 'Data Explorer'}}
+                </a>
+                <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.originDataItemTitle">
+                    <span class="border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
+                    <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
+                    &nbsp;{{datasetInstanceSummary.originDataItemTitle}}</span>
+                </ng-template>
+            </div>
+        </li>
+    </ol>
+</nav>
 <div class="configure-content">
 
     <rsz-layout class="row top" [directions]="showSnapshots ? ['bottom'] : ['none']"

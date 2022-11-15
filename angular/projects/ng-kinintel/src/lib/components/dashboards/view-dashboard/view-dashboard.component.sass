@@ -11,25 +11,26 @@ h2.dashboard-title
     display: flex
     align-items: center
     button
-        margin-left: .5rem
-        background-color: whitesmoke
-        min-width: 54px
+        min-width: 50px
+        padding: 0 13px
+        color: #505050
         mat-icon
             font-size: 20px
             width: 20px
             height: 23px
             line-height: 20px
     .divider
-        margin: 0 .5rem 0 1rem
-        width: 2px
-        height: 32px
-        background-color: whitesmoke
+        margin: 0 .5rem 0 .5rem
+        width: 1px
+        height: 36px
+        background-color: #ddd
 
 ki-item-component
     display: flex
     align-items: center
     flex-direction: column
     height: 100%
+
     &.alert
         padding-top: 2rem
 
@@ -48,13 +49,16 @@ mat-drawer-container
         //border: 1px solid #e8e8e8
         border-radius: .5rem
         position: relative
+
         .item-disabled
             display: none
+
         .edit-widget
             position: absolute
             right: -5px
             top: 0
             z-index: 9999
+
         .alert-widget
             position: absolute
             top: 0
@@ -69,27 +73,36 @@ mat-drawer-container
             overflow: hidden
             white-space: nowrap
             z-index: 99
+
             .alert-summaries
                 overflow: hidden
                 text-overflow: ellipsis
+
         &.alert
             box-shadow: 0 0 6px 0 rgba(194, 13, 13)
+
             .edit-widget
                 color: white
+
         &::-webkit-scrollbar
             width: 0.5em
             height: 0.5em
             background: transparent
+
         &::-webkit-scrollbar-thumb
             background: #d3d3d3
+
         &:hover
             .remove-widget, .edit-widget
                 display: block
+
     &.item-disabled
         .grid-stack-item-content
             background-color: #e1e1e1
+
             .config-button
                 display: none
+
             .item-disabled
                 margin-top: -1rem
                 display: block
@@ -98,27 +111,34 @@ mat-drawer-container
                 font-size: 1.2rem
                 font-weight: 500
                 text-align: center
+
                 mat-icon
                     font-size: 40px
                     width: 40px
                     height: 40px
+
                 p
                     margin: 0
+
                 .disabled-notice
                     font-weight: 400
                     font-size: 1.1rem
+
             .item-container, .item-title
                 display: none
 
 
 .grid-container
-    height: calc(100%  - 109px)
+    height: calc(100% - 109px)
+
     .right-panel
         width: 250px
         background-color: white
         display: none
+
         &.show
             display: block
+
         .draggable-toolbar
             width: 100%
             display: flex
@@ -126,8 +146,10 @@ mat-drawer-container
             cursor: default
             flex-wrap: wrap
             justify-content: space-between
+
             .grid-stack-item
                 margin-bottom: 1rem
+
                 .grid-stack-item-content
                     display: flex
                     align-items: center
@@ -137,8 +159,10 @@ mat-drawer-container
                     flex-direction: column
                     background-color: whitesmoke
                     box-shadow: none
+
                     .item-disabled
                         display: none
+
 .action-toolbar
     display: flex
     align-items: center
@@ -149,6 +173,7 @@ mat-drawer-container
     display: flex
     align-items: center
     min-height: 45px
+
     .list-title
         text-transform: uppercase
         font-size: .75rem
@@ -157,20 +182,24 @@ mat-drawer-container
         color: #4c4c4c
         font-weight: 500
         letter-spacing: 1px
+
     .divider
         margin: 0 1rem
         width: 2px
         height: 20px
         background-color: #e0e0e0
         align-self: center
+
     button
         //align-self: flex-end
         //background-color: #eaeaea
         margin-left: .5rem
+
     label
         flex-direction: row
         align-items: center
         margin-left: 1rem
+
         .parameter-input
             //background-color: #eaeaea
             border-radius: 4px
@@ -178,18 +207,22 @@ mat-drawer-container
             height: 36px
             display: flex
             align-items: center
+
             button
                 color: #8e8e8e
+
                 &.mat-icon-button
                     width: 30px
                     height: 30px
                     line-height: 30px
                     align-self: center
+
                     mat-icon
                         font-size: 20px
                         width: 20px
                         height: 20px
                         line-height: 20px
+
             input
                 font-size: .9rem
                 padding: .25rem .45rem
@@ -198,6 +231,7 @@ mat-drawer-container
 .dashboard-editor-panel
     width: 300px
     background-color: whitesmoke
+
     .panel-head
         display: flex
         align-items: center
@@ -205,6 +239,7 @@ mat-drawer-container
         border-bottom: 1px solid #e8e8e8
         margin-bottom: 1rem
         justify-content: space-between
+
         p
             margin: 0
             text-transform: uppercase
@@ -215,25 +250,30 @@ mat-drawer-container
     display: flex
     align-items: center
     margin: .25rem 0
+
     .badge-item
         display: flex
         align-items: center
         background-color: #efefef
         padding-left: 1rem
         border-radius: 20px
+
         &.outline
             background-color: white
             border: 1px solid #efefef
+
         span
             margin-right: .5rem
-            color: rgba(0,0,0,0.54)
+            color: rgba(0, 0, 0, 0.54)
+
         button.mat-icon-button
             width: 33px
             height: 33px
             line-height: 33px
+
             mat-icon
                 font-size: 20px
                 height: 20px
                 width: 20px
                 line-height: 20px
-                color: rgba(0,0,0,0.54)
+                color: rgba(0, 0, 0, 0.54)

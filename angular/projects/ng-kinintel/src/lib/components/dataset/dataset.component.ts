@@ -206,17 +206,22 @@ export class DatasetComponent implements OnInit, OnDestroy {
             maxWidth: '100vw',
             maxHeight: '100vh',
             hasBackdrop: false,
+            closeOnNavigation: true,
             data: {
                 datasetInstanceSummary,
                 showChart: false,
                 admin: this.admin,
                 newTitle: this.newTitle ? this.newTitle + ' Name' : null,
                 newDescription: this.newDescription || null,
-                accountId: this.accountId
+                accountId: this.accountId,
+                breadcrumb: this.headingLabel || 'Datasets'
             }
         });
         dialogRef.afterClosed().subscribe(res => {
             if (res) {
+                if (res.breadcrumb) {
+                    return this.router.navigate([res.breadcrumb], {fragment: null});
+                }
                 this.router.navigate([this.url || '/dataset'], {fragment: null});
                 this.reload.next(Date.now());
             }

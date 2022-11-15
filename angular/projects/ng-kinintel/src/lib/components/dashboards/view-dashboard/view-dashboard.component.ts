@@ -216,8 +216,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public changeDateType(event, parameter, value) {
@@ -228,8 +226,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public updatePeriodValue(value, period, parameter) {
         parameter.value = `${value}_${period}_AGO`;
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
     public editNotifications() {
@@ -270,6 +266,9 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public setParameterValue(parameter, value) {
         parameter.value = value;
+    }
+
+    public reloadDashboard() {
         this.grid.removeAll();
         this.grid.load(this.dashboard.layoutSettings.grid);
     }

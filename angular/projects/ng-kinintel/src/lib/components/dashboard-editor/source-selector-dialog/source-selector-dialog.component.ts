@@ -60,7 +60,7 @@ export class SourceSelectorDialogComponent implements OnInit {
         } else if (type === 'snapshot') {
             this.dashboardDatasetInstance = {
                 datasetInstanceId: null,
-                datasourceInstanceKey: item.snapshotProfileDatasourceInstanceKey,
+                datasourceInstanceKey: item,
                 transformationInstances: [],
                 parameterValues: {},
                 parameters: []
