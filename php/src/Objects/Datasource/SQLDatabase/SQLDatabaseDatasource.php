@@ -40,6 +40,7 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
+use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -204,7 +205,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             SummariseTransformation::class,
             JoinTransformation::class,
             ColumnsTransformation::class,
-            FormulaTransformation::class
+            FormulaTransformation::class,
+            CombineTransformation::class
         ];
     }
 

@@ -16,6 +16,8 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
@@ -161,7 +163,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
             $nextItem = $evaluated->nextDataItem();
 
-            print_r($nextItem);
             if (!$nextItem) {
                 return;
             }
@@ -401,11 +402,16 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
     private function createSummary($targetLatestDatasourceKey, $targetSummaryDatasourceKey, $summaryFields, $sourceReadChunkSize, $targetWriteChunkSize, $setDate) {
 
+        // Create filters array
+        $filters = array_map(function ($item) {
+            return new Filter("[[" . $item . "]]", null, Filter::FILTER_TYPE_NOT_NULL);
+        }, $summaryFields);
 
         /**
          * @var SQLResultSetTabularDataset $summarisedData
          */
         $summarisedData = $this->datasourceService->getEvaluatedDataSource($targetLatestDatasourceKey, [], [
+            new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("formula", new FormulaTransformation([new Expression("Summary Date", "NOW()"),
                 new Expression("Month", "MONTH(NOW())"),
                 new Expression("Month Name", "MONTHNAME(NOW())"),

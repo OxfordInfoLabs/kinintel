@@ -18,6 +18,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation join Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\JoinTransformationProcessor
  * @implementation columns Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\ColumnsTransformationProcessor
  * @implementation formula Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\FormulaTransformationProcessor
+ * @implementation combine Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\CombineTransformationProcessor
  */
 abstract class SQLTransformationProcessor {
 

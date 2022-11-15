@@ -15,6 +15,7 @@ namespace Kinintel\ValueObjects\Transformation;
  * @implementation join \Kinintel\ValueObjects\Transformation\Join\JoinTransformation
  * @implementation columns \Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation
  * @implementation formula \Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation
+ * @implementation combine \Kinintel\ValueObjects\Transformation\Combine\CombineTransformation
  *
  */
 interface Transformation {

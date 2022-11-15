@@ -15,6 +15,8 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
@@ -772,12 +774,13 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             "test1", [], [], 0, PHP_INT_MAX
         ]);
         $this->datasourceService->returnValue("getEvaluatedDataSource", $summarisedData, [
-            "test1", [], [new TransformationInstance("formula", new FormulaTransformation([
-                new Expression("Summary Date", "NOW()"),
-                new Expression("Month", "MONTH(NOW())"),
-                new Expression("Month Name", "MONTHNAME(NOW())"),
-                new Expression("Year", "YEAR(NOW())")
-            ])),
+            "test1", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[name]]", null, Filter::FILTER_TYPE_NOT_NULL)])),
+                new TransformationInstance("formula", new FormulaTransformation([
+                    new Expression("Summary Date", "NOW()"),
+                    new Expression("Month", "MONTH(NOW())"),
+                    new Expression("Month Name", "MONTHNAME(NOW())"),
+                    new Expression("Year", "YEAR(NOW())")
+                ])),
                 new TransformationInstance("summarise", new SummariseTransformation(array_merge(["summaryDate", "month", "monthName", "year"], $processorConfig->getSummaryFields()), [
                     new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT, null, null, "Total")
                 ]))
