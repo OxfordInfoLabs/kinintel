@@ -8,6 +8,7 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\ValueObjects\Authentication\DefaultDatasourceCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -93,21 +94,10 @@ class DefaultDatasource extends SQLDatabaseDatasource {
             $sourceDataset = $this->sourceDataobject;
 
 
-        /**
-         * @var SQLite3DatabaseConnection $dbConnection
-         */
-        $dbConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
-
         // Convert columns to plain fields to avoid double evaluations
         $columns = Field::toPlainFields($sourceDataset->getColumns());
 
-
-        $createColumns = [];
-        foreach ($columns as $column) {
-            $createColumns[] = $column->getName() . " INTEGER";
-        }
-
-        $dbConnection->execute("CREATE TABLE $this->tableName (" . join(",", $createColumns) . ")");
+        $this->updateFields($columns);
 
         // Update this data set with the source dataset.
         $this->update($sourceDataset);

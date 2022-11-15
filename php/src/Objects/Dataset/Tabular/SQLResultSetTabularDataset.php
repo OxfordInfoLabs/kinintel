@@ -4,7 +4,9 @@
 namespace Kinintel\Objects\Dataset\Tabular;
 
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\ValueObjects\Dataset\Field;
 
 class SQLResultSetTabularDataset extends TabularDataset {
@@ -45,11 +47,23 @@ class SQLResultSetTabularDataset extends TabularDataset {
      */
     public function getColumns() {
 
+        $sqlColumnFieldMapper = new SQLColumnFieldMapper();
+
         if (!$this->columns || sizeof($this->columns) == 0) {
-            $this->columns = array_map(function ($columnName) {
-                return new Field($columnName);
-            }, $this->resultSet->getColumnNames());
+            $this->columns = array_map(function ($column) use ($sqlColumnFieldMapper) {
+                return $sqlColumnFieldMapper->mapResultSetColumnToField($column);
+            }, $this->resultSet->getColumns());
+        } else {
+            // Get result set columns
+            $resultSetColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $this->resultSet->getColumns());
+            foreach ($this->columns as $column) {
+                if (isset($resultSetColumns[$column->getName()])) {
+                    $mappedType = $sqlColumnFieldMapper->mapResultSetColumnToField($resultSetColumns[$column->getName()]);
+                    $column->setType($mappedType->getType());
+                }
+            }
         }
+
 
         return parent::getColumns();
     }

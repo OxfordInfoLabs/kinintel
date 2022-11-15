@@ -135,13 +135,15 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // Grab all data
             $sourceData = $dataset->getAllData();
 
-            $historyTableName = $dataSourceInstance->getConfig()["tableName"];
-            $writeData = $this->generateUpdateData($sourceData, $now, $historyTableName, $config->getKeyFieldNames(), $columnTimeLapses, $distinctTimeLapses, $databaseConnection);
 
             // Generate timelapse data, create update and update data sources
             if ($config->isCreateHistory()) {
+                $historyTableName = $dataSourceInstance->getConfig()["tableName"];
+                $writeData = $this->generateUpdateData($sourceData, $now, $historyTableName, $config->getKeyFieldNames(), $columnTimeLapses, $distinctTimeLapses, $databaseConnection);
                 $updateDataSet = new ArrayTabularDataset($fields, $writeData);
-                $dataSource->update($updateDataSet,UpdatableDatasource::UPDATE_MODE_REPLACE);
+                $dataSource->update($updateDataSet, UpdatableDatasource::UPDATE_MODE_REPLACE);
+            } else {
+                $writeData = $this->generateUpdateData($sourceData, $now);
             }
 
             if ($config->isCreateLatest()) {
@@ -266,17 +268,18 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         // Create fields array
         if (!$latest) $fields = [new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true)];
 
-        // Ensure we have an id if no key fields supplied
-        if ($keyFieldNames == []) {
-            $fields[] = new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_INTEGER, true);
-        }
+        // Always add a snapshot item id representing the primary key
+        $fields[] = new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true);
+
 
         // Add each column and any timelapse variations required
         foreach ($columns as $column) {
 
-            // Set as key field if in key field names array
-            if (in_array($column->getName(), $keyFieldNames)) $column->setKeyField(true);
+            // Sort out fields
             $fields[] = $column;
+
+            // Remove any key field setting as this is replaced by the snapshot item id.
+            $column->setKeyField(false);
 
             // Add additional column time lapse columns
             if (isset($columnTimeLapses[$column->getName()])) {
@@ -300,7 +303,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     /**
      * Generate update data from source data
      */
-    private function generateUpdateData($sourceData, $snapshotDate, $tableName, $keyFieldNames, $columnTimeLapses, $distinctTimeLapses, $databaseConnection) {
+    private function generateUpdateData($sourceData, $snapshotDate, $tableName = null, $keyFieldNames = [], $columnTimeLapses = [], $distinctTimeLapses = [], $databaseConnection = null) {
 
 
         // Do an initial parse to set up core data including snapshot date
@@ -311,12 +314,17 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $updateDataItem["snapshot_date"] = $snapshotDate;
 
             if ($keyFieldNames) {
+
+                // Calculate a hashed snapshot item id from the concatenation of all key field values
+                $snapshotItemId = "";
+                foreach ($keyFieldNames as $keyFieldName) {
+                    $snapshotItemId .= $updateDataItem[$keyFieldName] ?? "";
+                }
+                $snapshotItemId = hash("sha512", $snapshotItemId);
+                $updateDataItem["snapshot_item_id"] = $snapshotItemId;
+
                 foreach ($distinctTimeLapses as $distinctTimeLapse) {
-                    $pk = [$distinctTimeLapse];
-                    foreach ($keyFieldNames as $keyFieldName) {
-                        $pk[] = $updateDataItem[$keyFieldName] ?? null;
-                    }
-                    $pks[] = $pk;
+                    $pks[] = [$distinctTimeLapse, $snapshotItemId];
                 }
 
             } else {
@@ -328,9 +336,9 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         }
 
         // If we have some Pks to resolve, look these up now.
-        if (sizeof($pks)) {
+        if ($tableName && sizeof($pks)) {
 
-            $primaryKeyFields = array_merge(["snapshot_date"], $keyFieldNames ?? []);
+            $primaryKeyFields = ["snapshot_date", "snapshot_item_id"];
             $tableMapping = new TableMapping($tableName, [], $databaseConnection, $primaryKeyFields);
 
             $previousEntries = $this->tableMapper->multiFetch($tableMapping, $pks, true);
@@ -341,10 +349,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             foreach ($updateData as $index => $updateDatum) {
 
                 // Create end of PK for lookups
-                $pkString = "";
-                foreach ($keyFieldNames as $keyFieldName) {
-                    $pkString .= "||" . ($updateDatum[$keyFieldName] ?? "");
-                }
+                $pkString = "||" . ($updateDatum["snapshot_item_id"] ?? "");;
 
                 foreach ($columnTimeLapses as $columnName => $timeLapses) {
                     foreach ($timeLapses as $timeLapse) {
