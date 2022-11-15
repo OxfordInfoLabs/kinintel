@@ -19,6 +19,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -77,7 +78,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $firstDataset = [];
         for ($i = 0; $i < TabularDatasetSnapshotProcessor::DATA_LIMIT; $i++) {
-            $firstDataset[] = ["title" => "Item $i", "metric" => $i + 1, "score" => $i + 1];
+            $firstDataset[] = ["title" => "Item $i", "metric" => $i + 1, "score" => $i + 1,
+                "snapshot_item_id" => hash("sha512", "Item $i" . ($i + 1))];
         }
 
         $firstDatasetWithDate = $firstDataset;
@@ -111,6 +113,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
+            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title", null, Field::TYPE_STRING, true),
             new Field("metric"),
             new Field("score")
@@ -119,12 +122,13 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
+            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title", null, Field::TYPE_STRING, true),
             new Field("metric"),
             new Field("score")
-        ], [["snapshot_date" => $now, "title" => "Item 11", "metric" => 11, "score" => 11],
-            ["snapshot_date" => $now, "title" => "Item 12", "metric" => 12, "score" => 12],
-            ["snapshot_date" => $now, "title" => "Item 13", "metric" => 13, "score" => 13]
+        ], [["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1111"), "title" => "Item 11", "metric" => 11, "score" => 11],
+            ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1212"), "title" => "Item 12", "metric" => 12, "score" => 12],
+            ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1313"), "title" => "Item 13", "metric" => 13, "score" => 13]
         ]), ["mytestsnapshot_pending", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], TabularDatasetSnapshotProcessor::DATA_LIMIT, TabularDatasetSnapshotProcessor::DATA_LIMIT]);
 
 
@@ -188,10 +192,19 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $mockDataSourcePending->returnValue("getAuthenticationCredentials", $mockAuthCredentialsPending);
 
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration(["title"], [], 25, "mytestsnapshot", true, true);
+        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], 25, "mytestsnapshot", true, true);
         $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
         $this->processor->process($instance);
 
+
+        // Check config updated with correct set of fields
+        $this->assertTrue($mockDataSourceInstance->methodWasCalled("setConfig", [new SQLDatabaseDatasourceConfig("table", "test", "", [
+            new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
+            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+            new Field("title"),
+            new Field("metric"),
+            new Field("score")
+        ])]));
 
         // Check that the table was created with simple snapshot_date based PK.
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
@@ -203,24 +216,26 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
                 new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title"),
                 new Field("metric"),
                 new Field("score")
-            ], $firstDatasetWithDate)
+            ], $firstDatasetWithDate), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
                 new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title", "Title"),
                 new Field("metric"),
                 new Field("score")
             ], [
-                ["snapshot_date" => $now, "title" => "Item 11", "metric" => 11, "score" => 11],
-                ["snapshot_date" => $now, "title" => "Item 12", "metric" => 12, "score" => 12],
-                ["snapshot_date" => $now, "title" => "Item 13", "metric" => 13, "score" => 13]
-            ])
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1111"), "title" => "Item 11", "metric" => 11, "score" => 11],
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1212"), "title" => "Item 12", "metric" => 12, "score" => 12],
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1313"), "title" => "Item 13", "metric" => 13, "score" => 13]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -228,23 +243,25 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $this->assertTrue($mockDataSourcePending->methodWasCalled("update", [
             new ArrayTabularDataset([
                 new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title", "Title"),
                 new Field("metric"),
                 new Field("score")
-            ], $firstDatasetWithDate)
+            ], $firstDatasetWithDate), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
         $this->assertTrue($mockDataSourcePending->methodWasCalled("update", [
             new ArrayTabularDataset([
                 new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title", "Title"),
                 new Field("metric"),
                 new Field("score")
             ], [
-                ["snapshot_date" => $now, "title" => "Item 11", "metric" => 11, "score" => 11],
-                ["snapshot_date" => $now, "title" => "Item 12", "metric" => 12, "score" => 12],
-                ["snapshot_date" => $now, "title" => "Item 13", "metric" => 13, "score" => 13]
-            ])
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1111"), "title" => "Item 11", "metric" => 11, "score" => 11],
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1212"), "title" => "Item 12", "metric" => 12, "score" => 12],
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1313"), "title" => "Item 13", "metric" => 13, "score" => 13]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -252,24 +269,40 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $this->assertTrue(($mockDataSourceLatest->methodWasCalled("onInstanceDelete")));
 
 
+        // Check config updated with correct set of fields
+        $this->assertTrue($mockDataSourceInstanceLatest->methodWasCalled("setConfig", [new SQLDatabaseDatasourceConfig("table", "test_latest", "", [
+            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+            new Field("title", "Title"),
+            new Field("metric"),
+            new Field("score")
+        ])]));
+
+        // Check that the table was created with simple snapshot_date based PK.
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $mockDataSourceInstanceLatest
+        ]));
+
+
         $this->assertTrue($mockDataSourceLatest->methodWasCalled("update", [
             new ArrayTabularDataset([
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title", "Title"),
                 new Field("metric"),
                 new Field("score")
-            ], $firstDataset)
+            ], $firstDataset), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
         $this->assertTrue($mockDataSourceLatest->methodWasCalled("update", [
             new ArrayTabularDataset([
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title", "Title"),
                 new Field("metric"),
                 new Field("score")
             ], [
-                ["title" => "Item 11", "metric" => 11, "score" => 11],
-                ["title" => "Item 12", "metric" => 12, "score" => 12],
-                ["title" => "Item 13", "metric" => 13, "score" => 13]
-            ])
+                ["snapshot_item_id" => hash("sha512", "Item 1111"), "title" => "Item 11", "metric" => 11, "score" => 11],
+                ["snapshot_item_id" => hash("sha512", "Item 1212"), "title" => "Item 12", "metric" => 12, "score" => 12],
+                ["snapshot_item_id" => hash("sha512", "Item 1313"), "title" => "Item 13", "metric" => 13, "score" => 13]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
     }
@@ -340,44 +373,44 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $this->tableMapper->returnValue("multiFetch", [
-            $oneDayAgo . "||Item 1" => ["snapshot_date" => $oneDayAgo, "title" => "Item 1", "metric" => 11, "score" => 11],
-            $sevenDaysAgo . "||Item 1" => ["snapshot_date" => $sevenDaysAgo, "title" => "Item 1", "metric" => 111, "score" => 111],
-            $fifteenDaysAgo . "||Item 1" => ["snapshot_date" => $fifteenDaysAgo, "title" => "Item 1", "metric" => 1111, "score" => 1111],
-            $oneDayAgo . "||Item 2" => ["snapshot_date" => $oneDayAgo, "title" => "Item 2", "metric" => 22, "score" => 22],
-            $sevenDaysAgo . "||Item 2" => ["snapshot_date" => $sevenDaysAgo, "title" => "Item 2", "metric" => 222, "score" => 222],
-            $fifteenDaysAgo . "||Item 2" => ["snapshot_date" => $fifteenDaysAgo, "title" => "Item 2", "metric" => 2222, "score" => 2222],
+            $oneDayAgo . "||" . hash("sha512", "Item 1") => ["snapshot_date" => $oneDayAgo, "snapshot_item_id" => hash("sha512", "Item 1"), "title" => "Item 1", "metric" => 11, "score" => 11],
+            $sevenDaysAgo . "||" . hash("sha512", "Item 1") => ["snapshot_date" => $sevenDaysAgo, "snapshot_item_id" => hash("sha512", "Item 1"), "title" => "Item 1", "metric" => 111, "score" => 111],
+            $fifteenDaysAgo . "||" . hash("sha512", "Item 1") => ["snapshot_date" => $fifteenDaysAgo, "snapshot_item_id" => hash("sha512", "Item 1"), "title" => "Item 1", "metric" => 1111, "score" => 1111],
+            $oneDayAgo . "||" . hash("sha512", "Item 2") => ["snapshot_date" => $oneDayAgo, "snapshot_item_id" => hash("sha512", "Item 2"), "title" => "Item 2", "metric" => 22, "score" => 22],
+            $sevenDaysAgo . "||" . hash("sha512", "Item 2") => ["snapshot_date" => $sevenDaysAgo, "snapshot_item_id" => hash("sha512", "Item 2"), "title" => "Item 2", "metric" => 222, "score" => 222],
+            $fifteenDaysAgo . "||" . hash("sha512", "Item 2") => ["snapshot_date" => $fifteenDaysAgo, "snapshot_item_id" => hash("sha512", "Item 2"), "title" => "Item 2", "metric" => 2222, "score" => 2222],
         ], [
-                new TableMapping("test", [], $mockDatabaseConnection, ["snapshot_date", "title"]),
+                new TableMapping("test", [], $mockDatabaseConnection, ["snapshot_date", "snapshot_item_id"]),
                 [
-                    [$oneDayAgo, "Item 1"],
-                    [$sevenDaysAgo, "Item 1"],
-                    [$thirtyDaysAgo, "Item 1"],
-                    [$fiveDaysAgo, "Item 1"],
-                    [$fifteenDaysAgo, "Item 1"],
-                    [$oneDayAgo, "Item 2"],
-                    [$sevenDaysAgo, "Item 2"],
-                    [$thirtyDaysAgo, "Item 2"],
-                    [$fiveDaysAgo, "Item 2"],
-                    [$fifteenDaysAgo, "Item 2"]
+                    [$oneDayAgo, hash("sha512", "Item 1")],
+                    [$sevenDaysAgo, hash("sha512", "Item 1")],
+                    [$thirtyDaysAgo, hash("sha512", "Item 1")],
+                    [$fiveDaysAgo, hash("sha512", "Item 1")],
+                    [$fifteenDaysAgo, hash("sha512", "Item 1")],
+                    [$oneDayAgo, hash("sha512", "Item 2")],
+                    [$sevenDaysAgo, hash("sha512", "Item 2")],
+                    [$thirtyDaysAgo, hash("sha512", "Item 2")],
+                    [$fiveDaysAgo, hash("sha512", "Item 2")],
+                    [$fifteenDaysAgo, hash("sha512", "Item 2")]
                 ],
                 true
             ]
         );
         $now = date("Y-m-d H:i:s");
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [$oneDayAgo]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $oneDayAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($oneDayAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [$sevenDaysAgo]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $sevenDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($sevenDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [$fifteenDaysAgo]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fifteenDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fifteenDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [$thirtyDaysAgo]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $thirtyDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($thirtyDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [$fiveDaysAgo]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fiveDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fiveDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
 
@@ -399,7 +432,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $this->assertTrue($mockDataSource->methodWasCalled("update", [
             new ArrayTabularDataset([
                 new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
-                new Field("title", "Title", null, Field::TYPE_STRING, true),
+                new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+                new Field("title"),
                 new Field("metric"),
                 new Field("metric_1_days_ago"),
                 new Field("metric_7_days_ago"),
@@ -408,13 +442,14 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 new Field("score_5_days_ago"),
                 new Field("score_15_days_ago")
             ], [
-                ["snapshot_date" => $now, "title" => "Item 1", "metric" => 1,
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 1"),
+                    "title" => "Item 1", "metric" => 1,
                     "metric_1_days_ago" => 11, "metric_7_days_ago" => 111, "metric_30_days_ago" => null,
                     "score" => 1, "score_5_days_ago" => null, "score_15_days_ago" => 1111],
-                ["snapshot_date" => $now, "title" => "Item 2", "metric" => 2,
+                ["snapshot_date" => $now, "snapshot_item_id" => hash("sha512", "Item 2"), "title" => "Item 2", "metric" => 2,
                     "metric_1_days_ago" => 22, "metric_7_days_ago" => 222, "metric_30_days_ago" => null,
                     "score" => 2, "score_5_days_ago" => null, "score_15_days_ago" => 2222],
-            ])
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
 
@@ -491,7 +526,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         $expectedUpdate = new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
-            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_INTEGER, true),
+            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title"),
             new Field("metric"),
             new Field("score")], $firstDatasetPlus);
@@ -507,7 +542,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ]));
 
         // Check all data was updated as expected
-        $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate]));
+        $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate, UpdatableDatasource::UPDATE_MODE_REPLACE]));
 
     }
 }

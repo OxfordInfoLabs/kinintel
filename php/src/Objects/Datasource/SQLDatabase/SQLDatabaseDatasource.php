@@ -26,6 +26,7 @@ use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\Services\Dataset\DatasetService;
@@ -86,53 +87,15 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
     /**
-     * @var string[]
+     * @var SQLColumnFieldMapper
      */
-    private static $additionalCredentialClasses = [];
+    private $sqlColumnFieldMapper;
 
 
     /**
-     * Mappings of Types to SQL types
+     * @var string[]
      */
-    const FIELD_TYPE_SQL_TYPE_MAP = [
-        Field::TYPE_STRING => TableColumn::SQL_VARCHAR,
-        Field::TYPE_MEDIUM_STRING => TableColumn::SQL_VARCHAR,
-        Field::TYPE_INTEGER => TableColumn::SQL_INTEGER,
-        Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
-        Field::TYPE_DATE => TableColumn::SQL_DATE,
-        Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
-        Field::TYPE_ID => TableColumn::SQL_INTEGER,
-        Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB
-    ];
-
-    const FIELD_TYPE_LENGTH_MAP = [
-        Field::TYPE_STRING => 255,
-        Field::TYPE_MEDIUM_STRING => 2000,
-        Field::TYPE_ID => 11
-    ];
-
-    const FIELD_SQL_TYPE_TYPE_MAP = [
-        TableColumn::SQL_DOUBLE => Field::TYPE_FLOAT,
-        TableColumn::SQL_DATE_TIME => Field::TYPE_DATE_TIME,
-        TableColumn::SQL_DATE => Field::TYPE_DATE,
-        TableColumn::SQL_INT => Field::TYPE_INTEGER,
-        TableColumn::SQL_VARCHAR => [
-            0 => Field::TYPE_STRING,
-            255 => Field::TYPE_MEDIUM_STRING,
-            2000 => Field::TYPE_LONG_STRING
-        ],
-        TableColumn::SQL_BIGINT => Field::TYPE_INTEGER,
-        TableColumn::SQL_BLOB => Field::TYPE_LONG_STRING,
-        TableColumn::SQL_LONGBLOB => Field::TYPE_LONG_STRING,
-        TableColumn::SQL_DECIMAL => Field::TYPE_FLOAT,
-        TableColumn::SQL_REAL => Field::TYPE_FLOAT,
-        TableColumn::SQL_FLOAT => Field::TYPE_FLOAT,
-        TableColumn::SQL_SMALLINT => Field::TYPE_INTEGER,
-        TableColumn::SQL_INTEGER => Field::TYPE_INTEGER,
-        TableColumn::SQL_TIME => Field::TYPE_INTEGER,
-        TableColumn::SQL_TIMESTAMP => Field::TYPE_DATE_TIME,
-        TableColumn::SQL_UNKNOWN => Field::TYPE_STRING
-    ];
+    private static $additionalCredentialClasses = [];
 
 
     /**
@@ -148,6 +111,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                                 $instanceTitle = null) {
         parent::__construct($config, $authenticationCredentials, $updateConfig, $validator, $instanceKey, $instanceTitle);
         $this->tableDDLGenerator = $tableDDLGenerator ?? new TableDDLGenerator();
+        $this->sqlColumnFieldMapper = new SQLColumnFieldMapper();
     }
 
 
@@ -302,20 +266,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
 
             foreach ($tableMetaData->getColumns() as $column) {
-
-                $columnSpec = self::FIELD_SQL_TYPE_TYPE_MAP[$column->getType()] ?? Field::TYPE_STRING;
-                if (is_array($columnSpec)) {
-                    foreach ($columnSpec as $length => $item) {
-                        if ($column->getLength() > $length) {
-                            $fieldType = $item;
-                        }
-                    }
-                } else {
-                    $fieldType = $columnSpec;
-                }
-
-                $columns[] = new Field($column->getName(), null, null, $fieldType,
-                    $column->isPrimaryKey());
+                $columns[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
             }
         }
 
@@ -512,16 +463,11 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
-            $fieldType = $field->getType() ?? Field::TYPE_STRING;
-            $type = self::FIELD_TYPE_SQL_TYPE_MAP[$fieldType] ?? TableColumn::SQL_VARCHAR;
-            $length = self::FIELD_TYPE_LENGTH_MAP[$fieldType] ?? null;
-            $primaryKey = $field->isKeyField() || ($fieldType == Field::TYPE_ID);
-            $autoIncrement = ($fieldType == Field::TYPE_ID);
-
+            $column = $this->sqlColumnFieldMapper->mapFieldToTableColumn($field);
             if ($field instanceof DatasourceUpdateField) {
-                $columns[] = new UpdatableTableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement, false, $field->getOriginalName());
+                $columns[] = new UpdatableTableColumn($column->getName(), $column->getType(), $column->getLength(), $column->getPrecision(), $column->getDefaultValue(), $column->isPrimaryKey(), $column->isAutoIncrement(), $column->isNotNull(), $field->getOriginalName());
             } else {
-                $columns[] = new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement);
+                $columns[] = $column;
             }
         }
 
@@ -538,7 +484,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         } catch (\Exception $e) {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
-
 
         if (trim($sql))
             $databaseConnection->executeScript($sql);

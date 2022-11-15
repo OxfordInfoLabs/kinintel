@@ -120,6 +120,14 @@ class Field {
     }
 
     /**
+     * @param string $type
+     */
+    public function setType($type) {
+        $this->type = $type;
+    }
+
+
+    /**
      * @return boolean
      */
     public function isKeyField() {
