@@ -93,7 +93,7 @@ class SQLColumnFieldMapper {
     public function mapResultSetColumnToField($resultSetColumn) {
 
         // Look up field type
-        $fieldType = self::SQL_TYPE_FIELD_TYPE_MAP[$resultSetColumn->getType()];
+        $fieldType = self::SQL_TYPE_FIELD_TYPE_MAP[$resultSetColumn->getType()] ?? Field::TYPE_LONG_STRING;
 
         // If an array, look up the sub type according to length
         if (is_array($fieldType)) {
