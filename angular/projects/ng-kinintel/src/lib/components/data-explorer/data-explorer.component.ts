@@ -25,6 +25,7 @@ export class DataExplorerComponent implements OnInit {
     public accountId: any;
     public newTitle: string;
     public newDescription: string;
+    public breadcrumb: string;
 
     private columns: any = [];
     private datasetTitle: string;
@@ -41,6 +42,7 @@ export class DataExplorerComponent implements OnInit {
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
         this.accountId = this.data.accountId;
+        this.breadcrumb = this.data.breadcrumb;
 
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;

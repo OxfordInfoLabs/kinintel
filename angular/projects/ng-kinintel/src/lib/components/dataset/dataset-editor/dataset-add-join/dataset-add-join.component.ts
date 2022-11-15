@@ -242,7 +242,7 @@ export class DatasetAddJoinComponent implements OnInit {
         } else if (type === 'snapshot') {
             this.selectedSource = {
                 datasetInstanceId: null,
-                datasourceInstanceKey: item.snapshotProfileDatasourceInstanceKey,
+                datasourceInstanceKey: item,
                 transformationInstances: [],
                 parameterValues: {},
                 parameters: []

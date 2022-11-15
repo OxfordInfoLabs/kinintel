@@ -1,13 +1,13 @@
 <ng-template [ngIf]="!joinFilterFields">
     <div class="w-full mr-4">
         <div>
-            <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="mr-4" name="fieldName">
+            <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="p-2 mr-4" name="fieldName">
                 <mat-option value="">-- Select Column Name --</mat-option>
                 <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
             </mat-select>
 
             <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
-                   name="lhsExpression" placeholder="Custom expression" class="mr-4 full">
+                   name="lhsExpression" placeholder="Custom expression" class="p-2 mr-4 full">
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>
@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
+    <mat-select [(ngModel)]="filter.filterType" class="p-2 mr-4" name="filterType">
         <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{filterType.label}}
@@ -34,17 +34,17 @@
 
     <div class="relative w-full">
         <input *ngIf="!filter._expType" type="text" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value"
-               class="pr-8 mr-4 full">
+               class="pl-2 py-2 pr-8 mr-4 full">
         <input *ngIf="filter._expType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value"
-               class="pr-8 mr-4 full">
+               class="pl-2 py-2 pr-10 mr-4 full">
 
         <ng-template [ngIf]="filter._expType === 'period'">
             <div class="flex items-center">
                 <input #periodValue type="number" placeholder="No." required autofocus
-                       class="w-32 mr-2" min="0" [value]="filter._periodValue || 1"
+                       class="w-32 mr-2 p-2" min="0" [value]="filter._periodValue || 1"
                        (change)="updatePeriodValue(periodValue.value, period.value, filter)">
 
-                <select class="param-period-picker w-32 mr-2" [value]="filter._period || 'DAYS'"
+                <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._period || 'DAYS'"
                         #period (change)="updatePeriodValue(periodValue.value, period.value, filter)">
                     <option value="DAYS">Days</option>
                     <option value="HOURS">Hours</option>
@@ -54,7 +54,7 @@
             </div>
         </ng-template>
 
-        <button class="absolute right-0 top-0.5" mat-icon-button [matMenuTriggerFor]="menu">
+        <button class="absolute right-0 -top-0.5" mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
@@ -79,13 +79,13 @@
 <ng-template [ngIf]="joinFilterFields">
     <div class="w-full mr-4">
         <div>
-            <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="mr-4" name="fieldName">
+            <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="mr-4 p-2" name="fieldName">
                 <mat-option value="">-- Select Column Name --</mat-option>
                 <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
             </mat-select>
 
             <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
-                   name="lhsExpression" placeholder="Custom expression" class="mr-4 full">
+                   name="lhsExpression" placeholder="Custom expression" class="p-2 mr-4 full">
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    <mat-select [(ngModel)]="filter.filterType" class="mr-4" name="filterType">
+    <mat-select [(ngModel)]="filter.filterType" class="mr-4 p-2" name="filterType">
         <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{filterType.label}}
@@ -112,13 +112,13 @@
 
     <div class="w-full">
         <div>
-            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression" class="mr-4" >
+            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression" class="mr-4 p-2" >
                 <mat-option value="">-- Select Column Name --</mat-option>
                 <mat-option *ngFor="let field of joinFilterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
             </mat-select>
 
             <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression"
-                   name="filterValue" placeholder="Custom value" class="mr-4 full">
+                   name="filterValue" placeholder="Custom value" class="mr-4 full p-2">
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>
