@@ -258,6 +258,19 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
+        // If no explicit columns and table based query with no column changing transformations
+        // Generate explicit columns to allow for dataset update.
+        if ($this->getConfig()->getSource() == "table" && !$columns && $this->hasOriginalColumns) {
+
+            $columns = [];
+            $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
+
+            foreach ($tableMetaData->getColumns() as $column) {
+                $columns[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
+            }
+        }
+
+
         // Return a tabular dataset
         return new SQLResultSetTabularDataset($resultSet, $columns);
     }
