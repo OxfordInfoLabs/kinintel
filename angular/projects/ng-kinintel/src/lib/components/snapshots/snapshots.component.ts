@@ -113,7 +113,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
             this.snapshots.project.data = snapshots;
         });
 
-
+        this.watchSnapshotChanges();
 
         this.searchText.subscribe(() => {
             _.forEach(this.snapshots, snapshot => {

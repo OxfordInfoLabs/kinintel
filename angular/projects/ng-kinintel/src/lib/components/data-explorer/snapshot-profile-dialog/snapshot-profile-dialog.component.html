@@ -95,8 +95,15 @@
                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                             <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Key Fields</label>
                             <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                <mat-select [(ngModel)]="snapshot.processorConfig.keyFieldNames" multiple>
-                                    <mat-option *ngFor="let column of columns"
+                                <mat-select #selectKeyFields [(ngModel)]="snapshot.processorConfig.keyFieldNames" multiple>
+                                    <div class="px-4 py-3 font-normal flex items-center cursor-pointer"
+                                         (click)="selectAll($event)">
+                                        <mat-checkbox [(ngModel)]="allSelected"
+                                                      [ngModelOptions]="{standalone: true}"
+                                                      (change)="toggleAllSelection()"></mat-checkbox>
+                                        <span class="ml-2">Select All</span>
+                                    </div>
+                                    <mat-option *ngFor="let column of columns" (click)="keyFieldClick()"
                                                 [value]="column.name">{{column.title}}</mat-option>
                                 </mat-select>
                             </div>

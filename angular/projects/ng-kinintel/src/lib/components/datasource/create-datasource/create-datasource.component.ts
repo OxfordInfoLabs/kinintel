@@ -19,7 +19,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() sidenavService: any;
 
     public readonly datasourceTypes: any = [
-        'string', 'integer', 'float', 'date', 'datetime'
+        'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'
     ];
 
     public rows: any = [];
@@ -155,7 +155,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public addColumn(index?) {
         this.selectedItem = {
             _tableType: 'column',
-            type: null
+            type: 'string'
         };
 
         if (index > -1) {

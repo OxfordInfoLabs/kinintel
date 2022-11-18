@@ -111,7 +111,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 if (res && res.breadcrumb) {
                     return this.router.navigate([res.breadcrumb], {fragment: null});
                 }
-            })
+            });
         });
     }
 

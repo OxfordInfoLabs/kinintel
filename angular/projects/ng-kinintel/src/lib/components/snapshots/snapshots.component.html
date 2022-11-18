@@ -158,7 +158,7 @@
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
-                                                (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshot)">
+                                                (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.tag)">
                                             Delete Snapshot
                                         </button>
                                     </mat-menu>
@@ -314,7 +314,7 @@
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
-                                                (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshot)">
+                                                (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.project)">
                                             Delete Snapshot
                                         </button>
                                     </mat-menu>
