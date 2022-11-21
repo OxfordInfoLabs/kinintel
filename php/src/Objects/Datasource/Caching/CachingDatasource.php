@@ -144,19 +144,8 @@ class CachingDatasource extends BaseDatasource {
         }
         $encodedParameters = json_encode($sourceParameterValues);
 
-        // Do a limited check on cache data source
-        $cacheCheckDatasource = $cacheDatasourceInstance->returnDataSource();
-        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new FilterTransformation([
-            new Filter("[[" . $config->getCacheDatasourceParametersField() . "]]", $encodedParameters),
-        ]));
-        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new MultiSortTransformation([
-            new Sort($config->getCacheDatasourceCachedTimeField(), "DESC")
-        ]));
-        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new PagingTransformation(1, 0));
-
-        // Materialise the cache data source
-        $cacheCheckDataset = $cacheCheckDatasource->materialise();
-        $checkDataItem = $cacheCheckDataset->nextDataItem();
+        // Get a cache check data item
+        $checkDataItem = $this->getCacheCheckDataItem($cacheDatasourceInstance, $config, $encodedParameters);
 
         // Grab a new data source for return results
         $cacheDatasource = $cacheDatasourceInstance->returnDataSource();
@@ -186,6 +175,7 @@ class CachingDatasource extends BaseDatasource {
             $sourceDatasource = $sourceDatasourceInstance->returnDataSource();
             $sourceDataset = $sourceDatasource->materialise($sourceParams);
 
+
             // Create merged fields ready for insert
             $targetFields = [
                 new Field($config->getCacheDatasourceParametersField()),
@@ -200,22 +190,30 @@ class CachingDatasource extends BaseDatasource {
             // Set update mode according to cache mode
             $updateMode = $config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_UPDATE ? UpdatableDatasource::UPDATE_MODE_REPLACE : UpdatableDatasource::UPDATE_MODE_REPLACE;
 
-            // Insert in batches of 50
-            $batch = [];
-            while ($sourceItem = $sourceDataset->nextDataItem()) {
+            // Perform a final cache check before insert to ensure that an item hasn't been inserted while we
+            // have been processing
+            $checkDataItem = $this->getCacheCheckDataItem($cacheDatasourceInstance, $config, $encodedParameters);
 
-                $noSourceResults = false;
-                $batch[] = array_merge([$config->getCacheDatasourceParametersField() => $encodedParameters,
-                    $config->getCacheDatasourceCachedTimeField() => $now], $sourceItem);
-                if (sizeof($batch) == 50) {
-                    $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
-                    $batch = [];
+            // Only proceed with the insert if nothing changed in the meanwhile.
+            if (!$checkDataItem || ($checkDataItem[$config->getCacheDatasourceCachedTimeField()] < $cacheThreshold)) {
+
+                // Insert in batches of 50
+                $batch = [];
+                while ($sourceItem = $sourceDataset->nextDataItem()) {
+
+                    $noSourceResults = false;
+                    $batch[] = array_merge([$config->getCacheDatasourceParametersField() => $encodedParameters,
+                        $config->getCacheDatasourceCachedTimeField() => $now], $sourceItem);
+                    if (sizeof($batch) == 50) {
+                        $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
+                        $batch = [];
+                    }
                 }
-            }
-            if (sizeof($batch)) {
-                $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
-            }
+                if (sizeof($batch)) {
+                    $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
+                }
 
+            }
         }
 
 
@@ -248,6 +246,32 @@ class CachingDatasource extends BaseDatasource {
 
         return $cacheDatasource->materialise($parameterValues);
 
+    }
+
+    /**
+     * @param DatasourceInstance $cacheDatasourceInstance
+     * @param CachingDatasourceConfig $config
+     * @param $encodedParameters
+     * @return mixed
+     * @throws \Kinikit\Core\Validation\ValidationException
+     * @throws \Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException
+     */
+    private function getCacheCheckDataItem(DatasourceInstance $cacheDatasourceInstance, CachingDatasourceConfig $config, $encodedParameters) {
+
+        // Do a limited check on cache data source
+        $cacheCheckDatasource = $cacheDatasourceInstance->returnDataSource();
+        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new FilterTransformation([
+            new Filter("[[" . $config->getCacheDatasourceParametersField() . "]]", $encodedParameters),
+        ]));
+        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new MultiSortTransformation([
+            new Sort($config->getCacheDatasourceCachedTimeField(), "DESC")
+        ]));
+        $cacheCheckDatasource = $cacheCheckDatasource->applyTransformation(new PagingTransformation(1, 0));
+
+        // Materialise the cache data source
+        $cacheCheckDataset = $cacheCheckDatasource->materialise();
+        $checkDataItem = $cacheCheckDataset->nextDataItem();
+        return $checkDataItem;
     }
 
 
