@@ -163,9 +163,9 @@ class Field {
      *
      * @param Field[] $fields
      */
-    public static function toPlainFields($fields) {
-        return array_map(function ($field) {
-            return new Field($field->getName(), $field->getTitle(), null, $field->getType(), $field->isKeyField());
+    public static function toPlainFields($fields, $removeKeys = false) {
+        return array_map(function ($field) use ($removeKeys) {
+            return new Field($field->getName(), $field->getTitle(), null, $field->getType(), !$removeKeys && $field->isKeyField());
         }, $fields);
     }
 

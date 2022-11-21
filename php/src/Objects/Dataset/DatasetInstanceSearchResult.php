@@ -71,7 +71,7 @@ class DatasetInstanceSearchResult {
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($id, $title, $summary, $description, $categories, $datasetInstanceId = null, $datasourceInstanceKey = null) {
+    public function __construct($id, $title, $summary = null, $description = null, $categories = [], $datasetInstanceId = null, $datasourceInstanceKey = null) {
         $this->id = $id;
         $this->title = $title;
         $this->summary = $summary;
