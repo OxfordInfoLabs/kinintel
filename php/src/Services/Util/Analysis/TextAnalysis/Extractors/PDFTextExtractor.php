@@ -20,7 +20,7 @@ class PDFTextExtractor implements DocumentTextExtractor {
         $parser = new \Smalot\PdfParser\Parser([], $config);
         $pdf = $parser->parseContent($string);
         $text = $pdf->getText();
-        return preg_replace("/\r|\n/", "", $text);
+        return preg_replace("/\r|\n|\t/", "", $text);
     }
 
     /**
@@ -37,6 +37,6 @@ class PDFTextExtractor implements DocumentTextExtractor {
         $parser = new \Smalot\PdfParser\Parser([], $config);
         $pdf = $parser->parseFile($filePath);
         $text = $pdf->getText();
-        return preg_replace("/\r|\n/", "", $text);
+        return preg_replace("/\r|\n|\t/", "", $text);
     }
 }

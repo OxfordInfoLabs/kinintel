@@ -49,10 +49,10 @@ class HTMLTextExtractor implements DocumentTextExtractor {
             $string = strip_tags($string);
             $string = html_entity_decode($string);
             $string = urldecode($string);
-            $string = preg_replace('/[^A-Za-z0-9]/', ' ', $string);
+            $string = preg_replace('/[^A-Za-z0-9\-.,\'()\":;?!\/\[\]]/', ' ', $string);
             $string = preg_replace('/ +/', ' ', $string);
             $string = trim($string);
-            $string = preg_replace("/\r|\n/", "", $string);
+            $string = preg_replace("/\r|\n|\t/", "", $string);
         }
 
         return $string;

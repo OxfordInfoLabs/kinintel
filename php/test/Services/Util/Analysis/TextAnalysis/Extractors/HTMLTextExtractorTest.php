@@ -35,4 +35,20 @@ class HTMLTextExtractorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("Hello World", $output);
     }
 
+    public function testCanExtractTextWithNonAlphanumericCharactersFromString() {
+        $htmlString = "<p>Let's use some/lots of (standard) punctuation! Does it work?</p>";
+        $out = $this->htmlExtractor->extractTextFromString($htmlString);
+
+        $this->assertEquals("Let's use some/lots of (standard) punctuation! Does it work?", $out);
+    }
+
+    public function testCanExtractTextWithWhitespace() {
+        $htmlString = "<b>tab,      space and 
+a new line</b>";
+
+        $out = $this->htmlExtractor->extractTextFromString($htmlString);
+
+        $this->assertEquals("tab, space and a new line", $out);
+    }
+
 }
