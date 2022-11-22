@@ -41,7 +41,7 @@ export class CreateDatasetComponent implements OnInit {
         } else if (type === 'snapshot') {
             selectedSource = {
                 datasetInstanceId: null,
-                datasourceInstanceKey: item.snapshotProfileDatasourceInstanceKey,
+                datasourceInstanceKey: item,
                 transformationInstances: [],
                 parameterValues: {},
                 parameters: []

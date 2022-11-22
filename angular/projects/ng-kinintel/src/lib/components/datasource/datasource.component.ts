@@ -97,10 +97,14 @@ export class DatasourceComponent implements OnInit, OnDestroy {
             data: {
                 datasetInstanceSummary,
                 showChart: false,
-                admin: this.admin
+                admin: this.admin,
+                breadcrumb: this.title || 'Datasources'
             }
         });
         dialogRef.afterClosed().subscribe(res => {
+            if (res && res.breadcrumb) {
+                return this.router.navigate([res.breadcrumb], {fragment: null});
+            }
             this.router.navigate([this.datasourceURL], {fragment: null});
         });
     }

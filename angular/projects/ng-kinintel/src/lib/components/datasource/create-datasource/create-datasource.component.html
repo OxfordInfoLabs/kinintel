@@ -106,12 +106,13 @@
             </div>
 
 
-            <div class="bg-white py-4 flex align-center justify-between">
+            <div class="border-t bg-gray-50 py-2 flex align-center justify-between">
                 <button mat-icon-button color="primary" (click)="addRow()">
-                    <mat-icon>add_circle_outline</mat-icon>
+                    <mat-icon>add_circle</mat-icon>
                 </button>
                 <div class="flex items-center">
-                    <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="mr-8">
+                    <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+                            class="mr-8 p-2">
                         <option [value]="10">10</option>
                         <option [value]="25">25</option>
                         <option [value]="50">50</option>
@@ -135,10 +136,10 @@
 
     </div>
 
-    <div>
+    <div class="border-l border-r bg-gray-50 -ml-2.5">
         <button mat-icon-button color="primary" (click)="addColumn()"
-                class="-mt-2">
-            <mat-icon>add_circle_outline</mat-icon>
+                class="-mt-0.5">
+            <mat-icon>add_circle</mat-icon>
         </button>
     </div>
 

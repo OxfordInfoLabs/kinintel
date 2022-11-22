@@ -34,11 +34,11 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testSQLLiteDatabasePopulatedAsExpectedOnMaterialiseOfDefaultDatasource() {
+    public function testSQLLiteDatabasePopulatedAsExpectedOnMaterialiseOfDefaultDatasourceWithKeyFieldsRemoved() {
 
         $tabularDataset = new ArrayTabularDataset([
-            new Field("name", "Full Name",null, Field::TYPE_STRING),
-            new Field("age", "Actual age",null, Field::TYPE_INTEGER)
+            new Field("name", "Full Name", null, Field::TYPE_STRING, true),
+            new Field("age", "Actual age", null, Field::TYPE_INTEGER)
         ], [
             ["name" => "Bobby", "age" => 33],
             ["name" => "Mark", "age" => 44],
@@ -53,8 +53,8 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertInstanceOf(SQLResultSetTabularDataset::class, $dataSet);
         $this->assertEquals([
-            new Field("name", "Full Name", null,Field::TYPE_STRING),
-            new Field("age", "Actual age",null, Field::TYPE_INTEGER)
+            new Field("name", "Full Name", null, Field::TYPE_STRING),
+            new Field("age", "Actual age", null, Field::TYPE_INTEGER)
         ], $dataSet->getColumns());
 
         $this->assertEquals(["name" => "Bobby", "age" => 33], $dataSet->nextDataItem());
@@ -73,8 +73,8 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanConstructDefaultDatasetDirectlyWithDatasetInstead() {
 
         $tabularDataset = new ArrayTabularDataset([
-            new Field("name", "Full Name",null, Field::TYPE_STRING),
-            new Field("age", "Actual age",null,Field::TYPE_INTEGER)
+            new Field("name", "Full Name", null, Field::TYPE_STRING),
+            new Field("age", "Actual age", null, Field::TYPE_INTEGER)
         ], [
             ["name" => "Bobby", "age" => 33],
             ["name" => "Mark", "age" => 44],
@@ -87,7 +87,7 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertInstanceOf(SQLResultSetTabularDataset::class, $dataSet);
         $this->assertEquals([
             new Field("name", "Full Name"),
-            new Field("age", "Actual age",null, Field::TYPE_INTEGER)
+            new Field("age", "Actual age", null, Field::TYPE_INTEGER)
         ], $dataSet->getColumns());
 
         $this->assertEquals(["name" => "Bobby", "age" => 33], $dataSet->nextDataItem());

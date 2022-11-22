@@ -1,4 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
+@use 'sass:map'
+@use '@angular/material' as mat
+
 @import 'tailwindcss/base'
 @import 'tailwindcss/components'
 @import 'tailwindcss/utilities'
@@ -19,6 +22,9 @@
 @import "sass/table"
 @import "sass/forms"
 @import "sass/item-dark"
+
+$color-config:    mat.get-color-config($example-theme)
+$primary-palette: map.get($color-config, 'primary')
 
 .mat-button-toggle-appearance-standard
     .mat-button-toggle-label-content
@@ -116,7 +122,8 @@ mat-tab-group
         height: 100%
 
 .CodeMirror
-    height: 150px !important
+    min-height: 150px !important
+    height: 100% !important
 
 mat-radio-group.dashboard-operations
     label.mat-radio-label
@@ -128,3 +135,6 @@ mat-radio-group.dashboard-operations
         span.mat-radio-label-content
             padding: 0
             font-size: 12px
+
+mat-button-toggle.mat-button-toggle-checked
+    background-color: mat.get-color-from-palette($primary-palette, 100)

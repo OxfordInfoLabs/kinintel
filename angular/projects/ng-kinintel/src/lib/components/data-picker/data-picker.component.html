@@ -30,35 +30,46 @@
 
             </td>
             <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
-                <button mat-button color="primary" (click)="select(dataItem, tableData[tableKey].type)">
-                    Select
-                </button>
+                <ng-template [ngIf]="tableData[tableKey].type !== 'snapshot'">
+                    <button mat-button color="primary" (click)="select(dataItem, tableData[tableKey].type)">
+                        Select
+                    </button>
+                </ng-template>
+                <ng-template [ngIf]="tableData[tableKey].type === 'snapshot'">
+                    <button mat-button color="primary" (click)="select(dataItem.snapshotProfileHistoricalDatasourceInstanceKey, tableData[tableKey].type)">
+                        Select Historical
+                    </button>
+                    <button mat-button color="primary" (click)="select(dataItem.snapshotProfileLatestDatasourceInstanceKey, tableData[tableKey].type)">
+                        Select Latest
+                    </button>
+                </ng-template>
             </td>
         </tr>
         <tr>
             <td colspan="5"
-                class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
-                <div *ngIf="!tableData[tableKey].data.length" class="font-normal">
-                    No data
-                </div>
-                <div class="paging-toolbar flex align-center justify-end">
-                    <select [value]="tableData[tableKey].limit" (change)="pageSizeChange($event.target.value, tableData[tableKey])"
-                            class="mr-8">
-                        <option [value]="1">1</option>
-                        <option [value]="5">5</option>
-                        <option [value]="10">10</option>
-                        <option [value]="25">25</option>
-                        <option [value]="50">50</option>
-                        <option [value]="100">100</option>
-                        <option [value]="250">250</option>
-                        <option [value]="1000">1000</option>
-                    </select>
-                    <button mat-icon-button class="mr-4" (click)="decreaseOffset(tableData[tableKey])" [disabled]="tableData[tableKey].page <= 1">
-                        <mat-icon>chevron_left</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="increaseOffset(tableData[tableKey])" [disabled]="tableData[tableKey].endOfResults">
-                        <mat-icon>chevron_right</mat-icon>
-                    </button>
+                class="bg-gray-50 whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+                <div class="paging-toolbar flex align-center justify-between">
+                    <div class="text-xs text-gray-400">
+                        Showing {{tableData[tableKey].data.length ? (tableData[tableKey].offset + 1) : 0}} - {{(tableData[tableKey].page * tableData[tableKey].limit) - (tableData[tableKey].limit - tableData[tableKey].data.length)}}</div>
+                    <div class="flex items-center justify-center">
+                        <select [value]="tableData[tableKey].limit" (change)="pageSizeChange($event.target.value, tableData[tableKey])"
+                                class="mr-8 p-2">
+                            <option [value]="1">1</option>
+                            <option [value]="5">5</option>
+                            <option [value]="10">10</option>
+                            <option [value]="25">25</option>
+                            <option [value]="50">50</option>
+                            <option [value]="100">100</option>
+                            <option [value]="250">250</option>
+                            <option [value]="1000">1000</option>
+                        </select>
+                        <button mat-icon-button class="mr-4" (click)="decreaseOffset(tableData[tableKey])" [disabled]="tableData[tableKey].page <= 1">
+                            <mat-icon>chevron_left</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="increaseOffset(tableData[tableKey])" [disabled]="tableData[tableKey].endOfResults">
+                            <mat-icon>chevron_right</mat-icon>
+                        </button>
+                    </div>
                 </div>
             </td>
         </tr>

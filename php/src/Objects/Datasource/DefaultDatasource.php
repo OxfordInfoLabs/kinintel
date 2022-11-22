@@ -95,7 +95,7 @@ class DefaultDatasource extends SQLDatabaseDatasource {
 
 
         // Convert columns to plain fields to avoid double evaluations
-        $columns = Field::toPlainFields($sourceDataset->getColumns());
+        $columns = Field::toPlainFields($sourceDataset->getColumns(), true);
 
         $this->updateFields($columns);
 

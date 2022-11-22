@@ -1,7 +1,9 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DatasetService} from '../../../services/dataset.service';
 import * as lodash from 'lodash';
+import {MatSelect} from '@angular/material/select';
+import { MatOption } from '@angular/material/core';
 const _ = lodash.default;
 
 @Component({
@@ -11,6 +13,8 @@ const _ = lodash.default;
     host: {class: 'dialog-wrapper'}
 })
 export class SnapshotProfileDialogComponent implements OnInit {
+
+    @ViewChild('selectKeyFields') selectKeyFields: MatSelect;
 
     public snapshot: any;
     public columns: any = [];
@@ -34,6 +38,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
             value: 90
         }
     ];
+    public allSelected = false;
 
     private datasetInstanceId;
 
@@ -56,6 +61,30 @@ export class SnapshotProfileDialogComponent implements OnInit {
             }
         };
         this.datasetInstanceId = this.data.datasetInstanceId || null;
+    }
+
+    public selectAll(event) {
+        event.preventDefault();
+        this.allSelected = !this.allSelected;
+        this.toggleAllSelection();
+    }
+
+    public toggleAllSelection() {
+        if (this.allSelected) {
+            this.selectKeyFields.options.forEach((item: MatOption) => item.select());
+        } else {
+            this.selectKeyFields.options.forEach((item: MatOption) => item.deselect());
+        }
+    }
+
+    public keyFieldClick() {
+        let newStatus = true;
+        this.selectKeyFields.options.forEach((item: MatOption) => {
+            if (!item.selected) {
+                newStatus = false;
+            }
+        });
+        this.allSelected = newStatus;
     }
 
     public updateCreateHistory(value) {

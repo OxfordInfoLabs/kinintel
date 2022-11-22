@@ -41,19 +41,30 @@ class FieldTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-
     public function testCanGetPlainFieldsFromArrayOfFields() {
 
-        $field1 = new Field("name", "Name", "Hello [[object.text]] World", Field::TYPE_INTEGER);
+        $field1 = new Field("name", "Name", "Hello [[object.text]] World", Field::TYPE_INTEGER, true);
         $field2 = new Field("address", "Address", "[[object.address]]", Field::TYPE_STRING);
         $field3 = new Field("phone", "Phone", "[[object.phone]]", Field::TYPE_INTEGER);
 
         $plainFields = Field::toPlainFields([$field1, $field2, $field3]);
-        $this->assertEquals([new Field("name", "Name", null, Field::TYPE_INTEGER),
+        $this->assertEquals([new Field("name", "Name", null, Field::TYPE_INTEGER, true),
             new Field("address", "Address", null, Field::TYPE_STRING),
             new Field("phone", "Phone", null, Field::TYPE_INTEGER)], $plainFields);
 
 
+    }
+
+
+    public function testCanGetPlainFieldsWithRemovedKeyFieldsIfBooleanPassed() {
+        $field1 = new Field("name", "Name", "Hello [[object.text]] World", Field::TYPE_INTEGER, true);
+        $field2 = new Field("address", "Address", "[[object.address]]", Field::TYPE_STRING, true);
+        $field3 = new Field("phone", "Phone", "[[object.phone]]", Field::TYPE_INTEGER);
+
+        $plainFields = Field::toPlainFields([$field1, $field2, $field3], true);
+        $this->assertEquals([new Field("name", "Name", null, Field::TYPE_INTEGER),
+            new Field("address", "Address", null, Field::TYPE_STRING),
+            new Field("phone", "Phone", null, Field::TYPE_INTEGER)], $plainFields);
     }
 
 }
