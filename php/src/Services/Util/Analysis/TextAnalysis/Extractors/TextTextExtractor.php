@@ -13,7 +13,7 @@ class TextTextExtractor implements DocumentTextExtractor {
      * @return mixed|void
      */
     public function extractTextFromString($string) {
-        return preg_replace("/\r|\n/", "", $string);
+        return preg_replace("/\r|\n|\t/", "", $string);
     }
 
     /**

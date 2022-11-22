@@ -38,6 +38,6 @@ class DocxTextExtractor implements DocumentTextExtractor {
         $content = str_replace('</w:r></w:p>', "\r\n", $content);
         $striped_content = strip_tags($content);
 
-        return preg_replace("/\r|\n/", "", $striped_content);
+        return preg_replace("/\r|\n|\t/", "", $striped_content);
     }
 }
