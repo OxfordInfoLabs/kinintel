@@ -271,6 +271,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
+
         // Return a tabular dataset
         return new SQLResultSetTabularDataset($resultSet, $columns);
     }
