@@ -167,6 +167,7 @@ class CachingDatasource extends BaseDatasource {
                 }
 
                 $sourceParams["lastCacheTimestamp"] = $lastCacheTimestamp;
+                $sourceParams["lastCacheOffset"] = date("U") - $lastCacheTimestamp;
             }
 
             $noSourceResults = true;

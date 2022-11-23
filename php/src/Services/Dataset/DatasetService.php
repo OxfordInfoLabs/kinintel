@@ -451,10 +451,7 @@ class DatasetService {
                     ], []), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
 
 
-
-
             $snapshotProfile = new DatasetInstanceSnapshotProfile($datasetInstanceId, $snapshotProfileSummary->getTitle(), $snapshotProfileSummary->getTrigger(), $scheduledTask, $dataProcessorInstance);
-
 
 
         }
@@ -512,6 +509,7 @@ class DatasetService {
 
         $task = $profile->getScheduledTask();
         $task->setNextStartTime(new \DateTime());
+        $task->setStatus(ScheduledTask::STATUS_PENDING);
 
         // Suppress normal schedule behaviour here
         $preDisabled = ScheduledTaskInterceptor::$disabled;
