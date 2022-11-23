@@ -127,11 +127,12 @@ abstract class TabularDataset implements Dataset {
 
 
                 $valueExpression = $column->getValueExpression();
-                
+
                 $hasColumnValue = $hasColumnValue
                     || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
 
                 $newDataItem[$columnName] = $value;
+                $dataItem[$columnName] = $value;
             }
 
             // If no genuine column value reject the row

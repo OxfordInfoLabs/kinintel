@@ -16,7 +16,13 @@ class LogicValueFunction extends ValueFunctionWithArguments {
         "divide",
         "modulo",
         "floor",
-        "ternary"
+        "ternary",
+        "equals",
+        "notequals",
+        "gt",
+        "gte",
+        "lt",
+        "lte"
     ];
 
 
@@ -77,7 +83,25 @@ class LogicValueFunction extends ValueFunctionWithArguments {
                 return is_numeric($value) ? floor($value) : null;
 
             case "ternary":
-                return $value ? $functionArgs[0] : $functionArgs[1];
+                return $value ? $this->expandMemberExpression($functionArgs[0], $dataItem) : $this->expandMemberExpression($functionArgs[1], $dataItem);
+
+            case "equals":
+                return ($value == $functionArgs[0]);
+
+            case "notequals":
+                return ($value != $functionArgs[0]);
+
+            case "gt":
+                return ($value > $functionArgs[0]);
+
+            case "gte":
+                return ($value >= $functionArgs[0]);
+
+            case "lt":
+                return ($value < $functionArgs[0]);
+
+            case "lte":
+                return ($value <= $functionArgs[0]);
         }
 
         return $value;

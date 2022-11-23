@@ -50,7 +50,7 @@ class LogicValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(5, $function->applyFunction("divide 2", 10, []));
         $this->assertEquals(2.5, $function->applyFunction("divide 4", 10, []));
-        $this->assertEquals(-11/13, $function->applyFunction("divide hello", 11, ["hello" => -13]));
+        $this->assertEquals(-11 / 13, $function->applyFunction("divide hello", 11, ["hello" => -13]));
         $this->assertEquals(2, $function->applyFunction("divide float", 1.4, ["float" => 0.7]));
     }
 
@@ -64,7 +64,8 @@ class LogicValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(11, $function->applyFunction("floor", 11.6, []));
         $this->assertEquals(-12, $function->applyFunction("floor", -11.6, []));
     }
-    public function testTernaryExpressionsAreEvaluatedCorrectly(){
+
+    public function testTernaryExpressionsAreEvaluatedCorrectly() {
 
         $function = new LogicValueFunction();
         $this->assertEquals("Yes", $function->applyFunction("ternary 'Yes' 'No'", true, null));
@@ -73,6 +74,72 @@ class LogicValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $function = new LogicValueFunction();
         $this->assertEquals("Bong", $function->applyFunction("ternary 'Bong' 'Bung'", 1, null));
         $this->assertEquals("Bung", $function->applyFunction("ternary 'Bong' 'Bung'", 0, null));
+
+    }
+
+    public function testEqualsExpressionsAreEvaluatedCorrectly() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("equals"));
+
+        $this->assertEquals(true, $function->applyFunction("equals 5", 5, null));
+        $this->assertEquals(false, $function->applyFunction("equals bong", "bing", null));
+        $this->assertEquals(true, $function->applyFunction("equals this", "this", null));
+
+    }
+
+    public function testNotEqualsExpressionsAreEvaluatedCorrectly() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("notequals"));
+
+        $this->assertEquals(true, $function->applyFunction("notequals word", 5, null));
+        $this->assertEquals(false, $function->applyFunction("notequals bong", "bong", null));
+        $this->assertEquals(true, $function->applyFunction("notequals 7", "seven", null));
+
+    }
+
+    public function testGreaterThanExpressionsAreEvaluatedCorrectly() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("gt"));
+
+        $this->assertEquals(false, $function->applyFunction("gt 5", 5, null));
+        $this->assertEquals(true, $function->applyFunction("gt 4", 7, null));
+        $this->assertEquals(true, $function->applyFunction("gt John", "Smith", null));
+
+    }
+
+    public function testGreaterThanEqualsExpressionsAreEvaluatedCorrectly() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("gte"));
+
+        $this->assertEquals(true, $function->applyFunction("gte 5", 5, null));
+        $this->assertEquals(true, $function->applyFunction("gte bing", "bong", null));
+        $this->assertEquals(false, $function->applyFunction("gte 58", 45, null));
+
+    }
+
+    public function testLessThanExpressionsAreEvaluatedCorrectly() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("lt"));
+
+        $this->assertEquals(false, $function->applyFunction("lt 5", 5, null));
+        $this->assertEquals(false, $function->applyFunction("lt 4", 7, null));
+        $this->assertEquals(true, $function->applyFunction("lt Smith", "John", null));
+
+    }
+
+    public function testLessThanEqualsExpressionsAreEvaluatedCorrectly() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("lte"));
+
+        $this->assertEquals(true, $function->applyFunction("lte 5", 5, null));
+        $this->assertEquals(true, $function->applyFunction("lte bong", "bing", null));
+        $this->assertEquals(false, $function->applyFunction("lte 22", 85, null));
 
     }
 

@@ -3,6 +3,8 @@
 
 namespace Kinintel\Services\Util\ValueFunction;
 
+use Kinikit\Core\Logging\Logger;
+
 /**
  * Field value function with arguments in classic function(arg1,arg2) format
  *
