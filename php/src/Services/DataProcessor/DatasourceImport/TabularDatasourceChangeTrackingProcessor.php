@@ -103,8 +103,8 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $this->writeDatasetToFile($sourceDatasetInstance, $directory, "new.txt", $sourceReadChunkSize);
 
             // Track changes between the new and previous
-            passthru("diff -N $previousFile $newFile | grep -E '^>' | sed -E 's/^> //' > $directory/adds.txt");
-            passthru("diff -N $previousFile $newFile | grep -E '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+            passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
+            passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
             // Identify and changes and write to the latest and changes tables
             $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
