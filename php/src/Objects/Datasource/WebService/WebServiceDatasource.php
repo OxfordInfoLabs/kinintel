@@ -198,10 +198,14 @@ class WebServiceDatasource extends BaseDatasource {
 
         $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
+
+
         // Inject authentication if required
         if ($this->getAuthenticationCredentials()) {
             $request = $this->getAuthenticationCredentials()->processRequest($request);
         }
+
+
 
         // Process multiple times according to retry configuration if required
         $attempts = 0;

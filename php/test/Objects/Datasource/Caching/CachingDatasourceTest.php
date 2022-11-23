@@ -480,7 +480,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfCacheModeSetToIncrementalLastCachedDateIsAddedToParametersAndNoDateFilterIsAppliedToReturnedSet() {
+    public function testIfCacheModeSetToIncrementalLastCachedDateAndLastCachedOffsetIsAddedToParametersAndNoDateFilterIsAppliedToReturnedSet() {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
@@ -531,7 +531,8 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Return some source data
         $this->sourceDatasource->returnValue("materialise", $expectedData, [
-            ["param1" => "Joe", "param2" => "Bloggs", "lastCacheTimestamp" => date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U")]
+            ["param1" => "Joe", "param2" => "Bloggs", "lastCacheTimestamp" => date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U"),
+                "lastCacheOffset" => date("U") - date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U")]
         ]);
 
 
@@ -570,7 +571,7 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfCacheModeSetToUpdateLastCachedDateIsAddedToParametersNoDateFilterIsAppliedToReturnedSeAndDatasetIsUpdated() {
+    public function testIfCacheModeSetToUpdateLastCachedDateAndLastCachedOffsetIsAddedToParametersNoDateFilterIsAppliedToReturnedSetAndDatasetIsUpdated() {
 
         $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
             new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
@@ -621,8 +622,9 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Return some source data
         $this->sourceDatasource->returnValue("materialise", $expectedData, [
-            ["param1" => "Joe", "param2" => "Bloggs", "lastCacheTimestamp" => date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U")]
-        ]);
+            ["param1" => "Joe", "param2" => "Bloggs", "lastCacheTimestamp" => date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U"),
+                "lastCacheOffset" => date("U") - date_create_from_format("Y-m-d H:i:s", "2020-01-01 10:00:00")->format("U")
+            ]]);
 
 
         $enhancedData = new ArrayTabularDataset([
@@ -639,11 +641,8 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->cacheDatasource->returnValue("materialise", $enhancedData);
 
         $dataSource = $cachingDatasourceInstance->returnDataSource();
-        $results = $dataSource->materialise(["param1" => "Joe", "param2" => "Bloggs"]);
+        $dataSource->materialise(["param1" => "Joe", "param2" => "Bloggs"]);
 
-
-        // Check source data returned directly
-        //$this->assertEquals($enhancedData, $results);
 
         // Check augmented source data updated in cache data source
         $this->assertTrue($this->cacheDatasource->methodWasCalled("update",
