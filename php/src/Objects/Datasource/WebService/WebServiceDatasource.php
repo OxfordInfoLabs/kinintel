@@ -213,7 +213,6 @@ class WebServiceDatasource extends BaseDatasource {
 
         } while ($attempts <= $config->getMaxRetries() && in_array($response->getStatusCode(), $config->getRetryResponseCodes() ?? []));
 
-
         $responseStream = $response->getStream();
 
         if ($this->getConfig()->getCompressionType()) {

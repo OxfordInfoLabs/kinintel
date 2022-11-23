@@ -418,7 +418,7 @@ class DatasetServiceTest extends TestBase {
             ]
         ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ] );
+        ]);
 
         $profile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
 
@@ -598,7 +598,7 @@ class DatasetServiceTest extends TestBase {
 
 
         $snapshotProfile1 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
             new ScheduledTaskTimePeriod(null, null, 0, 0)
         ]);
 
@@ -615,7 +615,7 @@ class DatasetServiceTest extends TestBase {
 
 
         $snapshotProfile3 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
             new ScheduledTaskTimePeriod(null, null, 0, 0)
         ]);
 
@@ -623,7 +623,7 @@ class DatasetServiceTest extends TestBase {
 
 
         $snapshotProfile4 = new DatasetInstanceSnapshotProfileSummary("Weekly Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
             new ScheduledTaskTimePeriod(null, 1, 0, 0)
         ]);
 
@@ -944,7 +944,7 @@ class DatasetServiceTest extends TestBase {
 
         // Create and save a snapshot for the new instance.
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE,  [
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
             new ScheduledTaskTimePeriod(1, null, 0, 0)
         ]);
 
@@ -1112,6 +1112,10 @@ class DatasetServiceTest extends TestBase {
         $reSnapshot = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
         $this->assertNull($reSnapshot->getScheduledTask()->getNextStartTime());
 
+        // Set scheduled task to completed so we see the status change at the end
+        $reSnapshot->getScheduledTask()->setStatus(ScheduledTask::STATUS_COMPLETED);
+        $reSnapshot->getScheduledTask()->save();
+
         $this->datasetService->triggerSnapshot($datasetInstanceId, $snapshotProfileId);
 
         /**
@@ -1121,6 +1125,7 @@ class DatasetServiceTest extends TestBase {
 
         $nextStartTime = $triggeredProfile->getScheduledTask()->getNextStartTime();
         $this->assertTrue(date("U") - $nextStartTime->format("U") >= 0);
+        $this->assertEquals(ScheduledTask::STATUS_PENDING, $triggeredProfile->getScheduledTask()->getStatus());
 
 
     }
