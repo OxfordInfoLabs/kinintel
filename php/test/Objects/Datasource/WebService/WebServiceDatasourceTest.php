@@ -2,6 +2,7 @@
 
 namespace Kinintel\Objects\Datasource\WebService;
 
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Headers as ReqHeaders;
@@ -24,10 +25,11 @@ use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
+use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
+class WebServiceDatasourceTest extends TestCase {
 
     /**
      * @var MockObject
@@ -437,4 +439,121 @@ class WebServiceDatasourceTest extends \PHPUnit\Framework\TestCase {
             $datasource->getConfig()->getColumns());
     }
 
+    public function testFileCreatedSuccessfullyIfUsingCachingWhenNoInitialFile() {
+
+        $target = "test.txt";
+        $cacheFilename = "cache.txt";
+
+        if (file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename)) {
+            unlink(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename);
+        }
+        if (file_exists(__DIR__ . "/" . $target)) {
+            unlink(__DIR__ . "/" . $target);
+        }
+
+        file_put_contents(__DIR__ . "/" . $target, "test data");
+
+
+        $datasourceConfig = new WebserviceDataSourceConfig(__DIR__ . "/" . $target, null, null, "json", [], [], $cacheFilename, 86400);
+        $datasource = new TestWebServiceDataSource($datasourceConfig);
+
+        $expectedResponse = new Response(new ReadOnlyStringStream("test string stream"), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request(__DIR__ . "/test.txt", Request::METHOD_GET));
+
+        $response = $datasource->materialiseDataset();
+//        print_r($response);
+
+
+        $this->assertTrue(file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals(date("U"), filemtime(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals("test data\n", file_get_contents(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+    }
+
+    public function testCacheFileReadFromIfExistsAndUsingCaching() {
+
+        $target = "test.txt";
+        $cacheFilename = "cache.txt";
+
+        if (file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename)) {
+            unlink(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename);
+        }
+        if (file_exists(__DIR__ . "/" . $target)) {
+            unlink(__DIR__ . "/" . $target);
+        }
+
+        file_put_contents(__DIR__ . "/" . $target, "test data");
+        file_put_contents(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename, "cache data");
+
+        $datasourceConfig = new WebserviceDataSourceConfig(__DIR__ . "/" . $target, null, null, "sv", [], [], $cacheFilename, 86400);
+        $datasource = new TestWebServiceDataSource($datasourceConfig);
+
+        $response = $datasource->materialiseDataset();
+
+        $this->assertTrue(file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals("cache data", file_get_contents(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals(["column1" => "cache data"], $response->nextRawDataItem());
+    }
+
+    public function testCanUnzipToCacheWhenProvidedZipConfiguration() {
+
+        $cacheFilename = "test.csv";
+        if (file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename)) {
+            unlink(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename);
+        }
+
+        $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/../../../Services/Datasource/Processing/Compression/test-compressed.zip"), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET));
+
+        $datasourceConfig = new WebserviceDataSourceConfig("https://mytest.com", Request::METHOD_GET, null, "sv", [], [], $cacheFilename, 86400);
+        $datasourceConfig->setCompressionType("zip");
+        $datasourceConfig->setCompressionConfig(new ZipCompressorConfiguration("test.csv"));
+
+        $request = new TestWebServiceDataSource($datasourceConfig);
+        $request->setDispatcher($this->httpDispatcher);
+
+        /**
+         * @var SVStreamTabularDataSet $response
+         */
+        $response = $request->materialiseDataset();
+
+        $this->assertTrue(file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals(date("U"), filemtime(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals(["column1" => "Name", "column2" => "Age", "column3" => "Shoe Size"], $response->nextDataItem());
+        $this->assertEquals(["column1" => "Mark", "column2" => 50, "column3" => 10], $response->nextDataItem());
+        $this->assertEquals(["column1" => "Bob", "column2" => 20, "column3" => 9], $response->nextDataItem());
+        $this->assertEquals(["column1" => "Mary", "column2" => 30, "column3" => 7], $response->nextDataItem());
+    }
+
+
+    public function testIgnoresCacheFileWhenTimeoutTimeHasPassed() {
+
+        $target = "test.txt";
+        $cacheFilename = "cache.txt";
+
+        if (file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename)) {
+            unlink(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename);
+        }
+        if (file_exists(__DIR__ . "/" . $target)) {
+            unlink(__DIR__ . "/" . $target);
+        }
+
+        file_put_contents(__DIR__ . "/" . $target, "test data");
+        file_put_contents(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename, "old cache data");
+
+        $datasourceConfig = new WebserviceDataSourceConfig(__DIR__ . "/" . $target, null, null, "sv", [], [], $cacheFilename, 0.5);
+        $datasource = new TestWebServiceDataSource($datasourceConfig);
+
+        sleep(1);
+        print_r(date("U"));
+        $response = $datasource->materialiseDataset();
+
+        $this->assertTrue(file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals(date("U"), filemtime(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+        $this->assertEquals("test data\n", file_get_contents(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
+
+    }
 }

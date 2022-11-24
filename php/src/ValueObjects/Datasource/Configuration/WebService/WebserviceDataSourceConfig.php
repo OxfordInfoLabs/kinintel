@@ -81,6 +81,20 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     protected $pagingViaParameters = false;
 
+    /**
+     * Name of file used if caching
+     *
+     * @var string
+     */
+    protected $cacheFileName = null;
+
+    /**
+     * Timeout for the cached file if caching used
+     *
+     * @var int
+     */
+    protected $cacheFileTimeout = null;
+
 
     /**
      * WebserviceDataSourceConfig constructor.
@@ -90,14 +104,18 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      * @param string $resultFormat
      * @param mixed $resultFormatConfig
      * @param Field[] $columns
+     * @param string $cacheFileName
+     * @param int $cacheFileTimeout
      *
      */
     public function __construct($url = "", $method = Request::METHOD_GET, $payloadTemplate = null,
-                                $resultFormat = "json", $resultFormatConfig = [], $columns = []) {
+                                $resultFormat = "json", $resultFormatConfig = [], $columns = [], $cacheFileName = null, $cacheFileTimeout = null) {
         $this->url = $url;
         $this->method = $method;
         $this->payloadTemplate = $payloadTemplate;
         parent::__construct($resultFormat, $resultFormatConfig, $columns);
+        $this->cacheFileName = $cacheFileName;
+        $this->cacheFileTimeout = $cacheFileTimeout;
     }
 
 
@@ -213,6 +231,34 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     public function setPagingViaParameters($pagingViaParameters) {
         $this->pagingViaParameters = $pagingViaParameters;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCacheFileName() {
+        return $this->cacheFileName;
+    }
+
+    /**
+     * @param string $cacheFileName
+     */
+    public function setCacheFileName($cacheFileName) {
+        $this->cacheFileName = $cacheFileName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCacheFileTimeout() {
+        return $this->cacheFileTimeout;
+    }
+
+    /**
+     * @param int $cacheFileTimeout
+     */
+    public function setCacheFileTimeout($cacheFileTimeout) {
+        $this->cacheFileTimeout = $cacheFileTimeout;
     }
 
 
