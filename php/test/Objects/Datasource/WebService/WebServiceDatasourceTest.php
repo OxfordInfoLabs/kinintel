@@ -548,7 +548,6 @@ class WebServiceDatasourceTest extends TestCase {
         $datasource = new TestWebServiceDataSource($datasourceConfig);
 
         sleep(1);
-        print_r(date("U"));
         $response = $datasource->materialiseDataset();
 
         $this->assertTrue(file_exists(Configuration::readParameter("files.root") . "/webservice_caching/" . $cacheFilename));
