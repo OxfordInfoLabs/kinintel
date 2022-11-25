@@ -48,6 +48,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() gridOnly = false;
     @Input() parameters: any;
     @Input() hideToolbar = false;
+    @Input() actionEvents: any = [];
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -300,6 +301,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
         componentRef.instance.editAlerts = this.editAlerts;
+        componentRef.instance.actionEvents = this.actionEvents;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 

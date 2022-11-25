@@ -204,3 +204,15 @@
     <textarea class="font-mono w-full"
               cols="30" rows="10" [(ngModel)]="data.customText"></textarea>
 </ng-template>
+
+<ng-template [ngIf]="type === 'action'">
+    <label class="mb-2">
+        Action Event
+        <select matNativeControl [(ngModel)]="data.actionEvent">
+            <option *ngFor="let actionEvent of actionEvents" [value]="actionEvent.name">
+                {{actionEvent.title}}
+            </option>
+        </select>
+        <small class="font-normal">Select the action event to be triggered when this item is clicked.</small>
+    </label>
+</ng-template>

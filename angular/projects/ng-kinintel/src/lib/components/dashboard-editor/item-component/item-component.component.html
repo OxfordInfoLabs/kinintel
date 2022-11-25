@@ -52,19 +52,23 @@
         <ng-template [ngIf]="!viewOnly">
             <button mat-menu-item (click)="configure()">
                 <mat-icon>edit</mat-icon>
-                Edit Item</button>
+                Edit Item
+            </button>
             <button mat-menu-item (click)="exportData()">
                 <mat-icon>file_download</mat-icon>
-                Export Data</button>
+                Export Data
+            </button>
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="removeWidget($event)">
                 <mat-icon class="text-red-600">delete</mat-icon>
-                Delete Item</button>
+                Delete Item
+            </button>
         </ng-template>
         <ng-template [ngIf]="viewOnly">
             <button mat-menu-item (click)="exportData()">
                 <mat-icon>file_download</mat-icon>
-                Export Data</button>
+                Export Data
+            </button>
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="editItemAlerts(null)">
                 <mat-icon color="primary">add</mat-icon>
@@ -123,19 +127,29 @@
                 <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
                     <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
                         {{metric.mainValue}}
-                        <span *ngIf="metric.subMetric" class="ml-2 text-sm font-medium text-gray-500">from {{metric.subValue}}
+                        <span *ngIf="metric.subMetric"
+                              class="ml-2 text-sm font-medium text-gray-500">from {{metric.subValue}}
                             <span class="text-xs">({{metric.subTitle}})</span></span>
                     </div>
 
-                    <div *ngIf="metric.showSubChange" class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
-                        [ngClass]="{'bg-green-100 text-green-800': metric.mainValue >= metric.subValue, 'bg-red-100 text-red-800': metric.mainValue < metric.subValue}">
+                    <div *ngIf="metric.showSubChange"
+                         class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
+                         [ngClass]="{'bg-green-100 text-green-800': metric.mainValue >= metric.subValue, 'bg-red-100 text-red-800': metric.mainValue < metric.subValue}">
                         <!-- Heroicon name: mini/arrow-up -->
-                        <svg *ngIf="metric.mainValue >= metric.subValue" class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clip-rule="evenodd" />
+                        <svg *ngIf="metric.mainValue >= metric.subValue"
+                             class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500"
+                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                                  clip-rule="evenodd"/>
                         </svg>
-                        <svg *ngIf="metric.mainValue < metric.subValue " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                        <svg *ngIf="metric.mainValue < metric.subValue " xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 20 20" fill="currentColor"
                              class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500">
-                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd"
+                                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                                  clip-rule="evenodd"/>
                         </svg>
                         {{metric.difference}}
                     </div>
@@ -177,16 +191,20 @@
                     <ng-template ngFor let-column [ngForOf]="dataset.columns">
                         <th scope="col" *ngIf="!hiddenColumns[column.name]" (click)="sortHeader(column)"
                             class="cursor-pointer sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 p-3 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                            <div class="flex items-center ">
+                            <div *ngIf="!tableCells[column.name] || tableCells[column.name].type !== 'action'" class="flex items-center ">
                                 {{column.title}}
                                 <svg *ngIf="column.direction === 'asc'"
-                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5"
                                      stroke="currentColor" class="stroke-3 text-gray-400 ml-1 w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"/>
                                 </svg>
                                 <svg *ngIf="column.direction === 'desc'" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-3 text-gray-400 ml-1 w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                     class="stroke-3 text-gray-400 ml-1 w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/>
                                 </svg>
                             </div>
                         </th>
@@ -203,27 +221,42 @@
                             class="border-b border-gray-200  px-3 py-2 text-sm text-gray-500 relative"
                             [ngClass]="{'whitespace-nowrap': !tabular.expandRows, 'font-medium text-gray-900': i === 0}"
                             [ngStyle]="{'width': '', 'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
-                            <ng-template [ngIf]="tabular.expandRows">
-                                <div *ngIf="!_.isPlainObject(dataItem[column.name])" [innerHTML]="dataItem[column.name]"></div>
-                                <div *ngIf="_.isPlainObject(dataItem[column.name])" [innerHTML]="dataItem[column.name].cellValue"></div>
+                            <ng-template [ngIf]="tableCells[column.name] && tableCells[column.name].type === 'action'">
+                                <button type="button" *ngIf="tableCells[column.name].data.actionEvent"
+                                        [ngClass]="{'bg-orange-50 border-orange-200 hover:bg-orange-100': isActionComplete(tableCells[column.name].data.actionEvent, dataItem[column.name])}"
+                                        (click)="triggerActionEvent(tableCells[column.name].data.actionEvent, column, dataItem[column.name])"
+                                        class="text-gray-600 inline-flex items-center rounded border border-primary bg-gray-50 px-2.5 py-1.5 text-xs font-medium hover:bg-gray-100">
+                                    {{getActionEventTitle(tableCells[column.name].data.actionEvent, column, dataItem[column.name])}}
+                                </button>
                             </ng-template>
-                            <ng-template [ngIf]="!tabular.expandRows && _.isPlainObject(dataItem[column.name])">
-                                <div [innerHTML]="dataItem[column.name].cellValue"
-                                     [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
-                            </ng-template>
-                            <ng-template [ngIf]="!tabular.expandRows && !_.isPlainObject(dataItem[column.name])">
-                                <ng-template
-                                    [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
-                                    {{dataItem[column.name]}}
+
+                            <ng-template [ngIf]="!tableCells[column.name] || tableCells[column.name].type !== 'action'">
+
+
+                                <ng-template [ngIf]="tabular.expandRows">
+                                    <div *ngIf="!_.isPlainObject(dataItem[column.name])"
+                                         [innerHTML]="dataItem[column.name]"></div>
+                                    <div *ngIf="_.isPlainObject(dataItem[column.name])"
+                                         [innerHTML]="dataItem[column.name].cellValue"></div>
                                 </ng-template>
-                                <ng-template
-                                    [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
-                                    <div
-                                        [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"
-                                        [title]="dataItem[column.name]">{{dataItem[column.name].substring(0, 100) + '...'}}</div>
+                                <ng-template [ngIf]="!tabular.expandRows && _.isPlainObject(dataItem[column.name])">
+                                    <div [innerHTML]="dataItem[column.name].cellValue"
+                                         [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
                                 </ng-template>
-                                <ng-template [ngIf]="!dataItem[column.name]">
-                                    {{dataItem[column.name]}}
+                                <ng-template [ngIf]="!tabular.expandRows && !_.isPlainObject(dataItem[column.name])">
+                                    <ng-template
+                                        [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
+                                        {{dataItem[column.name]}}
+                                    </ng-template>
+                                    <ng-template
+                                        [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
+                                        <div
+                                            [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"
+                                            [title]="dataItem[column.name]">{{dataItem[column.name].substring(0, 100) + '...'}}</div>
+                                    </ng-template>
+                                    <ng-template [ngIf]="!dataItem[column.name]">
+                                        {{dataItem[column.name]}}
+                                    </ng-template>
                                 </ng-template>
                             </ng-template>
                         </td>
@@ -234,19 +267,20 @@
             </table>
 
             <div *ngIf="!dataset.allData.length"
-                class="no-table-records text-sm text-gray-500 flex m-0 justify-center items-center">
-                No records to show</div>
+                 class="no-table-records text-sm text-gray-500 flex m-0 justify-center items-center">
+                No records to show
+            </div>
         </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'words'">
             <angular-d3-cloud *ngIf="wordCloud.data"
-                [data]="wordCloud.data"
-                [width]="wordCloud.width"
-                [height]="wordCloud.height"
-                [padding]="5"
-                font="serif"
-                [rotate]="0"
-                [autoFill]="true"
+                              [data]="wordCloud.data"
+                              [width]="wordCloud.width"
+                              [height]="wordCloud.height"
+                              [padding]="5"
+                              font="serif"
+                              [rotate]="0"
+                              [autoFill]="true"
             ></angular-d3-cloud>
         </ng-template>
 

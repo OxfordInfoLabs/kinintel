@@ -41,16 +41,25 @@ class JSONResultFormatter implements ResultFormatter {
     private $itemOffsetPath;
 
     /**
+     * If defined the raw result will be added as a column field to each result
+     *
+     * @var string
+     */
+    private $rawResultFieldName;
+
+    /**
      * JSONWebServiceResultMapping constructor.
      *
      * @param string $resultsOffsetPath
      * @param string $itemOffsetPath
      * @param bool $singleResult
+     * @param string $rawResultFieldName
      */
-    public function __construct($resultsOffsetPath = "", $itemOffsetPath = "", $singleResult = false) {
+    public function __construct($resultsOffsetPath = "", $itemOffsetPath = "", $singleResult = false, $rawResultFieldName = null) {
         $this->resultsOffsetPath = $resultsOffsetPath;
         $this->singleResult = $singleResult;
         $this->itemOffsetPath = $itemOffsetPath;
+        $this->rawResultFieldName = $rawResultFieldName;
     }
 
 
@@ -97,6 +106,20 @@ class JSONResultFormatter implements ResultFormatter {
         $this->singleResult = $singleResult;
     }
 
+    /**
+     * @return string
+     */
+    public function getRawResultFieldName() {
+        return $this->rawResultFieldName;
+    }
+
+    /**
+     * @param string $rawResultFieldName
+     */
+    public function setRawResultFieldName($rawResultFieldName) {
+        $this->rawResultFieldName = $rawResultFieldName;
+    }
+
 
     /**
      * Map the result from the webservice to JSON using configured rules
@@ -115,7 +138,8 @@ class JSONResultFormatter implements ResultFormatter {
         // Grab full contents of this stream as incremental conversion is not supported
         $result = $stream->getContents();
 
-        $decodedResult = json_decode($result, true);
+        $originalDecodedResult = json_decode($result, true);
+        $decodedResult = $originalDecodedResult;
 
         // if result path, drill down to here first
         if ($this->getResultsOffsetPath()) {
@@ -142,7 +166,6 @@ class JSONResultFormatter implements ResultFormatter {
                 }
 
 
-
                 $dataItem = [];
                 foreach ($item as $field => $value) {
                     $columnName = $field;
@@ -152,12 +175,25 @@ class JSONResultFormatter implements ResultFormatter {
                     $columns = $this->ensureColumn($columnName, $columns);
                     $dataItem[$columnName] = $value;
                 }
+
+                if ($this->rawResultFieldName) {
+                    $dataItem[$this->rawResultFieldName] = $originalDecodedResult;
+                }
+
                 $data[] = $dataItem;
             } else if (Primitive::isPrimitive($item)) {
                 $columns = $this->ensureColumn("value", $columns);
                 $data[] = ["value" => $item];
             }
+
+
         }
+
+        // If we are capturing raw result for other processing, supply here
+        if ($this->rawResultFieldName) {
+            $columns = $this->ensureColumn($this->rawResultFieldName, $columns);
+        }
+
 
         return new ArrayTabularDataset(sizeof($passedColumns) ? $passedColumns : array_values($columns), $data);
 

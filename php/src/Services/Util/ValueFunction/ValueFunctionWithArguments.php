@@ -32,7 +32,7 @@ abstract class ValueFunctionWithArguments implements ValueFunction {
      * Apply function
      *
      * @param string $functionString
-     * @param string $value
+     * @param mixed $value
      * @return string|void
      */
     public function applyFunction($functionString, $value, $dataItem) {

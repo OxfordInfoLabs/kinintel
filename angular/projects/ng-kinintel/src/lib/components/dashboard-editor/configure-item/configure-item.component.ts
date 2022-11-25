@@ -11,6 +11,7 @@ import {DatasetFilterComponent} from '../../dataset/dataset-editor/dataset-filte
 import {Router} from '@angular/router';
 import {DatasourceService} from '../../../services/datasource.service';
 import {BehaviorSubject, Subject} from 'rxjs';
+import {ActionEvent} from '../../../objects/action-event';
 
 @Component({
     selector: 'ki-configure-item',
@@ -38,6 +39,7 @@ export class ConfigureItemComponent implements OnInit {
     public sharedDashboards: any = [];
     public dashboardParameters: any = [];
     public dashboardParamValues: any = [];
+    public actionEvents: ActionEvent[] = [];
     public admin: boolean;
     public filterFields: any = [];
     public chartTypes = ['line', 'bar', 'pie', 'doughnut'];
@@ -125,6 +127,14 @@ export class ConfigureItemComponent implements OnInit {
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
         this.dashboardItemType = this.data.dashboardItemType;
         this.admin = !!this.data.admin;
+        this.actionEvents = this.data.actionEvents || [];
+
+        if (this.actionEvents.length) {
+            this.columnFormats.push({
+                title: 'Action',
+                type: 'action'
+            });
+        }
 
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();

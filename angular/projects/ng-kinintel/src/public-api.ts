@@ -30,4 +30,6 @@ export * from './lib/components/dataset/dataset-editor/upstream-changes-confirma
 
 export * from './lib/guards/dashboard-changes.guard';
 
+export * from './lib/objects/action-event';
+
 export * from './lib/ng-kinintel.module';

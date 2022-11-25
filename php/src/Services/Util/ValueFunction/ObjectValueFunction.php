@@ -4,7 +4,8 @@ namespace Kinintel\Services\Util\ValueFunction;
 
 class ObjectValueFunction extends ValueFunctionWithArguments {
     const supportedFunctions = [
-        "member"
+        "member",
+        "keyValueArray"
     ];
 
     /**
@@ -33,6 +34,22 @@ class ObjectValueFunction extends ValueFunctionWithArguments {
 
             if ($functionName == "member") {
                 return $value[$functionArgs[0]];
+            }
+
+            if ($functionName == "keyValueArray") {
+                $returnArray = [];
+                $propertyKey = $functionArgs[0] ?? 'key';
+                $valueKey = $functionArgs[1] ?? 'value';
+
+                foreach($value as $key => $item) {
+                    $object = [];
+                    $object[$propertyKey] = $key;
+                    $object[$valueKey] = $item;
+
+                    $returnArray[] = $object;
+                }
+
+                return $returnArray;
             }
 
             return $value;

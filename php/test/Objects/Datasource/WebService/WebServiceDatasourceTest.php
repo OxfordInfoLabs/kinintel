@@ -63,6 +63,31 @@ class WebServiceDatasourceTest extends TestCase {
 
     }
 
+    public function testCanMaterialiseSimpleDatasourceForGetRequestWithNoURLEncoding() {
+
+        $expectedResponse = new Response(new ReadOnlyStringStream('{"name": "Pingu"}'), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com?test=2022-01-01 00:00:00|2021", Request::METHOD_GET));
+
+        $webserviceDataSourceConfig = new WebserviceDataSourceConfig("https://mytest.com?test=2022-01-01 00:00:00|2021");
+        $webserviceDataSourceConfig->setEncodeURLParameters(false);
+
+        $request = new TestWebServiceDataSource($webserviceDataSourceConfig);
+        $request->setDispatcher($this->httpDispatcher);
+
+        // Materialise
+        $response = $request->materialiseDataset();
+
+        // Check that the response was received directly
+        $this->assertEquals(new ArrayTabularDataset([new Field("value", "Value")], [
+            [
+                "value" => "Pingu"
+            ]
+        ]), $response);
+
+    }
+
 
     public function testCanMaterialiseSimpleDatasourceWithHeaders() {
 

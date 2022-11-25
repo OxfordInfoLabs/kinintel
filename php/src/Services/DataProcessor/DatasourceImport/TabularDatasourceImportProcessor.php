@@ -210,7 +210,14 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                                 unset($chunkedResult[$field->getName()]);
                             }
 
-                            $chunkedResult[$field->getTargetName() ?? $field->getName()] = $field->returnMappedValue($dataValue);
+                            if ($field->getMapper()) {
+                                $fieldValue = $field->returnMappedValue($dataValue);
+                            } else {
+                                $fieldValue = $field->hasValueExpression() ?
+                                    $field->evaluateValueExpression($chunkedResult) : $dataValue;
+                            }
+
+                            $chunkedResult[$field->getTargetName() ?? $field->getName()] = $fieldValue;
                         }
                     }
                     $chunkedResults[$index] = $chunkedResult;
@@ -259,7 +266,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
 
             $returnedData = $this->datasourceService->getEvaluatedDataSource($targetDatasourceKey, [], [
-                new TransformationInstance("summarise",new SummariseTransformation([], [
+                new TransformationInstance("summarise", new SummariseTransformation([], [
                     new SummariseExpression($expressionType, $targetSourceParameterMapping->getTargetDatasourceField(), null, "Parameter Value")
                 ]))
             ])->getAllData();

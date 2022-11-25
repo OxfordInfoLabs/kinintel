@@ -19,6 +19,7 @@ export class TableCellFormatterComponent implements OnInit {
     @Input() dashboards: any = [];
     @Input() sharedDashboards: any = [];
     @Input() dashboardParameters: any = [];
+    @Input() actionEvents: any = [];
 
     public dateFormats: any = [
         {

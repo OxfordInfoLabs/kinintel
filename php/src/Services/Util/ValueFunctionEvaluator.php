@@ -63,12 +63,11 @@ class ValueFunctionEvaluator {
      */
     public function evaluateString($string, $data = [], $delimiters = ["[[", "]]"]) {
 
-        $evaluated = preg_replace_callback("/" . preg_quote($delimiters[0]) . "(.*?)" . preg_quote($delimiters[1]) . "/", function ($matches) use ($data) {
+        $evaluated = preg_replace_callback("/" . preg_quote($delimiters[0]) . "(.*?)" . preg_quote($delimiters[1]) . "/", function ($matches) use ($data, $delimiters) {
 
             $exploded = explode(" | ", $matches[1]);
 
             $expression = trim($exploded[0]);
-
             // Handle special built in expressions
             $specialExpression = $this->evaluateSpecialExpressions($expression);
 
@@ -88,9 +87,19 @@ class ValueFunctionEvaluator {
                 }
             }
 
+            if (!is_scalar($value)) {
+                $value = "OBJECT||" . json_encode($value);
+            }
+
             return $value;
 
         }, $string);
+
+        // Decode if applicable
+        if (substr($evaluated, 0, 8) == "OBJECT||") {
+            $evaluated = json_decode(substr($evaluated, 8), true);
+        }
+
         return $evaluated !== "" ? $evaluated : null;
 
     }

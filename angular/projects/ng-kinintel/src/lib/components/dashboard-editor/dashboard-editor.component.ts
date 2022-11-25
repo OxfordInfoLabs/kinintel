@@ -41,6 +41,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import moment from 'moment';
+import {ActionEvent} from '../../objects/action-event';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -52,6 +53,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     @Input() sidenavService: any;
     @Input() accountId: any;
+    @Input() actionEvents: ActionEvent[] = [];
+    @Input() dashboardId: number;
+    @Input() gridOnly = false;
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -233,7 +237,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-        const dashboardId = this.route.snapshot.params.dashboard;
+        const dashboardId = this.dashboardId || this.route.snapshot.params.dashboard;
         const routeData = this.route.snapshot.data;
         const editType = routeData ? routeData.type : null;
 
@@ -427,6 +431,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         componentRef.instance.admin = this.admin;
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
+        componentRef.instance.actionEvents = this.actionEvents;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 

@@ -206,20 +206,22 @@ class WebServiceDatasource extends BaseDatasource {
             // Evaluate params
             $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
 
-            // Encode URL to prevent transfer issues
-            $explodedUrl = explode("?", $url, 2);
-            $url = $explodedUrl[0];
-            if (sizeof($explodedUrl) > 1) {
-                parse_str($explodedUrl[1], $queryParams);
-                $newParams = [];
-                foreach ($queryParams as $param => $value) {
-                    $newParams[] = $param . "=" . urlencode($value);
+            if ($config->isEncodeURLParameters()) {
+                // Encode URL to prevent transfer issues
+                $explodedUrl = explode("?", $url, 2);
+                $url = $explodedUrl[0];
+                if (sizeof($explodedUrl) > 1) {
+                    parse_str($explodedUrl[1], $queryParams);
+                    $newParams = [];
+                    foreach ($queryParams as $param => $value) {
+                        $newParams[] = $param . "=" . urlencode($value);
+                    }
+                    $url .= "?" . join("&", $newParams);
                 }
-                $url .= "?" . join("&", $newParams);
             }
 
-            $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
+            $request = new Request($url, $config->getMethod(), [], $payload, $headers);
 
             // Inject authentication if required
             if ($this->getAuthenticationCredentials()) {

@@ -4,6 +4,7 @@ import {DatasetService} from '../../../services/dataset.service';
 import * as fileSaver from 'file-saver';
 import * as lodash from 'lodash';
 import {MatSnackBar} from '@angular/material/snack-bar';
+
 const _ = lodash.default;
 
 @Component({
@@ -34,9 +35,16 @@ export class ExportDataComponent implements OnInit {
 
     public exportData() {
         this.datasetService.exportDataset(this.exportDataset).then(res => {
-            const type = res.type.split('/')[1];
+            let fileType = 'txt';
+            if (this.exportDataset.exporterKey === 'json') {
+                fileType = 'json';
+            } else if (this.exportDataset.exporterKey === 'sv' &&
+                this.exportDataset.exporterConfiguration.separator === ',') {
+                fileType = 'csv';
+            }
+
             const filename = _.kebabCase(this.exportDataset.dataSetInstanceSummary.title) + '-' + Date.now();
-            fileSaver.saveAs(res, filename + '.' + type);
+            fileSaver.saveAs(res, filename + '.' + fileType);
             this.dialogRef.close();
             this.snackBar.open('Data Exported Successfully.', 'Close', {
                 duration: 3000,
