@@ -67,4 +67,14 @@ class ValueFunctionEvaluatorTest extends TestBase {
     }
 
 
+    public function testCanResolveExpressionsWhichDoNotEvaluateToStrings() {
+
+        $this->assertEquals([
+            ["key" => "name", "value" => "Bob"],
+            ["key" => "age", "value" => 53]
+        ], $this->evaluator->evaluateString("[[test | keyValueArray]]", ["test" => ["name" => "Bob", "age" => "53"]]));
+
+    }
+
+
 }

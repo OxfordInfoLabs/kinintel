@@ -3,6 +3,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
@@ -17,6 +18,7 @@ import {
 } from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
 import {ExportDataComponent} from '../../data-explorer/export-data/export-data.component';
 import {Location} from '@angular/common';
+import {ActionEvent} from '../../../objects/action-event';
 
 declare var window: any;
 
@@ -33,6 +35,7 @@ export class ItemComponentComponent implements AfterViewInit {
     @Input() dashboardItem: any;
     @Input() dragItem: boolean;
     @Input() grid: any;
+    @Input() actionEvents: ActionEvent[] = [];
 
     @HostBinding('class.justify-center') configureClass = false;
 
@@ -200,7 +203,10 @@ export class ItemComponentComponent implements AfterViewInit {
             if (this.admin) {
                 queryParams.a = true;
             }
-            this.router.navigate([window.location.pathname], {queryParams, fragment: _.kebabCase(this.dashboard.title)});
+            this.router.navigate([window.location.pathname], {
+                queryParams,
+                fragment: _.kebabCase(this.dashboard.title)
+            });
             const dialogRef = this.dialog.open(ConfigureItemComponent, {
                 width: '100vw',
                 height: '100vh',
@@ -213,7 +219,8 @@ export class ItemComponentComponent implements AfterViewInit {
                     dashboardDatasetInstance: this.dashboardDatasetInstance,
                     itemInstanceKey: this.itemInstanceKey,
                     dashboardItemType: this.dashboardItemType,
-                    admin: this.admin
+                    admin: this.admin,
+                    actionEvents: this.actionEvents
                 }
             });
             dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
@@ -248,6 +255,36 @@ export class ItemComponentComponent implements AfterViewInit {
             const widget = itemElement.closest('.grid-stack-item');
             this.grid.removeWidget(widget);
         }
+    }
+
+    public triggerActionEvent(actionEvent, column, value) {
+        const action: ActionEvent = _.find(this.actionEvents, {name: actionEvent});
+        if (action) {
+            action.event.next({key: column.name, value});
+        }
+    }
+
+    public getActionEventTitle(actionEvent, column, value) {
+        const action: ActionEvent = _.find(this.actionEvents, {name: actionEvent});
+
+        let title = '';
+        if (action) {
+            title = this.isActionComplete(actionEvent, value) ? action.completeLabel : action.actionLabel;
+        }
+        return title;
+    }
+
+    public isActionComplete(actionEvent, value) {
+        let complete = false;
+        const action: ActionEvent = _.find(this.actionEvents, {name: actionEvent});
+
+        if (action) {
+            const findData = {};
+            findData[action.comparisonField] = value;
+            complete = _.find(action.data || [], findData);
+        }
+
+        return complete;
     }
 
     public editItemAlerts(alert, index?) {
@@ -585,7 +622,7 @@ export class ItemComponentComponent implements AfterViewInit {
                     if (tableCell !== 'column') {
                         data.allData.map((item, index) => {
 
-                            if (item[tableCell]) {
+                            if (!_.isUndefined(item[tableCell])) {
                                 const cellData = this.tableCells[tableCell].data;
                                 switch (this.tableCells[tableCell].type) {
                                     case 'number':

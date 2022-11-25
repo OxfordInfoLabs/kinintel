@@ -95,6 +95,11 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     protected $cacheFileTimeout = null;
 
+    /**
+     *
+     * @var bool
+     */
+    protected $encodeURLParameters = true;
 
     /**
      * WebserviceDataSourceConfig constructor.
@@ -259,6 +264,20 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
      */
     public function setCacheFileTimeout($cacheFileTimeout) {
         $this->cacheFileTimeout = $cacheFileTimeout;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEncodeURLParameters() {
+        return $this->encodeURLParameters;
+    }
+
+    /**
+     * @param bool $encodeURLParameters
+     */
+    public function setEncodeURLParameters($encodeURLParameters) {
+        $this->encodeURLParameters = $encodeURLParameters;
     }
 
 

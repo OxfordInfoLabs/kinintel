@@ -1,10 +1,9 @@
 import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import {SidenavService} from '../../services/sidenav.service';
-import {DashboardCanDeactivate, DashboardEditorComponent, DashboardService} from 'ng-kinintel';
-import {Observable} from 'rxjs';
+import {DashboardCanDeactivate, DashboardEditorComponent, DashboardService, ActionEvent} from 'ng-kinintel';
+import {Observable, Subject} from 'rxjs';
 import * as lodash from 'lodash';
 const _ = lodash.default;
-import * as deepEqual from 'deep-equal';
 
 @Component({
     selector: 'app-dashboard',
@@ -15,11 +14,30 @@ export class DashboardComponent implements OnInit, DashboardCanDeactivate {
 
     @ViewChild(DashboardEditorComponent) dashboardEditor!: DashboardEditorComponent;
 
+    public actionEvents: any = [
+        new ActionEvent({
+            name: 'new-event',
+            title: 'New Event',
+            actionLabel: 'Add User',
+            completeLabel: 'User Added',
+            event: new Subject(),
+            data: [
+                {FirstName: 'Leonie'}
+            ]
+        })
+    ];
+
     constructor(public sidenavService: SidenavService,
                 private dashboardService: DashboardService) {
     }
 
     ngOnInit(): void {
+        this.actionEvents[0].event.subscribe(res => {
+            console.log('action fired', res, this.actionEvents[0]);
+            const data = {};
+            data[res.key] = res.value;
+            this.actionEvents[0].data.push(data);
+        });
     }
 
     @HostListener('window:beforeunload')

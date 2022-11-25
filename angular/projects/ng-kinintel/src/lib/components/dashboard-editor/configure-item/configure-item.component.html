@@ -501,7 +501,7 @@
                                                      [data]="tableCells[tableCells.column].data"
                                                      [openSide]="openSide" [dataset]="dataset"
                                                      [currencies]="currencies" [dashboards]="dashboards"
-                                                     [sharedDashboards]="sharedDashboards">
+                                                     [sharedDashboards]="sharedDashboards" [actionEvents]="actionEvents">
                             </ki-table-cell-formatter>
 
                         </ng-template>
@@ -695,15 +695,7 @@
                         <div class="mt-4 mb-4 align-center justify-between">
                             <label class="flex-1">
                                 Limit Results
-                                <select [(ngModel)]="dashboardItemType.limit">
-                                    <option [value]="undefined">No Limit</option>
-                                    <option [value]="5">5</option>
-                                    <option [value]="10">10</option>
-                                    <option [value]="25">25</option>
-                                    <option [value]="50">50</option>
-                                    <option [value]="100">100</option>
-                                    <option [value]="250">250</option>
-                                </select>
+                                <input type="number" [(ngModel)]="dashboardItemType.limit">
                             </label>
                             <label class="ml-4 mt-4 flex-1">
                                 <mat-checkbox [(ngModel)]="dashboardItemType.combineRemaining">
