@@ -202,4 +202,26 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testRawResultsAddedAsColumnIfPropertySuppliedToConfig() {
+
+        $formatter = new JSONResultFormatter("", "drilled.down", false, "mickeyMouse");
+
+        $fullObject = [
+            ["drilled" => ["down" => ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"]]],
+            ["drilled" => ["down" => ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]]]
+        ];
+
+        // Regular key / value pairs
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode($fullObject)));
+
+
+        $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"),
+            new Field("other_data", "Other Data"), new Field("mickeyMouse")], $result->getColumns());
+
+        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello", "mickeyMouse" => $fullObject],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo", "mickeyMouse" => $fullObject]], $result->getAllData());
+
+
+    }
+
 }

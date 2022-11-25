@@ -104,6 +104,13 @@ class Field {
         return $this->valueExpression;
     }
 
+    /**
+     * @param mixed $valueExpression
+     */
+    public function setValueExpression($valueExpression) {
+        $this->valueExpression = $valueExpression;
+    }
+
 
     /**
      * @return mixed
