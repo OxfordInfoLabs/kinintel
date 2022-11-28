@@ -7,7 +7,8 @@ use Kinikit\Core\Logging\Logger;
 class StringValueFunction extends ValueFunctionWithArguments {
     const supportedFunctions = [
         "substring",
-        "concat"
+        "concat",
+        "toUTF8"
     ];
 
     /**
@@ -51,6 +52,9 @@ class StringValueFunction extends ValueFunctionWithArguments {
                     }
 
                     return $string;
+
+                case "toUTF8":
+                    return preg_replace('/(\xF0\x9F[\x00-\xFF][\x00-\xFF])/', "", $value) == $value ? $value : null;
             }
 
             return $value;
