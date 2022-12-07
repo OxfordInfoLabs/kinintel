@@ -5,6 +5,8 @@ namespace Kinintel\Services\Dataset;
 
 
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
+use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -55,6 +57,12 @@ class DatasetEvaluatorLongRunningTask extends LongRunningTask {
 
         $dataSet = $this->datasetService->getEvaluatedDataSetForDataSetInstance($this->datasetInstanceSummary, [], [],
             $this->offset, $this->limit);
+
+        /**
+         * @var ObjectBinder $objectBinder
+         */
+        $objectBinder = Container::instance()->get(ObjectBinder::class);
+        return $objectBinder->bindToArray($dataSet);
 
         // Return array tabularised version to prevent issues with double evaluation
         return $dataSet;

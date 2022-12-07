@@ -12,12 +12,11 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
     public function testCanReturnDatabaseConnectionForConfiguredMySQLConnection() {
 
-        $this->assertTrue(true);
-//        $credentials = new MySQLAuthenticationCredentials("localhost", null, "test",
-//            3308, "utf8", "bobby", "pass");
-//
-//        $databaseInstance = $credentials->returnDatabaseConnection();
-//        $this->assertInstanceOf(MySQLDatabaseConnection::class, $databaseInstance);
+        $credentials = new MySQLAuthenticationCredentials("localhost", null, "kininteltest",
+            null, "utf8", "kininteltest", "kininteltest");
+
+        $databaseInstance = $credentials->returnDatabaseConnection();
+        $this->assertInstanceOf(MySQLDatabaseConnection::class, $databaseInstance);
 
 
     }
