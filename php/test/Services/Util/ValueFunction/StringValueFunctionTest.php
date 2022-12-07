@@ -32,4 +32,18 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase{
         $this->assertEquals("FirstSecondThird", $function->applyFunction("concat $string2 $string3", $string1, null));
     }
 
+    public function testCanConvertToUTF8OrNullIfNot() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("toUTF8"));
+
+        $string1 = "hello world";
+        $string2 = "🖤.eth";
+        $string3 = "Hello\xF0\x9F\x92\xB8\xF0\x9F.eth";
+
+        $this->assertEquals($string1, $function->applyFunction("toUTF8", $string1, null));
+        $this->assertNull($function->applyFunction("toUTF8", $string2, null));
+        $this->assertNull($function->applyFunction("toUTF8", $string3, null));
+
+    }
+
 }
