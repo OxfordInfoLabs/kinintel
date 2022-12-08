@@ -34,6 +34,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -699,11 +700,11 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
 
-        $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
+        $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class, PostgreSQLAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
 
         SQLDatabaseDatasource::addCredentialsClass(FTPAuthenticationCredentials::class);
 
-        $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class, FTPAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
+        $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class, PostgreSQLAuthenticationCredentials::class, FTPAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
 
 
     }

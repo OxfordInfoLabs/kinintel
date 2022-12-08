@@ -44,11 +44,46 @@ abstract class ValueFunctionWithArguments implements ValueFunction {
         preg_match_all("/[^\s\"']+|\"([^\"]*)\"|'([^']*)'/", $paramsRaw[0] ?? "", $matches);
         $params = $matches[0] ?? [];
         foreach ($matches[2] ?? [] as $index => $match) {
-            if ($match) $params[$index] = $match;
+            if ($match) {
+                $params[$index] = $match;
+            }
         }
 
 
+        foreach ($params as &$param) {
+            $param = $this->processParams($param, $dataItem);
+        }
+
+        Logger::log($params);
+
         return $this->applyFunctionWithArgs($functionName, $params ?? [], $value, $dataItem);
+
+    }
+
+
+    private function processParams($expression, $dataItem) {
+
+        if (is_numeric($expression))
+            return $expression;
+
+        $trimmed = trim($expression, "'\"");
+        if ($trimmed !== $expression) {
+            return $trimmed;
+        }
+
+        if ($expression == "null") {
+            return null;
+        }
+
+        $explodedExpression = explode(".", $expression);
+        foreach ($explodedExpression as $expression) {
+            if (is_array($dataItem))
+                $dataItem = $dataItem[$expression] ?? $expression;
+            else
+                $dataItem = $expression;
+        }
+
+        return $dataItem;
 
     }
 

@@ -51,11 +51,11 @@ class LogicValueFunction extends ValueFunctionWithArguments {
         switch ($functionName) {
             case "ifNot":
                 if (!$value) {
-                    return $this->expandMemberExpression($functionArgs[0] ?? "", $dataItem);
+                    return $functionArgs[0] ?? "";
                 }
                 break;
             case "add":
-                $addition = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                $addition = $functionArgs[0];
                 if (is_numeric($value) && is_numeric($addition)) {
                     return is_int($value) && is_int($addition) ? gmp_strval(gmp_add("$value", "$addition")) : $value + $addition;
                 } else {
@@ -63,7 +63,7 @@ class LogicValueFunction extends ValueFunctionWithArguments {
                 }
 
             case "subtract":
-                $subtraction = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                $subtraction = $functionArgs[0];
                 if (is_numeric($value) && is_numeric($subtraction)) {
                     return is_int($value) && is_int($subtraction) ? gmp_strval(gmp_sub("$value", "$subtraction")) : $value - $subtraction;
                 } else {
@@ -71,7 +71,7 @@ class LogicValueFunction extends ValueFunctionWithArguments {
                 }
 
             case "multiply":
-                $multiplier = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                $multiplier = $functionArgs[0];
                 if (is_numeric($value) && is_numeric($multiplier)) {
                     return is_int($value) && is_int($multiplier) ? gmp_strval(gmp_mul("$value", "$multiplier")) : $value * $multiplier;
                 } else {
@@ -79,18 +79,18 @@ class LogicValueFunction extends ValueFunctionWithArguments {
                 }
 
             case "divide":
-                $divisor = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                $divisor = $functionArgs[0];
                 return is_numeric($value) && is_numeric($divisor) ? $value / $divisor : null;
 
             case "modulo":
-                $modulo = is_numeric($functionArgs[0]) ? $functionArgs[0] : $this->expandMemberExpression($functionArgs[0], $dataItem);
+                $modulo = $functionArgs[0];
                 return is_numeric($value) && is_numeric($modulo) && is_int($value) && is_int($modulo) ?
                     gmp_strval(gmp_div_r("$value", "$modulo")) : (is_numeric($value) && is_numeric($modulo) ? $value % $modulo : null);
             case "floor":
                 return is_numeric($value) ? floor($value) : null;
 
             case "ternary":
-                return $value ? $this->expandMemberExpression($functionArgs[0], $dataItem) : $this->expandMemberExpression($functionArgs[1], $dataItem);
+                return $value ? $functionArgs[0] : $functionArgs[1];
 
             case "equals":
                 return ($value == $functionArgs[0]);
@@ -123,25 +123,4 @@ class LogicValueFunction extends ValueFunctionWithArguments {
         }
     }
 
-    // Expand member expression
-    private function expandMemberExpression($expression, $dataItem) {
-
-        if (is_numeric($expression))
-            return $expression;
-
-        $trimmed = trim($expression, "'\"");
-        if ($trimmed !== $expression) {
-            return $trimmed;
-        }
-
-        $explodedExpression = explode(".", $expression);
-        foreach ($explodedExpression as $expression) {
-            if (is_array($dataItem))
-                $dataItem = $dataItem[$expression] ?? $expression;
-            else
-                $dataItem = $expression;
-        }
-
-        return $dataItem;
-    }
 }

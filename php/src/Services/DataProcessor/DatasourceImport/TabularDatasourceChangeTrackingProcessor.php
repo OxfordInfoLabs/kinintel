@@ -131,6 +131,10 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 // Create the new file
                 $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
 
+                if (!file_exists($directory . "/new.txt")) {
+                    continue;
+                }
+
                 // Track changes between the new and previous
                 passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
                 passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");

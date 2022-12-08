@@ -17,6 +17,7 @@ namespace Kinintel\ValueObjects\Authentication;
  * @implementation ftp \Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials
  *
  * @implementation mysql \Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials
+ * @implementation postgresql \Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials
  * @implementation sqlite \Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials
  *
  * @implementation google-cloud \Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials

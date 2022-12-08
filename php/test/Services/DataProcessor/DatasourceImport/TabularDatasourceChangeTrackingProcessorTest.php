@@ -860,4 +860,61 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
     }
+
+    public function testDoesSkipDatasourceIfNewFileEmpty() {
+
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], null, null, null, null, [], PHP_INT_MAX);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
+
+
+        $test1Dataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ],
+            [
+                "name" => "Iron Man",
+                "age" => 40
+            ]
+        ]);
+
+        $test2Dataset = new ArrayTabularDataset([],[]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+            "test1", [], [], 0, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+            "test2", [], [], 0, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+            "test1", [], [], 0, PHP_INT_MAX
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+            "test2", [], [], 0, PHP_INT_MAX
+        ]);
+
+        // Actually process
+        $this->processor->process($processorInstance);
+
+        // Expect the new and previous files to exist
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/new.txt"));
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/previous.txt"));
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/deletes.txt"));
+
+        $this->assertFalse(file_exists("Files/change_tracking_processors/test/test2/new.txt"));
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test2/previous.txt"));
+        $this->assertFalse(file_exists("Files/change_tracking_processors/test/test2/adds.txt"));
+        $this->assertFalse(file_exists("Files/change_tracking_processors/test/test2/deletes.txt"));
+
+
+        $this->assertStringContainsString("Peter Storm#|!15\nIron Man#|!40", file_get_contents("Files/change_tracking_processors/test/test1/previous.txt"));
+
+    }
 }
