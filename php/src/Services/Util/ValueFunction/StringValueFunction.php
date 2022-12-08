@@ -48,7 +48,7 @@ class StringValueFunction extends ValueFunctionWithArguments {
                 case "concat":
                     $string = $value;
                     foreach ($functionArgs as $arg) {
-                        $string .= $this->expandMemberExpression($arg, $dataItem);
+                        $string .= $arg;
                     }
 
                     return $string;
@@ -65,28 +65,4 @@ class StringValueFunction extends ValueFunctionWithArguments {
 
     }
 
-
-    // Expand member expression
-    private function expandMemberExpression($expression, $dataItem) {
-
-        if (is_numeric($expression))
-            return $expression;
-
-        $trimmed = trim($expression, "'\"");
-
-        if ($trimmed !== $expression) {
-            return $trimmed;
-        }
-
-        $explodedExpression = explode(".", $expression);
-        foreach ($explodedExpression as $expression) {
-            if (is_array($dataItem)) {
-                $dataItem = $dataItem[$expression] ?? $expression;
-            } else {
-                $dataItem = $expression;
-            }
-        }
-
-        return $dataItem;
-    }
 }
