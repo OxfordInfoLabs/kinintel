@@ -260,6 +260,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
+
         // If no explicit columns and table based query with no column changing transformations
         // Generate explicit columns to allow for dataset update.
         if ($this->getConfig()->getSource() == "table" && !$columns && $this->hasOriginalColumns) {

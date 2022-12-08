@@ -59,7 +59,10 @@ class SQLResultSetTabularDataset extends TabularDataset {
             foreach ($this->columns as $column) {
                 if (isset($resultSetColumns[$column->getName()])) {
                     $mappedType = $sqlColumnFieldMapper->mapResultSetColumnToField($resultSetColumns[$column->getName()]);
-                    $column->setType($mappedType->getType());
+
+                    // Don't remap id types 
+                    if ($column->getType() !== "id")
+                        $column->setType($mappedType->getType());
                 }
             }
         }
