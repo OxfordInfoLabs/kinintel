@@ -18,8 +18,7 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 use Kinintel\ValueObjects\Util\Analysis\StatisticalAnalysis\Distance\DistanceConfig;
 
-class EquationDistanceProcessor implements DistanceProcessor
-{
+class EquationMetricProcessor implements MetricProcessor {
     /**
      * @var DatasourceService
      */
@@ -40,8 +39,7 @@ class EquationDistanceProcessor implements DistanceProcessor
      * @param DatasetService $datasetService
      * @param CustomDatasourceService $customDatasourceService
      */
-    public function __construct($datasourceService, $datasetService, $customDatasourceService)
-    {
+    public function __construct($datasourceService, $datasetService, $customDatasourceService) {
         $this->datasourceService = $datasourceService;
         $this->datasetService = $datasetService;
         $this->customDatasourceService = $customDatasourceService;
@@ -50,14 +48,14 @@ class EquationDistanceProcessor implements DistanceProcessor
     /**
      *
      * @param DataProcessorInstance $instance
+     * @param MetricCalculator $calculator
      * @return DatasourceInstance
      */
-    public function process($instance, $calculator)
-    {
+    public function process($instance, $calculator) {
         $config = $instance->returnConfig();
 
         //Returns a "snapshot" type datasource
-        $snapshotInstance = $this->customDatasourceService->createTabularSnapshotDatasourceInstance($instance->getTitle() . ": ".$calculator->getTitle()." Distance",
+        $snapshotInstance = $this->customDatasourceService->createTabularSnapshotDatasourceInstance($instance->getTitle() . ": " . $calculator->getTitle() . " Distance",
             [
                 new Field($config->getKeyFieldName()),
                 new Field($config->getKeyFieldName() . "_2"),
@@ -65,8 +63,10 @@ class EquationDistanceProcessor implements DistanceProcessor
             ], $instance->getProjectKey(), $instance->getAccountId());
 
         $isSource = $config->getDatasourceKey() != null && $config->getDatasourceKey() != "";
+
         //Query to calculate distance from a Vector name (Key field), Component name (Component field), and Component value (Value field)
         $transformations = [
+
             //Join the two sources with respect to their phrases (and the condition that the first document's name comes alphabetically before).
             new TransformationInstance("join", new JoinTransformation($config->getDatasourceKey(), null, [], new FilterJunction([
                 new Filter("[[" . $config->getComponentFieldName() . "]]", "[[" . $config->getComponentFieldName() . "]]", Filter::FILTER_TYPE_EQUALS),
@@ -97,27 +97,27 @@ class EquationDistanceProcessor implements DistanceProcessor
         $keys = [];
 
         //Complete the database with entries where the first document's name comes alphabetically after, and zero entries.
-        while ($data = $minimalDataset->nextDataItem()){
-            if (!array_key_exists($data[$config->getKeyFieldName()], $keys)){
+        while ($data = $minimalDataset->nextDataItem()) {
+            if (!array_key_exists($data[$config->getKeyFieldName()], $keys)) {
                 $writeArray[] = [
                     $config->getKeyFieldName() => $data[$config->getKeyFieldName()],
-                    $config->getKeyFieldName()."_2" => $data[$config->getKeyFieldName()],
+                    $config->getKeyFieldName() . "_2" => $data[$config->getKeyFieldName()],
                     "distance" => 0
                 ];
                 $keys[$data[$config->getKeyFieldName()]] = 1;
             }
-            if (!array_key_exists($data[$config->getKeyFieldName()."_2"], $keys)){
+            if (!array_key_exists($data[$config->getKeyFieldName() . "_2"], $keys)) {
                 $writeArray[] = [
-                    $config->getKeyFieldName() => $data[$config->getKeyFieldName()."_2"],
-                    $config->getKeyFieldName()."_2" => $data[$config->getKeyFieldName()."_2"],
+                    $config->getKeyFieldName() => $data[$config->getKeyFieldName() . "_2"],
+                    $config->getKeyFieldName() . "_2" => $data[$config->getKeyFieldName() . "_2"],
                     "distance" => 0
                 ];
-                $keys[$data[$config->getKeyFieldName()."_2"]] = 1;
+                $keys[$data[$config->getKeyFieldName() . "_2"]] = 1;
             }
 
             $writeArray[] = [
-                $config->getKeyFieldName() => $data[$config->getKeyFieldName()."_2"],
-                $config->getKeyFieldName()."_2" => $data[$config->getKeyFieldName()],
+                $config->getKeyFieldName() => $data[$config->getKeyFieldName() . "_2"],
+                $config->getKeyFieldName() . "_2" => $data[$config->getKeyFieldName()],
                 "distance" => $data["distance"]
             ];
         }
@@ -125,7 +125,7 @@ class EquationDistanceProcessor implements DistanceProcessor
         $snapshotSource->update(
             new ArrayTabularDataset([
                 new Field($config->getKeyFieldName()),
-                new Field($config->getKeyFieldName()."_2"),
+                new Field($config->getKeyFieldName() . "_2"),
                 new Field("distance")
             ], $writeArray), UpdatableDatasource::UPDATE_MODE_ADD);
 

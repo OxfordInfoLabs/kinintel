@@ -6,28 +6,28 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\KMeansCluster;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanDistanceCalculator;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationDistanceCalculator;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\KMeansClusterConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class KMeansClusterTest extends TestCase
-{
+class KMeansClusterTest extends TestCase {
     /**
      * @var KMeansCluster
      */
     private $kclust;
 
-    public function setUp(): void
-    {
+    public function setUp(): void {
         $this->kclust = new KMeansCluster();
     }
 
-    public function testProcessesDatasetToMakeKMeansCluster(){
-        $calculator = Container::instance()->get(PearsonCorrelationDistanceCalculator::class);
+    public function testProcessesDatasetToMakeKMeansCluster() {
+
+        $calculator = new PearsonCorrelationMetricCalculator();
         $config = new KMeansClusterConfiguration(4);
 
         $testDataset = new ArrayTabularDataset([
@@ -58,7 +58,10 @@ class KMeansClusterTest extends TestCase
             ["document" => "C", "document_2" => "C", "distance" => 0],
             ["document" => "D", "document_2" => "D", "distance" => 0],
         ]);
-        $resultsDataset = $this->kclust->process($config, $testDataset,$calculator);
+
+
+        srand(1);
+        $resultsDataset = $this->kclust->process($config, $testDataset, $calculator);
 
         $expectedColumns = [
             new Field("id"),
@@ -67,14 +70,12 @@ class KMeansClusterTest extends TestCase
         ];
 
         $expectedResults = [
-            ["id"=>0,"elements"=>["A"],"size"=>1],
-            ["id"=>1,"elements"=>["B"],"size"=>1],
-            ["id"=>2,"elements"=>["C"],"size"=>1],
-            ["id"=>3,"elements"=>["D"],"size"=>1]
+            ["id" => 0, "elements" => ["B"], "size" => 1],
+            ["id" => 1, "elements" => ["C"], "size" => 1],
+            ["id" => 2, "elements" => ["D"], "size" => 1],
+            ["id" => 3, "elements" => ["A"], "size" => 1]
 
         ];
-
-        print_r($resultsDataset->getAllData());
 
         $this->assertTrue($resultsDataset instanceof ArrayTabularDataset);
         $this->assertEquals($expectedColumns, $resultsDataset->getColumns());

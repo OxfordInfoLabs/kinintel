@@ -8,13 +8,12 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\KMeansCluster;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\DistanceCalculator;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\DistanceProcessor;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationDistanceProcessor;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricProcessor;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationMetricProcessor;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessorConfiguration;
 
-class DistanceAndClusteringProcessor implements DataProcessor
-{
+class DistanceAndClusteringProcessor implements DataProcessor {
 
     /**
      * @var HierarchicalCluster
@@ -30,15 +29,13 @@ class DistanceAndClusteringProcessor implements DataProcessor
      * @param HierarchicalCluster $hierarchicalCluster
      * @param KMeansCluster $kmeansCluster
      */
-    public function __construct($hierarchicalCluster, $kmeansCluster)
-    {
+    public function __construct($hierarchicalCluster, $kmeansCluster) {
         $this->hierarchicalCluster = $hierarchicalCluster;
         $this->kmeansCluster = $kmeansCluster;
     }
 
 
-    public function getConfigClass()
-    {
+    public function getConfigClass() {
         return DistanceAndClusteringProcessorConfiguration::class;
     }
 
@@ -46,18 +43,17 @@ class DistanceAndClusteringProcessor implements DataProcessor
      * @param DataProcessorInstance $instance
      * @return void
      */
-    public function process($instance)
-    {
+    public function process($instance) {
         $config = $instance->returnConfig();
-        $distanceProcessor = Container::instance()->getInterfaceImplementation(DistanceProcessor::class, $config->getDistanceMetric());
-        $distanceCalculator = Container::instance()->getInterfaceImplementation(DistanceCalculator::class, $config->getDistanceMetric());
+        $distanceProcessor = Container::instance()->getInterfaceImplementation(MetricProcessor::class, $config->getDistanceMetric());
+        $distanceCalculator = Container::instance()->getInterfaceImplementation(MetricCalculator::class, $config->getDistanceMetric());
 
         $distanceDatasourceInstance = $distanceProcessor->process($instance, $distanceCalculator);
 
-        if($config->isHierarchicalCluster() || $config->isKmeansCluster()){
+        if ($config->isHierarchicalCluster() || $config->isKmeansCluster()) {
             $distanceDataset = $distanceDatasourceInstance->returnDataSource()->materialise();
             $config->isHierarchicalCluster() ? $this->hierarchicalCluster->process($distanceDataset, $distanceCalculator) : false;
-            $config->isKmeansCluster() ? $this->kmeansCluster->process($config->getKmeansClusterConfiguration(), $distanceDataset) : false;
+            $config->isKmeansCluster() ? $this->kmeansCluster->process($config->getKmeansClusterConfiguration(), $distanceDataset, $distanceCalculator) : false;
         }
     }
 }

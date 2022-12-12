@@ -17,7 +17,7 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationDistanceProcessor;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationMetricProcessor;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -31,10 +31,10 @@ use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class EquationDistanceProcessorTest extends TestCase
-{
+class EquationDistanceProcessorTest extends TestCase {
+
     /**
-     * @var TestDistanceCalculator
+     * @var TestMetricCalculator
      */
     private $testProcessor;
 
@@ -53,23 +53,21 @@ class EquationDistanceProcessorTest extends TestCase
      */
     private $customDatasourceService;
 
-    public function setUp(): void
-    {
+    public function setUp(): void {
 
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->customDatasourceService = MockObjectProvider::instance()->getMockInstance(CustomDatasourceService::class);
 
-        $this->testProcessor = new EquationDistanceProcessor($this->datasourceService, $this->datasetService, $this->customDatasourceService);
+        $this->testProcessor = new EquationMetricProcessor($this->datasourceService, $this->datasetService, $this->customDatasourceService);
     }
 
-    public function testAsksForDistanceCalculationQueryAndWritesToSnapshot()
-    {
+    public function testAsksForDistanceCalculationQueryAndWritesToSnapshot() {
         $mockSnapshotInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSnapshotSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $mockSnapshotInstance->returnValue("returnDataSource", $mockSnapshotSource);
 
-        $calculator = Container::instance()->get(TestDistanceCalculator::class);
+        $calculator = Container::instance()->get(TestMetricCalculator::class);
 
         $minimalData = [
             [

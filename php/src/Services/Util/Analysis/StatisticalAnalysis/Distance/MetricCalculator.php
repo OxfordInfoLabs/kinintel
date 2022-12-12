@@ -5,11 +5,10 @@ namespace Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance;
 use Kinintel\ValueObjects\Util\Analysis\StatisticalAnalysis\Distance\DistanceConfig;
 
 /**
- * @implementation euclidean \Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanDistanceCalculator
- * @implementation pearson \Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationDistanceCalculator
+ * @implementation euclidean \Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator
+ * @implementation pearson \Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator
  */
-interface DistanceCalculator
-{
+interface MetricCalculator {
 
     /**
      * Return the type of the processor as a string e.g. "Euclidean"

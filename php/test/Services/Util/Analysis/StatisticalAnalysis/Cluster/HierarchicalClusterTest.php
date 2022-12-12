@@ -5,27 +5,25 @@ namespace Kinintel\Test\Services\Util\Analysis\StatisticalAnalysis\Cluster;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalCluster;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanDistanceCalculator;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationDistanceCalculator;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator;
+use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator;
 use Kinintel\ValueObjects\Dataset\Field;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class HierarchicalClusterTest extends TestCase
-{
+class HierarchicalClusterTest extends TestCase {
     /**
      * @var HierarchicalCluster
      */
     private $hclust;
 
-    public function setUp(): void
-    {
+    public function setUp(): void {
         $this->hclust = new HierarchicalCluster();
     }
 
-    public function testProcessesDatasetToMakeHierarchicalCluster(){
-        $calculator = Container::instance()->get(EuclideanDistanceCalculator::class);
+    public function testProcessesDatasetToMakeHierarchicalCluster() {
+        $calculator = Container::instance()->get(EuclideanMetricCalculator::class);
 
         $testDataset = new ArrayTabularDataset([
             new Field("document"),
@@ -65,13 +63,13 @@ class HierarchicalClusterTest extends TestCase
         ];
 
         $expectedResults = [
-            ["id"=>0,"direct_children"=>[],"elements"=>["A"],"size"=>1],
-            ["id"=>1,"direct_children"=>[],"elements"=>["B"],"size"=>1],
-            ["id"=>2,"direct_children"=>[],"elements"=>["C"],"size"=>1],
-            ["id"=>3,"direct_children"=>[],"elements"=>["D"],"size"=>1],
-            ["id"=>4,"direct_children"=>[0,1],"elements"=>["A","B"],"size"=>2],
-            ["id"=>5,"direct_children"=>[2,3],"elements"=>["C","D"],"size"=>2],
-            ["id"=>6,"direct_children"=>[4,5],"elements"=>["A","B","C","D"],"size"=>4]
+            ["id" => 0, "direct_children" => [], "elements" => ["A"], "size" => 1],
+            ["id" => 1, "direct_children" => [], "elements" => ["B"], "size" => 1],
+            ["id" => 2, "direct_children" => [], "elements" => ["C"], "size" => 1],
+            ["id" => 3, "direct_children" => [], "elements" => ["D"], "size" => 1],
+            ["id" => 4, "direct_children" => [0, 1], "elements" => ["A", "B"], "size" => 2],
+            ["id" => 5, "direct_children" => [2, 3], "elements" => ["C", "D"], "size" => 2],
+            ["id" => 6, "direct_children" => [4, 5], "elements" => ["A", "B", "C", "D"], "size" => 4]
         ];
         $this->assertTrue($resultsDataset instanceof ArrayTabularDataset);
         $this->assertEquals($expectedColumns, $resultsDataset->getColumns());
