@@ -132,7 +132,9 @@ class SQLClauseSanitiser {
         "YEAR" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
             "description" => "Extract the numerical year value from a date"],
         "NOW" => ["params" => [], "category" => self::DATE_WHITELISTED_FUNCTION,
-            "description" => "Return the current data and time"]
+            "description" => "Return the current data and time"],
+        "EPOCH_SECONDS" => ["params" => ["X"], "category" => self::DATE_WHITELISTED_FUNCTION,
+            "description" => "Convert a date into seconds since 01/01/1970"]
     ];
 
     /**
