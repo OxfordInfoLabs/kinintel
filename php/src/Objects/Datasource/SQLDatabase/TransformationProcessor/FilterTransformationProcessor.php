@@ -97,7 +97,7 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
      */
     private function queryWrapRequired($dataSource, $transformation) {
         $datasourceTransformations = $dataSource->returnTransformations();
-        $transformationIndex = array_search($transformation, $datasourceTransformations);
+        $transformationIndex = array_search($transformation, $datasourceTransformations ?? []);
         $wrapRequired = false;
         for ($i = $transformationIndex - 1; $i >= 0; $i--) {
             $previousTransformation = $datasourceTransformations[$i];
