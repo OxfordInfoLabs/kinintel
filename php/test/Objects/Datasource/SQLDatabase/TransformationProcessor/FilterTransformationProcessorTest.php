@@ -7,14 +7,20 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Formula\Expression;
+use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 
 include_once "autoloader.php";
 
@@ -433,6 +439,52 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             "%Company Director%",
             "Geek"
         ], $query->getParameters());
+
+    }
+
+
+    public function testIfFilterAppliedAfterFormulaTransformationQueryIsWrappedFirstToPreventAliasIssues() {
+
+        $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
+        $authenticationCredentials->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
+        $dataSource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test", null, [
+            new Field("column1"), new Field("column2")
+        ]),
+            $authenticationCredentials, null);
+
+        $transformation = new FormulaTransformation([
+            new Expression("Computed", "[[column1]] + [[column2]]"),
+            new Expression("Derived Column", "[[column3]] + 5 / [[column2]]"),
+            new Expression("Parameter", "{{test}} + [[column1]]")]);
+
+        $dataSource->applyTransformation($transformation);
+
+
+        $secondTransformation = new FormulaTransformation([
+            new Expression("Second Level", "[[computed]] + [[parameter]]")
+        ]);
+
+        $dataSource->applyTransformation($secondTransformation);
+
+
+        $filterTransformation = new FilterTransformation([new Filter("[[computed]]", 44),
+            new Filter("[[secondLevel]]", 26)]);
+
+        $dataSource->applyTransformation($filterTransformation);
+
+        $formulaTransformationProcessor = new FormulaTransformationProcessor();
+        $filterTransformationProcessor = new FilterTransformationProcessor($this->templateParser);
+
+        $query = new SQLQuery("*", "sample_table");
+
+        $query = $formulaTransformationProcessor->updateQuery($transformation, $query, ["test" => "Hello"], $dataSource);
+        $query = $formulaTransformationProcessor->updateQuery($secondTransformation, $query, ["test" => "Hello"], $dataSource);
+
+
+        $query = $filterTransformationProcessor->updateQuery($filterTransformation, $query, ["test" => "Hello"], $dataSource);
+
+        $this->assertEquals('SELECT * FROM (SELECT *, "column1" + "column2" computed, "column3" + ? / "column2" derivedColumn, ? + "column1" parameter, ("column1" + "column2") + (? + "column1") secondLevel FROM sample_table) E1 WHERE "computed" = ? AND "secondLevel" = ?', $query->getSQL());
 
 
     }
