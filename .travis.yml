@@ -8,7 +8,7 @@ before_install:
   - sudo cp $TRAVIS_BUILD_DIR/travis-mysql.cnf /etc/mysql/conf.d/
   - sudo service mysql restart
   - sudo mysql -e 'CREATE DATABASE IF NOT EXISTS kininteltest';
-  - sudo mysql -e "GRANT ALL ON kininteltest.* to 'kininteltest'@'127.0.0.1' identified
+  - sudo mysql -e "GRANT ALL ON kininteltest.* to 'kininteltest'@'%' identified
     by 'kininteltest'"
   - sudo psql -c "create user kininteltest with password 'kininteltest' CREATEDB;" -U postgres
   - sudo psql -c 'create database kininteltest;' -U postgres
