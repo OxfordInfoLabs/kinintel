@@ -400,7 +400,9 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         $datasourceChangesUpdate = new DatasourceUpdate([], [], [], $data);
 
-        $this->datasourceService->updateDatasourceInstance($targetChangeDatasourceKey, $datasourceChangesUpdate, true);
+        if ($targetChangeDatasourceKey) {
+            $this->datasourceService->updateDatasourceInstance($targetChangeDatasourceKey, $datasourceChangesUpdate, true);
+        }
 
     }
 

@@ -5,7 +5,7 @@ namespace Kinintel\Test\Services\Util\Analysis\StatisticalAnalysis\Distance;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
 
 class TestMetricCalculator implements MetricCalculator {
-    
+
     /**
      * @param $config
      * @return string
