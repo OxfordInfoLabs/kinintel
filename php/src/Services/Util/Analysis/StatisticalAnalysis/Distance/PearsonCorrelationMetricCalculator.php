@@ -16,9 +16,9 @@ class PearsonCorrelationMetricCalculator implements MetricCalculator {
         $pCCSecondFrequencySq = "SUM(POW([[" . $vfn . "_2]], 2))";
 
 
-        return "1-([[$pCCCorrelationSum]] - [[$pCCPhraseFactor]]*[[$pCCFirstFrequencySum]]*[[$pCCSecondFrequencySum]])/SQRT(
-            ([[$pCCFirstFrequencySq]] - [[$pCCPhraseFactor]]*[[$pCCFirstFrequencySum]]*[[$pCCFirstFrequencySum]])
-            *([[$pCCSecondFrequencySq]] - [[$pCCPhraseFactor]]*[[$pCCSecondFrequencySum]]*[[$pCCSecondFrequencySum]])
+        return "1 - ($pCCCorrelationSum - $pCCPhraseFactor * $pCCFirstFrequencySum * $pCCSecondFrequencySum) / SQRT(
+            ($pCCFirstFrequencySq - $pCCPhraseFactor * $pCCFirstFrequencySum * $pCCFirstFrequencySum)
+            * ($pCCSecondFrequencySq - $pCCPhraseFactor * $pCCSecondFrequencySum * $pCCSecondFrequencySum)
         )";
     }
 

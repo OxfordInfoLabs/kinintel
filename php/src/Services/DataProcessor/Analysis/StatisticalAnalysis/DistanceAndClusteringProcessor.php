@@ -41,10 +41,14 @@ class DistanceAndClusteringProcessor implements DataProcessor {
 
     /**
      * @param DataProcessorInstance $instance
-     * @return void
+     * @return mixed[]
      */
     public function process($instance) {
+        /**
+         * @var DistanceAndClusteringProcessorConfiguration $config
+         */
         $config = $instance->returnConfig();
+
         $distanceProcessor = Container::instance()->getInterfaceImplementation(MetricProcessor::class, $config->getDistanceMetric());
         $distanceCalculator = Container::instance()->getInterfaceImplementation(MetricCalculator::class, $config->getDistanceMetric());
 
@@ -52,8 +56,11 @@ class DistanceAndClusteringProcessor implements DataProcessor {
 
         if ($config->isHierarchicalCluster() || $config->isKmeansCluster()) {
             $distanceDataset = $distanceDatasourceInstance->returnDataSource()->materialise();
-            $config->isHierarchicalCluster() ? $this->hierarchicalCluster->process($distanceDataset, $distanceCalculator) : false;
-            $config->isKmeansCluster() ? $this->kmeansCluster->process($config->getKmeansClusterConfiguration(), $distanceDataset, $distanceCalculator) : false;
         }
+
+        $resultsHierarchical = $config->isHierarchicalCluster() ? $this->hierarchicalCluster->process($distanceDataset, $distanceCalculator) : null;
+        $resultsKMeans = $config->isKmeansCluster() ? $this->kmeansCluster->process($config->getKmeansClusterConfiguration(), $distanceDataset, $distanceCalculator) : null;
+
+        return [$resultsHierarchical, $resultsKMeans];
     }
 }

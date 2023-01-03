@@ -115,7 +115,7 @@ class CustomDatasourceService
                 "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                 "tableName" => $newInstanceKey,
                 "columns" => $fields
-            ], "dataset_snapshot");
+            ], Configuration::readParameter("snapshot.datasource.credentials.key"));
         $dataSourceInstance->setAccountId($accountId);
         $dataSourceInstance->setProjectKey($projectKey);
 

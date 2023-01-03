@@ -235,7 +235,7 @@ class CustomDatasourceServiceTest extends TestBase {
                 "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                 "tableName" => "snapshot_data_set_53_" . date("U"),
                 "columns" => [new Field("Field1"), new Field("Field2")]
-            ], "dataset_snapshot");
+            ], "test");
         $expectedInstance->setProjectKey("dummydummy");
         $expectedInstance->setAccountId(53);
 
