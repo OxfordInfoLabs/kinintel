@@ -97,6 +97,13 @@ class DatasetService {
     }
 
 
+    /**
+     * Get all full data set instances
+     *
+     */
+    public function getAllFullDataSetInstances() {
+        return DatasetInstance::filter("");
+    }
 
 
     /**
