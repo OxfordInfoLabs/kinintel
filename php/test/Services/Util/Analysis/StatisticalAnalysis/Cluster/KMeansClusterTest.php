@@ -28,7 +28,7 @@ class KMeansClusterTest extends TestCase {
     public function testProcessesDatasetToMakeKMeansCluster() {
 
         $calculator = new PearsonCorrelationMetricCalculator();
-        $config = new KMeansClusterConfiguration(4);
+        $config = new KMeansClusterConfiguration(4, 10);
 
         $testDataset = new ArrayTabularDataset([
             new Field("document"),

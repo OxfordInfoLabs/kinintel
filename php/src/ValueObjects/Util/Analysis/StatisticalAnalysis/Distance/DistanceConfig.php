@@ -5,8 +5,7 @@ namespace Kinintel\ValueObjects\Util\Analysis\StatisticalAnalysis\Distance;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\KMeansClusterConfiguration;
 
-class DistanceConfig
-{
+class DistanceConfig {
     /**
      * @var int
      * @requiredEither datasourceKey
@@ -46,8 +45,7 @@ class DistanceConfig
      * @param string $componentFieldName
      * @param string $valueFieldName
      */
-    public function __construct($datasourceKey, $datasetId, $keyFieldName, $componentFieldName, $valueFieldName)
-    {
+    public function __construct($datasourceKey, $datasetId, $keyFieldName, $componentFieldName, $valueFieldName) {
         $this->datasourceKey = $datasourceKey;
         $this->datasetId = $datasetId;
         $this->keyFieldName = $keyFieldName;
@@ -58,80 +56,70 @@ class DistanceConfig
     /**
      * @return string
      */
-    public function getKeyFieldName()
-    {
+    public function getKeyFieldName() {
         return $this->keyFieldName;
     }
 
     /**
      * @return string
      */
-    public function getComponentFieldName()
-    {
+    public function getComponentFieldName() {
         return $this->componentFieldName;
     }
 
     /**
      * @param string $keyFieldName
      */
-    public function setKeyFieldName($keyFieldName)
-    {
+    public function setKeyFieldName($keyFieldName) {
         $this->keyFieldName = $keyFieldName;
     }
 
     /**
      * @param string $componentFieldName
      */
-    public function setComponentFieldName($componentFieldName)
-    {
+    public function setComponentFieldName($componentFieldName) {
         $this->componentFieldName = $componentFieldName;
     }
 
     /**
      * @param int $datasetId
      */
-    public function setDatasetId($datasetId)
-    {
+    public function setDatasetId($datasetId) {
         $this->datasetId = $datasetId;
     }
 
     /**
      * @return string
      */
-    public function getValueFieldName()
-    {
+    public function getValueFieldName() {
         return $this->valueFieldName;
     }
 
     /**
      * @param string $datasourceKey
      */
-    public function setDatasourceKey($datasourceKey)
-    {
+    public function setDatasourceKey($datasourceKey) {
         $this->datasourceKey = $datasourceKey;
     }
 
     /**
      * @return int
      */
-    public function getDatasetId()
-    {
+    public function getDatasetId() {
         return $this->datasetId;
     }
 
     /**
      * @return string
      */
-    public function getDatasourceKey()
-    {
+    public function getDatasourceKey() {
         return $this->datasourceKey;
     }
 
     /**
      * @param string $valueFieldName
      */
-    public function setValueFieldName($valueFieldName)
-    {
+    public function setValueFieldName($valueFieldName) {
         $this->valueFieldName = $valueFieldName;
     }
 }

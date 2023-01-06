@@ -207,7 +207,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                             $newJoinData[] = array_merge($columnValues, $joinRow);
                         }
                     } catch (\Exception $e) {
-                        Logger::log($e->getMessage());
                         // Catch any errors on materialise and set join data to blank.
                         $newJoinData[] = $columnValues;
                     }

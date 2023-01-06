@@ -54,8 +54,6 @@ abstract class ValueFunctionWithArguments implements ValueFunction {
             $param = $this->processParams($param, $dataItem);
         }
 
-        Logger::log($params);
-
         return $this->applyFunctionWithArgs($functionName, $params ?? [], $value, $dataItem);
 
     }

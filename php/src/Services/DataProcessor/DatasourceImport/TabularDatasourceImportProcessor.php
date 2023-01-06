@@ -275,8 +275,6 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
             $parameters[$targetSourceParameterMapping->getSourceParameterName()] = $parameterValue;
 
-            Logger::log($parameterValue);
-
         }
 
         return $parameters;

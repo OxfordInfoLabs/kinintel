@@ -53,7 +53,8 @@ class HierarchicalCluster {
             $lowestPair = [0, 1];
             $closestDist = -1;
 
-            for ($i = 0; $i < count($activeClusters); $i++) { //Find smallest distance
+            // Calculate all pairwise distances - can certainly be optimised
+            for ($i = 0; $i < count($activeClusters); $i++) {
                 for ($j = $i + 1; $j < count($activeClusters); $j++) {
                     if ($activeClusters[$i]["direct_children"] == []) {
                         $d = $activeClusters[$j]["distVec"][$activeClusters[$i]["id"]];
@@ -86,7 +87,8 @@ class HierarchicalCluster {
             $clusterCount++;
 
             //Drop the lowest clusters of the lowest pair while maintaining indices
-            $activeClusters = array_diff_key($activeClusters, [$activeClusters[$lowestPair[0]], $activeClusters[$lowestPair[1]]]);
+            unset($activeClusters[$lowestPair[0]]);
+            unset($activeClusters[$lowestPair[1]]);
 
             $activeClusters = array_values($activeClusters); //Reindexes the array
             $activeClusters[] = $newCluster; //Adds the new cluster;
@@ -94,6 +96,7 @@ class HierarchicalCluster {
 
         for ($i = 0; $i < count($clustArray); $i++) {
             unset($clustArray[$i]["distVec"]);
+            unset($clustArray[$i]["distance_to_parent"]);
             $clustArray[$i]["size"] = count($clustArray[$i]["elements"]);
         }
 
