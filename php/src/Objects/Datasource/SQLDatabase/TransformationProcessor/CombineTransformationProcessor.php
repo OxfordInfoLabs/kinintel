@@ -116,9 +116,6 @@ class CombineTransformationProcessor extends SQLTransformationProcessor {
         }
 
 
-        Logger::log($transformation->getFieldKeyMappings());
-
-
         // Deal with any field mappings
         if ($transformation->getFieldKeyMappings()) {
             $mainSelectList = [];
