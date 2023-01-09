@@ -8,7 +8,8 @@ class StringValueFunction extends ValueFunctionWithArguments {
     const supportedFunctions = [
         "substring",
         "concat",
-        "toUTF8"
+        "toUTF8",
+        "trim"
     ];
 
     /**
@@ -55,6 +56,9 @@ class StringValueFunction extends ValueFunctionWithArguments {
 
                 case "toUTF8":
                     return preg_replace('/(\xF0\x9F[\x00-\xFF][\x00-\xFF])/', "", $value) == $value ? $value : null;
+
+                case "trim":
+                    return trim($value, $functionArgs[0]);
             }
 
             return $value;

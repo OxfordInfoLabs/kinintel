@@ -22,6 +22,7 @@ use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use phpseclib3\Math\BigInteger\Engines\PHP;
 
 include_once "autoloader.php";
 
@@ -880,7 +881,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             ]
         ]);
 
-        $test2Dataset = new ArrayTabularDataset([],[]);
+        $test2Dataset = new ArrayTabularDataset([], []);
 
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
@@ -915,6 +916,51 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->assertStringContainsString("Peter Storm#|!15\nIron Man#|!40", file_get_contents("Files/change_tracking_processors/test/test1/previous.txt"));
+
+    }
+
+    public function testRowsSkippedIfNextRowIsNull() {
+
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test"], null, "test", null, null, [], PHP_INT_MAX);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
+
+
+        $testDataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            null,
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ],
+            null,
+            [
+                "name" => "Iron Man",
+                "age" => 40
+            ]
+        ]);
+
+        $expectedUpdate = new DatasourceUpdate([], [], [], [
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ], [
+                "name" => "Iron Man",
+                "age" => 40
+            ]
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test", [], [], 0, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+            "test", [], [], 0, PHP_INT_MAX
+        ]);
+
+        $this->processor->process($processorInstance);
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
 
     }
 }

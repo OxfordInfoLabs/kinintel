@@ -65,16 +65,22 @@ class SVResultFormatter implements ResultFormatter {
      */
     private $cacheAllRows = true;
 
+    /**
+     * @var string
+     */
+    private $skipRegex = null;
+
 
     /**
      * SVResultFormatter constructor.
      *
+     * @param string $skipRegex
      * @param string $separator
      * @param string $enclosure
      * @param int $firstRowOffset
      * @param boolean $firstRowHeader
      */
-    public function __construct($separator = ",", $enclosure = '"', $firstRowOffset = 0, $firstRowHeader = false, $ignoreColumnIndexes = [], $skipBlankColumnValues = false, $cacheAllRows = true) {
+    public function __construct($separator = ",", $enclosure = '"', $firstRowOffset = 0, $firstRowHeader = false, $ignoreColumnIndexes = [], $skipBlankColumnValues = false, $cacheAllRows = true, $skipRegex = null) {
         $this->separator = $separator;
         $this->enclosure = $enclosure;
         $this->firstRowOffset = $firstRowOffset;
@@ -82,6 +88,7 @@ class SVResultFormatter implements ResultFormatter {
         $this->ignoreColumnIndexes = $ignoreColumnIndexes;
         $this->skipBlankColumnValues = $skipBlankColumnValues;
         $this->cacheAllRows = $cacheAllRows;
+        $this->skipRegex = $skipRegex;
     }
 
     /**
@@ -166,7 +173,7 @@ class SVResultFormatter implements ResultFormatter {
      * @return Dataset
      */
     public function format($stream, $passedColumns = [], $limit = PHP_INT_MAX, $offset = 0) {
-        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowOffset, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset, $this->ignoreColumnIndexes, $this->cacheAllRows, $this->skipBlankColumnValues);
+        return new SVStreamTabularDataSet($passedColumns, $stream, $this->firstRowOffset, $this->firstRowHeader, $this->separator, $this->enclosure, $limit, $offset, $this->ignoreColumnIndexes, $this->cacheAllRows, $this->skipBlankColumnValues, $this->skipRegex);
     }
 
 }

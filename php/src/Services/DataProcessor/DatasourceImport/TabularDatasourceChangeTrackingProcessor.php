@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use phpseclib3\Crypt\EC\Curves\prime192v1;
 
 class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
@@ -162,29 +163,31 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
     private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize) {
         $offset = 0;
         // Read the datasource in chunks
-        do {
-            $lineCount = 0;
-            $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
-            $nextItem = $evaluated->nextDataItem();
 
-            if (!$nextItem) {
-                return;
-            }
+        do {
+            $lineCount = -1;
+            $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
+
+            // Initialise next
+            $nextItem = null;
 
             // For each chunk, format each entry and write to new.txt
             do {
 
-                $nextLine = "";
+                if ($nextItem) {
+                    $nextLine = "";
 
-                foreach ($nextItem as $key => $value) {
-                    $nextLine .= $value . "#|!";
+                    foreach ($nextItem as $key => $value) {
+                        $nextLine .= $value . "#|!";
+                    }
+                    file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
                 }
-                file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
+
                 $lineCount++;
 
                 $nextItem = $evaluated->nextDataItem();
 
-            } while ($nextItem);
+            } while ($nextItem !== false);
 
             $offset += $sourceReadChunkSize;
 

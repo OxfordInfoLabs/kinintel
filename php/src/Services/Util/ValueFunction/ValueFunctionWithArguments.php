@@ -41,7 +41,7 @@ abstract class ValueFunctionWithArguments implements ValueFunction {
         $functionName = array_shift($paramsRaw);
 
         // Match all arguments and return the final match group
-        preg_match_all("/[^\s\"']+|\"([^\"]*)\"|'([^']*)'/", $paramsRaw[0] ?? "", $matches);
+        preg_match_all("/[^\s\"']+|(\"[^\"]*\")|('[^']*')/", $paramsRaw[0] ?? "", $matches);
         $params = $matches[0] ?? [];
         foreach ($matches[2] ?? [] as $index => $match) {
             if ($match) {
@@ -49,10 +49,10 @@ abstract class ValueFunctionWithArguments implements ValueFunction {
             }
         }
 
-
         foreach ($params as &$param) {
             $param = $this->processParams($param, $dataItem);
         }
+
 
         return $this->applyFunctionWithArgs($functionName, $params ?? [], $value, $dataItem);
 
