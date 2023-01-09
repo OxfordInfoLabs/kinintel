@@ -241,6 +241,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const dialogRef = this.dialog.open(DatasetColumnSettingsComponent, {
             width: '1000px',
             height: '800px',
+            disableClose: true,
             data: {
                 columns: columnSettings,
                 reset: !!_.find(this.datasetInstanceSummary.transformationInstances, {type: 'columns'}),
@@ -293,6 +294,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const dialogRef = this.dialog.open(DatasetCreateFormulaComponent, {
             width: '900px',
             height: '800px',
+            disableClose: true,
             data: {
                 allColumns: this.filterFields,
                 formulas: existingTransformation ? existingTransformation.config.expressions : [{}]
@@ -361,6 +363,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const dialogRef = this.dialog.open(DatasetAddJoinComponent, {
             width: '1200px',
             height: '800px',
+            disableClose: true,
             data,
         });
 
@@ -455,6 +458,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
             width: '1100px',
             height: '800px',
+            disableClose: true,
             data: {
                 availableColumns: this.filterFields,
                 config: config ? config : null
@@ -537,6 +541,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
             width: '600px',
             height: '600px',
+            disableClose: true,
             data: {
                 parameter: clonedParameter
             }
@@ -605,6 +610,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
                 width: '475px',
                 height: '150px',
+                disableClose: true,
                 data: {
                     title: this.newTitle,
                     description: this.newDescription
@@ -668,6 +674,13 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     private loadData() {
         this.tableData = this.dataset.allData.slice(0, this.limit);
+
+        if (!this.tableData.length) {
+            const data = {};
+            data[this.dataset.columns[0].name] = 'No Results';
+            this.tableData = [data];
+        }
+
         this.endOfResults = this.dataset.allData.length <= this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
         this.filterFields = _.map(this.dataset.columns, column => {
@@ -788,7 +801,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 const message = err.error.message.toLowerCase();
                 if (!message.includes('parameter') && !message.includes('required')) {
                     this.snackBar.open(err.error.message, 'Close', {
-                        verticalPosition: 'top'
+                        verticalPosition: 'top',
+                        duration: 5000
                     });
                 }
             }
@@ -817,7 +831,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                                 const message = errorMessage.toLowerCase();
                                 if (!message.includes('parameter') && !message.includes('required')) {
                                     this.snackBar.open(errorMessage, 'Close', {
-                                        verticalPosition: 'top'
+                                        verticalPosition: 'top',
+                                        duration: 5000
                                     });
                                 }
                             }

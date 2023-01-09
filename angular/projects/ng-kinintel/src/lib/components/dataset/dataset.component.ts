@@ -30,6 +30,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() reload: Subject<any>;
     @Input() url: string;
     @Input() accountId: any;
+    @Input() contactUs: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');

@@ -168,10 +168,11 @@
                         <tr>
                             <td colspan="6"
                                 class="border-t bg-gray-50 whitespace-nowrap border-b border-gray-200 py-1 px-4 text-sm text-gray-900">
-                                <div class="paging-toolbar flex align-center justify-between">
-                                    <div class="text-xs text-gray-400">
-                                        Showing {{snapshots.tag.offset + 1}} - {{(snapshots.tag.page * snapshots.tag.limit) - (snapshots.tag.limit - snapshots.tag.data.length)}}</div>
+                                <div class="paging-toolbar flex align-center justify-end">
+
                                     <div class="flex items-center justify-center">
+                                        <div class="text-xs text-gray-400 mr-10">
+                                            Showing {{snapshots.tag.offset + 1}} - {{(snapshots.tag.page * snapshots.tag.limit) - (snapshots.tag.limit - snapshots.tag.data.length)}}</div>
                                         <select [value]="snapshots.tag.limit"
                                                 (change)="pageSizeChange($event.target.value, snapshots.tag)"
                                                 class="mr-8 p-1.5">
@@ -324,11 +325,12 @@
                         <tr>
                             <td colspan="6"
                                 class="bg-gray-50 whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-900">
-                                <div class="paging-toolbar flex align-center justify-between">
-                                    <div class="text-xs text-gray-400">
-                                        Showing {{snapshots.project.offset + 1}} - {{(snapshots.project.page * snapshots.project.limit) - (snapshots.project.limit - snapshots.project.data.length)}}
-                                    </div>
+                                <div class="paging-toolbar flex align-center justify-end">
+
                                     <div class="flex items-center justify-center">
+                                        <div class="text-xs text-gray-400 mr-10">
+                                            Showing {{snapshots.project.offset + 1}} - {{(snapshots.project.page * snapshots.project.limit) - (snapshots.project.limit - snapshots.project.data.length)}}
+                                        </div>
                                         <select [value]="snapshots.project.limit"
                                                 (change)="pageSizeChange($event.target.value, snapshots.project)"
                                                 class="mr-8 p-2">

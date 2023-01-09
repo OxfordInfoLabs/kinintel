@@ -49,43 +49,53 @@
                     <tbody class="bg-white">
                     <ng-template [ngIf]="datasets.length">
                         <tr class="border-t border-gray-200">
-                            <th colspan="2" scope="colgroup"
+                            <th scope="colgroup"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 pl-4 text-left text-xs font-semibold text-gray-900">
                                 <div class="w-full flex items-center justify-between">
                                     <div>{{headingLabel || 'Datasets'}}</div>
-                                    <button type="button" [matMenuTriggerFor]="projectCategories"
-                                            [disabled]="!categories.length"
-                                            class="disabled:opacity-50 -ml-px relative inline-flex items-center py-3 px-4 border-l border-gray-300 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none border-t-0 border-r-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400"
-                                             viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                  d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                                                  clip-rule="evenodd"/>
-                                        </svg>
-                                        <span class="ml-2">Categories</span>
-                                        <svg class="ml-2.5 -mr-1.5 h-5 w-5 text-gray-400"
-                                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                             aria-hidden="true">
-                                            <path fill-rule="evenodd"
-                                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                  clip-rule="evenodd"/>
-                                        </svg>
-                                    </button>
-                                    <mat-menu #projectCategories="matMenu">
-                                        <button (click)="toggleCategory($event, category)"
-                                                mat-menu-item *ngFor="let category of categories">
-                                            <div class="flex items-center">
-                                                <mat-icon color="primary" *ngIf="category.checked">check_box</mat-icon>
-                                                <mat-icon *ngIf="!category.checked">check_box_outline_blank</mat-icon>
-                                                {{category.category}}
-                                            </div>
-                                        </button>
-                                    </mat-menu>
                                 </div>
                             </th>
+                            <th scope="colgroup"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 pl-4 text-left text-xs font-semibold text-gray-900">
+                                <div class="w-full flex items-center justify-between">
+                                    Involved Feeds
+                                </div>
+                            </th>
+                            <th scope="colgroup"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 pl-4 text-right text-xs font-semibold text-gray-900">
+                                <button type="button" [matMenuTriggerFor]="projectCategories"
+                                        [disabled]="!categories.length"
+                                        class="disabled:opacity-50 -ml-px relative inline-flex items-center py-3 px-4 border-l border-gray-300 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none border-t-0 border-r-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400"
+                                         viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                              d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                                              clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="ml-2">Categories</span>
+                                    <svg class="ml-2.5 -mr-1.5 h-5 w-5 text-gray-400"
+                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                         aria-hidden="true">
+                                        <path fill-rule="evenodd"
+                                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                              clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                                <mat-menu #projectCategories="matMenu">
+                                    <button (click)="toggleCategory($event, category)"
+                                            mat-menu-item *ngFor="let category of categories">
+                                        <div class="flex items-center">
+                                            <mat-icon color="primary" *ngIf="category.checked">check_box</mat-icon>
+                                            <mat-icon *ngIf="!category.checked">check_box_outline_blank</mat-icon>
+                                            {{category.category}}
+                                        </div>
+                                    </button>
+                                </mat-menu>
+                            </th>
                         </tr>
-                        <tr *ngFor="let element of datasets; let i = index" class="hover:bg-gray-50">
-                            <td class="border-gray-200 py-2 px-4 text-sm  text-gray-900"
+                        <tr *ngFor="let element of datasets; let i = index" class="hover:bg-gray-50"
+                            [ngClass]="{'opacity-50': !element.enabled}">
+                            <td class="border-gray-200 py-2 px-4 text-sm w-2/5 text-gray-900"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
                                 <div class="flex flex-col">
                                     <div class="item-title-select flex items-center font-medium cursor-pointer hover:underline"
@@ -105,9 +115,20 @@
                                          [innerHTML]="element.description"></div>
                                 </div>
                             </td>
+                            <td class="border-gray-200 py-2 px-4 text-sm  text-gray-900"
+                                [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
+
+                                <div class="flex items-center flex-wrap">
+                                    <div *ngFor="let feed of element.involvedDatasources"
+                                         class="mr-2 bg-secondary text-xs py-1 px-2 inline text-white rounded-xl">
+                                        {{feed.title}}
+                                    </div>
+                                </div>
+
+                            </td>
                             <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm font-medium"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
-                                <div class="flex items-center justify-end">
+                                <div *ngIf="element.enabled" class="flex items-center justify-end">
                                     <button *ngIf="!shared" mat-button color="primary" (click)="view(element.id)">
                                         Edit
                                     </button>
@@ -126,15 +147,19 @@
                                         </mat-menu>
                                     </ng-template>
                                 </div>
+                                <a [href]="'mailto:' + contactUs" *ngIf="!element.enabled" mat-button color="primary">
+                                    Contact Us
+                                </a>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2"
+                            <td colspan="3"
                                 class="border-t bg-gray-50 whitespace-nowrap border-b border-gray-200 py-1 px-4 text-sm text-gray-900">
-                                <div class="paging-toolbar flex align-center justify-between">
-                                    <div class="text-xs text-gray-400">
-                                        Showing {{offset + 1}} - {{(page * limit) - (limit - datasets.length)}}</div>
+                                <div class="paging-toolbar flex align-center justify-end">
+
                                     <div class="flex items-center justify-center">
+                                        <div class="text-xs text-gray-400 mr-10">
+                                            Showing {{offset + 1}} - {{(page * limit) - (limit - datasets.length)}}</div>
                                         <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="p-1.5 mr-8">
                                             <option [value]="1">1</option>
                                             <option [value]="5">5</option>

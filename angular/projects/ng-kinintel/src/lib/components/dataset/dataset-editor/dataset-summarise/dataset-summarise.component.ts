@@ -28,21 +28,13 @@ export class DatasetSummariseComponent implements OnInit {
 
     ngOnInit(): void {
         this.availableColumns = this.data.availableColumns;
+        console.log(this.data.config);
         if (this.data.config) {
             this.summariseFields = this.data.config.summariseFieldNames.map(field => {
                 return _.find(this.availableColumns, {name: field});
             });
-            this.summariseExpressions = this.data.config.expressions.map(expression => {
-                const field = _.find(this.availableColumns, {name: expression.fieldName}) ||
-                    _.find(this.availableColumns, {name: expression.expressionType + '(' + expression.fieldName + ')'});
-
-                if (field) {
-                    field.expressionType = expression.expressionType;
-                    field.customLabel = expression.customLabel;
-                    return field;
-                }
-                return expression;
-            });
+            this.summariseExpressions = this.data.config.expressions;
+            // console.log(this.summariseExpressions);
         }
     }
 
@@ -83,7 +75,7 @@ export class DatasetSummariseComponent implements OnInit {
                 };
 
                 if (expression.expressionType !== 'CUSTOM') {
-                    summariseExpression.fieldName = expression.name;
+                    summariseExpression.fieldName = expression.name || expression.fieldName;
                 } else {
                     summariseExpression.customExpression = expression.customExpression;
                 }
