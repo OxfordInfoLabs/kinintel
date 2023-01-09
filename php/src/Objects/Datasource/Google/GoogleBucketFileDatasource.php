@@ -54,7 +54,6 @@ class GoogleBucketFileDatasource extends BaseDatasource {
 
             if ($filePath) {
                 $object = $bucket->object($filePath);
-
                 $stream = new ReadOnlyGuzzleStream($object->downloadAsStream());
 
                 $limit = PHP_INT_MAX;
@@ -64,7 +63,6 @@ class GoogleBucketFileDatasource extends BaseDatasource {
 
             if ($folder) {
                 $streams = [];
-
                 foreach ($bucket->objects(["prefix" => $folder]) as $object) {
                     if ($object->info()["size"] > 0) {
                         $streams[] = new ReadOnlyGuzzleStream($object->downloadAsStream());

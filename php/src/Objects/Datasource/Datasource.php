@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation snapshot \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  * @implementation document \Kinintel\Objects\Datasource\Document\DocumentDatasource
  * @implementation googlebucket \Kinintel\Objects\Datasource\Google\GoogleBucketFileDatasource
+ * @implementation rsync \Kinintel\Objects\Datasource\RSync\RSyncDatasource
  */
 interface Datasource {
 

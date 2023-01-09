@@ -100,5 +100,39 @@ class SVStreamTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanSkipRowsByRegex() {
+
+        // Create mock stream
+        $mockStream = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
+
+        $dataSet = new SVStreamTabularDataSet([
+        ], $mockStream, 0, false, ",", '"',PHP_INT_MAX,0,[],true,false,"/^[!]/");
+
+        $mockStream->returnValue("readCSVLine", [
+            "!Mark", 22
+        ], [
+            ",", '"'
+        ]);
+
+        $nextValue = $dataSet->nextDataItem();
+        $this->assertEquals(false, $nextValue);
+
+        // Create mock stream
+        $mockStream2 = MockObjectProvider::instance()->getMockInstance(ReadableStream::class);
+
+        $dataSet = new SVStreamTabularDataSet([
+        ], $mockStream2, 0, false, ",", '"',PHP_INT_MAX,0,[],true,false,"/^[#:]/");
+
+        $mockStream2->returnValue("readCSVLine", [
+            "#Mark", 22
+        ], [
+            ",", '"'
+        ]);
+
+        $nextValue = $dataSet->nextDataItem();
+        $this->assertEquals(false, $nextValue);
+
+    }
+
 
 }

@@ -72,26 +72,37 @@ class SVStreamTabularDataSet extends TabularDataset {
 
 
     /**
+     * A regex expression to identify if a row should be skipped if
+     * it matches the first column
+     *
+     * @var string
+     */
+    private $skipRegex;
+
+
+    /**
      * SVStreamTabularDataSet constructor.
      *
+     * @param null $skipRegex
      * @param Field[] $columns
      * @param ReadableStream $stream
      * @param int $firstRowOffset
      * @param false $firstRowHeader
      * @param string $separator
      * @param string $enclosure
-     * @param array $ignoreColumnIndexes
      * @param integer $limit
      * @param integer $offset
+     * @param array $ignoreColumnIndexes
      */
     public function __construct($columns, $stream, $firstRowOffset = 0, $firstRowHeader = false, $separator = ",", $enclosure = '"',
-                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = [], $cacheAllRows = true, $skipBlankColumnValues = false) {
+                                $limit = PHP_INT_MAX, $offset = 0, $ignoreColumnIndexes = [], $cacheAllRows = true, $skipBlankColumnValues = false, $skipRegex = null) {
         parent::__construct($columns, $cacheAllRows);
         $this->stream = $stream;
         $this->separator = $separator;
         $this->enclosure = $enclosure;
         $this->ignoreColumnIndexes = $ignoreColumnIndexes;
         $this->skipBlankColumnValues = $skipBlankColumnValues;
+        $this->skipRegex = $skipRegex;
 
         // Total limit including offset
         $this->limit = $limit + $offset + $firstRowOffset;
@@ -158,6 +169,12 @@ class SVStreamTabularDataSet extends TabularDataset {
 
             // Only continue if we have some content
             if (is_array($csvLine) && trim($csvLine[0])) {
+
+                if ($this->skipRegex) {
+                    preg_match($this->skipRegex, $csvLine[0], $matches);
+                    if ($matches)
+                        return null;
+                }
 
                 $dataItem = [];
                 $columnIndex = 0;

@@ -26,10 +26,10 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase{
         $string2 = "Second";
         $string3 = "Third";
 
-        $this->assertEquals("FirstSecond", $function->applyFunction("concat $string2", $string1, null));
-        $this->assertEquals("FirstThird", $function->applyFunction("concat $string3", $string1, null));
-        $this->assertEquals("SecondFirst", $function->applyFunction("concat $string1", $string2, null));
-        $this->assertEquals("FirstSecondThird", $function->applyFunction("concat $string2 $string3", $string1, null));
+        $this->assertEquals("FirstSecond", $function->applyFunction("concat '$string2'", $string1, null));
+        $this->assertEquals("FirstThird", $function->applyFunction("concat '$string3'", $string1, null));
+        $this->assertEquals("SecondFirst", $function->applyFunction("concat '$string1'", $string2, null));
+        $this->assertEquals("FirstSecondThird", $function->applyFunction("concat '$string2' '$string3'", $string1, null));
     }
 
     public function testCanConvertToUTF8OrNullIfNot() {
@@ -46,4 +46,18 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase{
 
     }
 
+    public function testCanTrimStrings() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("trim"));
+
+        $string1 = "Test...";
+        $string2 = "$%test//";
+
+        $this->assertEquals("Test", $function->applyFunction("trim '.'", $string1, null));
+        $this->assertEquals("est...", $function->applyFunction("trim 'T'", $string1, null));
+        $this->assertEquals("est", $function->applyFunction("trim 'T.'", $string1, null));
+        $this->assertEquals("test", $function->applyFunction("trim '/$%'", $string2, null));
+        $this->assertEquals($string2, $function->applyFunction("trim s", $string2, null));
+
+    }
 }
