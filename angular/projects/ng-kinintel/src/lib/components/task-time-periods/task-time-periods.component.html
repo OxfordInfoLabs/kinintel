@@ -21,6 +21,8 @@
 
 <ng-template [ngIf]="showNewTaskTimePeriod">
     <div class="w-full bg-gray-50 p-4 mt-4">
+        <div class="mb-2 text-xs ">Enter the frequency for the desired time period then click
+            <span class="font-medium">Save time period</span></div>
         <form #timeForm="ngForm" class="w-1/2">
             <label class="mb-4">
                 Frequency
@@ -37,7 +39,9 @@
                 Day of month
                 <mat-select #month="ngModel" [ngClass]="{'border-red-600': month.invalid}"
                             [(ngModel)]="newTaskTimePeriod.dayInMonth" name="month" required>
-                    <mat-option [value]="day" *ngFor="let day of _.range(1, 29)">{{day}}</mat-option>
+                    <mat-option [value]="day" *ngFor="let day of _.range(1, 29)">
+                        {{day}}
+                    </mat-option>
                 </mat-select>
             </label>
 
@@ -60,7 +64,9 @@
                 Hour
                 <mat-select #hour="ngModel" [ngClass]="{'border-red-600': hour.invalid}"
                             [(ngModel)]="newTaskTimePeriod.hour" name="hour" required>
-                    <mat-option [value]="hour" *ngFor="let hour of _.range(0, 24)">{{hour}}</mat-option>
+                    <mat-option [value]="hour < 10 ? '0' + hour : hour" *ngFor="let hour of _.range(0, 24)">
+                        {{hour < 10 ? '0' + hour : hour}}
+                    </mat-option>
                 </mat-select>
             </label>
 
@@ -69,7 +75,9 @@
                 Minute
                 <mat-select #minute="ngModel" [ngClass]="{'border-red-600': minute.invalid}"
                             [(ngModel)]="newTaskTimePeriod.minute" name="minute" required>
-                    <mat-option [value]="minute" *ngFor="let minute of _.range(0, 60)">{{minute}}</mat-option>
+                    <mat-option [value]="minute < 10 ? '0' + minute : minute" *ngFor="let minute of _.range(0, 60)">
+                        {{minute < 10 ? '0' + minute : minute}}
+                    </mat-option>
                 </mat-select>
             </label>
 

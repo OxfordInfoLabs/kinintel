@@ -94,12 +94,15 @@
                             </th>
                         </tr>
                         <tr *ngFor="let element of datasets; let i = index" class="hover:bg-gray-50"
-                            [ngClass]="{'opacity-50': !element.enabled}">
+                            [ngClass]="{'opacity-50': !element.enabled && !admin}">
                             <td class="border-gray-200 py-2 px-4 text-sm w-2/5 text-gray-900"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
                                 <div class="flex flex-col">
-                                    <div class="item-title-select flex items-center font-medium cursor-pointer hover:underline"
+                                    <div *ngIf="element.enabled || admin" class="item-title-select flex items-center font-medium cursor-pointer hover:underline"
                                          (click)="shared ? extend(element.id) : view(element.id)">
+                                        {{element.title}}
+                                    </div>
+                                    <div *ngIf="!element.enabled && !admin" class="item-title-select flex items-center font-medium">
                                         {{element.title}}
                                     </div>
                                     <div (click)="element.viewDescription = !element.viewDescription"
@@ -128,7 +131,7 @@
                             </td>
                             <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm font-medium"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
-                                <div *ngIf="element.enabled" class="flex items-center justify-end">
+                                <div *ngIf="element.enabled || admin" class="flex items-center justify-end">
                                     <button *ngIf="!shared" mat-button color="primary" (click)="view(element.id)">
                                         Edit
                                     </button>
@@ -147,7 +150,7 @@
                                         </mat-menu>
                                     </ng-template>
                                 </div>
-                                <a [href]="'mailto:' + contactUs" *ngIf="!element.enabled" mat-button color="primary">
+                                <a [href]="'mailto:' + contactUs" *ngIf="!element.enabled && !admin" mat-button color="primary">
                                     Contact Us
                                 </a>
                             </td>
