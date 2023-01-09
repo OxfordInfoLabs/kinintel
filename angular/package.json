@@ -36,7 +36,7 @@
     "file-saver": "^2.0.5",
     "gridstack": "^4.2.1",
     "js-sha512": "^0.8.0",
-    "kinibind": "0.0.108",
+    "kinibind": "0.0.112",
     "ng-kiniauth": "file:../../kiniauth/angular/dist/ng-kiniauth",
     "ng-kinibind": "0.0.8",
     "ng-recaptcha": "^8.0.1",

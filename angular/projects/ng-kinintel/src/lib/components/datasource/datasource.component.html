@@ -110,10 +110,10 @@
                         <tr>
                             <td colspan="2"
                                 class="border-t bg-gray-50 whitespace-nowrap border-b border-gray-200 py-1 px-4 text-sm text-gray-900">
-                                <div class="paging-toolbar flex align-center justify-between">
-                                    <div class="text-xs text-gray-400">
-                                        Showing {{offset + 1}} - {{(page * limit) - (limit - datasources.length)}}</div>
+                                <div class="paging-toolbar flex align-center justify-end">
                                     <div class="flex items-center justify-center">
+                                        <div class="text-xs text-gray-400 mr-10">
+                                            Showing {{offset + 1}} - {{(page * limit) - (limit - datasources.length)}}</div>
                                         <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="p-1.5 mr-8">
                                             <option [value]="1">1</option>
                                             <option [value]="5">5</option>

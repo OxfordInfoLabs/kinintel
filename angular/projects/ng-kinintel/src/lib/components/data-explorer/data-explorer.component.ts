@@ -81,7 +81,7 @@ export class DataExplorerComponent implements OnInit {
     public editSnapshot(snapshot) {
         const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
             width: '900px',
-            height: '750px',
+            height: '900px',
             data: {
                 snapshot,
                 datasetInstanceId: this.datasetInstanceSummary.id,

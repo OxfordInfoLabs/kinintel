@@ -98,6 +98,15 @@ class DatasetService {
 
 
     /**
+     * Get all full data set instances
+     *
+     */
+    public function getAllFullDataSetInstances() {
+        return DatasetInstance::filter("");
+    }
+
+
+    /**
      * Get dataset instance by title optionally limited to account and project.
      *
      * @param $title
