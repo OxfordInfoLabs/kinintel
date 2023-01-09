@@ -17,6 +17,7 @@ export class DatasetSummariseComponent implements OnInit {
     public summariseExpressions: any = [];
     public _ = _;
     public showDocs = false;
+    public originDataItemTitle: string;
 
     public readonly expressionTypes = [
         'COUNT', 'SUM', 'MIN', 'MAX', 'AVG'
@@ -28,7 +29,8 @@ export class DatasetSummariseComponent implements OnInit {
 
     ngOnInit(): void {
         this.availableColumns = this.data.availableColumns;
-        console.log(this.data.config);
+        this.originDataItemTitle = this.data.originDataItemTitle;
+
         if (this.data.config) {
             this.summariseFields = this.data.config.summariseFieldNames.map(field => {
                 return _.find(this.availableColumns, {name: field});
@@ -54,6 +56,8 @@ export class DatasetSummariseComponent implements OnInit {
                 }
             }
         }
+
+        console.log(this.summariseFields, this.summariseExpressions);
     }
 
     public removeListItem(list, index) {

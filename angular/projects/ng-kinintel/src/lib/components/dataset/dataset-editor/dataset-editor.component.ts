@@ -457,11 +457,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const clonedConfig = config ? _.clone(config) : null;
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
             width: '1100px',
-            height: '800px',
+            height: '900px',
             disableClose: true,
             data: {
                 availableColumns: this.filterFields,
-                config: config ? config : null
+                config: config ? config : null,
+                originDataItemTitle: this.datasetInstanceSummary.originDataItemTitle
             }
         });
 
