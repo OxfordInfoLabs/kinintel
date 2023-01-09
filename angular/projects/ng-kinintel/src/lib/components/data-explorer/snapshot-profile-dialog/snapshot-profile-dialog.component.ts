@@ -61,8 +61,6 @@ export class SnapshotProfileDialogComponent implements OnInit {
             }
         };
         this.datasetInstanceId = this.data.datasetInstanceId || null;
-
-        console.log(this.snapshot.processorConfig);
     }
 
     public selectAll(event) {
