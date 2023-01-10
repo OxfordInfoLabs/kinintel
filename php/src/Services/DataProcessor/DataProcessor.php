@@ -12,9 +12,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
  * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor
  */
-interface         DataProcessor
-{
-
+interface DataProcessor {
 
     /**
      * Get the config class expected by the process method.  Can be null if
