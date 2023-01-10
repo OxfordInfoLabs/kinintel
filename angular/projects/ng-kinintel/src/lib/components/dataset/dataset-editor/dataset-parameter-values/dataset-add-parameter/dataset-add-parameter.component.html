@@ -8,42 +8,99 @@
         </button>
     </div>
 
-    <div class="dialog-content">
+    <div class="dialog-content p-4">
 
-        <div class="field">
-            <p>Enter the title for this parameter. <span>*</span></p>
-            <input type="text" [(ngModel)]="parameter.title" (ngModelChange)="setName()" required>
+        <div class="border-t bg-blue-50 p-4 -mt-4 -mx-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <!-- Heroicon name: mini/information-circle -->
+                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                         fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1 md:flex md:justify-between">
+                    <p class="text-sm text-blue-700 mb-0">
+                        Parameters allow you to create a dynamic field that can be used within your queries. Once
+                        created you can access the value of your parameter in Filters etc using the {{'{{' + 'parameterName' + '\}\}'}}
+                        value.
+                    </p>
+
+                </div>
+            </div>
         </div>
 
-        <div class="field">
-            <p>Name for this parameter.</p>
-            <input type="text" [(ngModel)]="parameter.name" disabled>
-        </div>
+        <div class="space-y-6 pt-4">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Parameter Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following details to setup your parameter.</p>
+            </div>
+            <div class="space-y-6 sm:space-y-5">
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Enter the title for this parameter <span class="text-red-600">*</span></label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <input type="text" [(ngModel)]="parameter.title" (ngModelChange)="setName()" required
+                               class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                    </div>
+                </div>
 
-        <div class="field">
-            <p>Enter the field type for this parameter.</p>
-            <select [(ngModel)]="parameter.type">
-                <option value="text">Text</option>
-                <option value="numeric">Numeric</option>
-                <option value="date">Date</option>
-                <option value="datetime">Datetime</option>
-                <option value="boolean">Boolean</option>
-            </select>
-        </div>
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Name for this parameter
+                    </label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <input type="text" [(ngModel)]="parameter.name" disabled
+                               class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                    </div>
+                </div>
 
-        <div class="field">
-            <p>Should the parameter be locked for editing in 'view' mode</p>
-            <mat-slide-toggle [(ngModel)]="parameter.locked">Locked</mat-slide-toggle>
-        </div>
 
-        <div class="field">
-            <p>Is this parameter multiple</p>
-            <mat-slide-toggle [(ngModel)]="parameter.multiple">Multiple</mat-slide-toggle>
-        </div>
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Enter the field type for this parameter
+                    </label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <select [(ngModel)]="parameter.type"
+                                class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                            <option value="text">Text</option>
+                            <option value="numeric">Numeric</option>
+                            <option value="date">Date</option>
+                            <option value="datetime">Datetime</option>
+                            <option value="boolean">Boolean</option>
+                        </select>
+                    </div>
+                </div>
 
-        <div class="field">
-            <p>Enter a default value for this parameter</p>
-            <input type="text" [(ngModel)]="parameter.defaultValue">
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Should the parameter be locked for editing in 'view' mode
+                    </label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <mat-slide-toggle [(ngModel)]="parameter.locked">Locked</mat-slide-toggle>
+                    </div>
+                </div>
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Is this parameter multiple
+                    </label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <mat-slide-toggle [(ngModel)]="parameter.multiple">Multiple</mat-slide-toggle>
+                    </div>
+                </div>
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Enter a default value for this parameter
+                    </label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <input type="text" [(ngModel)]="parameter.defaultValue"
+                               class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 

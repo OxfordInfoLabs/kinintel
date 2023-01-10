@@ -540,8 +540,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.showParameters = true;
         }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
-            width: '600px',
-            height: '600px',
+            width: '750px',
+            height: '850px',
             disableClose: true,
             data: {
                 parameter: clonedParameter
@@ -674,7 +674,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     private loadData() {
-        this.tableData = this.dataset.allData.slice(0, this.limit);
+        this.tableData = this.dataset.allData;
 
         if (!this.tableData.length) {
             const data = {};
@@ -682,7 +682,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.tableData = [data];
         }
 
-        this.endOfResults = this.dataset.allData.length <= this.limit;
+        this.endOfResults = this.dataset.allData.length < this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
@@ -785,12 +785,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.dashboardLayoutSettings.offset = this.offset;
         }
 
-        const limit = Number(this.limit) + 1;
-
         this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
             clonedDatasetInstance,
             String(this.offset),
-            String(limit),
+            String(this.limit),
             trackingKey
         ).subscribe(dataset => {
             finished = true;

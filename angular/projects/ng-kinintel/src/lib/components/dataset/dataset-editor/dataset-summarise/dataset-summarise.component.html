@@ -8,9 +8,9 @@
         </button>
     </div>
 
-    <div class="dialog-content">
+    <div class="dialog-content p-4">
 
-        <div class="rounded bg-blue-50 p-4 mb-2">
+        <div class="border-t bg-blue-50 p-4 mb-4 -mx-4 -mt-4">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <!-- Heroicon name: mini/information-circle -->
@@ -22,7 +22,9 @@
                     <p class="text-sm text-blue-700 mb-0">
                         The Summarise transformation is analogous to a <span class="font-medium">SQL GROUP BY</span> expression.
                         The <b>Summarise Fields</b> represent the columns to group by, and the <b>Summarise Expression</b> items
-                        represent columns to Select. <b>Drag</b> the available column to the desired section.
+                        represent columns to Select. <b>Drag</b> the available column to the desired section.<br>
+                        <a (click)="viewExample = true;" class="font-medium hover:underline">
+                            View an example of how this summarisation would appear as a SQL statement.</a>
                     </p>
                 </div>
             </div>
@@ -53,7 +55,7 @@
                     [cdkDropListData]="summariseFields"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of summariseFields; let i = index" cdkDrag>
+                    <div class="example-box py-1.5" *ngFor="let item of summariseFields; let i = index" cdkDrag>
                         {{item.title}}
                         <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
                             <mat-icon>remove_circle_outline</mat-icon>
@@ -114,7 +116,7 @@
             </div>
         </div>
 
-        <div class="rounded bg-gray-50 p-4 my-2">
+        <div *ngIf="viewExample" class="rounded bg-gray-50 p-4 my-2">
             <div class="flex">
                 <div class="flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" stroke-width="1.5" stroke="currentColor"
@@ -124,7 +126,7 @@
                 </div>
                 <div class="ml-3 flex-1 md:flex md:justify-between">
                     <p class="text-sm text-gray-700 mb-0">
-                        <b>SELECT&nbsp;</b><span *ngFor="let expression of summariseExpressions; let i = index"><span *ngIf="i > 0">, </span>{{expression.customExpression || expression.expressionType + '(' + (expression.name || '') + ')'}}</span><b>&nbsp;FROM&nbsp;</b>{{originDataItemTitle}}<b>&nbsp;GROUP BY&nbsp;</b> {{_.chain(summariseFields).map('name').valueOf().join(', ')}}
+                        <b>SELECT&nbsp;</b><span *ngFor="let expression of summariseExpressions; let i = index"><span *ngIf="i > 0">, </span>{{expression.customExpression || expression.expressionType + '(' + (expression.name || '') + ')'}}</span><b>&nbsp;FROM&nbsp;</b>{{originDataItemTitle}}<ng-template [ngIf]="summariseFields.length"><b>&nbsp;GROUP BY&nbsp;</b> {{_.chain(summariseFields).map('name').valueOf().join(', ')}}</ng-template>
                     </p>
                 </div>
             </div>
