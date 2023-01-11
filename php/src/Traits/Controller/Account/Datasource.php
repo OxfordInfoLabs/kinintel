@@ -111,7 +111,7 @@ trait Datasource {
      * @param int $offset
      */
     public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null) {
-        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset, $projectKey);
+        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset, false, $projectKey);
     }
 
 

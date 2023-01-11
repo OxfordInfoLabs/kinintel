@@ -84,7 +84,7 @@ class ExportService {
     public function getExportableResources($projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         // Gather exportable resources from various places
-        $exportableDatasources = $this->datasourceService->filterDatasourceInstances("", PHP_INT_MAX, 0, $projectKey, $accountId);
+        $exportableDatasources = $this->datasourceService->filterDatasourceInstances("", PHP_INT_MAX, 0, false, $projectKey, $accountId);
         $exportableDatasets = $this->datasetService->filterDataSetInstances("", [], [], $projectKey, 0, PHP_INT_MAX, $accountId);
         $exportableDashboards = $this->dashboardService->getAllDashboards($projectKey, $accountId);
 

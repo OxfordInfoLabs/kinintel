@@ -147,14 +147,14 @@ class DatasourceDAOTest extends TestBase {
 
 
         // Check a couple of filters
-        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, null, 2);
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, false, null, 2);
         $this->assertEquals(2, sizeof($filtered));
 
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
         $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL", "sqldatabase"), $filtered[1]);
 
 
-        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, "soapSuds", 2);
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, false, "soapSuds", 2);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Database SQL", "sqldatabase"), $filtered[0]);
 
@@ -163,7 +163,7 @@ class DatasourceDAOTest extends TestBase {
 
 
 
-    public function testDatasetSnapshotsAreIgnoredInFilteredResults() {
+    public function testDatasetSnapshotsAreIgnoredInFilteredResultsUnlessIncluded() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
@@ -181,11 +181,18 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance->save();
 
 
-        // Check a couple of filters
-        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, null, 2);
+        // Check filtering
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, false, null, 2);
         $this->assertEquals(1, sizeof($filtered));
 
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
+
+
+        $filtered = $this->datasourceDAO->filterDatasourceInstances("", 10, 0, true, null, 2);
+        $this->assertEquals(2, sizeof($filtered));
+
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice"), $filtered[0]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("db-sql", "Dataset Snapshot", "snapshot"), $filtered[1]);
 
 
     }
