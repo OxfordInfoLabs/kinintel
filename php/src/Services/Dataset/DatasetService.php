@@ -444,7 +444,7 @@ class DatasetService {
 
             // Create a processor instance
             $dataProcessorInstance = new DataProcessorInstance($dataProcessorKey,
-                "Dataset Instance Snapshot: " . $datasetInstance->getId() . " - " . $snapshotProfileSummary->getTitle(),
+                $snapshotProfileSummary->getTitle(),
                 $snapshotProfileSummary->getProcessorType(), $processorConfig,
                 $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
 

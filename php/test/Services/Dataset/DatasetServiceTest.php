@@ -400,7 +400,7 @@ class DatasetServiceTest extends TestBase {
 
         $this->assertNotNull($snapshotProfile->getDataProcessorInstance());
         $processorInstance = $snapshotProfile->getDataProcessorInstance();
-        $this->assertEquals("Dataset Instance Snapshot: $instanceId - Daily Snapshot", $processorInstance->getTitle());
+        $this->assertEquals("Daily Snapshot", $processorInstance->getTitle());
 
         // Check we can list correctly
         $profiles = $this->datasetService->listSnapshotProfilesForDataSetInstance($instanceId);
