@@ -18,6 +18,7 @@ export class DatasetSummariseComponent implements OnInit {
     public _ = _;
     public showDocs = false;
     public originDataItemTitle: string;
+    public viewExample = false;
 
     public readonly expressionTypes = [
         'COUNT', 'SUM', 'MIN', 'MAX', 'AVG'
@@ -36,7 +37,6 @@ export class DatasetSummariseComponent implements OnInit {
                 return _.find(this.availableColumns, {name: field});
             });
             this.summariseExpressions = this.data.config.expressions;
-            // console.log(this.summariseExpressions);
         }
     }
 
@@ -56,8 +56,6 @@ export class DatasetSummariseComponent implements OnInit {
                 }
             }
         }
-
-        console.log(this.summariseFields, this.summariseExpressions);
     }
 
     public removeListItem(list, index) {
