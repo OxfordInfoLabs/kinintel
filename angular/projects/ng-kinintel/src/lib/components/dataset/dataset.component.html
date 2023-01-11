@@ -123,7 +123,12 @@
 
                                 <div class="flex items-center flex-wrap">
                                     <div *ngFor="let feed of element.involvedDatasources"
-                                         class="my-1 mr-2 bg-secondary text-xs py-1 px-2 inline text-white rounded-xl">
+                                         [ngClass]="{'bg-primary': ['custom', 'snapshot'].indexOf(feed.type) === -1, 'bg-secondary': ['custom', 'snapshot'].indexOf(feed.type) >= 0}"
+                                         class="flex items-center my-1 mr-2 text-xs py-1 px-2 inline text-white rounded-xl">
+                                        <img *ngIf="['custom', 'snapshot'].indexOf(feed.type) === -1"
+                                             src="/assets/favicon-rev.png" class="w-2.5 mr-1.5">
+                                        <mat-icon *ngIf="feed.type === 'custom'" class="h-4 w-4 text-lg leading-4 mr-1.5">upload_file</mat-icon>
+                                        <mat-icon *ngIf="feed.type === 'snapshot'" class="h-4 w-4 text-lg leading-4 mr-1.5">history</mat-icon>
                                         {{feed.title}}
                                     </div>
                                 </div>

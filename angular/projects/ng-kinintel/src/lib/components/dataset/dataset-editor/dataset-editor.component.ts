@@ -128,19 +128,23 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public addFilter() {
-        this.datasetInstanceSummary.transformationInstances.push({
-            type: 'filter',
-            config: {
-                logic: 'AND',
-                filters: [{
-                    lhsExpression: '',
-                    rhsExpression: '',
-                    filterType: ''
-                }],
-                filterJunctions: []
-            },
-            hide: false
-        });
+        const visibleFilters = _.filter(this.datasetInstanceSummary.transformationInstances, {hide: false});
+        if (!visibleFilters.length) {
+            this.datasetInstanceSummary.transformationInstances.push({
+                type: 'filter',
+                config: {
+                    logic: 'AND',
+                    filters: [{
+                        lhsExpression: '',
+                        rhsExpression: '',
+                        filterType: ''
+                    }],
+                    filterJunctions: []
+                },
+                hide: false
+            });
+        }
+
         this.showFilters = true;
 
         setTimeout(() => {
@@ -198,22 +202,33 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public async editTerminatingTransformation(transformation) {
-        const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
-        const dataLoadedSub = this.dataLoaded.subscribe(res => {
-            if (transformation.type === 'summarise') {
-                this.summariseData(clonedTransformation.config, existingIndex);
-            }
-            if (transformation.type === 'join') {
-                this.joinData(clonedTransformation, existingIndex);
-            }
-            if (transformation.type === 'formula') {
-                this.createFormula(clonedTransformation, existingIndex);
-            }
-            if (transformation.type === 'columns') {
-                this.editColumnSettings(clonedTransformation, existingIndex);
-            }
-            dataLoadedSub.unsubscribe();
-        });
+        if (transformation.type === 'filter') {
+            const hiddenValue = !transformation.hide;
+            const filters = _.filter(this.datasetInstanceSummary.transformationInstances, {type: 'filter'});
+            filters.forEach(filter => {
+                filter.hide = true;
+            });
+            transformation.hide = hiddenValue;
+            this.showFilters = !hiddenValue;
+        } else {
+            const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
+            const dataLoadedSub = this.dataLoaded.subscribe(res => {
+                if (transformation.type === 'summarise') {
+                    this.summariseData(clonedTransformation.config, existingIndex);
+                }
+                if (transformation.type === 'join') {
+                    this.joinData(clonedTransformation, existingIndex);
+                }
+                if (transformation.type === 'formula') {
+                    this.createFormula(clonedTransformation, existingIndex);
+                }
+                if (transformation.type === 'columns') {
+                    this.editColumnSettings(clonedTransformation, existingIndex);
+                }
+                dataLoadedSub.unsubscribe();
+            });
+        }
+
     }
 
     public exportData() {
@@ -749,6 +764,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 transformation._active = true;
                 return true;
             }
+            if (transformation.type === 'filter') {
+                transformation._label = 'Filter';
+                transformation._disable = false;
+                transformation._active = true;
+                return true;
+            }
             return false;
         });
     }
@@ -765,9 +786,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const terminatingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, transformation);
         this.datasetInstanceSummary.transformationInstances.forEach((transformationInstance, index) => {
             if (transformationInstance.type === 'filter') {
-                transformationInstance.hide = !(terminatingIndex > index);
+                transformationInstance.hide = terminatingIndex < index;
             }
         });
+
+        this.showFilters = _.some(this.datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false});
     }
 
     public async evaluateDataset(resetPager?) {
