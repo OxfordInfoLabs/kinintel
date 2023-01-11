@@ -79,9 +79,10 @@ class DatasourceService {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
+     * @param false $includeSnapshots
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
-        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $projectKey, $accountId);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includeSnapshots = false, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includeSnapshots, $projectKey, $accountId);
     }
 
 
@@ -256,11 +257,9 @@ class DatasourceService {
             }
 
 
-
             $this->saveDataSourceInstance($datasourceInstance);
 
         }
-
 
 
         // Perform the various updates required

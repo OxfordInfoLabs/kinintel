@@ -792,7 +792,6 @@ export class ItemComponentComponent implements AfterViewInit {
             }
             this.dataset = data;
             const returnedDataLength = this.dataset.allData.length;
-            this.dataset.allData = this.dataset.allData.slice(0, this.limit);
 
             const existingMultiSort = _.find(this.dashboardDatasetInstance.transformationInstances, {type: 'multisort'});
 
@@ -909,7 +908,7 @@ export class ItemComponentComponent implements AfterViewInit {
             existing[this.itemInstanceKey] = true;
             this.dashboardService.dashboardItems.next(existing);
 
-            this.endOfResults = returnedDataLength <= this.limit;
+            this.endOfResults = returnedDataLength < this.limit;
 
             return Promise.resolve(true);
         }).catch(err => {
@@ -975,14 +974,10 @@ export class ItemComponentComponent implements AfterViewInit {
 
         this.hiddenColumns = {};
 
-        if (!limit) {
-            limit = Number(this.limit) + 1;
-        }
-
         return this.datasetService.evaluateDataset(
             datasetInstanceSummary,
             String(offset || this.offset),
-            String(limit)
+            String(limit || this.limit)
         );
     }
 

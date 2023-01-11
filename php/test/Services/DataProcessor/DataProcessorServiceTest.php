@@ -3,6 +3,13 @@
 
 namespace Kinintel\Test\Services\DataProcessor;
 
+use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Security\Role;
+use Kiniauth\Objects\Security\User;
+use Kiniauth\Objects\Security\UserRole;
+use Kiniauth\Services\Account\AccountService;
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\TestBase;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
@@ -34,12 +41,33 @@ class DataProcessorServiceTest extends TestBase {
 
 
     /**
+     * @var MockObject
+     */
+    private $securityService;
+
+    /**
+     * @var MockObject
+     */
+    private $accountService;
+
+
+    /**
+     * @var MockObject
+     */
+    private $activeRecordInterceptor;
+
+
+    /**
      * Set up method
      */
     public function setUp(): void {
         $this->dataProcessorDao = MockObjectProvider::instance()->getMockInstance(DataProcessorDAO::class);
+        $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
+        $this->accountService = MockObjectProvider::instance()->getMockInstance(AccountService::class);
+        $this->activeRecordInterceptor = MockObjectProvider::instance()->getMockInstance(ActiveRecordInterceptor::class);
+
         $this->dataProcessorService = new DataProcessorService($this->dataProcessorDao, Container::instance()->get(ObjectBinder::class),
-            Container::instance()->get(Validator::class));
+            Container::instance()->get(Validator::class), $this->securityService, $this->accountService, $this->activeRecordInterceptor);
     }
 
 
@@ -97,4 +125,63 @@ class DataProcessorServiceTest extends TestBase {
         $this->assertEquals(new TestDataProcessorConfig("TESTING"), $testProcessor->processedConfig);
 
     }
+
+
+    public function testIfAccountLevelInstanceSystemIsLoggedInAsAccount() {
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
+            new DataProcessorInstance("bigone", "Big One", "testprocessor", [
+                "property" => "TESTING"
+            ], null, 25), [
+                "bigone"
+            ]);
+
+        $account = new Account("TESTING1234");
+        $this->accountService->returnValue("getAccount", $account, [25]);
+
+
+        Container::instance()->addInterfaceImplementation(DataProcessor::class, "testprocessor", TestDataProcessor::class);
+
+        $this->dataProcessorService->processDataProcessorInstance("bigone");
+
+        $testProcessor = Container::instance()->get(TestDataProcessor::class);
+        $this->assertEquals(new TestDataProcessorConfig("TESTING"), $testProcessor->processedConfig);
+
+
+        // Execute passed logic to active record interceptor
+        $this->activeRecordInterceptor->getMethodCallHistory("executeInsecure")[0][0]();
+
+        $this->assertTrue($this->securityService->methodWasCalled("login", [null, $account]));
+
+
+    }
+
+
+    public function testIfNoneAccountLevelInstanceSystemIsLoggedInAsSuperUser() {
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
+            new DataProcessorInstance("bigone", "Big One", "testprocessor", [
+                "property" => "TESTING"
+            ]), [
+                "bigone"
+            ]);
+
+
+        Container::instance()->addInterfaceImplementation(DataProcessor::class, "testprocessor", TestDataProcessor::class);
+
+        $this->dataProcessorService->processDataProcessorInstance("bigone");
+
+        $testProcessor = Container::instance()->get(TestDataProcessor::class);
+        $this->assertEquals(new TestDataProcessorConfig("TESTING"), $testProcessor->processedConfig);
+
+
+        // Execute passed logic to active record interceptor
+        $this->activeRecordInterceptor->getMethodCallHistory("executeInsecure")[0][0]();
+
+        $this->assertTrue($this->securityService->methodWasCalled("loginAsSuperUser"));
+
+
+    }
+
+
 }

@@ -128,19 +128,23 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public addFilter() {
-        this.datasetInstanceSummary.transformationInstances.push({
-            type: 'filter',
-            config: {
-                logic: 'AND',
-                filters: [{
-                    lhsExpression: '',
-                    rhsExpression: '',
-                    filterType: ''
-                }],
-                filterJunctions: []
-            },
-            hide: false
-        });
+        const visibleFilters = _.filter(this.datasetInstanceSummary.transformationInstances, {hide: false});
+        if (!visibleFilters.length) {
+            this.datasetInstanceSummary.transformationInstances.push({
+                type: 'filter',
+                config: {
+                    logic: 'AND',
+                    filters: [{
+                        lhsExpression: '',
+                        rhsExpression: '',
+                        filterType: ''
+                    }],
+                    filterJunctions: []
+                },
+                hide: false
+            });
+        }
+
         this.showFilters = true;
 
         setTimeout(() => {
@@ -198,22 +202,33 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public async editTerminatingTransformation(transformation) {
-        const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
-        const dataLoadedSub = this.dataLoaded.subscribe(res => {
-            if (transformation.type === 'summarise') {
-                this.summariseData(clonedTransformation.config, existingIndex);
-            }
-            if (transformation.type === 'join') {
-                this.joinData(clonedTransformation, existingIndex);
-            }
-            if (transformation.type === 'formula') {
-                this.createFormula(clonedTransformation, existingIndex);
-            }
-            if (transformation.type === 'columns') {
-                this.editColumnSettings(clonedTransformation, existingIndex);
-            }
-            dataLoadedSub.unsubscribe();
-        });
+        if (transformation.type === 'filter') {
+            const hiddenValue = !transformation.hide;
+            const filters = _.filter(this.datasetInstanceSummary.transformationInstances, {type: 'filter'});
+            filters.forEach(filter => {
+                filter.hide = true;
+            });
+            transformation.hide = hiddenValue;
+            this.showFilters = !hiddenValue;
+        } else {
+            const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
+            const dataLoadedSub = this.dataLoaded.subscribe(res => {
+                if (transformation.type === 'summarise') {
+                    this.summariseData(clonedTransformation.config, existingIndex);
+                }
+                if (transformation.type === 'join') {
+                    this.joinData(clonedTransformation, existingIndex);
+                }
+                if (transformation.type === 'formula') {
+                    this.createFormula(clonedTransformation, existingIndex);
+                }
+                if (transformation.type === 'columns') {
+                    this.editColumnSettings(clonedTransformation, existingIndex);
+                }
+                dataLoadedSub.unsubscribe();
+            });
+        }
+
     }
 
     public exportData() {
@@ -457,11 +472,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const clonedConfig = config ? _.clone(config) : null;
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
             width: '1100px',
-            height: '800px',
+            height: '900px',
             disableClose: true,
             data: {
                 availableColumns: this.filterFields,
-                config: config ? config : null
+                config: config ? config : null,
+                originDataItemTitle: this.datasetInstanceSummary.originDataItemTitle
             }
         });
 
@@ -539,8 +555,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.showParameters = true;
         }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
-            width: '600px',
-            height: '600px',
+            width: '750px',
+            height: '850px',
             disableClose: true,
             data: {
                 parameter: clonedParameter
@@ -673,7 +689,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     private loadData() {
-        this.tableData = this.dataset.allData.slice(0, this.limit);
+        this.tableData = this.dataset.allData;
 
         if (!this.tableData.length) {
             const data = {};
@@ -681,7 +697,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.tableData = [data];
         }
 
-        this.endOfResults = this.dataset.allData.length <= this.limit;
+        this.endOfResults = this.dataset.allData.length < this.limit;
         this.displayedColumns = _.map(this.dataset.columns, 'name');
         this.filterFields = _.map(this.dataset.columns, column => {
             return {
@@ -748,6 +764,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 transformation._active = true;
                 return true;
             }
+            if (transformation.type === 'filter') {
+                transformation._label = 'Filter';
+                transformation._disable = false;
+                transformation._active = true;
+                return true;
+            }
             return false;
         });
     }
@@ -764,9 +786,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const terminatingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, transformation);
         this.datasetInstanceSummary.transformationInstances.forEach((transformationInstance, index) => {
             if (transformationInstance.type === 'filter') {
-                transformationInstance.hide = !(terminatingIndex > index);
+                transformationInstance.hide = terminatingIndex < index;
             }
         });
+
+        this.showFilters = _.some(this.datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false});
     }
 
     public async evaluateDataset(resetPager?) {
@@ -784,12 +808,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.dashboardLayoutSettings.offset = this.offset;
         }
 
-        const limit = Number(this.limit) + 1;
-
         this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
             clonedDatasetInstance,
             String(this.offset),
-            String(limit),
+            String(this.limit),
             trackingKey
         ).subscribe(dataset => {
             finished = true;

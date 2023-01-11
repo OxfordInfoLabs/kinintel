@@ -115,18 +115,19 @@ class DatasourceDAO {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
+     * @param false $includeSnapshots
      * @param string $projectKey
      * @param int $accountId
      * @param boolean $strictMode
      *
      * @return DatasourceInstanceSearchResult[]
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null, $accountId = null) {
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includeSnapshots = false, $projectKey = null, $accountId = null) {
         $this->loadFileSystemDatasources();
 
         if ($accountId || $projectKey) {
 
-            $sql = "WHERE title LIKE ? AND type <> 'snapshot'";
+            $sql = "WHERE title LIKE ?" . (!$includeSnapshots ? " AND type <> 'snapshot'" : "");
             $params = ["%$filterString%"];
 
             if ($accountId) {
@@ -152,7 +153,7 @@ class DatasourceDAO {
             }
 
             // If still more to get, search the db.
-            $dbMatches = DatasourceInstance::filter("WHERE title LIKE ? AND type <> 'snapshot' AND account_id IS NULL",
+            $dbMatches = DatasourceInstance::filter("WHERE title LIKE ?" . (!$includeSnapshots ? " AND type <> 'snapshot'" : "") . " AND account_id IS NULL",
                 "%$filterString%");
 
             $newMatches = array_map(function ($dbMatch) {
