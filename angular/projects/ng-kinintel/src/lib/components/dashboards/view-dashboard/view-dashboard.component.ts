@@ -19,6 +19,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../../services/alert.service';
 import moment_ from 'moment';
+import {Location} from '@angular/common';
 
 @Component({
     selector: 'ki-view-dashboard',
@@ -85,7 +86,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 private dialog: MatDialog,
                 private snackBar: MatSnackBar,
                 private router: Router,
-                private kiAlertService: AlertService) {
+                private kiAlertService: AlertService,
+                private location: Location) {
     }
 
     ngOnInit(): void {
@@ -213,6 +215,10 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         if (this.sidenavService) {
             this.sidenavService.open();
         }
+    }
+
+    public back() {
+        this.location.back();
     }
 
     public booleanUpdate(event, parameter) {
