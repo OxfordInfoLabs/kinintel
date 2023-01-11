@@ -69,7 +69,6 @@ class ExportableResources {
      */
     public function __construct($datasourceInstances = [], $datasetInstances = [], $dashboards = []) {
 
-
         // Get arrays of the identifiers for each type
         $datasourceInstanceKeys = ObjectArrayUtils::getMemberValueArrayForObjects("key", $datasourceInstances);
         $datasetInstanceIds = ObjectArrayUtils::getMemberValueArrayForObjects("id", $datasetInstances);

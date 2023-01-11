@@ -99,7 +99,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
 
         list($dataSourceInstance, $dataSourceInstanceLatest, $dataSourceInstancePending) = $this->getDatasourceInstances(
-            $instanceKey, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config);
+            $instance, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey(), $config);
 
 
         // Grab the target data sources and database connections
@@ -178,13 +178,19 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         }
     }
 
+
     /**
+     * @param DataProcessorInstance $dataProcessorInstance
+     * @param integer $accountId
+     * @param string $projectKey
      * @param TabularDatasetSnapshotProcessorConfiguration $config
-     * @param $sourceDataSetInstance
-     * @return DatasourceInstance[]
+     * @return DatasourceInstance[]|null[]
+     * @throws \Kinikit\Core\Validation\ValidationException
      */
-    private function getDatasourceInstances($instanceKey, $accountId, $projectKey, $config) {
+    private function getDatasourceInstances($dataProcessorInstance, $accountId, $projectKey, $config) {
+
         //TODO be refactored
+        $instanceKey = $config->getSnapshotIdentifier();
 
         $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
         $tablePrefix = Configuration::readParameter("snapshot.datasource.table.prefix");
@@ -205,7 +211,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
 
                 // Create a new data source instance and save it.
-                $dataSourceInstance = new DatasourceInstance($instanceKey, $instanceKey, "snapshot",
+                $dataSourceInstance = new DatasourceInstance($instanceKey, $dataProcessorInstance->getTitle()." History", "snapshot",
                     [
                         "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                         "tableName" => $tablePrefix . $instanceKey
@@ -221,7 +227,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 $dataSourceInstanceLatest = $this->datasourceService->getDataSourceInstanceByKey($instanceKeyLatest);
             } catch (ObjectNotFoundException $e) {
 
-                $dataSourceInstanceLatest = new DatasourceInstance($instanceKeyLatest, $instanceKeyLatest, "snapshot",
+                $dataSourceInstanceLatest = new DatasourceInstance($instanceKeyLatest, $dataProcessorInstance->getTitle()." Latest", "snapshot",
                     [
                         "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                         "tableName" => $tablePrefix . $instanceKeyLatest

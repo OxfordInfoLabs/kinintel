@@ -105,7 +105,7 @@ class ExportServiceTest extends TestBase {
 
 
         $this->datasourceService->returnValue("filterDatasourceInstances", $datasourceInstanceSearchResults, [
-            "", PHP_INT_MAX, 0, "myKey", 1
+            "", PHP_INT_MAX, 0, false, "myKey", 1
         ]);
 
         $this->datasetService->returnValue("filterDataSetInstances", $datasetInstanceSearchResults, [
