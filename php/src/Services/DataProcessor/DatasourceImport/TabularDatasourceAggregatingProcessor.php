@@ -154,7 +154,6 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
         $latestData = [];
         $keyFields = $config->getKeyFields();
         $columnMappings = $aggSource->getColumnMappings();
-        $today = (new \DateTime())->format("Y-m-d H:i:00");
         foreach ($data as &$dataItem) {
             $key = "";
 
@@ -174,7 +173,7 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
 
                 // Add source flag
                 $dataItem[$aggSource->getSourceIndicatorColumn()] = true;
-                $dataItem["date_imported"] = $today;
+                $dataItem["window_time"] = $fromDate;
 
             }
 

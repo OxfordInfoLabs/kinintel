@@ -86,8 +86,6 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $now = (new \DateTime())->format("Y-m-d H:i:00");
-
         $expectedUpdate = new DatasourceUpdate([], [], [], [
             [
                 "date" => "2023-01-14 14:32:51",
@@ -96,19 +94,19 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "stuff" => "bongo",
                 "number1" => true,
                 "number2" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ], [
                 "date" => "2023-01-14 14:31:45",
                 "match" => "pong",
                 "other" => "test",
                 "number1" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ], [
                 "date" => "2023-01-14 13:34:01",
                 "match" => "pang",
                 "stuff" => "bingo",
                 "number2" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ]
         ]);
 
@@ -179,8 +177,6 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $now = (new \DateTime())->format("Y-m-d H:i:00");
-
         $expectedUpdate = new DatasourceUpdate([], [], [], [
             [
                 "date" => "2023-01-14 14:32:51",
@@ -188,7 +184,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "first_col1" => "yes",
                 "first_col2" => "sometimes",
                 "first" => true,
-                "date_imported" => $now,
+                "window_time" => $today,
                 "second" => null,
                 "second_col1" => null,
                 "second_col2" => null
@@ -201,14 +197,14 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "second_col2" => "no",
                 "first" => true,
                 "second" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ], [
                 "date" => "2023-01-13 07:23:12",
                 "match" => "James",
                 "second_col1" => "maybe",
                 "second_col2" => "yes",
                 "second" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ]
         ]);
 
@@ -280,15 +276,13 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $now = (new \DateTime())->format("Y-m-d H:i:00");
-
         $expectedUpdate = new DatasourceUpdate([], [], [], [
             [
                 "date" => "2023-01-14 14:32:51",
                 "match" => "eins",
                 "other" => "nonsense",
                 "number1" => true,
-                "date_imported" => $now,
+                "window_time" => $today,
                 "number2" => null,
                 "number3" => null,
                 "stuff" => null
@@ -300,13 +294,13 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "number1" => true,
                 "number2" => true,
                 "number3" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ], [
                 "date" => "2023-01-14 13:34:01",
                 "match" => "drei",
                 "stuff" => "bong",
                 "number3" => true,
-                "date_imported" => $now
+                "window_time" => $today
             ]
         ]);
 
