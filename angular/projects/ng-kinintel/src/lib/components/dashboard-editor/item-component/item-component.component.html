@@ -44,9 +44,9 @@
 </div>
 
 <ng-template [ngIf]="!itemLocked">
-    <button *ngIf="!dragItem" mat-icon-button class="edit-widget "
+    <button *ngIf="!dragItem" mat-mini-fab class="edit-widget bg-gray-500 bg-opacity-90"
             [matMenuTriggerFor]="editMenu">
-        <mat-icon>more_vert</mat-icon>
+        <mat-icon>more_horiz</mat-icon>
     </button>
     <mat-menu #editMenu="matMenu">
         <ng-template [ngIf]="!viewOnly">
@@ -287,7 +287,7 @@
     </div>
 
     <div *ngIf="dashboardItemType.type === 'table' && !tabular.hidePager"
-         class="flex items-center justify-between px-2 border-t border-gray-200 h-12 bg-gray-50 w-full">
+         class="table-pager flex items-center justify-between px-2 border-t border-gray-200 h-12 bg-gray-50 w-full">
         <div class="text-xs text-gray-400">
             Showing {{offset + 1}} - {{(page * limit) - (limit - dataset.allData.length)}}</div>
         <div class="flex items-center justify-center">

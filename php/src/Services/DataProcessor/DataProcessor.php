@@ -8,6 +8,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 /**
  * @implementation tabulardatasourcechangetracking \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceChangeTrackingProcessor
  * @implementation tabulardatasourceimport \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceImportProcessor
+ * @implementation tabulardatasourceaggregating \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceAggregatingProcessor
  * @implementation tabulardatasetsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor
  * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
  * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor

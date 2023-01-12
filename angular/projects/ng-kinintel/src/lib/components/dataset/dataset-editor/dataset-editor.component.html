@@ -201,7 +201,7 @@
             Transformations
         </div>
         <div class="badge-item mr-1" *ngFor="let transformation of terminatingTransformations; let i = index"
-             [ngClass]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude}">
+             [ngClass]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
             <span class="cursor-pointer"
                   (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
 
