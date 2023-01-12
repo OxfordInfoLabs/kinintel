@@ -188,7 +188,10 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "first_col1" => "yes",
                 "first_col2" => "sometimes",
                 "first" => true,
-                "date_imported" => $now
+                "date_imported" => $now,
+                "second" => null,
+                "second_col1" => null,
+                "second_col2" => null
             ], [
                 "date" => "2023-01-14 14:31:45",
                 "match" => "John",
@@ -285,7 +288,10 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "match" => "eins",
                 "other" => "nonsense",
                 "number1" => true,
-                "date_imported" => $now
+                "date_imported" => $now,
+                "number2" => null,
+                "number3" => null,
+                "stuff" => null
             ], [
                 "date" => "2023-01-14 14:31:45",
                 "match" => "zwei",

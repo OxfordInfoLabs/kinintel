@@ -104,6 +104,23 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
         // Reset the keys
         $dataset = array_values($dataset);
 
+        // Fully augment with nulls the first item, so all fields are updated
+        $fields = [];
+        foreach ($sourceDatasources as $source) {
+            $fields = array_merge($fields, array_values($source->getColumnMappings()));
+            $fields[] = $source->getSourceIndicatorColumn();
+        }
+
+
+        $first = $dataset[0];
+        foreach ($fields as $field) {
+            if (!isset($first[$field])) {
+                $first[$field] = null;
+            }
+        }
+
+        $dataset[0] = $first;
+
 
         // Update the target datasource
         $update = new DatasourceUpdate([], [], [], $dataset);
