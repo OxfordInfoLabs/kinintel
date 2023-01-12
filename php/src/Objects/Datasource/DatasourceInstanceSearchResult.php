@@ -21,6 +21,11 @@ class DatasourceInstanceSearchResult extends ActiveRecord {
     protected $key;
 
     /**
+     * @var string
+     */
+    protected $description;
+
+    /**
      * Type for this data source - can either be a mapping implementation key
      * or a fully qualified class path
      *
@@ -33,11 +38,13 @@ class DatasourceInstanceSearchResult extends ActiveRecord {
      * @param string $title
      * @param string $key
      * @param string $type
+     * @param string $description
      */
-    public function __construct($key, $title, $type) {
+    public function __construct($key, $title, $type, $description = null) {
         $this->title = $title;
         $this->key = $key;
         $this->type = $type;
+        $this->description = $description;
     }
 
 
@@ -61,4 +68,13 @@ class DatasourceInstanceSearchResult extends ActiveRecord {
     public function getType() {
         return $this->type;
     }
+
+    /**
+     * @return string
+     */
+    public function getDescription() {
+        return $this->description;
+    }
+
+
 }

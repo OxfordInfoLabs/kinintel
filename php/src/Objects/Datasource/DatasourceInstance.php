@@ -31,7 +31,6 @@ class DatasourceInstance extends DatasourceInstanceSummary {
     use AccountProject;
 
 
-
     /**
      * Config for the data source - should match the required format for
      * the configuration for the data source type.
@@ -105,9 +104,10 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * @param mixed $credentialsConfig
      * @param mixed $updateConfig
      * @param Parameter[] $parameters
+     * @param string $description
      */
-    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = []) {
-        parent::__construct($key, $title, $type);
+    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = [], $description = "") {
+        parent::__construct($key, $title, $type, $description);
         $this->config = $config;
         $this->credentialsKey = $credentialsKey;
         $this->credentialsType = $credentialsType;
@@ -131,6 +131,12 @@ class DatasourceInstance extends DatasourceInstanceSummary {
         $this->title = $title;
     }
 
+    /**
+     * @param string $description
+     */
+    public function setDescription($description) {
+        $this->description = $description;
+    }
 
 
     /**
