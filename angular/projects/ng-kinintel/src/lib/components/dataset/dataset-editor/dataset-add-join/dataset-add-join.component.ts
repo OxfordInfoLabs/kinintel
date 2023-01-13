@@ -102,7 +102,7 @@ export class DatasetAddJoinComponent implements OnInit {
                 endOfResults: false,
                 shared: false,
                 reload: new Subject(),
-                title: 'Data Packages',
+                title: 'Data Feeds',
                 type: 'dataset'
             };
         }

@@ -49,7 +49,7 @@
                         Configure {{dashboardItemType.label}}
                     </button>
                     <p class="font-light w-3/4 text-center mt-4">
-                        Please configure this {{dashboardItemType.label}} using a data package or stored query.
+                        Please configure this {{dashboardItemType.label}} using a data feed or stored query.
                     </p>
                 </div>
             </div>
@@ -283,6 +283,87 @@
                     </div>
                 </div>
 
+            </mat-tab>
+            <mat-tab label="Action">
+                <div class="px-6 py-3 bg-white border-b border-gray-200">
+                    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-start flex-1">
+                            <div class="pt-1.5">
+                                <h1 class="text-xl font-bold text-gray-900 mb-0">Action Settings</h1>
+                                <p class="text-xs font-medium text-gray-500">
+                                    Configure available actions that can be performed on this item.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2">
+                    <div class="p-4">
+                        <div class="font-medium mb-2">
+                            Navigate to another dashboard or URL by clicking on this widget item.
+                        </div>
+
+                        <label class="mb-2">
+                            Destination
+                            <select matNativeControl [(ngModel)]="actionItem" [compareWith]="setCallToActionItem"
+                                    (ngModelChange)="ctaUpdate($event)">
+                                <option value="">None</option>
+                                <option [ngValue]="{type: 'custom'}">Custom Link</option>
+                                <optgroup label="Dashboards">
+                                    <option *ngFor="let dashboard of dashboards"
+                                            [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                </optgroup>
+                                <optgroup label="Shared Dashboards">
+                                    <option *ngFor="let dashboard of sharedDashboards"
+                                            [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                </optgroup>
+                            </select>
+                            <small class="font-normal">Select the destination for the action link</small>
+                        </label>
+                        <ng-template [ngIf]="actionItem.type === 'custom'">
+                            <p>Please enter the link for this call to action.</p>
+
+                            <label class="mb-2">
+                                Link
+                                <input type="text" [(ngModel)]="actionItem.link">
+                            </label>
+
+                        </ng-template>
+
+                        <ng-template [ngIf]="actionItem && actionItem.parameters && dashboardParameters.length">
+                            <p>Please enter the following parameters to use with this dashboard</p>
+
+                            <ng-template ngFor let-param [ngForOf]="dashboardParameters">
+                                <label>{{param.title}}</label>
+                                <label *ngIf="!actionItem.parameters['custom-'+param.name]"
+                                       class="mb-2 dashboard-param-pick">
+                                    <select matNativeControl [(ngModel)]="actionItem.parameters[param.name]"
+                                            [compareWith]="ctaSelectOption">
+                                        <option [value]="undefined">-- Select Value --</option>
+                                        <ng-template [ngIf]="dataset">
+                                            <option *ngFor="let column of dataset.columns"
+                                                    [value]="'[['+column.name+']]'">
+                                                {{column.title}}
+                                            </option>
+                                        </ng-template>
+                                    </select>
+                                </label>
+                                <div class="mb-2 flex items-center">
+                                    <mat-checkbox class="mr-1"
+                                                  [(ngModel)]="actionItem.parameters['custom-'+param.name]"></mat-checkbox>
+                                    <p class="mb-0 mt-1">Use custom value</p>
+                                </div>
+                                <label class="mb-2 dashboard-param-pick">
+                                    <input type="text" *ngIf="actionItem.parameters['custom-'+param.name]"
+                                           placeholder="Enter custom parameter value"
+                                           [(ngModel)]="actionItem.parameters[param.name]">
+                                </label>
+                            </ng-template>
+
+
+                        </ng-template>
+                    </div>
+                </div>
             </mat-tab>
             <mat-tab label="Text" *ngIf="dashboardItemType.type === 'text'">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">

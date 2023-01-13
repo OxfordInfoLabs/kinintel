@@ -63,6 +63,7 @@ export class ItemComponentComponent implements AfterViewInit {
     public hiddenColumns: any = {};
     public general: any = {};
     public callToAction: any = {};
+    public actionItem: any = {};
     public alert = false;
     public alertData: any = [];
     public showAlertData = false;

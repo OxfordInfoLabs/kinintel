@@ -2,7 +2,7 @@
 
     <div class="dialog-title" cdkDragHandle>
         <h2 mat-dialog-title>
-            {{feed.id ? 'Edit Feed' : 'Create Feed'}}
+            {{feed.id ? 'Edit API Connection' : 'Create API Connection'}}
         </h2>
 
         <button mat-icon-button mat-dialog-close>
@@ -16,15 +16,15 @@
 
                 <div class="space-y-6 sm:space-y-5">
                     <div>
-                        <h3 class="text-lg font-medium leading-6 text-gray-900">Setup feed</h3>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Setup API Connection</h3>
                         <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following information in order to
-                            configure your feed endpoint.</p>
+                            configure your API endpoint.</p>
                     </div>
                     <div class="space-y-6 sm:space-y-5">
                         <div
                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                             <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Feed Path
+                                API Path
                             </label>
                             <div class="mt-1 sm:col-span-2 sm:mt-0">
                                 <div class="flex">
@@ -36,7 +36,7 @@
                                            [ngClass]="{'border-red-600': !!error}"
                                            placeholder="my-new-data-feed" [(ngModel)]="feed.path">
                                 </div>
-                                <small *ngIf="!error" class="font-normal">The path used to identify this feed</small>
+                                <small *ngIf="!error" class="font-normal">The path used to identify this API Connection</small>
                                 <small *ngIf="error" class="font-normal text-red-600">{{error}}</small>
 
                             </div>
@@ -45,7 +45,7 @@
                         <div
                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                             <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Feed Data
+                                API Data
                             </label>
                             <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
                                 <input type="text" class="w-full" [matAutocomplete]="autoDatasets"
@@ -69,7 +69,7 @@
                             <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
                                 <mat-checkbox class="example-margin" [(ngModel)]="cacheEnabled"
                                     (ngModelChange)="updateCacheEnabled($event)">
-                                    Enable Feed Caching</mat-checkbox>
+                                    Enable API Caching</mat-checkbox>
 
                                 <div class="flex mt-4" *ngIf="cacheEnabled">
                                       <span
@@ -135,7 +135,7 @@
 
         <button mat-button mat-flat-button color="primary" type="button"
                 (click)="saveFeed()"
-                [disabled]="!feed.path || !feed.datasetInstanceId || !feed.exporterKey">Save Feed
+                [disabled]="!feed.path || !feed.datasetInstanceId || !feed.exporterKey">Save API Connection
         </button>
     </div>
 

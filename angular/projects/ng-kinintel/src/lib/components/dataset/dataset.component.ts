@@ -31,6 +31,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() url: string;
     @Input() accountId: any;
     @Input() contactUs: string;
+    @Input() tableHeading: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');

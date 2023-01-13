@@ -2,16 +2,16 @@
     <div class="md:flex md:items-center md:justify-between md:space-x-5">
         <div class="flex items-start flex-1">
             <div class="pt-1.5">
-                <h1 class="text-2xl font-bold text-gray-900">Feeds</h1>
+                <h1 class="text-2xl font-bold text-gray-900">API Connections</h1>
                 <p class="text-sm font-medium text-gray-500">
-                    A list of all the feeds currently available.
+                    A list of all the API Connections that are currently available.
                 </p>
             </div>
         </div>
         <div class="mt-6 flex flex-col-reverse justify-stretch">
             <button type="button" (click)="editFeed()"
                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
-                Create New Feed
+                Create New API Connection
             </button>
         </div>
     </div>
@@ -35,7 +35,7 @@
                             </div>
                             <input type="text" name="mobile-search-candidate" id="mobile-search-candidate"
                                    class="block w-full rounded-none pl-10 border-t-0 border-l-0 border-gray-300"
-                                   placeholder="Search feeds"
+                                   placeholder="Search api connections"
                                    (keyup)="searchText.next($event.target.value)">
                         </div>
                     </div>
@@ -155,7 +155,7 @@ curl -H "API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>" -H "API-SEC
 
         <div class="relative inline-block">
             <mat-icon
-                class="mx-auto text-6xl h-14 w-20 text-gray-300">rss_feed
+                class="mx-auto text-6xl h-14 w-20 text-gray-300">api
             </mat-icon>
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
@@ -164,6 +164,6 @@ curl -H "API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>" -H "API-SEC
             </svg>
         </div>
 
-        <span class="mt-2 block text-sm font-medium text-gray-900">Create New Feed</span>
+        <span class="mt-2 block text-sm font-medium text-gray-900">Create New API Connection</span>
     </button>
 </div>

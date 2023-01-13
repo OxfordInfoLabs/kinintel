@@ -44,7 +44,7 @@
 </div>
 
 <ng-template [ngIf]="!itemLocked">
-    <button *ngIf="!dragItem" mat-mini-fab class="edit-widget bg-gray-500 bg-opacity-90"
+    <button *ngIf="!dragItem" mat-mini-fab class="edit-widget bg-white text-gray-500 bg-opacity-90"
             [matMenuTriggerFor]="editMenu">
         <mat-icon>more_horiz</mat-icon>
     </button>
@@ -115,7 +115,8 @@
 
     <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image',
         'p-px': (dashboardItemType.type === 'table' || general.transparent), 'overflow-hidden': !!chartData,
-        'flex items-center': dashboardItemType.type === 'metric'}">
+        'flex items-center': dashboardItemType.type === 'metric', 'cursor-pointer': (actionItem && Object.keys(actionItem).length)}"
+        (click)="(actionItem && Object.keys(actionItem).length) ? callToActionLink(actionItem): null">
 
         <ng-template [ngIf]="dashboardItemType.type === 'text' && textData.value">
             <div *ngIf="textData.safeTextData" [innerHTML]="textData.safeTextData"></div>

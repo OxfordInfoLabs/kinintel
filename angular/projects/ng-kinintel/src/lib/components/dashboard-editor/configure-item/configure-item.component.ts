@@ -32,6 +32,7 @@ export class ConfigureItemComponent implements OnInit {
     public general: any = {};
     public dependencies: any = {};
     public callToAction: any = {};
+    public actionItem: any = {};
     public dashboard;
     public dashboardItemType;
     public dashboardDatasetInstance: any;
@@ -505,7 +506,7 @@ export class ConfigureItemComponent implements OnInit {
     }
 
     private mapComponentDataToDashboardInstance() {
-        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction', 'wordCloud'];
+        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction', 'wordCloud', 'actionItem'];
         layoutSettings.forEach(setting => {
             if (!this.dashboard.layoutSettings[setting]) {
                 this.dashboard.layoutSettings[setting] = {};
