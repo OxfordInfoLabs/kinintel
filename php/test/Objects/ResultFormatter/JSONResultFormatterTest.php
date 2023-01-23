@@ -144,6 +144,26 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
             ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
 
 
+        $formatter = new JSONResultFormatter("results[0].data[1].items");
+
+
+        // Regular key / value pairs
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode(["results" => [
+            ["data" => [[], ["items" => [
+                ["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+                ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]
+            ]]]],
+            ["items" => []]
+        ]])));
+
+
+        $this->assertInstanceOf(ArrayTabularDataset::class, $result);
+
+        $this->assertEquals([new Field("name", "Name"), new Field("ageAtReg", "Age At Reg"), new Field("other_data", "Other Data")], $result->getColumns());
+        $this->assertEquals([["name" => "Mark", "ageAtReg" => 3, "other_data" => "Hello"],
+            ["name" => "Bob", "ageAtReg" => 7, "other_data" => "Bingo"]], $result->getAllData());
+
+
     }
 
 

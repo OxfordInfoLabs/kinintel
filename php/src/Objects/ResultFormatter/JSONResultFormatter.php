@@ -215,11 +215,29 @@ class JSONResultFormatter implements ResultFormatter {
 
         $path = explode(".", $path);
         foreach ($path as $pathElement) {
-            if (isset($object[$pathElement])) {
-                $object = $object[$pathElement];
+            $arrayName = explode("[", $pathElement);
+
+            if (sizeof($arrayName) == 1) {
+
+                if (isset($object[$pathElement])) {
+                    $object = $object[$pathElement];
+                } else {
+                    $object = [];
+                }
+
             } else {
-                $object = [];
+
+
+                $item = $arrayName[0];
+                $offset = rtrim($arrayName[1], "]");
+
+                if (isset($object[$item][$offset])) {
+                    $object = $object[$item][$offset];
+                } else {
+                    $object = [];
+                }
             }
+
         }
 
         return $object;

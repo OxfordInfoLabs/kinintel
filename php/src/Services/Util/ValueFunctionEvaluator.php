@@ -130,6 +130,14 @@ class ValueFunctionEvaluator {
         if (is_string($expression)) {
 
             // Evaluate time offset parameters for days ago and hours ago
+            $expression = preg_replace_callback("/([0-9]+)_YEARS_AGO/", function ($matches) use (&$outputParameters) {
+                return (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "Y"))->format("Y-m-d H:i:s");
+            }, $expression);
+
+            $expression = preg_replace_callback("/([0-9]+)_MONTHS_AGO/", function ($matches) use (&$outputParameters) {
+                return (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "M"))->format("Y-m-d H:i:s");
+            }, $expression);
+
             $expression = preg_replace_callback("/([0-9]+)_DAYS_AGO/", function ($matches) use (&$outputParameters) {
                 return (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "D"))->format("Y-m-d H:i:s");
             }, $expression);
