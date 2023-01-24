@@ -150,6 +150,8 @@ class JSONResultFormatter implements ResultFormatter {
         // If a single result, convert to array for processing
         if (!is_array($decodedResult) || $this->isSingleResult()) {
             $decodedResult = [$decodedResult];
+        } else {
+            $decodedResult = array_values($decodedResult);
         }
 
         // Deal with any offset and limit up front
