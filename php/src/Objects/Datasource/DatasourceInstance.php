@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\Parameter\Parameter;
  *
  * @table ki_datasource_instance
  * @generate
+ * @interceptor \Kinintel\Objects\Datasource\DatasourceInstanceInterceptor
  */
 class DatasourceInstance extends DatasourceInstanceSummary {
 

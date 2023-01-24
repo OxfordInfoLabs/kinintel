@@ -45,6 +45,7 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
      * @manyToOne
      * @parentJoinColumns scheduled_task_id
      * @saveCascade
+     * @deleteCascade
      */
     private $scheduledTask;
 
@@ -54,6 +55,7 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
      * @manyToOne
      * @parentJoinColumns dataprocessor_instance_id
      * @saveCascade
+     * @deleteCascade
      */
     private $dataProcessorInstance;
 
@@ -75,7 +77,7 @@ class DatasetInstanceSnapshotProfile extends ActiveRecord {
      * @param ScheduledTask $scheduledTask
      * @param DataProcessorInstance $dataProcessorInstance
      */
-    public function __construct($datasetInstanceId, $title, $trigger = DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, $scheduledTask, $dataProcessorInstance) {
+    public function __construct($datasetInstanceId, $title, $trigger = DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, $scheduledTask = null, $dataProcessorInstance = null) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->title = $title;
         $this->scheduledTask = $scheduledTask;

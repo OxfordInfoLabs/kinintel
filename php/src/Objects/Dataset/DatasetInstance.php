@@ -15,6 +15,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 /**
  * @table ki_dataset_instance
  * @generate
+ * @interceptor \Kinintel\Objects\Dataset\DatasetInstanceInterceptor
  */
 class DatasetInstance extends DatasetInstanceSummary {
 
