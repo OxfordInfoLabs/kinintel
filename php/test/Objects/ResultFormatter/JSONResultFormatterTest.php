@@ -244,4 +244,20 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanFlattenArrayKeysFromJSONObject() {
+
+        $formatter = new JSONResultFormatter();
+
+        $object = [
+            "item1" => ["a" => 1, "b" => 2, "c" => 3],
+            "item2" => ["a" => 4, "b" => 5, "c" => 6]
+        ];
+
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode($object)));
+
+        $this->assertEquals([new Field("a"), new Field("b"), new Field("c")], $result->getColumns());
+
+        $this->assertEquals([["a" => 1, "b" => 2, "c" => 3], ["a" => 4, "b" => 5, "c" => 6]], $result->getAllData());
+    }
+
 }
