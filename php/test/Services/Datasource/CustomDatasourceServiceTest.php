@@ -70,7 +70,8 @@ class CustomDatasourceServiceTest extends TestBase {
             "columns" => [
                 new Field("name"),
                 new Field("age", null, null, Field::TYPE_INTEGER)
-            ]
+            ],
+            "manageTableStructure" => true
         ], "test");
         $expectedDatasourceInstance->setAccountId(1);
         $expectedDatasourceInstance->setProjectKey("myproject");
@@ -126,7 +127,8 @@ class CustomDatasourceServiceTest extends TestBase {
             "columns" => [
                 new Field("name"),
                 new Field("age", null, null, Field::TYPE_INTEGER)
-            ]
+            ],
+            "manageTableStructure" => true
         ], "test");
         $expectedDatasourceInstance->setAccountId(1);
         $expectedDatasourceInstance->setProjectKey("myproject");
@@ -197,7 +199,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $documentDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "document_data_set_4_" . date("U"),
             "storeOriginal" => true, "storeText" => true, "indexContent" => true];
         $documentIndexDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "index_document_data_set_4_" . date("U"),
-            "source" => "table", "columns" => $fields];
+            "source" => "table", "columns" => $fields, "manageTableStructure" => true];
 
         $expectedInstance = new DatasourceInstance("document_data_set_4_" . date("U"), "TheBestTitle", "document",
             $documentDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
@@ -234,7 +236,8 @@ class CustomDatasourceServiceTest extends TestBase {
             "snapshot", [
                 "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                 "tableName" => "snapshot_data_set_53_" . date("U"),
-                "columns" => [new Field("Field1"), new Field("Field2")]
+                "columns" => [new Field("Field1"), new Field("Field2")],
+                "manageTableStructure" => true
             ], "test");
         $expectedInstance->setProjectKey("dummydummy");
         $expectedInstance->setAccountId(53);

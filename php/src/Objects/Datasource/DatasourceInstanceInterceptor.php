@@ -27,6 +27,22 @@ class DatasourceInstanceInterceptor extends DefaultORMInterceptor {
 
 
     /**
+     * Ensure on instance save is called on a save
+     *
+     * @param $object
+     */
+    public function postSave($object) {
+
+        $datasource = $object->returnDataSource();
+
+        // Call the instance delete if an updatable datasource
+        if ($datasource instanceof UpdatableDatasource)
+            $datasource->onInstanceSave();
+
+    }
+
+
+    /**
      * Check to see whether this object is referenced elsewhere
      *
      * @param $object
@@ -49,6 +65,21 @@ class DatasourceInstanceInterceptor extends DefaultORMInterceptor {
         }
 
 
+    }
+
+
+    /**
+     * Ensure we perform any instance specific clean up on delete of the datasource
+     *
+     * @param DatasourceInstance $object
+     */
+    public function postDelete($object) {
+
+        $datasource = $object->returnDataSource();
+
+        // Call the instance delete if an updatable datasource
+        if ($datasource instanceof UpdatableDatasource)
+            $datasource->onInstanceDelete();
     }
 
 

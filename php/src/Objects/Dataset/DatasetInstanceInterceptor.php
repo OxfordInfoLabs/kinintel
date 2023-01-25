@@ -85,6 +85,13 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
             throw new ItemInUseException($object);
         }
 
+        // Check for references in snapshots before allowing the delete
+        $references = $this->databaseConnection->query("SELECT COUNT(*) total FROM ki_feed WHERE dataset_instance_id = ?", $object->getId())->fetchAll();
+
+        if ($references[0]["total"]) {
+            throw new ItemInUseException($object);
+        }
+
         // Finally check for references encoded as structured data.
         $references = $this->databaseConnection->query("SELECT COUNT(*) total FROM ka_object_structured_data 
                 WHERE object_type = ? AND data_type = ? AND primary_key = ?", DatasetInstance::class, "referencedDataSet", $object->getId())->fetchAll();

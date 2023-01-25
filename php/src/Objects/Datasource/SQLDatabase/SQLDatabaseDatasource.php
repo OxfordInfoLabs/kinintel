@@ -274,7 +274,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
-
         // Return a tabular dataset
         $result = new SQLResultSetTabularDataset($resultSet, $columns);
 
@@ -367,7 +366,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      *
      */
     public function onInstanceSave() {
-        $this->updateFields($this->getConfig()->getColumns());
+        if ($this->getConfig()->isManageTableStructure())
+            $this->updateFields($this->getConfig()->getColumns());
     }
 
 

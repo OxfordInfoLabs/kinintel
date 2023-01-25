@@ -5,12 +5,16 @@ namespace Kinintel\Test\Objects\Datasource;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceInterceptor;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -29,6 +33,11 @@ class DatasourceInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         $this->interceptor = Container::instance()->get(DatasourceInstanceInterceptor::class);
 
         Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance WHERE datasource_instance_key = ?", "test-dep-ds");
+
+        $testDs = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+
+        Container::instance()->addInterfaceImplementation(Datasource::class, "test", get_class($testDs));
+
     }
 
 
@@ -75,5 +84,34 @@ class DatasourceInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
+    public function testIfDatasourceInstanceRepresentsAnUpdatableDatasourceOnInstanceDeleteIsCalledPostDelete() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+
+        $this->interceptor->postDelete($dataSourceInstance);
+
+        $this->assertTrue($dataSource->methodWasCalled("onInstanceDelete"));
+
+    }
+
+
+    public function testIfDatasourceInstanceRepresentsAnUpdatableDatasourceOnInstanceSaveIsCalledPostSave() {
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+
+        $this->interceptor->postSave($dataSourceInstance);
+
+        $this->assertTrue($dataSource->methodWasCalled("onInstanceSave"));
+
+    }
+
 
 }

@@ -24,6 +24,12 @@ class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
     private $query;
 
 
+    /**
+     * @var boolean
+     */
+    private $manageTableStructure;
+
+
     // Currently supported sources for the data using the authenticated connection.
     const SOURCE_TABLE = "table";
     const SOURCE_QUERY = "query";
@@ -35,12 +41,14 @@ class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
      * @param string $tableName
      * @param string $query
      * @param Field[] $columns
+     * @param boolean $manageTableStructure
      */
-    public function __construct($source, $tableName = "", $query = "", $columns = []) {
+    public function __construct($source, $tableName = "", $query = "", $columns = [], $manageTableStructure = false) {
         parent::__construct($columns);
         $this->source = $source;
         $this->tableName = $tableName;
         $this->query = $query;
+        $this->manageTableStructure = $manageTableStructure;
     }
 
     /**
@@ -83,6 +91,20 @@ class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
      */
     public function setQuery($query) {
         $this->query = $query;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isManageTableStructure() {
+        return $this->manageTableStructure;
+    }
+
+    /**
+     * @param bool $manageTableStructure
+     */
+    public function setManageTableStructure($manageTableStructure) {
+        $this->manageTableStructure = $manageTableStructure;
     }
 
 

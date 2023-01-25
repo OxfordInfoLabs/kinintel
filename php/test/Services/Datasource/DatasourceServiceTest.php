@@ -106,13 +106,8 @@ class DatasourceServiceTest extends TestBase {
 
     }
 
-    public function testOnRemoveOfDatasourceInstanceDAOIsCalledAndOnInstanceDeleteIsCalledOnDatasource() {
+    public function testOnRemoveOfDatasourceInstanceDAOIsCalled() {
 
-        // Program expected return values
-        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
-        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
-        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, ["twinkle"]);
 
         $this->dataSourceService->removeDatasourceInstance("twinkle");
 
@@ -121,7 +116,6 @@ class DatasourceServiceTest extends TestBase {
             "twinkle"
         ]));
 
-        $this->assertTrue($dataSource->methodWasCalled("onInstanceDelete"));
 
     }
 

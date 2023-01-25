@@ -13,6 +13,8 @@ use Kinintel\Objects\Dataset\DatasetInstanceInterceptor;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\DatasourceInstanceInterceptor;
+use Kinintel\Objects\Feed\Feed;
+use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -168,6 +170,26 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         ]));
         $mainDataset->save();
 
+
+        // Now attempt delete omn the referenced set and check we caught it
+        try {
+            $this->interceptor->preDelete($referencedDataSet);
+            $this->fail("Should have thrown here");
+        } catch (ItemInUseException $e) {
+            $this->assertTrue(true);
+        }
+
+
+    }
+
+
+    public function testIfFeedExistsForDatasetItIsCheckedForOnDeleteOfDataset() {
+
+        $referencedDataSet = new DatasetInstance(new DatasetInstanceSummary("Test Dep Dataset", "test-json"));
+        $referencedDataSet->save();
+
+        $feed = new Feed(new FeedSummary("bingo", $referencedDataSet->getId(), [], "", []), null, null);
+        $feed->save();
 
         // Now attempt delete omn the referenced set and check we caught it
         try {

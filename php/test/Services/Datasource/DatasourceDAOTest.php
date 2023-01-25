@@ -90,7 +90,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance = new DatasourceInstance("db-sql", "Database SQL", "sqldatabase", [
             "source" => "table",
             "tableName" => "bob"
-        ], "http-basic");
+        ], "sql");
         $dataSourceInstance->save();
 
 
@@ -140,7 +140,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance = new DatasourceInstance("db-sql", "Database SQL", "sqldatabase", [
             "source" => "table",
             "tableName" => "bob"
-        ], "http-basic");
+        ], "sql");
         $dataSourceInstance->setAccountId(2);
         $dataSourceInstance->setProjectKey("soapSuds");
         $dataSourceInstance->save();
@@ -175,7 +175,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance = new DatasourceInstance("db-sql", "Dataset Snapshot", "snapshot", [
             "source" => "table",
             "tableName" => "bob"
-        ], "http-basic");
+        ], "sql");
         $dataSourceInstance->setAccountId(2);
         $dataSourceInstance->save();
 
@@ -222,7 +222,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance4 = new DatasourceInstance("test-project-1", "Test Project", "sqldatabase", [
             "source" => "table",
             "tableName" => "bob"
-        ], "http-basic");
+        ], "sql");
         $dataSourceInstance4->setAccountId(2);
         $dataSourceInstance4->setProjectKey("soapSuds");
         $dataSourceInstance4->save();
@@ -230,7 +230,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance5 = new DatasourceInstance("test-project-2", "Test Project", "sqldatabase", [
             "source" => "table",
             "tableName" => "bob"
-        ], "http-basic");
+        ], "sql");
         $dataSourceInstance5->setAccountId(2);
         $dataSourceInstance5->setProjectKey("wiperBlades");
         $dataSourceInstance5->save();
