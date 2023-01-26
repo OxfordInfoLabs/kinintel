@@ -3,6 +3,7 @@
 namespace Kinintel\Test\Services\Alert;
 
 use GuzzleHttp\Handler\Proxy;
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupMember;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
@@ -11,7 +12,10 @@ use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Security\UserCommunicationData;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
+use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Communication\Notification\NotificationService;
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\TemplateParser;
@@ -62,13 +66,29 @@ class AlertServiceTest extends TestBase {
     private $templateParser;
 
     /**
+     * @var AccountService
+     */
+    private $accountService;
+
+
+    /**
+     * @var SecurityService
+     */
+    private $securityService;
+
+
+    /**
      * Setup function
      */
     public function setUp(): void {
         $this->dashboardService = MockObjectProvider::instance()->getMockInstance(DashboardService::class);
         $this->notificationService = MockObjectProvider::instance()->getMockInstance(NotificationService::class);
         $this->templateParser = MockObjectProvider::instance()->getMockInstance(TemplateParser::class);
-        $this->alertService = new AlertService($this->dashboardService, $this->notificationService, $this->templateParser);
+        $this->accountService = MockObjectProvider::instance()->getMockInstance(AccountService::class);
+        $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
+
+        $this->alertService = new AlertService($this->dashboardService, $this->notificationService, $this->templateParser, $this->accountService, $this->securityService,
+            Container::instance()->get(ActiveRecordInterceptor::class));
     }
 
 
@@ -659,5 +679,64 @@ class AlertServiceTest extends TestBase {
 
     }
 
+
+    public function testIfAlertGroupIsLinkedToAccountIdThatAccountIsLoggedInBeforeAlertsProcessed() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup->save();
+
+        $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
+            $notificationGroup->returnSummary()
+        ], "Test Alert", "Please see alerts below",
+            "Thanks for your support", NotificationLevel::fetch("warning"));
+
+        $alertGroupId = $this->alertService->saveAlertGroup($alertGroup, null, 1);
+
+        $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
+            [], [$alertGroupId]);
+
+
+        // Programme a return value for account
+        $account = new Account("TestAccount", 0, Account::STATUS_ACTIVE, 1);
+        $this->accountService->returnValue("getAccount", $account, [1]);
+
+        // Process the group
+        $this->alertService->processAlertGroup($alertGroupId);
+
+        // Confirm that we called the login
+        $this->assertTrue($this->securityService->methodWasCalled("login", [null, $account]));
+
+
+    }
+
+
+    public function testIfAlertGroupIsSuperAdminEnsureSuperUserIsLoggedInBeforeAlertsProcessed() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup->save();
+
+        $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
+            $notificationGroup->returnSummary()
+        ], "Test Alert", "Please see alerts below",
+            "Thanks for your support", NotificationLevel::fetch("warning"));
+
+        $alertGroupId = $this->alertService->saveAlertGroup($alertGroup, null, null);
+
+        $this->dashboardService->returnValue("getActiveDashboardDatasetAlertsMatchingAlertGroup",
+            [], [$alertGroupId]);
+
+
+        // Process the group
+        $this->alertService->processAlertGroup($alertGroupId);
+
+        // Confirm that we called the login as super user.
+        $this->assertTrue($this->securityService->methodWasCalled("loginAsSuperUser"));
+
+
+    }
 
 }

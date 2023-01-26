@@ -9,7 +9,10 @@ use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
+use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Communication\Notification\NotificationService;
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
+use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -42,16 +45,39 @@ class AlertService {
 
 
     /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    /**
+     * @var SecurityService
+     */
+    private $securityService;
+
+
+    /**
+     * @var ActiveRecordInterceptor
+     */
+    private $activeRecordInterceptor;
+
+
+    /**
      * AlertService constructor.
      *
      * @param DashboardService $dashboardService
      * @param NotificationService $notificationService
      * @param TemplateParser $templateParser
+     * @param AccountService $accountService
+     * @param SecurityService $securityService
+     * @param ActiveRecordInterceptor $activeRecordInterceptor
      */
-    public function __construct($dashboardService, $notificationService, $templateParser) {
+    public function __construct($dashboardService, $notificationService, $templateParser, $accountService, $securityService, $activeRecordInterceptor) {
         $this->dashboardService = $dashboardService;
         $this->notificationService = $notificationService;
         $this->templateParser = $templateParser;
+        $this->accountService = $accountService;
+        $this->securityService = $securityService;
+        $this->activeRecordInterceptor = $activeRecordInterceptor;
     }
 
     /**
@@ -174,6 +200,22 @@ class AlertService {
      */
     public function processAlertGroup($alertGroupId) {
 
+        // Ensure we log in as alert group user
+        $this->activeRecordInterceptor->executeInsecure(function () use ($alertGroupId) {
+
+            // Grab alert group
+            $alertGroup = AlertGroup::fetch($alertGroupId);
+
+            // If an account id, login as account id.
+            if ($alertGroup->getAccountId()) {
+                $account = $this->accountService->getAccount($alertGroup->getAccountId());
+                $this->securityService->login(null, $account);
+            } else {
+                $this->securityService->loginAsSuperUser();
+            }
+
+        });
+
         // Grab the active alerts
         $activeAlerts = $this->dashboardService->getActiveDashboardDatasetAlertsMatchingAlertGroup($alertGroupId);
 
@@ -255,6 +297,7 @@ class AlertService {
      * @param Alert $alert
      */
     private function processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert) {
+
         $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance,
             $alert->getFilterTransformation() ? [new TransformationInstance("filter", $alert->getFilterTransformation())] : []);
 
