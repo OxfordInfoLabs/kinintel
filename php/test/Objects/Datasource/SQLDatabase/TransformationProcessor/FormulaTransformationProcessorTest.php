@@ -15,6 +15,8 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
+use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 
 include_once "autoloader.php";
 
@@ -107,6 +109,37 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             $query->getSQL());
 
         $this->assertEquals([5, "Hello", "Hello"], $query->getParameters());
+
+    }
+
+
+    public function testIfSummarisationTransformationPrecedesFormulaTransformationQueryIsWrappedAccordingly() {
+
+        $formulaTransformationProcessor = new FormulaTransformationProcessor();
+
+
+        $authenticationCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
+        $authenticationCredentials->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
+        $dataSource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test", null, [
+            new Field("column1"), new Field("column2")
+        ]),
+            $authenticationCredentials, null);
+
+        // Apply a summarisation first
+        $summarisation = new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_CUSTOM, "bingo", "MAX([[column1]])")]);
+        $dataSource->applyTransformation($summarisation);
+
+        $query = new SQLQuery("MAX(column1) bingo", "test");
+
+        $formulaTransformation = new FormulaTransformation([new Expression("test", "[[bingo]]")]);
+
+        $dataSource->applyTransformation($formulaTransformation);
+
+        $query = $formulaTransformationProcessor->updateQuery($formulaTransformation, $query, [], $dataSource);
+
+        $this->assertEquals('SELECT F1.*, "bingo" test FROM (SELECT MAX(column1) bingo FROM test) F1', $query->getSQL());
+
 
     }
 

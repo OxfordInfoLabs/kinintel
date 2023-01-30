@@ -165,5 +165,14 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
         $this->customDocumentParser = $customDocumentParser;
     }
 
+    /**
+     * Override manage table structure to force true
+     *
+     * @return bool
+     */
+    public function isManageTableStructure() {
+        return true;
+    }
+
 
 }

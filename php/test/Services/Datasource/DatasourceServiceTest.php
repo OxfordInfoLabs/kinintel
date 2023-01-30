@@ -102,7 +102,6 @@ class DatasourceServiceTest extends TestBase {
             $dataSourceInstance
         ]));
 
-        $this->assertTrue($dataSource->methodWasCalled("onInstanceSave"));
 
     }
 

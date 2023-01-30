@@ -377,9 +377,13 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @return mixed|void
      */
     public function onInstanceDelete() {
-        $databaseConnection = $this->returnDatabaseConnection();
-        $dropSQL = $this->tableDDLGenerator->generateTableDropSQL($this->getConfig()->getTableName());
-        $databaseConnection->executeScript($dropSQL);
+
+        // Only proceed if we are managing table structure
+        if ($this->getConfig()->isManageTableStructure()) {
+            $databaseConnection = $this->returnDatabaseConnection();
+            $dropSQL = $this->tableDDLGenerator->generateTableDropSQL($this->getConfig()->getTableName());
+            $databaseConnection->executeScript($dropSQL);
+        }
     }
 
 

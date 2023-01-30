@@ -65,8 +65,7 @@ class CustomDatasourceService
             $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), $type, [
                 "source" => "table",
                 "tableName" => $tableName,
-                "columns" => $datasourceUpdate->getFields(),
-                "manageTableStructure" => true
+                "columns" => $datasourceUpdate->getFields()
             ], $credentialsKey);
 
             // Set account id and project key
@@ -115,8 +114,7 @@ class CustomDatasourceService
             [
                 "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                 "tableName" => $newInstanceKey,
-                "columns" => $fields,
-                "manageTableStructure" => true
+                "columns" => $fields
             ], Configuration::readParameter("snapshot.datasource.credentials.key"));
         $dataSourceInstance->setAccountId($accountId);
         $dataSourceInstance->setProjectKey($projectKey);
@@ -162,8 +160,7 @@ class CustomDatasourceService
         $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $datasourceConfigUpdate->getTitle() . " Index", "sqldatabase", [
             "source" => "table",
             "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $indexInstanceKey,
-            "columns" => $fields,
-            "manageTableStructure" => true
+            "columns" => $fields
         ], Configuration::readParameter("custom.datasource.credentials.key"));
 
         $indexDatasourceInstance->setAccountId($accountId);

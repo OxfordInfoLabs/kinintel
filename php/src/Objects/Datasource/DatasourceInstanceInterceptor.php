@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\DefaultORMInterceptor;
 use Kinintel\Exception\ItemInUseException;

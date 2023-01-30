@@ -51,11 +51,14 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         $datasourceTransformations = $dataSource->returnTransformations();
         $transformationIndex = array_search($transformation, $datasourceTransformations);
         $substitutions = [];
+        $hasSummarise = false;
         for ($i = $transformationIndex - 1; $i >= 0; $i--) {
             $previousTransformation = $datasourceTransformations[$i];
             // We can stop at summarisations or joins as these will create sub queries anyway.
-            if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof JoinTransformation)
+            if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof JoinTransformation) {
+                if ($previousTransformation instanceof SummariseTransformation) $hasSummarise = true;
                 break;
+            }
             if ($previousTransformation instanceof FormulaTransformation) {
                 foreach ($previousTransformation->getExpressions() as $expression) {
                     $substitutions[$expression->returnFieldName()] = $expression->getExpression();
@@ -78,8 +81,9 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
             $clauses[] = $expression->returnSQLClause($clauseParams, $parameterValues, $dataSource->returnDatabaseConnection());
         }
 
+
         // If Group By, make sure we wrap the query
-        if ($query->hasGroupByClause()) {
+        if ($query->hasGroupByClause() || $hasSummarise) {
             $params = array_merge($clauseParams, $query->getParameters());
             $query = new SQLQuery("F" . ++$this->aliasIndex . ".*, " . join(", ", $clauses), "(" . $query->getSQL() . ") F" . $this->aliasIndex, $params);
         } else {
@@ -91,7 +95,6 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         return $query;
 
     }
-
 
 
 }

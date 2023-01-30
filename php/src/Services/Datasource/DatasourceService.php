@@ -119,10 +119,6 @@ class DatasourceService {
      */
     public function saveDataSourceInstance($dataSourceInstance) {
         $this->datasourceDAO->saveDataSourceInstance($dataSourceInstance);
-
-        // Call on instance save
-        $dataSourceInstance->returnDataSource()->onInstanceSave();
-
         return $dataSourceInstance;
     }
 

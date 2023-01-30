@@ -8,6 +8,7 @@ use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
 
@@ -174,7 +175,10 @@ class DatasourceDAOTest extends TestBase {
 
         $dataSourceInstance = new DatasourceInstance("db-sql", "Dataset Snapshot", "snapshot", [
             "source" => "table",
-            "tableName" => "bob"
+            "tableName" => "bob",
+            "columns" => [
+                new Field("id", "Id",null,Field::TYPE_STRING, true)
+            ]
         ], "sql");
         $dataSourceInstance->setAccountId(2);
         $dataSourceInstance->save();

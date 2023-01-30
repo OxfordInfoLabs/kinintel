@@ -21,7 +21,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation sqldatabase \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  * @implementation caching \Kinintel\Objects\Datasource\Caching\CachingDatasource
  * @implementation custom \Kinintel\Objects\Datasource\CustomDataSource
- * @implementation snapshot \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
+ * @implementation snapshot \Kinintel\Objects\Datasource\TabularSnapshotDatasource
  * @implementation document \Kinintel\Objects\Datasource\Document\DocumentDatasource
  * @implementation googlebucket \Kinintel\Objects\Datasource\Google\GoogleBucketFileDatasource
  * @implementation rsync \Kinintel\Objects\Datasource\RSync\RSyncDatasource

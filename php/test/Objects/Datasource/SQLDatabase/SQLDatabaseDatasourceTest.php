@@ -671,7 +671,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testOnInstanceDeleteTableIsDeleted() {
+    public function testOnInstanceDeleteTableIsDeletedIfManageTableStructureSupplied() {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
@@ -683,6 +683,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $ddlGenerator->returnValue("generateTableDropSQL", "TABLE DELETE", [
             "mytable"
         ]);
+
+        $datasource->onInstanceDelete();
+
+        $this->assertFalse($this->databaseConnection->methodWasCalled("executeScript", [
+            "TABLE DELETE"
+        ]));
+
+        $config->setManageTableStructure(true);
 
         $datasource->onInstanceDelete();
 
