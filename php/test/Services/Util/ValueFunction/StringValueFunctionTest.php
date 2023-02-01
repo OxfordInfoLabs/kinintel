@@ -6,16 +6,16 @@ use Kinintel\Services\Util\ValueFunction\StringValueFunction;
 
 include_once "autoloader.php";
 
-class StringValueFunctionTest extends \PHPUnit\Framework\TestCase{
+class StringValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanReturnSubstringGivenIndexes() {
         $function = new StringValueFunction();
         $this->assertTrue($function->doesFunctionApply("substring"));
 
         $string = "This is a test string!";
-        $this->assertEquals("test string!", $function->applyFunction("substring 10",$string,null));
-        $this->assertEquals(" is a", $function->applyFunction("substring 4 5",$string,null));
-        $this->assertEquals("Thi", $function->applyFunction("substring 0 3",$string,null));
+        $this->assertEquals("test string!", $function->applyFunction("substring 10", $string, null));
+        $this->assertEquals(" is a", $function->applyFunction("substring 4 5", $string, null));
+        $this->assertEquals("Thi", $function->applyFunction("substring 0 3", $string, null));
     }
 
     public function testCanConcatenateStrings() {
@@ -59,5 +59,16 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase{
         $this->assertEquals("test", $function->applyFunction("trim '/$%'", $string2, null));
         $this->assertEquals($string2, $function->applyFunction("trim s", $string2, null));
 
+    }
+
+    public function testCanExplodeStringToArray() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("explode"));
+
+        $string1 = "1,2,3,4";
+        $string2 = "first second third";
+
+        $this->assertEquals(["1", "2", "3", "4"], $function->applyFunction("explode ','", $string1, null));
+        $this->assertEquals(["first", "second", "third"], $function->applyFunction("explode ' '", $string2, null));
     }
 }

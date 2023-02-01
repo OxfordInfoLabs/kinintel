@@ -15,7 +15,9 @@ class ArrayValueFunction extends ValueFunctionWithArguments
         "memberValues",
         "join",
         "slice",
-        "item"
+        "item",
+        "pop",
+        "shift"
     ];
 
     /**
@@ -66,6 +68,14 @@ class ArrayValueFunction extends ValueFunctionWithArguments
 
             if ($functionName == "item") {
                 return $value[$functionArgs[0]] ?? null;
+            }
+
+            if ($functionName == "pop") {
+                return array_pop($value);
+            }
+
+            if ($functionName == "shift") {
+                return array_shift($value);
             }
 
             return $value;

@@ -71,4 +71,26 @@ class ArrayValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(null, $function->applyFunction("item 3", $array, null));
 
     }
+
+    public function testCanPopItemFromArray() {
+        $function = new ArrayValueFunction();
+        $this->assertTrue($function->doesFunctionApply("pop"));
+
+        $array1 = [1,2,3,4];
+        $array2 = ["uno", "dos", "tres"];
+        $this->assertEquals(4, $function->applyFunction("pop", $array1, null));
+        $this->assertEquals("tres", $function->applyFunction("pop", $array2, null));
+
+    }
+
+    public function testCanShiftItemFromArray() {
+        $function = new ArrayValueFunction();
+        $this->assertTrue($function->doesFunctionApply("shift"));
+
+        $array1 = [1,2,3,4];
+        $array2 = ["uno", "dos", "tres"];
+        $this->assertEquals(1, $function->applyFunction("shift", $array1, null));
+        $this->assertEquals("uno", $function->applyFunction("shift", $array2, null));
+
+    }
 }

@@ -9,7 +9,8 @@ class StringValueFunction extends ValueFunctionWithArguments {
         "substring",
         "concat",
         "toUTF8",
-        "trim"
+        "trim",
+        "explode"
     ];
 
     /**
@@ -59,6 +60,9 @@ class StringValueFunction extends ValueFunctionWithArguments {
 
                 case "trim":
                     return trim($value, $functionArgs[0]);
+
+                case "explode":
+                    return explode($functionArgs[0], $value);
             }
 
             return $value;
