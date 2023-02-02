@@ -10,7 +10,8 @@ class StringValueFunction extends ValueFunctionWithArguments {
         "concat",
         "toUTF8",
         "trim",
-        "explode"
+        "explode",
+        "replace"
     ];
 
     /**
@@ -63,6 +64,18 @@ class StringValueFunction extends ValueFunctionWithArguments {
 
                 case "explode":
                     return explode($functionArgs[0], $value);
+
+                case "replace":
+                    $search = $functionArgs[0] ?? null;
+                    $replace = $functionArgs[1] ?? null;
+
+                    if (substr($search, 0, 1) == "/" &&
+                        substr($search, -1, 1) == "/") {
+
+                        return preg_replace($search, $replace, $value);
+                    } else {
+                        return str_replace($search, $replace, $value);
+                    }
             }
 
             return $value;

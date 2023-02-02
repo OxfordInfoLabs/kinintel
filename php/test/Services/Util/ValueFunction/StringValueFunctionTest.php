@@ -70,5 +70,20 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(["1", "2", "3", "4"], $function->applyFunction("explode ','", $string1, null));
         $this->assertEquals(["first", "second", "third"], $function->applyFunction("explode ' '", $string2, null));
+        $this->assertEquals(["1,2,3,4"], $function->applyFunction("explode ' '", $string1, null));
+    }
+
+    public function testCanDoRegexReplace() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("replace"));
+
+        // Non reg-ex replace
+        $this->assertEquals("Hello dave", $function->applyFunction("replace 'World' 'dave'", "Hello World", null));
+        $this->assertEquals("Hello dave amongst many daves", $function->applyFunction("replace 'World' 'dave'", "Hello World amongst many Worlds", null));
+
+        // Reg-ex replace
+        $this->assertEquals("This is Bingo indeed Bingo", $function->applyFunction("replace '/[0-9]+/' 'Bingo'", "This is 12345 indeed 45678", null));
+        $this->assertEquals(" truncated", $function->applyFunction("replace '/^[a-zA-Z]+/' ''", "Iam truncated", null));
+
     }
 }

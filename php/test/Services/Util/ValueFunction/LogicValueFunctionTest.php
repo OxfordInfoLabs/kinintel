@@ -143,4 +143,13 @@ class LogicValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanEnsureValueIsNumeric() {
+
+        $function = new LogicValueFunction();
+        $this->assertTrue($function->doesFunctionApply("ensureNumeric"));
+
+        $this->assertEquals("24601", $function->applyFunction("ensureNumeric", 24601, null));
+        $this->assertEquals(null, $function->applyFunction("ensureNumeric", "number", null));
+    }
+
 }
