@@ -23,7 +23,8 @@ class LogicValueFunction extends ValueFunctionWithArguments {
         "gt",
         "gte",
         "lt",
-        "lte"
+        "lte",
+        "ensureNumeric"
     ];
 
 
@@ -109,6 +110,9 @@ class LogicValueFunction extends ValueFunctionWithArguments {
 
             case "lte":
                 return ($value <= $functionArgs[0]);
+
+            case "ensureNumeric":
+                return is_numeric($value) ? $value : 0;
         }
 
         return $value;

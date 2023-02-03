@@ -78,8 +78,10 @@ class ArrayValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
         $array1 = [1,2,3,4];
         $array2 = ["uno", "dos", "tres"];
+        $array3 = ["single"];
         $this->assertEquals(4, $function->applyFunction("pop", $array1, null));
         $this->assertEquals("tres", $function->applyFunction("pop", $array2, null));
+        $this->assertEquals("single", $function->applyFunction("shift", $array3, null));
 
     }
 
@@ -89,8 +91,10 @@ class ArrayValueFunctionTest extends \PHPUnit\Framework\TestCase {
 
         $array1 = [1,2,3,4];
         $array2 = ["uno", "dos", "tres"];
+        $array3 = ["single"];
         $this->assertEquals(1, $function->applyFunction("shift", $array1, null));
         $this->assertEquals("uno", $function->applyFunction("shift", $array2, null));
+        $this->assertEquals("single", $function->applyFunction("shift", $array3, null));
 
     }
 }
