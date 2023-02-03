@@ -37,6 +37,12 @@ export class DatasetSummariseComponent implements OnInit {
                 return _.find(this.availableColumns, {name: field});
             });
             this.summariseExpressions = this.data.config.expressions;
+            // Add in the existing column titles for display
+            this.summariseExpressions.map(expression => {
+                const column = _.find(this.availableColumns, {name: expression.fieldName});
+                expression.title = column ? column.title : _.startCase(expression.fieldName);
+                return expression;
+            });
         }
     }
 
