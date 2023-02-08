@@ -29,6 +29,7 @@ use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
 use Kinintel\Objects\Dashboard\DashboardSummary;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
@@ -44,6 +45,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Test\Services\Dataset\Exporter\TestExporterConfig;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -489,6 +491,7 @@ class DatasetServiceTest extends TestBase {
         }
 
     }
+
 
     public function testTriggerCanControlScheduledTasks() {
 
@@ -1129,6 +1132,74 @@ class DatasetServiceTest extends TestBase {
 
 
     }
+
+    public function testDeletingASnapshotProfileAlsoRemovesAllGeneratedDatasources() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
+        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
+
+        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
+            "createHistory" => true,
+            "createLatest" => true
+        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
+            new ScheduledTaskTimePeriod(1, null, 0, 0)
+        ]);
+
+        $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
+        $this->assertNotNull($profileId);
+
+        /**
+         * @var DatasetInstanceSnapshotProfile $reSnapshot
+         */
+        $reSnapshot = DatasetInstanceSnapshotProfile::fetch($profileId);
+
+        /**
+         * @var TabularDatasetSnapshotProcessorConfiguration $snapshotConfig
+         */
+        $snapshotConfig = $reSnapshot->getDataProcessorInstance()->returnConfig();
+        $identifier = $snapshotConfig->getSnapshotIdentifier();
+
+        // Remove a snapshot profile
+        $this->datasetService->removeSnapshotProfile($instanceId, $profileId);
+
+        // Check that all assets cleared up
+        try {
+            DatasetInstanceSnapshotProfile::fetch($profileId);
+            $this->fail("Should not exist");
+        } catch (ObjectNotFoundException $e) {
+        }
+
+        // Check scheduled task removed
+        try {
+            ScheduledTask::fetch($reSnapshot->getScheduledTask()->getId());
+            $this->fail("Should not exist");
+        } catch (ObjectNotFoundException $e) {
+        }
+
+        // Check data processor removed
+        try {
+            DataProcessorInstance::fetch($reSnapshot->getDataProcessorInstance()->getKey());
+            $this->fail("Should not exist");
+        } catch (ObjectNotFoundException $e) {
+        }
+
+        // Now check call was made to remove underlying snapshot data sources
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance",
+            [$identifier]));
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance",
+            [$identifier . "_latest"]));
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance",
+            [$identifier . "_pending"]));
+
+
+    }
+
 
     public function testCanExportDatasetUsingSuppliedExporterKeyAndValidConfiguration() {
 
