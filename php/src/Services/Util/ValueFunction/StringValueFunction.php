@@ -2,8 +2,6 @@
 
 namespace Kinintel\Services\Util\ValueFunction;
 
-use Kinikit\Core\Logging\Logger;
-
 class StringValueFunction extends ValueFunctionWithArguments {
     const supportedFunctions = [
         "substring",
@@ -11,7 +9,8 @@ class StringValueFunction extends ValueFunctionWithArguments {
         "toUTF8",
         "trim",
         "explode",
-        "replace"
+        "replace",
+        "contains"
     ];
 
     /**
@@ -76,6 +75,9 @@ class StringValueFunction extends ValueFunctionWithArguments {
                     } else {
                         return str_replace($search, $replace, $value);
                     }
+
+                case "contains":
+                    return (bool)strpos($value, $functionArgs[0]);
             }
 
             return $value;

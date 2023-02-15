@@ -70,10 +70,17 @@ class SQLQueryDataProcessor implements DataProcessor {
          */
         $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
 
-        $query = $parameterisedStringEvaluator->evaluateString($config->getQuery(), [], []);
+        if ($config->getQuery()) {
+            $query = $parameterisedStringEvaluator->evaluateString($config->getQuery(), [], []);
 
-        $databaseConnection->execute($query);
+            $databaseConnection->execute($query);
+        } else {
+            foreach ($config->getQueries() as $query) {
+                $query = $parameterisedStringEvaluator->evaluateString($query, [], []);
 
+                $databaseConnection->execute($query);
+            }
+        }
 
     }
 }

@@ -6,9 +6,14 @@ class SQLQueryDataProcessorConfiguration {
 
     /**
      * @var string
-     * @required
+     * @requiredEither queries
      */
     private $query;
+
+    /**
+     * @var string[]
+     */
+    private $queries;
 
     /**
      * @var string
@@ -17,11 +22,13 @@ class SQLQueryDataProcessorConfiguration {
     private $authenticationCredentialsKey;
 
     /**
-     * @param string $query
-     * @param string $authenticationCredentialsKey
+     * @param null $query
+     * @param null $queries
+     * @param null $authenticationCredentialsKey
      */
-    public function __construct($query, $authenticationCredentialsKey) {
+    public function __construct($query = null, $queries = null, $authenticationCredentialsKey = null) {
         $this->query = $query;
+        $this->queries = $queries;
         $this->authenticationCredentialsKey = $authenticationCredentialsKey;
     }
 
@@ -37,6 +44,20 @@ class SQLQueryDataProcessorConfiguration {
      */
     public function setQuery($query) {
         $this->query = $query;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getQueries() {
+        return $this->queries;
+    }
+
+    /**
+     * @param string[] $queries
+     */
+    public function setQueries($queries) {
+        $this->queries = $queries;
     }
 
     /**

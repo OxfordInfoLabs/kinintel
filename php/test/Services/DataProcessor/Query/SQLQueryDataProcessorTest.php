@@ -41,7 +41,7 @@ class SQLQueryDataProcessorTest extends TestCase {
     public function testValidationExceptionThrownIfWrongCredentialsType() {
 
         $query = "SELECT * FROM test";
-        $processorConfig = new SQLQueryDataProcessorConfiguration($query, "testKey");
+        $processorConfig = new SQLQueryDataProcessorConfiguration($query, null, "testKey");
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $credentialsInstance = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentialsInstance::class);
@@ -62,7 +62,7 @@ class SQLQueryDataProcessorTest extends TestCase {
     public function testCanIssueQueryToConfiguredDatabase() {
 
         $query = "SELECT * FROM test";
-        $processorConfig = new SQLQueryDataProcessorConfiguration($query, "testKey");
+        $processorConfig = new SQLQueryDataProcessorConfiguration($query, null, "testKey");
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $credentialsInstance = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentialsInstance::class);
@@ -83,7 +83,7 @@ class SQLQueryDataProcessorTest extends TestCase {
     public function testCanEvaluateParameterisedQuery() {
 
         $query = "SELECT * FROM set_{{2_DAYS_AGO | dateConvert 'Y-m-d H:i:s' 'm'}}";
-        $processorConfig = new SQLQueryDataProcessorConfiguration($query, "testKey");
+        $processorConfig = new SQLQueryDataProcessorConfiguration($query, null, "testKey");
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $credentialsInstance = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentialsInstance::class);
@@ -102,6 +102,33 @@ class SQLQueryDataProcessorTest extends TestCase {
 
         $this->assertTrue($databaseConnection->methodWasCalled("execute", [
             $expectedQuery
+        ]));
+    }
+
+    public function testCanExecuteMultipleQueries() {
+
+        $queries = [
+            "SELECT * FROM test",
+            "SELECT * FROM test2"
+        ];
+        $processorConfig = new SQLQueryDataProcessorConfiguration(null, $queries, "testKey");
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $credentialsInstance = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentialsInstance::class);
+        $this->authenticationService->returnValue("getCredentialsInstanceByKey", $credentialsInstance, ["testKey"]);
+        $credentials = MockObjectProvider::instance()->getMockInstance(SQLDatabaseCredentials::class);
+        $credentialsInstance->returnValue("returnCredentials", $credentials);
+        $databaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $credentials->returnValue("returnDatabaseConnection", $databaseConnection);
+
+
+        $this->processor->process($processorInstance);
+
+        $this->assertTrue($databaseConnection->methodWasCalled("execute", [
+            $queries[0]
+        ]));
+        $this->assertTrue($databaseConnection->methodWasCalled("execute", [
+            $queries[1]
         ]));
     }
 }

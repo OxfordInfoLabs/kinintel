@@ -86,4 +86,18 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(" truncated", $function->applyFunction("replace '/^[a-zA-Z]+/' ''", "Iam truncated", null));
 
     }
+
+    public function testCanFindStringInString() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("contains"));
+
+        $this->assertEquals(true, $function->applyFunction("contains 'l'", "hello", null));
+        $this->assertEquals(true, $function->applyFunction("contains 'eve'", "Steve", null));
+        $this->assertEquals(true, $function->applyFunction("contains ':'", "2001:23:43::56/32", null));
+        $this->assertEquals(true, $function->applyFunction("contains '.'", "192.168.0.0/24", null));
+
+        $this->assertEquals(false, $function->applyFunction("contains 'w'", "test", null));
+        $this->assertEquals(false, $function->applyFunction("contains '4'", "123", null));
+
+    }
 }
