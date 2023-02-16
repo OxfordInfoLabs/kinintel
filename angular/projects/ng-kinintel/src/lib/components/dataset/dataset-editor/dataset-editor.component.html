@@ -298,7 +298,7 @@
                             <div [innerHTML]="element[column.name]"></div>
                         </ng-template>
                         <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
-                            <div [innerHTML]="element[column.name].substring(0, 100) + '...'"></div>
+                            <div>{{element[column.name].substring(0, 100) + '...'}}</div>
                             <a (click)="viewFullItemData(element[column.name], column.name)"
                                class="flex items-center text-sm text-cta">
                                 view more
