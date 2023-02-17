@@ -3,9 +3,10 @@ import * as lodash from 'lodash';
 const _ = lodash.default;
 import {MatDialog} from '@angular/material/dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {Location} from '@angular/common';
 
 declare var window: any;
 
@@ -17,6 +18,7 @@ declare var window: any;
 export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @Input() sidenavService: any;
+    @Input() backURL = '/imported-data';
 
     public readonly datasourceTypes: any = [
         'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'
@@ -66,7 +68,10 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     constructor(private dialog: MatDialog,
                 private route: ActivatedRoute,
                 private datasourceService: DatasourceService,
-                private snackbar: MatSnackBar) {
+                private snackbar: MatSnackBar,
+                private location: Location,
+                private router: Router
+    ) {
     }
 
     ngOnInit(): void {
@@ -352,7 +357,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     }
 
-    public save() {
+    public async save(exit = false) {
         if (!this.datasourceUpdate.title) {
             window.alert('Please enter a title for this Datasource.');
             return;
@@ -379,25 +384,33 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         });
 
         if (!this.datasourceInstanceKey) {
-            this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
-                window.location.href = '/import-data/' + key;
+            await this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
+                if (!exit) {
+                    window.location.href = '/import-data/' + key;
+                }
+                return true;
             }).catch(err => {
                 const errorCode = (err.error && err.error.sqlStateCode) ? err.error.sqlStateCode : 0;
                 this.displayError(errorCode);
             });
         } else {
-            this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
-                .then(() => {
+            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
+                .then(async () => {
                     this.adds = [];
                     this.updates = [];
                     this.deletes = [];
-                    this.loadDatasource();
+                    await this.loadDatasource();
+                    return true;
                 })
                 .catch(err => {
                     console.log('ERROR', err);
                     const errorCode = (err.error && err.error.sqlStateCode) ? err.error.sqlStateCode : 0;
                     this.displayError(errorCode);
                 });
+        }
+
+        if (exit) {
+            return this.router.navigate([this.backURL]);
         }
     }
 

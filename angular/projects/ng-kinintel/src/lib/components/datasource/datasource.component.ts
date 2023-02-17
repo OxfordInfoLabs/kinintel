@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
@@ -23,6 +23,9 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     @Input() hideNew: boolean;
     @Input() newDocumentURL = '/document-datasource';
     @Input() datasourceURL = '/datasource';
+    @Input() noProject = false;
+    @Input() filterResults: any;
+
 
     public datasources: any = [];
     public searchText = new BehaviorSubject('');
@@ -66,8 +69,13 @@ export class DatasourceComponent implements OnInit, OnDestroy {
                     this.getDatasources()
                 )
             ).subscribe((sources: any) => {
-            this.datasources = sources;
+                if (this.filterResults) {
+                    this.datasources = _.filter(sources, this.filterResults);
+                } else {
+                    this.datasources = sources;
+                }
         });
+
     }
 
     ngOnDestroy() {
@@ -142,7 +150,8 @@ export class DatasourceComponent implements OnInit, OnDestroy {
         return this.datasourceService.getDatasources(
             this.searchText.getValue() || '',
             this.limit.toString(),
-            this.offset.toString()
+            this.offset.toString(),
+            this.noProject
         ).pipe(map((sources: any) => {
                 this.endOfResults = sources.length < this.limit;
                 return sources;

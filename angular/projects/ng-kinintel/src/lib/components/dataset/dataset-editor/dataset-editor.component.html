@@ -295,7 +295,7 @@
                     <ng-template
                         [ngIf]="!Array.isArray(element[column.name]) && !_.isPlainObject(element[column.name])">
                         <ng-template [ngIf]="element[column.name] && String(element[column.name]).length <= 100">
-                            {{element[column.name]}}
+                            <div [innerHTML]="element[column.name]"></div>
                         </ng-template>
                         <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
                             <div>{{element[column.name].substring(0, 100) + '...'}}</div>

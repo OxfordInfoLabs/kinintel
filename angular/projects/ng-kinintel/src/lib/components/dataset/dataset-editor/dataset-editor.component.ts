@@ -149,7 +149,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         setTimeout(() => {
             const filters = document.getElementById('datasetFilters');
-            filters.scrollTo({top: filters.scrollHeight, behavior: 'smooth'});
+            if (filters) {
+                filters.scrollTo({top: filters.scrollHeight, behavior: 'smooth'});
+            }
         }, 0);
     }
 

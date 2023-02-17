@@ -34,8 +34,9 @@ export class DatasourceService {
             .toPromise();
     }
 
-    public getDatasources(filterString = '', limit = '10', offset = '0') {
-        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+    public getDatasources(filterString = '', limit = '10', offset = '0', noProject = false) {
+        const project = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        const projectKey = noProject ? '' : project;
         return this.http.get(this.config.backendURL + '/datasource?projectKey=' + projectKey, {
             params: {
                 filterString, limit, offset
