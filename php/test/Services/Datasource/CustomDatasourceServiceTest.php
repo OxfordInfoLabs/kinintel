@@ -81,17 +81,8 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
 
-        $addDatasource = new ArrayTabularDataset([
-            new Field("name"),
-            new Field("age")
-        ], [
-            ["name" => "Joe Bloggs", "age" => 12],
-            ["name" => "Mary Jane", "age" => 7]
-        ]);
-
-
-        $this->assertTrue($mockDatasource->methodWasCalled("update", [
-            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", [
+            $newDatasourceKey, $datasourceUpdate
         ]));
 
 
@@ -137,17 +128,8 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
 
-        $addDatasource = new ArrayTabularDataset([
-            new Field("name"),
-            new Field("age")
-        ], [
-            ["name" => "Joe Bloggs", "age" => 12],
-            ["name" => "Mary Jane", "age" => 7]
-        ]);
-
-
-        $this->assertTrue($mockDatasource->methodWasCalled("update", [
-            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", [
+            $newDatasourceKey, $datasourceUpdate
         ]));
 
 

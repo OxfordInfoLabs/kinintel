@@ -26,8 +26,7 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
-class CustomDatasourceService
-{
+class CustomDatasourceService {
 
     /**
      * @var DatasourceService
@@ -38,8 +37,7 @@ class CustomDatasourceService
     /**
      * @param DatasourceService $datasourceService
      */
-    public function __construct($datasourceService)
-    {
+    public function __construct($datasourceService) {
         $this->datasourceService = $datasourceService;
     }
 
@@ -51,8 +49,7 @@ class CustomDatasourceService
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom")
-    {
+    public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom") {
 
         // Create a new data source key
         $newDatasourceKey = $datasourceKey ?? "custom_data_set_" . ($accountId ? $accountId . "_" : "") . date("U");
@@ -71,15 +68,11 @@ class CustomDatasourceService
             // Set account id and project key
             $datasourceInstance->setAccountId($accountId);
             $datasourceInstance->setProjectKey($projectKey);
+            $this->datasourceService->saveDataSourceInstance($datasourceInstance);
 
-            $instance = $this->datasourceService->saveDataSourceInstance($datasourceInstance);
-            $datasource = $instance->returnDataSource();
-
+            // If adds to deal with, call main update function
             if ($datasourceUpdate->getAdds()) {
-                $fields = $datasource->getConfig()->getColumns() ?? array_map(function ($columnName) {
-                        return new Field($columnName);
-                    }, array_keys($datasourceUpdate->getAdds()[0]));
-                $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+                $this->datasourceService->updateDatasourceInstance($newDatasourceKey, $datasourceUpdate);
             }
 
             return $newDatasourceKey;
@@ -105,8 +98,7 @@ class CustomDatasourceService
      *
      * @return DatasourceInstance
      */
-    public function createTabularSnapshotDatasourceInstance($title, $fields = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
-    {
+    public function createTabularSnapshotDatasourceInstance($title, $fields = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $newInstanceKey = "snapshot_data_set_$accountId" . "_" . date("U");
 
         // Create a new data source instance with underlying datasource type SQLDatabaseDatasource and save it.
@@ -134,8 +126,7 @@ class CustomDatasourceService
      * @return string
      * @throws \Kinikit\Core\Validation\ValidationException
      */
-    public function createDocumentDatasourceInstance($datasourceConfigUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT)
-    {
+    public function createDocumentDatasourceInstance($datasourceConfigUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         $newDatasourceKey = "document_data_set_$accountId" . "_" . date("U");
         $config = $datasourceConfigUpdate->getConfig();
@@ -194,8 +185,7 @@ class CustomDatasourceService
      * @return void
      * @throws \Kinikit\Core\Validation\ValidationException
      */
-    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $longRunningTask = null)
-    {
+    public function uploadDocumentsToDocumentDatasource($datasourceInstanceKey, $uploadedFiles, $longRunningTask = null) {
 
         $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey);
 
