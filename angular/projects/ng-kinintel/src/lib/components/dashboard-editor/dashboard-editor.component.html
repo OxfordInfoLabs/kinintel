@@ -2,8 +2,8 @@
 
     <div class="align-center justify-between flex-wrap bg-white px-2 border-b border-gray-200">
         <div *ngIf="editDashboardTitle" class="align-center ml-2">
-            <input type="text" class="title-input" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title"
-                [ngClass]="{'border-red-500': !dashboard.title || dashboard.title === 'New Dashboard'}">&nbsp;
+            <input type="text" class="title-input py-1.5" placeholder="Enter dashboard title" [(ngModel)]="dashboard.title"
+                [ngClass]="{'border-red-600': !dashboard.title || dashboard.title === 'New Dashboard'}">&nbsp;
         </div>
 
         <div *ngIf="!editDashboardTitle" class="align-center ml-2">

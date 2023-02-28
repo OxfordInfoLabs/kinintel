@@ -822,7 +822,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }, err => {
             finished = true;
             if (err.error && err.error.message) {
-                const message = err.error.message.toLowerCase();
+                let message = err.error.message.toLowerCase();
+                if (message.includes('sql')) {
+                    message = 'An error occurred processing your query. Please check any SQL syntax and try again.';
+                }
                 if (!message.includes('parameter') && !message.includes('required')) {
                     this.snackBar.open(err.error.message, 'Close', {
                         verticalPosition: 'top',

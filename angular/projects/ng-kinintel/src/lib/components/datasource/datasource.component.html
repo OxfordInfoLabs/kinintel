@@ -14,7 +14,7 @@
                 <mat-icon>expand_more</mat-icon>
             </button>
             <mat-menu #create="matMenu">
-                <button mat-menu-item [routerLink]="['/import-data']">
+                <button mat-menu-item [routerLink]="[newTabularURL]">
                     New Tabular Datasource
                 </button>
                 <button mat-menu-item [routerLink]="[newDocumentURL]">
@@ -78,7 +78,7 @@
                                 <div class="flex items-center justify-end">
                                     <ng-template [ngIf]="isProjectAdmin">
                                         <button mat-button color="primary" *ngIf="element.type === 'custom'"
-                                                [routerLink]="['/import-data', element.key]">
+                                                [routerLink]="[newTabularURL, element.key]">
                                             Edit
                                         </button>
                                         <button mat-button color="primary" *ngIf="element.type === 'document'"

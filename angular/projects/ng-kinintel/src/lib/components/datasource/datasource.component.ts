@@ -22,6 +22,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     @Input() exploreText: string;
     @Input() hideNew: boolean;
     @Input() newDocumentURL = '/document-datasource';
+    @Input() newTabularURL = '/import-data';
     @Input() datasourceURL = '/datasource';
     @Input() noProject = false;
     @Input() filterResults: any;

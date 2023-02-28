@@ -19,6 +19,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     @Input() sidenavService: any;
     @Input() backURL = '/imported-data';
+    @Input() reloadURL = 'import-data';
 
     public readonly datasourceTypes: any = [
         'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'
@@ -386,7 +387,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (!this.datasourceInstanceKey) {
             await this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
                 if (!exit) {
-                    window.location.href = '/import-data/' + key;
+                    window.location.href = this.reloadURL + '/' + key;
                 }
                 return true;
             }).catch(err => {
