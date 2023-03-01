@@ -7,6 +7,7 @@ import {
 import * as _ from 'lodash';
 import {moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {Subscription} from 'rxjs';
+import {DashboardService} from '../../services/dashboard.service';
 
 
 @Component({
@@ -26,27 +27,44 @@ export class ProjectSettingsComponent implements OnInit {
     public showNewShortcut = false;
     public shortcuts: any = {};
     public Object = Object;
+    public dashboards: any = [];
+    public sharedDashboards: any = [];
 
     private activeProject: any;
     private activeProjectSub: Subscription;
 
     constructor(private projectService: ProjectService,
-                private dialog: MatDialog) {
+                private dialog: MatDialog,
+                private dashboardService: DashboardService) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<any> {
+        this.dashboards = await this.dashboardService.getDashboards(
+            '', '100', '0'
+        ).toPromise();
+
+        this.sharedDashboards = await this.dashboardService.getDashboards(
+            '', '100', '0', null
+        ).toPromise();
+
         this.activeProjectSub = this.projectService.activeProject.subscribe(activeProject => {
             this.activeProject = activeProject;
 
             this.projectSettings = this.activeProject.settings ? (Array.isArray(this.activeProject.settings) ? {
-                hideExisting: false, shortcutPosition: 'after', home: {}, shortcutsMenu: []
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
             } : this.activeProject.settings) : {
-                hideExisting: false, shortcutPosition: 'after', home: {}, shortcutsMenu: []
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
             };
 
             this.getCategories();
         });
+    }
 
+    public selectOption(c1: any, c2: any) {
+        if (!c2) {
+            return true;
+        }
+        return c1.value === c2.value;
     }
 
     public selectLink() {

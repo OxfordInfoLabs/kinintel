@@ -8,8 +8,9 @@
                 </p>
                 <button type="button" (click)="showNewShortcut = true;"
                         class="flex items-center rounded-md border border-primary bg-white py-2 px-4 text-sm font-medium text-primary shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6"/>
                     </svg>
                     Add New Shortcut
                 </button>
@@ -18,7 +19,7 @@
         <div class="mt-5 md:col-span-2 md:mt-0">
             <div class="shadow sm:overflow-hidden sm:rounded-md">
                 <div *ngIf="showNewShortcut"
-                    class="p-6 space-y-8 divide-y divide-gray-200 bg-white">
+                     class="p-6 space-y-8 divide-y divide-gray-200 bg-white">
                     <div class="">
                         <div>
                             <h3 class="text-lg font-medium leading-6 text-gray-900">Add New Shortcut</h3>
@@ -30,10 +31,11 @@
                             <div class="sm:col-span-4">
                                 <label class="block text-sm font-medium text-gray-700">Category</label>
                                 <select class="mb-4 block w-full min-w-0 flex-1 border-gray-300 sm:text-sm"
-                                    [(ngModel)]="newShortcut.category">
+                                        [(ngModel)]="newShortcut.category">
                                     <option [value]="category" *ngFor="let category of categories">{{category}}</option>
                                 </select>
-                                <p class="mt-2 mb-0 text-sm text-gray-500">Select category above, or enter a new one below.</p>
+                                <p class="mt-2 mb-0 text-sm text-gray-500">Select category above, or enter a new one
+                                    below.</p>
                                 <div class="mt-1">
                                     <input type="text" [(ngModel)]="newShortcut.newCategory"
                                            placeholder="Add new category"
@@ -61,7 +63,9 @@
                                 </div>
                                 <p class="mt-2 text-sm text-gray-500">Enter the name of the material icon to use. Full
                                     list can be found
-                                    <a class="text-primary underline" href="https://fonts.google.com/icons?icon.style=Filled&icon.set=Material+Icons" target="_blank">here</a>
+                                    <a class="text-primary underline"
+                                       href="https://fonts.google.com/icons?icon.style=Filled&icon.set=Material+Icons"
+                                       target="_blank">here</a>
                                 </p>
                             </div>
 
@@ -81,17 +85,18 @@
                             </div>
 
 
-
                         </div>
                     </div>
                     <div class="pt-5">
                         <div class="flex justify-end">
                             <button type="button" (click)="cancelNew()"
                                     class="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-                                Cancel</button>
+                                Cancel
+                            </button>
                             <button type="button" (click)="saveNewShortcut()"
                                     class="ml-3 inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm">
-                                Add Shortcut</button>
+                                Add Shortcut
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -104,8 +109,10 @@
 
                         <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                             <div class="sm:col-span-6">
-                                <mat-slide-toggle [(ngModel)]="projectSettings.hideExisting">Hide existing menu</mat-slide-toggle>
-                                <p class="mt-2 text-sm text-gray-500">Main menu will be hidden behind an 'Advanced' dropdown</p>
+                                <mat-slide-toggle [(ngModel)]="projectSettings.hideExisting">Hide existing menu
+                                </mat-slide-toggle>
+                                <p class="mt-2 text-sm text-gray-500">Main menu will be hidden behind an 'Advanced'
+                                    dropdown</p>
                             </div>
                         </div>
 
@@ -116,62 +123,69 @@
                                     <mat-radio-button value="before">Before</mat-radio-button>
                                     <mat-radio-button value="after" class="ml-4">After</mat-radio-button>
                                 </mat-radio-group>
-                                <p class="mt-2 text-sm text-gray-500">Display shortcuts before or after the main menu.</p>
+                                <p class="mt-2 text-sm text-gray-500">Display shortcuts before or after the main
+                                    menu.</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <table cdkDropListGroup class="min-w-full">
                     <tbody cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="shortcut.items"
-                        class="bg-white" *ngFor="let shortcut of projectSettings.shortcutsMenu || []; let i = index">
-                        <tr class="border-t border-gray-200">
-                            <th class="bg-gray-50 w-1/8">
-                                <div class="flex items-center">
-                                    <a class="text-primary up" *ngIf="i > 0" (click)="moveCategory(i, -1)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75L12 3m0 0l3.75 3.75M12 3v18" />
-                                        </svg>
-                                    </a>
-                                    <a class="text-primary down" (click)="moveCategory(i, 1)"
-                                       *ngIf="i < (Object.keys(shortcuts).length - 1)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25L12 21m0 0l-3.75-3.75M12 21V3" />
-                                        </svg>
-                                    </a>
-                                </div>
-                            </th>
-                            <th colspan="2" class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
-                                {{shortcut.category}}
-                            </th>
-                            <th class="bg-gray-50 px-4 py-2 text-right text-sm font-semibold text-gray-900 sm:px-6">
-                                <button mat-icon-button color="warn" (click)="removeShortcut(projectSettings.shortcutsMenu, i)">
-                                    <mat-icon>remove_circle_outline</mat-icon>
-                                </button>
-                            </th>
-                        </tr>
+                           class="bg-white" *ngFor="let shortcut of projectSettings.shortcutsMenu || []; let i = index">
+                    <tr class="border-t border-gray-200">
+                        <th class="bg-gray-50 w-1/8">
+                            <div class="flex items-center">
+                                <a class="text-primary up" *ngIf="i > 0" (click)="moveCategory(i, -1)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M8.25 6.75L12 3m0 0l3.75 3.75M12 3v18"/>
+                                    </svg>
+                                </a>
+                                <a class="text-primary down" (click)="moveCategory(i, 1)"
+                                   *ngIf="i < (Object.keys(shortcuts).length - 1)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15.75 17.25L12 21m0 0l-3.75-3.75M12 21V3"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </th>
+                        <th colspan="2"
+                            class="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6">
+                            {{shortcut.category}}
+                        </th>
+                        <th class="bg-gray-50 px-4 py-2 text-right text-sm font-semibold text-gray-900 sm:px-6">
+                            <button mat-icon-button color="warn"
+                                    (click)="removeShortcut(projectSettings.shortcutsMenu, i)">
+                                <mat-icon>remove_circle_outline</mat-icon>
+                            </button>
+                        </th>
+                    </tr>
 
-                        <tr cdkDrag
-                            *ngFor="let item of shortcut.items; let j = index" class="border-t border-gray-300">
-                            <td class="text-right">
-                                <div class="flex items-center justify-end">
-                                    <mat-icon cdkDragHandle>drag_handle</mat-icon>
-                                </div>
-                            </td>
-                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                                {{item.title}}
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                {{item.link}}
-                            </td>
-                            <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                <button class="mr-8" mat-icon-button color="warn" (click)="removeShortcutItem(shortcut.items, j)">
-                                    <mat-icon>remove_circle_outline</mat-icon>
-                                </button>
-                            </td>
-                        </tr>
+                    <tr cdkDrag
+                        *ngFor="let item of shortcut.items; let j = index" class="border-t border-gray-300">
+                        <td class="text-right">
+                            <div class="flex items-center justify-end">
+                                <mat-icon cdkDragHandle>drag_handle</mat-icon>
+                            </div>
+                        </td>
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            {{item.title}}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {{item.link}}
+                        </td>
+                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                            <button class="mr-8" mat-icon-button color="warn"
+                                    (click)="removeShortcutItem(shortcut.items, j)">
+                                <mat-icon>remove_circle_outline</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
-
 
 
                 <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
@@ -185,35 +199,55 @@
     </div>
 
 
-<!--    <div class="hidden sm:block" aria-hidden="true">-->
-<!--        <div class="py-5">-->
-<!--            <div class="border-t border-gray-200"></div>-->
-<!--        </div>-->
-<!--    </div>-->
+    <div class="hidden sm:block" aria-hidden="true">
+        <div class="py-5">
+            <div class="border-t border-gray-200"></div>
+        </div>
+    </div>
 
-<!--    <div class="mt-10 sm:mt-0">-->
-<!--        <div class="md:grid md:grid-cols-3 md:gap-6">-->
-<!--            <div class="md:col-span-1">-->
-<!--                <div class="px-4 sm:px-0">-->
-<!--                    <h3 class="text-lg font-medium leading-6 text-gray-900">Home</h3>-->
-<!--                    <p class="mt-1 text-sm text-gray-600">Configure which page to use for the home screen. Will use the-->
-<!--                        default home layout if not defined.</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="mt-5 md:col-span-2 md:mt-0">-->
-<!--                <div class="overflow-hidden shadow sm:rounded-md">-->
-<!--                    <div class="bg-white px-4 py-5 sm:p-6">-->
+    <div class="mt-10 sm:mt-0">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+            <div class="md:col-span-1">
+                <div class="px-4 sm:px-0">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Home Dashboard</h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Select one of the dashboards in your account to view as your homepage.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-5 md:col-span-2 md:mt-0">
+                <div class="overflow-hidden shadow sm:rounded-md">
+                    <div class="bg-white px-4 py-5 sm:p-6">
+                        <label class="mb-2">
+                            Select Dashboard
+                            <select matNativeControl [(ngModel)]="projectSettings.homeDashboard"
+                                    [compareWith]="selectOption">
+                                <option value="">No Home Dashboard</option>
+                                <optgroup label="Dashboards">
+                                    <option *ngFor="let dashboard of dashboards"
+                                            [ngValue]="{value: dashboard.id, label: dashboard.title}">
+                                        {{dashboard.title}}
+                                    </option>
+                                </optgroup>
+                                <optgroup label="Shared Dashboards">
+                                    <option *ngFor="let dashboard of sharedDashboards"
+                                            [ngValue]="{value: dashboard.id, label: dashboard.title}">
+                                        {{dashboard.title}}
+                                    </option>
+                                </optgroup>
+                            </select>
+                            <small class="font-normal">Select the dashboard to view on your homepage.</small>
+                        </label>
 
-
-<!--                    </div>-->
-<!--                    <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">-->
-<!--                        <button type="submit"-->
-<!--                                class="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm ">-->
-<!--                            Save Changes-->
-<!--                        </button>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                        <button type="button" (click)="saveChanges()"
+                                class="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm ">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
