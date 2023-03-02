@@ -63,7 +63,7 @@ class SubstitutionParameterAuthenticationCredentials implements WebServiceCreden
     // Return text with param substitutions
     private function substituteParams($text) {
         foreach ($this->authParams as $key => $value) {
-            $text = str_replace("[[" . $key . "]]", $value, $text);
+            $text = str_replace("[[" . $key . "]]", $value, $text ?? "");
         }
         return $text;
     }

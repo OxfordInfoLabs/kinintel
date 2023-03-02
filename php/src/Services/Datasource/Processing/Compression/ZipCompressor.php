@@ -48,7 +48,11 @@ class ZipCompressor implements Compressor {
 
         // Now open the file using zip
         $zip = new \ZipArchive();
-        $opened = $zip->open($zipFile);
+        try {
+            $opened = $zip->open($zipFile);
+        } catch (\ErrorException $e) {
+            $opened = false;
+        }
 
         if ($opened !== TRUE) {
             throw new DatasourceCompressionException("The data stream for this data source is not in valid zip format");

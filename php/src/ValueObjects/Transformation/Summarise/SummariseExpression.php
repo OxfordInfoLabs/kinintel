@@ -137,7 +137,7 @@ class SummariseExpression {
      *
      * @return string
      */
-    public function getFunctionString(&$clauseParameters, $parameterValues = [], $databaseConnection) {
+    public function getFunctionString(&$clauseParameters, $parameterValues = [], $databaseConnection = null) {
         if ($this->expressionType == self::EXPRESSION_TYPE_CUSTOM) {
             $function = $this->customExpression;
         } else if ($this->expressionType == self::EXPRESSION_TYPE_COUNT) {

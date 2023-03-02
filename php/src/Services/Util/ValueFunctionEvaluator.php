@@ -93,7 +93,7 @@ class ValueFunctionEvaluator {
 
             return $value;
 
-        }, $string);
+        }, $string ?? "");
 
         // Decode if applicable
         if (substr($evaluated, 0, 8) == "OBJECT||") {

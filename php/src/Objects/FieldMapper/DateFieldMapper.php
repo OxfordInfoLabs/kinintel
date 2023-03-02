@@ -70,7 +70,7 @@ class DateFieldMapper implements FieldMapper {
      * @return string
      */
     public function mapValue($sourceValue) {
-        $date = date_create_from_format($this->getSourceFormat(), $sourceValue);
+        $date = date_create_from_format($this->getSourceFormat(), $sourceValue ?? "");
         if ($date) {
             return $date->format($this->getTargetFormat());
         } else {

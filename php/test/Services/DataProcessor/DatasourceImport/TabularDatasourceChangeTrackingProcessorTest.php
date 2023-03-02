@@ -1042,8 +1042,6 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $this->processor->process($processorInstance);
 
-        print_r($this->datasourceService->getMethodCallHistory("updateDatasourceInstance"));
-
         $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["testLatest", $expectedUpdate, true]));
 
     }

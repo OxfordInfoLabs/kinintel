@@ -14,25 +14,28 @@ class DocxTextExtractor implements DocumentTextExtractor {
     }
 
     public function extractTextFromFile($filePath) {
-        $striped_content = '';
+
         $content = '';
 
-        $zip = zip_open($filePath);
+        $zipArchive = new \ZipArchive();
 
-        if (!$zip || is_numeric($zip)) return false;
+        $open = $zipArchive->open($filePath);
 
-        while ($zip_entry = zip_read($zip)) {
+        if (!$open) return false;
 
-            if (zip_entry_open($zip, $zip_entry) == FALSE) continue;
+        for ($i = 0; $i < $zipArchive->numFiles; $i++) {
 
-            if (zip_entry_name($zip_entry) != "word/document.xml") continue;
+            // Grab filename
+            $fileName = $zipArchive->getNameIndex($i);
 
-            $content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
+            // Continue until we get to the document itself
+            if ($fileName != "word/document.xml") continue;
 
-            zip_entry_close($zip_entry);
+            // Append content
+            $content .= $zipArchive->getFromIndex($i);
         }
 
-        zip_close($zip);
+        $zipArchive->close();
 
         $content = str_replace('</w:r></w:p></w:tc><w:tc>', " ", $content);
         $content = str_replace('</w:r></w:p>', "\r\n", $content);

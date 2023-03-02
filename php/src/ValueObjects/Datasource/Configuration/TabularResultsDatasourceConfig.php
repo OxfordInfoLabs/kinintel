@@ -51,7 +51,7 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
 
             $valueExpression = preg_replace_callback("/{{(.*?)}}/", function ($matches) use ($parameterValues) {
                 return $parameterValues[$matches[1]] ?? "";
-            }, $column->getValueExpression());
+            }, $column->getValueExpression() ?? "");
 
             $evaluatedColumns[] = new Field($column->getName(), $column->getTitle(),
                 $valueExpression, $column->getType(), $column->isKeyField());
