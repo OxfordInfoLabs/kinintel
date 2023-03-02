@@ -84,7 +84,6 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $datasourceKeys = $config->getSourceDatasourceKeys();
         $targetSummaryDatasourceKey = $config->getTargetSummaryDatasourceKey();
 
-
         $setDate = new \DateTime();
 
         if ($config->getSourceDataset()) {
@@ -116,19 +115,15 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             }
 
         } elseif ($config->getSourceDatasourceKeys()) {
-
             // Assuming all datasources have the same keys - would be daft otherwise
             $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
-
             // Iterate through each source datasource
             foreach ($datasourceKeys as $datasourceKey) {
                 $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
 
                 $newFile = $directory . "/new.txt";
                 $previousFile = $directory . "/previous.txt";
-
                 $this->initialiseFiles($directory);
-
                 // Create the new file
                 $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
 
@@ -149,6 +144,40 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 }
             }
 
+        } elseif ($config->getSourceDatasources()) {
+
+            $sourceDatasources = $config->getSourceDatasources();
+
+            // Assuming all datasources have the same keys - would be daft otherwise
+            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($sourceDatasources[0]->getDatasourceKey(), $sourceDatasources[0]->getParameterSets()[0], [], 0, 1)->getColumns();
+
+            $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
+
+            $newFile = $directory . "/new.txt";
+            $previousFile = $directory . "/previous.txt";
+
+            $this->initialiseFiles($directory);
+
+            // Create the new file
+            foreach($sourceDatasources as $sourceDatasource) {
+                $datasourceKey = $sourceDatasource->getDatasourceKey();
+                foreach ($sourceDatasource->getParameterSets() as $parameterSet) {
+                    $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $parameterSet);
+                }
+            }
+
+            // Track changes between the new and previous
+            passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
+            passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+
+            // Identify and changes and write to the latest and changes tables
+            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+
+            // Copy the new file across to the previous
+            if (file_exists($directory . "/new.txt")) {
+                copy($directory . "/new.txt", $directory . "/previous.txt");
+            }
+
         }
 
 
@@ -160,13 +189,13 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
     }
 
 
-    private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize) {
+    private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize, $parameterValues = []) {
         $offset = 0;
         // Read the datasource in chunks
 
         do {
             $lineCount = -1;
-            $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, [], [], $offset, $sourceReadChunkSize);
+            $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, $parameterValues, [], $offset, $sourceReadChunkSize);
 
             // Initialise next
             $nextItem = null;

@@ -8,7 +8,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @var string[]
-     * @requiredEither sourceDataset
+     * @requiredEither sourceDataset,sourceDatasources
      */
     private $sourceDatasourceKeys;
 
@@ -16,6 +16,11 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @var DatasetInstance
      */
     private $sourceDataset;
+
+    /**
+     * @var SourceDatasource[]
+     */
+    private $sourceDatasources;
 
     /**
      * @var string
@@ -49,6 +54,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @param string[] $sourceDatasourceKeys
+     * @param SourceDatasource[] $sourceDatasources
      * @param DatasetInstance $sourceDataset
      * @param string $targetLatestDatasourceKey
      * @param string $targetChangeDatasourceKey
@@ -57,7 +63,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
      */
-    public function __construct($sourceDatasourceKeys = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
+    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -66,6 +72,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->sourceReadChunkSize = $sourceReadChunkSize ?: PHP_INT_MAX;
         $this->targetWriteChunkSize = $targetWriteChunkSize ?: 500;
         $this->sourceDataset = $sourceDataset;
+        $this->sourceDatasources = $sourceDatasources;
     }
 
     /**
@@ -80,6 +87,20 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     public function setSourceDatasourceKeys($sourceDatasourceKeys) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
+    }
+
+    /**
+     * @return SourceDatasource[]
+     */
+    public function getSourceDatasources() {
+        return $this->sourceDatasources;
+    }
+
+    /**
+     * @param SourceDatasource[] $sourceDatasources
+     */
+    public function setSourceDatasources($sourceDatasources) {
+        $this->sourceDatasources = $sourceDatasources;
     }
 
     /**
