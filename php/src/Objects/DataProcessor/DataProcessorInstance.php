@@ -36,6 +36,7 @@ class DataProcessorInstance extends DataProcessorInstanceSummary
 
     /**
      * @var mixed
+     * @sqlType LONGTEXT
      * @json
      */
     private $config;

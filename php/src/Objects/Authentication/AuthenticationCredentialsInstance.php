@@ -42,6 +42,7 @@ class AuthenticationCredentialsInstance extends ActiveRecord {
      * config for the supplied type.
      *
      * @var mixed
+     * @sqlType LONGTEXT
      * @json
      */
     private $config;

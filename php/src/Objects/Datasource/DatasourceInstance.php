@@ -37,6 +37,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * the configuration for the data source type.
      *
      * @var mixed
+     * @sqlType LONGTEXT
      * @json
      */
     private $config;
