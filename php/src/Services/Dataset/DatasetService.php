@@ -559,7 +559,9 @@ class DatasetService {
      * @param TransformationInstance[] $additionalTransformations
      */
     public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $parameterValues = [], $additionalTransformations = [], $offset = null, $limit = null) {
+
         $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId, false);
+
         return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
 
@@ -643,8 +645,12 @@ class DatasetService {
         $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
 
 
-        // Grab the dataset.
+         // Grab the dataset.
         $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+
+
+
+
 
         // Export the dataset using exporter
         $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);

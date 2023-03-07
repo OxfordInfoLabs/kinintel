@@ -8,6 +8,7 @@ use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Services\Datasource\DatasourceService;
 
@@ -147,7 +148,8 @@ class DatasetInstance extends DatasetInstanceSummary {
         $newCategories = [];
         foreach ($this->categories as $category) {
             if ($category instanceof ObjectCategory) {
-                $newCategories[] = new CategorySummary($category->getCategory()->getCategory(), $category->getCategory()->getDescription(), $category->getCategory()->getKey());
+                if ($category->getCategory())
+                    $newCategories[] = new CategorySummary($category->getCategory()->getCategory(), $category->getCategory()->getDescription(), $category->getCategory()->getKey());
             } else if ($category instanceof CategorySummary) {
                 $newCategories[] = $category;
             }
