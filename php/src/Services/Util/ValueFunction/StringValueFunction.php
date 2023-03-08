@@ -10,7 +10,9 @@ class StringValueFunction extends ValueFunctionWithArguments {
         "trim",
         "explode",
         "replace",
-        "contains"
+        "contains",
+        "toUpper",
+        "toLower"
     ];
 
     /**
@@ -78,6 +80,12 @@ class StringValueFunction extends ValueFunctionWithArguments {
 
                 case "contains":
                     return (bool)strpos($value, $functionArgs[0]);
+
+                case "toLower":
+                    return strtolower($value);
+
+                case "toUpper":
+                    return strtoupper($value);
             }
 
             return $value;

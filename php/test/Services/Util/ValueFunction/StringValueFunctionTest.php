@@ -100,4 +100,28 @@ class StringValueFunctionTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(false, $function->applyFunction("contains '4'", "123", null));
 
     }
+
+    public function testCanConvertStringToUpper() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("toUpper"));
+
+        $this->assertEquals("TEST", $function->applyFunction("toUpper", "test", null));
+        $this->assertEquals("EXAMPLE STRING", $function->applyFunction("toUpper", "example string", null));
+        $this->assertEquals("I'M A SHOUTY MAN!", $function->applyFunction("toUpper", "I'm a shouty man!", null));
+        $this->assertEquals("ARRGHHHH", $function->applyFunction("toUpper", "arrghhhh", null));
+        $this->assertEquals("OH NO!", $function->applyFunction("toUpper", "oh no!", null));
+
+    }
+
+    public function testCanConvertStringToLower() {
+        $function = new StringValueFunction();
+        $this->assertTrue($function->doesFunctionApply("toLower"));
+
+        $this->assertEquals("test", $function->applyFunction("toLower", "TEST", null));
+        $this->assertEquals("shhhhhh", $function->applyFunction("toLower", "SHhHHhh", null));
+        $this->assertEquals("it's so quiet....", $function->applyFunction("toLower", "IT'S SO quiet....", null));
+        $this->assertEquals("hello!", $function->applyFunction("toLower", "HELLO!", null));
+        $this->assertEquals("low low low", $function->applyFunction("toLower", "LOW low LOW", null));
+
+    }
 }
