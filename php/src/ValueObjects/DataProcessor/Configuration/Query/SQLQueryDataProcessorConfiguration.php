@@ -22,9 +22,9 @@ class SQLQueryDataProcessorConfiguration {
     private $authenticationCredentialsKey;
 
     /**
-     * @param null $query
-     * @param null $queries
-     * @param null $authenticationCredentialsKey
+     * @param string $query
+     * @param string[] $queries
+     * @param string $authenticationCredentialsKey
      */
     public function __construct($query = null, $queries = null, $authenticationCredentialsKey = null) {
         $this->query = $query;
