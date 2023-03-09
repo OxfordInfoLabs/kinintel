@@ -179,7 +179,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $documentDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "document_data_set_4_" . date("U"),
             "storeOriginal" => true, "storeText" => true, "indexContent" => true];
         $documentIndexDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "index_document_data_set_4_" . date("U"),
-            "source" => "table", "columns" => $fields];
+            "source" => "table", "columns" => $fields, "manageTableStructure" => true];
 
         $expectedInstance = new DatasourceInstance("document_data_set_4_" . date("U"), "TheBestTitle", "document",
             $documentDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
