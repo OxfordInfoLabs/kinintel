@@ -12,6 +12,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @implementation tabulardatasetsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor
  * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
  * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor
+ * @implementation multi \Kinintel\Services\DataProcessor\Multi\MultiDataProcessor
  */
 interface DataProcessor {
 

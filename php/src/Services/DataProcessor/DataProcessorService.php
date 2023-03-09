@@ -15,6 +15,7 @@ use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Exception\InvalidDataProcessorTypeException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 
 class DataProcessorService {
 
@@ -79,7 +80,19 @@ class DataProcessorService {
 
         // Get the instance ready for evaluation
         $instance = $this->dataProcessorDAO->getDataProcessorInstanceByKey($instanceKey);
+        $this->processDataProcessorInstanceObject($instance);
 
+    }
+
+    /**
+     * @param DataProcessorInstance $instance
+     * @return void
+     * @throws InvalidDataProcessorConfigException
+     * @throws InvalidDataProcessorTypeException
+     * @throws ValidationException
+     * @throws \Throwable
+     */
+    public function processDataProcessorInstanceObject($instance) {
         // Validate the instance and throw more specific exceptions if required
         $validationErrors = $instance->validate();
         if (sizeof($validationErrors)) {
