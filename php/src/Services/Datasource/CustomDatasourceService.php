@@ -151,7 +151,8 @@ class CustomDatasourceService {
         $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $datasourceConfigUpdate->getTitle() . " Index", "sqldatabase", [
             "source" => "table",
             "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $indexInstanceKey,
-            "columns" => $fields
+            "columns" => $fields,
+            "manageTableStructure" => true
         ], Configuration::readParameter("custom.datasource.credentials.key"));
 
         $indexDatasourceInstance->setAccountId($accountId);
