@@ -19,7 +19,7 @@ export class ProjectSettingsComponent implements OnInit {
 
     @Input() dashboardURL: string;
     @Input() queryURL: string;
-    @Input() datasourceURL: string;
+    @Input() datasourceURLs: any;
 
     public projectSettings: any = {};
     public categories: any = [];
@@ -74,7 +74,7 @@ export class ProjectSettingsComponent implements OnInit {
             data: {
                 dashboardURL: this.dashboardURL,
                 queryURL: this.queryURL,
-                datasourceURL: this.datasourceURL
+                datasourceURLs: this.datasourceURLs || []
             }
         });
 

@@ -96,7 +96,8 @@ export class ProjectLinkSelectionComponent implements OnInit {
     }
 
     public selectDatasource(datasource) {
-        this.dialogRef.close(this.data.datasourceURL + '/' + datasource.key);
+        const datasourceURL = _.find(this.data.datasourceURLs, {type: datasource.type});
+        this.dialogRef.close((datasourceURL ? datasourceURL.url : '') + '/' + datasource.key);
     }
 
     private getSharedDashboards() {

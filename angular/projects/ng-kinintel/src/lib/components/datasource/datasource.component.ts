@@ -5,7 +5,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasourceService} from '../../services/datasource.service';
 import {ProjectService} from '../../services/project.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 
@@ -42,7 +42,8 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     constructor(private dialog: MatDialog,
                 private datasourceService: DatasourceService,
                 private projectService: ProjectService,
-                private router: Router) {
+                private router: Router,
+                private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
@@ -60,6 +61,13 @@ export class DatasourceComponent implements OnInit, OnDestroy {
 
         this.projectSub = this.projectService.activeProject.subscribe(() => {
             this.isProjectAdmin = this.projectService.isActiveProjectAdmin();
+        });
+
+        this.route.params.subscribe(async param => {
+            if (param.key) {
+                const datasource = await this.datasourceService.getDatasource(param.key);
+                this.explore(datasource);
+            }
         });
 
         merge(this.searchText, this.reload)

@@ -831,7 +831,7 @@ export class ItemComponentComponent implements AfterViewInit {
 
             setTimeout(() => {
                 const element = document.getElementById(this.itemInstanceKey);
-                for (const child of Array.from(element.children) as any[]) {
+                for (const child of Array.from(element ? element.children : []) as any[]) {
                     if (child.classList.contains('item-container')) {
                         this.wordCloud.width = child.clientWidth - 40;
                         this.wordCloud.height = child.clientHeight - 40;
@@ -869,7 +869,7 @@ export class ItemComponentComponent implements AfterViewInit {
                     }
 
                 }
-            }, 0);
+            }, 50);
 
 
             this.loadingItem = false;

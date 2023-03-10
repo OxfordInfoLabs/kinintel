@@ -137,7 +137,7 @@
                             </td>
                             <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm font-medium"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
-                                <div *ngIf="element.enabled || admin" class="flex items-center justify-end">
+                                <div *ngIf="(element.enabled === undefined ? true : element.enabled) || admin" class="flex items-center justify-end">
                                     <button *ngIf="!shared" mat-button color="primary" (click)="view(element.id)">
                                         Edit
                                     </button>
@@ -156,7 +156,7 @@
                                         </mat-menu>
                                     </ng-template>
                                 </div>
-                                <a [href]="'mailto:' + contactUs" *ngIf="!element.enabled && !admin" mat-button color="primary">
+                                <a [href]="'mailto:' + contactUs" *ngIf="(element.enabled === undefined ? false : !element.enabled) && !admin" mat-button color="primary">
                                     Contact Us
                                 </a>
                             </td>
