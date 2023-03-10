@@ -207,7 +207,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
                 // If we have a custom document parser, use this instead of the built in.
                 if ($customDocumentParser) {
-                    $customDocumentData = $customDocumentParser->parseDocument($config, $row["documentSource"] ?? null, $row["documentFilePath"] ?? null);
+                    $customDocumentData = $customDocumentParser->parseDocument($config, $this->getInstanceInfo(), $row["documentSource"] ?? null, $row["documentFilePath"] ?? null);
 
                     // Merge in any additional document data
                     $mergeRowData = $customDocumentData->getAdditionalDocumentData() ?? [];

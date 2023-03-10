@@ -3,6 +3,7 @@
 
 namespace Kinintel\Services\Datasource\Document;
 
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceInstanceInfo;
@@ -44,11 +45,9 @@ abstract class CustomDocumentParser {
      * Function called when document datasource is created to perform additional logic as required.
      *
      * @param DocumentDatasourceConfig $datasourceConfig
-     * @param $documentDatasourceInfo
-     * @param $accountId
-     * @param $projectKey
+     * @param DatasourceInstance $datasourceInstance
      */
-    public function onDocumentDatasourceCreate($datasourceConfig, $documentDatasourceInfo, $accountId, $projectKey) {
+    public function onDocumentDatasourceCreate($datasourceConfig, $datasourceInstance) {
     }
 
 
@@ -70,12 +69,13 @@ abstract class CustomDocumentParser {
      * additional fields defined above as well as phrases keyed in by document section.
      *
      * @param DocumentDatasourceConfig $datasourceConfig
+     * @param DatasourceInstanceInfo $datasourceInstanceInfo
      * @param string $documentSource
      * @param string $documentSourceFilename
      *
      * @return CustomDocumentData
      */
-    public function parseDocument($datasourceConfig, $documentSource = null, $documentSourceFilename = null) {
+    public function parseDocument($datasourceConfig, $datasourceInstanceInfo, $documentSource = null, $documentSourceFilename = null) {
         return new CustomDocumentData();
     }
 

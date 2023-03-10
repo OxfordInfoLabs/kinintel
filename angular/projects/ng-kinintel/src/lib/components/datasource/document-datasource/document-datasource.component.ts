@@ -272,6 +272,10 @@ export class DocumentDatasourceComponent implements OnInit {
                     {
                         title: 'Plenipot Bucharest 22',
                         value: 'plenipotBucharest22'
+                    },
+                    {
+                        title: 'ITU Study Group',
+                        value: 'itustudygroup'
                     }
                 ];
             })

@@ -615,6 +615,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $documentDatasource = new DocumentDatasource($documentDatasourceConfig,
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
 
+        $documentDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
 
         $mockDocumentParser->returnValue("parseDocument", new CustomDocumentData([
             "extra1" => "BINGO",
@@ -631,15 +632,15 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 new Phrase("world", 3, 1)
             ]
         ]), [
-            $documentDatasourceConfig, "hello test", null
+            $documentDatasourceConfig, $documentDatasource->getInstanceInfo(), "hello test", null
         ]);
 
 
         $dataset = new ArrayTabularDataset([new Field("filename"), new Field("documentSource"), new Field("file_type")], [["filename" => "test.txt", "documentSource" => "hello test", "file_type" => "application/text"]]);
 
-        $documentDatasource->setInstanceInfo(new DatasourceInstance("test_data", "Test Data", "test"));
 
         $documentDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+
 
         $this->assertTrue($this->bulkDataManager->methodWasCalled("replace", ["test_data", [
             [
