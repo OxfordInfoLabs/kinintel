@@ -17,3 +17,6 @@ custom.datasource.credentials.key = test
 custom.datasource.table.prefix = custom.
 
 document.datasource.attachment.storage.key = test
+
+google.cloud.attachment.storage.credentials.key = google-cloud
+google.cloud.attachment.storage.bucket = attachments

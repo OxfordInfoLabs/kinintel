@@ -2,6 +2,8 @@
 
 namespace Kinintel;
 
+use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
+use Kiniauth\Services\Attachment\AttachmentStorage;
 use Kiniauth\Services\Security\RouteInterceptor\APIRouteInterceptor;
 use Kiniauth\Services\Workflow\Task\Task;
 use Kinikit\Core\ApplicationBootstrap;
@@ -33,6 +35,9 @@ class Bootstrap implements ApplicationBootstrap {
 
         // Add route interceptor for feeds to match the API one
         $this->routeInterceptorProcessor->addInterceptor("feed/*", APIRouteInterceptor::class);
+
+        // Add attachment storage for google
+        Container::instance()->addInterfaceImplementation(AttachmentStorage::class, "google-cloud", GoogleCloudAttachmentStorage::class);
 
     }
 }
