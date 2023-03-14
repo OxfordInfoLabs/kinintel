@@ -94,7 +94,7 @@
                             </th>
                         </tr>
                         <tr *ngFor="let element of datasets; let i = index" class="hover:bg-gray-50"
-                            [ngClass]="{'opacity-50': !element.enabled && !admin}">
+                            [ngClass]="{'opacity-50': (element.enabled === undefined ? false : !element.enabled) && !admin}">
                             <td class="border-gray-200 py-2 px-4 text-sm w-1/2 text-gray-900"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1}">
                                 <div class="flex flex-col">
