@@ -110,30 +110,11 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("phrases");
         }
 
-
-        foreach ($config->getStopWords() as $stopWord) {
-
-            if ($stopWord->isCustom() && $stopWord->getDatasourceKey() && $stopWord->getDatasourceColumn()) {
-
-                /** @var DatasourceService $datasourceService */
-                $datasourceService = Container::instance()->get(DatasourceService::class);
-                $stopwordDatasourceInstance = $datasourceService->getDataSourceInstanceByKey($stopWord->getDatasourceKey());
-                /** @var TabularDataset $dataset */
-                $stopwordDataset = $stopwordDatasourceInstance->returnDataSource()->materialise();
-
-                $stopWord->setList(array_map(function ($data) use ($stopWord) {
-                    return $data[$stopWord->getDatasourceColumn()];
-                }, $stopwordDataset->getAllData()));
-            }
-        }
-
-
         /**
          * @var SettingsService $settingsService
          */
         $settingsService = Container::instance()->get(SettingsService::class);
         $settings = $settingsService->getParentAccountSettingValues();
-
 
         while ($row = $dataset->nextDataItem()) {
             $newRow = null;

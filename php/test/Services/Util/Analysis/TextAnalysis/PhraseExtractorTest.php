@@ -205,9 +205,7 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             "your"
         ]);
 
-
         $this->stopwordManager->returnValue("expandStopwords", $doctoredStopWord, [$stopWord, "EN"]);
-
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [$stopWord]);
 
@@ -280,6 +278,36 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("brown one", 1, 2),
         ], $phrases);
 
+    }
+
+    public function testCanExtractStopWordsFromCustomDatasource() {
+
+        $stopWord = new StopWord(false, true, "testKey", "testColumn");
+        $doctoredStopWord = new StopWord(true, null, null, null, 2, [
+            "it's",
+            "the",
+            "a",
+            "this",
+            "your"
+        ]);
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopWord, [$stopWord, "EN"]);
+
+        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 1, 1, [$stopWord]);
+
+        $this->assertEquals([
+            new Phrase("quick", 2, 1),
+            new Phrase("brown", 2, 1),
+            new Phrase("fox", 1, 1),
+            new Phrase("jumped", 1, 1),
+            new Phrase("over", 1, 1),
+            new Phrase("lazy", 2, 1),
+            new Phrase("dog", 1, 1),
+            new Phrase("ain't", 1, 1),
+            new Phrase("average", 1, 1),
+            new Phrase("test", 1, 1),
+            new Phrase("one", 1, 1)
+        ], $phrases);
     }
 
 }
