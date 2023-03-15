@@ -31,17 +31,18 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanExtractSingleWordsFromPassedTextUsingBuiltInStopwords() {
 
-        $this->stopwordManager->returnValue("getStopwordsByLanguage", [
+        $stopword = new StopWord(true, null, null, null, null);
+        $doctoredStopwords = new StopWord(true, null, null, null, null, [
             "it's",
             "the",
             "a",
             "this",
             "your"
-        ], ["EN"]);
-
-        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 1, 1, [
-            new StopWord(true, null, null, null, null)
         ]);
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopwords, [$stopword, "EN"]);
+
+        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 1, 1, [$stopword]);
 
         $this->assertEquals([
             new Phrase("quick", 2, 1),
@@ -61,17 +62,18 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanExtractMultipleWordPhrasesFromPassedTextUsingBuiltInStopwords() {
 
-        $this->stopwordManager->returnValue("getStopwordsByLanguage", [
+        $stopWord = new StopWord(true, null, null, null, 2);
+        $doctoredStopwords = new StopWord(true, null, null, null, 2, [
             "it's",
             "the",
             "a",
             "this",
             "your"
-        ], ["EN"]);
-
-        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 1, [
-            new StopWord(true, null, null, null, 2)
         ]);
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopwords, [$stopWord, "EN"]);
+
+        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 1, [$stopWord]);
 
         $this->assertEquals([
             new Phrase("quick", 2, 1),
@@ -112,22 +114,22 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
         ], $phrases);
 
 
-
     }
 
     public function testCanExtractMultipleWordPhrasesWithMultipleMinimumLengthFromPassedTextUsingBuiltInStopwords() {
 
-        $this->stopwordManager->returnValue("getStopwordsByLanguage", [
+        $stopWord = new StopWord(true, null, null, null, 2);
+        $doctoredStopwords = new StopWord(true, null, null, null, 2, [
             "it's",
             "the",
             "a",
             "this",
             "your"
-        ], ["EN"]);
-
-        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [
-            new StopWord(true, null, null, null, 2)
         ]);
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopwords, [$stopWord, "EN"]);
+
+        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [$stopWord]);
 
         $this->assertEquals([
             new Phrase("quick brown", 2, 2),
@@ -160,18 +162,23 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanExtractSingleWordsFromPassedTextUsingBuiltInStopwordsAndCustomStopwords() {
 
-        $this->stopwordManager->returnValue("getStopwordsByLanguage", [
+        $stopWordOne = new StopWord(true, null, null, null, null);
+        $doctoredStopwordsOne = new StopWord(true, null, null, null, null, [
             "it's",
             "the",
             "a",
             "this",
             "your"
-        ], ["EN"]);
+        ]);
 
-        $stopWords = [
-            new StopWord(true, null, null, null, null),
-            new StopWord(null, true, null, null, null, ["ain't", "test", "one", "over"])
-        ];
+        $stopWordTwo = new StopWord(null, true, null, null, null, ["ain't", "test", "one", "over"]);
+
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopwordsOne, [$stopWordOne, "EN"]);
+        $this->stopwordManager->returnValue("expandStopwords", $stopWordTwo, [$stopWordTwo, "EN"]);
+
+
+        $stopWords = [$stopWordOne, $stopWordTwo];
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 1, 1, $stopWords);
 
@@ -188,17 +195,21 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testCanExtractMultiWordPhrasesAllowingForStopWordsToBeIncludedInPhrasesWithAMinLength() {
-        $this->stopwordManager->returnValue("getStopwordsByLanguage", [
+
+        $stopWord = new StopWord(true, null, null, null, 2);
+        $doctoredStopWord = new StopWord(true, null, null, null, 2, [
             "it's",
             "the",
             "a",
             "this",
             "your"
-        ], ["EN"]);
-
-        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [
-            new StopWord(true, null, null, null, 2)
         ]);
+
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopWord, [$stopWord, "EN"]);
+
+
+        $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [$stopWord]);
 
         $this->assertEquals([
             new Phrase("quick brown", 2, 2),
@@ -230,17 +241,23 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanExtractMultipleWordsFromPassedTextUsingBuiltInStopwordsAndCustomStopwordsWithAMinLength() {
 
-        $this->stopwordManager->returnValue("getStopwordsByLanguage", [
+        $stopWordOne = new StopWord(true, null, null, null, null);
+        $stopWordTwo = new StopWord(null, true, null, null, 2, ["ain't", "test", "one", "over"]);
+
+        $doctoredStopwordsOne = new StopWord(true, null, null, null, null, [
             "it's",
             "the",
             "a",
             "this",
             "your"
-        ], ["EN"]);
+        ]);
+
+        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopwordsOne, [$stopWordOne, "EN"]);
+        $this->stopwordManager->returnValue("expandStopwords", $stopWordTwo, [$stopWordTwo, "EN"]);
 
         $stopWords = [
-            new StopWord(true, null, null, null, null),
-            new StopWord(null, true, null, null, 2, ["ain't", "test", "one", "over"])
+            $stopWordOne,
+            $stopWordTwo
         ];
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 2, 1, $stopWords);
