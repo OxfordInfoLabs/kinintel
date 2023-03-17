@@ -33,11 +33,13 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
+use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileInterceptor;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
@@ -77,9 +79,11 @@ class DatasetServiceTest extends TestBase {
 
 
     public function setUp(): void {
+
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->metaDataService = MockObjectProvider::instance()->getMockInstance(MetaDataService::class);
         $this->datasetService = new DatasetService($this->datasourceService, $this->metaDataService);
+
     }
 
 
@@ -1138,8 +1142,13 @@ class DatasetServiceTest extends TestBase {
         // Log in as a person with projects and tags
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
         $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
-        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
+        $instanceId = $datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
 
         $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
             "createHistory" => true,
@@ -1148,7 +1157,7 @@ class DatasetServiceTest extends TestBase {
             new ScheduledTaskTimePeriod(1, null, 0, 0)
         ]);
 
-        $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
+        $profileId = $datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
         $this->assertNotNull($profileId);
 
         /**
@@ -1163,7 +1172,7 @@ class DatasetServiceTest extends TestBase {
         $identifier = $snapshotConfig->getSnapshotIdentifier();
 
         // Remove a snapshot profile
-        $this->datasetService->removeSnapshotProfile($instanceId, $profileId);
+        $datasetService->removeSnapshotProfile($instanceId, $profileId);
 
         // Check that all assets cleared up
         try {
@@ -1186,16 +1195,25 @@ class DatasetServiceTest extends TestBase {
         } catch (ObjectNotFoundException $e) {
         }
 
-        // Now check call was made to remove underlying snapshot data sources
-        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance",
-            [$identifier]));
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance",
-            [$identifier . "_latest"]));
+        try {
+            DatasourceInstance::fetch($identifier);
+            $this->fail("Should have gone");
+        } catch (ObjectNotFoundException $e){
+        }
 
+        try {
+            DatasourceInstance::fetch($identifier."_latest");
+            $this->fail("Should have gone");
+        } catch (ObjectNotFoundException $e){
+        }
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance",
-            [$identifier . "_pending"]));
+        try {
+            DatasourceInstance::fetch($identifier."_pending");
+            $this->fail("Should have gone");
+        } catch (ObjectNotFoundException $e){
+        }
+
 
 
     }

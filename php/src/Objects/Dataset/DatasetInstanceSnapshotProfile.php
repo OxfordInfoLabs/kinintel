@@ -13,6 +13,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @package Kinintel\Objects\Dataset
  *
  * @table ki_dataset_instance_snapshot_profile
+ * @interceptor Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileInterceptor
  * @generate
  */
 class DatasetInstanceSnapshotProfile extends ActiveRecord {
