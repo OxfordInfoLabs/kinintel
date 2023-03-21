@@ -53,7 +53,7 @@ class Dashboard extends DashboardSummary {
                 $dashboardSummary->isAlertsEnabled(), $dashboardSummary->isExternal(), $dashboardSummary->getExternalSettings(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId(), false, $dashboardSummary->getParentDashboardId());
         else
             $this->setExternalSettings(new DashboardExternalSettings());
-        
+
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
