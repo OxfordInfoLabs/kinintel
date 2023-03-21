@@ -9,6 +9,7 @@ use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\ORM\ActiveRecord;
+use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 
 /**
  * Dashboard - encodes one or more dataset instances along with display configuration
@@ -50,6 +51,9 @@ class Dashboard extends DashboardSummary {
         if ($dashboardSummary instanceof DashboardSummary)
             parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(),
                 $dashboardSummary->isAlertsEnabled(), $dashboardSummary->isExternal(), $dashboardSummary->getExternalSettings(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId(), false, $dashboardSummary->getParentDashboardId());
+        else
+            $this->setExternalSettings(new DashboardExternalSettings());
+        
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
