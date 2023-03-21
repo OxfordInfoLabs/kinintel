@@ -86,12 +86,12 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
      * @param false $external
-     * @param array $externalSettings
+     * @param DashboardExternalSettings $externalSettings
      * @param string $summary
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = false, $externalSettings = [], $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = false, $externalSettings = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
         parent::__construct($id, $title, $summary, $description, $categories, $parentDashboardId);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
@@ -99,7 +99,7 @@ class DashboardSummary extends DashboardSearchResult {
         $this->alertsEnabled = $alertsEnabled;
         $this->readOnly = $readOnly;
         $this->external = $external;
-        $this->externalSettings = $externalSettings;
+        $this->externalSettings = $externalSettings ?? new DashboardExternalSettings();
     }
 
 
