@@ -173,15 +173,15 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
             new DashboardDatasetInstance("instance4", null, "externalds", [
                 new TransformationInstance("join", new JoinTransformation("myexampledatasource", null))
             ])
-        ], null, null, null, null, null, [], 1, false, 2),1, "myprojectkey");
-        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, null, null, [], 2, false, 23),1, "myprojectkey");
-        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, null, null, [], 3, false, 1),1, "myprojectkey");
+        ], null, null, null, false, [], null, null, [], 1, false, 2),1, "myprojectkey");
+        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, false, [], null, null, [], 2, false, 23),1, "myprojectkey");
+        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, false, [], null, null, [], 3, false, 1),1, "myprojectkey");
 
 
         $export = new Export(Export::SCOPE_PROJECT, "Dashboard Export", [$datasource], [$dataset], [$dashboard1, $dashboard2, $dashboard3], []);
 
         $this->assertEquals([
-            new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, null, null, [],
+            new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, false, [], null, null, [],
                 md5("DB::2"), false, 23)),
             new Dashboard(new DashboardSummary("Dashboard 1", [
                 new DashboardDatasetInstance("instance1", md5("DS::1")),
@@ -191,8 +191,8 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
                 new DashboardDatasetInstance("instance4", null, "externalds", [
                     new TransformationInstance("join", new JoinTransformation(md5("DS::myexampledatasource"), null))
                 ])
-            ], null, null, null, null, null, [], md5("DB::1"), false, md5("DB::2"))),
-            new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, null, null, [], md5("DB::3"), false, md5("DB::1")))
+            ], null, null, null, false, [], null, null, [], md5("DB::1"), false, md5("DB::2"))),
+            new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, false, [], null, null, [], md5("DB::3"), false, md5("DB::1")))
         ], $export->getDashboards());
 
     }

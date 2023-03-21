@@ -30,6 +30,7 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Alert\MatchRule\RowCountAlertMatchRuleConfiguration;
+use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -133,7 +134,7 @@ class DashboardServiceTest extends TestBase {
         ], [
             "color" => "green",
             "font" => "Arial"
-        ], null, null, "My Brand new Test Dashboard", "A longer description of my brand new test dashboard",
+        ], null, null, true, new DashboardExternalSettings(true, 500), "My Brand new Test Dashboard", "A longer description of my brand new test dashboard",
             $categories);
 
         $this->metaDataService->returnValue("getObjectCategoriesFromSummaries", [
@@ -149,6 +150,8 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("My Brand new Test Dashboard", $reDashboard->getSummary());
         $this->assertEquals("A longer description of my brand new test dashboard", $reDashboard->getDescription());
         $this->assertEquals($categories, $reDashboard->getCategories());
+        $this->assertTrue($reDashboard->isExternal());
+        $this->assertEquals(new DashboardExternalSettings(true, 500), $reDashboard->getExternalSettings());
 
         $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[0];
         $this->assertEquals("brandnew", $dashboardDatasetInstance->getInstanceKey());
@@ -302,7 +305,7 @@ class DashboardServiceTest extends TestBase {
             $categories, 1, "soapSuds"
         ]);
 
-        $accountDashboard = new DashboardSummary("Account Dashboard", [], null, null, null, "Account Dashboard Summary", "Account Dashboard Description", $categories);
+        $accountDashboard = new DashboardSummary("Account Dashboard", [], null, null, null, false, [], "Account Dashboard Summary", "Account Dashboard Description", $categories);
         $this->dashboardService->saveDashboard($accountDashboard, "soapSuds", 1);
 
         $accountDashboard = new DashboardSummary("Second Account Dashboard");
@@ -508,10 +511,10 @@ class DashboardServiceTest extends TestBase {
         ]);
 
 
-        $accountDashboard = new DashboardSummary("Account Dashboard", [], null, null, null, "Account Dashboard Summary", "Account Dashboard Description", $accountCategories);
+        $accountDashboard = new DashboardSummary("Account Dashboard", [], null, null, null, false, [], "Account Dashboard Summary", "Account Dashboard Description", $accountCategories);
         $this->dashboardService->saveDashboard($accountDashboard, null, 2);
 
-        $projectDashboard = new DashboardSummary("Project Dashboard", [], null, null, null, "Project Dashboard Summary", "Project Dashboard Description", $projectCategories);
+        $projectDashboard = new DashboardSummary("Project Dashboard", [], null, null, null, false, [], "Project Dashboard Summary", "Project Dashboard Description", $projectCategories);
         $this->dashboardService->saveDashboard($projectDashboard, "soapSuds", 2);
 
         $this->metaDataService->returnValue("getMultipleCategoriesByKey", array_merge($accountCategories, $projectCategories), [

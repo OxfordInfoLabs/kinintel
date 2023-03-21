@@ -49,7 +49,7 @@ class Dashboard extends DashboardSummary {
     public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
             parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(),
-                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId(), false, $dashboardSummary->getParentDashboardId());
+                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->isExternal(), $dashboardSummary->getExternalSettings(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId(), false, $dashboardSummary->getParentDashboardId());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -122,7 +122,7 @@ class Dashboard extends DashboardSummary {
         }
 
         $dashboardSummary = new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings,
-            $this->alertsEnabled,
+            $this->alertsEnabled, $this->external, $this->externalSettings,
             $this->summary, $this->description, $newCategories,
             $returnCopy ? null : $this->id, $readOnly, $this->parentDashboardId);
 

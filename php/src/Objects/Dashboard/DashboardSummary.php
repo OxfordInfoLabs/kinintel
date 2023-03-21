@@ -7,6 +7,7 @@ namespace Kinintel\Objects\Dashboard;
 use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\MetaData\TagSummary;
 use Kinikit\Persistence\ORM\ActiveRecord;
+use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 
 class DashboardSummary extends DashboardSearchResult {
 
@@ -42,6 +43,20 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
+     * @var boolean
+     */
+    protected $external;
+
+
+    /**
+     * @var DashboardExternalSettings
+     * @json
+     * @sqlType LONGTEXT
+     */
+    protected $externalSettings;
+
+
+    /**
      * Array of tag keys associated with this instance summary if required
      *
      * @var TagSummary[]
@@ -70,17 +85,21 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $displaySettings
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
+     * @param false $external
+     * @param array $externalSettings
      * @param string $summary
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = false, $externalSettings = [], $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
         parent::__construct($id, $title, $summary, $description, $categories, $parentDashboardId);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
         $this->alertsEnabled = $alertsEnabled;
         $this->readOnly = $readOnly;
+        $this->external = $external;
+        $this->externalSettings = $externalSettings;
     }
 
 
@@ -154,6 +173,34 @@ class DashboardSummary extends DashboardSearchResult {
      */
     public function setAlertsEnabled($alertsEnabled) {
         $this->alertsEnabled = $alertsEnabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExternal() {
+        return $this->external;
+    }
+
+    /**
+     * @param bool $external
+     */
+    public function setExternal($external) {
+        $this->external = $external;
+    }
+
+    /**
+     * @return DashboardExternalSettings
+     */
+    public function getExternalSettings() {
+        return $this->externalSettings;
+    }
+
+    /**
+     * @param DashboardExternalSettings $externalSettings
+     */
+    public function setExternalSettings($externalSettings) {
+        $this->externalSettings = $externalSettings;
     }
 
     /**
