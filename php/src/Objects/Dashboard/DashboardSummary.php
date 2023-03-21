@@ -193,7 +193,7 @@ class DashboardSummary extends DashboardSearchResult {
      * @return DashboardExternalSettings
      */
     public function getExternalSettings() {
-        return $this->externalSettings;
+        return $this->externalSettings ?? new DashboardExternalSettings();
     }
 
     /**
