@@ -85,7 +85,7 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $displaySettings
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
-     * @param false $external
+     * @param boolean $external
      * @param DashboardExternalSettings $externalSettings
      * @param string $summary
      * @param string $description
