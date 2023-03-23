@@ -26,6 +26,8 @@ export class DashboardSettingsComponent implements OnInit {
         if (!this.dashboard.externalSettings || Array.isArray(this.dashboard.externalSettings)) {
             this.dashboard.externalSettings = {};
         }
+
+        this.refreshInterval = this.dashboard.externalSettings.refreshInterval || 0;
     }
 
     public setRefreshInterval(interval) {

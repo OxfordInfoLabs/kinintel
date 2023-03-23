@@ -98,18 +98,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             this.hideParameters = localStorage.getItem('fullDashboardHideParams') === 'true';
         }
 
-        if (this.refreshInterval) {
-            let count = 0;
-            setInterval(() => {
-                if (count > 10) {
-                    window.location.reload();
-                } else {
-                    this.reload();
-                    count++;
-                }
-            }, (this.refreshInterval * 1000));
-        }
-
         if (!this.dashboardService) {
             this.dashboardService = this.kiDashboardService;
         }
@@ -172,10 +160,26 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         if (this.external) {
             this.dashboard = await this.externalService.getDashboard(dashboardId, this.queryParams);
+
+            this.darkMode = this.dashboard.externalSettings.darkMode;
+            this.refreshInterval = this.dashboard.externalSettings.refreshInterval;
+            this.hideParameters = !this.dashboard.externalSettings.showParameters;
+
         } else {
             this.dashboard = await this.dashboardService.getDashboard(dashboardId);
         }
 
+        if (this.refreshInterval) {
+            let count = 0;
+            setInterval(() => {
+                if (count > 10) {
+                    window.location.reload();
+                } else {
+                    this.reload();
+                    count++;
+                }
+            }, (this.refreshInterval * 1000));
+        }
 
         Object.keys(this.queryParams).forEach(key => {
             if (Object.keys(this.dashboard.layoutSettings.parameters || {}).length) {
