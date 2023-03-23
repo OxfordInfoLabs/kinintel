@@ -314,9 +314,9 @@ export class ConfigureItemComponent implements OnInit {
     public getAlertDetails(alert) {
         let details = '';
         const filter = alert.filterTransformation.filters[0];
-        const filterType = DatasetFilterComponent.getFilterType(filter.filterType);
 
         if (filter) {
+            const filterType = DatasetFilterComponent.getFilterType(filter.filterType);
             details += `<span class="font-medium">Where</span> ${filter.lhsExpression} `;
             details += filterType ? filterType.label : '';
             details += ` ${filter.rhsExpression}`;
