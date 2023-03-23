@@ -47,10 +47,10 @@
     <ng-template [ngIf]="!hideParameters">
         <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200"
              *ngIf="dashboard.layoutSettings && _.values(dashboard.layoutSettings.parameters).length">
-            <div class="list-title">
+            <div *ngIf="!external" class="list-title">
                 Parameters
             </div>
-            <ng-template ngFor let-parameter [ngForOf]="_.values(dashboard.layoutSettings.parameters)">
+            <ng-template ngFor let-parameter [ngForOf]="_.filter(dashboard.layoutSettings.parameters, {locked: false})">
                 <label>
                     {{parameter.title}}
                     <div class="parameter-input">
@@ -118,11 +118,12 @@
                     </div>
                 </label>
 
-                <div class="divider" *ngIf="_.values(dashboard.layoutSettings.parameters).length > 1"></div>
+                <div class="divider" *ngIf="_.filter(dashboard.layoutSettings.parameters, {locked: false}).length > 1"></div>
             </ng-template>
             <button mat-flat-button color="primary" class="mr-2 leading-8" *ngIf="_.values(dashboard.layoutSettings.parameters).length"
                     (click)="reloadDashboard()">
-                Apply Parameters
+                <ng-template [ngIf]="!external">Apply Parameters</ng-template>
+                <ng-template [ngIf]="external">Go</ng-template>
             </button>
         </div>
     </ng-template>

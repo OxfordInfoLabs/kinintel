@@ -20,9 +20,10 @@
                 <mat-radio-button class="mt-0 ml-2" [value]="0">Private</mat-radio-button>
             </mat-radio-group>
             <div class="divider" *ngIf="admin"></div>
-            <button matTooltip="Edit default notification group" class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">manage_accounts</mat-icon>
-                groups
+            <button matTooltip="Edit dashboard settings" (click)="openSettings()"
+                    class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                <mat-icon class="text-xl">tune</mat-icon>
+                settings
             </button>
             <button (click)="toggleNotifications()" matTooltip="Edit default notification group"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">

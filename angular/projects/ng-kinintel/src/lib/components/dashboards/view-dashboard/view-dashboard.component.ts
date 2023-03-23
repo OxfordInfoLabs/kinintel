@@ -18,17 +18,15 @@ const _ = lodash.default;
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../../services/alert.service';
-import moment_ from 'moment';
+import moment from 'moment';
 import {Location} from '@angular/common';
+import {ExternalService} from '../../../services/external.service';
 
 @Component({
     selector: 'ki-view-dashboard',
     templateUrl: './view-dashboard.component.html',
     styleUrls: ['./view-dashboard.component.sass'],
-    encapsulation: ViewEncapsulation.None,
-    host: {
-        class: 'block absolute inset-0 bg-gray-50'
-    }
+    encapsulation: ViewEncapsulation.None
 })
 export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -50,6 +48,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() parameters: any;
     @Input() hideToolbar = false;
     @Input() actionEvents: any = [];
+    @Input() external = false;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -87,7 +86,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 private snackBar: MatSnackBar,
                 private router: Router,
                 private kiAlertService: AlertService,
-                private location: Location) {
+                private location: Location,
+                private externalService: ExternalService) {
     }
 
     ngOnInit(): void {
@@ -170,10 +170,15 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         const dashboardId = this.dashboardId || this.route.snapshot.params.dashboard;
 
-        this.dashboard = await this.dashboardService.getDashboard(dashboardId);
+        if (this.external) {
+            this.dashboard = await this.externalService.getDashboard(dashboardId, this.queryParams);
+        } else {
+            this.dashboard = await this.dashboardService.getDashboard(dashboardId);
+        }
+
 
         Object.keys(this.queryParams).forEach(key => {
-            if (Object.keys(this.dashboard.layoutSettings.parameters).length) {
+            if (Object.keys(this.dashboard.layoutSettings.parameters || {}).length) {
                 if (this.dashboard.layoutSettings.parameters[key]) {
                     if (this.dashboard.layoutSettings.parameters[key].type === 'date' ||
                         this.dashboard.layoutSettings.parameters[key].type === 'datetime') {
@@ -190,6 +195,12 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 instance.parameterValues[key] = this.queryParams[key];
             });
         });
+
+        if (Object.keys(this.dashboard.layoutSettings.parameters || {}).length) {
+            _.forEach(this.dashboard.layoutSettings.parameters, item => {
+                item.locked = !!item.locked;
+            });
+        }
 
         if (!this.dashboard.displaySettings) {
             this.dashboard.displaySettings = {};
@@ -308,6 +319,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         componentRef.instance.dashboard = this.dashboard;
         componentRef.instance.editAlerts = this.editAlerts;
         componentRef.instance.actionEvents = this.actionEvents;
+        componentRef.instance.external = !!this.external;
+        componentRef.instance.queryParams = this.queryParams;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 

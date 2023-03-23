@@ -84,6 +84,7 @@ import { ProjectSettingsComponent } from './components/project-settings/project-
 import { ProjectLinkSelectionComponent } from './components/project-settings/project-link-selection/project-link-selection.component';
 import { UpstreamChangesConfirmationComponent } from './components/dataset/dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
 import {DashboardChangesGuard} from './guards/dashboard-changes.guard';
+import { DashboardSettingsComponent } from './components/dashboard-editor/dashboard-settings/dashboard-settings.component';
 
 @NgModule({
     declarations: [
@@ -137,7 +138,8 @@ import {DashboardChangesGuard} from './guards/dashboard-changes.guard';
         DocumentDatasourceComponent,
         ProjectSettingsComponent,
         ProjectLinkSelectionComponent,
-        UpstreamChangesConfirmationComponent
+        UpstreamChangesConfirmationComponent,
+        DashboardSettingsComponent
     ],
     imports: [
         BrowserModule,
@@ -217,6 +219,7 @@ export class NgKinintelModule {
 
 export class KinintelModuleConfig {
     backendURL: string;
+    externalURL?: string;
     tagLabel?: string;
     tagMenuLabel?: string;
 }

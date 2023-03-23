@@ -19,6 +19,7 @@ import {
 import {ExportDataComponent} from '../../data-explorer/export-data/export-data.component';
 import {Location} from '@angular/common';
 import {ActionEvent} from '../../../objects/action-event';
+import {ExternalService} from '../../../services/external.service';
 
 declare var window: any;
 
@@ -36,6 +37,8 @@ export class ItemComponentComponent implements AfterViewInit {
     @Input() dragItem: boolean;
     @Input() grid: any;
     @Input() actionEvents: ActionEvent[] = [];
+    @Input() external = false;
+    @Input() queryParams: any;
 
     @HostBinding('class.justify-center') configureClass = false;
 
@@ -102,7 +105,8 @@ export class ItemComponentComponent implements AfterViewInit {
                 private dashboardService: DashboardService,
                 private sanitizer: DomSanitizer,
                 private router: Router,
-                private location: Location) {
+                private location: Location,
+                private externalService: ExternalService) {
     }
 
     ngAfterViewInit() {
@@ -175,8 +179,20 @@ export class ItemComponentComponent implements AfterViewInit {
                                     parameters: selectedDatasetInstance.parameters
                                 };
 
-                                const data = await this.datasetService.evaluateDataset(
-                                    datasetInstanceSummary, '0', '1');
+                                let data = null;
+                                if (this.external) {
+                                    data = await this.externalService.evaluateDataset(
+                                        this.dashboard.id,
+                                        this.itemInstanceKey,
+                                        selectedDatasetInstance.parameterValues,
+                                        '0',
+                                        '1',
+                                        this.queryParams);
+                                } else {
+                                    data = await this.datasetService.evaluateDataset(
+                                        datasetInstanceSummary, '0', '1');
+                                }
+
 
                                 allMatched.push(data.allData.length === 1);
                             }
@@ -241,6 +257,10 @@ export class ItemComponentComponent implements AfterViewInit {
         this.itemLocked = !!_.find(lockedItems, lockedItem => {
             return lockedItem.content.includes(this.itemInstanceKey);
         });
+
+        if (this.external) {
+            this.itemLocked = true;
+        }
 
         if (this.dashboardDatasetInstance) {
             return this.evaluate();
@@ -975,11 +995,22 @@ export class ItemComponentComponent implements AfterViewInit {
 
         this.hiddenColumns = {};
 
-        return this.datasetService.evaluateDataset(
-            datasetInstanceSummary,
-            String(offset || this.offset),
-            String(limit || this.limit)
-        );
+        if (this.external) {
+            return this.externalService.evaluateDataset(
+                this.dashboard.id,
+                this.itemInstanceKey,
+                datasetInstanceSummary.parameterValues,
+                String(offset || this.offset),
+                String(limit || this.limit),
+                this.queryParams
+            );
+        } else {
+            return this.datasetService.evaluateDataset(
+                datasetInstanceSummary,
+                String(offset || this.offset),
+                String(limit || this.limit)
+            );
+        }
     }
 
     private prepareDatasetInstanceSummaryForEvaluation() {

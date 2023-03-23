@@ -273,7 +273,7 @@ export class ConfigureItemComponent implements OnInit {
         if (format === 'undefined') {
             delete this.tableCells[this.tableCells.column].type;
         } else {
-            if (!this.tableCells[this.tableCells.column].data) {
+            if (!this.tableCells[this.tableCells.column].data || Array.isArray(this.tableCells[this.tableCells.column].data)) {
                 this.tableCells[this.tableCells.column].data = {};
             }
         }

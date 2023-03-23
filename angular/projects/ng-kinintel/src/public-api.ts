@@ -7,6 +7,7 @@ export * from './lib/services/dashboard.service';
 export * from './lib/services/dataset.service';
 export * from './lib/services/feed.service';
 export * from './lib/services/datasource.service';
+export * from './lib/services/external.service';
 
 export * from './lib/components/dashboard-editor/dashboard-editor.component';
 export * from './lib/components/dataset/dataset.component';

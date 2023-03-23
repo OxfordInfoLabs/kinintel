@@ -3,6 +3,7 @@
 
 namespace Kinintel\Controllers\API;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Exception\ExternalDashboardNotFoundException;
@@ -45,17 +46,19 @@ class ExternalDashboard {
     /**
      * Get an external dashboard by id
      *
-     * @http GET /
+     * @http GET /$id
      *
      * @param $id
      * @return DashboardSummary
      */
     public function getExternalDashboard($id) {
-
         $dashboard = $this->dashboardService->getDashboardById($id);
+
         if (!$dashboard->isExternal()) {
             throw new ExternalDashboardNotFoundException($id);
         }
+
+        return $dashboard;
     }
 
 

@@ -42,6 +42,9 @@ import {AlertService} from '../../services/alert.service';
 import {BehaviorSubject, Observable} from 'rxjs';
 import moment from 'moment';
 import {ActionEvent} from '../../objects/action-event';
+import {
+    DashboardSettingsComponent
+} from './dashboard-settings/dashboard-settings.component';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -56,6 +59,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     @Input() actionEvents: ActionEvent[] = [];
     @Input() dashboardId: number;
     @Input() gridOnly = false;
+    @Input() externalURL: string;
+    @Input() apiKeys: any;
 
     @ViewChild('viewContainer', {read: ViewContainerRef}) viewContainer: ViewContainerRef;
 
@@ -325,6 +330,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         } else {
             this.sidenavService.open();
         }
+    }
+
+    public openSettings() {
+        const dialogRef = this.dialog.open(DashboardSettingsComponent, {
+            width: '800px',
+            height: '800px',
+            data: {
+                dashboard: this.dashboard
+            }
+        });
     }
 
     public openFullScreen() {
