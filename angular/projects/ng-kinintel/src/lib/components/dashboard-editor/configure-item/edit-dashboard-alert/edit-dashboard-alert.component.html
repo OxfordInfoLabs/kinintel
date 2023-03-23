@@ -58,6 +58,12 @@
                   [ngClass]="{'border border-red-600': notificationTemplate.invalid}"
                   [(ngModel)]="alert.notificationTemplate" required></textarea>
         <small>Used for the notification</small>
+
+        <div class="my-2"><b>Notification Call To Action</b></div>
+
+        <input type="text" class="w-full" [(ngModel)]="alert.notificationCta">
+        <small>Used for providing a click through for this alert for eg. a dashboard.</small>
+
     </div>
 
     <div class="dialog-footer">
