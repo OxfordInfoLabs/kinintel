@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Dashboard;
 
 use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\MetaData\TagSummary;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 
@@ -43,7 +44,7 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
-     * @var integer
+     * @var boolean
      */
     protected $external;
 
@@ -67,7 +68,7 @@ class DashboardSummary extends DashboardSearchResult {
     /**
      * Alerts enabled boolean
      *
-     * @var bool
+     * @var boolean
      */
     protected $alertsEnabled = true;
 
@@ -85,20 +86,20 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $displaySettings
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
-     * @param integer $external
+     * @param boolean $external
      * @param DashboardExternalSettings $externalSettings
      * @param string $summary
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = 0, $externalSettings = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = null, $externalSettings = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
         parent::__construct($id, $title, $summary, $description, $categories, $parentDashboardId);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
         $this->alertsEnabled = $alertsEnabled;
         $this->readOnly = $readOnly;
-        $this->external = $external ?? 0;
+        $this->external = $external;
         $this->externalSettings = $externalSettings ?? new DashboardExternalSettings();
     }
 
@@ -176,14 +177,14 @@ class DashboardSummary extends DashboardSearchResult {
     }
 
     /**
-     * @return integer
+     * @return boolean
      */
     public function isExternal() {
         return $this->external;
     }
 
     /**
-     * @param integer $external
+     * @param boolean $external
      */
     public function setExternal($external) {
         $this->external = $external;
