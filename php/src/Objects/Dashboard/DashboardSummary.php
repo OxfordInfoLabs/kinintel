@@ -43,7 +43,7 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
-     * @var boolean
+     * @var integer
      */
     protected $external;
 
@@ -85,20 +85,20 @@ class DashboardSummary extends DashboardSearchResult {
      * @param mixed $displaySettings
      * @param mixed $layoutSettings
      * @param boolean $alertsEnabled
-     * @param boolean $external
+     * @param integer $external
      * @param DashboardExternalSettings $externalSettings
      * @param string $summary
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = false, $externalSettings = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = 0, $externalSettings = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
         parent::__construct($id, $title, $summary, $description, $categories, $parentDashboardId);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
         $this->layoutSettings = $layoutSettings;
         $this->alertsEnabled = $alertsEnabled;
         $this->readOnly = $readOnly;
-        $this->external = $external;
+        $this->external = $external ?? 0;
         $this->externalSettings = $externalSettings ?? new DashboardExternalSettings();
     }
 
@@ -176,14 +176,14 @@ class DashboardSummary extends DashboardSearchResult {
     }
 
     /**
-     * @return bool
+     * @return integer
      */
     public function isExternal() {
         return $this->external;
     }
 
     /**
-     * @param bool $external
+     * @param integer $external
      */
     public function setExternal($external) {
         $this->external = $external;
