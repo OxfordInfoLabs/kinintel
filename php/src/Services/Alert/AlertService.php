@@ -305,6 +305,8 @@ class AlertService {
      */
     private function processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert) {
 
+        Logger::log($alert->getFilterTransformation());
+
         $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance,
             $alert->getFilterTransformation() ? [new TransformationInstance("filter", $alert->getFilterTransformation())] : []);
 

@@ -343,7 +343,7 @@ class DashboardService {
      * @param TransformationInstance[] $additionalTransformation
      */
     public function getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDataSetInstance, $additionalTransformations = []) {
-        return $this->datasetService->getEvaluatedDataSetForDataSetInstance($dashboardDataSetInstance, $additionalTransformations);
+        return $this->datasetService->getEvaluatedDataSetForDataSetInstance($dashboardDataSetInstance, [], $additionalTransformations);
     }
 
 
