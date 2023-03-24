@@ -13,6 +13,7 @@ use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -60,6 +61,11 @@ class AlertService {
      */
     private $activeRecordInterceptor;
 
+    /**
+     * @var FileResolver
+     */
+    private $fileResolver;
+
 
     /**
      * AlertService constructor.
@@ -70,14 +76,16 @@ class AlertService {
      * @param AccountService $accountService
      * @param SecurityService $securityService
      * @param ActiveRecordInterceptor $activeRecordInterceptor
+     * @param FileResolver $fileResolver
      */
-    public function __construct($dashboardService, $notificationService, $templateParser, $accountService, $securityService, $activeRecordInterceptor) {
+    public function __construct($dashboardService, $notificationService, $templateParser, $accountService, $securityService, $activeRecordInterceptor, $fileResolver) {
         $this->dashboardService = $dashboardService;
         $this->notificationService = $notificationService;
         $this->templateParser = $templateParser;
         $this->accountService = $accountService;
         $this->securityService = $securityService;
         $this->activeRecordInterceptor = $activeRecordInterceptor;
+        $this->fileResolver = $fileResolver;
     }
 
     /**
@@ -220,43 +228,42 @@ class AlertService {
         $activeAlerts = $this->dashboardService->getActiveDashboardDatasetAlertsMatchingAlertGroup($alertGroupId);
 
         // Loop through each active alert
-        $alertMessageStrings = [];
+        $evaluatedAlerts = [];
         foreach ($activeAlerts as $activeAlert) {
 
             $dashboardDatasetInstance = $activeAlert->getDashboardDatasetInstance();
 
             // Process each alert for the dataset
             foreach ($activeAlert->getAlerts() as $alert) {
-
-                $alertMessages = $this->processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert);
-                if ($alertMessages["notificationMessage"] ?? null) {
-                    $alertMessageStrings[] = $alertMessages["notificationMessage"];
+                $result = $this->processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert);
+                if ($result) {
+                    $evaluatedAlerts[] = $result;
                 }
-
             }
 
         }
 
         // If at least one alert message
-        if (sizeof($alertMessageStrings)) {
+        if (sizeof($evaluatedAlerts)) {
+
 
             /**
              * @var AlertGroup $alertGroup
              */
             $alertGroup = AlertGroup::fetch($alertGroupId);
 
-            // If prefix text prepend it
-            if ($alertGroup->getNotificationPrefixText()) {
-                array_unshift($alertMessageStrings, $alertGroup->getNotificationPrefixText());
-            }
+            // Initialise the template model
+            $alertTemplateModel = ["alerts" => $evaluatedAlerts,
+                "prefixText" => $alertGroup->getNotificationPrefixText() ?? "",
+                "suffixText" => $alertGroup->getNotificationSuffixText() ?? ""];
 
-            // If suffix text append it
-            if ($alertGroup->getNotificationSuffixText()) {
-                $alertMessageStrings[] = $alertGroup->getNotificationSuffixText();
-            }
+
+            $alertTemplate = $this->fileResolver->resolveFile("Config/alert-template.html");
+            $alertText = $this->templateParser->parseTemplateText(file_get_contents($alertTemplate), $alertTemplateModel);
+
 
             $notificationSummary = new NotificationSummary($alertGroup->getNotificationTitle(),
-                join("\n", $alertMessageStrings), null, $alertGroup->getNotificationGroups(), null,
+                $alertText, null, $alertGroup->getNotificationGroups(), null,
                 $alertGroup->getNotificationLevel());
 
             $this->notificationService->createNotification($notificationSummary, $alertGroup->getProjectKey(), $alertGroup->getAccountId());
@@ -317,7 +324,9 @@ class AlertService {
 
             // Evaluate alert message using template parser
             return [
+                "title" => $alert->getTitle(),
                 "notificationMessage" => $this->templateParser->parseTemplateText($alert->getNotificationTemplate(), $templateData),
+                "notificationCta" => $this->templateParser->parseTemplateText($alert->getNotificationCta(), $templateData),
                 "summaryMessage" => $this->templateParser->parseTemplateText($alert->getSummaryTemplate(), $templateData)
             ];
         } else {

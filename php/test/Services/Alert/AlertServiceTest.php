@@ -17,6 +17,7 @@ use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Testing\MockObject;
@@ -88,7 +89,7 @@ class AlertServiceTest extends TestBase {
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
 
         $this->alertService = new AlertService($this->dashboardService, $this->notificationService, $this->templateParser, $this->accountService, $this->securityService,
-            Container::instance()->get(ActiveRecordInterceptor::class));
+            Container::instance()->get(ActiveRecordInterceptor::class), Container::instance()->get(FileResolver::class));
     }
 
 
@@ -309,14 +310,14 @@ class AlertServiceTest extends TestBase {
             [
                 new ActiveDashboardDatasetAlerts($dashboardDataset1, [
                     new Alert("First Alert", "rowcount", ["matchType" => "equals", "value" => 0], null,
-                        "No rows match", $alertGroupId),
+                        "No rows match", null, $alertGroupId),
                     new Alert("Second Alert", "rowcount", ["matchType" => "equals", "value" => 1], null,
-                        "Has matching rows", $alertGroupId)]),
+                        "Has matching rows", null, $alertGroupId)]),
                 new ActiveDashboardDatasetAlerts($dashboardDataset2, [
                     new Alert("Third Alert", "rowcount", ["matchType" => "equals", "value" => 0], null,
-                        "No other rows match", $alertGroupId),
+                        "No other rows match", null, $alertGroupId),
                     new Alert("Fourth Alert", "rowcount", ["matchType" => "equals", "value" => 1], null,
-                        "Has other matching rows", $alertGroupId)]),
+                        "Has other matching rows", null, $alertGroupId)]),
 
             ], [$alertGroupId]);
 
@@ -348,13 +349,57 @@ class AlertServiceTest extends TestBase {
             "Has other matching rows", ["rowCount" => 1, "data" => [["data" => "Bing"]]]
         ]);
 
+        $this->templateParser->returnValue("parseTemplateText", "EVALUATED ALERT CONTENT", [
+            file_get_contents("Config/alert-template.html"), [
+                "prefixText" => "Please see alerts below",
+                "suffixText" => "Thanks for your support",
+                "alerts" => [
+                    [
+                        "title" => "First Alert",
+                        "notificationMessage" => "No rows match",
+                        "notificationCta" => "",
+                        "summaryMessage" => ""
+                    ],
+                    [
+                        "title" => "Third Alert",
+                        "notificationMessage" => "No other rows match",
+                        "notificationCta" => "",
+                        "summaryMessage" => ""
+                    ]
+                ]
+            ]
+        ]);
+
+
+        $this->templateParser->returnValue("parseTemplateText", "EVALUATED OTHER ALERT CONTENT", [
+            file_get_contents("Config/alert-template.html"), [
+                "prefixText" => "Please see alerts below",
+                "suffixText" => "Thanks for your support",
+                "alerts" => [
+                    [
+                        "title" => "Second Alert",
+                        "notificationMessage" => "Has matching rows",
+                        "notificationCta" => "",
+                        "summaryMessage" => ""
+                    ],
+                    [
+                        "title" => "Fourth Alert",
+                        "notificationMessage" => "Has other matching rows",
+                        "notificationCta" => "",
+                        "summaryMessage" => ""
+                    ]
+                ]
+            ]
+        ]);
+
 
         // Process the group
         $this->alertService->processAlertGroup($alertGroupId);
 
-        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nNo rows match\nNo other rows match\nThanks for your support", null,
+        $expectedNotification = new NotificationSummary("Test Alert", "EVALUATED ALERT CONTENT", null,
             [$notificationGroup], null, NotificationLevel::fetch("warning")
         );
+
 
         // Check notification was created with correct data
         $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
@@ -379,7 +424,7 @@ class AlertServiceTest extends TestBase {
         // Process the group
         $this->alertService->processAlertGroup($alertGroupId);
 
-        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nHas matching rows\nHas other matching rows\nThanks for your support", null,
+        $expectedNotification = new NotificationSummary("Test Alert", "EVALUATED OTHER ALERT CONTENT", null,
             [$notificationGroup], null, NotificationLevel::fetch("warning")
         );
 
@@ -410,7 +455,7 @@ class AlertServiceTest extends TestBase {
             [
                 new ActiveDashboardDatasetAlerts($dashboardDataset1, [
                     new Alert("Test Alert", "rowcount", ["matchType" => "greater", "value" => 1], null,
-                        "UNPARSED TEMPLATE", $alertGroupId)
+                        "UNPARSED TEMPLATE", "UNPARSED CTA", $alertGroupId)
                 ])
             ]);
 
@@ -435,10 +480,35 @@ class AlertServiceTest extends TestBase {
             ]
         ]);
 
+        $this->templateParser->returnValue("parseTemplateText", "PARSED CTA", [
+            "UNPARSED CTA", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "EVALUATED ALERT CONTENT", [
+            file_get_contents("Config/alert-template.html"), [
+                "prefixText" => "Please see alerts below",
+                "suffixText" => "Thanks for your support",
+                "alerts" => [
+                    [
+                        "title" => "Test Alert",
+                        "notificationMessage" => "PARSED TEMPLATE",
+                        "notificationCta" => "PARSED CTA",
+                        "summaryMessage" => ""
+                    ]
+                ]
+            ]
+        ]);
+
         // Process the group
         $this->alertService->processAlertGroup($alertGroupId);
 
-        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nPARSED TEMPLATE\nThanks for your support", null,
+        $expectedNotification = new NotificationSummary("Test Alert", "EVALUATED ALERT CONTENT", null,
             [$notificationGroup], null, NotificationLevel::fetch("warning")
         );
 
@@ -471,7 +541,7 @@ class AlertServiceTest extends TestBase {
                     new Alert("Test Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                         new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
                     ]),
-                        "UNPARSED TEMPLATE", $alertGroupId)
+                        "UNPARSED TEMPLATE", null, $alertGroupId)
                 ])
             ]);
 
@@ -498,10 +568,25 @@ class AlertServiceTest extends TestBase {
             ]
         ]);
 
+        $this->templateParser->returnValue("parseTemplateText", "EVALUATED ALERT CONTENT", [
+            file_get_contents("Config/alert-template.html"), [
+                "prefixText" => "Please see alerts below",
+                "suffixText" => "Thanks for your support",
+                "alerts" => [
+                    [
+                        "title" => "Test Alert",
+                        "notificationMessage" => "PARSED TEMPLATE",
+                        "notificationCta" => "",
+                        "summaryMessage" => ""
+                    ]
+                ]
+            ]
+        ]);
+
         // Process the group
         $this->alertService->processAlertGroup($alertGroupId);
 
-        $expectedNotification = new NotificationSummary("Test Alert", "Please see alerts below\nPARSED TEMPLATE\nThanks for your support", null,
+        $expectedNotification = new NotificationSummary("Test Alert", "EVALUATED ALERT CONTENT", null,
             [$notificationGroup], null, NotificationLevel::fetch("warning")
         );
 
@@ -520,11 +605,11 @@ class AlertServiceTest extends TestBase {
             new Alert("First Alert", "rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE", "UNPARSED SUMMARY TEMPLATE"),
+                "UNPARSED TEMPLATE", "UNPARSED CTA", "UNPARSED SUMMARY TEMPLATE"),
             new Alert("Second Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE 2", "UNPARSED SUMMARY TEMPLATE 2"),
+                "UNPARSED TEMPLATE 2", "UNPARSED CTA 2", "UNPARSED SUMMARY TEMPLATE 2"),
         ]);
 
 
@@ -560,6 +645,26 @@ class AlertServiceTest extends TestBase {
 
         $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE 2", [
             "UNPARSED SUMMARY TEMPLATE 2", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED CTA", [
+            "UNPARSED CTA", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED CTA 2", [
+            "UNPARSED CTA 2", [
                 "rowCount" => 2,
                 "data" => [[
                     "data" => "My item"
@@ -585,8 +690,8 @@ class AlertServiceTest extends TestBase {
 
         $this->assertEquals(2, sizeof($processedAlerts));
         $this->assertEquals([
-            ["alertIndex" => 0, "notificationMessage" => "PARSED TEMPLATE", "summaryMessage" => "PARSED SUMMARY TEMPLATE"],
-            ["alertIndex" => 1, "notificationMessage" => "PARSED TEMPLATE 2", "summaryMessage" => "PARSED SUMMARY TEMPLATE 2"]
+            ["alertIndex" => 0, "title" => "First Alert", "notificationMessage" => "PARSED TEMPLATE", "notificationCta" => "PARSED CTA", "summaryMessage" => "PARSED SUMMARY TEMPLATE"],
+            ["alertIndex" => 1, "title" => "Second Alert", "notificationMessage" => "PARSED TEMPLATE 2", "notificationCta" => "PARSED CTA 2", "summaryMessage" => "PARSED SUMMARY TEMPLATE 2"]
         ], $processedAlerts);
 
 
@@ -599,11 +704,11 @@ class AlertServiceTest extends TestBase {
             new Alert("First Alert", "rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE", "UNPARSED SUMMARY TEMPLATE"),
+                "UNPARSED TEMPLATE", "UNPARSED CTA", "UNPARSED SUMMARY TEMPLATE"),
             new Alert("Second Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
                 new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
             ]),
-                "UNPARSED TEMPLATE 2", "UNPARSED SUMMARY TEMPLATE 2"),
+                "UNPARSED TEMPLATE 2", "UNPARSED CTA 2", "UNPARSED SUMMARY TEMPLATE 2"),
         ]);
 
 
@@ -647,6 +752,26 @@ class AlertServiceTest extends TestBase {
             ]
         ]);
 
+        $this->templateParser->returnValue("parseTemplateText", "PARSED CTA", [
+            "UNPARSED CTA", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
+        $this->templateParser->returnValue("parseTemplateText", "PARSED CTA 2", [
+            "UNPARSED CTA 2", [
+                "rowCount" => 2,
+                "data" => [[
+                    "data" => "My item"
+                ],
+                    ["data" => "Your item"]]
+            ]
+        ]);
+
 
         $this->dashboardService->returnValue("getEvaluatedDataSetForDashboardDataSetInstanceObject",
             new ArrayTabularDataset([new Field("data")], [[
@@ -664,7 +789,8 @@ class AlertServiceTest extends TestBase {
 
         $this->assertEquals(1, sizeof($processedAlerts));
         $this->assertEquals([
-            ["alertIndex" => 0, "summaryMessage" => "PARSED SUMMARY TEMPLATE", "notificationMessage" => "PARSED TEMPLATE"],
+            ["alertIndex" => 0, "title" => "First Alert", "summaryMessage" => "PARSED SUMMARY TEMPLATE",
+                "notificationMessage" => "PARSED TEMPLATE", "notificationCta" => "PARSED CTA"],
         ], $processedAlerts);
 
 
@@ -673,7 +799,7 @@ class AlertServiceTest extends TestBase {
 
         $this->assertEquals(1, sizeof($processedAlerts));
         $this->assertEquals([
-            ["alertIndex" => 1, "summaryMessage" => "PARSED SUMMARY TEMPLATE 2", "notificationMessage" => "PARSED TEMPLATE 2"],
+            ["alertIndex" => 1, "title" => "Second Alert", "summaryMessage" => "PARSED SUMMARY TEMPLATE 2", "notificationMessage" => "PARSED TEMPLATE 2", "notificationCta" => "PARSED CTA 2"],
         ], $processedAlerts);
 
 

@@ -74,6 +74,12 @@ class Alert extends ActiveRecord {
 
 
     /**
+     * @var string
+     */
+    private $notificationCta;
+
+
+    /**
      * Whether or not this alert is enabled
      *
      * @var bool
@@ -89,10 +95,11 @@ class Alert extends ActiveRecord {
      * @param mixed $matchRuleConfiguration
      * @param FilterTransformation $filterTransformation
      * @param string $notificationTemplate
+     * @param string $notificationCta
      * @param string $summaryTemplate
      * @param integer $alertGroupId
      */
-    public function __construct($title = null, $matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $notificationTemplate = null,
+    public function __construct($title = null, $matchRuleType = "rowcount", $matchRuleConfiguration = null, $filterTransformation = null, $notificationTemplate = null, $notificationCta = null,
                                 $summaryTemplate = null,
                                 $alertGroupId = null) {
         $this->title = $title;
@@ -102,6 +109,7 @@ class Alert extends ActiveRecord {
         $this->notificationTemplate = $notificationTemplate;
         $this->summaryTemplate = $summaryTemplate;
         $this->alertGroupId = $alertGroupId;
+        $this->notificationCta = $notificationCta;
     }
 
 
@@ -202,6 +210,21 @@ class Alert extends ActiveRecord {
     public function setNotificationTemplate($notificationTemplate) {
         $this->notificationTemplate = $notificationTemplate;
     }
+
+    /**
+     * @return string
+     */
+    public function getNotificationCta() {
+        return $this->notificationCta;
+    }
+
+    /**
+     * @param string $notificationCta
+     */
+    public function setNotificationCta($notificationCta) {
+        $this->notificationCta = $notificationCta;
+    }
+
 
     /**
      * @return string
