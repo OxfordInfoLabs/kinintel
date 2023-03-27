@@ -6,6 +6,8 @@ namespace Kinintel\Controllers\API;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Util\StringUtils;
+use Kinikit\MVC\Response\Headers;
+use Kinikit\MVC\Response\JSONResponse;
 use Kinintel\Exception\ExternalDashboardNotFoundException;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -73,7 +75,7 @@ class ExternalDashboard {
      * @param integer $offset
      * @param integer $limit
      *
-     * @return \Kinintel\Objects\Dataset\Dataset
+     * @return JSONResponse
      */
     public function evaluateDashboardDataset($dashboardId, $datasetInstanceKey, $parameterValues = [], $offset = 0, $limit = 25) {
 
@@ -83,12 +85,22 @@ class ExternalDashboard {
         // index instances
         $indexedInstances = ObjectArrayUtils::indexArrayOfObjectsByMember("instanceKey", $dashboard->getDatasetInstances());
 
+
+        // Add caching header
+        $headers = [
+            Headers::HEADER_CACHE_CONTROL => "public, max-age=" . ($dashboard->getExternalSettings()->isCacheEnabled() ?
+                $dashboard->getExternalSettings()->getCacheTimeSeconds() : 0)
+        ];
+
+
         if ($indexedInstances[$datasetInstanceKey] ?? null) {
-            return $this->datasetService->getEvaluatedDataSetForDataSetInstance($indexedInstances[$datasetInstanceKey], $parameterValues, [], $offset, $limit);
+            $result = $this->datasetService->getEvaluatedDataSetForDataSetInstance($indexedInstances[$datasetInstanceKey], $parameterValues, [], $offset, $limit);
         } else {
-            return null;
+            $result = "";
         }
-        
+
+        return new JSONResponse($result, 200, "application/json", $headers);
+
     }
 
 
