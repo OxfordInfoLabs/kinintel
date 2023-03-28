@@ -39,6 +39,7 @@ export class ItemComponentComponent implements AfterViewInit {
     @Input() actionEvents: ActionEvent[] = [];
     @Input() external = false;
     @Input() queryParams: any;
+    @Input() editAlerts = false;
 
     @HostBinding('class.justify-center') configureClass = false;
 
@@ -72,7 +73,6 @@ export class ItemComponentComponent implements AfterViewInit {
     public showAlertData = false;
     public admin: boolean;
     public viewOnly: boolean;
-    public editAlerts: boolean;
     public currencies = [
         {
             name: 'British Pound (£)',
@@ -896,7 +896,7 @@ export class ItemComponentComponent implements AfterViewInit {
             this.configureClass = false;
             this.setChartData();
 
-            if (this.dashboard.alertsEnabled) {
+            if (this.dashboard.alertsEnabled && !this.external) {
                 if (this.dashboardDatasetInstance.alerts && this.dashboardDatasetInstance.alerts.length) {
                     if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
                         if (Array.isArray(this.dashboardDatasetInstance.parameterValues)) {

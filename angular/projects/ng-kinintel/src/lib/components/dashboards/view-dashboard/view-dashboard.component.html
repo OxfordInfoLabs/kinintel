@@ -2,7 +2,7 @@
 
     <div *ngIf="!hideToolbar" class="dashboard-header align-center justify-between flex-wrap bg-white p-2 border-b border-gray-200">
         <div class="flex items-center">
-            <button *ngIf="fullOnly" (click)="back()" mat-icon-button class="mr-4">
+            <button *ngIf="fullOnly || external" (click)="back()" mat-icon-button class="mr-4">
                 <mat-icon>arrow_back</mat-icon>
             </button>
             <h2 class="dashboard-title ml-2">{{dashboard.title}}</h2>
@@ -34,7 +34,7 @@
                     <mat-icon *ngIf="!darkMode">dark_mode</mat-icon>
                 </button>
             </ng-template>
-            <ng-template [ngIf]="!fullOnly">
+            <ng-template [ngIf]="!fullOnly && !external">
                 <button mat-button class="align-center" matTooltip="View full screen"
                         (click)="viewFullscreen()">
                     <mat-icon>fullscreen</mat-icon>
@@ -55,11 +55,11 @@
                     {{parameter.title}}
                     <div class="parameter-input">
                         <ng-template [ngIf]="parameter.type === 'text'">
-                            <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                            <input type="text" placeholder="{{parameter.title}}" [(ngModel)]="parameter.value"
                                    (keyup.enter)="reloadDashboard()" required autofocus>
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'numeric'">
-                            <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                            <input type="number" placeholder="{{parameter.title}}" [(ngModel)]="parameter.value"
                                    (keyup.enter)="reloadDashboard()" required autofocus>
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
@@ -78,7 +78,7 @@
                                 </div>
                             </ng-template>
                             <ng-template [ngIf]="parameter._dateType === 'picker'">
-                                <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                                <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'" placeholder="{{parameter.title}}" [(ngModel)]="parameter.value"
                                        (keyup.enter)="reloadDashboard()" required autofocus>
 
                                 <a (click)="changeDateType($event, parameter, 'period')"

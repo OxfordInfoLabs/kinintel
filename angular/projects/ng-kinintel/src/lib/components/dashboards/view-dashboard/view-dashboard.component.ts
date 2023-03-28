@@ -345,7 +345,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             }
         }
 
-        if (this.dashboard.alertsEnabled) {
+        if (this.dashboard.alertsEnabled && !this.external) {
             if (dashboardDatasetInstance && dashboardDatasetInstance.alerts && dashboardDatasetInstance.alerts.length) {
                 this.alertService.processAlertsForDashboardDatasetInstance(dashboardDatasetInstance)
                     .then((res: any) => {

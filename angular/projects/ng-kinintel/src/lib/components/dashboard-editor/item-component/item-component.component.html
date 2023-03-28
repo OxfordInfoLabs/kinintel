@@ -116,7 +116,7 @@
     <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image',
         'p-px': (dashboardItemType.type === 'table' || general.transparent), 'overflow-hidden': !!chartData,
         'flex items-center': dashboardItemType.type === 'metric', 'cursor-pointer': (actionItem && Object.keys(actionItem).length)}"
-        (click)="(actionItem && Object.keys(actionItem).length) ? callToActionLink(actionItem): null">
+         (click)="(actionItem && Object.keys(actionItem).length) ? callToActionLink(actionItem): null">
 
         <ng-template [ngIf]="dashboardItemType.type === 'text' && textData.value">
             <div *ngIf="textData.safeTextData" [innerHTML]="textData.safeTextData"></div>
@@ -192,7 +192,8 @@
                     <ng-template ngFor let-column [ngForOf]="dataset.columns">
                         <th scope="col" *ngIf="!hiddenColumns[column.name]" (click)="sortHeader(column)"
                             class="cursor-pointer sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 p-3 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                            <div *ngIf="!tableCells[column.name] || tableCells[column.name].type !== 'action'" class="flex items-center ">
+                            <div *ngIf="!tableCells[column.name] || tableCells[column.name].type !== 'action'"
+                                 class="flex items-center ">
                                 {{column.title}}
                                 <svg *ngIf="column.direction === 'asc'"
                                      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
