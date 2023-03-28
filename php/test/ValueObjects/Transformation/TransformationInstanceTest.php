@@ -2,7 +2,6 @@
 
 namespace Kinintel\ValueObjects\Transformation;
 
-use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;

@@ -6,15 +6,9 @@ namespace Kinintel\Services\Datasource;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
-use Kiniauth\ValueObjects\Upload\FileUpload;
-use Kiniauth\ValueObjects\Upload\UploadedFile;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\ValidationException;
-use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
@@ -22,7 +16,6 @@ use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
-use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 

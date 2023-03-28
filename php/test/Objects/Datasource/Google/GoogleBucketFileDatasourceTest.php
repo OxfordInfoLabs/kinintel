@@ -3,7 +3,6 @@
 namespace Kinintel\Objects\Datasource\Google;
 
 
-use GuzzleHttp\Psr7\Stream;
 use Kinintel\Objects\ResultFormatter\SVResultFormatter;
 use Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials;
 use Kinintel\ValueObjects\Dataset\Field;

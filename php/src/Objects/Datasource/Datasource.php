@@ -3,14 +3,9 @@
 
 namespace Kinintel\Objects\Datasource;
 
-use Kinikit\Core\Validation\FieldValidationError;
-use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
-use Kinintel\Exception\InvalidDatasourceConfigException;
-use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
-use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**

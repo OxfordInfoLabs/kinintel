@@ -7,9 +7,7 @@ namespace Kinintel\Services\Dataset;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
-use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 
 class DatasetEvaluatorLongRunningTask extends LongRunningTask {
 

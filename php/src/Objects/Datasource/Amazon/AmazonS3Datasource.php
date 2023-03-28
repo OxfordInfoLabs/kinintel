@@ -2,7 +2,6 @@
 
 namespace Kinintel\Objects\Datasource\Amazon;
 
-use Aws\S3\S3Client;
 use GuzzleHttp\Psr7\Stream;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;

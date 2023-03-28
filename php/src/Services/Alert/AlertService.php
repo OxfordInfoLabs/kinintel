@@ -16,7 +16,6 @@ use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
-use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;

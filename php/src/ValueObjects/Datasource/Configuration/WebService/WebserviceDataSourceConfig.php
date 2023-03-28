@@ -2,16 +2,9 @@
 
 namespace Kinintel\ValueObjects\Datasource\Configuration\WebService;
 
-use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
 use Kinikit\Core\HTTP\Request\Request;
-use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\Validator;
-use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\ValueObjects\Datasource\Configuration\DatasourceCompressionConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\FormattedResultDatasourceConfig;
-use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\CompressorConfiguration;
 
 class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
 

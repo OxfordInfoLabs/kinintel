@@ -3,18 +3,6 @@
 
 namespace Kinintel\Test\Objects\Datasource\FTP;
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Testing\MockObjectProvider;
-use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
-use Kinintel\Objects\Datasource\BaseDatasource;
-use Kinintel\Objects\Datasource\FTP\FTPDataSource;
-use Kinintel\Objects\ResultFormatter\SVResultFormatter;
-use Kinintel\Services\Datasource\Processing\Compression\Compressor;
-use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
-use Kinintel\ValueObjects\Dataset\Exporter\SVDatasetExporterConfiguration;
-use Kinintel\ValueObjects\Datasource\Configuration\FTP\FTPDatasourceConfig;
-use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
-
 include_once "autoloader.php";
 
 class FTPDatasourceTest extends \PHPUnit\Framework\TestCase {

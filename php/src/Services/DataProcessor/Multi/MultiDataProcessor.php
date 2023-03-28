@@ -2,8 +2,6 @@
 
 namespace Kinintel\Services\DataProcessor\Multi;
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\DataProcessor\DataProcessorService;

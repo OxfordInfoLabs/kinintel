@@ -2,7 +2,6 @@
 
 namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\PostgreSQL\PostgreSQLDatabaseConnection;
 

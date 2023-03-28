@@ -2,9 +2,6 @@
 
 namespace Kinintel\Test\Services\Util\Analysis\StatisticalAnalysis\Distance;
 
-use Exception;
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator;
 use PHPUnit\Framework\TestCase;

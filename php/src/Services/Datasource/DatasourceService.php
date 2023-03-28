@@ -3,41 +3,28 @@
 
 namespace Kinintel\Services\Datasource;
 
-
-use AWS\CRT\Log;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Security\SecurityService;
-use Kinikit\Core\Configuration\Configuration;
-use Kinikit\Core\Configuration\FileResolver;
-use Kinikit\Core\Exception\ItemNotFoundException;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
+use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\InvalidParametersException;
-use Kinintel\Exception\MissingDatasourceUpdaterException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
-use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Objects\Dataset\Dataset;
-use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
-use Kinintel\Services\Util\ValueFunctionEvaluator;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Paging\PagingMarkerTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
-use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 
 class DatasourceService {
 

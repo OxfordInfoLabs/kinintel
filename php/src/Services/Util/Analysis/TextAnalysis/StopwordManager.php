@@ -3,7 +3,6 @@
 namespace Kinintel\Services\Util\Analysis\TextAnalysis;
 
 use Kinikit\Core\Configuration\FileResolver;
-use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;

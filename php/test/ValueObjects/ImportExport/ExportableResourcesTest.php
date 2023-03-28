@@ -3,7 +3,6 @@
 
 namespace Kinintel\Test\ValueObjects\ImportExport;
 
-use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;

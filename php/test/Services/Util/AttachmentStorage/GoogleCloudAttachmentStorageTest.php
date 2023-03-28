@@ -3,16 +3,15 @@
 
 namespace Kinintel\Test\Services\Util\AttachmentStorage;
 
-use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
-use Kinintel\Services\Util\GoogleCloudStorageService;
-use Kinintel\TestBase;
 use Kiniauth\Objects\Attachment\AttachmentSummary;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
-use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
+use Kinintel\Services\Util\GoogleCloudStorageService;
+use Kinintel\TestBase;
 use Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials;
 
 include_once "autoloader.php";

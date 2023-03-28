@@ -5,9 +5,7 @@ namespace Kinintel\Services\DataProcessor\DatasetSnapshot;
 
 
 use Kinikit\Core\Configuration\Configuration;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
-use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
@@ -24,7 +22,6 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
-use phpseclib3\Crypt\EC\Curves\prime192v2;
 
 class TabularDatasetSnapshotProcessor implements DataProcessor {
 

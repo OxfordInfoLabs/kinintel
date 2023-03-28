@@ -4,9 +4,6 @@
 namespace Kinintel\Traits\Controller\Admin;
 
 
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
-use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
 use Kinintel\Services\Alert\AlertService;
 

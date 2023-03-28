@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Stream\StreamException;
 use Kinikit\Core\Util\StringUtils;

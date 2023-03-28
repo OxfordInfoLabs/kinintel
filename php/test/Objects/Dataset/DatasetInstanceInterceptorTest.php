@@ -12,7 +12,6 @@ use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceInterceptor;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
-use Kinintel\Objects\Datasource\DatasourceInstanceInterceptor;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;

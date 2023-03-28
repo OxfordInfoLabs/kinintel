@@ -3,7 +3,6 @@
 
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase;
 
-use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
@@ -15,23 +14,14 @@ use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
-use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
-use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
-use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
-use Kinintel\Objects\Datasource\Datasource;
-use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\Dataset\DatasetService;
-use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
@@ -41,11 +31,9 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
-use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
-use Kinintel\ValueObjects\Transformation\TestTransformation;
 
 include_once "autoloader.php";
 

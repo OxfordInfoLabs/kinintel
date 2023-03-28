@@ -2,8 +2,6 @@
 
 namespace Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance;
 
-use Kinintel\ValueObjects\Util\Analysis\StatisticalAnalysis\Distance\DistanceConfig;
-
 class EuclideanMetricCalculator implements MetricCalculator {
 
     public function getCustomExpression($config) {

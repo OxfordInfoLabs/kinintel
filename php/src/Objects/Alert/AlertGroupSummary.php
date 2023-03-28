@@ -7,7 +7,6 @@ namespace Kinintel\Objects\Alert;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
 use Kiniauth\Objects\Communication\Notification\NotificationLevel;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
-use Kinikit\Persistence\ORM\ActiveRecord;
 
 /**
  * Alert group - combines multiple alerts together with a check frequency

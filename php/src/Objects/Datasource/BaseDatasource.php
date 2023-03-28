@@ -4,7 +4,6 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
@@ -13,8 +12,6 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\DatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceInstanceInfo;
-use Kinintel\ValueObjects\Parameter\Parameter;
-use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
  * Data source - these provide raw access to data using query objects

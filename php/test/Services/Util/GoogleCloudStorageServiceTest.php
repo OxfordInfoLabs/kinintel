@@ -6,12 +6,12 @@ namespace Kinintel\Test\Services\Util;
 use Google\Cloud\Core\Exception\NotFoundException;
 use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\Connection\ConnectionInterface;
+use Google\Cloud\Storage\StorageClient;
 use Google\Cloud\Storage\StorageObject;
+use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Services\Util\GoogleCloudStorageService;
-use Google\Cloud\Storage\StorageClient;
-use Kinikit\Core\Exception\ItemNotFoundException;
 
 include_once "autoloader.php";
 

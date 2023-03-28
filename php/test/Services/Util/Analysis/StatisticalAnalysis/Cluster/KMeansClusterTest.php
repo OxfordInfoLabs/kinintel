@@ -2,12 +2,8 @@
 
 namespace Kinintel\Test\Services\Util\Analysis\StatisticalAnalysis\Cluster;
 
-use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\KMeansCluster;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\KMeansClusterConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;

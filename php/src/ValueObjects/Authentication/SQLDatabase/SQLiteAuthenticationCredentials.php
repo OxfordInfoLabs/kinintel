@@ -6,7 +6,6 @@ namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
-use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 
 class SQLiteAuthenticationCredentials implements SQLDatabaseCredentials {
 

@@ -2,8 +2,6 @@
 
 namespace Kinintel\Exception;
 
-use Throwable;
-
 class DatasourceTransformationException extends \Exception {
 
     /**

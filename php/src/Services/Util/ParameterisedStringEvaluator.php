@@ -4,6 +4,8 @@
 namespace Kinintel\Services\Util;
 
 
+use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
+
 class ParameterisedStringEvaluator {
 
     /**

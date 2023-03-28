@@ -3,9 +3,6 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;

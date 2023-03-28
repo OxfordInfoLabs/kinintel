@@ -2,7 +2,6 @@
 
 namespace Kinintel\Test\Objects\Datasource\RSync;
 
-use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\RSync\RSyncDatasource;

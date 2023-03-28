@@ -4,10 +4,8 @@
 namespace Kinintel\ValueObjects\Transformation\Formula;
 
 
-use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
-use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class Expression {
 

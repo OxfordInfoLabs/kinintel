@@ -4,14 +4,11 @@
 namespace Kinintel\Test\Services\Feed;
 
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
-use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
-use Kinikit\MVC\Request\Headers;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
-use Kinintel\Controllers\Account\Dataset;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;

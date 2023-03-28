@@ -2,9 +2,6 @@
 
 namespace Kinintel\ValueObjects\Util\Analysis\StatisticalAnalysis\Distance;
 
-use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessorConfiguration;
-use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\KMeansClusterConfiguration;
-
 class DistanceConfig {
     /**
      * @var int

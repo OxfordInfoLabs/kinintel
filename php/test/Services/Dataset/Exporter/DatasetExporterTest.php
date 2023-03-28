@@ -4,8 +4,6 @@
 namespace Kinintel\Test\Services\Dataset\Exporter;
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Validation\ValidationException;
-use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Exception\InvalidDatasourceExporterConfigException;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Dataset\Exporter\SVDatasetExporterConfiguration;

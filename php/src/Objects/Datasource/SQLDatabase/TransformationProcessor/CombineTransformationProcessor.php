@@ -3,17 +3,13 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
-use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
-use function PHPUnit\Framework\returnValue;
 
 class CombineTransformationProcessor extends SQLTransformationProcessor {
 

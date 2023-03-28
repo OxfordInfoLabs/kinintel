@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Dataset;
 
 
-use Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 
 class DatasetInstanceSnapshotProfileSearchResult {

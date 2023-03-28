@@ -6,13 +6,9 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
-use Kinikit\MVC\Request\MockPHPInputStream;
-use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
-use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
-use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
@@ -34,7 +30,6 @@ use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
-use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 

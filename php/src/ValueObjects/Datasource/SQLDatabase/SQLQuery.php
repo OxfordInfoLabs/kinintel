@@ -4,8 +4,6 @@
 namespace Kinintel\ValueObjects\Datasource\SQLDatabase;
 
 
-use Kinikit\Core\Logging\Logger;
-
 class SQLQuery {
 
     /**

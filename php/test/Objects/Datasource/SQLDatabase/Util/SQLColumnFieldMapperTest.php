@@ -4,7 +4,6 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 
-use Google\CRC32\Table;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\ValueObjects\Dataset\Field;

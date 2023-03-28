@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\ValueObjects\Dataset\Field;
 
 /**

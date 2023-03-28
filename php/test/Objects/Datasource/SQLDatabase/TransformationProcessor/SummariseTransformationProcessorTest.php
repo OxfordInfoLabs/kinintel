@@ -4,9 +4,7 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
-use Kinintel\Controllers\Account\Datasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SummariseTransformationProcessor;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;

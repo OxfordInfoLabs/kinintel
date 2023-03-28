@@ -4,9 +4,6 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration;
 
 
-use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Template\TemplateParser;
 use Kinintel\ValueObjects\Dataset\Field;
 
 class TabularResultsDatasourceConfig implements DatasourceConfig {

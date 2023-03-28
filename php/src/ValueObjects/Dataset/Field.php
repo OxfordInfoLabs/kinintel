@@ -5,9 +5,8 @@ namespace Kinintel\ValueObjects\Dataset;
 
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
+use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Util\StringUtils;
-use Kinintel\Services\Util\ValueFunctionEvaluator;
 
 class Field {
 

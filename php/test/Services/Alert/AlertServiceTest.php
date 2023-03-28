@@ -2,14 +2,12 @@
 
 namespace Kinintel\Test\Services\Alert;
 
-use GuzzleHttp\Handler\Proxy;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupMember;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
 use Kiniauth\Objects\Communication\Notification\NotificationLevel;
 use Kiniauth\Objects\Communication\Notification\NotificationSummary;
-use Kiniauth\Objects\Security\UserCommunicationData;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kiniauth\Services\Account\AccountService;
@@ -28,7 +26,6 @@ use Kinintel\Objects\Alert\AlertGroup;
 use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Objects\Alert\AlertGroupTimePeriod;
 use Kinintel\Objects\Dashboard\DashboardDatasetInstance;
-use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Alert\AlertService;
 use Kinintel\Services\Dashboard\DashboardService;
@@ -36,7 +33,6 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 

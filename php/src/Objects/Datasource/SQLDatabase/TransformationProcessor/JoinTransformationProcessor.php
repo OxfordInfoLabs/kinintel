@@ -5,7 +5,6 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -20,10 +19,8 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
-use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
-use Kinintel\ValueObjects\Transformation\Transformation;
 
 class JoinTransformationProcessor extends SQLTransformationProcessor {
 
