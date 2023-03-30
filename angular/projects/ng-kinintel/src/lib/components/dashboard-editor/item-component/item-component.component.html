@@ -38,7 +38,14 @@
     </button>
 </ng-template>
 
-<div class="loading-item" *ngIf="!dragItem && loadingItem">
+<div class="absolute top-1 right-1  z-20" *ngIf="!dragItem && loadingItem && (chartData || dataset)">
+    <svg class="animate-spin h-5 w-5 text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+</div>
+
+<div class="loading-item" *ngIf="!dragItem && loadingItem && !(chartData || dataset)">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Loading {{general.name || dashboardItemType.label}} ...</p>
 </div>
@@ -106,7 +113,7 @@
 
 </ng-template>
 
-<ng-template [ngIf]="!dragItem && !loadingItem && (chartData || dataset)">
+<ng-template [ngIf]="!dragItem && (chartData || dataset)">
     <div class="item-title " *ngIf="general.name" [innerHTML]="general.evaluatedName"
          [ngClass]="{'pb-4': !general.description, 'pb-2': general.description}"></div>
 

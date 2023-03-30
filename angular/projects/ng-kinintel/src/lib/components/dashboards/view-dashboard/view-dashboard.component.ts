@@ -76,6 +76,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     private grid: GridStack;
     private queryParams: any = {};
+    private itemComponents: ItemComponentComponent[] = [];
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
@@ -175,7 +176,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 if (count > 10) {
                     window.location.reload();
                 } else {
-                    this.reload();
+                    this.reloadDashboard();
                     count++;
                 }
             }, (this.refreshInterval * 1000));
@@ -290,9 +291,10 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         parameter.value = value;
     }
 
-    public reloadDashboard() {
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
+    public async reloadDashboard() {
+        for (const item of this.itemComponents) {
+            await item.init(true);
+        }
     }
 
     private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
@@ -372,6 +374,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             element.classList.remove('bg-transparent');
         }
 
+        this.itemComponents.push(componentRef.instance);
+
         return componentRef;
     }
 
@@ -381,11 +385,6 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         } else {
             document.body.classList.remove('dark');
         }
-    }
-
-    private reload() {
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
     }
 
 }
