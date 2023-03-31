@@ -290,6 +290,7 @@ class AlertService {
                 if ($alertMessages) {
                     $alertObjects[] = array_merge($alertMessages, ["alertIndex" => $index]);
                 }
+
             }
         }
 
@@ -304,8 +305,6 @@ class AlertService {
      * @param Alert $alert
      */
     private function processAlertForDashboardDatasetInstance($dashboardDatasetInstance, $alert) {
-
-        Logger::log($alert->getFilterTransformation());
 
         $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstanceObject($dashboardDatasetInstance,
             $alert->getFilterTransformation() ? [new TransformationInstance("filter", $alert->getFilterTransformation())] : []);
@@ -324,13 +323,19 @@ class AlertService {
                 "data" => $dataSetData
             ];
 
+            // Generate messages
+            $notificationMessage = $this->templateParser->parseTemplateText($alert->getNotificationTemplate(), $templateData);
+            $notificationCta = $this->templateParser->parseTemplateText($alert->getNotificationCta(), $templateData);
+            $summaryMessage = $this->templateParser->parseTemplateText($alert->getSummaryTemplate(), $templateData);
+
             // Evaluate alert message using template parser
             return [
                 "title" => $alert->getTitle(),
-                "notificationMessage" => $this->templateParser->parseTemplateText($alert->getNotificationTemplate(), $templateData),
-                "notificationCta" => $this->templateParser->parseTemplateText($alert->getNotificationCta(), $templateData),
-                "summaryMessage" => $this->templateParser->parseTemplateText($alert->getSummaryTemplate(), $templateData)
+                "notificationMessage" => $notificationMessage,
+                "notificationCta" => $notificationCta,
+                "summaryMessage" => $summaryMessage
             ];
+
         } else {
             return false;
         }
