@@ -6,8 +6,6 @@ namespace Kinintel\Objects\Dashboard;
 
 use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\MetaData\TagSummary;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 
 class DashboardSummary extends DashboardSearchResult {

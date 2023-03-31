@@ -4,7 +4,6 @@
 namespace Kinintel\Controllers;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\MVC\Request\Request;
 use Kinikit\MVC\Response\Response;
 use Kinintel\Services\Feed\FeedService;

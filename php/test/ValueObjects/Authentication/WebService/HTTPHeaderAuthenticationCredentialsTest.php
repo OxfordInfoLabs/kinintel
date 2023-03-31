@@ -7,7 +7,6 @@ namespace Kinintel\Test\ValueObjects\Authentication\WebService;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
-use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
 use PHPUnit\Framework\TestCase;
 
 class HTTPHeaderAuthenticationCredentialsTest extends TestCase {

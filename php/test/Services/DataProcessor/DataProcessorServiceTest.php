@@ -4,9 +4,6 @@
 namespace Kinintel\Test\Services\DataProcessor;
 
 use Kiniauth\Objects\Account\Account;
-use Kiniauth\Objects\Security\Role;
-use Kiniauth\Objects\Security\User;
-use Kiniauth\Objects\Security\UserRole;
 use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;

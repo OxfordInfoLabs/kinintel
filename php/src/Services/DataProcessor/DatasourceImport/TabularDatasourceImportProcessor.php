@@ -4,7 +4,6 @@
 namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;

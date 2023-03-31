@@ -4,7 +4,6 @@ namespace Kinintel\Services\DataProcessor\Query;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;

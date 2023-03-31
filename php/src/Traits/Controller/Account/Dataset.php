@@ -7,7 +7,6 @@ use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kinikit\Core\Util\StringUtils;
-use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;

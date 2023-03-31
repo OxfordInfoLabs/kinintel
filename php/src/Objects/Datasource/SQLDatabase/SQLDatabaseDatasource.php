@@ -4,16 +4,13 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use Cassandra\Table;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
-use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
-use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinintel\Exception\DatasourceNotUpdatableException;
@@ -24,19 +21,15 @@ use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
-use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
-use Kinintel\Services\Dataset\DatasetService;
-use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
-use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;

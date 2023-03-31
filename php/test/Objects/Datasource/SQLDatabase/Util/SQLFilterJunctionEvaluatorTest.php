@@ -3,15 +3,11 @@
 
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
-use Kinikit\Core\Testing\MockObjectProvider;
-use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
-use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
-use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
 

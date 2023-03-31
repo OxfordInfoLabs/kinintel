@@ -6,7 +6,6 @@ namespace Kinintel\Test\Objects\Dataset\Tabular;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
-use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
 

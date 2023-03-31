@@ -4,13 +4,9 @@ namespace Kinintel\Test\Services\Util\Analysis\StatisticalAnalysis\Distance;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinikit\Core\Testing\MockObject;
 use Kinintel\Controllers\API\Datasource;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Objects\Dataset\Tabular\TabularDataset;
-use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
@@ -21,7 +17,6 @@ use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationMetricP
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
-use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;

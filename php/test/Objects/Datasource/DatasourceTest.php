@@ -7,7 +7,6 @@ use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\InvalidDatasourceConfigException;
 use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Test\Objects\Datasource\TestAuthenticationCredentialsAlt;
-use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceConfig;
 

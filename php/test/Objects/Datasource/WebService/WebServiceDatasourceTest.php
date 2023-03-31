@@ -22,8 +22,6 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\ZipCompressorConfiguration;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
-use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use PHPUnit\Framework\TestCase;
 

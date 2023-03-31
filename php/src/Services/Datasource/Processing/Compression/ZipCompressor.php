@@ -7,7 +7,6 @@ namespace Kinintel\Services\Datasource\Processing\Compression;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\ReadableStream;
-use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Exception\DatasourceCompressionException;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Datasource\Processing\Compression\Configuration\ZipCompressorConfiguration;

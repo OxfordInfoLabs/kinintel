@@ -4,11 +4,8 @@
 namespace Kinintel\Objects\Datasource;
 
 
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
-use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\ValueObjects\Authentication\DefaultDatasourceCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;

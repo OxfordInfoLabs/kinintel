@@ -16,7 +16,6 @@ use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
-use Kinintel\ValueObjects\Util\Analysis\StatisticalAnalysis\Distance\DistanceConfig;
 
 class EquationMetricProcessor implements MetricProcessor {
     /**

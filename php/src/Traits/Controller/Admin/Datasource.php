@@ -3,13 +3,11 @@
 
 namespace Kinintel\Traits\Controller\Admin;
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
-use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
  * Datasource trait for account level access to datasources

@@ -4,8 +4,6 @@
 namespace Kinintel\ValueObjects\Datasource\Update;
 
 
-use Kinintel\ValueObjects\Dataset\Field;
-
 class DatasourceUpdateWithStructure extends DatasourceUpdate {
 
     /**

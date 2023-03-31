@@ -14,7 +14,6 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\SQLClauseSanitiser;
-use Kinintel\ValueObjects\Dataset\EvaluatedDataset;
 
 trait Dataset {
 

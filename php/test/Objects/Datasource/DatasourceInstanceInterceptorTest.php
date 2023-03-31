@@ -10,7 +10,6 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
-use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceInterceptor;

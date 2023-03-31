@@ -917,6 +917,8 @@ export class ItemComponentComponent implements AfterViewInit {
                                     itemElement.classList.add('alert');
                                     itemElement.parentElement.classList.add('alert');
                                 }
+                            } else {
+                                this.resetAlertData(itemElement);
                             }
                         });
                 } else {

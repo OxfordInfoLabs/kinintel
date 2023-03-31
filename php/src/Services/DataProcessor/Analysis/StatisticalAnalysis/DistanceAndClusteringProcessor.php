@@ -10,7 +10,6 @@ use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalClus
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\KMeansCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricProcessor;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationMetricProcessor;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessorConfiguration;
 
 class DistanceAndClusteringProcessor implements DataProcessor {

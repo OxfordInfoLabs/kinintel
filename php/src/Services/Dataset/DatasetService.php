@@ -3,23 +3,16 @@
 namespace Kinintel\Services\Dataset;
 
 use Kiniauth\Objects\Account\Account;
-use Kiniauth\Objects\MetaData\TagSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskInterceptor;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
-use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\Core\Util\ObjectArrayUtils;
-use Kinikit\MVC\ContentSource\ContentSource;
 use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
-use Kinintel\Exception\UnsupportedDatasourceTransformationException;
-use Kinintel\Objects\Dashboard\Dashboard;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -28,13 +21,8 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
-use Kinintel\Objects\Datasource\BaseDatasource;
-use Kinintel\Objects\Datasource\Datasource;
-use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 

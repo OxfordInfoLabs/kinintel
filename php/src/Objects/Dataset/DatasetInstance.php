@@ -8,7 +8,6 @@ use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Services\Datasource\DatasourceService;
 

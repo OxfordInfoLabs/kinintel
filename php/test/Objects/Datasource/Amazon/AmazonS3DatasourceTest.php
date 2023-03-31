@@ -9,7 +9,6 @@ use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
-use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\ResultFormatter\ResultFormatter;
 use Kinintel\Services\Thirdparty\Amazon\AmazonSDKClientProvider;
 use Kinintel\ValueObjects\Authentication\Generic\AccessKeyAndSecretAuthenticationCredentials;

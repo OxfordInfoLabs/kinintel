@@ -4,8 +4,6 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
-use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
-
 class ExportDataset extends EvaluatedDataset {
 
     /**

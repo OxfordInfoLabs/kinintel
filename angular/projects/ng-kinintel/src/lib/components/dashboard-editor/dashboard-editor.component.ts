@@ -4,15 +4,11 @@ import {
     Component,
     ComponentFactoryResolver,
     EmbeddedViewRef,
-    EventEmitter,
     HostBinding,
-    HostListener,
     Injector,
-    Input, OnChanges,
+    Input,
     OnDestroy,
     OnInit,
-    Output,
-    SimpleChanges,
     ViewChild,
     ViewContainerRef,
     ViewEncapsulation
@@ -23,11 +19,8 @@ import {GridItemHTMLElement, GridStack, GridStackNode} from 'gridstack';
 import 'gridstack/dist/h5/gridstack-dd-native';
 import {ItemComponentComponent} from './item-component/item-component.component';
 import {
-    ActivatedRoute, ActivatedRouteSnapshot,
-    CanDeactivate,
-    Router,
-    RouterStateSnapshot,
-    UrlTree
+    ActivatedRoute,
+    Router
 } from '@angular/router';
 import {DashboardService} from '../../services/dashboard.service';
 import * as lodash from 'lodash';
@@ -169,6 +162,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     private queryParams: any = {};
     private routeURL: string;
     private initialGrid: any;
+    private itemComponents: ItemComponentComponent[] = [];
 
     public static myClone(event) {
         return event.target.cloneNode(true);
@@ -359,9 +353,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         this.reloadDashboard();
     }
 
-    public reloadDashboard() {
-        this.grid.removeAll();
-        this.grid.load(this.dashboard.layoutSettings.grid);
+    public async reloadDashboard() {
+        for (const item of this.itemComponents) {
+            await item.init(true);
+        }
     }
 
     public addParameter(existingParameter?, parameterValueIndex?) {
@@ -477,6 +472,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             element.classList.add('bg-white', 'shadow');
             element.classList.remove('bg-transparent');
         }
+
+        this.itemComponents.push(componentRef.instance);
 
         return componentRef;
     }

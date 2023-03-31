@@ -7,8 +7,6 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Objects\Datasource\Datasource;
-use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
@@ -23,7 +21,6 @@ use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
-use phpseclib3\Math\BigInteger\Engines\PHP;
 
 include_once "autoloader.php";
 

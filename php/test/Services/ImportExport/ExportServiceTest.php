@@ -4,7 +4,6 @@
 namespace Kinintel\Test\Services\ImportExport;
 
 
-use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Account\AccountSummary;
 use Kiniauth\Objects\Account\ProjectSummary;
 use Kiniauth\Services\Account\AccountService;
@@ -13,7 +12,6 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Alert\AlertGroupSummary;
 use Kinintel\Objects\Dashboard\Dashboard;
-use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;

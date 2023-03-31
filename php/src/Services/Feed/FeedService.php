@@ -5,8 +5,6 @@ namespace Kinintel\Services\Feed;
 
 
 use Kiniauth\Objects\Account\Account;
-use Kinikit\Core\Logging\Logger;
-use Kinikit\MVC\Session\Session;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;

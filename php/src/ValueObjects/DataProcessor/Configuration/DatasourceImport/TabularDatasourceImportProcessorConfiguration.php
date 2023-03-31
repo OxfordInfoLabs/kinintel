@@ -5,7 +5,6 @@ namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport;
 
 
 use Kinintel\Objects\Dataset\DatasetInstance;
-use Kinintel\Objects\Datasource\DatasourceInstance;
 
 /**
  *

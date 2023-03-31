@@ -2,7 +2,6 @@
 
 namespace Kinintel;
 
-use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
 use Kiniauth\Services\Attachment\AttachmentStorage;
 use Kiniauth\Services\Security\RouteInterceptor\APIRouteInterceptor;
 use Kiniauth\Services\Workflow\Task\Task;
@@ -11,6 +10,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\MVC\Routing\RouteInterceptorProcessor;
 use Kinintel\Services\Alert\AlertGroupTask;
 use Kinintel\Services\DataProcessor\DataProcessorTask;
+use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
 
 class Bootstrap implements ApplicationBootstrap {
 

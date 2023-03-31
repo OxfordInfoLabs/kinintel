@@ -2,15 +2,12 @@
 
 namespace Kinintel\Objects\Datasource\WebService;
 
-use AWS\CRT\Log;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
-use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
@@ -20,8 +17,6 @@ use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthentication
 use Kinintel\ValueObjects\Authentication\WebService\SubstitutionParameterAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
-use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 /**

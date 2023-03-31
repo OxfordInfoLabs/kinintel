@@ -4,9 +4,7 @@ namespace Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster;
 
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\KMeansClusterConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 

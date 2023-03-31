@@ -24,7 +24,6 @@ use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
-use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\TestBase;
@@ -33,7 +32,6 @@ use Kinintel\ValueObjects\Alert\MatchRule\RowCountAlertMatchRuleConfiguration;
 use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 

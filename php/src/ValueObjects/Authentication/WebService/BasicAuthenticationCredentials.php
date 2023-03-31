@@ -4,6 +4,7 @@ namespace Kinintel\ValueObjects\Authentication\WebService;
 
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
+
 class BasicAuthenticationCredentials implements WebServiceCredentials {
 
     /**

@@ -6,7 +6,6 @@ namespace Kinintel\Services\Dataset\Exporter;
 
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\MVC\ContentSource\ContentSource;
 use Kinintel\Exception\InvalidDatasourceExporterConfigException;

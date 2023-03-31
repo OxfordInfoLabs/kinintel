@@ -4,11 +4,8 @@
 namespace Kinintel\Services\Dataset\Exporter;
 
 
-use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\ContentSource\ContentSource;
-use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
-use Kinintel\ValueObjects\Dataset\Exporter\DatasetExporterConfiguration;
 use Kinintel\ValueObjects\Dataset\Exporter\SVDatasetExporterConfiguration;
 
 class SVDatasetExporter extends DatasetExporter {

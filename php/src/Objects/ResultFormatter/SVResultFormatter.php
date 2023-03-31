@@ -5,10 +5,8 @@ namespace Kinintel\Objects\ResultFormatter;
 
 
 use Kinikit\Core\Stream\ReadableStream;
-use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SVStreamTabularDataSet;
-use Kinintel\ValueObjects\Dataset\Field;
 
 /**
  * Separated values result formatter

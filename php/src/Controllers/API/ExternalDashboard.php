@@ -3,16 +3,12 @@
 
 namespace Kinintel\Controllers\API;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
-use Kinikit\Core\Util\StringUtils;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\JSONResponse;
 use Kinintel\Exception\ExternalDashboardNotFoundException;
 use Kinintel\Objects\Dashboard\DashboardSummary;
-use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dashboard\DashboardService;
-use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
 use Kinintel\Services\Dataset\DatasetService;
 
 /**

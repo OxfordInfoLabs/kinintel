@@ -4,7 +4,6 @@
 namespace Kinintel\Services\Datasource;
 
 
-use Kiniauth\Objects\Account\Account;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;

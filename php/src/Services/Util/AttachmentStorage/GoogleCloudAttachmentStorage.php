@@ -4,13 +4,13 @@
 namespace Kinintel\Services\Util\AttachmentStorage;
 
 
-use Kinintel\Services\Util\GoogleCloudStorageService;
 use Kiniauth\Objects\Attachment\AttachmentSummary;
 use Kiniauth\Services\Attachment\AttachmentStorage;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Configuration\MissingConfigurationParameterException;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
+use Kinintel\Services\Util\GoogleCloudStorageService;
 
 class GoogleCloudAttachmentStorage extends AttachmentStorage {
 

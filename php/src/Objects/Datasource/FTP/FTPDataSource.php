@@ -5,7 +5,6 @@ namespace Kinintel\Objects\Datasource\FTP;
 
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\FTP\ReadOnlyFTPStream;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;

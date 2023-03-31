@@ -4,8 +4,6 @@
 namespace Kinintel\Test\Services\ImportExport;
 
 
-use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -24,7 +22,6 @@ use Kinintel\ValueObjects\ImportExport\Export;
 use Kinintel\ValueObjects\ImportExport\ImportAnalysis;
 use Kinintel\ValueObjects\ImportExport\ImportItem;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;

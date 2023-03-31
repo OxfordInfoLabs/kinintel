@@ -5,11 +5,9 @@ namespace Kinintel\ValueObjects\ImportExport;
 
 
 use Kinikit\Core\Util\ObjectArrayUtils;
-use Kinintel\Objects\Dashboard\DashboardSearchResult;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
-use Kinintel\Objects\Datasource\DatasourceInstanceSummary;
 
 class ExportableResources {
 

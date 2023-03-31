@@ -6,7 +6,6 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EuclideanMetricCalculator;
-use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\PearsonCorrelationMetricCalculator;
 use Kinintel\ValueObjects\Dataset\Field;
 use PHPUnit\Framework\TestCase;
 

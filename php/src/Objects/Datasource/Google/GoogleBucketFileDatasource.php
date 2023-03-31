@@ -2,12 +2,9 @@
 
 namespace Kinintel\Objects\Datasource\Google;
 
-use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\StorageClient;
-use GuzzleHttp\Psr7\Stream;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Stream\ReadOnlyMultiStream;
-use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials;

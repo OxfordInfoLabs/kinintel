@@ -3,15 +3,10 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
-use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Datasource\Datasource;
-use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
-use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;

@@ -7,7 +7,6 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;

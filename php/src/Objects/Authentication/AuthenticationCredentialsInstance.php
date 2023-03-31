@@ -6,7 +6,6 @@ use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
 use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\Exception\InvalidDatasourceAuthenticationCredentialsException;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;

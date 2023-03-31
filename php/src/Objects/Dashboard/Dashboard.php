@@ -3,12 +3,11 @@
 namespace Kinintel\Objects\Dashboard;
 
 use Kiniauth\Objects\MetaData\CategorySummary;
-use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\ObjectCategory;
+use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
 
 /**

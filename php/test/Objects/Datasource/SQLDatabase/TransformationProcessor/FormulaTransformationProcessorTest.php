@@ -4,11 +4,8 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinikit\Persistence\Database\Connection\BaseDatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
-use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
-use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;

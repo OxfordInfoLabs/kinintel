@@ -3,13 +3,9 @@
 namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 use Kinikit\Core\Configuration\Configuration;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
-use Kinikit\Core\Util\Logging\CodeTimer;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
-use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -22,9 +18,7 @@ use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
-use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
-use phpseclib3\Crypt\EC\Curves\prime192v1;
 
 class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 

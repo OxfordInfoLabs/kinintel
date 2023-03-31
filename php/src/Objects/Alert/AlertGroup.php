@@ -5,10 +5,8 @@ namespace Kinintel\Objects\Alert;
 
 
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
-use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
 use Kiniauth\Objects\Communication\Notification\NotificationLevel;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Persistence\ORM\ActiveRecord;
 

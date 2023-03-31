@@ -5,7 +5,6 @@ namespace Kinintel\Test\ValueObjects\Datasource\Configuration\WebService;
 
 
 use Kinikit\Core\Validation\FieldValidationError;
-use Kinikit\Core\Validation\ValidationException;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 
 /**

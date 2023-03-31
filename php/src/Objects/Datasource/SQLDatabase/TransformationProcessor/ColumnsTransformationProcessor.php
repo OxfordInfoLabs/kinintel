@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;

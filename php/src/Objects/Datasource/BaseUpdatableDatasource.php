@@ -5,7 +5,6 @@ namespace Kinintel\Objects\Datasource;
 
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;

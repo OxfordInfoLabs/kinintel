@@ -4,7 +4,6 @@ namespace Kinintel\Objects\Datasource\RSync;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
