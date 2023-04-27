@@ -465,14 +465,14 @@
                                         [compareWith]="setCallToActionItem"
                                         (ngModelChange)="ctaUpdate($event)">
                                     <option value="">None</option>
-                                    <option [ngValue]="{type: 'custom'}">Custom Link</option>
+                                    <option [ngValue]="{type: 'custom', windowLocation: 'EXISTING'}">Custom Link</option>
                                     <optgroup label="Dashboards">
                                         <option *ngFor="let dashboard of dashboards"
-                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title, windowLocation: 'EXISTING'}">{{dashboard.title}}</option>
                                     </optgroup>
                                     <optgroup label="Shared Dashboards">
                                         <option *ngFor="let dashboard of sharedDashboards"
-                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                                [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title, windowLocation: 'EXISTING'}">{{dashboard.title}}</option>
                                     </optgroup>
                                 </select>
                                 <small class="font-normal">Select the destination for the action link</small>
@@ -517,6 +517,11 @@
                                     </label>
                                 </ng-template>
                             </ng-template>
+
+                            <mat-radio-group *ngIf="tabular.cta" [(ngModel)]="tabular.cta.windowLocation">
+                                <mat-radio-button class="mr-4" value="EXISTING">Existing Window</mat-radio-button>
+                                <mat-radio-button value="_blank">New Window/Tab</mat-radio-button>
+                            </mat-radio-group>
                         </ng-template>
                     </div>
 

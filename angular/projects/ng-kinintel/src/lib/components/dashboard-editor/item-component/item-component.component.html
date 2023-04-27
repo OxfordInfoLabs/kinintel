@@ -126,7 +126,7 @@
          (click)="(actionItem && Object.keys(actionItem).length) ? callToActionLink(actionItem): null">
 
         <ng-template [ngIf]="dashboardItemType.type === 'text' && textData.value">
-            <div *ngIf="textData.safeTextData" [innerHTML]="textData.safeTextData"></div>
+            <div class="h-full" *ngIf="textData.safeTextData" [innerHTML]="textData.safeTextData"></div>
         </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'metric'">

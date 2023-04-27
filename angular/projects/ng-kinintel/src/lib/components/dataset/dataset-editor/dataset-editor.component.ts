@@ -92,7 +92,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             const filters = _.filter(this.datasetInstanceSummary.transformationInstances, {type: 'filter'});
             if (filters.length) {
                 filters.forEach(filter => {
-                    filter.hide = false;
+                    filter.hide = true;
                 });
             }
         }
@@ -877,7 +877,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         if (index >= 0) {
             // If a current index has been supplied, reset all the pre transformation hidden fields prior to eval.
             for (let i = 0; i < index; i++) {
-                this.datasetInstanceSummary.transformationInstances[i].hide = false;
+                if (this.datasetInstanceSummary.transformationInstances[i].type !== 'filter') {
+                    this.datasetInstanceSummary.transformationInstances[i].hide = false;
+                }
             }
 
             this.datasetInstanceSummary.transformationInstances.splice(index, 1);

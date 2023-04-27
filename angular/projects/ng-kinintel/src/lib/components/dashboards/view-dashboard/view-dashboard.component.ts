@@ -107,16 +107,20 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             this.alertService = this.kiAlertService;
         }
 
-        if (this.parameters) {
-            this.queryParams = this.parameters;
-        }
-
         this.route.queryParams.subscribe(params => {
             const cloned = _.clone(params);
             this.admin = !!cloned.a;
             delete cloned.a;
             this.queryParams = cloned;
         });
+
+        if (this.parameters) {
+            _.forEach(this.parameters, (value, key) => {
+                if (!this.queryParams[key]) {
+                    this.queryParams[key] = value;
+                }
+            });
+        }
     }
 
     async ngAfterViewInit() {

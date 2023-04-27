@@ -479,6 +479,8 @@ export class ItemComponentComponent implements AfterViewInit {
     }
 
     public callToActionLink(cta, dataItem?) {
+        let url: string = null;
+
         if (cta.type === 'dashboard') {
             const params = _.pickBy(cta.parameters, (value, key) => {
                 return !_.startsWith(key, 'custom-');
@@ -494,16 +496,27 @@ export class ItemComponentComponent implements AfterViewInit {
                 params[paramKey] = value;
             });
             const urlParams = new URLSearchParams(params).toString();
-            window.location.href = `/dashboards/view/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
+            url = `/dashboards/view/${cta.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
         } else if (cta.type === 'custom') {
-            let url = cta.link;
+            url = cta.link;
 
             const data = dataItem || this.dashboard.layoutSettings.parameters;
 
             url = this.bindParametersInString(url, data);
             // Check if we have any column eg. [[ ]] values needing mapping
             url = this.mapColumnToValue(url, data);
-            window.location.href = url;
+        }
+
+        if (url) {
+            if (!cta.windowLocation || cta.windowLocation === 'EXISTING') {
+                window.location.href = url;
+            } else {
+                const a = document.createElement('a');
+                a.href = url;
+                a.setAttribute('target', '_blank');
+                a.setAttribute('rel', 'noopener noreferrer');
+                a.click();
+            }
         }
     }
 

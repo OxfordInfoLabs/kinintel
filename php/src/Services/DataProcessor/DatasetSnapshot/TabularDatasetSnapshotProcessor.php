@@ -284,6 +284,11 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // Remove any key field setting as this is replaced by the snapshot item id.
             $column->setKeyField(false);
 
+            // Revert any ID fields to Integers
+            if ($column->getType() === Field::TYPE_ID) {
+                $column->setType(Field::TYPE_INTEGER);
+            }
+
             // Add additional column time lapse columns
             if (isset($columnTimeLapses[$column->getName()])) {
                 foreach ($columnTimeLapses[$column->getName()] as $columnTimeLapse) {
