@@ -173,7 +173,12 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
 
                 // Add source flag
                 $dataItem[$aggSource->getSourceIndicatorColumn()] = true;
+
+                // Add import time
                 $dataItem["window_time"] = $fromDate;
+                $dataItem["discover_month"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("F");
+                $dataItem["discover_month_index"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("n");
+                $dataItem["discover_year"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("Y");
 
             }
 
