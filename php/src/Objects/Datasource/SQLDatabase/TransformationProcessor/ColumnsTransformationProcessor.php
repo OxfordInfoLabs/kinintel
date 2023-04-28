@@ -13,12 +13,6 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 
 class ColumnsTransformationProcessor extends SQLTransformationProcessor {
 
-    /**
-     * Table alias index
-     *
-     * @var int
-     */
-    private $tableIndex = 0;
 
     /**
      * Apply the transformation to the passed datasource
@@ -48,10 +42,6 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
         $dataSourceConfig = $dataSource->getConfig();
 
         $newColumns = [];
-        $columnNames = [];
-        $tableAlias = "C" . ++$this->tableIndex;
-        $wrap = $query->getSelectClause() != "*";
-
         if (is_array($dataSourceConfig->getColumns())) {
             $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $dataSourceConfig->getColumns());
             foreach ($transformation->getColumns() as $newColumn) {
@@ -62,22 +52,14 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
                 } else {
                     $newColumns[] = $newColumn;
                 }
-                $columnNames[] = $wrap ? "$tableAlias.{$newColumn->getName()}" : $newColumn->getName();
             }
         } else {
             $newColumns = $transformation->getColumns();
         }
 
+
+
         $dataSourceConfig->setColumns($newColumns);
-
-        $selectClause = implode(",", $columnNames);
-
-        if ($wrap) {
-            $SQLQuery = new SQLQuery($selectClause, "({$query->getSQL()}) $tableAlias", $query->getParameters());
-            return $SQLQuery;
-        } else {
-            $query->setSelectClause($selectClause);
-            return $query;
-        }
+        return $query;
     }
 }
