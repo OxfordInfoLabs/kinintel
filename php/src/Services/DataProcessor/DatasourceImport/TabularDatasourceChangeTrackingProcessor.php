@@ -119,7 +119,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 $previousFile = $directory . "/previous.txt";
                 $this->initialiseFiles($directory);
                 // Create the new file
-                $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize);
+                $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $config->getOffsetField());
 
                 if (!file_exists($directory . "/new.txt")) {
                     continue;
@@ -156,7 +156,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             foreach($sourceDatasources as $sourceDatasource) {
                 $datasourceKey = $sourceDatasource->getDatasourceKey();
                 foreach ($sourceDatasource->getParameterSets() as $parameterSet) {
-                    $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $parameterSet);
+                    $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $config->getOffsetField(), $parameterSet);
                 }
             }
 
@@ -183,7 +183,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
     }
 
 
-    private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize, $parameterValues = []) {
+    private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize, $offsetField, $parameterValues = []) {
         $offset = 0;
         // Read the datasource in chunks
 
@@ -193,6 +193,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
             // Initialise next
             $nextItem = null;
+            $offsetFieldValue = 0;
 
             // For each chunk, format each entry and write to new.txt
             do {
@@ -204,6 +205,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                         $nextLine .= $value . "#|!";
                     }
                     file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
+                    $offsetFieldValue = $nextItem[$offsetField] ?? 0;
                 }
 
                 $lineCount++;
@@ -212,7 +214,11 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
             } while ($nextItem !== false);
 
-            $offset += $sourceReadChunkSize;
+            if ($offsetField) {
+                $offset = $offsetFieldValue;
+            } else {
+                $offset += $sourceReadChunkSize;
+            }
 
         } while ($lineCount == $sourceReadChunkSize);
 
