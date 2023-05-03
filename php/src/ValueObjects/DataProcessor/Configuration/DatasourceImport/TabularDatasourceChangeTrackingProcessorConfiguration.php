@@ -53,6 +53,11 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     private $targetWriteChunkSize;
 
     /**
+     * @var string
+     */
+    private $offsetField;
+
+    /**
      * @param string[] $sourceDatasourceKeys
      * @param SourceDatasource[] $sourceDatasources
      * @param DatasetInstance $sourceDataset
@@ -62,8 +67,9 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param string[] $summaryFields
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
+     * @param string $offsetField
      */
-    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null) {
+    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -73,6 +79,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->targetWriteChunkSize = $targetWriteChunkSize ?: 500;
         $this->sourceDataset = $sourceDataset;
         $this->sourceDatasources = $sourceDatasources;
+        $this->offsetField = $offsetField;
     }
 
     /**
@@ -199,6 +206,20 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     public function setTargetWriteChunkSize($targetWriteChunkSize) {
         $this->targetWriteChunkSize = $targetWriteChunkSize;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOffsetField() {
+        return $this->offsetField;
+    }
+
+    /**
+     * @param string $offsetField
+     */
+    public function setOffsetField($offsetField) {
+        $this->offsetField = $offsetField;
     }
 
 }
