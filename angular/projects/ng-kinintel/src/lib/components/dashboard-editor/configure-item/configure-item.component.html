@@ -37,7 +37,68 @@
         </div>
     </button>
 </div>
+<nav class="h-10 flex border-b border-gray-200 bg-white" aria-label="Breadcrumb">
+    <ol role="list" class="flex w-full px-4">
+        <li class="flex">
+            <div class="flex items-center">
+                <a mat-dialog-close [routerLink]="['/']" class="text-gray-400 hover:text-gray-500">
+                    <!-- Heroicon name: mini/home -->
+                    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="sr-only">Home</span>
+                </a>
+            </div>
+        </li>
 
+        <li class="flex">
+            <div class="flex items-center">
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                </svg>
+                <a mat-dialog-close [routerLink]="['/dashboards']"
+                   class="capitalize ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Dashboards</a>
+            </div>
+        </li>
+
+        <li class="flex">
+            <div class="flex items-center">
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                </svg>
+                <a (click)="saveDashboard()"
+                   class="capitalize ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Dashboard Editor</a>
+            </div>
+        </li>
+
+        <li class="flex" *ngIf="dashboardDatasetInstance">
+            <div class="flex items-center">
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                </svg>
+                <a class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" aria-current="page">
+                    {{dashboardItemType.label}} Editor
+                </a>
+                <ng-template [ngIf]="dashboardDatasetInstance && dashboardDatasetInstance.source">
+                    <span class="flex items-center border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
+                    <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
+                    <ng-template [ngIf]="dashboardDatasetInstance.source.datasourceInstanceKey">
+                        <img *ngIf="['custom', 'snapshot'].indexOf(dashboardDatasetInstance.source.type) === -1"
+                             src="/assets/favicon-rev.png" class="w-2.5 mx-1.5">
+                        <mat-icon *ngIf="dashboardDatasetInstance.source.type === 'custom'" class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
+                        <mat-icon *ngIf="dashboardDatasetInstance.source.type === 'snapshot'" class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
+                    </ng-template>
+                    <ng-template [ngIf]="!dashboardDatasetInstance.source.datasourceInstanceKey">
+                        <mat-icon class="h-4 w-4 text-lg leading-4 mx-1.5">query_stats</mat-icon>
+                    </ng-template>
+                    &nbsp;{{dashboardDatasetInstance.source.title}}</span>
+                </ng-template>
+            </div>
+        </li>
+    </ol>
+</nav>
 <div class="configure-content">
 
     <rsz-layout class="row top" [directions]="['bottom']" [rFlex]="true">

@@ -55,10 +55,20 @@
                 <a class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" aria-current="page">
                     {{datasetInstanceSummary.title || 'Data Explorer'}}
                 </a>
-                <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.originDataItemTitle">
-                    <span class="border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
+                <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.source">
+                    <span class="flex items-center border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
                     <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
-                    &nbsp;{{datasetInstanceSummary.originDataItemTitle}}</span>
+                        <ng-template [ngIf]="datasetInstanceSummary.source.datasourceInstanceKey">
+                            <img *ngIf="['custom', 'snapshot'].indexOf(datasetInstanceSummary.source.type) === -1"
+                                 src="/assets/favicon-rev.png" class="w-2.5 mx-1.5">
+                            <mat-icon *ngIf="datasetInstanceSummary.source.type === 'custom'" class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
+                            <mat-icon *ngIf="datasetInstanceSummary.source.type === 'snapshot'" class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
+                        </ng-template>
+                        <ng-template [ngIf]="!datasetInstanceSummary.source.datasourceInstanceKey">
+                            <mat-icon class="h-4 w-4 text-lg leading-4 mx-1.5">query_stats</mat-icon>
+                        </ng-template>
+                        &nbsp;{{datasetInstanceSummary.source.title}}
+                    </span>
                 </ng-template>
             </div>
         </li>
