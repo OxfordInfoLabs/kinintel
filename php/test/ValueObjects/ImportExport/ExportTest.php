@@ -53,22 +53,22 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
         ], "maindb");
 
         // Has parent datasource included in export
-        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Example 1", "myexampledatasource", null, [], [], [], null, null, [], null, 1),1, "myprojectkey");
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Example 1", "myexampledatasource", null, [], [], [], null, null, [], 1),1, "myprojectkey");
 
         // Has external parent datasource
-        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Example 2", "coredatasource", null, [], [], [], null, null, [], null, 2),1, "myprojectkey");
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Example 2", "coredatasource", null, [], [], [], null, null, [], 2),1, "myprojectkey");
 
         // Has parent dataset included in export
-        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Example 3", null, 4, [], [], [], null, null, [], null, 3),1, "myprojectkey");
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Example 3", null, 4, [], [], [], null, null, [], 3),1, "myprojectkey");
 
         // Has parent dataset included in export and is parent of #3
-        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [], [], [], null, null, [], null, 4),1, "myprojectkey");
+        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [], [], [], null, null, [], 4),1, "myprojectkey");
 
         // Is a parent of #4
-        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Example 5", null, 3, [], [], [], null, null, [], null, 5),1, "myprojectkey");
+        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Example 5", null, 3, [], [], [], null, null, [], 5),1, "myprojectkey");
 
         // Has external parent dataset
-        $dataset6 = new DatasetInstance(new DatasetInstanceSummary("Example 6", null, 33, [], [], [], null, null, [], null, 6),1, "myprojectkey");
+        $dataset6 = new DatasetInstance(new DatasetInstanceSummary("Example 6", null, 33, [], [], [], null, null, [], 6),1, "myprojectkey");
 
 
         $export = new Export(Export::SCOPE_PROJECT, "Dataset Export", [$sourceDatasource], [$dataset1, $dataset2, $dataset3, $dataset4, $dataset5, $dataset6], [], []);
@@ -78,12 +78,12 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
 
         // Check now ordered by internal parents where applicable and with hashed ids.
         $this->assertEquals([
-            new DatasetInstance(new DatasetInstanceSummary("Example 6", null, 33, [], [], [], null, null, [], null, md5("DS::6"))),
-            new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [], [], [], null, null, [], null, md5("DS::4"))),
-            new DatasetInstance(new DatasetInstanceSummary("Example 3", null, md5("DS::4"), [], [], [], null, null, [], null, md5("DS::3"))),
-            new DatasetInstance(new DatasetInstanceSummary("Example 5", null, md5("DS::3"), [], [], [], null, null, [], null, md5("DS::5"))),
-            new DatasetInstance(new DatasetInstanceSummary("Example 2", "coredatasource", null, [], [], [], null, null, [], null, md5("DS::2"))),
-            new DatasetInstance(new DatasetInstanceSummary("Example 1", md5("DS::myexampledatasource"), null, [], [], [], null, null, [], null, md5("DS::1"))),
+            new DatasetInstance(new DatasetInstanceSummary("Example 6", null, 33, [], [], [], null, null, [], md5("DS::6"))),
+            new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [], [], [], null, null, [], md5("DS::4"))),
+            new DatasetInstance(new DatasetInstanceSummary("Example 3", null, md5("DS::4"), [], [], [], null, null, [], md5("DS::3"))),
+            new DatasetInstance(new DatasetInstanceSummary("Example 5", null, md5("DS::3"), [], [], [], null, null, [], md5("DS::5"))),
+            new DatasetInstance(new DatasetInstanceSummary("Example 2", "coredatasource", null, [], [], [], null, null, [], md5("DS::2"))),
+            new DatasetInstance(new DatasetInstanceSummary("Example 1", md5("DS::myexampledatasource"), null, [], [], [], null, null, [], md5("DS::1"))),
         ], $datasets);
 
     }
@@ -100,27 +100,27 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
         $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Example 1", null, null, [
             new TransformationInstance("filter", new FilterTransformation([new Filter("test", "bingo")])),
             new TransformationInstance("join", new JoinTransformation(null, 2))
-        ], [], [], null, null, [], null, 1));
+        ], [], [], null, null, [], 1));
 
         // Has external parent datasource
         $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Example 2", null, null, [
             new TransformationInstance("join", new JoinTransformation("myexampledatasource"))
-        ], [], [], null, null, [], null, 2));
+        ], [], [], null, null, [], 2));
 
         // Has parent dataset included in export
         $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Example 3", null, null, [
             new TransformationInstance("join", new JoinTransformation(null, 1))
-        ], [], [], null, null, [], null, 3));
+        ], [], [], null, null, [], 3));
 
         // Has external parent datasource
         $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [
             new TransformationInstance("join", new JoinTransformation("externalsource"))
-        ], [], [], null, null, [], null, 4));
+        ], [], [], null, null, [], 4));
 
         // Has parent dataset included in export
         $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Example 5", null, null, [
             new TransformationInstance("join", new JoinTransformation(null, 33))
-        ], [], [], null, null, [], null, 5));
+        ], [], [], null, null, [], 5));
 
         $export = new Export(Export::SCOPE_PROJECT, "Dataset Export", [$sourceDatasource], [$dataset1, $dataset2, $dataset3, $dataset4, $dataset5], [], []);
 
@@ -128,20 +128,20 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals([
             new DatasetInstance(new DatasetInstanceSummary("Example 5", null, null, [
                 new TransformationInstance("join", new JoinTransformation(null, 33))
-            ], [], [], null, null, [], null, md5("DS::5"))),
+            ], [], [], null, null, [], md5("DS::5"))),
             new DatasetInstance(new DatasetInstanceSummary("Example 4", null, null, [
                 new TransformationInstance("join", new JoinTransformation("externalsource"))
-            ], [], [], null, null, [], null, md5("DS::4"))),
+            ], [], [], null, null, [], md5("DS::4"))),
             new DatasetInstance(new DatasetInstanceSummary("Example 2", null, null, [
                 new TransformationInstance("join", new JoinTransformation(md5("DS::myexampledatasource")))
-            ], [], [], null, null, [], null, md5("DS::2"))),
+            ], [], [], null, null, [], md5("DS::2"))),
             new DatasetInstance(new DatasetInstanceSummary("Example 1", null, null, [
                 new TransformationInstance("filter", new FilterTransformation([new Filter("test", "bingo")])),
                 new TransformationInstance("join", new JoinTransformation(null, md5("DS::2")))
-            ], [], [], null, null, [], null, md5("DS::1"))),
+            ], [], [], null, null, [], md5("DS::1"))),
             new DatasetInstance(new DatasetInstanceSummary("Example 3", null, null, [
                 new TransformationInstance("join", new JoinTransformation(null, md5("DS::1")))
-            ], [], [], null, null, [], null, md5("DS::3")))
+            ], [], [], null, null, [], md5("DS::3")))
 
 
         ], $export->getDatasetInstances());
@@ -161,7 +161,7 @@ class ExportTest extends \PHPUnit\Framework\TestCase {
         $dataset = new DatasetInstance(new DatasetInstanceSummary("Example 1", null, null, [
             new TransformationInstance("filter", new FilterTransformation([new Filter("test", "bingo")])),
             new TransformationInstance("join", new JoinTransformation(null, 2))
-        ], [], [], null, null, [], null, 1));
+        ], [], [], null, null, [], 1));
 
 
         $dashboard1 = new Dashboard(new DashboardSummary("Dashboard 1", [

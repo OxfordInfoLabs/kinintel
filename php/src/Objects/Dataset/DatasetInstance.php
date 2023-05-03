@@ -45,14 +45,6 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     protected $snapshotProfiles;
 
-    /**
-     * @var DatasetInstanceSearchResult
-     * @manyToOne
-     * @parentJoinColumns dataset_instance_id
-     * @readOnly
-     */
-    protected $originDatasetSummary;
-
 
     /**
      * DatasetInstance constructor - used to convert summaries
@@ -72,8 +64,8 @@ class DatasetInstance extends DatasetInstanceSummary {
                 $datasetInstanceSummary->getSummary(),
                 $datasetInstanceSummary->getDescription(),
                 $datasetInstanceSummary->getCategories(),
-                $datasetInstanceSummary->getOriginDataItemTitle(),
-                $datasetInstanceSummary->getId());
+                $datasetInstanceSummary->getId(),
+                $datasetInstanceSummary->sourceDataset);
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -154,19 +146,6 @@ class DatasetInstance extends DatasetInstanceSummary {
             }
         }
 
-        $originTitle = "";
-        if ($this->originDatasetSummary) {
-            $originTitle = $this->originDatasetSummary->getTitle();
-        } else if ($this->datasourceInstanceKey) {
-            $datasourceService = Container::instance()->get(DatasourceService::class);
-            try {
-                $datasource = $datasourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
-                $originTitle = $datasource->getTitle();
-            } catch (ObjectNotFoundException $e) {
-                // OK
-            }
-        }
-
 
         return new DatasetInstanceSummary($this->title, $readOnly ? null : $this->datasourceInstanceKey,
             $readOnly ? $this->id : $this->datasetInstanceId,
@@ -176,8 +155,8 @@ class DatasetInstance extends DatasetInstanceSummary {
             $this->summary,
             $this->description,
             $newCategories,
-            $readOnly ? $this->title : $originTitle,
-            $readOnly ? null : $this->id);
+            $readOnly ? null : $this->id,
+            $this->sourceDataset);
     }
 
 

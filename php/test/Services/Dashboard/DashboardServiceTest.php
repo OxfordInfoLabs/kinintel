@@ -26,12 +26,15 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Alert\MatchRule\RowCountAlertMatchRuleConfiguration;
 use Kinintel\ValueObjects\Dashboard\DashboardExternalSettings;
+use Kinintel\ValueObjects\Dataset\DatasetInstanceSource;
 use Kinintel\ValueObjects\Dataset\TabularDataset;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -118,8 +121,22 @@ class DashboardServiceTest extends TestBase {
             new CategorySummary("Account2", "An account wide category available to account 2", "account2")
         ];
 
+
+        $dataSetInstance = new DatasetInstance(new DatasetInstanceSummary("A New Test instance", "test-json"), 2);
+        $dataSetInstance->save();
+
         $dashboard = new DashboardSummary("Test Instance", [
             new DashboardDatasetInstance("brandnew", null, "test-json", [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("value", "bingo")
+                ]))
+            ], [
+                new Alert("Bingo", "rowcount", ["matchType" => RowCountAlertMatchRuleConfiguration::MATCH_TYPE_EQUALS, "value" => 5],
+                    new FilterTransformation([
+                        new Filter("score", 0)
+                    ]), "There are no rows when there should be", null, "No rows", 7)
+            ]),
+            new DashboardDatasetInstance("brandnew2", $dataSetInstance->getId(), null, [
                 new TransformationInstance("filter", new FilterTransformation([
                     new Filter("value", "bingo")
                 ]))
@@ -154,6 +171,23 @@ class DashboardServiceTest extends TestBase {
         $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[0];
         $this->assertEquals("brandnew", $dashboardDatasetInstance->getInstanceKey());
         $this->assertEquals("test-json", $dashboardDatasetInstance->getDatasourceInstanceKey());
+        $this->assertEquals(new DatasetInstanceSource("Test JSON Datasource", "test-json", null, "webservice"), $dashboardDatasetInstance->getSource());
+        $this->assertEquals([new TransformationInstance("filter", [
+            "filters" => [[
+                "lhsExpression" => "value",
+                "rhsExpression" => "bingo",
+                "filterType" => "eq"
+            ]],
+            "logic" => "AND",
+            "filterJunctions" => [],
+            "sQLTransformationProcessorKey" => "filter"
+        ])], $dashboardDatasetInstance->getTransformationInstances());
+
+        $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[1];
+        $this->assertEquals("brandnew2", $dashboardDatasetInstance->getInstanceKey());
+        $this->assertNull($dashboardDatasetInstance->getDatasourceInstanceKey());
+        $this->assertEquals($dataSetInstance->getId(), $dashboardDatasetInstance->getDatasetInstanceId());
+        $this->assertEquals(new DatasetInstanceSource("A New Test instance", null, $dataSetInstance->getId()), $dashboardDatasetInstance->getSource());
         $this->assertEquals([new TransformationInstance("filter", [
             "filters" => [[
                 "lhsExpression" => "value",
@@ -240,13 +274,19 @@ class DashboardServiceTest extends TestBase {
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
         $transformation = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
 
+
+        $dashboardDataSetInstance = DashboardDatasetInstance::fetch([$id, "otherset"]);
+
         $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", $dataSet,
             [
                 $dashboardDataSetInstance, [$transformation]
             ]);
 
+
         $evaluatedDataset = $this->dashboardService->getEvaluatedDataSetForDashboardDataSetInstance($id,
             "otherset", [$transformation]);
+
+
         $this->assertEquals($dataSet, $evaluatedDataset);
 
     }

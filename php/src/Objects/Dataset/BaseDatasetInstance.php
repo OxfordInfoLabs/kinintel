@@ -11,6 +11,7 @@ use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Exception\InvalidTransformationTypeException;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Dataset\DatasetInstanceSource;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -63,6 +64,24 @@ class BaseDatasetInstance extends ActiveRecord {
      * @sqlType LONGTEXT
      */
     protected $parameterValues = [];
+
+
+    /**
+     * @var DatasetInstanceSearchResult
+     * @manyToOne
+     * @parentJoinColumns dataset_instance_id
+     * @readOnly
+     */
+    protected $sourceDataset;
+
+
+    /**
+     * Cached for performance
+     *
+     * @var DatasetInstanceSource
+     * @unmapped
+     */
+    protected $source;
 
 
     /**
@@ -135,6 +154,30 @@ class BaseDatasetInstance extends ActiveRecord {
     public function setDatasetInstanceId($datasetInstanceId) {
         $this->datasetInstanceId = $datasetInstanceId;
     }
+
+
+    /**
+     * Get the origin data item title
+     *
+     * @return DatasetInstanceSource
+     */
+    public function getSource() {
+        if (!$this->source) {
+            if ($this->datasourceInstanceKey) {
+                $datasourceService = Container::instance()->get(DatasourceService::class);
+                try {
+                    $datasource = $datasourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
+                    $this->source = new DatasetInstanceSource($datasource->getTitle(), $datasource->getKey(), null, $datasource->getType());
+                } catch (ObjectNotFoundException $e) {
+                    // OK
+                }
+            } else if ($this->sourceDataset) {
+                $this->source = new DatasetInstanceSource($this->sourceDataset->getTitle(), null, $this->sourceDataset->getId());
+            }
+        }
+        return $this->source;
+    }
+
 
 
     /**

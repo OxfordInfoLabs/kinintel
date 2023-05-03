@@ -858,12 +858,12 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], "", 25), 1, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], 25), 1, null);
         $summary = $dataSet->returnSummary();
         $this->assertEquals("test", $summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getId());
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], "", 25), null, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], 25), null, null);
         $summary = $dataSet->returnSummary();
         $this->assertEquals("test", $summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getId());
@@ -871,13 +871,13 @@ class DatasetServiceTest extends TestBase {
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], "", 25), 1, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [], [], [], "Test Summary", "Test Description", [], 25), 1, null);
         $summary = $dataSet->returnSummary();
         $this->assertEquals("test", $summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getId());
 
 
-        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [new TransformationInstance("test", ["bingo" => "hello"])], [new Parameter("customParam", "Custom Parameter")], ["customParam" => "Bob"], "Test Summary", "Test Description", [], "", 25), null, null);
+        $dataSet = new DatasetInstance(new DatasetInstanceSummary("Hello", "test", null, [new TransformationInstance("test", ["bingo" => "hello"])], [new Parameter("customParam", "Custom Parameter")], ["customParam" => "Bob"], "Test Summary", "Test Description", [], 25), null, null);
         $summary = $dataSet->returnSummary();
         $this->assertNull($summary->getDatasourceInstanceKey());
         $this->assertEquals(25, $summary->getDatasetInstanceId());

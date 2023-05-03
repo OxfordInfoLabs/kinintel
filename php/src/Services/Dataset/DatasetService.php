@@ -8,6 +8,7 @@ use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskInterceptor;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
@@ -70,7 +71,7 @@ class DatasetService {
      */
     public function getExtendedDatasetInstance($originalDatasetId) {
         $originalDataset = $this->getDataSetInstance($originalDatasetId, false);
-        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId, [], [], [], null, null, [], $originalDataset->getTitle());
+        return new DatasetInstanceSummary($originalDataset->getTitle() . " Extended", null, $originalDatasetId, [], [], [], null, null, []);
     }
 
 
