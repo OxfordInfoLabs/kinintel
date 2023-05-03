@@ -95,7 +95,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @param integer $id
      */
     public function __construct($title, $datasourceInstanceKey = null, $datasetInstanceId = null, $transformationInstances = [], $parameters = [],
-                                $parameterValues = [], $summary = null, $description = null, $categories = [], $id = null) {
+                                $parameterValues = [], $summary = null, $description = null, $categories = [], $id = null, $sourceDataSet = null) {
         $this->title = $title;
         $this->summary = $summary;
         $this->description = $description;
@@ -106,6 +106,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
         $this->parameters = $parameters;
         $this->parameterValues = $parameterValues;
         $this->id = $id;
+        $this->sourceDataset = $sourceDataSet;
     }
 
     /**

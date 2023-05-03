@@ -46,7 +46,6 @@ class DatasetInstance extends DatasetInstanceSummary {
     protected $snapshotProfiles;
 
 
-
     /**
      * DatasetInstance constructor - used to convert summaries
      *
@@ -65,7 +64,8 @@ class DatasetInstance extends DatasetInstanceSummary {
                 $datasetInstanceSummary->getSummary(),
                 $datasetInstanceSummary->getDescription(),
                 $datasetInstanceSummary->getCategories(),
-                $datasetInstanceSummary->getId());
+                $datasetInstanceSummary->getId(),
+                $datasetInstanceSummary->sourceDataset);
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -155,7 +155,8 @@ class DatasetInstance extends DatasetInstanceSummary {
             $this->summary,
             $this->description,
             $newCategories,
-            $readOnly ? null : $this->id);
+            $readOnly ? null : $this->id,
+            $this->sourceDataset);
     }
 
 
