@@ -81,15 +81,6 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
 
 
     /**
-     * Title for the origin data item
-     *
-     * @var string
-     * @unmapped
-     */
-    protected $originDataItemTitle;
-
-
-    /**
      * DatasetInstance constructor.
      *
      * @param string $title
@@ -104,7 +95,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @param integer $id
      */
     public function __construct($title, $datasourceInstanceKey = null, $datasetInstanceId = null, $transformationInstances = [], $parameters = [],
-                                $parameterValues = [], $summary = null, $description = null, $categories = [], $originDataItemTitle = null, $id = null) {
+                                $parameterValues = [], $summary = null, $description = null, $categories = [], $id = null) {
         $this->title = $title;
         $this->summary = $summary;
         $this->description = $description;
@@ -115,7 +106,6 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
         $this->parameters = $parameters;
         $this->parameterValues = $parameterValues;
         $this->id = $id;
-        $this->originDataItemTitle = $originDataItemTitle;
     }
 
     /**
@@ -146,7 +136,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
         $this->id = $id;
     }
 
-    
+
     /**
      * @return TagSummary[]
      */
@@ -201,20 +191,6 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      */
     public function setCategories($categories) {
         $this->categories = $categories;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOriginDataItemTitle() {
-        return $this->originDataItemTitle;
-    }
-
-    /**
-     * @param string $originDataItemTitle
-     */
-    public function setOriginDataItemTitle($originDataItemTitle) {
-        $this->originDataItemTitle = $originDataItemTitle;
     }
 
 
