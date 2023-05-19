@@ -48,6 +48,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     public searchText = new BehaviorSubject('');
     public activeTagSub = new Subject();
     public activeTag: any;
+    public _ = _;
 
     private tagSub: Subscription;
     private reload = new Subject();
@@ -188,6 +189,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     }
 
     private openDialogEditor(datasetInstanceSummary) {
+        this.router.navigate(['/snapshots'], {fragment: _.kebabCase(datasetInstanceSummary.title || datasetInstanceSummary.datasourceInstanceKey)});
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',
             height: '100vh',
@@ -205,6 +207,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe(res => {
             if (res && res.breadcrumb) {
                 return this.router.navigate([res.breadcrumb], {fragment: null});
+            } else {
+                this.router.navigate(['/snapshots'], {fragment: null});
             }
             this.reload.next(Date.now());
             this.watchSnapshotChanges();

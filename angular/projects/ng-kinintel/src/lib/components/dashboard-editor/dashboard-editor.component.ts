@@ -237,7 +237,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         const dashboardId = this.dashboardId || this.route.snapshot.params.dashboard;
-        const routeData = this.route.snapshot.data;
+        const routeData: any = this.route.snapshot.data;
         const editType = routeData ? routeData.type : null;
 
         if (editType === 'copy') {
@@ -402,6 +402,14 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public save(showSaved = true) {
         this.dashboard.layoutSettings.grid = this.grid.save(true);
+        this.dashboard.layoutSettings.grid.forEach(gridItem => {
+            const itemElement = document.createRange().createContextualFragment(gridItem.content);
+            try {
+                itemElement.children.item(0).innerHTML = '';
+            } catch (e) {
+            }
+            gridItem.content = itemElement.children.item(0).outerHTML;
+        });
         return this.dashboardService.saveDashboard(this.dashboard, this.accountId).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {

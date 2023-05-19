@@ -21,6 +21,7 @@ import {AlertService} from '../../../services/alert.service';
 import moment from 'moment';
 import {Location} from '@angular/common';
 import {ExternalService} from '../../../services/external.service';
+import {Subject, Subscription} from 'rxjs';
 
 @Component({
     selector: 'ki-view-dashboard',
@@ -49,6 +50,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() hideToolbar = false;
     @Input() actionEvents: any = [];
     @Input() external = false;
+    @Input() reload: Subject<any>;
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -77,6 +79,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     private grid: GridStack;
     private queryParams: any = {};
     private itemComponents: ItemComponentComponent[] = [];
+    private reloadSub: Subscription;
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
                 private applicationRef: ApplicationRef,
@@ -119,6 +122,12 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 if (!this.queryParams[key]) {
                     this.queryParams[key] = value;
                 }
+            });
+        }
+
+        if (this.reload) {
+            this.reloadSub = this.reload.subscribe(res => {
+                this.reloadDashboard();
             });
         }
     }
@@ -234,6 +243,9 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         document.body.classList.remove('dark');
         if (this.sidenavService) {
             this.sidenavService.open();
+        }
+        if (this.reloadSub) {
+            this.reloadSub.unsubscribe();
         }
     }
 

@@ -181,15 +181,29 @@
             </div>
         </ng-template>
 
-        <canvas baseChart *ngIf="chartData" style="height: 200px"
-                [datasets]="chartData"
-                [labels]="dashboardItemType.labels"
-                [options]="{tooltips: { titleFontSize: 0 }, responsive:true, maintainAspectRatio: false}"
-                [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
-                [legend]="!!dashboardItemType.legend"
-                [chartType]="dashboardItemType.type"
-                [plugins]="[]">
-        </canvas>
+        <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
+            <canvas baseChart *ngIf="chartData" style="height: 200px"
+                    [datasets]="chartData"
+                    [labels]="dashboardItemType.labels"
+                    [options]="{tooltips: { titleFontSize: 0 }, responsive:true, maintainAspectRatio: false}"
+                    [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                    [legend]="!!dashboardItemType.legend"
+                    [chartType]="dashboardItemType.type"
+                    [plugins]="[]">
+            </canvas>
+        </ng-template>
+
+        <ng-template [ngIf]="dashboardItemType.type === 'line' || dashboardItemType.type === 'bar'">
+            <canvas baseChart *ngIf="chartData" style="height: 200px"
+                    [datasets]="chartData"
+                    [labels]="dashboardItemType.labels"
+                    [options]="{tooltips: { titleFontSize: 0 }, scales: {yAxes: [{ticks: {beginAtZero: dashboardItemType.beginAtZero}}]}, responsive:true, maintainAspectRatio: false}"
+                    [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                    [legend]="!!dashboardItemType.legend"
+                    [chartType]="dashboardItemType.type"
+                    [plugins]="[]">
+            </canvas>
+        </ng-template>
 
         <ng-template [ngIf]="dashboardItemType.type === 'table'">
 
@@ -198,7 +212,7 @@
                 <tr>
                     <ng-template ngFor let-column [ngForOf]="dataset.columns">
                         <th scope="col" *ngIf="!hiddenColumns[column.name]" (click)="sortHeader(column)"
-                            class="cursor-pointer sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 p-3 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                            class="cursor-pointer sticky -top-px z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 p-3 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
                             <div *ngIf="!tableCells[column.name] || tableCells[column.name].type !== 'action'"
                                  class="flex items-center ">
                                 {{column.title}}

@@ -43,8 +43,11 @@
             <div class="flex items-center">
                 <a mat-dialog-close [routerLink]="['/']" class="text-gray-400 hover:text-gray-500">
                     <!-- Heroicon name: mini/home -->
-                    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
+                    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                         fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"
+                              clip-rule="evenodd"/>
                     </svg>
                     <span class="sr-only">Home</span>
                 </a>
@@ -53,8 +56,9 @@
 
         <li class="flex">
             <div class="flex items-center">
-                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none"
+                     fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z"/>
                 </svg>
                 <a mat-dialog-close [routerLink]="['/dashboards']"
                    class="capitalize ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
@@ -64,8 +68,9 @@
 
         <li class="flex">
             <div class="flex items-center">
-                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none"
+                     fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z"/>
                 </svg>
                 <a (click)="saveDashboard()"
                    class="capitalize ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
@@ -75,20 +80,24 @@
 
         <li class="flex" *ngIf="dashboardDatasetInstance">
             <div class="flex items-center">
-                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none"
+                     fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z"/>
                 </svg>
                 <a class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" aria-current="page">
                     {{dashboardItemType.label}} Editor
                 </a>
                 <ng-template [ngIf]="dashboardDatasetInstance && dashboardDatasetInstance.source">
-                    <span class="flex items-center border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
+                    <span
+                        class="flex items-center border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
                     <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
                     <ng-template [ngIf]="dashboardDatasetInstance.source.datasourceInstanceKey">
                         <img *ngIf="['custom', 'snapshot'].indexOf(dashboardDatasetInstance.source.type) === -1"
                              src="/assets/favicon-rev.png" class="w-2.5 mx-1.5">
-                        <mat-icon *ngIf="dashboardDatasetInstance.source.type === 'custom'" class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
-                        <mat-icon *ngIf="dashboardDatasetInstance.source.type === 'snapshot'" class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
+                        <mat-icon *ngIf="dashboardDatasetInstance.source.type === 'custom'"
+                                  class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
+                        <mat-icon *ngIf="dashboardDatasetInstance.source.type === 'snapshot'"
+                                  class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
                     </ng-template>
                     <ng-template [ngIf]="!dashboardDatasetInstance.source.datasourceInstanceKey">
                         <mat-icon class="h-4 w-4 text-lg leading-4 mx-1.5">query_stats</mat-icon>
@@ -172,7 +181,8 @@
                                 <mat-checkbox class="mr-2" [(ngModel)]="general.transparent"></mat-checkbox>
                                 <p class="mb-0 mt-1">Transparent background</p>
                             </div>
-                            <small class="mb-4 block font-normal">Make this dashboard items background transparent - requires page refesh to take affect</small>
+                            <small class="mb-4 block font-normal">Make this dashboard items background transparent -
+                                requires page refesh to take affect</small>
                         </div>
                     </div>
                 </div>
@@ -526,7 +536,8 @@
                                         [compareWith]="setCallToActionItem"
                                         (ngModelChange)="ctaUpdate($event)">
                                     <option value="">None</option>
-                                    <option [ngValue]="{type: 'custom', windowLocation: 'EXISTING'}">Custom Link</option>
+                                    <option [ngValue]="{type: 'custom', windowLocation: 'EXISTING'}">Custom Link
+                                    </option>
                                     <optgroup label="Dashboards">
                                         <option *ngFor="let dashboard of dashboards"
                                                 [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title, windowLocation: 'EXISTING'}">{{dashboard.title}}</option>
@@ -624,7 +635,8 @@
                                 Specify Max Column Width
                                 <div class="mt-1 relative rounded-md shadow-sm w-1/4">
                                     <input type="number" [(ngModel)]="tableCells[tableCells.column].maxWidth"
-                                           class="block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="Enter width">
+                                           class="block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+                                           placeholder="Enter width">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <span class="text-gray-500 sm:text-sm"> px </span>
                                     </div>
@@ -648,7 +660,8 @@
                                                      [data]="tableCells[tableCells.column].data"
                                                      [openSide]="openSide" [dataset]="dataset"
                                                      [currencies]="currencies" [dashboards]="dashboards"
-                                                     [sharedDashboards]="sharedDashboards" [actionEvents]="actionEvents">
+                                                     [sharedDashboards]="sharedDashboards"
+                                                     [actionEvents]="actionEvents">
                             </ki-table-cell-formatter>
 
                         </ng-template>
@@ -713,15 +726,24 @@
                                             <span class="text-xs">({{metric.subTitle}})</span></span>
                                     </div>
 
-                                    <div *ngIf="metric.showSubChange" class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
+                                    <div *ngIf="metric.showSubChange"
+                                         class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
                                          [ngClass]="{'bg-green-100 text-green-800': metric.mainValue >= metric.subValue, 'bg-red-100 text-red-800': metric.mainValue < metric.subValue}">
                                         <!-- Heroicon name: mini/arrow-up -->
-                                        <svg *ngIf="metric.mainValue >= metric.subValue" class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                            <path fill-rule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clip-rule="evenodd" />
+                                        <svg *ngIf="metric.mainValue >= metric.subValue"
+                                             class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500"
+                                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                             aria-hidden="true">
+                                            <path fill-rule="evenodd"
+                                                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                                                  clip-rule="evenodd"/>
                                         </svg>
-                                        <svg *ngIf="metric.mainValue < metric.subValue " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        <svg *ngIf="metric.mainValue < metric.subValue "
+                                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                              class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500">
-                                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clip-rule="evenodd" />
+                                            <path fill-rule="evenodd"
+                                                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                                                  clip-rule="evenodd"/>
                                         </svg>
                                         {{metric.difference}}
                                     </div>
@@ -846,7 +868,8 @@
                             </label>
                             <label class="ml-4 mt-4 flex-1">
                                 <mat-checkbox [(ngModel)]="dashboardItemType.combineRemaining">
-                                    Combine remaining results</mat-checkbox>
+                                    Combine remaining results
+                                </mat-checkbox>
                             </label>
                         </div>
 
@@ -855,14 +878,15 @@
                             <input type="text" [(ngModel)]="dashboardItemType.combineRemaingingLabel">
                         </label>
 
-                        <div class="align-center justify-between">
-                            <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="mb-4">Show Legend
-                            </mat-slide-toggle>
-                            <mat-slide-toggle *ngIf="dashboardItemType.type === 'line'"
-                                              [(ngModel)]="dashboardItemType.fill"
-                                              (ngModelChange)="setChartData()" class="mb-4">Fill Background
-                            </mat-slide-toggle>
-                        </div>
+                        <mat-slide-toggle [(ngModel)]="dashboardItemType.beginAtZero" class="block mb-4">
+                            Start Y Axes at Zero
+                        </mat-slide-toggle>
+                        <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="block mb-4">Show Legend
+                        </mat-slide-toggle>
+                        <mat-slide-toggle *ngIf="dashboardItemType.type === 'line'"
+                                          [(ngModel)]="dashboardItemType.fill"
+                                          (ngModelChange)="setChartData()" class="block mb-4">Fill Background
+                        </mat-slide-toggle>
 
                         <div class="mt-4 mb-4 align-center justify-between">
                             <label class="flex-1">
@@ -891,7 +915,7 @@
                         <canvas baseChart *ngIf="chartData"
                                 [datasets]="chartData"
                                 [labels]="dashboardItemType.labels"
-                                [options]="{responsive: true}"
+                                [options]="{scales: {yAxes: [{ticks: {beginAtZero: dashboardItemType.beginAtZero}}]}, responsive: true}"
                                 [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
                                 [legend]="!!dashboardItemType.legend"
                                 [chartType]="dashboardItemType.type"
@@ -918,7 +942,8 @@
                 <div class="w-1/2">
                     <div class="p-4">
                         <label class="mb-2">
-                            Use an indexed document data source to populate word cloud, or provide a string from a single column.
+                            Use an indexed document data source to populate word cloud, or provide a string from a
+                            single column.
                             <mat-radio-group [(ngModel)]="wordCloud.populationMethod">
                                 <mat-radio-button value="WHOLE">Word Frequencies</mat-radio-button>
                                 <mat-radio-button class="ml-4" value="SINGLE">Single String</mat-radio-button>
