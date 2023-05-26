@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {SourceSelectorDialogComponent} from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
 import {DashboardService} from '../../../services/dashboard.service';
@@ -12,6 +12,7 @@ import {Router} from '@angular/router';
 import {DatasourceService} from '../../../services/datasource.service';
 import {BehaviorSubject, Subject} from 'rxjs';
 import {ActionEvent} from '../../../objects/action-event';
+import {BaseChartDirective} from 'ng2-charts';
 
 @Component({
     selector: 'ki-configure-item',
@@ -20,6 +21,8 @@ import {ActionEvent} from '../../../objects/action-event';
     host: {class: 'configure-dialog'}
 })
 export class ConfigureItemComponent implements OnInit {
+
+    @ViewChild(BaseChartDirective) chart: BaseChartDirective;
 
     public grid;
     public chartData: any;
@@ -113,6 +116,8 @@ export class ConfigureItemComponent implements OnInit {
     public _ = _;
     public docColumns = new Subject();
 
+    protected readonly Array = Array;
+
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
@@ -197,6 +202,13 @@ export class ConfigureItemComponent implements OnInit {
             }
             this.sideOpen = open;
         });
+    }
+
+    public updateChart(newValue, index) {
+        this.dashboardItemType.backgroundColor[index] = newValue;
+        setTimeout(() => {
+            this.chart.chart.update();
+        }, 50);
     }
 
     public selectedDatasource() {

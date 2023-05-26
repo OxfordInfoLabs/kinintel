@@ -907,12 +907,25 @@
                                        (ngModelChange)="backgroundColourUpdate()">
                             </label>
                         </div>
+
+                        <ng-template [ngIf]="dashboardItemType.type !== 'line' && Array.isArray(dashboardItemType.backgroundColor)">
+                            <label
+                                *ngIf="dashboardItemType.backgroundColor && dashboardItemType.backgroundColor.length">
+                                Set Individual Colours
+                            </label>
+                            <div *ngFor="let backColour of dashboardItemType.backgroundColor; let i = index">
+                                <div class="tracking-wider uppercase text-gray-500 text-xs mt-2"
+                                     *ngIf="dataset && dataset.allData">
+                                    {{dataset.allData[i][dashboardItemType.xAxis]}}
+                                </div>
+                                <input type="color" (change)="updateChart($event.target.value, i)"
+                                       [name]="'colour' + i" [value]="dashboardItemType.backgroundColor[i]">
+                            </div>
+                        </ng-template>
                     </div>
 
                     <div class="w-6/12 p-4">
-
-
-                        <canvas baseChart *ngIf="chartData"
+                        <canvas #chart baseChart class="sticky top-10" *ngIf="chartData"
                                 [datasets]="chartData"
                                 [labels]="dashboardItemType.labels"
                                 [options]="{scales: {yAxes: [{ticks: {beginAtZero: dashboardItemType.beginAtZero}}]}, responsive: true}"
