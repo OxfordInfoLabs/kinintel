@@ -32,7 +32,7 @@ import {
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import moment from 'moment';
 import {ActionEvent} from '../../objects/action-event';
 import {
@@ -158,6 +158,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     ];
     public clonedDashboard: any;
     public grid: GridStack;
+    public optimise = true;
+    public optimiseSubject = new Subject<boolean>();
 
     private queryParams: any = {};
     private routeURL: string;
@@ -276,6 +278,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.dashboard.displaySettings && (this.dashboard.displaySettings.length || Object.keys(this.dashboard.displaySettings).length)) {
             this.darkMode = !!this.dashboard.displaySettings.darkMode;
+            this.optimise = this.dashboard.displaySettings.optimise !== undefined ? this.dashboard.displaySettings.optimise : true;
             this.setDarkModeOnBody();
             if (this.dashboard.displaySettings.fullScreen) {
                 this.openFullScreen();
@@ -305,6 +308,16 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
+    }
+
+    public togglePerformance() {
+        this.optimise = !this.optimise;
+
+        setTimeout(() => {
+            this.dashboard.displaySettings.optimise = this.optimise;
+            this.optimiseSubject.next(this.optimise);
+        }, 0);
+
     }
 
     public changeDateType(event, parameter, value) {
@@ -450,6 +463,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         componentRef.instance.grid = this.grid;
         componentRef.instance.dashboard = this.dashboard;
         componentRef.instance.actionEvents = this.actionEvents;
+        componentRef.instance.optimiseSubject = this.optimiseSubject;
+        componentRef.instance.optimise = this.optimise;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 

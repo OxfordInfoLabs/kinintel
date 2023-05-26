@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, ViewChild} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
@@ -7,7 +7,7 @@ import * as lodash from 'lodash';
 const _ = lodash.default;
 import {DatasetService} from '../../../services/dataset.service';
 import {AlertService} from '../../../services/alert.service';
-import {Subscription} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import moment from 'moment';
@@ -28,7 +28,7 @@ declare var window: any;
     templateUrl: './item-component.component.html',
     styleUrls: ['./item-component.component.sass']
 })
-export class ItemComponentComponent implements AfterViewInit {
+export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
     @Input() dashboardItemType: any;
     @Input() itemInstanceKey: any;
@@ -95,8 +95,11 @@ export class ItemComponentComponent implements AfterViewInit {
     public offset = 0;
     public endOfResults = false;
     public itemLocked = false;
+    public optimise = true;
+    public optimiseSubject = new Subject<boolean>();
 
     private itemLoadedSub: Subscription;
+    private optimiseSub: Subscription;
 
     constructor(private dialog: MatDialog,
                 private kiDatasourceService: DatasourceService,
@@ -209,6 +212,17 @@ export class ItemComponentComponent implements AfterViewInit {
             });
         } else if (evaluate) {
             this.evaluate();
+        }
+
+        this.optimiseSub = this.optimiseSubject.subscribe(res => this.optimise = res);
+    }
+
+    ngOnDestroy() {
+        if (this.optimiseSub) {
+            this.optimiseSub.unsubscribe();
+        }
+        if (this.itemLoadedSub) {
+            this.itemLoadedSub.unsubscribe();
         }
     }
 

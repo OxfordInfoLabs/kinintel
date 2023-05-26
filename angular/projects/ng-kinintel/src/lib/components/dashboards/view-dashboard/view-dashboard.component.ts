@@ -343,6 +343,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         componentRef.instance.actionEvents = this.actionEvents;
         componentRef.instance.external = !!this.external;
         componentRef.instance.queryParams = this.queryParams;
+        componentRef.instance.optimise = false;
 
         const chartDetails = this.dashboard.layoutSettings.charts ? this.dashboard.layoutSettings.charts[instanceId] : null;
 

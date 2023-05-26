@@ -117,7 +117,7 @@
     <div class="item-title " *ngIf="general.name" [innerHTML]="general.evaluatedName"
          [ngClass]="{'pb-4': !general.description, 'pb-2': general.description}"></div>
 
-    <div class="item-description " *ngIf="general.description"
+    <div class="item-description text-sm" *ngIf="general.description"
          [innerHTML]="general.evaluatedDescription"></div>
 
     <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image',
@@ -235,7 +235,7 @@
                 </tr>
                 </thead>
                 <tbody class="bg-white ">
-                <tr *ngFor="let dataItem of dataset.allData"
+                <tr *ngFor="let dataItem of optimise ? dataset.allData.slice(0,10) : dataset.allData"
                     [ngClass]="{'hover:bg-gray-50 cursor-pointer ': (tabular.actionRows && tabular.cta)}"
                     (click)="(tabular.actionRows && tabular.cta) ? callToActionLink(tabular.cta, dataItem) : null">
                     <ng-template ngFor let-column [ngForOf]="dataset.columns" let-i=index>
@@ -286,6 +286,11 @@
                     </ng-template>
 
                 </tr>
+                <tr *ngIf="optimise && dataset.allData.length > 10">
+                    <td class="pl-3 text-gray-900 font-medium bg-gray-200" [colSpan]="dataset.columns.length">
+                        Results limited during editing for enhanced performance.
+                    </td>
+                </tr>
                 </tbody>
             </table>
 
@@ -309,7 +314,7 @@
 
     </div>
 
-    <div *ngIf="dashboardItemType.type === 'table' && !tabular.hidePager"
+    <div *ngIf="!optimise && dashboardItemType.type === 'table' && !tabular.hidePager"
          class="table-pager flex items-center justify-between px-2 border-t border-gray-200 h-12 bg-gray-50 w-full">
         <div class="text-xs text-gray-400">
             Showing {{offset + 1}} - {{(page * limit) - (limit - dataset.allData.length)}}</div>
