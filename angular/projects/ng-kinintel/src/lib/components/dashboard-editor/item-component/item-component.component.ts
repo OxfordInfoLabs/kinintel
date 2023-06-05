@@ -1055,15 +1055,13 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
         if (this.dashboard.layoutSettings.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
             _.forEach(this.dashboard.layoutSettings.parameters, (param, name) => {
-                if (!datasetInstanceSummary.parameterValues[name]) {
-                    let value = param.value;
-                    if (param.type === 'date' || param.type === 'datetime') {
-                        if (value && !value.includes('AGO')) {
-                            value = moment(value).format('YYYY-MM-DD HH:mm:ss');
-                        }
+                let value = param.value;
+                if (param.type === 'date' || param.type === 'datetime') {
+                    if (value && !value.includes('AGO')) {
+                        value = moment(value).format('YYYY-MM-DD HH:mm:ss');
                     }
-                    datasetInstanceSummary.parameterValues[name] = value;
                 }
+                datasetInstanceSummary.parameterValues[name] = value;
             });
         }
 
