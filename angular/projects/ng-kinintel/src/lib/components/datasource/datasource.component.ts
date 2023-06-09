@@ -158,8 +158,8 @@ export class DatasourceComponent implements OnInit, OnDestroy {
 
         return this.datasourceService.getDatasources(
             this.searchText.getValue() || '',
-            this.limit.toString(),
-            this.offset.toString(),
+            this.filterResults ? '1000' : this.limit.toString(),
+            this.filterResults ? '0' : this.offset.toString(),
             this.noProject
         ).pipe(map((sources: any) => {
                 this.endOfResults = sources.length < this.limit;
