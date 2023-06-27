@@ -5,8 +5,10 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\DefaultORMInterceptor;
+use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Services\Datasource\DatasourceDAO;
 
 class DatasourceInstanceInterceptor extends DefaultORMInterceptor {
 
@@ -15,14 +17,32 @@ class DatasourceInstanceInterceptor extends DefaultORMInterceptor {
      */
     private $databaseConnection;
 
+    /**
+     * @var DatasourceDAO
+     */
+    private $datasourceDAO;
+
 
     /**
      * DatasourceInstanceInterceptor constructor.
      *
      * @param DatabaseConnection $databaseConnection
+     * @param DatasourceDAO $datasourceDAO
      */
-    public function __construct($databaseConnection) {
+    public function __construct($databaseConnection, $datasourceDAO) {
         $this->databaseConnection = $databaseConnection;
+        $this->datasourceDAO = $datasourceDAO;
+    }
+
+    /**
+     * Check to ensure if an import key is set that there is no overlap
+     *
+     * @param DatasourceInstance $object
+     */
+    public function preSave($object) {
+        if ($object->getImportKey() && !$this->datasourceDAO->importKeyAvailableForDatasourceInstance($object, $object->getImportKey())) {
+            throw new ImportKeyAlreadyExistsException($object->getImportKey());
+        }
     }
 
 

@@ -33,8 +33,9 @@ class Bootstrap implements ApplicationBootstrap {
         Container::instance()->addInterfaceImplementation(Task::class, "alertgroup", AlertGroupTask::class);
         Container::instance()->addInterfaceImplementation(Task::class, "dataprocessor", DataProcessorTask::class);
 
-        // Add route interceptor for feeds to match the API one
+        // Add route interceptor for feeds and import to match the API one
         $this->routeInterceptorProcessor->addInterceptor("feed/*", APIRouteInterceptor::class);
+        $this->routeInterceptorProcessor->addInterceptor("import/*", APIRouteInterceptor::class);
 
         // Add attachment storage for google
         Container::instance()->addInterfaceImplementation(AttachmentStorage::class, "google-cloud", GoogleCloudAttachmentStorage::class);

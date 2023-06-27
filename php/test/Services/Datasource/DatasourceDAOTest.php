@@ -5,6 +5,7 @@ namespace Kinintel\Services\Datasource;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\TestBase;
@@ -100,7 +101,7 @@ class DatasourceDAOTest extends TestBase {
         $this->assertEquals(5, sizeof($filtered));
 
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice", "Basic Datasource"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource", "webservice" , "My first test JSON Datasource"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource", "webservice", "My first test JSON Datasource"), $filtered[1]);
         $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds", "webservice"), $filtered[2]);
         $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-config", "Test JSON Datasource with Invalid Config", "webservice"), $filtered[3]);
         $this->assertEquals(new DatasourceInstanceSearchResult("test-json-invalid-creds", "Test JSON Datasource with invalid Creds", "webservice"), $filtered[4]);
@@ -115,7 +116,7 @@ class DatasourceDAOTest extends TestBase {
         $filtered = $this->datasourceDAO->filterDatasourceInstances("json", 3);
         $this->assertEquals(3, sizeof($filtered));
         $this->assertEquals(new DatasourceInstanceSearchResult("db-json", "Database JSON", "webservice", "Basic Datasource"), $filtered[0]);
-        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource", "webservice" , "My first test JSON Datasource"), $filtered[1]);
+        $this->assertEquals(new DatasourceInstanceSearchResult("test-json", "Test JSON Datasource", "webservice", "My first test JSON Datasource"), $filtered[1]);
         $this->assertEquals(new DatasourceInstanceSearchResult("test-json-explicit-creds", "Test JSON Datasource with Explicit Creds", "webservice"), $filtered[2]);
 
 
@@ -177,7 +178,7 @@ class DatasourceDAOTest extends TestBase {
             "source" => "table",
             "tableName" => "bob",
             "columns" => [
-                new Field("id", "Id",null,Field::TYPE_STRING, true)
+                new Field("id", "Id", null, Field::TYPE_STRING, true)
             ]
         ], "sql");
         $dataSourceInstance->setAccountId(2);
@@ -259,6 +260,119 @@ class DatasourceDAOTest extends TestBase {
     }
 
 
+    public function testCanGetDatasourceInstanceByImportKeyOptionallyLimitedToAccountAndProject() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSourceInstance1 = new DatasourceInstance("test-top-level", "Test Top Level", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance1->setImportKey("import-top-level");
+        $dataSourceInstance1->save();
+
+
+        $dataSourceInstance2 = new DatasourceInstance("test-account-1", "Test Account", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance2->setAccountId(1);
+        $dataSourceInstance2->setImportKey("import-account");
+        $dataSourceInstance2->save();
+
+        $dataSourceInstance3 = new DatasourceInstance("test-account-2", "Test Account", "webservice", [
+            "url" => "https://json-test.com/dbfeed"
+        ], "http-basic");
+        $dataSourceInstance3->setAccountId(2);
+        $dataSourceInstance3->setImportKey("import-account");
+        $dataSourceInstance3->save();
+
+        $dataSourceInstance4 = new DatasourceInstance("test-project-1", "Test Project", "sqldatabase", [
+            "source" => "table",
+            "tableName" => "bob"
+        ], "sql");
+        $dataSourceInstance4->setAccountId(2);
+        $dataSourceInstance4->setProjectKey("soapSuds");
+        $dataSourceInstance4->setImportKey("import-project");
+        $dataSourceInstance4->save();
+
+        $dataSourceInstance5 = new DatasourceInstance("test-project-2", "Test Project", "sqldatabase", [
+            "source" => "table",
+            "tableName" => "bob"
+        ], "sql");
+        $dataSourceInstance5->setAccountId(2);
+        $dataSourceInstance5->setProjectKey("wiperBlades");
+        $dataSourceInstance5->setImportKey("import-project");
+        $dataSourceInstance5->save();
+
+
+        $topLevel = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-top-level");
+        $this->assertEquals($dataSourceInstance1, $topLevel);
+
+        $accountLevel1 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-account", null, 1);
+        $this->assertEquals($dataSourceInstance2, $accountLevel1);
+
+        $accountLevel2 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-account", null, 2);
+        $this->assertEquals($dataSourceInstance3, $accountLevel2);
+
+        $projectLevel1 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-project", "soapSuds", 2);
+        $this->assertEquals($dataSourceInstance4, $projectLevel1);
+
+        $projectLevel2 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-project", "wiperBlades", 2);
+        $this->assertEquals($dataSourceInstance5, $projectLevel2);
+
+
+    }
+
+
+
+    public function testCanCheckWhetherImportKeyIsAvailableForDatasourceInstance() {
+
+        // Create one from scratch - should be fine
+        $datasourceInstance = new DatasourceInstance("existing-import", "Existing Import", "webservice", [
+            "url" => "https://test.com"
+        ]);
+        $datasourceInstance->setAccountId(1);
+        $datasourceInstance->setImportKey("existing-key");
+        $datasourceInstance->save();
+
+
+        // Now check for account duplicate
+        $newInstance = new DatasourceInstance("new-import", "New Import", "webservice", [
+            "url" => "https://test.com"
+        ]);
+        $newInstance->setAccountId(1);
+        $this->assertFalse($this->datasourceDAO->importKeyAvailableForDatasourceInstance($newInstance, "existing-key"));
+
+        // Now create a project one from scratch
+        $datasourceInstance = new DatasourceInstance("existing-project", "Existing Import", "webservice", [
+            "url" => "https://test.com"
+        ]);
+        $datasourceInstance->setAccountId(1);
+        $datasourceInstance->setProjectKey("project1");
+        $datasourceInstance->setImportKey("project-key");
+        $datasourceInstance->save();
+
+        // Now create an overlapping one
+        $newInstance = new DatasourceInstance("new-project", "New Project key", "webservice", [
+            "url" => "https://test.com"
+        ]);
+        $newInstance->setAccountId(1);
+        $newInstance->setProjectKey("project1");
+
+        $this->assertFalse($this->datasourceDAO->importKeyAvailableForDatasourceInstance($newInstance, "project-key"));
+
+
+        // Now check we can reuse the key in a different project
+        $newInstance = new DatasourceInstance("new-project", "New Project key", "webservice", [
+            "url" => "https://test.com"
+        ]);
+        $newInstance->setAccountId(1);
+        $newInstance->setProjectKey("project2");
+        $newInstance->setImportKey("project-key");
+
+        $this->assertTrue($this->datasourceDAO->importKeyAvailableForDatasourceInstance($newInstance, "project-key"));
+
+
+    }
 
 
 }

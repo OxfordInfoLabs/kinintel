@@ -417,7 +417,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         // Carry out the update to the latest table
         $datasourceLatestUpdate = new DatasourceUpdate([], $updates, $deletes, $adds);
 
-        $this->datasourceService->updateDatasourceInstance($targetLatestDatasourceKey, $datasourceLatestUpdate, true);
+        $this->datasourceService->updateDatasourceInstanceByKey($targetLatestDatasourceKey, $datasourceLatestUpdate, true);
 
 
         // Construct the changes update and update the changes table
@@ -433,7 +433,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $datasourceChangesUpdate = new DatasourceUpdate([], [], [], $data);
 
         if ($targetChangeDatasourceKey) {
-            $this->datasourceService->updateDatasourceInstance($targetChangeDatasourceKey, $datasourceChangesUpdate, true);
+            $this->datasourceService->updateDatasourceInstanceByKey($targetChangeDatasourceKey, $datasourceChangesUpdate, true);
         }
 
     }
@@ -465,13 +465,13 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         while ($row = $summarisedData->nextDataItem()) {
             $writeRows[] = $row;
             if (sizeof($writeRows) == $targetWriteChunkSize) {
-                $this->datasourceService->updateDatasourceInstance($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
+                $this->datasourceService->updateDatasourceInstanceByKey($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
                 $writeRows = [];
             }
         }
 
         if (sizeof($writeRows)) {
-            $this->datasourceService->updateDatasourceInstance($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
+            $this->datasourceService->updateDatasourceInstanceByKey($targetSummaryDatasourceKey, new DatasourceUpdate($writeRows), true);
         }
     }
 
