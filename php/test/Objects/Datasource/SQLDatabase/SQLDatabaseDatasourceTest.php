@@ -444,6 +444,12 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testDuplicateEntriesExceptionSuppliedExceptionRaisedIfSQLExceptionThrownWith23000Codes() {
+
+
+
+    }
+
     public function testAllDataRemovedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuchUsingKeyFieldNames() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
@@ -514,7 +520,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable","", [], true);
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", [], true);
 
         $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
@@ -560,7 +566,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testWhenManagingTableStructureOnInstanceSaveModifiesTableAccordingToPassedFieldsIfTableAlreadyExists() {
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable","", [], true);
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", [], true);
 
         $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
@@ -611,7 +617,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testWhenManagingTableStructureIDTypeFieldsAreMappedToAutoIncrementPrimaryKeyFieldAndNegateAnyPrimaryKeyFields() {
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable","", [], true);
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", [], true);
 
         $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);

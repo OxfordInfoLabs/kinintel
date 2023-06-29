@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinintel\Controllers;
+namespace Kinintel\Controllers\API;
 
 
 use Kinikit\MVC\Request\Request;

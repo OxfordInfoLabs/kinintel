@@ -1,0 +1,12 @@
+[
+  {
+    "key": "feedaccess",
+    "description": "Access for consuming feeds within project.",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "customdatasourceupdate",
+    "description": "Access for updating custom data sources within project",
+    "scope": "PROJECT"
+  }
+]

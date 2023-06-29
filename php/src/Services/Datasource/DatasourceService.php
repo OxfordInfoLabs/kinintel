@@ -232,10 +232,10 @@ class DatasourceService {
      * @param string $projectKey
      * @param int $accountId
      */
-    public function updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         // Grab the instance and call the child function
-        $datasourceInstance = $this->datasourceDAO->getDatasourceInstanceByImportKey($importKey, $projectKey, $accountId);
+        $datasourceInstance = $this->datasourceDAO->getDatasourceInstanceByImportKey($importKey, $accountId);
         $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, false);
     }
 

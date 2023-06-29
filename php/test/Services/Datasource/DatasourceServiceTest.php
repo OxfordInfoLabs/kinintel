@@ -730,7 +730,6 @@ class DatasourceServiceTest extends TestBase {
         $dataSource->returnValue("getConfig", $dataSourceConfig);
         $this->datasourceDAO->returnValue("getDatasourceInstanceByImportKey", $dataSourceInstance, [
             "test-import",
-            "myProject",
             22
         ]);
 
@@ -771,7 +770,7 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Going away", "age" => 33]
         ]);
 
-        $this->dataSourceService->updateDatasourceInstanceByImportKey("test-import", $datasourceUpdate, "myProject", 22);
+        $this->dataSourceService->updateDatasourceInstanceByImportKey("test-import", $datasourceUpdate, 22);
 
 
         // Check title was updated

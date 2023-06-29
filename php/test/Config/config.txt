@@ -2,7 +2,7 @@
 
 application.namespace = Kinintel
 
-search.paths = ../../vendor/oxil/kiniauth/php/src;../src
+search.paths = ../../vendor/oxil/kiniauth/php/src;
 
 db.provider = sqlite3
 db.filename = DB/kinintel-test.db

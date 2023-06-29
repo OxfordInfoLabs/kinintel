@@ -5,6 +5,9 @@ namespace Kinintel\Services\Feed;
 
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Security\Role;
+use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Exception\AccessDeniedException;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
@@ -19,12 +22,20 @@ class FeedService {
 
 
     /**
+     * @var SecurityService
+     */
+    private $securityService;
+
+
+    /**
      * FeedService constructor.
      *
      * @param DatasetService $datasetService
+     * @param SecurityService $securityService
      */
-    public function __construct($datasetService) {
+    public function __construct($datasetService, $securityService) {
         $this->datasetService = $datasetService;
+        $this->securityService = $securityService;
     }
 
 
@@ -148,6 +159,10 @@ class FeedService {
          * @var Feed $feed
          */
         $feed = $matchingFeeds[0];
+
+        if ($feed->getProjectKey() && !$this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "feedaccess", $feed->getProjectKey())) {
+            throw new AccessDeniedException("You have not been granted access to feeds");
+        }
 
         // Grab the data set instance summary for this feed
         $datasetInstanceSummary = $this->datasetService->getDataSetInstance($feed->getDatasetInstanceId());

@@ -112,23 +112,17 @@ class DatasourceDAO {
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function getDatasourceInstanceByImportKey($importKey, $projectKey = null, $accountId = null) {
+    public function getDatasourceInstanceByImportKey($importKey,  $accountId = null) {
 
         // If account id or project key, form clause
         $clauses = ["import_key = ?"];
         $parameters = [$importKey];
-        if ($accountId || $projectKey) {
+        if ($accountId) {
             $clauses[] = "accountId = ?";
             $parameters[] = $accountId;
-
-            if ($projectKey) {
-                $clauses[] = "projectKey = ?";
-                $parameters[] = $projectKey;
-            }
         } else {
             $clauses[] = "accountId IS NULL";
         }
-
 
         $matches = DatasourceInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
         if (sizeof($matches) > 0) {
@@ -154,11 +148,6 @@ class DatasourceDAO {
         if ($datasourceInstance->getAccountId() || $datasourceInstance->getProjectKey()) {
             $clauses[] = "accountId = ?";
             $parameters[] = $datasourceInstance->getAccountId();
-
-            if ($datasourceInstance->getProjectKey()) {
-                $clauses[] = "projectKey = ?";
-                $parameters[] = $datasourceInstance->getProjectKey();
-            }
         } else {
             $clauses[] = "accountId IS NULL";
         }
