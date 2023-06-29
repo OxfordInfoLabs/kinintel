@@ -65,7 +65,7 @@ class CustomDatasourceService {
 
             // If adds to deal with, call main update function
             if ($datasourceUpdate->getAdds()) {
-                $this->datasourceService->updateDatasourceInstance($newDatasourceKey, $datasourceUpdate);
+                $this->datasourceService->updateDatasourceInstanceByKey($newDatasourceKey, $datasourceUpdate);
             }
 
             return $newDatasourceKey;

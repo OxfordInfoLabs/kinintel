@@ -363,7 +363,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate, true]));
     }
 
 
@@ -415,8 +415,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateAdds, true]));
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateUpdates, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateAdds, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateUpdates, true]));
 
     }
 
@@ -465,8 +465,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateAdds, true]));
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateDeletes, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateAdds, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateDeletes, true]));
 
     }
 
@@ -527,9 +527,9 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateAdds, true]));
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateUpdates, true]));
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdateDeletes, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateAdds, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateUpdates, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdateDeletes, true]));
 
     }
 
@@ -587,7 +587,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate, true]));
     }
 
 
@@ -645,7 +645,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate, true]));
 
     }
 
@@ -682,8 +682,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate1, true]));
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate2, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate1, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate2, true]));
     }
 
     public function testCanReadGivenChunkSize() {
@@ -720,7 +720,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $expectedUpdate1 = new DatasourceUpdate([], [], [], $data);
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate1, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate1, true]));
     }
 
 
@@ -804,7 +804,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]]);
 
         $this->processor->process($processorInstance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate, true]));
     }
 
     public function testCanProcessDataset() {
@@ -857,7 +857,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->processor->process($processorInstance);
 
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate, true]));
     }
 
     public function testDoesSkipDatasourceIfNewFileEmpty() {
@@ -958,7 +958,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $this->processor->process($processorInstance);
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["test", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["test", $expectedUpdate, true]));
 
     }
 
@@ -1039,7 +1039,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $this->processor->process($processorInstance);
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["testLatest", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["testLatest", $expectedUpdate, true]));
 
     }
 }

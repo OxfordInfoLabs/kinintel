@@ -13,6 +13,12 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
 
 
     /**
+     * @var string
+     */
+    private $importKey;
+
+
+    /**
      * @var DatasourceUpdateField[]
      */
     private $fields;
@@ -22,15 +28,17 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
      * DatasourceUpdate constructor.
      *
      * @param string $title
+     * @param null $importKey
      * @param DatasourceUpdateField[] $fields
      * @param mixed[] $adds
      * @param mixed[] $updates
      * @param mixed[] $deletes
      */
-    public function __construct($title, $fields = [], $adds = [], $updates = [], $deletes = []) {
+    public function __construct($title, $importKey = null, $fields = [], $adds = [], $updates = [], $deletes = []) {
         parent::__construct($adds, $updates, $deletes);
         $this->title = $title;
         $this->fields = $fields;
+        $this->importKey = $importKey;
     }
 
 
@@ -47,6 +55,21 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
     public function setTitle($title) {
         $this->title = $title;
     }
+
+    /**
+     * @return string
+     */
+    public function getImportKey() {
+        return $this->importKey;
+    }
+
+    /**
+     * @param string $importKey
+     */
+    public function setImportKey($importKey) {
+        $this->importKey = $importKey;
+    }
+
 
     /**
      * @return DatasourceUpdateField[]

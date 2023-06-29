@@ -475,13 +475,13 @@ class DatasourceServiceTest extends TestBase {
         $dataSourceInstance->returnValue("getAccountId", null);
 
         // This should be fine as super user
-        $this->dataSourceService->updateDatasourceInstance("test", new DatasourceUpdate());
+        $this->dataSourceService->updateDatasourceInstanceByKey("test", new DatasourceUpdate());
 
         // Set explicit account
         $dataSourceInstance->returnValue("getAccountId", 1);
 
         // This should be fine as super user
-        $this->dataSourceService->updateDatasourceInstance("test", new DatasourceUpdate());
+        $this->dataSourceService->updateDatasourceInstanceByKey("test", new DatasourceUpdate());
 
         // Now login as regular user
         $this->securityService->returnValue("isSuperUserLoggedIn", false);
@@ -490,7 +490,7 @@ class DatasourceServiceTest extends TestBase {
 
         // This should fail
         try {
-            $this->dataSourceService->updateDatasourceInstance("test", new DatasourceUpdate());
+            $this->dataSourceService->updateDatasourceInstanceByKey("test", new DatasourceUpdate());
             $this->fail("Should have thrown here");
         } catch (ObjectNotFoundException $e) {
             // Success
@@ -526,7 +526,7 @@ class DatasourceServiceTest extends TestBase {
         ]);
 
         try {
-            $this->dataSourceService->updateDatasourceInstance("test", $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $this->dataSourceService->updateDatasourceInstanceByKey("test", $dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
             $this->fail("Should have thrown here");
         } catch (DatasourceNotUpdatableException $e) {
             $this->assertTrue(true);
@@ -598,7 +598,7 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Replace me twice", "age" => 65]
         ]);
 
-        $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
+        $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
@@ -619,7 +619,7 @@ class DatasourceServiceTest extends TestBase {
     }
 
 
-    public function testCanUpdateDatasourceTitleAndFieldsIfUpdateWithStructureObjectPassedToUpdateMethod() {
+    public function testCanUpdateDatasourceTitleImportKeyAndFieldsIfUpdateWithStructureObjectPassedToUpdateMethod() {
 
         // Login as superuser
         $this->securityService->returnValue("isSuperUserLoggedIn", true);
@@ -636,7 +636,7 @@ class DatasourceServiceTest extends TestBase {
             "test"
         ]);
 
-        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", "hello-my-world", [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
         ], [
@@ -673,13 +673,116 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Going away", "age" => 33]
         ]);
 
-        $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
+        $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
 
 
         // Check title was updated
         $this->assertTrue($dataSourceInstance->methodWasCalled("setTitle", [
             "Hello world"
         ]));
+
+        $this->assertTrue($dataSourceInstance->methodWasCalled("setImportKey", [
+            "hello-my-world"
+        ]));
+
+
+        // Check column configuration was updated
+        $this->assertTrue($dataSourceConfig->methodWasCalled("setColumns", [
+            [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ]
+        ]));
+
+
+        $this->assertTrue($this->datasourceDAO->methodWasCalled("saveDataSourceInstance", [
+            $dataSourceInstance
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
+        ]));
+
+        $this->assertTrue($dataSource->methodWasCalled("update", [
+            $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
+        ]));
+
+
+    }
+
+
+    public function testCanDoFullUpdateForImportKeyProjectAndAccount() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDatasourceInstanceByImportKey", $dataSourceInstance, [
+            "test-import",
+            "myProject",
+            22
+        ]);
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", "hello-my-world", [
+            new Field("name"),
+            new Field("age", null, null, Field::TYPE_INTEGER)
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ], [
+            ["name" => "Mr Smith", "age" => 22],
+            ["name" => "Mrs Apple", "age" => 72]
+        ], [
+                ["name" => "Going away", "age" => 33]
+            ]
+        );
+
+        $addDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+        $updateDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Mr Smith", "age" => 22],
+            ["name" => "Mrs Apple", "age" => 72]
+        ]);
+
+        $deleteDatasource = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Going away", "age" => 33]
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstanceByImportKey("test-import", $datasourceUpdate, "myProject", 22);
+
+
+        // Check title was updated
+        $this->assertTrue($dataSourceInstance->methodWasCalled("setTitle", [
+            "Hello world"
+        ]));
+
+        $this->assertTrue($dataSourceInstance->methodWasCalled("setImportKey", [
+            "hello-my-world"
+        ]));
+
 
         // Check column configuration was updated
         $this->assertTrue($dataSourceConfig->methodWasCalled("setColumns", [
@@ -728,7 +831,7 @@ class DatasourceServiceTest extends TestBase {
             "test"
         ]);
 
-        $datasourceUpdate = new DatasourceUpdateWithStructure("My Source", [
+        $datasourceUpdate = new DatasourceUpdateWithStructure("My Source", null, [
             new Field("id", "Id", null, Field::TYPE_ID),
             new Field("age")
         ], [
@@ -744,11 +847,27 @@ class DatasourceServiceTest extends TestBase {
         ]);
 
 
-        $this->dataSourceService->updateDatasourceInstance("test", $datasourceUpdate);
+        $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
 
         $this->assertTrue($dataSource->methodWasCalled("update", [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
         ]));
+
+    }
+
+    public function testCanCheckIfImportKeyIsInUseByAnotherDatasourceInstance() {
+
+        $newOne = new DatasourceInstance("mynewone", "My New One", "test");
+        $otherNewOne = new DatasourceInstance("myothernewone", "My Other New One", "test");
+
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $newOne, ["mynewone"]);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $otherNewOne, ["myothernewone"]);
+
+        $this->datasourceDAO->returnValue("importKeyAvailableForDatasourceInstance", true, [$newOne, "testimport"]);
+        $this->datasourceDAO->returnValue("importKeyAvailableForDatasourceInstance", false, [$otherNewOne, "testimport"]);
+
+        $this->assertTrue($this->dataSourceService->importKeyAvailableForDatasourceInstance("mynewone", "testimport"));
+        $this->assertFalse($this->dataSourceService->importKeyAvailableForDatasourceInstance("myothernewone", "testimport"));
 
     }
 

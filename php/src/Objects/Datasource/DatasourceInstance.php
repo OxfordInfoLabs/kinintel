@@ -77,12 +77,17 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      */
     private $updateConfig;
 
-
     /**
      * @var Parameter[]
      * @json
      */
     private $parameters;
+
+
+    /**
+     * @var string
+     */
+    private $importKey;
 
 
     /**
@@ -244,6 +249,20 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      */
     public function setTags($tags) {
         $this->tags = $tags;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImportKey() {
+        return $this->importKey;
+    }
+
+    /**
+     * @param string $importKey
+     */
+    public function setImportKey($importKey) {
+        $this->importKey = $importKey;
     }
 
 

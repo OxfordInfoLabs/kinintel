@@ -195,18 +195,66 @@ class DatasourceService {
 
 
     /**
-     * Update a datasource instance using a passed dataset and update mode.
+     * Check if an import key is available for a datasource instance passed in by key.
+     *
+     * @param $datasourceInstanceKey
+     * @param $proposedImportKey
+     *
+     * @return boolean
+     */
+    public function importKeyAvailableForDatasourceInstance($datasourceInstanceKey, $proposedImportKey) {
+        $instance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
+        return $this->datasourceDAO->importKeyAvailableForDatasourceInstance($instance, $proposedImportKey);
+    }
+
+
+    /**
+     * Update a datasource instance using a passed datasource key and update object.  This variant allows for insecure
+     * use if required
      *
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdate $datasourceUpdate
      */
-    public function updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate, $allowInsecure = false) {
+    public function updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate, $allowInsecure = false) {
 
-        // Grab the instance
+        // Grab the instance and call the child function
         $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
+        $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure);
+
+    }
+
+
+    /**
+     * Update a datasource instance by import key, qualified optionally by project key and account id
+     *
+     * @param string $importKey
+     * @param DatasourceUpdate $datasourceUpdate
+     * @param string $projectKey
+     * @param int $accountId
+     */
+    public function updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        // Grab the instance and call the child function
+        $datasourceInstance = $this->datasourceDAO->getDatasourceInstanceByImportKey($importKey, $projectKey, $accountId);
+        $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, false);
+    }
+
+
+    /**
+     * Update a datasource instance, called from a wrapper above.
+     *
+     * @param DatasourceInstance $datasourceInstance
+     * @param DatasourceUpdate $datasourceUpdate
+     * @param voolean $allowInsecure
+     *
+     * @throws DatasourceNotUpdatableException
+     * @throws ObjectNotFoundException
+     */
+    private function updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure = false) {
+
 
         if (!$allowInsecure && ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn())) {
-            throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstanceKey);
+            throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstance->getKey());
         }
 
         // Grab the datasource.
@@ -220,6 +268,7 @@ class DatasourceService {
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
             $datasourceInstance->setTitle($datasourceUpdate->getTitle());
+            $datasourceInstance->setImportKey($datasourceUpdate->getImportKey());
 
             // If updatable and fields
             if ($datasource instanceof UpdatableDatasource && $datasourceUpdate->getFields()) {

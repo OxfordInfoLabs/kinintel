@@ -20,6 +20,11 @@ class DatasourceInstanceInfo {
     private $title;
 
     /**
+     * @var string
+     */
+    private $importKey;
+
+    /**
      * @var Parameter[]
      */
     private $parameters;
@@ -46,6 +51,7 @@ class DatasourceInstanceInfo {
         // If an instance, set params
         if ($datasourceInstance) {
             $this->title = $datasourceInstance->getTitle();
+            $this->importKey = $datasourceInstance->getImportKey();
             $this->key = $datasourceInstance->getKey();
             $this->parameters = $datasourceInstance->getParameters();
             $this->projectKey = $datasourceInstance->getProjectKey();
@@ -66,6 +72,13 @@ class DatasourceInstanceInfo {
      */
     public function getTitle() {
         return $this->title;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImportKey() {
+        return $this->importKey;
     }
 
 

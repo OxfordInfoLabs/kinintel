@@ -42,7 +42,7 @@ class CustomDatasourceServiceTest extends TestBase {
     public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
-        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
         ], [
@@ -77,7 +77,7 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", [
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
             $newDatasourceKey, $datasourceUpdate
         ]));
 
@@ -87,7 +87,7 @@ class CustomDatasourceServiceTest extends TestBase {
     public function testIfDatasourceKeySuppliedItIsUsedOnCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
-        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
         ], [
@@ -124,7 +124,7 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", [
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
             $newDatasourceKey, $datasourceUpdate
         ]));
 
@@ -134,7 +134,7 @@ class CustomDatasourceServiceTest extends TestBase {
 
     public function testIfCustomDataSourceCreationFailsInstanceIsDeleted() {
 
-        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", [
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
         ], [

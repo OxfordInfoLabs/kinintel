@@ -124,7 +124,7 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
 
         // Update the target datasource
         $update = new DatasourceUpdate([], [], [], $dataset);
-        $this->datasourceService->updateDatasourceInstance($config->getTargetDatasourceKey(), $update, true);
+        $this->datasourceService->updateDatasourceInstanceByKey($config->getTargetDatasourceKey(), $update, true);
     }
 
     /**

@@ -106,6 +106,73 @@ class DatasourceDAO {
 
 
     /**
+     * Get datasource instance by import key - qualified optionally by a project key and account id
+     *
+     * @param $importKey
+     * @param string $projectKey
+     * @param integer $accountId
+     */
+    public function getDatasourceInstanceByImportKey($importKey, $projectKey = null, $accountId = null) {
+
+        // If account id or project key, form clause
+        $clauses = ["import_key = ?"];
+        $parameters = [$importKey];
+        if ($accountId || $projectKey) {
+            $clauses[] = "accountId = ?";
+            $parameters[] = $accountId;
+
+            if ($projectKey) {
+                $clauses[] = "projectKey = ?";
+                $parameters[] = $projectKey;
+            }
+        } else {
+            $clauses[] = "accountId IS NULL";
+        }
+
+
+        $matches = DatasourceInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
+        if (sizeof($matches) > 0) {
+            return $matches[0];
+        } else {
+            throw new ObjectNotFoundException(DatasourceInstance::class, $importKey);
+        }
+
+    }
+
+
+    /**
+     * Check whether an import key is available for a supplied datasource instance.
+     *
+     * @param DatasourceInstance $datasourceInstance
+     * @return boolean
+     */
+    public function importKeyAvailableForDatasourceInstance($datasourceInstance, $proposedImportKey) {
+
+        // If account id or project key, form clause
+        $clauses = ["import_key = ?"];
+        $parameters = [$proposedImportKey];
+        if ($datasourceInstance->getAccountId() || $datasourceInstance->getProjectKey()) {
+            $clauses[] = "accountId = ?";
+            $parameters[] = $datasourceInstance->getAccountId();
+
+            if ($datasourceInstance->getProjectKey()) {
+                $clauses[] = "projectKey = ?";
+                $parameters[] = $datasourceInstance->getProjectKey();
+            }
+        } else {
+            $clauses[] = "accountId IS NULL";
+        }
+        if ($datasourceInstance->getKey()) {
+            $clauses[] = "key <> ?";
+            $parameters[] = $datasourceInstance->getKey();
+        }
+
+        $matches = DatasourceInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
+        return sizeof($matches) ? false : true;
+    }
+
+
+    /**
      * Get an array of filtered datasources using passed filter string to limit on
      * name of data source.  This checks both local datasources and database ones.
      *

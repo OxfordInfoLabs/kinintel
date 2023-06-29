@@ -120,7 +120,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
         ]);
 
         $this->processor->process($instance);
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["target", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["target", $expectedUpdate, true]));
 
     }
 
@@ -228,7 +228,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $this->processor->process($instance);
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["target", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["target", $expectedUpdate, true]));
 
     }
 
@@ -333,7 +333,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $this->processor->process($instance);
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstance", ["target", $expectedUpdate, true]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["target", $expectedUpdate, true]));
 
     }
 

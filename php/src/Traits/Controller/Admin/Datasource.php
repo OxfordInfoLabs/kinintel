@@ -116,7 +116,7 @@ trait Datasource {
      * @param DatasourceUpdateWithStructure $datasourceUpdate
      */
     public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
-        $this->datasourceService->updateDatasourceInstance($datasourceInstanceKey, $datasourceUpdate);
+        $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
     }
 
 }

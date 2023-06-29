@@ -7,6 +7,7 @@ namespace Kinintel\Test\Objects\Datasource;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -109,6 +110,58 @@ class DatasourceInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         $this->interceptor->postSave($dataSourceInstance);
 
         $this->assertTrue($dataSource->methodWasCalled("onInstanceSave"));
+
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testIfDatasourceExistsOnAccountWithSameImportKeyExceptionRaisedOnPreSave() {
+
+        // Create one from scratch - should be fine
+        $datasourceInstance = new DatasourceInstance("existing-import", "Existing Import", "test");
+        $datasourceInstance->setAccountId(1);
+        $datasourceInstance->setImportKey("existing-key");
+        $datasourceInstance->save();
+
+
+        // Now check for account duplicate
+        $newInstance = new DatasourceInstance("new-import", "New Import", "test");
+        $newInstance->setAccountId(1);
+        $newInstance->setImportKey("existing-key");
+
+        try {
+            $this->interceptor->preSave($newInstance);
+            $this->fail("Should have thrown here");
+        } catch (ImportKeyAlreadyExistsException $e) {
+        }
+
+        // Now create a project one from scratch
+        $datasourceInstance = new DatasourceInstance("existing-project", "Existing Import", "test");
+        $datasourceInstance->setAccountId(1);
+        $datasourceInstance->setProjectKey("project1");
+        $datasourceInstance->setImportKey("project-key");
+        $datasourceInstance->save();
+
+        // Now create an overlapping one
+        $newInstance = new DatasourceInstance("new-project", "New Project key", "test");
+        $newInstance->setAccountId(1);
+        $newInstance->setProjectKey("project1");
+        $newInstance->setImportKey("project-key");
+
+        try {
+            $this->interceptor->preSave($newInstance);
+            $this->fail("Should have thrown here");
+        } catch (ImportKeyAlreadyExistsException $e) {
+        }
+
+
+        // Now check we can reuse the key in a different project
+        $newInstance = new DatasourceInstance("new-project", "New Project key", "test");
+        $newInstance->setAccountId(1);
+        $newInstance->setProjectKey("project2");
+        $newInstance->setImportKey("project-key");
+        $this->interceptor->preSave($newInstance);
 
     }
 
