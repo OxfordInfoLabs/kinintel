@@ -294,30 +294,17 @@ class DatasourceDAOTest extends TestBase {
         $dataSourceInstance4->setImportKey("import-project");
         $dataSourceInstance4->save();
 
-        $dataSourceInstance5 = new DatasourceInstance("test-project-2", "Test Project", "sqldatabase", [
-            "source" => "table",
-            "tableName" => "bob"
-        ], "sql");
-        $dataSourceInstance5->setAccountId(2);
-        $dataSourceInstance5->setProjectKey("wiperBlades");
-        $dataSourceInstance5->setImportKey("import-project");
-        $dataSourceInstance5->save();
 
 
         $topLevel = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-top-level");
         $this->assertEquals($dataSourceInstance1, $topLevel);
 
-        $accountLevel1 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-account", null, 1);
+        $accountLevel1 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-account",  1);
         $this->assertEquals($dataSourceInstance2, $accountLevel1);
 
-        $accountLevel2 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-account", null, 2);
+        $accountLevel2 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-account",  2);
         $this->assertEquals($dataSourceInstance3, $accountLevel2);
 
-        $projectLevel1 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-project", "soapSuds", 2);
-        $this->assertEquals($dataSourceInstance4, $projectLevel1);
-
-        $projectLevel2 = $this->datasourceDAO->getDatasourceInstanceByImportKey("import-project", "wiperBlades", 2);
-        $this->assertEquals($dataSourceInstance5, $projectLevel2);
 
 
     }
@@ -359,17 +346,6 @@ class DatasourceDAOTest extends TestBase {
         $newInstance->setProjectKey("project1");
 
         $this->assertFalse($this->datasourceDAO->importKeyAvailableForDatasourceInstance($newInstance, "project-key"));
-
-
-        // Now check we can reuse the key in a different project
-        $newInstance = new DatasourceInstance("new-project", "New Project key", "webservice", [
-            "url" => "https://test.com"
-        ]);
-        $newInstance->setAccountId(1);
-        $newInstance->setProjectKey("project2");
-        $newInstance->setImportKey("project-key");
-
-        $this->assertTrue($this->datasourceDAO->importKeyAvailableForDatasourceInstance($newInstance, "project-key"));
 
 
     }

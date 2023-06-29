@@ -3,7 +3,12 @@
 
 namespace Kinintel\Test\Services\Feed;
 
+use Kiniauth\Objects\Security\APIKey;
+use Kiniauth\Objects\Security\APIKeyRole;
+use Kiniauth\Objects\Security\Role;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
@@ -35,10 +40,17 @@ class FeedServiceTest extends TestBase {
      */
     private $datasetService;
 
+
+    /**
+     * @var MockObject
+     */
+    private $securityService;
+
     public function setUp(): void {
 
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
-        $this->feedService = new FeedService($this->datasetService);
+        $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
+        $this->feedService = new FeedService($this->datasetService, $this->securityService);
     }
 
 
@@ -229,6 +241,9 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+
         $response = $this->feedService->evaluateFeed("filter/feed3");
         $this->assertEquals($expectedResponse, $response);
 
@@ -264,6 +279,8 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
         $response = $this->feedService->evaluateFeed("filter/feed4");
         $this->assertEquals($expectedResponse, $response);
 
@@ -287,6 +304,56 @@ class FeedServiceTest extends TestBase {
         ]);
 
         $response = $this->feedService->evaluateFeed("filter/feed4");
+        $this->assertEquals($expectedResponse, $response);
+
+    }
+
+
+    public function testAccessToFeedCheckedAgainstProjectPrivileges() {
+
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $feedSummary = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", false, [
+            Role::SCOPE_PROJECT, "feedaccess", "soapSuds"
+        ]);
+
+        try {
+            $this->feedService->evaluateFeed("/new/feed");
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true, [
+            Role::SCOPE_PROJECT, "feedaccess", "soapSuds"
+        ]);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            ["param1" => "",
+                "param2" => ""],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("/new/feed");
         $this->assertEquals($expectedResponse, $response);
 
     }

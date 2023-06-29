@@ -14,18 +14,6 @@ use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
 
 class Bootstrap implements ApplicationBootstrap {
 
-    /**
-     * @var RouteInterceptorProcessor
-     */
-    private $routeInterceptorProcessor;
-
-    /**
-     * Bootstrap constructor.
-     * @param RouteInterceptorProcessor $routeInterceptorProcessor
-     */
-    public function __construct($routeInterceptorProcessor) {
-        $this->routeInterceptorProcessor = $routeInterceptorProcessor;
-    }
 
     public function setup() {
 
@@ -33,9 +21,6 @@ class Bootstrap implements ApplicationBootstrap {
         Container::instance()->addInterfaceImplementation(Task::class, "alertgroup", AlertGroupTask::class);
         Container::instance()->addInterfaceImplementation(Task::class, "dataprocessor", DataProcessorTask::class);
 
-        // Add route interceptor for feeds and import to match the API one
-        $this->routeInterceptorProcessor->addInterceptor("feed/*", APIRouteInterceptor::class);
-        $this->routeInterceptorProcessor->addInterceptor("import/*", APIRouteInterceptor::class);
 
         // Add attachment storage for google
         Container::instance()->addInterfaceImplementation(AttachmentStorage::class, "google-cloud", GoogleCloudAttachmentStorage::class);

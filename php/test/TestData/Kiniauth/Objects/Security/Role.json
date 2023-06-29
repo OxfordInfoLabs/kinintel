@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Feed Access",
+    "description": "Access to consume feeds",
+    "scope": "PROJECT",
+    "appliesTo": "API_KEY",
+    "privileges": [
+      "feedaccess"
+    ]
+  },
+  {
+    "name": "Custom Data Update",
+    "description": "Access to update data for custom data sets",
+    "scope": "PROJECT",
+    "appliesTo": "API_KEY",
+    "privileges": [
+      "customdatasourceupdate"
+    ]
+  }
+]

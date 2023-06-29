@@ -156,13 +156,6 @@ class DatasourceInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         }
 
 
-        // Now check we can reuse the key in a different project
-        $newInstance = new DatasourceInstance("new-project", "New Project key", "test");
-        $newInstance->setAccountId(1);
-        $newInstance->setProjectKey("project2");
-        $newInstance->setImportKey("project-key");
-        $this->interceptor->preSave($newInstance);
-
     }
 
 
