@@ -10,7 +10,7 @@
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "importHelpers": true,
-        "esModuleInterop":true,
+        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "allowUmdGlobalAccess": true,
         "paths": {
@@ -29,7 +29,9 @@
             "es2018",
             "dom"
         ],
-        "types": ["resize-observer-browser"]
+        "types": [
+            "resize-observer-browser"
+        ]
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false

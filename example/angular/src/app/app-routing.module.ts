@@ -19,6 +19,7 @@ import {FeedsComponent} from './views/feeds/feeds.component';
 import {CreateDatasourceComponent} from './views/datasource/create-datasource/create-datasource.component';
 import {DocumentDatasourceComponent} from './views/datasource/document-datasource/document-datasource.component';
 import {DashboardChangesGuard} from 'ng-kinintel';
+import {ApiKeysComponent} from './views/api-keys/api-keys.component';
 
 const routes: Routes = [
     {
@@ -115,6 +116,10 @@ const routes: Routes = [
             {
                 path: 'feeds',
                 component: FeedsComponent
+            },
+            {
+                path: 'api-keys',
+                component: ApiKeysComponent
             }
         ]
     },

@@ -165,7 +165,8 @@ export class DataPickerComponent implements OnInit {
         return this.datasourceService.getDatasources(
             this.searchText.getValue() || '',
             limit.toString(),
-            offset.toString()
+            offset.toString(),
+            !!this.admin
         ).pipe(map((sources: any) => {
                 return sources;
             })
