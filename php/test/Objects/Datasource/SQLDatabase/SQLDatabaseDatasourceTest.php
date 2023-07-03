@@ -16,6 +16,7 @@ use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
+use Kinintel\Exception\DuplicateEntriesException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
@@ -444,9 +445,45 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    /**
+     * @doesNotPerformAssertions
+     *
+     * @return void
+     */
     public function testDuplicateEntriesExceptionSuppliedExceptionRaisedIfSQLExceptionThrownWith23000Codes() {
 
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens",
+                "age" => 55,
+                "extraDetail" => "He's a dude"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => 66,
+                "extraDetail" => "He's a geezer"
+            ]
+        ];
+
+        $dataSet->returnValue("getAllData", $data, []);
+
+
+        $this->bulkDataManager->throwException("insert", new SQLException("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry", 23000), [
+            "test_data", $data, null
+        ]);
+
+
+        try {
+            $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+            $this->fail("Should have thrown here");
+        } catch (DuplicateEntriesException $e) {
+        }
 
     }
 

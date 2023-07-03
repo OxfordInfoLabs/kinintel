@@ -8,5 +8,10 @@
     "key": "customdatasourceupdate",
     "description": "Access for updating custom data sources within project",
     "scope": "PROJECT"
+  },
+  {
+    "key": "customdatasourcemanage",
+    "description": "Access for managing custom data sources within project",
+    "scope": "PROJECT"
   }
 ]

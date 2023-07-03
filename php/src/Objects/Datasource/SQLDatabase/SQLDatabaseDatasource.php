@@ -10,11 +10,13 @@ use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
+use Kinintel\Exception\DuplicateEntriesException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
@@ -323,7 +325,16 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             // Get insert columns from dataset
             $updateColumns = null;
             if ($dataset->getColumns()) {
-                $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
+                if ($updateMode == UpdatableDatasource::UPDATE_MODE_DELETE) {
+                    $updateColumns = [];
+                    foreach ($dataset->getColumns() as $column) {
+                        if ($column->isKeyField()) {
+                            $updateColumns[] = $column->getName();
+                        }
+                    }
+                } else {
+                    $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
+                }
             }
 
             // Ensure we don't exceed the batch size.
@@ -332,20 +343,29 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 $bulkDataManager->setBatchSize($batchSize);
             }
 
-            switch ($updateMode) {
-                case UpdatableDatasource::UPDATE_MODE_ADD:
-                    $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
-                    break;
-                case UpdatableDatasource::UPDATE_MODE_DELETE:
-                    $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
-                    break;
-                case UpdatableDatasource::UPDATE_MODE_REPLACE:
-                    $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
-                    break;
-                case UpdatableDatasource::UPDATE_MODE_UPDATE:
-                    $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
-                    break;
 
+            try {
+                switch ($updateMode) {
+                    case UpdatableDatasource::UPDATE_MODE_ADD:
+                        $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
+                        break;
+                    case UpdatableDatasource::UPDATE_MODE_DELETE:
+                        $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
+                        break;
+                    case UpdatableDatasource::UPDATE_MODE_REPLACE:
+                        $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
+                        break;
+                    case UpdatableDatasource::UPDATE_MODE_UPDATE:
+                        $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
+                        break;
+
+                }
+            } catch (SQLException $e) {
+                if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
+                    throw new DuplicateEntriesException();
+                } else {
+                    throw new \Exception("An unexpected error occurred updating the datasource");
+                }
             }
 
         }

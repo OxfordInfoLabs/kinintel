@@ -3,7 +3,9 @@
 
 namespace Kinintel\Services\Datasource;
 
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
@@ -867,6 +869,56 @@ class DatasourceServiceTest extends TestBase {
 
         $this->assertTrue($this->dataSourceService->importKeyAvailableForDatasourceInstance("mynewone", "testimport"));
         $this->assertFalse($this->dataSourceService->importKeyAvailableForDatasourceInstance("myothernewone", "testimport"));
+
+    }
+
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAccessToDatasourceUpdateCheckedAgainstProjectPrivileges() {
+
+        $newOne = new DatasourceInstance("mynewone", "My New One", "test");
+        $newOne->setAccountId(1);
+        $newOne->setProjectKey("myproject");
+
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $newOne, ["mynewone"]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", false, [
+            Role::SCOPE_PROJECT, "customdatasourceupdate", "myproject"
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", false, [
+            Role::SCOPE_PROJECT, "customdatasourcemanage", "myproject"
+        ]);
+
+
+        try {
+            $this->dataSourceService->updateDatasourceInstanceByKey("mynewone", new DatasourceUpdate([]));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Check we can update data but not structure with update privilege
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true, [
+            Role::SCOPE_PROJECT, "customdatasourceupdate", "myproject"
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstanceByKey("mynewone", new DatasourceUpdate([]));
+
+        try {
+            $this->dataSourceService->updateDatasourceInstanceByKey("mynewone", new DatasourceUpdateWithStructure("hello"));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        // Check we can update structure with update permission
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true, [
+            Role::SCOPE_PROJECT, "customdatasourcemanage", "myproject"
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstanceByKey("mynewone", new DatasourceUpdateWithStructure("hello"));
 
     }
 

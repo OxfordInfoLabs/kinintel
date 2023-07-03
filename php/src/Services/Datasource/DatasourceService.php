@@ -4,7 +4,9 @@
 namespace Kinintel\Services\Datasource;
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
@@ -245,16 +247,24 @@ class DatasourceService {
      *
      * @param DatasourceInstance $datasourceInstance
      * @param DatasourceUpdate $datasourceUpdate
-     * @param voolean $allowInsecure
+     * @param boolean $allowInsecure
      *
      * @throws DatasourceNotUpdatableException
      * @throws ObjectNotFoundException
      */
     private function updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure = false) {
 
-
         if (!$allowInsecure && ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn())) {
             throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstance->getKey());
+        }
+
+        // Chek privileges if a project key
+        if ($datasourceInstance->getProjectKey()) {
+            $hasUpdatePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourceupdate", $datasourceInstance->getProjectKey());
+            $hasManagePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourcemanage", $datasourceInstance->getProjectKey());
+
+            if ((!$hasUpdatePrivilege && !$hasManagePrivilege))
+                throw new AccessDeniedException("You have not been granted access to update custom data sources");
         }
 
         // Grab the datasource.
@@ -267,6 +277,11 @@ class DatasourceService {
 
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
+
+            if ($datasourceInstance->getProjectKey() && !$hasManagePrivilege) {
+                throw new AccessDeniedException("You have not been granted access to manage custom data sources");
+            }
+
             $datasourceInstance->setTitle($datasourceUpdate->getTitle());
             $datasourceInstance->setImportKey($datasourceUpdate->getImportKey());
 
