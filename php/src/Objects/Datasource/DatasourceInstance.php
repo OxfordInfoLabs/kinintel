@@ -324,6 +324,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
             $dataSource = Container::instance()->new($dataSourceClass);
 
             if ($dataSource->getConfigClass()) {
+
                 if (is_a($this->config, $dataSource->getConfigClass()))
                     $config = $this->config;
                 else
