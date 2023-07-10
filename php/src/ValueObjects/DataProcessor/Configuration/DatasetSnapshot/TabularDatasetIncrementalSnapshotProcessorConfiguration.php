@@ -32,11 +32,13 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
 
     /**
-     * Which rule is in use for determining late
+     * Which rule is in use for determining latest items
      *
      * @var string
      */
     private $newerValuesRule = self::LATEST_VALUE_GREATER;
+
+
 
     const LATEST_VALUE_GREATER = "GREATER";
     const LATEST_VALUE_GREATER_OR_EQUAL = "GREATER_OR_EQUAL";
