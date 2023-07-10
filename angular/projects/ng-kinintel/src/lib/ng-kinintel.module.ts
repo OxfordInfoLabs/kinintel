@@ -85,6 +85,8 @@ import { ProjectLinkSelectionComponent } from './components/project-settings/pro
 import { UpstreamChangesConfirmationComponent } from './components/dataset/dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
 import {DashboardChangesGuard} from './guards/dashboard-changes.guard';
 import { DashboardSettingsComponent } from './components/dashboard-editor/dashboard-settings/dashboard-settings.component';
+import { ApiAccessComponent } from './components/datasource/create-datasource/api-access/api-access.component';
+import {ClipboardModule} from '@angular/cdk/clipboard';
 
 @NgModule({
     declarations: [
@@ -139,7 +141,8 @@ import { DashboardSettingsComponent } from './components/dashboard-editor/dashbo
         ProjectSettingsComponent,
         ProjectLinkSelectionComponent,
         UpstreamChangesConfirmationComponent,
-        DashboardSettingsComponent
+        DashboardSettingsComponent,
+        ApiAccessComponent
     ],
     imports: [
         BrowserModule,
@@ -175,7 +178,8 @@ import { DashboardSettingsComponent } from './components/dashboard-editor/dashbo
         MatTooltipModule,
         AngularD3CloudModule,
         MatProgressBarModule,
-        CodemirrorModule
+        CodemirrorModule,
+        ClipboardModule
     ],
     exports: [
         DashboardEditorComponent,

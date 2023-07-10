@@ -8,6 +8,7 @@ import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasetService} from '../../services/dataset.service';
 import {FeedComponent} from './feed/feed.component';
 import {Router} from '@angular/router';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'ki-feeds',
@@ -34,7 +35,8 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 private feedService: FeedService,
                 private datasetService: DatasetService,
                 private router: Router,
-                public config: KinintelModuleConfig) {
+                public config: KinintelModuleConfig,
+                private snackBar: MatSnackBar) {
     }
 
     ngOnInit(): void {
@@ -60,6 +62,13 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
 
+    }
+
+    public copied() {
+        this.snackBar.open('Copied to Clipboard', null, {
+            duration: 2000,
+            verticalPosition: 'top'
+        });
     }
 
     public increaseOffset() {

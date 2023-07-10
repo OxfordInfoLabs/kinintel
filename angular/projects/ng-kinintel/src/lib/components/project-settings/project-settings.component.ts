@@ -39,6 +39,8 @@ export class ProjectSettingsComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<any> {
+        this.activeProject = this.projectService.activeProject.getValue();
+
         this.dashboards = await this.dashboardService.getDashboards(
             '', '100', '0'
         ).toPromise();

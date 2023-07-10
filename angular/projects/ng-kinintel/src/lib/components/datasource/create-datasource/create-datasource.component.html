@@ -3,6 +3,11 @@
         Operations
     </div>
     <div class="flex items-center flex-wrap w-full justify-end bg-white">
+        <button (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">api</mat-icon>
+            api access
+        </button>
         <button (click)="import()"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">upload_file</mat-icon>
