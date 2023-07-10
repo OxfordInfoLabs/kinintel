@@ -7,6 +7,7 @@ import {catchError, map, switchMap} from 'rxjs/operators';
 
 export interface DatasourceUpdate {
     title: string;
+    instanceImportKey?: string;
     fields: any[];
     adds: any[];
     updates: any[];
@@ -29,7 +30,7 @@ export class DatasourceService {
             .toPromise();
     }
 
-    public updateCustomDatasource(datasourceInstanceKey, datasourceUpdate: DatasourceUpdate) {
+    public updateCustomDatasource(datasourceInstanceKey, datasourceUpdate: DatasourceUpdate | any) {
         return this.http.put(this.config.backendURL + '/datasource/custom/' + datasourceInstanceKey, datasourceUpdate)
             .toPromise();
     }

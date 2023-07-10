@@ -99,15 +99,48 @@
                             </td>
                         </tr>
                         <tr *ngIf="feed._showExample">
-                            <td class="px-4 pt-0" colspan="4">
-                                <div class="tracking-wider font-bold">cURL</div>
-                                <pre class="block bg-gray-800 text-gray-100 pt-2 pl-2 rounded-t whitespace-normal">
-curl -H "API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>" -H "API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</pre>
-                                <pre class="block bg-gray-800 text-gray-100 pb-2 pl-2 rounded-b whitespace-normal mb-6">
--X GET {{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></pre>
-                                <div class="tracking-wider font-bold">HTTPS</div>
-                                <pre class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">
-{{feedUrl}}{{feed.path}}?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames">&{{param}}=<b>[[VALUE]]</b></ng-template></pre>
+                            <td class=" px-4 pt-0" colspan="4">
+                                <div class="relative w-full">
+                                    <div class="text-base font-semibold">cURL</div>
+                                    <div class="text-sm mb-2">
+                                        This is the recommended approach for consuming the API.
+                                    </div>
+                                    <div #createCurl class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+            <pre class="whitespace-normal">
+curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+                                        <pre class="whitespace-normal">
+-X <b>GET</b> <span class="text-secondary">{{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></span></pre>
+
+                                    </div>
+                                    <button mat-icon-button [cdkCopyToClipboard]="createCurl.textContent"
+                                            (cdkCopyToClipboardCopied)="copied()"
+                                            class="text-white absolute bottom-0 right-0">
+                                        <mat-icon>content_copy</mat-icon>
+                                    </button>
+                                </div>
+
+                                <div class="relative w-full">
+                                    <div class="text-base font-semibold">HTTPS</div>
+                                    <div class="text-sm mb-2">
+                                        We recommend only using this for testing the API endpoint.
+                                    </div>
+                                    <div #createHttps class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+            <pre class="whitespace-normal">
+                {{feedUrl}}{{feed.path}}<span class="text-secondary">?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b></span><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames"><span class="text-secondary">&{{param}}=<b>[[VALUE]]</b></span></ng-template>
+</pre>
+
+                                    </div>
+
+                                    <button mat-icon-button [cdkCopyToClipboard]="createHttps.textContent"
+                                            (cdkCopyToClipboardCopied)="copied()"
+                                            class="text-white absolute bottom-0 right-0">
+                                        <mat-icon>content_copy</mat-icon>
+                                    </button>
+                                </div>
+
+
+
+
                             </td>
                         </tr>
                         </tbody>

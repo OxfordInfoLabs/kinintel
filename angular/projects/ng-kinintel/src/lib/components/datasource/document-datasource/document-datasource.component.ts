@@ -276,6 +276,10 @@ export class DocumentDatasourceComponent implements OnInit {
                     {
                         title: 'ITU Study Group',
                         value: 'itustudygroup'
+                    },
+                    {
+                        title: 'IETF Internet Drafts',
+                        value: 'ietfinternetdrafts'
                     }
                 ];
             })

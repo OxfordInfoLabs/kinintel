@@ -7,6 +7,9 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Location} from '@angular/common';
+import {
+    ApiAccessComponent
+} from '../create-datasource/api-access/api-access.component';
 
 declare var window: any;
 
@@ -20,6 +23,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() sidenavService: any;
     @Input() backURL = '/imported-data';
     @Input() reloadURL = 'import-data';
+    @Input() backendURL: string;
 
     public readonly datasourceTypes: any = [
         'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'
@@ -49,6 +53,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public datasourceInstanceKey: string;
     public datasourceUpdate: DatasourceUpdate = {
         title: '',
+        instanceImportKey: '',
         fields: [],
         adds: [],
         updates: [],
@@ -207,6 +212,23 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             }
         });
     }
+
+    public apiAccess() {
+        const dialogRef = this.dialog.open(ApiAccessComponent, {
+            width: '800px',
+            height: '900px',
+            data: {
+                datasourceUpdate: this.datasourceUpdate,
+                datasourceInstanceKey: this.datasourceInstanceKey,
+                backendURL: this.backendURL,
+                columns: this.columns
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+
+        });
+    }
+
 
     public selectColumn(column, index) {
         if (!column.autoIncrement) {
@@ -502,6 +524,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.endOfResults = this.rows.length < this.limit;
 
                 this.datasourceUpdate.title = res.instanceTitle;
+                this.datasourceUpdate.instanceImportKey = res.instanceImportKey;
 
                 this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
             });

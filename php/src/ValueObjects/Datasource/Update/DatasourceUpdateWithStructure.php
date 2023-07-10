@@ -28,7 +28,7 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
      * DatasourceUpdate constructor.
      *
      * @param string $title
-     * @param null $importKey
+     * @param string $importKey
      * @param DatasourceUpdateField[] $fields
      * @param mixed[] $adds
      * @param mixed[] $updates
