@@ -522,6 +522,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     });
                     this.evaluateDataset(true);
                 }
+
+                // const expressionFields = _.map(summariseTransformation.expressions, 'fieldName');
+                // const allFields = (expressionFields || []).concat(summariseTransformation.summariseFieldNames);
+                //
+                // console.log('SUMMARISE DATA', summariseTransformation, allFields);
             } else {
                 // If we get here then the summarise transformation was cancelled - restore if we have one
                 if (clonedConfig) {
@@ -801,6 +806,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
 
         const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
+
+        // console.log(clonedDatasetInstance);
 
         const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
         let finished = false;

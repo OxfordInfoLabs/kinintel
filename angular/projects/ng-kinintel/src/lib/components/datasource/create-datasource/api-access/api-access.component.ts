@@ -2,6 +2,7 @@ import {Component, Inject, Input, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DatasourceService} from '../../../../services/datasource.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
     selector: 'ki-api-access',
@@ -19,18 +20,22 @@ export class ApiAccessComponent implements OnInit {
     public columns: any;
     public createExample: string;
     public updateExample: string;
+    public showExample = false;
 
     constructor(public dialogRef: MatDialogRef<ApiAccessComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private datasourceService: DatasourceService,
-                private snackBar: MatSnackBar) {
+                private snackBar: MatSnackBar,
+                private http: HttpClient) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit() {
         this.backendURL = this.data.backendURL;
         this.datasourceUpdate = this.data.datasourceUpdate;
         this.datasourceInstanceKey = this.data.datasourceInstanceKey;
         this.columns = this.data.columns;
+
+        this.showExample = !!this.datasourceUpdate.instanceImportKey;
 
         const example = ['[{'];
         this.columns.forEach((column, index) => {
@@ -53,6 +58,8 @@ export class ApiAccessComponent implements OnInit {
         });
         update.push('}]');
         this.updateExample = update.join('');
+
+        this.apiKeys = await this.http.get('/account/apikey/first/customdatasourceupdate').toPromise();
     }
 
     public copied() {
@@ -72,5 +79,11 @@ export class ApiAccessComponent implements OnInit {
             deletes: [],
             replaces: []
         });
+
+        if (this.showExample) {
+            this.dialogRef.close();
+        }
+
+        this.showExample = !!this.datasourceUpdate.instanceImportKey;
     }
 }

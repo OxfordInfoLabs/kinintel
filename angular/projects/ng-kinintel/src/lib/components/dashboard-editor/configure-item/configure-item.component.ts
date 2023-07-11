@@ -41,6 +41,7 @@ export class ConfigureItemComponent implements OnInit {
     public dashboardDatasetInstance: any;
     public dashboards: any = [];
     public sharedDashboards: any = [];
+    public privateDashboards: any = [];
     public dashboardParameters: any = [];
     public dashboardParamValues: any = [];
     public actionEvents: ActionEvent[] = [];
@@ -187,6 +188,15 @@ export class ConfigureItemComponent implements OnInit {
             null
         ).toPromise().then(dashboards => {
             this.sharedDashboards = dashboards;
+        });
+
+        this.dashboardService.getDashboards(
+            '',
+            '100',
+            '0',
+            0
+        ).toPromise().then(dashboards => {
+            this.privateDashboards = dashboards;
         });
 
         this.openSide.subscribe((open: boolean) => {

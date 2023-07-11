@@ -51,7 +51,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public deletes: any = [];
     public autoIncrementColumn = false;
     public datasourceInstanceKey: string;
-    public datasourceUpdate: DatasourceUpdate = {
+    public datasourceUpdate: any = {
         title: '',
         instanceImportKey: '',
         fields: [],
@@ -417,6 +417,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.displayError(errorCode);
             });
         } else {
+            this.datasourceUpdate.importKey = this.datasourceUpdate.instanceImportKey;
             await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
                 .then(async () => {
                     this.adds = [];

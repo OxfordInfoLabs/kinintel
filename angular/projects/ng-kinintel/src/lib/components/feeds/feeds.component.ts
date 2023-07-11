@@ -9,6 +9,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {FeedComponent} from './feed/feed.component';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
     selector: 'ki-feeds',
@@ -19,7 +20,6 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     @Input() admin: boolean;
     @Input() feedUrl: string;
-    @Input() apiKeys: any;
 
     public feeds: any = [];
     public searchText = new BehaviorSubject('');
@@ -28,6 +28,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
     public page = 1;
     public endOfResults = false;
     public loading = true;
+    public apiKeys: any;
 
     private reload = new Subject();
 
@@ -36,10 +37,13 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 private datasetService: DatasetService,
                 private router: Router,
                 public config: KinintelModuleConfig,
-                private snackBar: MatSnackBar) {
+                private snackBar: MatSnackBar,
+                private http: HttpClient) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit() {
+
+        this.apiKeys = await this.http.get('/account/apikey/first/feedaccess').toPromise();
 
         merge(this.searchText, this.reload)
             .pipe(

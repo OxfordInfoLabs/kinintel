@@ -18,6 +18,7 @@ export class TableCellFormatterComponent implements OnInit {
     @Input() dataset: any;
     @Input() dashboards: any = [];
     @Input() sharedDashboards: any = [];
+    @Input() privateDashboards: any = [];
     @Input() dashboardParameters: any = [];
     @Input() actionEvents: any = [];
 
