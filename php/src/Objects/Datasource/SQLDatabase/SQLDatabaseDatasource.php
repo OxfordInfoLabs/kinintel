@@ -332,6 +332,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                             $updateColumns[] = $column->getName();
                         }
                     }
+
+                    // Fall back to all columns if no key field identified
+                    if (!sizeof($updateColumns))
+                        $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
                 } else {
                     $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
                 }
@@ -364,6 +368,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
                     throw new DuplicateEntriesException();
                 } else {
+                    print_r($e->getMessage());
                     throw new \Exception("An unexpected error occurred updating the datasource");
                 }
             }

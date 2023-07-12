@@ -36,6 +36,14 @@ abstract class TabularDataset implements Dataset {
 
 
     /**
+     * Queued items - used when array flattening is switched on for at least one field.
+     *
+     * @var array
+     */
+    private $queuedItems = null;
+
+
+    /**
      * Construct with columns - default behaviour
      *
      * TabularDataSetTest constructor.
@@ -74,7 +82,6 @@ abstract class TabularDataset implements Dataset {
     }
 
 
-
     /**
      * Return a column by key
      *
@@ -104,42 +111,83 @@ abstract class TabularDataset implements Dataset {
      */
     public function nextDataItem() {
 
-        // Grab data item
-        $dataItem = $this->nextRawDataItem();
+        // If we have queued items, use these next
+        if ($this->queuedItems) {
+            $newDataItem = array_shift($this->queuedItems);
+        } else {
 
-        // If false, quit now
-        if ($dataItem === false)
-            return false;
+            // Grab data item
+            $dataItem = $this->nextRawDataItem();
 
-        if (is_array($dataItem)) {
+            // If false, quit now
+            if ($dataItem === false)
+                return false;
 
-            $newDataItem = [];
-            $hasColumnValue = false;
-            foreach ($this->getColumns() as $column) {
-                $columnName = $column->getName();
 
-                if ($column->hasValueExpression()) {
-                    $value = $column->evaluateValueExpression($dataItem);
-                } else {
-                    $value = $dataItem[$columnName] ?? null;
+            // Initialise queued items
+            $this->queuedItems = null;
+
+            if (is_array($dataItem)) {
+
+                $newDataItem = [];
+                $hasColumnValue = false;
+                foreach ($this->getColumns() as $column) {
+                    $columnName = $column->getName();
+
+                    if ($column->hasValueExpression()) {
+                        $value = $column->evaluateValueExpression($dataItem);
+                    } else {
+                        $value = $dataItem[$columnName] ?? null;
+                    }
+
+
+                    $valueExpression = $column->getValueExpression();
+
+                    $hasColumnValue = $hasColumnValue
+                        || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
+
+
+                    // If flattening array, queue up other items
+                    if ($column->isFlattenArray() && is_array($value)) {
+                        if (!is_array($this->queuedItems)) {
+                            $this->queuedItems = [];
+                        }
+
+                        // Populate the queued items with values
+                        for ($i = 1; $i < sizeof($value); $i++) {
+                            if (!isset($this->queuedItems[$i])) $this->queuedItems[$i] = $newDataItem;
+                            $this->queuedItems[$i][$columnName] = $value[$i];
+                        }
+
+                        // If a first value set this otherwise return null straightaway.
+                        if (isset($value[0]))
+                            $value = $value[0];
+                        else
+                            return null;
+
+                    } else {
+
+                        // If we have a queued items array, set the value on these.
+                        if (is_array($this->queuedItems)) {
+                            foreach ($this->queuedItems as $index => $queuedItem) {
+                                $this->queuedItems[$index][$columnName] = $value;
+                            }
+                        }
+                    }
+
+                    $newDataItem[$columnName] = $value;
+                    $dataItem[$columnName] = $value;
+
+
                 }
 
+                // If no genuine column value reject the row
+                if (!$hasColumnValue)
+                    $newDataItem = null;
 
-                $valueExpression = $column->getValueExpression();
-
-                $hasColumnValue = $hasColumnValue
-                    || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
-
-                $newDataItem[$columnName] = $value;
-                $dataItem[$columnName] = $value;
-            }
-
-            // If no genuine column value reject the row
-            if (!$hasColumnValue)
+            } else {
                 $newDataItem = null;
-
-        } else {
-            $newDataItem = null;
+            }
         }
 
         // If a new data item, append to read rows

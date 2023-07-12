@@ -57,6 +57,8 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     private $offsetField;
 
+
+
     /**
      * @param string[] $sourceDatasourceKeys
      * @param SourceDatasource[] $sourceDatasources
@@ -68,8 +70,9 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
      * @param string $offsetField
+     * @param mixed $initialOffset
      */
-    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null) {
+    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -80,6 +83,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->sourceDataset = $sourceDataset;
         $this->sourceDatasources = $sourceDatasources;
         $this->offsetField = $offsetField;
+        $this->initialOffset = $initialOffset;
     }
 
     /**
@@ -220,6 +224,20 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     public function setOffsetField($offsetField) {
         $this->offsetField = $offsetField;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInitialOffset() {
+        return $this->initialOffset;
+    }
+
+    /**
+     * @param mixed $initialOffset
+     */
+    public function setInitialOffset($initialOffset) {
+        $this->initialOffset = $initialOffset;
     }
 
 }

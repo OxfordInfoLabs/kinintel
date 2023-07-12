@@ -45,6 +45,15 @@ class Field {
     private $keyField;
 
 
+    /**
+     * If set, when an array is encountered here it will be flattened
+     * out to individual items
+     *
+     * @var bool
+     */
+    private $flattenArray = false;
+
+
     // Generic field types
     const TYPE_STRING = "string";
     const TYPE_MEDIUM_STRING = "mediumstring";
@@ -64,8 +73,9 @@ class Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
+     * @param boolean $flattenArray
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false) {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false) {
 
         $name = preg_split("/[^\w-]/", $name)[0];
         $this->name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $name);
@@ -79,6 +89,7 @@ class Field {
         $this->valueExpression = $valueExpression;
         $this->type = $type;
         $this->keyField = $keyField;
+        $this->flattenArray = $flattenArray;
     }
 
 
@@ -145,6 +156,20 @@ class Field {
      */
     public function setKeyField($keyField) {
         $this->keyField = $keyField;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFlattenArray() {
+        return $this->flattenArray;
+    }
+
+    /**
+     * @param bool $flattenArray
+     */
+    public function setFlattenArray($flattenArray) {
+        $this->flattenArray = $flattenArray;
     }
 
 

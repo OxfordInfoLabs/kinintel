@@ -180,10 +180,15 @@ class WebServiceDatasource extends BaseDatasource {
             $headers = new Headers($config->getHeaders() ?? []);
             $payload = null;
 
-
             // Increment the offset and limit accordingly.
             foreach ($this->pagingTransformations as $pagingTransformation) {
-                $offset += $pagingTransformation->getOffset();
+
+                // Handle non numeric transformations separately
+                if (is_numeric($pagingTransformation->getOffset()) || $pagingTransformation->getOffset() === null)
+                    $offset += $pagingTransformation->getOffset();
+                else
+                    $offset = $pagingTransformation->getOffset();
+
                 $limit = $pagingTransformation->getLimit();
             }
 
@@ -233,7 +238,6 @@ class WebServiceDatasource extends BaseDatasource {
                 $attempts++;
 
             } while ($attempts <= $config->getMaxRetries() && in_array($response->getStatusCode(), $config->getRetryResponseCodes() ?? []));
-
 
             $responseStream = $response->getStream();
 

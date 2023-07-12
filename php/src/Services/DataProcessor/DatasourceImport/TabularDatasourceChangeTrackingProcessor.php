@@ -119,7 +119,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 $previousFile = $directory . "/previous.txt";
                 $this->initialiseFiles($directory);
                 // Create the new file
-                $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $config->getOffsetField());
+                $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $config->getOffsetField(), $config->getInitialOffset());
 
                 if (!file_exists($directory . "/new.txt")) {
                     continue;
@@ -143,7 +143,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $sourceDatasources = $config->getSourceDatasources();
 
             // Assuming all datasources have the same keys - would be daft otherwise
-            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($sourceDatasources[0]->getDatasourceKey(), $sourceDatasources[0]->getParameterSets()[0], [], 0, 1)->getColumns();
+            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($sourceDatasources[0]->getDatasourceKey(), $sourceDatasources[0]->getParameterSets()[0], [], $config->getInitialOffset(), 1)->getColumns();
 
             $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
 
@@ -153,10 +153,10 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $this->initialiseFiles($directory);
 
             // Create the new file
-            foreach($sourceDatasources as $sourceDatasource) {
+            foreach ($sourceDatasources as $sourceDatasource) {
                 $datasourceKey = $sourceDatasource->getDatasourceKey();
                 foreach ($sourceDatasource->getParameterSets() as $parameterSet) {
-                    $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $config->getOffsetField(), $parameterSet);
+                    $this->writeDatasourcesToFile($directory, "new.txt", $datasourceKey, $sourceReadChunkSize, $config->getOffsetField(), $config->getInitialOffset(), $parameterSet);
                 }
             }
 
@@ -183,8 +183,8 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
     }
 
 
-    private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize, $offsetField, $parameterValues = []) {
-        $offset = 0;
+    private function writeDatasourcesToFile($directory, $fileName, $datasourceKey, $sourceReadChunkSize, $offsetField, $initialOffset, $parameterValues = []) {
+        $offset = $initialOffset;
         // Read the datasource in chunks
 
         do {
@@ -220,7 +220,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 $offset += $sourceReadChunkSize;
             }
 
-        } while ($lineCount == $sourceReadChunkSize);
+        } while (false && $lineCount >= $sourceReadChunkSize);
 
     }
 
@@ -255,7 +255,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
             $offset += $sourceReadChunkSize;
 
-        } while ($lineCount == $sourceReadChunkSize);
+        } while ($lineCount >= $sourceReadChunkSize);
 
     }
 
