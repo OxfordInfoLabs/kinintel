@@ -388,6 +388,10 @@
                                     <option *ngFor="let dashboard of sharedDashboards"
                                             [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
                                 </optgroup>
+                                <optgroup label="Private Dashboards" *ngIf="privateDashboards.length">
+                                    <option *ngFor="let dashboard of privateDashboards"
+                                            [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
+                                </optgroup>
                             </select>
                             <small class="font-normal">Select the destination for the action link</small>
                         </label>

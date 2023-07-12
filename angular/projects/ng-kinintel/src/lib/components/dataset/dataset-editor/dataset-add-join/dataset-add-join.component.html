@@ -110,7 +110,7 @@
 
             </mat-step>
 
-            <mat-step *ngIf="!requiredParameters || !requiredParameters.length" [completed]="false" label="Column definition">
+            <mat-step [completed]="false" label="Column definition">
 
                 <ng-template [ngIf]="!selectedSource">
                     <p>Please select either a Datasource or Dataset to join to.</p>
@@ -167,8 +167,8 @@
             </ng-template>
 
             <ng-template [ngIf]="requiredParameters && requiredParameters.length">
-                <button mat-flat-button color="primary" (click)="getParameterValues()">
-                    Create Join
+                <button mat-flat-button color="primary" (click)="getParameterValues(stepper)">
+                    Next
                 </button>
             </ng-template>
         </ng-template>
