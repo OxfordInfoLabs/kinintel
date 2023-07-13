@@ -101,10 +101,25 @@ class SQLValueEvaluator {
                 $value = "?";
             } else {
 
-                $value = $this->sqlClauseSanitiser->sanitiseSQL($value, $outputParameters);
+                $candidateParams = [];
+                $sanitised = $this->sqlClauseSanitiser->sanitiseSQL($value, $candidateParams);
 
                 // Remove any [[ from column names and prefix with table alias if supplied
-                $value = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . $this->databaseConnection->escapeColumn("$1"), $value);
+                $sanitised = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . $this->databaseConnection->escapeColumn("$1"), $sanitised);
+
+                // Check for presence of unqualified bracket expressions as these
+                // indicate literal string usage.
+                if (!trim(preg_replace("/\(.*?\)/", "", $sanitised))) {
+                    $candidateParams = [$value];
+                    $sanitised = "?";
+                }
+
+                // Set value
+                $value = $sanitised;
+
+                // Splice params
+                array_splice($outputParameters, sizeof($outputParameters), 0, $candidateParams);
+
             }
 
 

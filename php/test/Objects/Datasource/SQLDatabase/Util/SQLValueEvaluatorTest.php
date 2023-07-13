@@ -22,6 +22,33 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testPlainStringAndIntegerValuesAreExtractedWithoutChange() {
+
+        // Straight string
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("Hello World", [], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertEquals(["Hello World"], $parameters);
+
+        // Straight number
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue(11, [], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertEquals([11], $parameters);
+
+        // String with brackets in
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("Hello (In my house)(Trim my nose)", [], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertEquals(["Hello (In my house)(Trim my nose)"], $parameters);
+
+
+    }
+
+
     public function testColumnNamesInDoubleSquareBracketsGetEvaluatedAndPrefixedWithTablePrefixIfSupplied() {
 
         // Unprefixed
