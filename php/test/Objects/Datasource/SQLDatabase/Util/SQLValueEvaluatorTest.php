@@ -56,9 +56,9 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
-        $value = $evaluator->evaluateFilterValue("Hello (T*", [], null, $parameters);
+        $value = $evaluator->evaluateFilterValue("Hello(T*", [], null, $parameters);
         $this->assertEquals("?", $value);
-        $this->assertEquals(["Hello (T*"], $parameters);
+        $this->assertEquals(["Hello(T*"], $parameters);
 
     }
 
