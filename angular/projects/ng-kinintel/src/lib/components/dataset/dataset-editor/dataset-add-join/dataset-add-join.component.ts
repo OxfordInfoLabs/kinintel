@@ -280,8 +280,14 @@ export class DatasetAddJoinComponent implements OnInit {
         this.allColumns = _.every(this.joinColumns, 'selected');
     }
 
-    public getParameterValues() {
+    public async getParameterValues(step) {
         this.updateParams.next(Date.now());
+
+        await this.getJoinColumns(true);
+
+        setTimeout(() => {
+            step.next();
+        }, 0);
     }
 
     public setEvaluatedParameters(requiredParameters, step?) {
@@ -296,8 +302,6 @@ export class DatasetAddJoinComponent implements OnInit {
             parameterMappings.push(mapping);
         });
         this.joinTransformation.config.joinParameterMappings = parameterMappings;
-
-        this.dialogRef.close(this.joinTransformation);
     }
 
     public join() {
@@ -357,7 +361,20 @@ export class DatasetAddJoinComponent implements OnInit {
             };
         }
 
-        const data: any = await this.datasetService.evaluateDataset(this.selectedSource, '0', '10');
+        // If we have join parameter mappings then we need to add the parameter value to the evaluate to get column data
+        if (this.joinTransformation.config.joinParameterMappings &&
+            this.joinTransformation.config.joinParameterMappings.length) {
+
+            const firstDataRow = this.datasetEditor.dataset.allData[0];
+            const parameterValues = {};
+            this.joinTransformation.config.joinParameterMappings.forEach(param => {
+                parameterValues[param.parameterName] = firstDataRow[param.sourceColumnName];
+            });
+
+            this.selectedSource.parameterValues = parameterValues;
+        }
+
+        const data: any = await this.datasetService.evaluateDataset(this.selectedSource, '0', '1');
         if (data.columns) {
             this.joinFilterFields = [];
             this.joinColumns = [];
