@@ -41,13 +41,31 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         // String with brackets in
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
-        $value = $evaluator->evaluateFilterValue("Hello (In my house)(Trim my nose)", [], null, $parameters);
+        $value = $evaluator->evaluateFilterValue("Hello (Test Code)", [], null, $parameters);
         $this->assertEquals("?", $value);
-        $this->assertEquals(["Hello (In my house)(Trim my nose)"], $parameters);
+        $this->assertEquals(["Hello (Test Code)"], $parameters);
+
+        // String with brackets in
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("In (In)(Trim)", [], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertEquals(["In (In)(Trim)"], $parameters);
 
 
     }
 
+
+    public function testMathsExpressionsInBracketsAreRetained() {
+
+        // String with brackets in
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("2 * (3 * 6)", [], null, $parameters);
+        $this->assertEquals("? * (? * ?)", $value);
+        $this->assertEquals([2, 3, 6], $parameters);
+
+    }
 
     public function testColumnNamesInDoubleSquareBracketsGetEvaluatedAndPrefixedWithTablePrefixIfSupplied() {
 

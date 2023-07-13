@@ -109,7 +109,8 @@ class SQLValueEvaluator {
 
                 // Check for presence of unqualified bracket expressions as these
                 // indicate literal string usage.
-                if (!trim(preg_replace("/\(.*?\)/", "", $sanitised))) {
+                $unqualifiedBrackets = preg_replace("/[^a-zA-Z]\([^?\"]*?\)/", "", $sanitised);
+                if ($unqualifiedBrackets <> $sanitised) {
                     $candidateParams = [$value];
                     $sanitised = "?";
                 }
