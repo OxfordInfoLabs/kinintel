@@ -220,7 +220,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 $offset += $sourceReadChunkSize;
             }
 
-        } while (false && $lineCount >= $sourceReadChunkSize);
+        } while ($lineCount >= $sourceReadChunkSize);
 
     }
 
