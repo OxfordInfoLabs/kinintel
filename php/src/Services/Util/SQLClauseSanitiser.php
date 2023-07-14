@@ -17,6 +17,7 @@ class SQLClauseSanitiser {
     const ANY_WHITELISTED_FUNCTION = "ANY";
     const AGGREGATE_FUNCTION = "AGGREGATE";
 
+
     private $whiteListedSymbols = [
         "+",
         "-",
@@ -145,7 +146,7 @@ class SQLClauseSanitiser {
      *
      * @return string
      */
-    public function sanitiseSQL($sqlString, &$parameterValues = []) {
+    public function sanitiseSQL($sqlString, &$parameterValues = [], &$hasUnresolvedStrings = false) {
 
         // Copy params
         $existingParams = $parameterValues;
@@ -182,12 +183,13 @@ class SQLClauseSanitiser {
 
 
         // Remove any keywords which don't match our whitelisted ones
-        $sqlString = preg_replace_callback("/\\w+/", function ($matches) {
+        $sqlString = preg_replace_callback("/\\w+/", function ($matches) use (&$hasUnresolvedStrings) {
             $targetKeyword = strtoupper($matches[0]);
             if (!is_numeric($targetKeyword)) {
                 if (isset($this->whitelistedFunctions[$targetKeyword]) || in_array($targetKeyword, $this->whitelistedKeywords)) {
                     return $matches[0];
                 } else {
+                    $hasUnresolvedStrings = true;
                     return "";
                 }
             }

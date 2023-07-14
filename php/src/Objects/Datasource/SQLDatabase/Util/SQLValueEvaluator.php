@@ -102,18 +102,20 @@ class SQLValueEvaluator {
             } else {
 
                 $candidateParams = [];
-                $sanitised = $this->sqlClauseSanitiser->sanitiseSQL($value, $candidateParams);
+                $hasUnresolvedStrings = false;
+                $sanitised = $this->sqlClauseSanitiser->sanitiseSQL($value, $candidateParams, $hasUnresolvedStrings);
 
                 // Remove any [[ from column names and prefix with table alias if supplied
                 $sanitised = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . $this->databaseConnection->escapeColumn("$1"), $sanitised);
 
                 // Check for presence of unqualified bracket expressions as these
                 // indicate literal string usage.
-                $unqualifiedBrackets = preg_replace("/(^|[^a-zA-Z])\([^?\"]*?(\)|$)/", "", $sanitised);
-                if ($unqualifiedBrackets <> $sanitised) {
+                $matches =[];
+                if ($hasUnresolvedStrings && is_numeric(preg_match("/(^|[^a-zA-Z])\(/",$value, $matches, PREG_OFFSET_CAPTURE))) {
                     $candidateParams = [$value];
                     $sanitised = "?";
                 }
+
 
                 // Set value
                 $value = $sanitised;

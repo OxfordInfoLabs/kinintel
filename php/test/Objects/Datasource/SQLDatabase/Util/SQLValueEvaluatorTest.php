@@ -45,20 +45,39 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("?", $value);
         $this->assertEquals(["Hello (Test Code)"], $parameters);
 
+        // String with number in brackets
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("Hello (1e)", [], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertEquals(["Hello (1e)"], $parameters);
+
+
+        // String with number in brackets
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("Hello (1)", [], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertEquals(["Hello (1)"], $parameters);
+
 
 
         // String with brackets in
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
-        $value = $evaluator->evaluateFilterValue("In (In)(Trim)", [], null, $parameters);
+        $value = $evaluator->evaluateFilterValue("In (My)(Bed)", [], null, $parameters);
         $this->assertEquals("?", $value);
-        $this->assertEquals(["In (In)(Trim)"], $parameters);
+        $this->assertEquals(["In (My)(Bed)"], $parameters);
 
+        // Partial brackets
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("Hello(T*", [], null, $parameters);
         $this->assertEquals("?", $value);
         $this->assertEquals(["Hello(T*"], $parameters);
+
+
+
 
     }
 
