@@ -185,7 +185,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
 
         try {
             $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);
-            $datasourceInstance->getConfig()->setColumns($fields);
+            $datasourceInstance->returnConfig()->setColumns($fields);
         } catch (ObjectNotFoundException $e) {
             $datasourceInstance = new DatasourceInstance($instanceKey, $instanceTitle, "snapshot",
                 new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tablePrefix . $instanceKey, null, $fields, true), $credentialsKey);
