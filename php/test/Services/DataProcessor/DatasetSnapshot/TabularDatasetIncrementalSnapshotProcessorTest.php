@@ -174,7 +174,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
         $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $datasource = MockObjectProvider::instance()->getMockInstance(TabularSnapshotDataSource::class);
-        $instanceConfig = MockObjectProvider::instance()->getMockInstance(ManagedTableSQLDatabaseDatasourceConfig::class);
+        $instanceConfig = [];
         $datasourceInstance->returnValue("returnDataSource", $datasource);
         $datasourceInstance->returnValue("getConfig", $instanceConfig);
 
@@ -270,7 +270,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
         $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $datasource = MockObjectProvider::instance()->getMockInstance(TabularSnapshotDataSource::class);
-        $instanceConfig = MockObjectProvider::instance()->getMockInstance(ManagedTableSQLDatabaseDatasourceConfig::class);
+        $instanceConfig = [];
         $datasourceInstance->returnValue("returnDataSource", $datasource);
         $datasourceInstance->returnValue("getConfig", $instanceConfig);
 
@@ -366,7 +366,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
         $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $datasource = MockObjectProvider::instance()->getMockInstance(TabularSnapshotDataSource::class);
-        $instanceConfig = MockObjectProvider::instance()->getMockInstance(ManagedTableSQLDatabaseDatasourceConfig::class);
+        $instanceConfig = [];
         $datasourceInstance->returnValue("returnDataSource", $datasource);
         $datasourceInstance->returnValue("getConfig", $instanceConfig);
 
