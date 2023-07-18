@@ -90,7 +90,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         /**
          * @var TabularDatasetIncrementalSnapshotProcessorConfiguration $config
          */
-        $config = $instance->getConfig();
+        $config = $instance->returnConfig();
 
         // Grab the newer values field
         $newerValuesField = $config->getNewerValuesFieldName();
