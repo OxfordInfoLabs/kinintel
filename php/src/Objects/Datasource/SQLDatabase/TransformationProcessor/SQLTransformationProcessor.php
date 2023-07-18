@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
 use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -21,6 +22,18 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation combine Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\CombineTransformationProcessor
  */
 abstract class SQLTransformationProcessor {
+
+
+    /**
+     * Called when the instance is supplied to the SQL Datasource. This gives an opportunity
+     * to perform any optimisations or adjustments on the instance for a given transformation.
+     *
+     * @param Transformation $transformation
+     * @param DatasourceInstance $datasourceInstance
+     *
+     */
+    public function preprocessTransformation($transformation, $datasourceInstance) {
+    }
 
 
     /**
