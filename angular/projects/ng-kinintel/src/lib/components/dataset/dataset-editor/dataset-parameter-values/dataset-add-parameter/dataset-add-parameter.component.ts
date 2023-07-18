@@ -32,4 +32,8 @@ export class DatasetAddParameterComponent implements OnInit {
         }
     }
 
+    public selectDatasource() {
+
+    }
+
 }

@@ -420,6 +420,7 @@ class DatasetService {
             $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());
 
             $processorConfig["snapshotIdentifier"] = $snapshotProfile->getDataProcessorInstance()->getKey();
+            $snapshotProfile->getDataProcessorInstance()->setType($snapshotProfileSummary->getProcessorType());
             $snapshotProfile->getDataProcessorInstance()->setConfig($processorConfig);
 
 

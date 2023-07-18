@@ -51,6 +51,50 @@
                             <div
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Snapshot
+                                    Processor</label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <mat-radio-group [(ngModel)]="snapshot.processorType">
+                                        <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard</mat-radio-button>
+                                        <mat-radio-button value="tabulardatasetincrementalsnapshot">Incremental</mat-radio-button>
+                                    </mat-radio-group>
+                                </div>
+                            </div>
+
+                            <ng-template [ngIf]="snapshot.processorType === 'tabulardatasetincrementalsnapshot'">
+                                <div
+                                    class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Newer Values Field Name
+                                    </label>
+                                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                        <mat-select [(ngModel)]="snapshot.processorConfig.newerValuesFieldName"
+                                                    name="newerValuesFieldName" required>
+                                            <mat-option [value]="column.name"
+                                                        *ngFor="let column of columns">{{column.title}}</mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Newer Values Rules
+                                    </label>
+                                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                        <mat-select [(ngModel)]="snapshot.processorConfig.newerValuesRules"
+                                                    name="newerValuesRules" required>
+                                            <mat-option value="GREATER">Greater Than</mat-option>
+                                            <mat-option value="GREATER_OR_EQUAL">Greater Than or Equal To</mat-option>
+                                            <mat-option value="LESSER">Lesser Than</mat-option>
+                                            <mat-option value="LESSER_OR_EQUAL">Lesser Than or Equal To</mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+                            </ng-template>
+
+                            <div *ngIf="snapshot.processorType === 'tabulardatasetsnapshot'"
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Snapshot
                                     Type</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0 flex flex-col">
                                     <mat-checkbox [(ngModel)]="snapshot.processorConfig.createHistory"
@@ -90,7 +134,7 @@
                                 </div>
                             </div>
 
-                            <div *ngIf="snapshot.processorConfig.createHistory"
+                            <div *ngIf="snapshot.trigger === 'scheduled'"
                                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time
                                     Periods</label>
@@ -100,7 +144,8 @@
                                 </div>
                             </div>
 
-                            <div
+                            <div *ngIf="snapshot.processorConfig.createHistory &&
+                                snapshot.processorType === 'tabulardatasetsnapshot'"
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time Lapse
                                     Fields</label>
