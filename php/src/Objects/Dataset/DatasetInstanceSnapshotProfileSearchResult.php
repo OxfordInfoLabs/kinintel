@@ -92,8 +92,12 @@ class DatasetInstanceSnapshotProfileSearchResult {
          * @var TabularDatasetSnapshotProcessorConfiguration $processorConfig
          */
         $processorConfig = $dataProcessorInstance->returnConfig();
-        $this->snapshotProfileHistoricalDatasourceInstanceKey = $processorConfig->isCreateHistory() ? $dataProcessorInstance->getKey() : null;
-        $this->snapshotProfileLatestDatasourceInstanceKey = $processorConfig->isCreateLatest() ? $dataProcessorInstance->getKey() . "_latest" : null;
+        if ($dataProcessorInstance->getType() == "tabulardatasetsnapshot") {
+            $this->snapshotProfileHistoricalDatasourceInstanceKey = $processorConfig->isCreateHistory() ? $dataProcessorInstance->getKey() : null;
+            $this->snapshotProfileLatestDatasourceInstanceKey = $processorConfig->isCreateLatest() ? $dataProcessorInstance->getKey() . "_latest" : null;
+        } else {
+            $this->snapshotProfileLatestDatasourceInstanceKey = $dataProcessorInstance->getKey();
+        }
 
         $this->taskStatus = $snapshotProfile->getScheduledTask()->getStatus();
         $this->taskLastStartTime = $snapshotProfile->getScheduledTask()->getLastStartTime() ?
