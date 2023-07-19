@@ -187,6 +187,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         $offset = $initialOffset;
         // Read the datasource in chunks
 
+
         do {
             $lineCount = -1;
             $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, $parameterValues, [], $offset, $sourceReadChunkSize);

@@ -171,6 +171,18 @@ class WebServiceDatasource extends BaseDatasource {
         $offset = 0;
         $limit = PHP_INT_MAX;
 
+        // Increment the offset and limit accordingly.
+        foreach ($this->pagingTransformations as $pagingTransformation) {
+
+            // Handle non numeric transformations separately
+            if (is_numeric($pagingTransformation->getOffset()) || $pagingTransformation->getOffset() === null)
+                $offset += $pagingTransformation->getOffset();
+            else
+                $offset = $pagingTransformation->getOffset();
+
+            $limit = $pagingTransformation->getLimit();
+        }
+
         // Read from cache file if not timed out
         if ($caching && ($timeoutTime > date("U"))) {
             $responseStream = new ReadOnlyFileStream($cacheDirectory . $cacheFileName);
@@ -180,17 +192,7 @@ class WebServiceDatasource extends BaseDatasource {
             $headers = new Headers($config->getHeaders() ?? []);
             $payload = null;
 
-            // Increment the offset and limit accordingly.
-            foreach ($this->pagingTransformations as $pagingTransformation) {
 
-                // Handle non numeric transformations separately
-                if (is_numeric($pagingTransformation->getOffset()) || $pagingTransformation->getOffset() === null)
-                    $offset += $pagingTransformation->getOffset();
-                else
-                    $offset = $pagingTransformation->getOffset();
-
-                $limit = $pagingTransformation->getLimit();
-            }
 
             // If paging via parameters
             if ($config->isPagingViaParameters()) {
@@ -271,7 +273,6 @@ class WebServiceDatasource extends BaseDatasource {
             }
 
         }
-
 
         // Materialise the web service result and return the result
         return $config->returnFormatter()->format($responseStream, $config->returnEvaluatedColumns($parameterValues), $config->isPagingViaParameters() ? PHP_INT_MAX : $limit,
