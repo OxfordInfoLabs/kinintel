@@ -1,5 +1,6 @@
-import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, Input, OnInit, Output, EventEmitter, ViewChild} from '@angular/core';
 import * as lodash from 'lodash';
+import {NgForm} from '@angular/forms';
 const _ = lodash.default;
 
 @Component({
@@ -8,6 +9,8 @@ const _ = lodash.default;
     styleUrls: ['./task-time-periods.component.sass']
 })
 export class TaskTimePeriodsComponent implements OnInit {
+
+    @ViewChild('timeForm') timeForm: NgForm;
 
     @Input() taskTimePeriods: any = [];
     @Input() showTitle = true;

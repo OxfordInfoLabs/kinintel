@@ -38,8 +38,8 @@
 
                             <div
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Snapshot
-                                    Trigger</label>
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Snapshot Trigger</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <mat-radio-group [(ngModel)]="snapshot.trigger">
                                         <mat-radio-button class="mr-4" value="scheduled">Scheduled</mat-radio-button>
@@ -50,8 +50,8 @@
 
                             <div
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Snapshot
-                                    Processor</label>
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Snapshot Processor</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <mat-radio-group [(ngModel)]="snapshot.processorType">
                                         <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard</mat-radio-button>
@@ -94,8 +94,8 @@
 
                             <div *ngIf="snapshot.processorType === 'tabulardatasetsnapshot'"
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Snapshot
-                                    Type</label>
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Snapshot Type</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0 flex flex-col">
                                     <mat-checkbox [(ngModel)]="snapshot.processorConfig.createHistory"
                                                   (ngModelChange)="updateCreateHistory($event)">
@@ -136,10 +136,10 @@
 
                             <div *ngIf="snapshot.trigger === 'scheduled'"
                                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time
-                                    Periods</label>
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Time Periods</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <ki-task-time-periods class="block" [showTitle]="false"
+                                    <ki-task-time-periods #timePeriods class="block" [showTitle]="false"
                                                           [(taskTimePeriods)]="snapshot.taskTimePeriods"></ki-task-time-periods>
                                 </div>
                             </div>
@@ -222,8 +222,10 @@
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <div class="mb-2 text-xs ">
                                         Select the key fields for this data feed. <br>
-                                        This required where <span class="font-medium">Time Lapse Fields</span> have been
-                                        specified.
+                                        <ng-template [ngIf]="snapshot.trigger === 'scheduled'">
+                                            This required where <span class="font-medium">Time Lapse Fields</span> have been
+                                            specified.
+                                        </ng-template>
                                     </div>
                                     <mat-select #selectModel="ngModel" #selectKeyFields
                                                 [required]="snapshot.processorConfig.timeLapsedFields.length > 0"

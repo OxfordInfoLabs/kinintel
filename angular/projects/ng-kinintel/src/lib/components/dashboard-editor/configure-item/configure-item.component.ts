@@ -1,18 +1,24 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {SourceSelectorDialogComponent} from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
+import {
+    SourceSelectorDialogComponent
+} from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
 import {DashboardService} from '../../../services/dashboard.service';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import chroma from 'chroma-js';
 import {DatasetService} from '../../../services/dataset.service';
 import {EditDashboardAlertComponent} from '../configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
-import {DatasetFilterComponent} from '../../dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
+import {
+    DatasetFilterComponent
+} from '../../dataset/dataset-editor/dataset-filters/dataset-filter/dataset-filter.component';
 import {Router} from '@angular/router';
 import {DatasourceService} from '../../../services/datasource.service';
 import {BehaviorSubject, Subject} from 'rxjs';
 import {ActionEvent} from '../../../objects/action-event';
 import {BaseChartDirective} from 'ng2-charts';
+import regression from 'regression';
 
 @Component({
     selector: 'ki-configure-item',
@@ -496,6 +502,58 @@ export class ConfigureItemComponent implements OnInit {
                 this.dashboardItemType.labels = _.uniq(_.map(this.dataset.allData, item => {
                     return item[this.dashboardItemType.xAxis];
                 }));
+            }
+
+            if (this.dashboardItemType.trendLine &&
+                this.dashboardItemType.type !== 'pie' &&
+                this.dashboardItemType.type !== 'doughnut') {
+
+                let trendLine = [];
+                let trendLabel = 'Trend';
+                if (this.dashboardItemType.trendLine === 'average') {
+                    trendLabel = 'Average';
+                    const trendData = [];
+                    this.chartData.forEach(dataItem => {
+                        trendData.push(_.map(dataItem.data, 'y'));
+                    });
+                    const average = _.flatMap(trendData).reduce((p, c) => p + c, 0) / _.flatMap(trendData).length;
+                    trendLine = _.fill(_.range(0, _.flatMap(trendData).length), average, 0, _.flatMap(trendData).length);
+                } else if (this.dashboardItemType.trendLine === 'logarithmic' ||
+                    this.dashboardItemType.trendLine === 'linear' ||
+                    this.dashboardItemType.trendLine === 'exponential') {
+
+                    const trendLineData = _.map(this.dataset.allData, item => {
+                        return {x: item[this.dashboardItemType.yAxis], y: item[this.dashboardItemType.yAxis]};
+                    }).filter(({x, y}) => {
+                        return (
+                            typeof x === typeof y &&  // filter out one string & one number
+                            !isNaN(x) &&              // filter out `NaN`
+                            !isNaN(y) &&
+                            Math.abs(x) !== Infinity &&
+                            Math.abs(y) !== Infinity
+                        );
+                    }).map(({x, y}) => {
+                        return [x, y];             // we need a list of [[x1, y1], [x2, y2], ...]
+                    });
+
+                    const trendLineResults = regression[this.dashboardItemType.trendLine](trendLineData);
+                    trendLine = trendLineResults.points.map(([x, y]) => {
+                        return y;
+                    });
+                } else {
+                    trendLine = _.map(this.dataset.allData, item => {
+                        return item[this.dashboardItemType.trendLine];
+                    });
+                    trendLabel = _.find(this.filterFields, {name: this.dashboardItemType.trendLine}).title;
+                }
+
+                this.chartData.push({
+                    type: 'line',
+                    data: trendLine,
+                    label: trendLabel,
+                    borderColor: this.dashboardItemType.trendLineColour,
+                    fill: false
+                });
             }
         }
     }

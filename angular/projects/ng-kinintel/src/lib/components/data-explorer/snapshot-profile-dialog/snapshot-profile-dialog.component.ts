@@ -4,6 +4,8 @@ import {DatasetService} from '../../../services/dataset.service';
 import * as lodash from 'lodash';
 import {MatSelect} from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
+import {TaskTimePeriodsComponent} from '../../task-time-periods/task-time-periods.component';
+import {NgForm, NgModel} from '@angular/forms';
 const _ = lodash.default;
 
 @Component({
@@ -15,6 +17,9 @@ const _ = lodash.default;
 export class SnapshotProfileDialogComponent implements OnInit {
 
     @ViewChild('selectKeyFields') selectKeyFields: MatSelect;
+    @ViewChild('timePeriods') timePeriods: TaskTimePeriodsComponent;
+    @ViewChild('timeLapseForm') timeLapseForm: NgForm;
+    @ViewChild('selectModel') selectModel: NgModel;
 
     public snapshot: any;
     public columns: any = [];
@@ -117,11 +122,21 @@ export class SnapshotProfileDialogComponent implements OnInit {
         this.snapshot.processorConfig.timeLapsedFields.push(cloned);
     }
 
-    public saveSnapshot() {
-        this.datasetService.saveSnapshotProfile(this.snapshot, this.datasetInstanceId)
-            .then(() => {
+    public async saveSnapshot() {
+        if (this.timePeriods.timeForm && this.timePeriods.timeForm.valid) {
+            this.timePeriods.addTimePeriod();
+        }
+
+        if (this.timeLapseForm && this.timeLapseForm.valid) {
+            this.saveTimeLapse();
+        }
+
+        setTimeout(async () => {
+            if (this.selectModel.valid) {
+                await this.datasetService.saveSnapshotProfile(this.snapshot, this.datasetInstanceId);
                 this.dialogRef.close(true);
-            });
+            }
+        }, 0);
     }
 
 }

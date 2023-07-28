@@ -11,7 +11,7 @@ import {Subject, Subscription} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import moment from 'moment';
-
+import regression from 'regression';
 import {Router} from '@angular/router';
 import {
     EditDashboardAlertComponent
@@ -468,6 +468,55 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                 this.dashboardItemType.labels = _.uniq(_.map(datasetData, item => {
                     return item[this.dashboardItemType.xAxis];
                 }));
+            }
+
+            if (this.dashboardItemType.trendLine) {
+                let trendLine = [];
+                let trendLabel = 'Trend';
+                if (this.dashboardItemType.trendLine === 'average') {
+                    trendLabel = 'Average';
+                    const trendData = [];
+                    this.chartData.forEach(dataItem => {
+                        trendData.push(_.map(dataItem.data, 'y'));
+                    });
+                    const average = _.flatMap(trendData).reduce((p, c) => p + c, 0) / _.flatMap(trendData).length;
+                    trendLine = _.fill(_.range(0, _.flatMap(trendData).length), average, 0, _.flatMap(trendData).length);
+                } else if (this.dashboardItemType.trendLine === 'logarithmic' ||
+                    this.dashboardItemType.trendLine === 'linear' ||
+                    this.dashboardItemType.trendLine === 'exponential') {
+
+                    const trendLineData = _.map(this.dataset.allData, item => {
+                        return {x: item[this.dashboardItemType.yAxis], y: item[this.dashboardItemType.yAxis]};
+                    }).filter(({x, y}) => {
+                        return (
+                            typeof x === typeof y &&  // filter out one string & one number
+                            !isNaN(x) &&              // filter out `NaN`
+                            !isNaN(y) &&
+                            Math.abs(x) !== Infinity &&
+                            Math.abs(y) !== Infinity
+                        );
+                    }).map(({x, y}) => {
+                        return [x, y];
+                    });
+
+                    const trendLineResults = regression[this.dashboardItemType.trendLine](trendLineData);
+                    trendLine = trendLineResults.points.map(([x, y]) => {
+                        return y;
+                    });
+                } else {
+                    trendLine = _.map(this.dataset.allData, item => {
+                        return item[this.dashboardItemType.trendLine];
+                    });
+                    trendLabel = _.find(this.filterFields, {name: this.dashboardItemType.trendLine}).title;
+                }
+
+                this.chartData.push({
+                    type: 'line',
+                    data: trendLine,
+                    label: trendLabel,
+                    borderColor: this.dashboardItemType.trendLineColour,
+                    fill: false
+                });
             }
         }
     }

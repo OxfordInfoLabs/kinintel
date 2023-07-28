@@ -12,6 +12,7 @@ const _ = lodash.default;
 import {MetadataComponent} from '../metadata/metadata.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CreateDatasetComponent} from './create-dataset/create-dataset.component';
+import {Location} from '@angular/common';
 
 @Component({
     selector: 'ki-dataset',
@@ -32,6 +33,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
     @Input() accountId: any;
     @Input() contactUs: string;
     @Input() tableHeading: string;
+    @Input() listStyle = 'LIST';
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -46,8 +48,12 @@ export class DatasetComponent implements OnInit, OnDestroy {
     public projectSub = new Subject();
     public activeTag: any;
     public loading = true;
+    public gridItems: any = {};
+    public projectSettings: any = {};
 
     private tagSub: Subscription;
+    private activeProject: any;
+    private activeProjectSub: Subscription;
 
     constructor(private dialog: MatDialog,
                 private tagService: TagService,
@@ -55,10 +61,28 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 private datasetService: DatasetService,
                 private router: Router,
                 private route: ActivatedRoute,
-                public config: KinintelModuleConfig) {
+                public config: KinintelModuleConfig,
+                private location: Location) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit() {
+        this.activeProject = this.projectService.activeProject.getValue();
+
+        this.activeProjectSub = this.projectService.activeProject.subscribe(activeProject => {
+            this.activeProject = activeProject;
+
+            this.projectSettings = this.activeProject.settings ? (Array.isArray(this.activeProject.settings) ? {
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
+            } : this.activeProject.settings) : {
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
+            };
+
+            const listKey = this.getCurrentPathListKey();
+            if (this.projectSettings[listKey]) {
+                this.listStyle = this.projectSettings[listKey];
+            }
+        });
+
         this.searchText.subscribe(() => {
             this.page = 1;
             this.offset = 0;
@@ -88,6 +112,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.projectSub = this.projectService.activeProject;
         }
 
+        this.getCategories();
+
         merge(this.searchText, this.activeTagSub, this.projectSub, this.reload)
             .pipe(
                 debounceTime(300),
@@ -97,12 +123,33 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 )
             ).subscribe((datasets: any) => {
             this.datasets = datasets;
+
+            if (this.categories.length) {
+                this.gridItems = {};
+                this.categories.forEach(category => {
+                    const items = _.filter(datasets, dataset => {
+                        return !!_.find(dataset.categories, {key: category.key});
+                    });
+                    this.gridItems[category.key] = {
+                        key: category.key,
+                        title: category.category,
+                        list: items
+                    };
+                });
+
+                const otherItems = _.filter(datasets, dataset => {
+                    return !dataset.categories || !dataset.categories.length;
+                });
+                this.gridItems.other = {
+                    key: 'other',
+                    title: 'Other',
+                    list: otherItems
+                };
+            } else {
+                this.listStyle = 'LIST';
+            }
             this.loading = false;
         });
-
-        this.getCategories();
-
-
     }
 
     ngOnDestroy() {
@@ -125,6 +172,12 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public removeActiveTag() {
         this.tagService.resetActiveTag();
+    }
+
+    public updateListStyle() {
+        const listKey = this.getCurrentPathListKey();
+        this.projectSettings[listKey] = this.listStyle;
+        this.projectService.updateProjectSettings(this.activeProject.projectKey, this.projectSettings);
     }
 
     public toggleCategory(event, category) {
@@ -249,7 +302,13 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     private getCategories() {
-        this.datasetService.getDatasetCategories(this.shared).then(categories => this.categories = categories);
+        return this.datasetService.getDatasetCategories(this.shared).then(categories => this.categories = categories);
     }
 
+    private getCurrentPathListKey() {
+        const currentPath = this.location.path().replace('/', '-');
+        return _.camelCase('listStyle' + currentPath);
+    }
+
+    protected readonly Object = Object;
 }
