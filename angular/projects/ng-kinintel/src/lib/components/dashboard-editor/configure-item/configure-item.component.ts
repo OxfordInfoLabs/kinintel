@@ -552,7 +552,8 @@ export class ConfigureItemComponent implements OnInit {
                     data: trendLine,
                     label: trendLabel,
                     borderColor: this.dashboardItemType.trendLineColour,
-                    fill: false
+                    fill: false,
+                    order: -1
                 });
             }
         }

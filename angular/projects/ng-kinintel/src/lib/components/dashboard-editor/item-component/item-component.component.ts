@@ -515,7 +515,8 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     data: trendLine,
                     label: trendLabel,
                     borderColor: this.dashboardItemType.trendLineColour,
-                    fill: false
+                    fill: false,
+                    order: -1
                 });
             }
         }
