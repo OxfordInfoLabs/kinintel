@@ -193,7 +193,6 @@ class WebServiceDatasource extends BaseDatasource {
             $payload = null;
 
 
-
             // If paging via parameters
             if ($config->isPagingViaParameters()) {
                 $parameterValues["offset"] = $offset;
@@ -207,6 +206,7 @@ class WebServiceDatasource extends BaseDatasource {
 
             // Evaluate params
             $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
+
 
             if ($config->isEncodeURLParameters()) {
                 // Encode URL to prevent transfer issues
@@ -224,6 +224,7 @@ class WebServiceDatasource extends BaseDatasource {
 
 
             $request = new Request($url, $config->getMethod(), [], $payload, $headers);
+
 
             // Inject authentication if required
             if ($this->getAuthenticationCredentials()) {

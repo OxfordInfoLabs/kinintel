@@ -203,6 +203,11 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                     $nextLine = "";
 
                     foreach ($nextItem as $key => $value) {
+
+                        // If an array or object, base64 encode
+                        if (is_array($value) || is_object($value)) {
+                            $value = "base64:" . base64_encode(json_encode($value));
+                        }
                         $nextLine .= $value . "#|!";
                     }
                     file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
@@ -245,6 +250,12 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
                 $nextLine = "";
                 foreach ($nextItem as $key => $value) {
+
+                    // If an array or object, base64 encode
+                    if (is_array($value) || is_object($value)) {
+                        $value = "base64:" . base64_encode(json_encode($value));
+                    }
+
                     $nextLine .= $value . "#|!";
                 }
                 file_put_contents($directory . "/" . $fileName, substr($nextLine, 0, -3) . "\n", FILE_APPEND);
@@ -332,7 +343,11 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 // If not a duplicate, it is an update
                 if (!in_array($addLine, $deleteFileItems)) {
                     for ($j = 0; $j < sizeof($explodedAddLine); $j++) {
-                        $trueUpdates[$updateCount][$fieldKeys[$j]->getName()] = trim($explodedAddLine[$j]) != "" ? trim($explodedAddLine[$j]) : null;
+                        $value = trim($explodedAddLine[$j]) != "" ? trim($explodedAddLine[$j]) : null;
+                        if (substr($value, 0, 7) == "base64:")
+                            $value = json_decode(base64_decode(substr($value, 7)), true);
+
+                        $trueUpdates[$updateCount][$fieldKeys[$j]->getName()] = $value;
                     }
                     $updateCount++;
                 }
@@ -350,7 +365,10 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             // Must be an add otherwise
             for ($i = 0; $i < sizeof($explodedAddLine); $i++) {
                 if (isset($fieldKeys[$i])) {
-                    $trueAdds[$addCount][$fieldKeys[$i]->getName()] = trim($explodedAddLine[$i]) != "" ? trim($explodedAddLine[$i]) : null;
+                    $value = trim($explodedAddLine[$i]) != "" ? trim($explodedAddLine[$i]) : null;
+                    if (substr($value, 0, 7) == "base64:")
+                        $value = json_decode(base64_decode(substr($value, 7)), true);
+                    $trueAdds[$addCount][$fieldKeys[$i]->getName()] = $value;
                 }
             }
             $addCount++;

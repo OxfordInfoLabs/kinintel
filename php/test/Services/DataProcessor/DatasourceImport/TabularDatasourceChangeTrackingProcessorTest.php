@@ -115,6 +115,86 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
 
+    public function testNestedObjectsAndArraysAreSerialisedToBase64ForChangeTracking() {
+
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test3"], [], null, null, null, null, [], PHP_INT_MAX);
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getKey", "test");
+
+        $object1 = ["name" => "Bingo", "age" => 5];
+        $array1 = [
+            [
+                "note" => "Testing 1,2,3"
+            ],
+            [
+                "note" => "Findings 1,2,3"
+            ]
+        ];
+        $object2 = ["name" => "Bongo", "age" => 3];
+        $array2 = [
+            [
+                "note" => "Testing 1,2,3,4"
+            ],
+            [
+                "note" => "Findings 1,2,3,4"
+            ]
+        ];
+        $object3 = ["name" => "Bango", "age" => 5];
+        $array3 = [
+            [
+                "note" => "Testing 1,2,3"
+            ],
+            [
+                "note" => "Findings 1,2,3"
+            ]
+        ];
+
+
+        $test1Dataset = new ArrayTabularDataset([new Field("name"), new Field("object"), new Field("array")], [
+            [
+                "name" => "Joe Bloggs",
+                "object" => $object1,
+                "array" => $array1
+            ],
+            [
+                "name" => "James Bond",
+                "object" => $object2,
+                "array" => $array2
+            ],
+            [
+                "name" => "Andrew Smith",
+                "object" => $object3,
+                "array" => $array3
+            ]
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+            "test3", [], [], 0, 1
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+            "test3", [], [], 0, PHP_INT_MAX
+        ]);
+
+
+        // Actually process
+        $this->processor->process($processorInstance);
+
+        // Expect the new and previous files to exist
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test3/new.txt"));
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test3/previous.txt"));
+
+        $this->assertStringContainsString("Joe Bloggs#|!base64:" . base64_encode(json_encode($object1)) . "#|!base64:" . base64_encode(json_encode($array1)), file_get_contents("Files/change_tracking_processors/test/test3/new.txt"));
+        $this->assertStringContainsString("James Bond#|!base64:" . base64_encode(json_encode($object2)) . "#|!base64:" . base64_encode(json_encode($array2)), file_get_contents("Files/change_tracking_processors/test/test3/new.txt"));
+        $this->assertStringContainsString("Andrew Smith#|!base64:" . base64_encode(json_encode($object3)) . "#|!base64:" . base64_encode(json_encode($array3)), file_get_contents("Files/change_tracking_processors/test/test3/new.txt"));
+
+
+    }
+
+
     public function testCanCopyToPreviousOnProcessOfSourceDatasources() {
 
         $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], [], null, null, null, null);
@@ -328,18 +408,27 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $processorInstance->returnValue("getKey", "test");
 
 
-        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
+        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age"), new Field("array")], [
             [
                 "name" => "Joe Bloggs",
-                "age" => 22
+                "age" => 22,
+                "array" => [
+                    1, 2, 3, 4
+                ]
             ],
             [
                 "name" => "James Bond",
-                "age" => 56
+                "age" => 56,
+                "array" => [
+                    2, 3, 4, 5
+                ]
             ],
             [
                 "name" => "Andrew Smith",
-                "age" => 30
+                "age" => 30,
+                "array" => [
+                    3, 4, 5, 6
+                ]
             ]
         ]);
 
@@ -353,13 +442,22 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $expectedUpdate = new DatasourceUpdate([], [], [], [[
             "name" => "Joe Bloggs",
-            "age" => 22
+            "age" => 22,
+            "array" => [
+                1, 2, 3, 4
+            ]
         ], [
             "name" => "James Bond",
-            "age" => 56
+            "age" => 56,
+            "array" => [
+                2, 3, 4, 5
+            ]
         ], [
             "name" => "Andrew Smith",
-            "age" => 30
+            "age" => 30,
+            "array" => [
+                3, 4, 5, 6
+            ]
         ]]);
 
         $this->processor->process($processorInstance);
@@ -808,25 +906,37 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanProcessDataset() {
-        $testMetaDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
+        $testMetaDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age"), new Field("array")], [
             [
                 "name" => "Joe Bloggs",
-                "age" => 22
+                "age" => 22,
+                "array" => [
+                    1, 2, 3, 4
+                ]
             ]
         ]);
 
-        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age")], [
+        $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age"), new Field("array")], [
             [
                 "name" => "Joe Bloggs",
-                "age" => 22
+                "age" => 22,
+                "array" => [
+                    1, 2, 3, 4
+                ]
             ],
             [
                 "name" => "James Bond",
-                "age" => 56
+                "age" => 56,
+                "array" => [
+                    2, 3, 4, 5
+                ]
             ],
             [
                 "name" => "John Smith",
-                "age" => 30
+                "age" => 30,
+                "array" => [
+                    3, 4, 5, 6
+                ]
             ]
         ]);
 
@@ -845,13 +955,22 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $expectedUpdate = new DatasourceUpdate([], [], [], [[
             "name" => "Joe Bloggs",
-            "age" => 22
+            "age" => 22,
+            "array" => [
+                1, 2, 3, 4
+            ]
         ], [
             "name" => "James Bond",
-            "age" => 56
+            "age" => 56,
+            "array" => [
+                2, 3, 4, 5
+            ]
         ], [
             "name" => "John Smith",
-            "age" => 30
+            "age" => 30,
+            "array" => [
+                3, 4, 5, 6
+            ]
         ]]);
 
         $this->processor->process($processorInstance);
@@ -1075,7 +1194,6 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $fourthDataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
         ]);
-
 
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $firstDataset, [

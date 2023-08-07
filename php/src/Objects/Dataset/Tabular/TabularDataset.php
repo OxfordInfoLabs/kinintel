@@ -69,6 +69,7 @@ abstract class TabularDataset implements Dataset {
 
         // Return read rows
         return $this->readRows;
+
     }
 
 
