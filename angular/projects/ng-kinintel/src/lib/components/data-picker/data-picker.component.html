@@ -19,7 +19,7 @@
         </thead>
         <tbody class="bg-white">
         <tr *ngFor="let dataItem of tableData[tableKey].data">
-            <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+            <td class="whitespace-normal border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
                 <div class="flex flex-col">
                     <div>{{dataItem.title || dataItem.fullTitle}}</div>
                     <div *ngIf="dataItem.summary"
