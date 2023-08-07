@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {NotificationService} from '../../../../lib/services/notification.service';
 import {AlertService} from '../../../../lib/services/alert.service';
-import {MatDialog} from '@angular/material/dialog';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {EditNotificationGroupComponent} from '../../notification-groups/edit-notification-group/edit-notification-group.component';
 import * as lodash from 'lodash';
 const _ = lodash.default;

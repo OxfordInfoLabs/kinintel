@@ -6,7 +6,7 @@ import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DashboardService} from '../../services/dashboard.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
-import {MatDialog} from '@angular/material/dialog';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {MetadataComponent} from '../metadata/metadata.component';
 import * as lodash from 'lodash';
 const _ = lodash.default;

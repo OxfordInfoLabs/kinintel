@@ -1,10 +1,10 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
 import {FeedService} from '../../../services/feed.service';
 import {DatasetService} from '../../../services/dataset.service';
 import {BehaviorSubject, merge} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {MatOptionSelectionChange} from '@angular/material/core';
+import {MatLegacyOptionSelectionChange as MatOptionSelectionChange} from '@angular/material/legacy-core';
 
 @Component({
     selector: 'ki-feed',

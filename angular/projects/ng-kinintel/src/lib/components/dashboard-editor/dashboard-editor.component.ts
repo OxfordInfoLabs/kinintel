@@ -29,8 +29,8 @@ const _ = lodash.default;
 import {
     DatasetAddParameterComponent
 } from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
-import {MatDialog} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {AlertService} from '../../services/alert.service';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import moment from 'moment';
