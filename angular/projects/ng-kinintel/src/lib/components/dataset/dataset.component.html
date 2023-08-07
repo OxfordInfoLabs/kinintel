@@ -235,9 +235,9 @@
                             <div class="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                                 <ng-template ngFor let-item [ngForOf]="Object.keys(gridItems)">
                                     <div *ngIf="gridItems[item].list.length" class="bg-white overflow-hidden shadow rounded-lg flex flex-col">
-                                        <div class="p-5">
+                                        <div class="px-5 py-4 bg-gray-50 ">
                                             <div class="flex items-center">
-                                                <div class="ml-1 text-sm font-medium text-gray-500 truncate">
+                                                <div class="ml-1 text-base font-medium text-gray-500 truncate">
                                                     {{gridItems[item].title}}
                                                 </div>
                                             </div>
@@ -248,11 +248,13 @@
                                                 <tr *ngFor="let listItem of gridItems[item].list"
                                                     class="hover:bg-gray-50 cursor-pointer">
                                                     <td *ngIf="listItem.enabled || admin"
+                                                        [ngClass]="{'opacity-50': (listItem.enabled === undefined ? false : !listItem.enabled) && !admin}"
                                                         (click)="shared ? extend(listItem.id) : view(listItem.id)"
                                                         class="w-2/3 py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6 break-words">
                                                         {{listItem.title}}
                                                     </td>
                                                     <td *ngIf="!listItem.enabled && !admin"
+                                                        [ngClass]="{'opacity-50': (listItem.enabled === undefined ? false : !listItem.enabled) && !admin}"
                                                         class="w-2/3 py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6 break-words">
                                                         {{listItem.title}}
                                                     </td>
@@ -281,8 +283,8 @@
                                                                 </ng-template>
                                                             </div>
                                                             <a [href]="'mailto:' + contactUs"
-                                                               *ngIf="(listItem.enabled === undefined ? false : !listItem.enabled) && !admin"
-                                                               mat-button color="primary">
+                                                               class="hover:underline flex items-center font-medium text-primary"
+                                                               *ngIf="(listItem.enabled === undefined ? false : !listItem.enabled) && !admin">
                                                                 Contact Us
                                                             </a>
                                                         </div>

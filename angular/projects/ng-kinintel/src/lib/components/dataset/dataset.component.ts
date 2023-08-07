@@ -289,8 +289,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
         const checkedCategories = _.filter(this.categories, 'checked');
         return this.datasetService.getDatasets(
             this.searchText.getValue() || '',
-            this.limit.toString(),
-            this.offset.toString(),
+            this.listStyle === 'GRID' ? '1000' : this.limit.toString(),
+            this.listStyle === 'GRID' ? '0' : this.offset.toString(),
             this.shared ? null : (!_.isNil(this.accountId) ? this.accountId : ''),
             '',
             _.map(checkedCategories, 'key')
