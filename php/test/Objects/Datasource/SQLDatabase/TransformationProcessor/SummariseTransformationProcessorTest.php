@@ -33,6 +33,22 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals('SELECT "category", "dept", COUNT(*) FROM (SELECT "name","category","dept" FROM my_table) S1 GROUP BY "category", "dept"', $query->getSQL());
 
+        // COUNT(DISTINCT(*))
+        $summariseTransformation = new SummariseTransformation(["category", "dept"], [
+            new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_COUNT_DISTINCT, "category")]);
+
+        $query = new SQLQuery('"name","category","dept"', "my_table");
+
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
+        $transformationProcessor = new SummariseTransformationProcessor();
+        $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
+
+        $this->assertEquals('SELECT "category", "dept", COUNT(DISTINCT("category")) FROM (SELECT "name","category","dept" FROM my_table) S1 GROUP BY "category", "dept"', $query->getSQL());
+
+
         // SUM(total)
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
             new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_SUM, "total")]);

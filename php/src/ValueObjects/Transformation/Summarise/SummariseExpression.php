@@ -45,6 +45,7 @@ class SummariseExpression {
 
     // Expression constants
     const EXPRESSION_TYPE_COUNT = "COUNT";
+    const EXPRESSION_TYPE_COUNT_DISTINCT = "COUNT_DISTINCT";
     const EXPRESSION_TYPE_SUM = "SUM";
     const EXPRESSION_TYPE_MIN = "MIN";
     const EXPRESSION_TYPE_MAX = "MAX";
@@ -142,6 +143,8 @@ class SummariseExpression {
             $function = $this->customExpression;
         } else if ($this->expressionType == self::EXPRESSION_TYPE_COUNT) {
             $function = "COUNT(*)";
+        } else if ($this->expressionType == self::EXPRESSION_TYPE_COUNT_DISTINCT) {
+            $function = "COUNT(DISTINCT([[" . $this->fieldName . "]]))";
         } else {
             $function = $this->expressionType . "([[" . $this->fieldName . "]])";
         }
