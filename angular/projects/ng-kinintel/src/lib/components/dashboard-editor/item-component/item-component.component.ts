@@ -483,10 +483,11 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     trendLine = _.fill(_.range(0, _.flatMap(trendData).length), average, 0, _.flatMap(trendData).length);
                 } else if (this.dashboardItemType.trendLine === 'logarithmic' ||
                     this.dashboardItemType.trendLine === 'linear' ||
+                    this.dashboardItemType.trendLine === 'power' ||
                     this.dashboardItemType.trendLine === 'exponential') {
 
-                    const trendLineData = _.map(this.dataset.allData, item => {
-                        return {x: item[this.dashboardItemType.yAxis], y: item[this.dashboardItemType.yAxis]};
+                    const trendLineData = _.map(this.dataset.allData, (item, index) => {
+                        return {x: index + 1, y: item[this.dashboardItemType.yAxis]};
                     }).filter(({x, y}) => {
                         return (
                             typeof x === typeof y &&  // filter out one string & one number

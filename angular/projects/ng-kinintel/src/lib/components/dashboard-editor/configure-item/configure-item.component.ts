@@ -520,20 +520,21 @@ export class ConfigureItemComponent implements OnInit {
                     trendLine = _.fill(_.range(0, _.flatMap(trendData).length), average, 0, _.flatMap(trendData).length);
                 } else if (this.dashboardItemType.trendLine === 'logarithmic' ||
                     this.dashboardItemType.trendLine === 'linear' ||
+                    this.dashboardItemType.trendLine === 'power' ||
                     this.dashboardItemType.trendLine === 'exponential') {
 
-                    const trendLineData = _.map(this.dataset.allData, item => {
-                        return {x: item[this.dashboardItemType.yAxis], y: item[this.dashboardItemType.yAxis]};
+                    const trendLineData = _.map(this.dataset.allData, (item, index) => {
+                        return {x: index + 1, y: item[this.dashboardItemType.yAxis]};
                     }).filter(({x, y}) => {
                         return (
-                            typeof x === typeof y &&  // filter out one string & one number
-                            !isNaN(x) &&              // filter out `NaN`
+                            typeof x === typeof y &&
+                            !isNaN(x) &&
                             !isNaN(y) &&
                             Math.abs(x) !== Infinity &&
                             Math.abs(y) !== Infinity
                         );
                     }).map(({x, y}) => {
-                        return [x, y];             // we need a list of [[x1, y1], [x2, y2], ...]
+                        return [x, y];
                     });
 
                     const trendLineResults = regression[this.dashboardItemType.trendLine](trendLineData);

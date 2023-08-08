@@ -866,16 +866,19 @@
                             </label>
 
                             <label class="mb-4">
-                                Trend Line Column
+                                Trend Line Options
                                 <select [(ngModel)]="dashboardItemType.trendLine" (ngModelChange)="setChartData()">
                                     <option value="">-- Select Trend Line Option--</option>
                                     <option value="average">Average Line</option>
-                                    <option value="logarithmic">Logarithmic Line</option>
                                     <option value="linear">Linear Line</option>
                                     <option value="exponential">Exponential Line</option>
-                                    <option [value]="field.name" *ngFor="let field of filterFields">
-                                        {{field.title}}
-                                    </option>
+                                    <option value="logarithmic">Logarithmic Line</option>
+                                    <option value="power">Power Line</option>
+                                    <optgroup label="Use Column Data">
+                                        <option [value]="field.name" *ngFor="let field of filterFields">
+                                            {{field.title}}
+                                        </option>
+                                    </optgroup>
                                 </select>
                                 <div class="mt-1 text-xs font-normal text-gray-400">
                                     Select one of the options, or an existing column of data to plot an additional
