@@ -6,7 +6,6 @@ import {
     ViewContainerRef,
     ViewEncapsulation
 } from '@angular/core';
-import 'gridstack/dist/gridstack.min.css';
 import {GridStack, GridStackNode} from 'gridstack';
 // THEN to get HTML5 drag&drop
 import 'gridstack/dist/h5/gridstack-dd-native';
