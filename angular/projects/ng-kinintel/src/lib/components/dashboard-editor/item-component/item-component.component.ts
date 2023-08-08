@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, ViewChild} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
 import * as lodash from 'lodash';
