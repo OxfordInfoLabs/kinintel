@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ProjectService} from '../../services/project.service';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {
     ProjectLinkSelectionComponent
 } from '../project-settings/project-link-selection/project-link-selection.component';

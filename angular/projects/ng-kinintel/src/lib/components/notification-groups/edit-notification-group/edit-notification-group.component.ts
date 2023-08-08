@@ -5,10 +5,10 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {UserService} from 'ng-kiniauth';
-import {MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent} from '@angular/material/legacy-autocomplete';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import * as lodash from 'lodash';
 const _ = lodash.default;
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-edit-notification-group',

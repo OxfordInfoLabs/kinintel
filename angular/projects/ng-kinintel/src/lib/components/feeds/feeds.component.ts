@@ -1,14 +1,14 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FeedService} from '../../services/feed.service';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasetService} from '../../services/dataset.service';
 import {FeedComponent} from './feed/feed.component';
 import {Router} from '@angular/router';
-import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {HttpClient} from '@angular/common/http';
 
 @Component({
