@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {ActivatedRouteSnapshot, CanDeactivate, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {Observable} from 'rxjs';
 import {DashboardEditorComponent} from '../components/dashboard-editor/dashboard-editor.component';
 
@@ -10,7 +10,7 @@ export interface DashboardCanDeactivate {
 @Injectable({
     providedIn: 'root'
 })
-export class DashboardChangesGuard  {
+export class DashboardChangesGuard implements CanDeactivate<any> {
     canDeactivate(
         component: any,
         currentRoute: ActivatedRouteSnapshot,
