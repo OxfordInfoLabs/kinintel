@@ -123,7 +123,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
     }
 
     public async saveSnapshot() {
-        if (this.timePeriods.timeForm && this.timePeriods.timeForm.valid) {
+        if (this.timePeriods && this.timePeriods.timeForm && this.timePeriods.timeForm.valid) {
             this.timePeriods.addTimePeriod();
         }
 

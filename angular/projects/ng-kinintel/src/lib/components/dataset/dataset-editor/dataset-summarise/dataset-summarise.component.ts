@@ -1,7 +1,11 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {
+    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+    MatLegacyDialogRef as MatDialogRef
+} from '@angular/material/legacy-dialog';
 import {CdkDragDrop, copyArrayItem, moveItemInArray} from '@angular/cdk/drag-drop';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 
 @Component({
@@ -21,7 +25,14 @@ export class DatasetSummariseComponent implements OnInit {
     public viewExample = false;
 
     public readonly expressionTypes = [
-        'COUNT', 'SUM', 'MIN', 'MAX', 'AVG'
+        {label: 'No. of Values', value: 'COUNT'},
+        {label: 'No. of Unique Values', value: 'COUNT_DISTINCT'},
+        {label: 'No. of Values as Percentage', value: 'COUNT_PERCENT'},
+        {label: 'Sum of Values', value: 'SUM'},
+        {label: 'Sum of Values as Percentage', value: 'SUM_PERCENT'},
+        {label: 'Minimum Value', value: 'MIN'},
+        {label: 'Maximum Value', value: 'MAX'},
+        {label: 'Average Value', value: 'AVG'}
     ];
 
     constructor(public dialogRef: MatDialogRef<DatasetSummariseComponent>,

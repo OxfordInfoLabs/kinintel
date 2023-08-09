@@ -55,11 +55,13 @@
                     [cdkDropListData]="summariseFields"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box py-1.5" *ngFor="let item of summariseFields; let i = index" cdkDrag>
+                    <div class="example-box p-0 pl-2 h-12" *ngFor="let item of summariseFields; let i = index" cdkDrag>
                         {{item.title}}
-                        <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
-                            <mat-icon>remove_circle_outline</mat-icon>
-                        </button>
+                        <div class="bg-gray-50 h-full flex items-center">
+                            <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
+                                <mat-icon>clear</mat-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,41 +76,49 @@
                     id="summariseExpressions"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box expression" *ngFor="let item of summariseExpressions; let i = index"
+                    <div class="example-box expression"
+                         *ngFor="let item of summariseExpressions; let i = index"
                          cdkDrag >
-                        <ng-template [ngIf]="item.expressionType !== 'CUSTOM'">
-                            <div class="top">
-                                <mat-select [(ngModel)]="item.expressionType">
-                                    <mat-option *ngFor="let type of expressionTypes"
-                                                [value]="type">{{type}}</mat-option>
-                                </mat-select>
-                                {{item.title}}
-
-                                <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
-                                    <mat-icon>remove_circle_outline</mat-icon>
-                                </button>
-                            </div>
-                        </ng-template>
-                        <ng-template [ngIf]="item.expressionType === 'CUSTOM'">
-                            <div class="top">
-                                <div class="custom-container">
-                                    <div class="align-center justify-between">
-                                        <b>Custom expression</b>
-                                        <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
-                                            <mat-icon>remove</mat-icon>
-                                        </button>
-                                    </div>
-                                    <textarea rows="4" [(ngModel)]="item.customExpression"></textarea>
+                        <div class="h-full w-full flex flex-row">
+                            <div class="flex-1 px-1">
+                                <div *ngIf="item.expressionType !== 'CUSTOM'"
+                                    class="px-2 pt-2 w-full flex items-center flex-row">
+                                    <div class="font-medium w-20 text-gray-600 text-xs">Column</div>
+                                    <div class="truncate w-48">{{item.title}}</div>
                                 </div>
 
-                            </div>
-                        </ng-template>
-                        <div class="bottom">
-                            <span>Label<span class="text-red-500 text-xs">&nbsp;*</span></span>
-                            <input type="text" [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.name"
-                                   [(ngModel)]="item.customLabel" [ngClass]="{'border border-red-500': !item.customLabel}">
-                        </div>
+                                <ng-template [ngIf]="item.expressionType !== 'CUSTOM'">
+                                    <div class="p-2 w-full flex items-center flex-row">
+                                        <div class="font-medium w-20 text-gray-600 text-xs">Expression</div>
+                                        <mat-select class="p-2 w-48" [(ngModel)]="item.expressionType">
+                                            <mat-option class="text-sm" *ngFor="let type of expressionTypes"
+                                                        [value]="type.value">{{type.label}}</mat-option>
+                                        </mat-select>
+                                    </div>
+                                </ng-template>
+                                <ng-template [ngIf]="item.expressionType === 'CUSTOM'">
+                                    <div class="top">
+                                        <div class="custom-container">
+                                            <div class="font-medium w-20 text-gray-600 text-xs pb-2">Expression</div>
+                                            <textarea class="w-full" rows="4" [(ngModel)]="item.customExpression"></textarea>
+                                        </div>
 
+                                    </div>
+                                </ng-template>
+                                <div class="px-2 pb-2 w-full flex items-center flex-row">
+                                    <div class="font-medium w-20 text-gray-600 text-xs">Label<span class="text-red-500 text-xs">&nbsp;*</span></div>
+                                    <input type="text" class="p-2 w-48"
+                                           [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.name"
+                                           [(ngModel)]="item.customLabel" [ngClass]="{'border border-red-500': !item.customLabel}">
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 flex items-center justify-center">
+                                <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
+                                    <mat-icon>clear</mat-icon>
+                                </button>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
