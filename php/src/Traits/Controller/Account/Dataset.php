@@ -215,6 +215,8 @@ trait Dataset {
      *
      * @http POST /export
      *
+     * @unsanitise $exportDataset
+     *
      * @param ExportDataset $exportDataset
      */
     public function exportDataset($exportDataset) {
