@@ -71,7 +71,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
         this.activeProjectSub = this.projectService.activeProject.subscribe(activeProject => {
             this.activeProject = activeProject;
 
-            this.projectSettings = this.activeProject.settings ? (Array.isArray(this.activeProject.settings) ? {
+            this.projectSettings = (this.activeProject && this.activeProject.settings) ? (Array.isArray(this.activeProject.settings) ? {
                 hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
             } : this.activeProject.settings) : {
                 hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
@@ -175,9 +175,11 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 
     public updateListStyle() {
-        const listKey = this.getCurrentPathListKey();
-        this.projectSettings[listKey] = this.listStyle;
-        this.projectService.updateProjectSettings(this.activeProject.projectKey, this.projectSettings);
+        if (!this.admin) {
+            const listKey = this.getCurrentPathListKey();
+            this.projectSettings[listKey] = this.listStyle;
+            this.projectService.updateProjectSettings(this.activeProject.projectKey, this.projectSettings);
+        }
     }
 
     public toggleCategory(event, category) {

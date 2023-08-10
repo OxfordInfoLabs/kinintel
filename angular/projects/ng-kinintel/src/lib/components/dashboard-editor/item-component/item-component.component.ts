@@ -570,6 +570,8 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             url = this.bindParametersInString(url, data);
             // Check if we have any column eg. [[ ]] values needing mapping
             url = this.mapColumnToValue(url, data);
+        } else if (cta.type === 'feed') {
+            url = `/dap-data-feeds/${cta.value}`;
         }
 
         if (url) {

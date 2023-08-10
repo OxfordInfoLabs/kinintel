@@ -233,6 +233,10 @@
                                     <option *ngFor="let dashboard of dashboards"
                                             [ngValue]="{type: 'dashboard', value: dashboard.id, label: dashboard.title}">{{dashboard.title}}</option>
                                 </optgroup>
+                                <optgroup *ngIf="admin" label="DAP Data Feeds">
+                                    <option *ngFor="let dapFeed of dapFeeds"
+                                            [ngValue]="{type: 'feed', value: dapFeed.id, label: dapFeed.title}">{{dapFeed.title}}</option>
+                                </optgroup>
                             </select>
                             <small class="font-normal">Select the destination for the action link</small>
                         </label>

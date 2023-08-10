@@ -19,6 +19,7 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import {ActionEvent} from '../../../objects/action-event';
 import {BaseChartDirective} from 'ng2-charts';
 import regression from 'regression';
+import {map} from 'rxjs/operators';
 
 @Component({
     selector: 'ki-configure-item',
@@ -116,6 +117,7 @@ export class ConfigureItemComponent implements OnInit {
         }
     ];
     public showAlertWarning = false;
+    public dapFeeds: any = [];
 
     public sideOpen = false;
     public openSide = new BehaviorSubject(false);
@@ -134,7 +136,7 @@ export class ConfigureItemComponent implements OnInit {
                 private router: Router) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<any> {
         this.grid = this.data.grid;
         this.dashboard = this.data.dashboard;
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
@@ -204,6 +206,14 @@ export class ConfigureItemComponent implements OnInit {
         ).toPromise().then(dashboards => {
             this.privateDashboards = dashboards;
         });
+
+        this.dapFeeds = await this.datasetService.getDatasets(
+            '',
+            '1000',
+            '0',
+            '',
+            ''
+        ).toPromise();
 
         this.openSide.subscribe((open: boolean) => {
             if (open) {
@@ -370,7 +380,7 @@ export class ConfigureItemComponent implements OnInit {
         }
         if (d2.type === 'custom') {
             return d1.type === 'custom';
-        } else if (d2.type === 'dashboard') {
+        } else if (d2.type === 'dashboard' || d2.type === 'feed') {
             return d1.value === d2.value;
         }
     }
