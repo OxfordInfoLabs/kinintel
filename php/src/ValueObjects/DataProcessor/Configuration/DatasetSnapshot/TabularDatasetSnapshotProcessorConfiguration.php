@@ -157,14 +157,14 @@ class TabularDatasetSnapshotProcessorConfiguration {
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getReadChunkSize() {
         return $this->readChunkSize;
     }
 
     /**
-     * @param int|null $readChunkSize
+     * @param int $readChunkSize
      */
     public function setReadChunkSize($readChunkSize) {
         $this->readChunkSize = $readChunkSize;
