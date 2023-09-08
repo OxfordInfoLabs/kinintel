@@ -50,19 +50,25 @@ class TabularDatasetSnapshotProcessorConfiguration {
     private $timeLapsedFields;
 
     /**
+     * @var int
+     */
+    private $readChunkSize = null;
+
+    /**
      * TabularDatasetSnapshotProcessorConfiguration constructor.
      * @param bool $createHistory
      * @param bool $createLatest
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->createLatest = $createLatest;
         $this->createHistory = $createHistory;
+        $this->readChunkSize = $readChunkSize;
     }
 
     /**
@@ -148,6 +154,20 @@ class TabularDatasetSnapshotProcessorConfiguration {
      */
     public function setCreateLatest($createLatest) {
         $this->createLatest = $createLatest;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getReadChunkSize() {
+        return $this->readChunkSize;
+    }
+
+    /**
+     * @param int|null $readChunkSize
+     */
+    public function setReadChunkSize($readChunkSize) {
+        $this->readChunkSize = $readChunkSize;
     }
 
 

@@ -3,6 +3,8 @@
 
 namespace Kinintel\Services\Util;
 
+use Kinikit\Core\Logging\Logger;
+
 /**
  * Class SQLClauseSanitiser
  * @package Kinintel\Services\Util
@@ -196,7 +198,6 @@ class SQLClauseSanitiser {
 
         // Remove any other [[ ]] expressions.
         $sqlString = preg_replace("/\[\[.*?\]\]/", "", $sqlString);
-
 
         // Remove any keywords which don't match our whitelisted ones
         $sqlString = preg_replace_callback("/\\w+/", function ($matches) use (&$hasUnresolvedStrings) {

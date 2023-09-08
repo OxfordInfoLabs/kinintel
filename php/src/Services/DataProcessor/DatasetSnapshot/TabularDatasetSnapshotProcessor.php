@@ -49,7 +49,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     private $idCounter = 0;
 
     // Data limit
-    const DATA_LIMIT = 50000;
+    const DEFAULT_DATA_LIMIT = 50000;
 
 
     /**
@@ -112,11 +112,14 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         // Evaluate any time lapse data
         list($columnTimeLapses, $distinctTimeLapses) = $this->evaluateTimeLapseData($instanceKey, $config);
 
+        // set read size either from config or use default
+        $readChunkSize = is_numeric($config->getReadChunkSize()) ? $config->getReadChunkSize() : self::DEFAULT_DATA_LIMIT;
+
         // Now process the Dataset progressively in blocks of 10 to control processing rate.
         $offset = 0;
         $now = date("Y-m-d H:i:s");
         do {
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, [], [], $offset, self::DATA_LIMIT);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, [], [], $offset, $readChunkSize);
 
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
@@ -148,8 +151,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 $dataSourcePending->update($updateDataSet, UpdatableDatasource::UPDATE_MODE_REPLACE);
             }
 
-            $offset += self::DATA_LIMIT;
-        } while (sizeof($sourceData) == self::DATA_LIMIT);
+            $offset += $readChunkSize;
+        } while (sizeof($sourceData) == $readChunkSize);
 
 
         // Replace the latest
@@ -161,7 +164,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $offset = 0;
             do {
                 $pendingDataSet = $this->datasourceService->getEvaluatedDataSource($instanceKey . "_pending", [],
-                    [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], $offset, self::DATA_LIMIT);
+                    [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], $offset, $readChunkSize);
                 $pendingData = $pendingDataSet->getAllData();
                 foreach ($pendingData as &$entry) {
                     unset($entry["snapshot_date"]);
@@ -169,8 +172,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
                 $writeData = new ArrayTabularDataset($fieldsLatest, $pendingData);
                 $dataSourceLatest->update($writeData, UpdatableDatasource::UPDATE_MODE_REPLACE);
-                $offset += self::DATA_LIMIT;
-            } while (sizeof($pendingData) == self::DATA_LIMIT);
+                $offset += $readChunkSize;
+            } while (sizeof($pendingData) == $readChunkSize);
 
         }
     }
@@ -208,7 +211,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
 
                 // Create a new data source instance and save it.
-                $dataSourceInstance = new DatasourceInstance($instanceKey, $dataProcessorInstance->getTitle()." History", "snapshot",
+                $dataSourceInstance = new DatasourceInstance($instanceKey, $dataProcessorInstance->getTitle() . " History", "snapshot",
                     [
                         "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                         "tableName" => $tablePrefix . $instanceKey
@@ -224,7 +227,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 $dataSourceInstanceLatest = $this->datasourceService->getDataSourceInstanceByKey($instanceKeyLatest);
             } catch (ObjectNotFoundException $e) {
 
-                $dataSourceInstanceLatest = new DatasourceInstance($instanceKeyLatest, $dataProcessorInstance->getTitle()." Latest", "snapshot",
+                $dataSourceInstanceLatest = new DatasourceInstance($instanceKeyLatest, $dataProcessorInstance->getTitle() . " Latest", "snapshot",
                     [
                         "source" => SQLDatabaseDatasourceConfig::SOURCE_TABLE,
                         "tableName" => $tablePrefix . $instanceKeyLatest
