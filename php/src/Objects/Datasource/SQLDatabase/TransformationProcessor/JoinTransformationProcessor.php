@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -194,19 +195,23 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                         $joinDatasource = $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet,
                             $joinDatasourceParameterValues, []);
+
                     }
 
 
                     try {
+
                         $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
 
                         while ($joinRow = $materialisedJoinSet->nextDataItem()) {
                             $newJoinData[] = array_merge($columnValues, $joinRow);
                         }
+
                     } catch (\Exception $e) {
                         // Catch any errors on materialise and set join data to blank.
                         $newJoinData[] = $columnValues;
                     }
+
 
                 }
 

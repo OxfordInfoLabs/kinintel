@@ -39,6 +39,11 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     private $newerValuesRule = self::LATEST_VALUE_GREATER;
 
 
+    /**
+     * @var int
+     */
+    private $readChunkSize = null;
+
 
     const LATEST_VALUE_GREATER = "GREATER";
     const LATEST_VALUE_GREATER_OR_EQUAL = "GREATER_OR_EQUAL";
@@ -54,13 +59,15 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
      * @param string[] $keyFieldNames
+     * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = []) {
+    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $readChunkSize = null) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
         $this->keyFieldNames = $keyFieldNames;
+        $this->readChunkSize = $readChunkSize;
     }
 
 
@@ -132,6 +139,20 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      */
     public function setNewerValuesRule($newerValuesRule) {
         $this->newerValuesRule = $newerValuesRule;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getReadChunkSize() {
+        return $this->readChunkSize;
+    }
+
+    /**
+     * @param int|null $readChunkSize
+     */
+    public function setReadChunkSize($readChunkSize) {
+        $this->readChunkSize = $readChunkSize;
     }
 
 

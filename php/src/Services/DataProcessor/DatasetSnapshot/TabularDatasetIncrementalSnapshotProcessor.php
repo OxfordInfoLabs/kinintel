@@ -126,13 +126,14 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
 
 
         $offset = 0;
+        $limit = $config->getReadChunkSize() !== null ? $config->getReadChunkSize() : self::DATA_LIMIT;
         $datasource = null;
         $fields = null;
         $keyColumnNames = null;
         do {
 
             // Evaluate the data set
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetInstanceId(), [], $filterTransformations, $offset, self::DATA_LIMIT);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetInstanceId(), [], $filterTransformations, $offset, $limit);
             $results = $dataset->getAllData();
 
 
@@ -162,7 +163,10 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
             // Do an update
             $datasource->update(new ArrayTabularDataset($fields, $results), UpdatableDatasource::UPDATE_MODE_REPLACE);
 
-        } while (sizeof($results) == self::DATA_LIMIT);
+            // Add data limit to the offset to continue
+            $offset += $limit;
+
+        } while (sizeof($results) >= $limit);
 
     }
 
