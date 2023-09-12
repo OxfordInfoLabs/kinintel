@@ -20,6 +20,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation document \Kinintel\Objects\Datasource\Document\DocumentDatasource
  * @implementation googlebucket \Kinintel\Objects\Datasource\Google\GoogleBucketFileDatasource
  * @implementation rsync \Kinintel\Objects\Datasource\RSync\RSyncDatasource
+ * @implementation union \Kinintel\Objects\Datasource\Union\UnionDatasource
  */
 interface Datasource {
 
