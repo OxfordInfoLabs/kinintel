@@ -508,7 +508,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
         $datasetInstance = new DatasetInstance(null, 1, "testProject");
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
-        
+
         $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
             new Field("snapshotLastValue")
         ], [["snapshotLastValue" => 25]]), [
