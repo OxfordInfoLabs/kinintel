@@ -604,4 +604,119 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
     }
 
 
+    public function testIfSourceDatasetForSnapshotContainsASnapshotItemIdColumnOrSnapshotDateAlreadyTheyAreOmittedFromNewSnapshot() {
+
+
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
+
+
+        $this->datasourceService->throwException("getEvaluatedDataSource", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
+            "incrementalsnap", [], [
+                new TransformationInstance("summarise", new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "id", null, "snapshotLastValue")]))
+            ]
+        ]);
+
+        $this->datasourceService->throwException("getDataSourceInstanceByKey", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
+            "incrementalsnap"
+        ]);
+
+
+        $fields = [
+            new Field("id", "Id", null, Field::TYPE_INTEGER),
+            new Field("name"),
+            new Field("phone"),
+            new Field("snapshot_item_id"),
+            new Field("snapshot_date")
+        ];
+
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstanceById",
+            new ArrayTabularDataset($fields, [
+                [
+                    "id" => 1,
+                    "name" => "Mr Blobby",
+                    "phone" => "012865 787879",
+                    "snapshot_item_id" => "ABC",
+                    "snapshot_date" => "2012-01-01 10:33:44"
+                ],
+                [
+                    "id" => 2,
+                    "name" => "Simon",
+                    "phone" => "07676 123456",
+                    "snapshot_item_id" => "DEF",
+                    "snapshot_date" => "2013-01-01 10:33:44"
+                ],
+                [
+                    "id" => 3,
+                    "name" => "James",
+                    "phone" => "01223 333333",
+                    "snapshot_item_id" => "GHI",
+                    "snapshot_date" => "2014-01-01 10:33:44"
+                ]
+            ]), [
+                99, [], [], 0, 50000
+            ]);
+
+
+        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id"));
+
+
+        $snapshotFields = array_merge([
+            new Field("snapshot_item_id", null, null, Field::TYPE_STRING, true)
+        ], $fields);
+        array_pop($snapshotFields);
+        array_pop($snapshotFields);
+
+        $expectedNewDatasourceInstance = new DatasourceInstance("incrementalsnap", "Simple Incremental", "snapshot",
+            new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
+                $snapshotFields, true
+            ),
+            "test"
+        );
+        $expectedNewDatasourceInstance->setAccountId(1);
+        $expectedNewDatasourceInstance->setProjectKey("testProject");
+
+
+        $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $datasource = MockObjectProvider::instance()->getMockInstance(TabularSnapshotDataSource::class);
+        $datasourceInstance->returnValue("returnDataSource", $datasource);
+        $this->datasourceService->returnValue("saveDataSourceInstance", $datasourceInstance, [$expectedNewDatasourceInstance]);
+
+
+        // Process the instance
+        $this->snapshotProcessor->process($dataProcessorInstance);
+
+
+        // Check datasource instance was saved
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", $expectedNewDatasourceInstance));
+
+
+        // Check data was inserted into datasource with all fields hashed together.
+        $this->assertTrue($datasource->methodWasCalled("update", [new ArrayTabularDataset($snapshotFields, [
+            [
+                "id" => 1,
+                "name" => "Mr Blobby",
+                "phone" => "012865 787879",
+                "snapshot_item_id" => hash("sha512", "1Mr Blobby012865 787879"),
+            ],
+            [
+                "id" => 2,
+                "name" => "Simon",
+                "phone" => "07676 123456",
+                "snapshot_item_id" => hash("sha512", "2Simon07676 123456"),
+            ],
+            [
+                "id" => 3,
+                "name" => "James",
+                "phone" => "01223 333333",
+                "snapshot_item_id" => hash("sha512", "3James01223 333333"),
+            ]
+        ]), UpdatableDatasource::UPDATE_MODE_REPLACE]));
+
+
+    }
+
+
+
 }

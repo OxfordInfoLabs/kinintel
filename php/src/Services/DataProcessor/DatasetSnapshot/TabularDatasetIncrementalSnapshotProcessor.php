@@ -144,9 +144,17 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
             if (!$datasource) {
 
                 $fields = $dataset->getColumns();
-                array_unshift($fields, new Field("snapshot_item_id", null, null, Field::TYPE_STRING, true));
+
+                // Eliminate any existing snapshot_item_id or snapshot_date columns from source to avoid duplication
+                for ($i = sizeof($fields) - 1; $i >= 0; $i--) {
+                    if ($fields[$i]->getName() == "snapshot_item_id" || $fields[$i]->getName() == "snapshot_date")
+                        array_splice($fields, $i, 1, []);
+                }
 
                 $keyColumnNames = $config->getKeyFieldNames() ?: ObjectArrayUtils::getMemberValueArrayForObjects("name", $fields);
+
+                array_unshift($fields, new Field("snapshot_item_id", null, null, Field::TYPE_STRING, true));
+
 
                 $datasource = $this->ensureDatasource($config->getSnapshotIdentifier(), $instance->getTitle(),
                     $config,
@@ -156,12 +164,16 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
 
             // Construct hashed item id for each item
             foreach ($results as $index => $result) {
+
+                if (isset($results[$index]["snapshot_date"])) unset($results[$index]["snapshot_date"]);
+
                 $rawKeyValue = "";
                 foreach ($keyColumnNames as $columnName) {
                     $rawKeyValue .= $result[$columnName] ?? "";
                 }
                 $results[$index]["snapshot_item_id"] = hash("sha512", $rawKeyValue);
             }
+
 
             // Do an update
             $datasource->update(new ArrayTabularDataset($fields, $results), UpdatableDatasource::UPDATE_MODE_REPLACE);
@@ -204,6 +216,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
             $datasourceInstance->setProjectKey($projectKey);
 
         }
+
 
         // Save and return the datasource instance
         $datasourceInstance = $this->datasourceService->saveDataSourceInstance($datasourceInstance);

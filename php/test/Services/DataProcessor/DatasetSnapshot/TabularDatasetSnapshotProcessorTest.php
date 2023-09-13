@@ -770,4 +770,102 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate, UpdatableDatasource::UPDATE_MODE_REPLACE]));
 
     }
+
+
+    public function testIfSourceDatasetForSnapshotContainsASnapshotItemIdColumnOrSnapshotDateAlreadyTheyAreOmittedFromNewSnapshot(){
+
+        $datasetInstance = new DatasetInstance(null, 1, null);
+
+        $now = date("Y-m-d H:i:s");
+
+        $firstDataset = [];
+        for ($i = 0; $i < TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT; $i++) {
+            $firstDataset[] = ["title" => "Item $i", "metric" => $i + 1, "score" => $i + 1, "snapshot_item_id" => "ABC", "snapshot_date" => "2025-01-01 10:22:33"];
+        }
+
+        $firstDatasetPlus = $firstDataset;
+        for ($i = 0; $i < sizeof($firstDatasetPlus); $i++) {
+            $firstDatasetPlus[$i]["snapshot_date"] = $now;
+            $firstDatasetPlus[$i]["snapshot_item_id"] = $i;
+        }
+
+
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance",
+            new ArrayTabularDataset([
+                new Field("title"),
+                new Field("metric"),
+                new Field("score"),
+                new Field("snapshot_item_id"),
+                new Field("snapshot_date")
+            ], $firstDataset), [
+                $datasetInstance, [], [], 0, TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT
+            ]);
+
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance",
+            new ArrayTabularDataset([
+                new Field("title"),
+                new Field("metric"),
+                new Field("score"),
+                new Field("snapshot_item_id"),
+                new Field("snapshot_date")], []), [
+                $datasetInstance, [], [], TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT, TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT
+            ]);
+
+
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [25]);
+
+
+        // Get a mock data source instance
+        $mockDataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDataSourceInstanceLatest = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDataSourceInstancePending = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockDataSourceInstance, [
+            "mytestsnapshot"
+        ]);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockDataSourceInstanceLatest, [
+            "mytestsnapshot_latest"
+        ]);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockDataSourceInstancePending, [
+            "mytestsnapshot_pending"
+        ]);
+
+
+        // Program a mock data source on return
+        $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
+        $mockDataSourceInstance->returnValue("getConfig", [
+            "tableName" => "test"
+        ]);
+
+        $mockAuthCredentials = MockObjectProvider::instance()->getMockInstance(SQLDatabaseCredentials::class);
+        $mockDatabaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $mockAuthCredentials->returnValue("returnDatabaseConnection", $mockDatabaseConnection);
+        $mockDataSource->returnValue("getAuthenticationCredentials", $mockAuthCredentials);
+
+        $expectedUpdate = new ArrayTabularDataset([
+            new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
+            new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
+            new Field("title"),
+            new Field("metric"),
+            new Field("score")], $firstDatasetPlus);
+
+        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, "mytestsnapshot", false, true);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $this->processor->process($instance);
+
+
+        // Check that the table was created with simple snapshot_date based PK.
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $mockDataSourceInstance
+        ]));
+
+        // Check all data was updated as expected
+        $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate, UpdatableDatasource::UPDATE_MODE_REPLACE]));
+
+
+    }
+
 }

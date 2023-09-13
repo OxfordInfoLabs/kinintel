@@ -125,6 +125,14 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
                 $columns = Field::toPlainFields($dataset->getColumns());
+
+                // Eliminate any existing snapshot_item_id or snapshot_date columns from source to avoid duplication
+                for ($i = sizeof($columns) - 1; $i >= 0; $i--) {
+                    if ($columns[$i]->getName() == "snapshot_item_id" || $columns[$i]->getName() == "snapshot_date")
+                        array_splice($columns, $i, 1, []);
+                }
+
+
                 if ($config->isCreateHistory())
                     $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstance, $dataSource);
                 if ($config->isCreateLatest()) {
@@ -160,6 +168,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         if ($config->isCreateLatest()) {
 
             $dataSourceLatest->onInstanceDelete();
+
 
             $fieldsLatest = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
             $offset = 0;
@@ -224,6 +233,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
         // Same for the latest datasource
         if ($config->isCreateLatest()) {
+
+
             try {
                 $dataSourceInstanceLatest = $this->datasourceService->getDataSourceInstanceByKey($instanceKeyLatest);
             } catch (ObjectNotFoundException $e) {
