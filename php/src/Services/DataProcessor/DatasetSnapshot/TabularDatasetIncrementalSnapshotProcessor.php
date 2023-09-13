@@ -92,6 +92,9 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
          */
         $config = $instance->returnConfig();
 
+        // Read the source dataset instance
+        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
+
         // Grab the newer values field
         $newerValuesField = $config->getNewerValuesFieldName();
 
@@ -147,7 +150,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
 
                 $datasource = $this->ensureDatasource($config->getSnapshotIdentifier(), $instance->getTitle(),
                     $config,
-                    $fields);
+                    $fields, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey());
             }
 
 
@@ -178,10 +181,12 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
      * @param $instanceTitle
      * @param TabularDatasetIncrementalSnapshotProcessorConfiguration $instanceConfig
      * @param $fields
+     * @param $accountId
+     * @param $projectKey
      *
      * @return SQLDatabaseDatasource
      */
-    private function ensureDatasource($instanceKey, $instanceTitle, $instanceConfig, $fields) {
+    private function ensureDatasource($instanceKey, $instanceTitle, $instanceConfig, $fields, $accountId, $projectKey) {
 
         // Grab config options
         $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
@@ -195,6 +200,9 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         } catch (ObjectNotFoundException $e) {
             $datasourceInstance = new DatasourceInstance($instanceKey, $instanceTitle, "snapshot",
                 new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tablePrefix . $instanceKey, null, $fields, true), $credentialsKey);
+            $datasourceInstance->setAccountId($accountId);
+            $datasourceInstance->setProjectKey($projectKey);
+
         }
 
         // Save and return the datasource instance

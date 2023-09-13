@@ -67,6 +67,10 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
     public function testCanProcessBrandNewSnapshot() {
 
 
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
+
+
         $this->datasourceService->throwException("getEvaluatedDataSource", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
             "incrementalsnap", [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "id", null, "snapshotLastValue")]))
@@ -120,6 +124,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ),
             "test"
         );
+        $expectedNewDatasourceInstance->setAccountId(1);
+        $expectedNewDatasourceInstance->setProjectKey("testProject");
 
 
         $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -162,6 +168,10 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
 
     public function testDataIsReadAccordingToReadChunkSizeWithPagingIfSet() {
+
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
+
 
         $this->datasourceService->throwException("getEvaluatedDataSource", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
             "incrementalsnap", [], [
@@ -233,6 +243,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ),
             "test"
         );
+        $expectedNewDatasourceInstance->setAccountId(1);
+        $expectedNewDatasourceInstance->setProjectKey("testProject");
 
 
         $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
@@ -291,6 +303,10 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
     public function testCanProcessIncrementalUpdatesToExistingSnapshot() {
 
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
+
+
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
             new Field("snapshotLastValue")
@@ -305,6 +321,9 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $instanceConfig = [];
         $datasourceInstance->returnValue("returnDataSource", $datasource);
         $datasourceInstance->returnValue("getConfig", $instanceConfig);
+        $datasourceInstance->returnValue("getAccountId", 1);
+        $datasourceInstance->returnValue("getProjectKey", "testProject");
+
 
 
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasourceInstance, [
@@ -386,6 +405,10 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
 
     public function testCanProcessIncrementalUpdatesToExistingSnapshotWithLesserRuleInPlace() {
+
+
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
@@ -483,7 +506,9 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
     public function testCanProcessIncrementalUpdatesToExistingSnapshotWithExplicitKeyFields() {
 
-
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
+        
         $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
             new Field("snapshotLastValue")
         ], [["snapshotLastValue" => 25]]), [
