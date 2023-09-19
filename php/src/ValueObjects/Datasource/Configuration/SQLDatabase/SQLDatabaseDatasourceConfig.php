@@ -29,6 +29,11 @@ class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
      */
     private $manageTableStructure;
 
+    /**
+     * @var boolean
+     */
+    private $pagingViaParameters;
+
 
     // Currently supported sources for the data using the authenticated connection.
     const SOURCE_TABLE = "table";
@@ -42,13 +47,15 @@ class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
      * @param string $query
      * @param Field[] $columns
      * @param boolean $manageTableStructure
+     * @param boolean $pagingViaParameters
      */
-    public function __construct($source, $tableName = "", $query = "", $columns = [], $manageTableStructure = false) {
+    public function __construct($source, $tableName = "", $query = "", $columns = [], $manageTableStructure = false, $pagingViaParameters = false) {
         parent::__construct($columns);
         $this->source = $source;
         $this->tableName = $tableName;
         $this->query = $query;
         $this->manageTableStructure = $manageTableStructure;
+        $this->pagingViaParameters = $pagingViaParameters;
     }
 
     /**
@@ -105,6 +112,20 @@ class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {
      */
     public function setManageTableStructure($manageTableStructure) {
         $this->manageTableStructure = $manageTableStructure;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPagingViaParameters() {
+        return $this->pagingViaParameters;
+    }
+
+    /**
+     * @param bool $pagingViaParameters
+     */
+    public function setPagingViaParameters($pagingViaParameters) {
+        $this->pagingViaParameters = $pagingViaParameters;
     }
 
 
