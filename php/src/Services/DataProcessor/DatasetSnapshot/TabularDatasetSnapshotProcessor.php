@@ -173,7 +173,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $fieldsLatest = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
             $offset = 0;
             do {
-                $pendingDataSet = $this->datasourceService->getEvaluatedDataSource($instanceKey . "_pending", [],
+                $pendingDataSet = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($instanceKey . "_pending", [],
                     [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], $offset, $readChunkSize);
                 $pendingData = $pendingDataSet->getAllData();
                 foreach ($pendingData as &$entry) {
@@ -406,7 +406,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             foreach ($timeLapsedFieldSet->getDayOffsets() as $dayOffset) {
                 $date = (new \DateTime())->sub(new \DateInterval("P" . $dayOffset . "D"))->format("Y-m-d");
                 try {
-                    $evaluateDatasource = $this->datasourceService->getEvaluatedDataSource($dataSourceInstanceKey, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", $date, "eq")]))], 0, 1);
+                    $evaluateDatasource = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($dataSourceInstanceKey, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", $date, "eq")]))], 0, 1);
                     if ($nextLine = $evaluateDatasource->nextRawDataItem()) {
                         $distinctTimeLapses[$dayOffset] = $nextLine["snapshot_date"];
                     } else {

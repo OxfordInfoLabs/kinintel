@@ -110,7 +110,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         } elseif ($config->getSourceDatasourceKeys()) {
             // Assuming all datasources have the same keys - would be daft otherwise
-            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($datasourceKeys[0], [], [], 0, 1)->getColumns();
+            $fieldKeys = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($datasourceKeys[0], [], [], 0, 1)->getColumns();
             // Iterate through each source datasource
             foreach ($datasourceKeys as $datasourceKey) {
                 $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
@@ -143,7 +143,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             $sourceDatasources = $config->getSourceDatasources();
 
             // Assuming all datasources have the same keys - would be daft otherwise
-            $fieldKeys = $this->datasourceService->getEvaluatedDataSource($sourceDatasources[0]->getDatasourceKey(), $sourceDatasources[0]->getParameterSets()[0], [], $config->getInitialOffset(), 1)->getColumns();
+            $fieldKeys = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($sourceDatasources[0]->getDatasourceKey(), $sourceDatasources[0]->getParameterSets()[0], [], $config->getInitialOffset(), 1)->getColumns();
 
             $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
 
@@ -190,7 +190,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
 
         do {
             $lineCount = -1;
-            $evaluated = $this->datasourceService->getEvaluatedDataSource($datasourceKey, $parameterValues, [], $offset, $sourceReadChunkSize);
+            $evaluated = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($datasourceKey, $parameterValues, [], $offset, $sourceReadChunkSize);
 
             // Initialise next
             $nextItem = null;
@@ -467,7 +467,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         /**
          * @var SQLResultSetTabularDataset $summarisedData
          */
-        $summarisedData = $this->datasourceService->getEvaluatedDataSource($targetLatestDatasourceKey, [], [
+        $summarisedData = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($targetLatestDatasourceKey, [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("formula", new FormulaTransformation([new Expression("Summary Date", "NOW()"),
                 new Expression("Month", "MONTH(NOW())"),

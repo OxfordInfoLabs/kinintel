@@ -20,3 +20,6 @@ document.datasource.attachment.storage.key = test
 
 google.cloud.attachment.storage.credentials.key = google-cloud
 google.cloud.attachment.storage.bucket = attachments
+
+http.loopback.host = http://kinintel.test
+internal.controller.secret = ABCDEFGHIJKLM

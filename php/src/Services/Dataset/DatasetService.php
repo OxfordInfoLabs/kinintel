@@ -541,6 +541,10 @@ class DatasetService {
     }
 
 
+
+
+
+
     /**
      * Wrapper to below function for standard read only use where a data set is being
      * queried
@@ -558,16 +562,15 @@ class DatasetService {
     }
 
 
+
+
     /**
-     * Wrapper to below function which also calls the materialise function to just return
-     * the dataset.  This is the normal function called to produce charts / tables etc for end
-     * use.
-     *
      * @param DatasetInstanceSummary $dataSetInstance
+     * @param array $parameterValues
      * @param TransformationInstance[] $additionalTransformations
-     *
+     * @param int $offset
+     * @param int $limit
      * @return Dataset
-     *
      */
     public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = [], $offset = null, $limit = null) {
 
@@ -578,7 +581,7 @@ class DatasetService {
 
         // Call the appropriate function depending whether a datasource / dataset was being targeted.
         if ($dataSetInstance->getDatasourceInstanceKey()) {
-            return $this->datasourceService->getEvaluatedDataSource($dataSetInstance->getDatasourceInstanceKey(), $parameterValues,
+            return $this->datasourceService->getEvaluatedDataSourceByInstanceKey($dataSetInstance->getDatasourceInstanceKey(), $parameterValues,
                 $transformations, $offset, $limit);
         } else if ($dataSetInstance->getDatasetInstanceId()) {
             return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(), $parameterValues, $transformations, $offset, $limit);
@@ -601,7 +604,7 @@ class DatasetService {
         $parameterValues = array_merge($dataSetInstance->getParameterValues() ?? [], $parameterValues ?? []);
 
         if ($dataSetInstance->getDatasourceInstanceKey()) {
-            list ($dataSource, $parameterValues) = $this->datasourceService->getTransformedDataSource($dataSetInstance->getDatasourceInstanceKey(), $transformations, $parameterValues);
+            list ($dataSource, $parameterValues) = $this->datasourceService->getTransformedDataSourceByInstanceKey($dataSetInstance->getDatasourceInstanceKey(), $transformations, $parameterValues);
             return $dataSource;
         } else if ($dataSetInstance->getDatasetInstanceId()) {
             $dataset = $this->getDataSetInstance($dataSetInstance->getDatasetInstanceId(), false);

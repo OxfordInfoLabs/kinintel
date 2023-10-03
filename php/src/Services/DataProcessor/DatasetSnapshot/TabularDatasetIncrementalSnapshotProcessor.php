@@ -106,7 +106,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         // Lookup any previous reference value using configured rule
         $referenceValue = null;
         try {
-            $referenceMatches = $this->datasourceService->getEvaluatedDataSource($config->getSnapshotIdentifier(), [], [
+            $referenceMatches = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($config->getSnapshotIdentifier(), [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [
                     new SummariseExpression($referenceCondition, $newerValuesField, null, "snapshotLastValue")
                 ]))

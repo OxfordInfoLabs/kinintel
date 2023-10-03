@@ -80,7 +80,7 @@ class EquationMetricProcessor implements MetricProcessor {
         ];
 
         if ($isSource) { //Datasource Key provided
-            $minimalDataset = $this->datasourceService->getEvaluatedDataSource($config->getDatasourceKey(), [], $transformations);
+            $minimalDataset = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($config->getDatasourceKey(), [], $transformations);
         } else { //No Datasource Key provided -> Default to Dataset ID
             $minimalDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetId(), [], $transformations, null, null);
         }

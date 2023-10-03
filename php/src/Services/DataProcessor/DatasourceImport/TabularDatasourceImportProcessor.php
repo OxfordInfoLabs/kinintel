@@ -121,7 +121,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                     do {
 
                         $paramSet = $this->addTargetSourceParametersIfRequired($config, $paramSet);
-                        $sourceDataset = $this->datasourceService->getEvaluatedDataSource($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
+                        $sourceDataset = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
 
                         if ($sourceDataset) {
 
@@ -264,7 +264,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
             }
 
 
-            $returnedData = $this->datasourceService->getEvaluatedDataSource($targetDatasourceKey, [], [
+            $returnedData = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($targetDatasourceKey, [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [
                     new SummariseExpression($expressionType, $targetSourceParameterMapping->getTargetDatasourceField(), null, "Parameter Value")
                 ]))

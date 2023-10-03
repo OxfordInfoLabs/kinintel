@@ -3,6 +3,12 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinikit\Core\Asynchronous\AsynchronousClassMethod;
+use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
+use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
+use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\Reflection\ClassInspector;
+use Kinikit\Core\Reflection\Method;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
@@ -47,6 +53,18 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     /**
+     * @var SynchronousProcessor
+     */
+    private $synchronousProcessor;
+
+
+    /***
+     * @var MockObject
+     */
+    private $asynchronousProcessor;
+
+
+    /**
      * @var MockObject
      */
     private $authCredentials;
@@ -66,7 +84,9 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->authCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
         $this->dataSourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->dataSetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
-        $this->processor = new JoinTransformationProcessor($this->dataSourceService, $this->dataSetService);
+        $this->synchronousProcessor = MockObjectProvider::instance()->getMockInstance(AsynchronousProcessor::class);
+        $this->asynchronousProcessor = MockObjectProvider::instance()->getMockInstance(AsynchronousProcessor::class);
+        $this->processor = new JoinTransformationProcessor($this->dataSourceService, $this->dataSetService, $this->synchronousProcessor, $this->asynchronousProcessor);
         $this->validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
     }
 
@@ -430,6 +450,174 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ], [
             $joinDataSetInstance
         ]);
+
+        $transformation = new JoinTransformation(null, 10, [
+            new JoinParameterMapping("term", null, "expression")
+        ]);
+
+        $mainDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mainDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $mainDatasource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table"));
+
+        $mainDatasource->returnValue("materialise", new ArrayTabularDataset([
+            new Field("title", "Title"),
+            new Field("expression", "Expression")
+        ], [
+            [
+                "title" => "Test 1",
+                "expression" => "Bingo"
+            ],
+            [
+                "title" => "Test 2",
+                "expression" => "Bongo"
+            ], [
+                "title" => "Test 3",
+                "expression" => "Bango"
+            ]
+        ]), [[]]);
+
+
+        $this->processor->applyTransformation($transformation, $mainDatasource, []);
+
+        $evaluatedDatasource = $transformation->returnEvaluatedDataSource();
+        $this->assertInstanceOf(DefaultDatasource::class, $evaluatedDatasource);
+        $this->assertEquals([[
+            "alias_1" => "Bingo",
+            "column1" => "John",
+            "column2" => "Brown"
+        ],
+            [
+                "alias_1" => "Bingo",
+                "column1" => "Joe",
+                "column2" => "Bloggs"
+            ],
+            [
+                "alias_1" => "Bongo",
+                "column1" => "Jane",
+                "column2" => "White"
+            ],
+            [
+                "alias_1" => "Bongo",
+                "column1" => "Andrew",
+                "column2" => "Smythe"
+            ],
+            [
+                "alias_1" => "Bango",
+                "column1" => "Peter",
+                "column2" => "Piper"
+            ],
+            [
+                "alias_1" => "Bango",
+                "column1" => "Humpty",
+                "column2" => "Dumpty"
+            ]
+        ], $evaluatedDatasource->materialise()->getAllData());
+
+    }
+
+
+    public function testWhereJoinConcurrencyIsDefinedParameterisedDataSourceWithParametersMappedToColumnsAreFulfilledUsingLoopbackAsynchronousProcessor() {
+
+        // Set concurrency to 2
+        Configuration::instance()->addParameter("sqldatabase.datasource.join.default.concurrency", 2);
+
+
+        $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testjoindataset");
+        $joinDataSetInstance->returnValue("getTransformationInstances", [
+            new TestTransformation(), new TestTransformation()
+        ]);
+
+        $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
+
+
+        $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
+
+        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource, [
+            $joinDataSetInstance, [], []
+        ]);
+
+
+        $inputAsynchronous1 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
+            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bingo"]
+        ]);
+
+        $inputAsynchronous2 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
+            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bongo"]
+        ]);
+
+        $inputAsynchronous3 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
+            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bango"]
+        ]);
+
+        $inputAsync1 = [$inputAsynchronous1, $inputAsynchronous2];
+        $inputAsync2 = [$inputAsynchronous3];
+
+
+        $classInspector = new ClassInspector(AsynchronousClassMethod::class);
+
+
+        $outputAsynchronous1 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
+            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bingo"]
+        ]);
+        $classInspector->setPropertyData($outputAsynchronous1, new ArrayTabularDataset([
+            new Field("column1"), new Field("column2")
+        ], [
+            [
+                "column1" => "John",
+                "column2" => "Brown"
+            ],
+            [
+                "column1" => "Joe",
+                "column2" => "Bloggs"
+            ]
+        ]), "returnValue", false);
+
+
+        $outputAsynchronous2 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
+            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bongo"]
+        ]);
+        $classInspector->setPropertyData($outputAsynchronous2, new ArrayTabularDataset([
+            new Field("column1"), new Field("column2")
+        ], [
+            [
+                "column1" => "Jane",
+                "column2" => "White"
+            ],
+            [
+                "column1" => "Andrew",
+                "column2" => "Smythe"
+            ]
+        ]), "returnValue", false);
+
+
+        $outputAsynchronous3 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
+            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bango"]
+        ]);
+        $classInspector->setPropertyData($outputAsynchronous3, new ArrayTabularDataset([
+            new Field("column1"), new Field("column2")
+        ], [
+            [
+                "column1" => "Peter",
+                "column2" => "Piper"
+            ],
+            [
+                "column1" => "Humpty",
+                "column2" => "Dumpty"
+            ]
+        ]), "returnValue", false);
+
+
+        $outputAsync1 = [$outputAsynchronous1, $outputAsynchronous2];
+        $outputAsync2 = [$outputAsynchronous3];
+
+
+        // Programme aysynchronous processor
+        $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync1, $inputAsync1);
+        $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync2, $inputAsync2);
+
 
         $transformation = new JoinTransformation(null, 10, [
             new JoinParameterMapping("term", null, "expression")

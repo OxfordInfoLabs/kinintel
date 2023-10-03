@@ -143,7 +143,7 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
         /**
          * @var ArrayTabularDataset $dataset
          */
-        $dataset = $this->datasourceService->getEvaluatedDataSource($datasourceInstanceKey, [], [
+        $dataset = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($datasourceInstanceKey, [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort($aggSource->getDateColumn(), "desc")]))
         ]);

@@ -4,11 +4,19 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kiniauth\Services\Util\Asynchronous\HttpLoopbackAsynchronousProcessor;
+use Kinikit\Core\Asynchronous\Asynchronous;
+use Kinikit\Core\Asynchronous\AsynchronousClassMethod;
+use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
+use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
+use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinintel\Controllers\Internal\ProcessedDataset;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
@@ -16,6 +24,7 @@ use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -34,6 +43,18 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @var DatasetService
      */
     private $datasetService;
+
+
+    /**
+     * @var SynchronousProcessor
+     */
+    private $synchronousProcessor;
+
+
+    /**
+     * @var HttpLoopbackAsynchronousProcessor
+     */
+    private $loopbackAsynchronousProcessor;
 
 
     /**
@@ -65,10 +86,14 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      *
      * @param DatasourceService $datasourceService
      * @param DatasetService $datasetService
+     * @param SynchronousProcessor $synchronousProcessor
+     * @param HttpLoopbackAsynchronousProcessor $loopbackAsynchronousProcessor
      */
-    public function __construct($datasourceService, $datasetService) {
+    public function __construct($datasourceService, $datasetService, $synchronousProcessor, $loopbackAsynchronousProcessor) {
         $this->datasourceService = $datasourceService;
         $this->datasetService = $datasetService;
+        $this->synchronousProcessor = $synchronousProcessor;
+        $this->loopbackAsynchronousProcessor = $loopbackAsynchronousProcessor;
     }
 
     /**
@@ -180,9 +205,18 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
 
                 // Now materialise the join data set using column values from parent dataset
-                $newJoinData = [];
-                while ($parentRow = $parentDataset->nextDataItem()) {
+                $joinConcurrency = Configuration::readParameter("sqldatabase.datasource.join.default.concurrency") ?? PHP_INT_MAX;
 
+                /**
+                 * @var AsynchronousProcessor $processor
+                 */
+                $processor = $joinConcurrency == PHP_INT_MAX ? $this->synchronousProcessor : $this->loopbackAsynchronousProcessor;
+
+                $newJoinData = [];
+                $asyncInstances = [];
+                $parentValues = [];
+                $joinColumns = [];
+                while ($parentRow = $parentDataset->nextDataItem()) {
 
                     // Set any column parameters accordingly
                     $columnValues = [];
@@ -190,39 +224,45 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                         $joinDatasourceParameterValues[$parameterName] = $columnValues[$aliasFields[$parameterName]] = $parentRow[$columnName] ?? null;
                     }
 
-                    // If we have a join data set, evaluate now.
+                    // Add to stack of asynchronous
                     if (isset($joinDataSet)) {
 
-                        $joinDatasource = $this->datasetService->getTransformedDatasourceForDataSetInstance($joinDataSet,
-                            $joinDatasourceParameterValues, []);
-
+                        $asyncInstances[] = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+                            "dataSetInstance" => $joinDataSet, "parameterValues" => $joinDatasourceParameterValues
+                        ]);
+                    } else if (isset($joinDatasourceInstance)) {
+                        $asyncInstances[] = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasourceInstance", [
+                            "datasourceInstance" => $joinDatasourceInstance, "parameterValues" => $joinDatasourceParameterValues
+                        ]);
                     }
 
+                    // Stash parent values for later
+                    $parentValues[] = $columnValues;
 
-                    try {
 
-                        $materialisedJoinSet = $joinDatasource->materialise($joinDatasourceParameterValues);
-
-                        while ($joinRow = $materialisedJoinSet->nextDataItem()) {
-                            $newJoinData[] = array_merge($columnValues, $joinRow);
-                        }
-
-                    } catch (\Exception $e) {
-                        // Catch any errors on materialise and set join data to blank.
-                        $newJoinData[] = $columnValues;
+                    // If we reached limit, process rows and reset variables
+                    if (sizeof($asyncInstances) == $joinConcurrency) {
+                        $joinColumns = $this->processAsyncInstances($processor, $asyncInstances, $parentValues, $newJoinData) ?? $joinColumns;
+                        $asyncInstances = [];
+                        $parentValues = [];
                     }
 
+                }
 
+
+                // Process the remaining instances
+                if (sizeof($asyncInstances)) {
+                    $joinColumns = $this->processAsyncInstances($processor, $asyncInstances, $parentValues, $newJoinData) ?? $joinColumns;
                 }
 
 
                 // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
-                if (isset($materialisedJoinSet) && sizeof($materialisedJoinSet->getColumns())) {
+                if (sizeof($joinColumns)) {
                     foreach ($aliasFields as $aliasField) {
                         $newColumns[] = new Field($aliasField);
                     }
-                    $newColumns = array_merge($newColumns, Field::toPlainFields($materialisedJoinSet->getColumns()));
+                    $newColumns = array_merge($newColumns, Field::toPlainFields($joinColumns));
 
                     // Create new join dataset.
                     $newJoinDataset = new ArrayTabularDataset($newColumns, $newJoinData);
@@ -424,6 +464,43 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
         return [$paramParameters, $columnParameters];
 
+    }
+
+    /**
+     * @param AsynchronousProcessor $processor
+     * @param Asynchronous[] $asyncInstances
+     * @param mixed[] $parentValues
+     * @param mixed[] $newJoinData
+     */
+    private function processAsyncInstances($processor, $asyncInstances, $parentValues, &$newJoinData) {
+
+        $asyncInstances = $processor->executeAndWait($asyncInstances);
+
+        $joinColumns = [];
+
+        // Loop through each instance and create new join data
+        foreach ($asyncInstances as $index => $asyncInstance) {
+
+            // Synchronise join data
+            if ($asyncInstance->getStatus() == Asynchronous::STATUS_COMPLETED) {
+                /**
+                 * @var ProcessedTabularDataSet $dataset
+                 */
+                $dataset = $asyncInstance->getReturnValue();
+
+                // Derive new join data
+                foreach ($dataset->getData() as $dataItem) {
+                    $newJoinData[] = array_merge($parentValues[$index], $dataItem);
+                }
+                // Synchronise columns
+                $joinColumns = $dataset->getColumns();
+            } else {
+                $newJoinData[] = $parentValues[$index];
+            }
+
+        }
+
+        return $joinColumns;
     }
 
 

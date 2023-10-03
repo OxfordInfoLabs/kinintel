@@ -151,7 +151,7 @@ class DatasourceServiceTest extends TestBase {
             "test"
         ]);
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test"));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test"));
 
 
     }
@@ -219,7 +219,7 @@ class DatasourceServiceTest extends TestBase {
         $transformed3->returnValue("materialise", $dataSet);
 
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3], 0, 20));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3], 0, 20));
 
 
     }
@@ -242,7 +242,7 @@ class DatasourceServiceTest extends TestBase {
         ]);
 
         try {
-            $this->dataSourceService->getEvaluatedDataSource("test");
+            $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test");
             $this->fail("Should have thrown here");
         } catch (InvalidParametersException $e) {
             $this->assertTrue(true);
@@ -266,7 +266,7 @@ class DatasourceServiceTest extends TestBase {
         ]);
 
         try {
-            $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "My Bad Type"]);
+            $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", ["param1" => "My Bad Type"]);
             $this->fail("Should have thrown here");
         } catch (InvalidParametersException $e) {
             $this->assertTrue(true);
@@ -294,7 +294,7 @@ class DatasourceServiceTest extends TestBase {
         $dataSource->returnValue("materialise", $dataSet);
 
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test"));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test"));
 
     }
 
@@ -336,7 +336,7 @@ class DatasourceServiceTest extends TestBase {
         $transformed1->returnValue("materialise", $dataSet);
 
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSource("test", ["param1" => "Joe", "param2" => "Bloggs"], [$transformationInstance1], 10, 10));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", ["param1" => "Joe", "param2" => "Bloggs"], [$transformationInstance1], 10, 10));
 
 
     }
@@ -389,7 +389,7 @@ class DatasourceServiceTest extends TestBase {
         $transformed2->returnValue("materialise", $pagedDataSet);
 
 
-        $this->assertSame($pagedDataSet, $this->dataSourceService->getEvaluatedDataSource("test", [], [$transformationInstance1], 15, 50));
+        $this->assertSame($pagedDataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", [], [$transformationInstance1], 15, 50));
 
 
     }
@@ -449,7 +449,7 @@ class DatasourceServiceTest extends TestBase {
 
 
         try {
-            $this->dataSourceService->getEvaluatedDataSource("test", [], [
+            $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", [], [
                 $transformationInstance1
             ]);
             $this->fail("Should have thrown here");

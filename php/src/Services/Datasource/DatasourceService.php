@@ -153,9 +153,29 @@ class DatasourceService {
      *
      * @return Dataset
      */
-    public function getEvaluatedDataSource($datasourceInstanceKey, $parameterValues = [], $transformations = [], $offset = null, $limit = null) {
+    public function getEvaluatedDataSourceByInstanceKey($datasourceInstanceKey, $parameterValues = [], $transformations = [], $offset = null, $limit = null) {
 
-        list($datasource, $parameterValues) = $this->getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues, $offset, $limit);
+        list($datasource, $parameterValues) = $this->getTransformedDataSourceByInstanceKey($datasourceInstanceKey, $transformations, $parameterValues, $offset, $limit);
+
+        // Return the evaluated data source
+        return $datasource->materialise($parameterValues ?? []);
+
+    }
+
+
+    /**
+     * Get the evaluated data source for a source specified by key, using the supplied parameter values and applying the
+     * passed transformations
+     *
+     * @param DatasourceInstance $datasourceInstance
+     * @param mixed[] $parameterValues
+     * @param TransformationInstance[] $additionalTransformations
+     *
+     * @return Dataset
+     */
+    public function getEvaluatedDataSource($datasourceInstance, $parameterValues = [], $transformations = [], $offset = null, $limit = null) {
+
+        list($datasource, $parameterValues) = $this->getTransformedDataSource($datasourceInstance, $transformations, $parameterValues, $offset, $limit);
 
         // Return the evaluated data source
         return $datasource->materialise($parameterValues ?? []);
@@ -176,10 +196,27 @@ class DatasourceService {
      * @throws UnsupportedDatasourceTransformationException
      * @throws ValidationException
      */
-    public function getTransformedDataSource($datasourceInstanceKey, $transformations, $parameterValues, $offset = null, $limit = null) {
+    public function getTransformedDataSourceByInstanceKey($datasourceInstanceKey, $transformations, $parameterValues, $offset = null, $limit = null) {
 
         // Grab the datasource for this data set instance by key
         $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        // Return the transformed data source
+        return $this->getTransformedDataSource($datasourceInstance, $transformations, $parameterValues, $offset, $limit);
+    }
+
+
+    /**
+     * Get a transformed datasource instance
+     *
+     * @param DatasourceInstance $datasourceInstance
+     * @param TransformationInstance[] $transformations
+     * @param mixed[] $parameterValues
+     * @param integer $offset
+     * @param integer $limit
+     * @return []
+     */
+    public function getTransformedDataSource($datasourceInstance, $transformations, $parameterValues, $offset = null, $limit = null) {
 
         // Validate parameters first up
         $this->validateParameters($datasourceInstance, $transformations, $parameterValues);
