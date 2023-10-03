@@ -32,6 +32,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Query\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
@@ -201,6 +202,31 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $dataSet = $sqlDatabaseDatasource->materialiseDataset();
 
         $this->assertEquals(new SQLResultSetTabularDataset($resultSet), $dataSet);
+    }
+
+
+    public function testCanMaterialiseDataSetWhenPagingViaParameters() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "",
+        "SELECT * FROM main_table m LIMIT {{limit}} OFFSET {{offset}}",[], false, true), $this->authCredentials, null, $this->validator);
+
+        $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(100, 0));
+        $sqlDatabaseDatasource->materialiseDataset();
+
+        $this->assertTrue($this->databaseConnection->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 100 OFFSET 0) A", []]));
+
+    }
+
+    public function testCanMaterialiseDataSetWithComplexQueryWhenPagingViaParameters() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "",
+            "SELECT * FROM main_table m LIMIT {{limit}} OFFSET {{offset}} LEFT JOIN SELECT * FROM other_table o ON m.this = o.that",[], false, true), $this->authCredentials, null, $this->validator);
+
+        $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(10, 20));
+        $sqlDatabaseDatasource->materialiseDataset();
+
+        $this->assertTrue($this->databaseConnection->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 10 OFFSET 20 LEFT JOIN SELECT * FROM other_table o ON m.this = o.that) A", []]));
+
     }
 
 

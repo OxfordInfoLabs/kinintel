@@ -444,9 +444,25 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
              * @var TemplateParser $templateParser
              */
             $templateParser = Container::instance()->get(TemplateParser::class);
+
+            if ($config->isPagingViaParameters()) {
+                if (end($this->transformations) instanceof PagingTransformation) {
+
+                    /**
+                     * @var PagingTransformation $pagingTransformation
+                     */
+                    $pagingTransformation = array_pop($this->transformations);
+                    $model = ["limit" => $pagingTransformation->getLimit(), "offset" => $pagingTransformation->getOffset()];
+                    $parameterValues = array_merge($parameterValues, $model);
+
+                }
+
+            }
+
             $queryString = $templateParser->parseTemplateText($config->getQuery(), $parameterValues);
 
             $query = new SQLQuery("*", "(" . $queryString . ") A");
+
         }
 
 
@@ -474,7 +490,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param $key
      * @return SQLTransformationProcessor
      */
-    private function getTransformationProcessor($key) {
+    private
+    function getTransformationProcessor($key) {
         if (!isset($this->transformationProcessorInstances[$key])) {
             $this->transformationProcessorInstances[$key] = Container::instance()->getInterfaceImplementation(SQLTransformationProcessor::class, $key);
         }
@@ -486,7 +503,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * Update fields (opportunity for datasource to perform any required modifications)
      *
      */
-    protected function updateFields($fields) {
+    protected
+    function updateFields($fields) {
 
         // Construct the column array we need
         $columns = [];
