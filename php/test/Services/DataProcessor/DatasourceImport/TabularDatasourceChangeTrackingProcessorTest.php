@@ -84,19 +84,19 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -170,12 +170,12 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test3", [], [], 0, 1
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test3", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -230,19 +230,19 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -298,19 +298,19 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -368,19 +368,19 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -433,10 +433,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -488,10 +488,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -541,10 +541,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -595,10 +595,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -658,10 +658,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -716,10 +716,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -768,10 +768,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $testDataset = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], $data);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -805,13 +805,13 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $testDatasetFirst = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], array_slice($data, 0, $sourceReadChunkSize));
         $testDatasetSecond = new ArrayTabularDataset([new Field("name", "Name", null, Field::TYPE_STRING, true), new Field("age", "Age")], array_slice($data, $sourceReadChunkSize, $sourceReadChunkSize));
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDatasetFull, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDatasetFull, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDatasetFirst, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDatasetFirst, [
             "test1", [], [], 0, $sourceReadChunkSize
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDatasetSecond, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDatasetSecond, [
             "test1", [], [], $sourceReadChunkSize, $sourceReadChunkSize
         ]);
 
@@ -864,13 +864,13 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $summarisedData, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $summarisedData, [
             "test1", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[name]]", null, Filter::FILTER_TYPE_NOT_NULL)])),
                 new TransformationInstance("formula", new FormulaTransformation([
                     new Expression("Summary Date", "NOW()"),
@@ -1001,19 +1001,19 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $test2Dataset = new ArrayTabularDataset([], []);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test1Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
             "test1", [], [], 0, PHP_INT_MAX
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $test2Dataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test2Dataset, [
             "test2", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -1067,11 +1067,11 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test", [], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $testDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $testDataset, [
             "test", [], [], 0, PHP_INT_MAX
         ]);
 
@@ -1120,17 +1120,17 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $firstDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $firstDataset, [
             "test", ["param1" => "hello", "param2" => "dave"], [], 0, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $firstDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $firstDataset, [
             "test", ["param1" => "hello", "param2" => "dave"], [], 0, PHP_INT_MAX
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $secondDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $secondDataset, [
             "test", ["param1" => "hello", "param2" => "steve"], [], 0, PHP_INT_MAX
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $thirdDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $thirdDataset, [
             "test", ["param1" => "goodbye", "param2" => "fred"], [], 0, PHP_INT_MAX
         ]);
 
@@ -1196,19 +1196,19 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $firstDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $firstDataset, [
             "test", ["param1" => "hello", "param2" => "dave"], [], 55, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $secondDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $secondDataset, [
             "test", ["param1" => "hello", "param2" => "dave"], [], 15, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $thirdDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $thirdDataset, [
             "test", ["param1" => "hello", "param2" => "dave"], [], 40, 1
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $fourthDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $fourthDataset, [
             "test", ["param1" => "hello", "param2" => "dave"], [], 22, 1
         ]);
 

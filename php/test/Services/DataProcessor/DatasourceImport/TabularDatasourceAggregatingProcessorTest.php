@@ -76,12 +76,12 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $filters = [new Filter("[[date]]", $today, "gte")];
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset1, ["source1", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset1, ["source1", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset2, ["source2", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset2, ["source2", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
@@ -176,12 +176,12 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $filters = [new Filter("[[date]]", $today, "gte")];
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset1, ["source1", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset1, ["source1", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset2, ["source2", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset2, ["source2", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
@@ -279,17 +279,17 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $filters = [new Filter("[[date]]", $today, "gte")];
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset1, ["source1", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset1, ["source1", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset2, ["source2", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset2, ["source2", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataset3, ["source3", [], [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset3, ["source3", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
             new TransformationInstance("multisort", new MultiSortTransformation([new Sort("date", "desc")]))
         ]]);

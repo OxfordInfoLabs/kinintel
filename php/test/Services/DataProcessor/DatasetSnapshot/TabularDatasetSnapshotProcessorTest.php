@@ -106,7 +106,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
                 $datasetInstance, [], [], TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT, TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT
             ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title", null, Field::TYPE_STRING, true),
@@ -115,7 +115,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ], $firstDatasetWithDate), ["mytestsnapshot_pending", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], 0, TabularDatasetSnapshotProcessor::DEFAULT_DATA_LIMIT]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title", null, Field::TYPE_STRING, true),
@@ -351,7 +351,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title", null, Field::TYPE_STRING, true),
@@ -360,7 +360,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ], $firstDatasetWithDate), ["mytestsnapshot_pending", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[snapshot_date]]", $now)]))], 0, 5]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title", null, Field::TYPE_STRING, true),
@@ -623,19 +623,19 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         );
         $now = date("Y-m-d H:i:s");
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $oneDayAgo]]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $oneDayAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($oneDayAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $sevenDaysAgo]]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $sevenDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($sevenDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fifteenDaysAgo]]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fifteenDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fifteenDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $thirtyDaysAgo]]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $thirtyDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($thirtyDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fiveDaysAgo]]), [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fiveDaysAgo]]), [
             "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fiveDaysAgo, 0, 10), "eq")]))], 0, 1
         ]);
 

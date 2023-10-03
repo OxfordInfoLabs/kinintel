@@ -160,7 +160,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
         }
 
-
         // Calculate whether or not we need to perform join datasource conversion
         // to default datasource
         $joinDatasourceConversionRequired = $joinDatasourceConversionRequired || (
@@ -473,6 +472,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @param mixed[] $newJoinData
      */
     private function processAsyncInstances($processor, $asyncInstances, $parentValues, &$newJoinData) {
+
 
         $asyncInstances = $processor->executeAndWait($asyncInstances);
 

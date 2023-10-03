@@ -63,7 +63,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet, [
             "source", null, null, null, null
         ]);
 
@@ -135,7 +135,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet, [
             "source", null, null, null, null
         ]);
 
@@ -185,7 +185,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet1, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet1, [
             "source1", null, null, null, null
         ]);
 
@@ -204,7 +204,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet2, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet2, [
             "source2", null, null, null, null
         ]);
 
@@ -311,7 +311,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet, [
             "source", null, null, 0, 1
         ]);
 
@@ -370,7 +370,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet, [
             "source", null, null, null, null
         ]);
 
@@ -430,7 +430,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet, [
             "source", null, null, null, null
         ]);
 
@@ -492,7 +492,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet1, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet1, [
             "source", ["param1" => "first", "param2" => "FIRST"], null, null, null
         ]);
 
@@ -506,7 +506,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             ]
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $dataSet2, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet2, [
             "source", ["param1" => "second", "param2" => "SECOND"], null, null, null
         ]);
 
@@ -574,7 +574,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
 
         // Programme a call to the target datasource to return latest data for from date.
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("parameterValue")],
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("parameterValue")],
             [["parameterValue" => '2022-01-01 10:23:44']]),
             ["targetsource", [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [
@@ -589,7 +589,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
         $this->processor->process($instance);
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSourceByInstanceKey", [
             "inputsource", ["fromDate" => "2022-01-01 10:23:44"], null, 0, 2
         ]));
 
@@ -607,7 +607,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
 
         // Programme a call to the target datasource to return latest data for from date.
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("parameterValue")],
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("parameterValue")],
             [["parameterValue" => '2022-01-01 10:23:44']]),
             ["targetsource", [], [
                 new TransformationInstance("summarise",new SummariseTransformation([], [
@@ -640,7 +640,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
 
 
         // Programme a call to the target datasource to return latest data for from date.
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([new Field("parameterValue")],
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("parameterValue")],
             [["parameterValue" => null]]),
             ["targetsource", [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [
@@ -655,7 +655,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
         $this->processor->process($instance);
 
-        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSourceByInstanceKey", [
             "inputsource", ["fromDate" => 255], null, 0, 2
         ]));
 

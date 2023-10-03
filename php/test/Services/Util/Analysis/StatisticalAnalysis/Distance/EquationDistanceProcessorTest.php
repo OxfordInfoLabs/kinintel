@@ -92,7 +92,7 @@ class EquationDistanceProcessorTest extends TestCase {
                 "kfn: document, cfn: phrase, vfn: frequency", "distance")
         ]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", $minimalDataset, [
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $minimalDataset, [
             "sourceKey", [], [
                 new TransformationInstance("join", $expectedJoinTransformation),
                 new TransformationInstance("summarise", $expectedSummariseTransformation)
@@ -133,7 +133,7 @@ class EquationDistanceProcessorTest extends TestCase {
             ["sourceKey", [], [
                 new TransformationInstance("join", $expectedJoinTransformation),
                 new TransformationInstance("summarise", $expectedSummariseTransformation)
-            ]], $this->datasourceService->getMethodCallHistory("getEvaluatedDataSource")[0]);
+            ]], $this->datasourceService->getMethodCallHistory("getEvaluatedDataSourceByInstanceKey")[0]);
 
 
         $secondWriteSet = new ArrayTabularDataset([new Field("document"), new Field("document_2"), new Field("distance")], [

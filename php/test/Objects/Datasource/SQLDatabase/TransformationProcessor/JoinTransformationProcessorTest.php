@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinikit\Core\Asynchronous\Asynchronous;
 use Kinikit\Core\Asynchronous\AsynchronousClassMethod;
 use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
 use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
@@ -13,8 +14,10 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinintel\Controllers\Internal\ProcessedDataset;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
@@ -25,6 +28,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -36,6 +40,7 @@ use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
+use Masterminds\HTML5\Exception;
 
 include_once "autoloader.php";
 
@@ -378,9 +383,23 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
-        $joinDatasource1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource1->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource1->returnValue("materialise", new ArrayTabularDataset([
+
+        $inputAsync1 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bingo"]
+        ]);
+
+        $inputAsync2 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bongo"]
+        ]);
+
+        $inputAsync3 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bango"]
+        ]);
+
+
+        $outputAsync1 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync1->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync1->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -391,19 +410,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Joe",
                 "column2" => "Bloggs"
             ]
-        ]), [[
-            "term" => "Bingo"
-        ]]);
+        ]));
 
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource1,
-            [$joinDataSetInstance, ["term" => "Bingo"], []]
-        );
-
-
-        $joinDatasource2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource2->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource2->returnValue("materialise", new ArrayTabularDataset([
+        $outputAsync2 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync2->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync2->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -414,18 +425,12 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Andrew",
                 "column2" => "Smythe"
             ]
-        ]), [[
-            "term" => "Bongo"
-        ]]);
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource2,
-            [$joinDataSetInstance, ["term" => "Bongo"], []]
-        );
+        ]));
 
 
-        $joinDatasource3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource3->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource3->returnValue("materialise", new ArrayTabularDataset([
+        $outputAsync3 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync3->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync3->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -436,14 +441,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Humpty",
                 "column2" => "Dumpty"
             ]
-        ]), [[
-            "term" => "Bango"
-        ]]);
+        ]));
 
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource3,
-            [$joinDataSetInstance, ["term" => "Bango"], []]
-        );
+        $this->synchronousProcessor->returnValue("executeAndWait", [
+            $outputAsync1, $outputAsync2, $outputAsync3
+        ], [[$inputAsync1, $inputAsync2, $inputAsync3]]);
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
             new Parameter("term", "Term")
@@ -529,27 +531,21 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             new TestTransformation(), new TestTransformation()
         ]);
 
+
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
 
-        $joinDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource, [
-            $joinDataSetInstance, [], []
+        $inputAsynchronous1 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bingo"]
         ]);
 
 
-        $inputAsynchronous1 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
-            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bingo"]
+        $inputAsynchronous2 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bongo"]
         ]);
 
-        $inputAsynchronous2 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
-            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bongo"]
-        ]);
-
-        $inputAsynchronous3 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
-            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bango"]
+        $inputAsynchronous3 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bango"]
         ]);
 
         $inputAsync1 = [$inputAsynchronous1, $inputAsynchronous2];
@@ -559,10 +555,10 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $classInspector = new ClassInspector(AsynchronousClassMethod::class);
 
 
-        $outputAsynchronous1 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
-            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bingo"]
+        $outputAsynchronous1 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bingo"]
         ]);
-        $classInspector->setPropertyData($outputAsynchronous1, new ArrayTabularDataset([
+        $classInspector->setPropertyData($outputAsynchronous1, new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -574,12 +570,13 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column2" => "Bloggs"
             ]
         ]), "returnValue", false);
+        $outputAsynchronous1->setStatus(Asynchronous::STATUS_COMPLETED);
 
-
-        $outputAsynchronous2 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
-            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bongo"]
+        $outputAsynchronous2 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bongo"]
         ]);
-        $classInspector->setPropertyData($outputAsynchronous2, new ArrayTabularDataset([
+        $outputAsynchronous2->setStatus(Asynchronous::STATUS_COMPLETED);
+        $classInspector->setPropertyData($outputAsynchronous2, new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -593,10 +590,10 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]), "returnValue", false);
 
 
-        $outputAsynchronous3 = new AsynchronousClassMethod(DatasetService::class, "getEvaluatedDataSetForDataSetInstanceById", [
-            "dataSetInstanceId" => 10, "parameterValues" => ["term" => "Bango"]
+        $outputAsynchronous3 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bango"]
         ]);
-        $classInspector->setPropertyData($outputAsynchronous3, new ArrayTabularDataset([
+        $classInspector->setPropertyData($outputAsynchronous3, new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -608,15 +605,22 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column2" => "Dumpty"
             ]
         ]), "returnValue", false);
-
+        $outputAsynchronous3->setStatus(Asynchronous::STATUS_COMPLETED);
 
         $outputAsync1 = [$outputAsynchronous1, $outputAsynchronous2];
         $outputAsync2 = [$outputAsynchronous3];
 
 
         // Programme aysynchronous processor
-        $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync1, $inputAsync1);
-        $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync2, $inputAsync2);
+        $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync1, [$inputAsync1]);
+        $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync2, [$inputAsync2]);
+
+
+        $this->dataSetService->returnValue("getEvaluatedParameters", [
+            new Parameter("term", "Term")
+        ], [
+            $joinDataSetInstance
+        ]);
 
 
         $transformation = new JoinTransformation(null, 10, [
@@ -687,6 +691,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfExceptionRaisedForParameterisedDataSourceWithParametersMappedToColumnsExceptionIsIgnoredAndBlankDataReturnedForRow() {
 
+
+        // Set concurrency to 2
+        Configuration::instance()->removeParameter("sqldatabase.datasource.join.default.concurrency");
+
+
         $joinDataSetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
         $joinDataSetInstance->returnValue("getDatasourceInstanceKey", "testjoindataset");
         $joinDataSetInstance->returnValue("getTransformationInstances", [
@@ -695,32 +704,31 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
-        $joinDatasource1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource1->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource1->throwException("materialise", new \Exception("Bad Lookup of Sub Datasource"), [[
-            "term" => "Bingo"
-        ]]);
+        $inputAsync1 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bingo"]
+        ]);
+
+        $inputAsync2 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bongo"]
+        ]);
+
+        $inputAsync3 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bango"]
+        ]);
 
 
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource1,
-            [$joinDataSetInstance, ["term" => "Bingo"], []]
-        );
+        $outputAsync1 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync1->returnValue("getStatus", Asynchronous::STATUS_FAILED);
+        $outputAsync1->returnValue("getExceptionData", new Exception("Bad request"));
+
+        $outputAsync2 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync2->returnValue("getStatus", Asynchronous::STATUS_FAILED);
+        $outputAsync1->returnValue("getExceptionData", new Exception("Bad request"));
 
 
-        $joinDatasource2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource2->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource2->throwException("materialise", new \Exception("Bad Lookup of Sub Datasource"), [[
-            "term" => "Bongo"
-        ]]);
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource2,
-            [$joinDataSetInstance, ["term" => "Bongo"], []]
-        );
-
-
-        $joinDatasource3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource3->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource3->returnValue("materialise", new ArrayTabularDataset([
+        $outputAsync3 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync3->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync3->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -731,14 +739,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Humpty",
                 "column2" => "Dumpty"
             ]
-        ]), [[
-            "term" => "Bango"
-        ]]);
+        ]));
 
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource3,
-            [$joinDataSetInstance, ["term" => "Bango"], []]
-        );
+        $this->synchronousProcessor->returnValue("executeAndWait", [
+            $outputAsync1, $outputAsync2, $outputAsync3
+        ], [[$inputAsync1, $inputAsync2, $inputAsync3]]);
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
             new Parameter("term", "Term")
@@ -812,9 +817,22 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $this->dataSetService->returnValue("getDataSetInstance", $joinDataSetInstance, [10]);
 
-        $joinDatasource1 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource1->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource1->returnValue("materialise", new ArrayTabularDataset([
+        $inputAsync1 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bingo"]
+        ]);
+
+        $inputAsync2 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bongo"]
+        ]);
+
+        $inputAsync3 = new AsynchronousClassMethod(ProcessedDataset::class, "getProcessedTabularDatasetForDatasetInstance", [
+            "dataSetInstance" => $joinDataSetInstance, "parameterValues" => ["term" => "Bango"]
+        ]);
+
+
+        $outputAsync1 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync1->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync1->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -825,19 +843,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Joe",
                 "column2" => "Bloggs"
             ]
-        ]), [[
-            "term" => "Bingo"
-        ]]);
+        ]));
 
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource1,
-            [$joinDataSetInstance, ["term" => "Bingo"], []]
-        );
-
-
-        $joinDatasource2 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource2->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource2->returnValue("materialise", new ArrayTabularDataset([
+        $outputAsync2 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync2->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync2->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -848,18 +858,12 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Andrew",
                 "column2" => "Smythe"
             ]
-        ]), [[
-            "term" => "Bongo"
-        ]]);
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource2,
-            [$joinDataSetInstance, ["term" => "Bongo"], []]
-        );
+        ]));
 
 
-        $joinDatasource3 = MockObjectProvider::instance()->getMockInstance(Datasource::class);
-        $joinDatasource3->returnValue("getAuthenticationCredentials", $this->authCredentials);
-        $joinDatasource3->returnValue("materialise", new ArrayTabularDataset([
+        $outputAsync3 = MockObjectProvider::instance()->getMockInstance(Asynchronous::class);
+        $outputAsync3->returnValue("getStatus", Asynchronous::STATUS_COMPLETED);
+        $outputAsync3->returnValue("getReturnValue", new ProcessedTabularDataSet([
             new Field("column1"), new Field("column2")
         ], [
             [
@@ -870,14 +874,11 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
                 "column1" => "Humpty",
                 "column2" => "Dumpty"
             ]
-        ]), [[
-            "term" => "Bango"
-        ]]);
+        ]));
 
-
-        $this->dataSetService->returnValue("getTransformedDatasourceForDataSetInstance", $joinDatasource3,
-            [$joinDataSetInstance, ["term" => "Bango"], []]
-        );
+        $this->synchronousProcessor->returnValue("executeAndWait", [
+            $outputAsync1, $outputAsync2, $outputAsync3
+        ], [[$inputAsync1, $inputAsync2, $inputAsync3]]);
 
         $this->dataSetService->returnValue("getEvaluatedParameters", [
             new Parameter("term", "Term")

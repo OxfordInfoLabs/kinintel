@@ -71,7 +71,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
 
-        $this->datasourceService->throwException("getEvaluatedDataSource", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
+        $this->datasourceService->throwException("getEvaluatedDataSourceByInstanceKey", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
             "incrementalsnap", [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "id", null, "snapshotLastValue")]))
             ]
@@ -173,7 +173,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
 
-        $this->datasourceService->throwException("getEvaluatedDataSource", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
+        $this->datasourceService->throwException("getEvaluatedDataSourceByInstanceKey", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
             "incrementalsnap", [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "id", null, "snapshotLastValue")]))
             ]
@@ -308,7 +308,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshotLastValue")
         ], [["snapshotLastValue" => 25]]), [
             "incrementalsnap", [], [
@@ -411,7 +411,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshotLastValue")
         ], [["snapshotLastValue" => 25]]), [
             "incrementalsnap", [], [
@@ -509,7 +509,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $datasetInstance = new DatasetInstance(null, 1, "testProject");
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource", new ArrayTabularDataset([
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshotLastValue")
         ], [["snapshotLastValue" => 25]]), [
             "incrementalsnap", [], [
@@ -611,7 +611,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
 
-        $this->datasourceService->throwException("getEvaluatedDataSource", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
+        $this->datasourceService->throwException("getEvaluatedDataSourceByInstanceKey", new ObjectNotFoundException(DatasourceInstance::class, "incrementalsnap"), [
             "incrementalsnap", [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "id", null, "snapshotLastValue")]))
             ]

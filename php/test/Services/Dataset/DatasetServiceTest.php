@@ -776,7 +776,7 @@ class DatasetServiceTest extends TestBase {
 
 
         // Check data is merged together and evaluated on data source
-        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSourceByInstanceKey", [
             "test-json",
             ["param1" => "Test",
                 "param2" => 44,
@@ -833,7 +833,7 @@ class DatasetServiceTest extends TestBase {
         $unconverter = Container::instance()->get(JSONToObjectConverter::class);
 
         // Check data is merged together and evaluated on data source
-        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSource", [
+        $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSourceByInstanceKey", [
             "test-json",
             ["param1" => "Test",
                 "param2" => 44,
@@ -1231,7 +1231,7 @@ class DatasetServiceTest extends TestBase {
         ]);
 
 
-        $this->datasourceService->returnValue("getEvaluatedDataSource",
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey",
             $dataset,
             [
                 "test-json",
