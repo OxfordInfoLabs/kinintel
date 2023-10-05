@@ -257,7 +257,9 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
+                $joinColumns = $joinColumns ?: $transformation->getJoinColumns() ?: [];
                 if (sizeof($joinColumns)) {
+
                     foreach ($aliasFields as $aliasField) {
                         $newColumns[] = new Field($aliasField);
                     }
