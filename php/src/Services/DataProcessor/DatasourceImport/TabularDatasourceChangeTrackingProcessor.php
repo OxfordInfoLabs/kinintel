@@ -366,7 +366,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
             for ($i = 0; $i < sizeof($explodedAddLine); $i++) {
                 if (isset($fieldKeys[$i])) {
                     $value = trim($explodedAddLine[$i]) != "" ? trim($explodedAddLine[$i]) : null;
-                    if (substr($value, 0, 7) == "base64:")
+                    if ($value !== null && (substr($value, 0, 7) == "base64:"))
                         $value = json_decode(base64_decode(substr($value, 7)), true);
                     $trueAdds[$addCount][$fieldKeys[$i]->getName()] = $value;
                 }
