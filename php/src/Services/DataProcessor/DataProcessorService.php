@@ -106,10 +106,9 @@ class DataProcessorService {
 
             // If an account id, login as account id.
             if ($instance->getAccountId()) {
-                $account = $this->accountService->getAccount($instance->getAccountId());
-                $this->securityService->login(null, $account);
+                $this->securityService->becomeAccount($instance->getAccountId());
             } else {
-                $this->securityService->loginAsSuperUser();
+                $this->securityService->becomeSuperUser();
             }
 
         });

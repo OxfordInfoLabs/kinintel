@@ -215,10 +215,9 @@ class AlertService {
 
             // If an account id, login as account id.
             if ($alertGroup->getAccountId()) {
-                $account = $this->accountService->getAccount($alertGroup->getAccountId());
-                $this->securityService->login(null, $account);
+                $this->securityService->becomeAccount($alertGroup->getAccountId());
             } else {
-                $this->securityService->loginAsSuperUser();
+                $this->securityService->becomeSuperUser();
             }
 
         });

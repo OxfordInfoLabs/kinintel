@@ -820,15 +820,11 @@ class AlertServiceTest extends TestBase {
             [], [$alertGroupId]);
 
 
-        // Programme a return value for account
-        $account = new Account("TestAccount", 0, Account::STATUS_ACTIVE, 1);
-        $this->accountService->returnValue("getAccount", $account, [1]);
-
         // Process the group
         $this->alertService->processAlertGroup($alertGroupId);
 
         // Confirm that we called the login
-        $this->assertTrue($this->securityService->methodWasCalled("login", [null, $account]));
+        $this->assertTrue($this->securityService->methodWasCalled("becomeAccount", [1]));
 
 
     }
@@ -856,7 +852,7 @@ class AlertServiceTest extends TestBase {
         $this->alertService->processAlertGroup($alertGroupId);
 
         // Confirm that we called the login as super user.
-        $this->assertTrue($this->securityService->methodWasCalled("loginAsSuperUser"));
+        $this->assertTrue($this->securityService->methodWasCalled("becomeSuperUser"));
 
 
     }

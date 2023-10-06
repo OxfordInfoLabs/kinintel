@@ -478,6 +478,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
         $asyncInstances = $processor->executeAndWait($asyncInstances);
 
+
+
         $joinColumns = [];
 
         // Loop through each instance and create new join data

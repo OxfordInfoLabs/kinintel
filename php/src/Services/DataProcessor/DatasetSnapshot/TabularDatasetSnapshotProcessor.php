@@ -145,6 +145,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $sourceData = $dataset->getAllData();
 
 
+
             // Generate timelapse data, create update and update data sources
             if ($config->isCreateHistory()) {
                 $historyTableName = $dataSourceInstance->getConfig()["tableName"];

@@ -133,9 +133,6 @@ class DataProcessorServiceTest extends TestBase {
                 "bigone"
             ]);
 
-        $account = new Account("TESTING1234");
-        $this->accountService->returnValue("getAccount", $account, [25]);
-
 
         Container::instance()->addInterfaceImplementation(DataProcessor::class, "testprocessor", TestDataProcessor::class);
 
@@ -148,7 +145,7 @@ class DataProcessorServiceTest extends TestBase {
         // Execute passed logic to active record interceptor
         $this->activeRecordInterceptor->getMethodCallHistory("executeInsecure")[0][0]();
 
-        $this->assertTrue($this->securityService->methodWasCalled("login", [null, $account]));
+        $this->assertTrue($this->securityService->methodWasCalled("becomeAccount", [25]));
 
 
     }
@@ -175,7 +172,7 @@ class DataProcessorServiceTest extends TestBase {
         // Execute passed logic to active record interceptor
         $this->activeRecordInterceptor->getMethodCallHistory("executeInsecure")[0][0]();
 
-        $this->assertTrue($this->securityService->methodWasCalled("loginAsSuperUser"));
+        $this->assertTrue($this->securityService->methodWasCalled("becomeSuperUser"));
 
 
     }
