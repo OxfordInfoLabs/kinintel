@@ -3,7 +3,6 @@
 
 namespace Kinintel\Test\Services\DataProcessor;
 
-use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;

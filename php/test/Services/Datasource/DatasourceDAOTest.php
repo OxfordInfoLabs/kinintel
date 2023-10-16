@@ -5,7 +5,6 @@ namespace Kinintel\Services\Datasource;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
-use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\TestBase;

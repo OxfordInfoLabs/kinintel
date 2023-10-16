@@ -5,7 +5,6 @@ namespace Kinintel\Services\DataProcessor\DatasetSnapshot;
 
 
 use Kinikit\Core\Configuration\Configuration;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;

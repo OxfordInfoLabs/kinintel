@@ -2,7 +2,6 @@
 
 namespace Kinintel\Test\Services\Alert;
 
-use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupMember;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;

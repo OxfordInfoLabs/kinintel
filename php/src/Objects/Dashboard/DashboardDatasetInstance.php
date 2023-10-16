@@ -9,10 +9,7 @@ use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Dataset\BaseDatasetInstance;
-use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Services\Dataset\DatasetService;
-use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Dataset\DatasetInstanceSource;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**

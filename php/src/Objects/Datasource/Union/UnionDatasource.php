@@ -3,7 +3,6 @@
 namespace Kinintel\Objects\Datasource\Union;
 
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\DatasourceService;

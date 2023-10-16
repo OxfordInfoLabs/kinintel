@@ -3,8 +3,6 @@
 
 namespace Kinintel\Test\Services\Feed;
 
-use Kiniauth\Objects\Security\APIKey;
-use Kiniauth\Objects\Security\APIKeyRole;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;

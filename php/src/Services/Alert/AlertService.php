@@ -14,7 +14,6 @@ use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Configuration\FileResolver;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Alert\AlertGroup;

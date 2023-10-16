@@ -6,13 +6,11 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\TestDatasource;
 use Kinintel\Objects\Datasource\Union\UnionDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Union\DatasourceMapping;
 use Kinintel\ValueObjects\Datasource\Configuration\Union\UnionDatasourceConfig;
-use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
 use PHPUnit\Framework\TestCase;
 

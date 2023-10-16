@@ -3,8 +3,6 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\Union;
 
 
-use Kinintel\ValueObjects\Dataset\Field;
-
 class DatasourceMapping {
 
     /**

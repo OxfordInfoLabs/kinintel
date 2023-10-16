@@ -3,8 +3,6 @@
 
 namespace Kinintel\Services\Util;
 
-use Kinikit\Core\Logging\Logger;
-
 /**
  * Class SQLClauseSanitiser
  * @package Kinintel\Services\Util
