@@ -1,17 +1,42 @@
 [
   {
     "key": "feedaccess",
-    "description": "Access for consuming feeds within project.",
+    "description": "Consume feeds within project.",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "feedmanage",
+    "description": "Create, update and remove feeds within project",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "customdatasourceaccess",
+    "description": "Access custom data sources within project",
     "scope": "PROJECT"
   },
   {
     "key": "customdatasourceupdate",
-    "description": "Access for updating custom data sources within project",
+    "description": "Update custom data source data within project e.g. via API",
     "scope": "PROJECT"
   },
   {
     "key": "customdatasourcemanage",
-    "description": "Access for managing custom data sources within project",
+    "description": "Manage custom data sources within project",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "snapshotaccess",
+    "description": "View and use snapshots within a project",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "snapshotmanage",
+    "description": "Create, edit and delete snapshots within a project",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "alertmanage",
+    "description": "Create, edit and remove alerts within dashboards.",
     "scope": "PROJECT"
   }
 ]
