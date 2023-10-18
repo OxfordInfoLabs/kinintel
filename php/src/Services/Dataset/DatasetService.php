@@ -292,6 +292,7 @@ class DatasetService {
      * @param int $offset
      * @param int $limit
      * @param string $accountId
+     *
      */
     public function filterSnapshotProfiles($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
 

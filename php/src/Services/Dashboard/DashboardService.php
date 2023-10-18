@@ -139,9 +139,6 @@ class DashboardService {
     }
 
 
-
-
-
     /**
      * Get all dashboards as summaries
      *
@@ -168,14 +165,15 @@ class DashboardService {
      * @param string $filterString
      * @param array $categories
      * @param array $tags
+     * @param false $showHidden
      * @param string $projectKey
-     * @param int $offset
      * @param int $limit
      * @param string $accountId
+     * @param int $offset
      *
      * @return DashboardSearchResult[]
      */
-    public function filterDashboards($filterString = "", $categories = [], $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function filterDashboards($filterString = "", $categories = [], $tags = [], $showHidden = false, $projectKey = null, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT, $offset = 0) {
 
         $params = [];
         if ($accountId === null) {
@@ -207,6 +205,10 @@ class DashboardService {
         if ($categories && sizeof($categories) > 0) {
             $query .= " AND categories.category_key IN (?" . str_repeat(",?", sizeof($categories) - 1) . ")";
             $params = array_merge($params, $categories);
+        }
+
+        if (!$showHidden) {
+            $query .= " AND (hiddenFromListings IS NULL OR hiddenFromListings <> 1)";
         }
 
 

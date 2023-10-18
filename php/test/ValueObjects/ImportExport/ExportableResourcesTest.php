@@ -26,8 +26,8 @@ class ExportableResourcesTest extends \PHPUnit\Framework\TestCase {
         ];
 
         $dashboardSummaries = [
-            new DashboardSummary("Test DB 1", [], [], [], true, false, [], "", "", [], 11),
-            new DashboardSummary("Test DB 2", [], [], [], true, false, [], "", "", [], 54)
+            new DashboardSummary("Test DB 1", [], [], [], true, false, [], false, "", "", [], 11),
+            new DashboardSummary("Test DB 2", [], [], [], true, false, [], false, "", "", [], 54)
         ];
 
         $exportableResources = new ExportableResources($datasourceInstanceSearchResults, $datasetInstanceSearchResults, $dashboardSummaries);
@@ -65,8 +65,8 @@ class ExportableResourcesTest extends \PHPUnit\Framework\TestCase {
         ];
 
         $dashboardSummaries = [
-            new DashboardSummary("Test DB 1", [], [], [], true, false, [], "", "", [], 11, false, 54),
-            new DashboardSummary("Test DB 2", [], [], [], true, false, [], "", "", [], 54, false, 9)
+            new DashboardSummary("Test DB 1", [], [], [], true, false, [], false, "", "", [], 11, false, 54),
+            new DashboardSummary("Test DB 2", [], [], [], true, false, [], false, "", "", [], 54, false, 9)
         ];
 
         $exportableResources = new ExportableResources($datasourceInstanceSearchResults, $datasetInstanceSearchResults, $dashboardSummaries);

@@ -56,6 +56,12 @@ class DashboardSummary extends DashboardSearchResult {
 
 
     /**
+     * @var boolean
+     */
+    protected $hiddenFromListings;
+
+
+    /**
      * Array of tag keys associated with this instance summary if required
      *
      * @var TagSummary[]
@@ -86,11 +92,12 @@ class DashboardSummary extends DashboardSearchResult {
      * @param boolean $alertsEnabled
      * @param boolean $external
      * @param DashboardExternalSettings $externalSettings
+     * @param boolean $hiddenFromListings
      * @param string $summary
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = null, $externalSettings = null, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
+    public function __construct($title, $datasetInstances = [], $displaySettings = null, $layoutSettings = null, $alertsEnabled = null, $external = null, $externalSettings = null, $hiddenFromListings = false, $summary = null, $description = null, $categories = [], $id = null, $readOnly = false, $parentDashboardId = null) {
         parent::__construct($id, $title, $summary, $description, $categories, $parentDashboardId);
         $this->datasetInstances = $datasetInstances;
         $this->displaySettings = $displaySettings;
@@ -99,6 +106,7 @@ class DashboardSummary extends DashboardSearchResult {
         $this->readOnly = $readOnly;
         $this->external = $external;
         $this->externalSettings = $externalSettings ?? new DashboardExternalSettings();
+        $this->hiddenFromListings = $hiddenFromListings;
     }
 
 
@@ -208,5 +216,20 @@ class DashboardSummary extends DashboardSearchResult {
     public function isReadOnly() {
         return $this->readOnly;
     }
+
+    /**
+     * @return bool
+     */
+    public function isHiddenFromListings() {
+        return $this->hiddenFromListings;
+    }
+
+    /**
+     * @param bool $hiddenFromListings
+     */
+    public function setHiddenFromListings($hiddenFromListings) {
+        $this->hiddenFromListings = $hiddenFromListings;
+    }
+
 
 }

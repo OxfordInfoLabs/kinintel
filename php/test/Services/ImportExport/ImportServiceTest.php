@@ -83,9 +83,9 @@ class ImportServiceTest extends TestBase {
             new DashboardDatasetInstance("instance4", null, "externalds", [
                 new TransformationInstance("join", new JoinTransformation("myexampledatasource", null))
             ])
-        ], null, null, null, false, [], null, null, [], 1, false, 2), 1, "myprojectkey");
-        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, false, [], null, null, [], 2, false, 23), 1, "myprojectkey");
-        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, false, [], null, null, [], 3, false, 1), 1, "myprojectkey");
+        ], null, null, null, false, [], false, null, null, [], 1, false, 2), 1, "myprojectkey");
+        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, false, [], false, null, null, [], 2, false, 23), 1, "myprojectkey");
+        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, false, [], false, null, null, [], 3, false, 1), 1, "myprojectkey");
 
 
         // Generate an export using resources
@@ -167,9 +167,9 @@ class ImportServiceTest extends TestBase {
             new DashboardDatasetInstance("instance4", null, "externalds", [
                 new TransformationInstance("join", new JoinTransformation("myexampledatasource", null))
             ])
-        ], null, null, null, false, [], null, null, [], 1, false, 2), 1, "myprojectkey");
-        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, false, [], null, null, [], 2, false, 23), 1, "myprojectkey");
-        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, false, [], null, null, [], 3, false, 1), 1, "myprojectkey");
+        ], null, null, null, false, [], false, null, null, [], 1, false, 2), 1, "myprojectkey");
+        $dashboard2 = new Dashboard(new DashboardSummary("Dashboard 2", [], null, null, null, false, [], false, null, null, [], 2, false, 23), 1, "myprojectkey");
+        $dashboard3 = new Dashboard(new DashboardSummary("Dashboard 3", [], null, null, null, false, [], false, null, null, [], 3, false, 1), 1, "myprojectkey");
 
 
         // Generate an export using resources

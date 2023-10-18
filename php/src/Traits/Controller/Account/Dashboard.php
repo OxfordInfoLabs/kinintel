@@ -4,6 +4,7 @@
 namespace Kinintel\Traits\Controller\Account;
 
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\MetaData\CategorySummary;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Dashboard\DashboardSearchResult;
@@ -88,7 +89,7 @@ trait Dashboard {
     public function filterDashboards($filterString = "", $categories = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
         $tags = $tags ? explode(",", $tags) : [];
         $categories = $categories ? explode(",", $categories) : [];
-        return $this->dashboardService->filterDashboards($filterString, $categories, $tags, $projectKey, $offset, $limit);
+        return $this->dashboardService->filterDashboards($filterString, $categories, $tags, false, $projectKey, $limit, Account::LOGGED_IN_ACCOUNT, $offset);
     }
 
 

@@ -97,8 +97,8 @@ class ExportServiceTest extends TestBase {
         ];
 
         $dashboardSummaries = [
-            new DashboardSummary("Test DB 1", [], [], [], true, false, [], "", "", [], 11, false, 54),
-            new DashboardSummary("Test DB 2", [], [], [], true, false, [], "", "", [], 54, false, 9)
+            new DashboardSummary("Test DB 1", [], [], [], true, false, [], false, "", "", [], 11, false, 54),
+            new DashboardSummary("Test DB 2", [], [], [], true, false, [], false, "", "", [], 54, false, 9)
         ];
 
 

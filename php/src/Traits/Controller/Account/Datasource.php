@@ -100,6 +100,8 @@ trait Datasource {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
+     *
+     * @hasPrivilege PROJECT:customdatasourceaccess($projectKey)
      */
     public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null) {
         return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset, false, $projectKey);
@@ -143,6 +145,8 @@ trait Datasource {
      * @param string $datasourceKey
      *
      * @return string
+     *
+     * @hasPrivilege PROJECT:customdatasourcemanage($projectKey)
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $datasourceKey = null) {
         return $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, $datasourceKey, $projectKey);
@@ -170,6 +174,8 @@ trait Datasource {
      * @param null $projectKey
      *
      * @return integer
+     *
+     * @hasPrivilege PROJECT:customdatasourcemanage($projectKey)
      */
     public function createDocumentDatasourceInstance($documentDatasourceConfig, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         return $this->customDatasourceService->createDocumentDatasourceInstance($documentDatasourceConfig, $projectKey, $accountId);

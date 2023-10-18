@@ -49,7 +49,7 @@ class Dashboard extends DashboardSummary {
     public function __construct($dashboardSummary = null, $accountId = null, $projectKey = null) {
         if ($dashboardSummary instanceof DashboardSummary)
             parent::__construct($dashboardSummary->getTitle(), $dashboardSummary->getDatasetInstances(), $dashboardSummary->getDisplaySettings(), $dashboardSummary->getLayoutSettings(),
-                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->isExternal(), $dashboardSummary->getExternalSettings(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId(), false, $dashboardSummary->getParentDashboardId());
+                $dashboardSummary->isAlertsEnabled(), $dashboardSummary->isExternal(), $dashboardSummary->getExternalSettings(), $dashboardSummary->isHiddenFromListings(), $dashboardSummary->getSummary(), $dashboardSummary->getDescription(), $dashboardSummary->getCategories(), $dashboardSummary->getId(), false, $dashboardSummary->getParentDashboardId());
         else
             $this->setExternalSettings(new DashboardExternalSettings());
 
@@ -125,7 +125,7 @@ class Dashboard extends DashboardSummary {
         }
 
         $dashboardSummary = new DashboardSummary($this->title, $this->datasetInstances, $this->displaySettings, $this->layoutSettings,
-            $this->alertsEnabled, $this->external, $this->externalSettings,
+            $this->alertsEnabled, $this->external, $this->externalSettings, false,
             $this->summary, $this->description, $newCategories,
             $returnCopy ? null : $this->id, $readOnly, $this->parentDashboardId);
 

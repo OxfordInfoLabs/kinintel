@@ -46,6 +46,8 @@ trait Feed {
      * @param string $projectKey
      * @param int $offset
      * @param int $limit
+     *
+     * @hasPrivilege PROJECT:feedaccess($projectKey)
      */
     public function filterFeeds($filterString = "", $projectKey = null, $offset = 0, $limit = 10) {
         return $this->feedService->filterFeeds($filterString, $projectKey, $offset, $limit);
@@ -73,6 +75,8 @@ trait Feed {
      * @param FeedSummary $feed
      * @param string $projectKey
      *
+     * @hasPrivilege PROJECT:feedmanage($projectKey)
+     *
      * @return int
      */
     public function saveFeed($feed, $projectKey = null) {
@@ -86,6 +90,9 @@ trait Feed {
      * @http DELETE /$feedId
      *
      * @param $feedId
+     *
+     * @referenceParameter $feed Kinintel\Objects\Feed\Feed($feedId)
+     * @hasPrivilege PROJECT:feedmanage($feed.projectKey)
      */
     public function removeFeed($feedId) {
         $this->feedService->removeFeed($feedId);

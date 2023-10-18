@@ -7,6 +7,7 @@ use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -15,7 +16,6 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 use Kinintel\ValueObjects\Dataset\DatasetInstanceEvaluationDescriptor;
 use Kinintel\ValueObjects\Dataset\ExportDataset;
-
 
 /**
  * Dataset service, acts on both in process and saved datasets
@@ -238,6 +238,9 @@ trait Dataset {
      * @param string $tags
      * @param int $offset
      * @param int $limit
+     *
+     * @hasPrivilege PROJECT:snapshotaccess($projectKey)
+     *
      * @return \Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult[]
      */
     public function filterSnapshotProfiles($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
@@ -251,6 +254,9 @@ trait Dataset {
      * @http GET /snapshotprofile/$datasetInstanceId
      *
      * @param $datasetInstanceId
+     *
+     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
+     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
      */
     public function listSnapshotProfilesForDataSetInstance($datasetInstanceId) {
         return $this->datasetService->listSnapshotProfilesForDataSetInstance($datasetInstanceId);
@@ -264,6 +270,9 @@ trait Dataset {
      *
      * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
      * @param $datasetInstanceId
+     *
+     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
+     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
      */
     public function saveSnapshotProfile($datasetInstanceId, $snapshotProfileSummary) {
         $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId);
@@ -277,6 +286,9 @@ trait Dataset {
      *
      * @param $datasetInstanceId
      * @param $snapshotProfileId
+     *
+     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
+     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
      */
     public function removeSnapshotProfile($snapshotProfileId, $datasetInstanceId) {
         $this->datasetService->removeSnapshotProfile($datasetInstanceId, $snapshotProfileId);
@@ -289,6 +301,9 @@ trait Dataset {
      *
      * @param $datasetInstanceId
      * @param $snapshotProfileId
+     *
+     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
+     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
      *
      */
     public function triggerSnapshot($datasetInstanceId, $snapshotProfileId) {
