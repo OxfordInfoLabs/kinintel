@@ -89,7 +89,7 @@ trait Dashboard {
     public function filterDashboards($filterString = "", $categories = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
         $tags = $tags ? explode(",", $tags) : [];
         $categories = $categories ? explode(",", $categories) : [];
-        return $this->dashboardService->filterDashboards($filterString, $categories, $tags, false, $projectKey, $limit, Account::LOGGED_IN_ACCOUNT, $offset);
+        return $this->dashboardService->filterDashboards($filterString, $categories, $tags, false, $projectKey, $limit, $offset, Account::LOGGED_IN_ACCOUNT);
     }
 
 

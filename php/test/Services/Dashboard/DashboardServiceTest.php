@@ -392,7 +392,7 @@ class DashboardServiceTest extends TestBase {
         $this->dashboardService->saveDashboard($projectDashboard, "datasetProject", 1);
 
 
-        $filtered = $this->dashboardService->filterDashboards("", [], [], false, null, 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], false, null, 10, 0, 1);
         $this->assertEquals(6, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
@@ -410,7 +410,7 @@ class DashboardServiceTest extends TestBase {
 
 
         // Filter on title
-        $filtered = $this->dashboardService->filterDashboards("econd", [], [], false, null, 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("econd", [], [], false, null, 10, 0, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Account Dashboard", $filtered[0]->getTitle());
@@ -419,12 +419,12 @@ class DashboardServiceTest extends TestBase {
 
 
         // Filter on categories
-        $filtered = $this->dashboardService->filterDashboards("", ["account1"], [], false, null, 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", ["account1"], [], false, null, 10, 0, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
 
         // Filter on project key
-        $filtered = $this->dashboardService->filterDashboards("", [], [], false, "datasetProject", 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], false, "datasetProject", 10, 0, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
@@ -432,20 +432,20 @@ class DashboardServiceTest extends TestBase {
         $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
 
         // Filter on tags
-        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], false, "datasetProject", 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], false, "datasetProject", 10, 0, 1);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[1]);
         $this->assertEquals("Second Project Dashboard", $filtered[1]->getTitle());
 
-        $filtered = $this->dashboardService->filterDashboards("", [], ["special"], false, "datasetProject", 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["special"], false, "datasetProject", 10, 0, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
 
         // Filter on special NONE tags
-        $filtered = $this->dashboardService->filterDashboards("", [], ["NONE"], false, null, 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["NONE"], false, null, 10, 0, 1);
         $this->assertEquals(4, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
@@ -455,7 +455,7 @@ class DashboardServiceTest extends TestBase {
 
 
         // Show hidden dashboards
-        $filtered = $this->dashboardService->filterDashboards("", [], [], true, null, 10, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], true, null, 10, 0, 1);
         $this->assertEquals(7, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Account Dashboard", $filtered[0]->getTitle());
@@ -465,7 +465,7 @@ class DashboardServiceTest extends TestBase {
 
 
         // Offsets and limits
-        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], false, "datasetProject", 1, 1, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], ["general"], false, "datasetProject", 1, 0, 1);
         $this->assertEquals(1, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("Project Dashboard", $filtered[0]->getTitle());
@@ -531,7 +531,7 @@ class DashboardServiceTest extends TestBase {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
 
-        $filtered = $this->dashboardService->filterDashboards("", [], [], false, null, 10, null, 0);
+        $filtered = $this->dashboardService->filterDashboards("", [], [], false, null, 10, 0, null);
         $this->assertEquals(2, sizeof($filtered));
         $this->assertInstanceOf(DashboardSearchResult::class, $filtered[0]);
         $this->assertEquals("First Shared Dashboard", $filtered[0]->getTitle());

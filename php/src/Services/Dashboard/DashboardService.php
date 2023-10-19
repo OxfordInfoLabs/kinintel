@@ -168,12 +168,12 @@ class DashboardService {
      * @param false $showHidden
      * @param string $projectKey
      * @param int $limit
-     * @param string $accountId
      * @param int $offset
+     * @param string $accountId
      *
      * @return DashboardSearchResult[]
      */
-    public function filterDashboards($filterString = "", $categories = [], $tags = [], $showHidden = false, $projectKey = null, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT, $offset = 0) {
+    public function filterDashboards($filterString = "", $categories = [], $tags = [], $showHidden = false, $projectKey = null, $limit = 10, $offset = 0, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         $params = [];
         if ($accountId === null) {

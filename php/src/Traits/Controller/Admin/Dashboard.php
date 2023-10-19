@@ -85,7 +85,7 @@ trait Dashboard {
      */
     public function filterDashboards($filterString = "", $categories = "", $accountId = 0, $offset = 0, $limit = 10) {
         $categories = $categories ? explode(",", $categories) : [];
-        return $this->dashboardService->filterDashboards($filterString, $categories, [], true, null, $limit, is_numeric($accountId) ? $accountId : null, $offset);
+        return $this->dashboardService->filterDashboards($filterString, $categories, [], true, null, $limit, $offset, is_numeric($accountId) ? $accountId : null);
     }
 
 
