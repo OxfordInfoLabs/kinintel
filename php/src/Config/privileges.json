@@ -38,5 +38,10 @@
     "key": "alertmanage",
     "description": "Create, edit and remove alerts within dashboards.",
     "scope": "PROJECT"
+  },
+  {
+    "key": "exportdata",
+    "description": "Export data within queries and dashboards",
+    "scope": "PROJECT"
   }
 ]
