@@ -202,6 +202,26 @@ abstract class TabularDataset implements Dataset {
 
 
     /**
+     * Read N items into an array
+     *
+     * @param $numberOfItems
+     * @return array
+     */
+    public function nextNDataItems($numberOfItems) {
+        $items = [];
+        for ($i = 0; $i < $numberOfItems; $i++) {
+            $row = $this->nextDataItem();
+            if ($row !== false)
+                $items[] = $row;
+            else
+                break;
+        }
+
+        return $items;
+    }
+
+
+    /**
      * Return next raw data item for the dataset.
      */
     public abstract function nextRawDataItem();

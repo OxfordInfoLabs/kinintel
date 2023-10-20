@@ -313,66 +313,70 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $dbConnection = $this->returnDatabaseConnection();
         $bulkDataManager = $dbConnection->getBulkDataManager();
 
-        // Get all data from the dataset
-        $allData = $dataset->getAllData();
+        do {
 
-        // Update mapped field data
-        $dataset = $this->updateMappedFieldData(new ArrayTabularDataset($dataset->getColumns(), $allData), $updateMode);
+            // Get all data from the dataset
+            $allData = $dataset->nextNDataItems(50);
 
-        // Only continue if some data to process
-        if (sizeof($allData) > 0) {
+            // Update mapped field data
+            $insertDataset = $this->updateMappedFieldData(new ArrayTabularDataset($dataset->getColumns(), $allData), $updateMode);
 
-            // Get insert columns from dataset
-            $updateColumns = null;
-            if ($dataset->getColumns()) {
-                if ($updateMode == UpdatableDatasource::UPDATE_MODE_DELETE) {
-                    $updateColumns = [];
-                    foreach ($dataset->getColumns() as $column) {
-                        if ($column->isKeyField()) {
-                            $updateColumns[] = $column->getName();
+            // Only continue if some data to process
+            if (sizeof($allData) > 0) {
+
+                // Get insert columns from dataset
+                $updateColumns = null;
+                if ($insertDataset->getColumns()) {
+                    if ($updateMode == UpdatableDatasource::UPDATE_MODE_DELETE) {
+                        $updateColumns = [];
+                        foreach ($insertDataset->getColumns() as $column) {
+                            if ($column->isKeyField()) {
+                                $updateColumns[] = $column->getName();
+                            }
                         }
+
+                        // Fall back to all columns if no key field identified
+                        if (!sizeof($updateColumns))
+                            $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $insertDataset->getColumns());
+                    } else {
+                        $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $insertDataset->getColumns());
                     }
-
-                    // Fall back to all columns if no key field identified
-                    if (!sizeof($updateColumns))
-                        $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
-                } else {
-                    $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $dataset->getColumns());
                 }
-            }
 
-            // Ensure we don't exceed the batch size.
-            if ($updateColumns) {
-                $batchSize = 50 / ceil(sizeof($updateColumns) / 15);
-                $bulkDataManager->setBatchSize($batchSize);
-            }
-
-
-            try {
-                switch ($updateMode) {
-                    case UpdatableDatasource::UPDATE_MODE_ADD:
-                        $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
-                        break;
-                    case UpdatableDatasource::UPDATE_MODE_DELETE:
-                        $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
-                        break;
-                    case UpdatableDatasource::UPDATE_MODE_REPLACE:
-                        $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
-                        break;
-                    case UpdatableDatasource::UPDATE_MODE_UPDATE:
-                        $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
-                        break;
-
+                // Ensure we don't exceed the batch size.
+                if ($updateColumns) {
+                    $batchSize = 50 / ceil(sizeof($updateColumns) / 15);
+                    $bulkDataManager->setBatchSize($batchSize);
                 }
-            } catch (SQLException $e) {
-                if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
-                    throw new DuplicateEntriesException();
-                } else {
-                    throw new \Exception("An unexpected error occurred updating the datasource");
-                }
-            }
 
-        }
+
+                try {
+                    switch ($updateMode) {
+                        case UpdatableDatasource::UPDATE_MODE_ADD:
+                            $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
+                            break;
+                        case UpdatableDatasource::UPDATE_MODE_DELETE:
+                            $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
+                            break;
+                        case UpdatableDatasource::UPDATE_MODE_REPLACE:
+                            $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
+                            break;
+                        case UpdatableDatasource::UPDATE_MODE_UPDATE:
+                            $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
+                            break;
+
+                    }
+                } catch (SQLException $e) {
+                    if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
+                        throw new DuplicateEntriesException();
+                    } else {
+                        throw($e);
+                        throw new \Exception("An unexpected error occurred updating the datasource");
+                    }
+                }
+
+            }
+        } while (sizeof($allData) == 50);
     }
 
     /**

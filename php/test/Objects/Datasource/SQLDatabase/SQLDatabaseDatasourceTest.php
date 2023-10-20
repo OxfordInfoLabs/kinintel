@@ -458,7 +458,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("getAllData", $data, []);
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
 
 
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
@@ -497,7 +497,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("getAllData", $data, []);
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
 
 
         $this->bulkDataManager->throwException("insert", new SQLException("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry", 23000), [
@@ -534,7 +534,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("getAllData", $data, []);
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
 
 
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
@@ -567,7 +567,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("getAllData", $data, []);
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
 
 
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_REPLACE);
