@@ -4,15 +4,25 @@
 namespace Kinintel\Services\Datasource;
 
 
+use Exception;
+use Google\Client;
+use Google\Service\CloudSearch\UpdateBody;
+use Google\Service\Drive;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
+use Kinikit\Core\HTTP\Request\Headers;
+use Kinikit\Core\HTTP\Request\Request;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
+use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\DocxTextExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\PDFTextExtractor;
+use Kinintel\Services\Util\GoogleDriveService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -21,17 +31,14 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
 class CustomDatasourceService {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
+    private DatasourceService $datasourceService;
+    private HttpRequestDispatcher $requestDispatcher;
+    private GoogleDriveService $googleDriveService;
 
-
-    /**
-     * @param DatasourceService $datasourceService
-     */
-    public function __construct($datasourceService) {
+    public function __construct(DatasourceService $datasourceService, HttpRequestDispatcher $requestDispatcher, GoogleDriveService $googleDriveService) {
         $this->datasourceService = $datasourceService;
+        $this->requestDispatcher = $requestDispatcher;
+        $this->googleDriveService = $googleDriveService;
     }
 
 
@@ -69,11 +76,11 @@ class CustomDatasourceService {
             }
 
             return $newDatasourceKey;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
             try {
                 $this->datasourceService->removeDatasourceInstance($newDatasourceKey);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
             }
 
             throw $e;
@@ -230,7 +237,7 @@ class CustomDatasourceService {
                         $completed++;
 
 
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $failed[] = [
                             "filename" => $stat["name"],
                             "message" => $e->getMessage()
@@ -253,12 +260,16 @@ class CustomDatasourceService {
                 $fileData = ["filename" => $file->getClientFilename(), "documentFilePath" => $file->getTemporaryFilePath(), "file_type" => $mimeType];
 
                 try {
-                    $datasource->update(new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath"), new Field("file_type")],
+                    $datasource->update(new ArrayTabularDataset([
+                        new Field("filename"),
+                        new Field("documentFilePath"),
+                        new Field("file_type")
+                    ],
                         [$fileData]), UpdatableDatasource::UPDATE_MODE_REPLACE);
 
                     $completed++;
 
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $failed[] = [
                         "filename" => $file->getClientFilename(),
                         "message" => $e->getMessage()
@@ -278,5 +289,85 @@ class CustomDatasourceService {
 
     }
 
+    /**
+     * Uploads documents to a datasource from a list of links
+     *
+     * @param string $datasourceInstanceKey
+     * @param string[] $links
+     * @return void
+     * @throws \Kinikit\Core\Validation\ValidationException
+     */
+    public function uploadDocumentsFromUrl(string $datasourceInstanceKey, array $links, $limit = PHP_INT_MAX, $offset = 0): void {
+        $datasource = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey)->returnDataSource();
+
+        $links = array_values($links);
+
+        for ($i = $offset; $i < min($offset + $limit, count($links)); $i++) {
+            $link = $links[$i];
+
+//            echo "\ni: $i || memory use: " . memory_get_usage() . " || link: $link";
+
+            [$contents, $filetype, $filesize] = $this->retryOnFail($this->downloadFromLink(...), [$link]);
+
+            $fileData = [
+                "filename" => $link,
+                "documentSource" => $contents,
+                "file_type" => $filetype,
+                "file_size" => $filesize
+            ];
+
+            $update = new ArrayTabularDataset([
+                new Field("filename"),
+                new Field("documentSource"),
+                new Field("file_type"),
+                new Field("file_size")
+            ], [$fileData]);
+
+            $datasource->update($update, UpdatableDatasource::UPDATE_MODE_REPLACE);
+        }
+    }
+
+    /**
+     * Turns the content type header into a file extension
+     *
+     * @param string $contentType
+     * @return string
+     */
+    private function toFileType(string $contentType): string {
+        $mimetype = strstr($contentType, ";", true);
+        if (!$mimetype) {
+            $mimetype = $contentType;
+        }
+        return $mimetype;
+    }
+
+    private function downloadFromLink($link) : array {
+        // Process link if it's from a Google Drive share link
+        if (str_contains($link, "drive.google")){
+
+            if (!$id = substr(strstr($link, "id="), 3)){
+                $matches = [];
+                preg_match("/file\/d\/(.*?)\//", $link, $matches);
+                $id = $matches[1];
+            }
+            [$contents, $filetype, $filesize] = $this->googleDriveService->downloadFile($id);
+        } else {
+            $request = new Request($link, "GET");
+            $response = $this->requestDispatcher->dispatch($request);
+            $contents = $response->getStream()->getContents();
+            $filetype = $this->toFileType($response->getHeaders()->get("content-type"));
+            $filesize = $response->getHeaders()->get("content-length");
+        }
+
+        return [$contents, $filetype, $filesize];
+    }
+
+    private function retryOnFail(callable $downloadFromLink, array $args) {
+        try {
+            return $downloadFromLink(...$args);
+        } catch (Exception $e){
+            return $downloadFromLink(...$args);
+        }
+    }
 
 }

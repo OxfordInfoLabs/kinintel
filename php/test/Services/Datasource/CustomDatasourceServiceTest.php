@@ -3,12 +3,19 @@
 namespace Kinintel\Test\Services\Datasource;
 
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\CustomDatasourceService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\DocxTextExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\PDFTextExtractor;
+use Kinintel\Services\Util\GoogleDriveService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -30,13 +37,23 @@ class CustomDatasourceServiceTest extends TestBase {
      */
     private $customDatasourceService;
 
+    /**
+     * @var GoogleDriveService
+     */
+    private $googleDriveService;
 
     /**
      * @return void
      */
     public function setUp(): void {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-        $this->customDatasourceService = new CustomDatasourceService($this->datasourceService);
+
+        $this->googleDriveService = MockObjectProvider::instance()->getMockInstance(GoogleDriveService::class);
+        $this->customDatasourceService = new CustomDatasourceService(
+            $this->datasourceService,
+            Container::instance()->get(HttpRequestDispatcher::class),
+            $this->googleDriveService
+        );
     }
 
     public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject() {
@@ -226,5 +243,75 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
+    public function testCanUploadDocumentsToCustomDatasourceByUrl(){
+        $links = [
+            "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            "https://freetestdata.com/wp-content/uploads/2023/03/Sample_HTML_for_testing.html",
+            "https://filesamples.com/samples/document/docx/sample3.docx",
+            "https://drive.google.com/file/d/1slIH6T0vq0RoPJW5QSEU7VwsqSCNt5Iv/view?usp=share_link",
+            "https://drive.google.com/uc?export=download&id=1Dr3vL2yLVIsMVVzsTVtXnkYv5-MECzaY"
+        ];
+        $dsInstanceKey = "test_url_upload_key";
 
+        $mockDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasource = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockDatasourceInstance->returnValue("returnDataSource", $mockDatasource);
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockDatasourceInstance, [$dsInstanceKey]);
+
+        $this->googleDriveService->returnValue("downloadFile", ["This is some file contents", "text/html", 100], ["1slIH6T0vq0RoPJW5QSEU7VwsqSCNt5Iv"]);
+        $this->googleDriveService->returnValue("downloadFile", ["This is some other file contents", "text/html", 100], ["1Dr3vL2yLVIsMVVzsTVtXnkYv5-MECzaY"]);
+
+        $this->customDatasourceService->uploadDocumentsFromUrl($dsInstanceKey, $links);
+
+        //Check that the datasource was updated
+        $this->assertTrue($mockDatasource->methodWasCalled("update"));
+        $callHistory = $mockDatasource->getMethodCallHistory("update");
+        $this->assertEquals(count($links), count($callHistory));
+
+        //W3 example pdf
+        $w3pdf = $callHistory[0][0]->nextRawDataItem();
+        /**
+         * @var PDFTextExtractor $pdfParser
+         */
+        $pdfParser = Container::instance()->get(PDFTextExtractor::class);
+        $this->assertTrue(str_contains($pdfParser->extractTextFromString($w3pdf["documentSource"]), "Dummy PDF file"));
+        $this->assertEquals("application/pdf", $w3pdf["file_type"]);
+
+        //Free test data html
+        $testHtml = $callHistory[1][0]->nextRawDataItem();
+        $this->assertTrue(str_contains($testHtml["documentSource"], "Sample HTML File"));
+        $this->assertTrue(str_contains($testHtml["documentSource"], "Lorem ipsum"));
+        $this->assertEquals("text/html", $testHtml["file_type"]);
+
+        //FileSamples docx
+        $testDocx = $callHistory[2][0]->nextRawDataItem();
+        $docxParser = Container::instance()->get(DocxTextExtractor::class);
+        $this->assertTrue(str_contains($docxParser->extractTextFromString($testDocx["documentSource"]), "Documents may contain images"));
+        $this->assertEquals("application/vnd.openxmlformats-officedocument.wordprocessingml.document", $testDocx["file_type"]);
+
+        //Google Drive .pdf
+//        $testGdriveShare = $callHistory[3][0]->nextRawDataItem();
+//        $this->assertTrue(str_contains($pdfParser->extractTextFromString($testGdriveShare["documentSource"]),
+//            "This is the seventh volume of the annual Internet Governance Forum"));
+//        $this->assertEquals("application/pdf", $testGdriveShare["file_type"]);
+
+        //Google Drive .pdf from export link
+//        $testGdriveExport = $callHistory[4][0]->nextRawDataItem();
+//        $this->assertTrue(str_contains($pdfParser->extractTextFromString($testGdriveExport["documentSource"]),
+//            "So far, sixteen annual meetings of the IGF"));
+//        $this->assertEquals("application/pdf", $testGdriveExport["file_type"]);
+
+        //Google Drive .pdf
+        $testGdriveExport = $callHistory[3][0]->nextRawDataItem();
+        $this->assertTrue(str_contains($testGdriveExport["documentSource"],
+            "some file contents"));
+        $this->assertEquals("text/html", $testGdriveExport["file_type"]);
+
+        //Google Drive .pdf from export link
+        $testGdriveExport = $callHistory[4][0]->nextRawDataItem();
+        $this->assertTrue(str_contains($testGdriveExport["documentSource"],
+            "some other file contents"));
+        $this->assertEquals("text/html", $testGdriveExport["file_type"]);
+    }
 }

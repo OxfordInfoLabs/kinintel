@@ -126,7 +126,7 @@ class AuthenticationCredentialsInstance extends ActiveRecord {
 
             throw new InvalidDatasourceAuthenticationCredentialsException(
                 ["authenticationCredentials" => [
-                    "type" => new FieldValidationError("type", "unknowntype", "Authentication credentials of type '$credentialsType' does not exist")
+                    "type" => new FieldValidationError("type", "unknowntype", "Authentication credentials of type '$this->type' does not exist")
                 ]
                 ]);
         }
