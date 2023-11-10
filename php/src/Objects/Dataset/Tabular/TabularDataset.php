@@ -128,68 +128,69 @@ abstract class TabularDataset implements Dataset {
             // Initialise queued items
             $this->queuedItems = null;
 
-            if (is_array($dataItem)) {
+            // The data should be rows of arrays
+            if (!is_array($dataItem)) {
+                return null;
+            }
 
-                $newDataItem = [];
-                $hasColumnValue = false;
-                foreach ($this->getColumns() as $column) {
-                    $columnName = $column->getName();
+            $newDataItem = [];
+            $hasColumnValue = false;
+            foreach ($this->getColumns() as $column) {
+                $columnName = $column->getName();
 
-                    if ($column->hasValueExpression()) {
-                        $value = $column->evaluateValueExpression($dataItem);
-                    } else {
-                        $value = $dataItem[$columnName] ?? null;
-                    }
-
-
-                    $valueExpression = $column->getValueExpression();
-
-                    $hasColumnValue = $hasColumnValue
-                        || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
-
-
-                    // If flattening array, queue up other items
-                    if ($column->isFlattenArray() && is_array($value)) {
-                        if (!is_array($this->queuedItems)) {
-                            $this->queuedItems = [];
-                        }
-
-                        // Populate the queued items with values
-                        for ($i = 1; $i < sizeof($value); $i++) {
-                            if (!isset($this->queuedItems[$i])) $this->queuedItems[$i] = $newDataItem;
-                            $this->queuedItems[$i][$columnName] = $value[$i];
-                        }
-
-                        // If a first value set this otherwise return null straightaway.
-                        if (isset($value[0]))
-                            $value = $value[0];
-                        else
-                            return null;
-
-                    } else {
-
-                        // If we have a queued items array, set the value on these.
-                        if (is_array($this->queuedItems)) {
-                            foreach ($this->queuedItems as $index => $queuedItem) {
-                                $this->queuedItems[$index][$columnName] = $value;
-                            }
-                        }
-                    }
-
-                    $newDataItem[$columnName] = $value;
-                    $dataItem[$columnName] = $value;
-
-
+                if ($column->hasValueExpression()) {
+                    $value = $column->evaluateValueExpression($dataItem);
+                } else {
+                    $value = $dataItem[$columnName] ?? null;
                 }
 
-                // If no genuine column value reject the row
-                if (!$hasColumnValue)
-                    $newDataItem = null;
 
-            } else {
-                $newDataItem = null;
+                $valueExpression = $column->getValueExpression();
+
+                $hasColumnValue = $hasColumnValue
+                    || (isset($value) && ((!$valueExpression) || is_numeric(strpos($valueExpression, "[["))));
+
+
+                // If flattening array, queue up other items
+                if ($column->isFlattenArray() && is_array($value)) {
+                    if (!is_array($this->queuedItems)) {
+                        $this->queuedItems = [];
+                    }
+
+                    // Populate the queued items with values
+                    for ($i = 1; $i < sizeof($value); $i++) {
+                        if (!isset($this->queuedItems[$i])) $this->queuedItems[$i] = $newDataItem;
+                        $this->queuedItems[$i][$columnName] = $value[$i];
+                    }
+
+                    // If a first value set this otherwise return null straightaway.
+                    if (isset($value[0]))
+                        $value = $value[0];
+                    else
+                        return null;
+
+                } else {
+
+                    // If we have a queued items array, set the value on these.
+                    if (is_array($this->queuedItems)) {
+                        foreach ($this->queuedItems as $index => $queuedItem) {
+                            $this->queuedItems[$index][$columnName] = $value;
+                        }
+                    }
+                }
+
+                $newDataItem[$columnName] = $value;
+                $dataItem[$columnName] = $value;
+
+
             }
+
+            // If no genuine column value reject the row
+            if (!$hasColumnValue)
+                $newDataItem = null;
+
         }
+
 
         // If a new data item, append to read rows
         if ($newDataItem && $this->cacheAllRows) {

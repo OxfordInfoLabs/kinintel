@@ -655,4 +655,118 @@ class CachingDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanStoreInCacheDatasourceWithHashParams(){
+        //Create caching datasource instance
+        $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
+            new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
+                null, $this->cacheDatasourceInstance, 7, null,
+                false, CachingDatasourceConfig::CACHE_MODE_UPDATE, true
+            ), null, null, [], [], [
+                new Parameter("param1", "Param 1"),
+                new Parameter("param2", "Param 2"),
+            ]);
+
+        $joeBloggs = ["param1" => "Joe", "param2" => "Bloggs"];
+        $jsonJoeBloggs = json_encode($joeBloggs);
+        $cachingDatasource = $cachingDatasourceInstance->returnDataSource();
+
+        // When a caching datasource is hit, we want to extract the most recent cached entry which matches the params.
+        // This is done by transforming the datasource with 3 transformations.
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+
+        //When we ask for unhashed joe, we want nothing
+        $this->cacheDatasource->returnValue("applyTransformation", "NO UNHASHED JOE",
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $jsonJoeBloggs)])
+            ]);
+        $hashedJoe = json_encode(["hash"=>md5($jsonJoeBloggs)]);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $hashedJoe)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source - simulate a cache miss
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([], []));
+
+        //Set the response when we ask for Joe
+        $responseToJoe = ["answer" => "Joe is busy"];
+        $this->sourceDatasource->returnValue("materialise",
+            new ArrayTabularDataset([new Field("answer")], [$responseToJoe])
+        );
+
+        // Ask for Joe Bloggs
+        $resultDataset = $cachingDatasource->materialise($joeBloggs);
+
+        $history = $this->cacheDatasource->getMethodCallHistory("update");
+
+        //Get first argument of first update
+        $joeAddUpdateDataset = $history[0][0];
+
+        //Check we update with the right thing
+        $finalJoeResponse = $joeAddUpdateDataset->nextRawDataItem();
+        $this->assertEquals($finalJoeResponse["parameters"], $hashedJoe);
+        $this->assertTrue(str_contains($finalJoeResponse["cached_time"], date("Y-m-d H:i")));
+        $this->assertEquals($finalJoeResponse["answer"], "Joe is busy");
+
+    }
+
+    public function testCanRetrieveFromCacheDatasourceWithHashParams(){
+        //Create caching datasource instance
+        $cachingDatasourceInstance = new DatasourceInstance("caching", "Caching Datasource", "caching",
+            new CachingDatasourceConfig(null, $this->sourceDatasourceInstance,
+                null, $this->cacheDatasourceInstance, 7, null,
+                false, CachingDatasourceConfig::CACHE_MODE_UPDATE, true
+            ), null, null, [], [], [
+                new Parameter("param1", "Param 1"),
+                new Parameter("param2", "Param 2"),
+            ]);
+
+        $joeBloggs = ["param1" => "Joe", "param2" => "Bloggs"];
+        $jsonJoeBloggs = json_encode($joeBloggs);
+        $cachingDatasource = $cachingDatasourceInstance->returnDataSource();
+
+        // When a caching datasource is hit, we want to extract the most recent cached entry which matches the params.
+        // This is done by transforming the datasource with 3 transformations.
+        $pagedDatasource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+
+        $hashedJoe = json_encode(["hash"=>md5($jsonJoeBloggs)]);
+        $this->cacheDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new FilterTransformation([
+                    new Filter("[[parameters]]", $hashedJoe)])
+            ]);
+
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource, [
+            new MultiSortTransformation([
+                new Sort("cached_time", "DESC")
+            ])
+        ]);
+        $pagedDatasource->returnValue("applyTransformation", $pagedDatasource,
+            [
+                new PagingTransformation(1, 0)
+            ]);
+
+        // Produce no data from cache data source - simulate a cache miss
+        //Set the response when we ask for Joe
+        $responseToJoe = ["answer" => "Joe is here", "cached_time" => date("Y-m-d H:i:s")];
+        $pagedDatasource->returnValue("materialise", new ArrayTabularDataset([new Field("answer"), new Field("cached_time")], [$responseToJoe]));
+
+        // Ask for Joe Bloggs
+        /** @var ArrayTabularDataset $resultDataset */
+        $resultDataset = $cachingDatasource->materialise($joeBloggs);
+
+        $this->assertEquals($responseToJoe, $resultDataset->getAllData()[0]);
+    }
 }

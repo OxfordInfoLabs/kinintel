@@ -23,7 +23,7 @@ class ArrayTabularDataset extends TabularDataset {
      * ArrayTabularDataset constructor.
      *
      * @param Field[] $columns
-     * @param array $data
+     * @param array $data An array of rows of data
      */
     public function __construct($columns, $data) {
         parent::__construct($columns);
@@ -33,6 +33,8 @@ class ArrayTabularDataset extends TabularDataset {
 
     /**
      * Implement only required method
+     *
+     * @return array|false
      */
     public function nextRawDataItem() {
         return sizeof($this->data) ? array_shift($this->data) : false;
