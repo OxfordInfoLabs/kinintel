@@ -36,6 +36,7 @@ export class DatasourceComponent implements OnInit, OnDestroy {
     public endOfResults = false;
     public reload = new Subject();
     public isProjectAdmin = false;
+    public canImportData = false;
 
     private projectSub: Subscription;
 
@@ -58,33 +59,35 @@ export class DatasourceComponent implements OnInit, OnDestroy {
         this.page = pagingValues.page || 1;
 
         this.isProjectAdmin = this.projectService.isActiveProjectAdmin();
+        this.canImportData = this.projectService.doesActiveProjectHavePrivilege('customdatasourceaccess');
 
         this.projectSub = this.projectService.activeProject.subscribe(() => {
             this.isProjectAdmin = this.projectService.isActiveProjectAdmin();
         });
 
-        this.route.params.subscribe(async param => {
-            if (param.key) {
-                const datasource = await this.datasourceService.getDatasource(param.key);
-                this.explore(datasource);
-            }
-        });
+        if (this.canImportData) {
+            this.route.params.subscribe(async param => {
+                if (param.key) {
+                    const datasource = await this.datasourceService.getDatasource(param.key);
+                    this.explore(datasource);
+                }
+            });
 
-        merge(this.searchText, this.reload)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getDatasources()
-                )
-            ).subscribe((sources: any) => {
+            merge(this.searchText, this.reload)
+                .pipe(
+                    debounceTime(300),
+                    distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getDatasources()
+                    )
+                ).subscribe((sources: any) => {
                 if (this.filterResults) {
                     this.datasources = _.filter(sources, this.filterResults);
                 } else {
                     this.datasources = sources;
                 }
-        });
-
+            });
+        }
     }
 
     ngOnDestroy() {

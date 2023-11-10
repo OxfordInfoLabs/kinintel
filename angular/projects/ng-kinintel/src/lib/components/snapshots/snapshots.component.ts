@@ -49,6 +49,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     public activeTagSub = new Subject();
     public activeTag: any;
     public _ = _;
+    public canHaveSnapshots = false;
 
     private tagSub: Subscription;
     private reload = new Subject();
@@ -65,63 +66,67 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        if (this.tagService) {
-            this.activeTagSub = this.tagService.activeTag;
-            this.tagSub = this.tagService.activeTag.subscribe(tag => {
-                if (tag) {
-                    this.activeTag = tag;
-                    this.tagDataSub = merge(this.searchText, this.snapshots.tag.reload, this.projectService.activeProject, this.reload)
-                        .pipe(
-                            debounceTime(300),
-                            // distinctUntilChanged(),
-                            switchMap(() =>
-                                this.getSnapshots(this.snapshots.tag)
-                            )
-                        ).subscribe((snapshots: any) => {
-                            this.snapshots.tag.data = snapshots;
-                        });
+        this.canHaveSnapshots = this.projectService.doesActiveProjectHavePrivilege('snapshotaccess');
 
-                    this.tagChanges = interval(3000)
-                        .pipe(
-                            switchMap(() =>
-                                this.datasetService.listSnapshotProfiles(
-                                    this.searchText.getValue() || '', String(this.snapshots.tag.limit), String(this.snapshots.tag.offset)).pipe(
-                                    map(result => {
-                                        return result;
-                                    }))
-                            )
-                        ).subscribe(snapshots => {
-                            this.snapshots.tag.data = snapshots;
-                        });
-                } else {
-                    this.activeTag = null;
-                    if (this.tagDataSub) {
-                        this.tagDataSub.unsubscribe();
+        if (this.canHaveSnapshots) {
+            if (this.tagService) {
+                this.activeTagSub = this.tagService.activeTag;
+                this.tagSub = this.tagService.activeTag.subscribe(tag => {
+                    if (tag) {
+                        this.activeTag = tag;
+                        this.tagDataSub = merge(this.searchText, this.snapshots.tag.reload, this.projectService.activeProject, this.reload)
+                            .pipe(
+                                debounceTime(300),
+                                // distinctUntilChanged(),
+                                switchMap(() =>
+                                    this.getSnapshots(this.snapshots.tag)
+                                )
+                            ).subscribe((snapshots: any) => {
+                                this.snapshots.tag.data = snapshots;
+                            });
+
+                        this.tagChanges = interval(3000)
+                            .pipe(
+                                switchMap(() =>
+                                    this.datasetService.listSnapshotProfiles(
+                                        this.searchText.getValue() || '', String(this.snapshots.tag.limit), String(this.snapshots.tag.offset)).pipe(
+                                        map(result => {
+                                            return result;
+                                        }))
+                                )
+                            ).subscribe(snapshots => {
+                                this.snapshots.tag.data = snapshots;
+                            });
+                    } else {
+                        this.activeTag = null;
+                        if (this.tagDataSub) {
+                            this.tagDataSub.unsubscribe();
+                        }
                     }
-                }
 
+                });
+            }
+
+            merge(this.searchText, this.snapshots.project.reload, this.projectService.activeProject, this.reload)
+                .pipe(
+                    debounceTime(300),
+                    // distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getSnapshots(this.snapshots.project, 'NONE')
+                    )
+                ).subscribe((snapshots: any) => {
+                this.snapshots.project.data = snapshots;
+            });
+
+            this.watchSnapshotChanges();
+
+            this.searchText.subscribe(() => {
+                _.forEach(this.snapshots, snapshot => {
+                    snapshot.page = 1;
+                    snapshot.offset = 0;
+                });
             });
         }
-
-        merge(this.searchText, this.snapshots.project.reload, this.projectService.activeProject, this.reload)
-            .pipe(
-                debounceTime(300),
-                // distinctUntilChanged(),
-                switchMap(() =>
-                    this.getSnapshots(this.snapshots.project, 'NONE')
-                )
-            ).subscribe((snapshots: any) => {
-            this.snapshots.project.data = snapshots;
-        });
-
-        this.watchSnapshotChanges();
-
-        this.searchText.subscribe(() => {
-            _.forEach(this.snapshots, snapshot => {
-                snapshot.page = 1;
-                snapshot.offset = 0;
-            });
-        });
     }
 
     ngOnDestroy() {

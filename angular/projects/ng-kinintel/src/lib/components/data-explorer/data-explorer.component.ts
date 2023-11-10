@@ -5,6 +5,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {Router} from '@angular/router';
 import {SnapshotProfileDialogComponent} from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 import {ExportDataComponent} from './export-data/export-data.component';
+import {ProjectService} from '../../services/project.service';
 
 @Component({
     selector: 'ki-data-explorer',
@@ -26,6 +27,8 @@ export class DataExplorerComponent implements OnInit {
     public newTitle: string;
     public newDescription: string;
     public breadcrumb: string;
+    public canHaveSnapshots = false;
+    public canExportData = false;
 
     private columns: any = [];
     private datasetTitle: string;
@@ -34,7 +37,8 @@ export class DataExplorerComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
                 private datasetService: DatasetService,
-                private router: Router) {
+                private router: Router,
+                private projectService: ProjectService) {
     }
 
     ngOnInit(): void {
@@ -55,6 +59,8 @@ export class DataExplorerComponent implements OnInit {
             {data: [1000, 1400, 1999, 2500, 5000]},
         ];
 
+        this.canHaveSnapshots = this.projectService.doesActiveProjectHavePrivilege('snapshotaccess');
+        this.canExportData = this.projectService.doesActiveProjectHavePrivilege('exportdata');
     }
 
     public dataLoaded(data) {

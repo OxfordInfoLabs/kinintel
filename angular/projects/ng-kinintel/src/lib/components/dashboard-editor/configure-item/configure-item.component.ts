@@ -19,7 +19,7 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import {ActionEvent} from '../../../objects/action-event';
 import {BaseChartDirective} from 'ng2-charts';
 import regression from 'regression';
-import {map} from 'rxjs/operators';
+import {ProjectService} from '../../../services/project.service';
 
 @Component({
     selector: 'ki-configure-item',
@@ -124,6 +124,7 @@ export class ConfigureItemComponent implements OnInit {
     public dataset: any;
     public _ = _;
     public docColumns = new Subject();
+    public canSetAlerts = false;
 
     protected readonly Array = Array;
 
@@ -133,7 +134,8 @@ export class ConfigureItemComponent implements OnInit {
                 private dashboardService: DashboardService,
                 private datasetService: DatasetService,
                 private datasourceService: DatasourceService,
-                private router: Router) {
+                private router: Router,
+                private projectService: ProjectService) {
     }
 
     async ngOnInit(): Promise<any> {
@@ -143,6 +145,7 @@ export class ConfigureItemComponent implements OnInit {
         this.dashboardItemType = this.data.dashboardItemType;
         this.admin = !!this.data.admin;
         this.actionEvents = this.data.actionEvents || [];
+        this.canSetAlerts = this.projectService.doesActiveProjectHavePrivilege('alertmanage');
 
         if (this.actionEvents.length) {
             this.columnFormats.push({

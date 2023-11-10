@@ -45,10 +45,41 @@
     </svg>
 </div>
 
-<div class="loading-item" *ngIf="!dragItem && loadingItem && !(chartData || dataset)">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading {{general.name || dashboardItemType.label}} ...</p>
-</div>
+<ng-template [ngIf]="!externalError && !quotaExceeded">
+    <div class="loading-item" *ngIf="!dragItem && loadingItem && !(chartData || dataset)">
+
+        <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 ">
+            <svg class="animate-spin h-14 w-14 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+        <div class="px-4 text-center mt-4">Loading {{dashboardItemType.label}} ...</div>
+    </div>
+</ng-template>
+
+<ng-template [ngIf]="externalError">
+    <div class="loading-item">
+        <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-red-100 ">
+            <svg class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+        </div>
+        <div class="px-4 w-3/4 text-center mt-4">There was a problem loading this item. Please try again later.</div>
+    </div>
+</ng-template>
+
+<ng-template [ngIf]="quotaExceeded">
+    <div class="loading-item">
+        <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 ">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                 class="h-10 w-10 text-blue-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+        </div>
+        <div class="px-4 w-3/4 text-center mt-4">{{quotaExceeded}}</div>
+    </div>
+</ng-template>
 
 <ng-template [ngIf]="!itemLocked">
     <button *ngIf="!dragItem" mat-mini-fab class="edit-widget bg-white text-gray-500 bg-opacity-90"
@@ -61,7 +92,7 @@
                 <mat-icon>edit</mat-icon>
                 Edit Item
             </button>
-            <button mat-menu-item (click)="exportData()">
+            <button *ngIf="canExportData" mat-menu-item (click)="exportData()">
                 <mat-icon>file_download</mat-icon>
                 Export Data
             </button>
@@ -72,7 +103,7 @@
             </button>
         </ng-template>
         <ng-template [ngIf]="viewOnly">
-            <button mat-menu-item (click)="exportData()">
+            <button *ngIf="canExportData" mat-menu-item (click)="exportData()">
                 <mat-icon>file_download</mat-icon>
                 Export Data
             </button>

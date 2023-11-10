@@ -1,6 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
 import {DashboardService} from '../../../services/dashboard.service';
+import {ProjectService} from '../../../services/project.service';
 
 @Component({
     selector: 'ki-dashboard-settings',
@@ -14,13 +15,16 @@ export class DashboardSettingsComponent implements OnInit {
     public refreshInterval = 0;
     public externalURL: string;
     public apiKeys: any;
+    public canManageFeeds = false;
 
     constructor(public dialogRef: MatDialogRef<DashboardSettingsComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
-                private dashboardService: DashboardService) {
+                private dashboardService: DashboardService,
+                private projectService: ProjectService) {
     }
 
     ngOnInit(): void {
+        this.canManageFeeds = this.projectService.doesActiveProjectHavePrivilege('feedmanage');
         this.dashboard = this.data.dashboard;
 
         if (!this.dashboard.externalSettings || Array.isArray(this.dashboard.externalSettings)) {

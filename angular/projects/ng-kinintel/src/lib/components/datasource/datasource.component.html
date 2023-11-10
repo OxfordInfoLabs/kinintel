@@ -8,7 +8,7 @@
                 </p>
             </div>
         </div>
-        <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="isProjectAdmin && !hideNew">
+        <div class="mt-6 flex flex-col-reverse justify-stretch" *ngIf="isProjectAdmin && !hideNew && canImportData">
             <button mat-flat-button color="primary" [matMenuTriggerFor]="create">
                 Import Data
                 <mat-icon>expand_more</mat-icon>
@@ -27,7 +27,24 @@
 
 <div class="px-4 sm:px-6 lg:px-8 mt-0">
     <div class="flex flex-col">
-        <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+        <div *ngIf="!canImportData" class="mt-8 border-l-4 border-yellow-400 bg-yellow-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700 mb-0">
+                        Imported Data is reserved for our Accredited users. Please <a class="font-medium text-yellow-700 underline hover:text-yellow-600"
+                        href="https://dnsrf.org/joining-options/index.html">review our Tiers</a> to find out more.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="canImportData" class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle">
                 <div class="mt-3 sm:mt-0 flex-1">
                     <label for="mobile-search-candidate" class="sr-only">Search</label>
@@ -61,8 +78,9 @@
                             <td class="whitespace-nowrap border-gray-200 py-2 px-4 text-sm  text-gray-900"
                                 [ngClass]="{'border-b-0': i === datasources.length - 1, 'border-b': i !== datasources.length - 1}">
                                 <div class="flex flex-col">
-                                    <div class="item-title-select flex items-center font-medium cursor-pointer hover:underline"
-                                         (click)="explore(element)">
+                                    <div
+                                        class="item-title-select flex items-center font-medium cursor-pointer hover:underline"
+                                        (click)="explore(element)">
                                         {{element.title}}
                                     </div>
                                     <div (click)="element.viewDescription = !element.viewDescription"
@@ -113,8 +131,10 @@
                                 <div class="paging-toolbar flex align-center justify-end">
                                     <div class="flex items-center justify-center">
                                         <div class="text-xs text-gray-400 mr-10">
-                                            Showing {{offset + 1}} - {{(page * limit) - (limit - datasources.length)}}</div>
-                                        <select [value]="limit" (change)="pageSizeChange($event.target.value)" class="p-1.5 mr-8">
+                                            Showing {{offset + 1}}
+                                            - {{(page * limit) - (limit - datasources.length)}}</div>
+                                        <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+                                                class="p-1.5 mr-8">
                                             <option [value]="1">1</option>
                                             <option [value]="5">5</option>
                                             <option [value]="10">10</option>

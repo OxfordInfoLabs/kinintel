@@ -20,6 +20,7 @@ import {ExportDataComponent} from '../../data-explorer/export-data/export-data.c
 import {Location} from '@angular/common';
 import {ActionEvent} from '../../../objects/action-event';
 import {ExternalService} from '../../../services/external.service';
+import {ProjectService} from '../../../services/project.service';
 
 declare var window: any;
 
@@ -97,6 +98,9 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     public itemLocked = false;
     public optimise = true;
     public optimiseSubject = new Subject<boolean>();
+    public canExportData = false;
+    public externalError = false;
+    public quotaExceeded: string = null;
 
     private itemLoadedSub: Subscription;
     private optimiseSub: Subscription;
@@ -109,10 +113,12 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                 private sanitizer: DomSanitizer,
                 private router: Router,
                 private location: Location,
-                private externalService: ExternalService) {
+                private externalService: ExternalService,
+                private projectService: ProjectService) {
     }
 
     ngAfterViewInit() {
+        this.canExportData = this.projectService.doesActiveProjectHavePrivilege('exportdata');
     }
 
     public async init(evaluate = false) {
@@ -1077,6 +1083,9 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
         this.hiddenColumns = {};
 
+        this.externalError = false;
+        this.quotaExceeded = null;
+
         if (this.external) {
             return this.externalService.evaluateDataset(
                 this.dashboard.id,
@@ -1085,13 +1094,21 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                 String(offset || this.offset),
                 String(limit || this.limit),
                 this.queryParams
-            );
+            ).catch(e => {
+                this.externalError = true;
+            });
         } else {
             return this.datasetService.evaluateDataset(
                 datasetInstanceSummary,
                 String(offset || this.offset),
                 String(limit || this.limit)
-            );
+            ).catch(e => {
+                if (e && e.error && e.error.message && e.error.message.includes('quota')) {
+                    this.quotaExceeded = e.error.message;
+                } else {
+                    this.externalError = true;
+                }
+            });
         }
     }
 

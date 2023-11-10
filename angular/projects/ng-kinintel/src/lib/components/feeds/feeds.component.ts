@@ -10,6 +10,7 @@ import {FeedComponent} from './feed/feed.component';
 import {Router} from '@angular/router';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {HttpClient} from '@angular/common/http';
+import {ProjectService} from '../../services/project.service';
 
 @Component({
     selector: 'ki-feeds',
@@ -29,6 +30,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
     public endOfResults = false;
     public loading = true;
     public apiKeys: any;
+    public canHaveAPIConnections = false;
 
     private reload = new Subject();
 
@@ -38,30 +40,35 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 private router: Router,
                 public config: KinintelModuleConfig,
                 private snackBar: MatSnackBar,
-                private http: HttpClient) {
+                private http: HttpClient,
+                private projectService: ProjectService) {
     }
 
     async ngOnInit() {
 
-        this.apiKeys = await this.http.get('/account/apikey/first/feedaccess').toPromise();
+        this.canHaveAPIConnections = this.projectService.doesActiveProjectHavePrivilege('feedaccess');
 
-        merge(this.searchText, this.reload)
-            .pipe(
-                debounceTime(300),
-                // distinctUntilChanged(),
-                switchMap(() =>
-                    this.getFeeds()
-                )
-            ).subscribe((feeds: any) => {
-            this.endOfResults = feeds.length < this.limit;
-            this.feeds = feeds;
-            this.loading = false;
-        });
+        if (this.canHaveAPIConnections) {
+            this.apiKeys = await this.http.get('/account/apikey/first/feedaccess').toPromise();
 
-        this.searchText.subscribe(() => {
-            this.page = 1;
-            this.offset = 0;
-        });
+            merge(this.searchText, this.reload)
+                .pipe(
+                    debounceTime(300),
+                    // distinctUntilChanged(),
+                    switchMap(() =>
+                        this.getFeeds()
+                    )
+                ).subscribe((feeds: any) => {
+                this.endOfResults = feeds.length < this.limit;
+                this.feeds = feeds;
+                this.loading = false;
+            });
+
+            this.searchText.subscribe(() => {
+                this.page = 1;
+                this.offset = 0;
+            });
+        }
     }
 
     ngOnDestroy() {
