@@ -89,6 +89,8 @@ class CachingDatasourceConfig {
      */
     private $cacheDatasourceCachedTimeField = "cached_time";
 
+    private bool $hashing = false;
+
 
     // Cache mode constants
     const CACHE_MODE_COMPLETE = "complete";
@@ -106,11 +108,12 @@ class CachingDatasourceConfig {
      * @param int $cacheHours
      * @poram bool $fallbackToOlder
      * @param string $cacheMode
+     * @param bool $hashing
      */
     public function __construct($sourceDatasourceKey = null, $sourceDatasource = null,
                                 $cachingDatasourceKey = null, $cachingDatasource = null,
                                 $cacheExpiryDays = null, $cacheHours = null, $fallbackToOlder = false,
-                                $cacheMode = self::CACHE_MODE_COMPLETE) {
+                                $cacheMode = self::CACHE_MODE_COMPLETE, $hashing = false) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->sourceDatasource = $sourceDatasource;
         $this->cacheDatasourceKey = $cachingDatasourceKey;
@@ -119,6 +122,7 @@ class CachingDatasourceConfig {
         $this->cacheExpiryHours = $cacheHours;
         $this->fallbackToOlder = $fallbackToOlder;
         $this->cacheMode = $cacheMode;
+        $this->hashing = $hashing;
     }
 
 
@@ -260,6 +264,14 @@ class CachingDatasourceConfig {
      */
     public function setFallbackToOlder($fallbackToOlder) {
         $this->fallbackToOlder = $fallbackToOlder;
+    }
+
+    public function isHashing(): ?bool {
+        return $this->hashing;
+    }
+
+    public function setHashing(?bool $hashing): void {
+        $this->hashing = $hashing;
     }
 
 
