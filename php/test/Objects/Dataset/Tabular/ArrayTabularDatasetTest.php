@@ -35,6 +35,34 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testCanGetNextNItemsFromArrayTabularDataset() {
+        $arrayTabularDataSet = new ArrayTabularDataset([
+            new Field("name", "Name"),
+            new Field("age", "Age")
+        ], [
+            ["name" => "Mark", "age" => 30],
+            ["name" => "Bob", "age" => 25],
+            ["name" => "Mary", "age" => 50],
+            ["name" => "Clare", "age" => 12],
+            ["name" => "Andrew", "age" => 3]
+        ]);
+
+        $this->assertEquals([
+            ["name" => "Mark", "age" => 30],
+            ["name" => "Bob", "age" => 25],
+            ["name" => "Mary", "age" => 50]
+        ], $arrayTabularDataSet->nextNDataItems(3));
+
+        $this->assertEquals([
+            ["name" => "Clare", "age" => 12]
+        ], $arrayTabularDataSet->nextNDataItems(1));
+
+        $this->assertEquals([
+            ["name" => "Andrew", "age" => 3]
+        ], $arrayTabularDataSet->nextNDataItems(50));
+    }
+
+
     public function testNextDataItemUsesColumnsToFilterItemData() {
 
         $arrayTabularDataSet = new ArrayTabularDataset([

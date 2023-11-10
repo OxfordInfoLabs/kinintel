@@ -42,7 +42,7 @@ class CachingDatasource extends BaseDatasource {
 
 
     /**
-     * Get caching data source config classr
+     * Get caching data source config class
      *
      * @return string
      */
@@ -99,10 +99,8 @@ class CachingDatasource extends BaseDatasource {
 
 
     /**
-     * Materialise dataset
-     *
      * @param array $parameterValues
-     * @return Dataset|void
+     * @return Dataset
      */
     public function materialiseDataset($parameterValues = []) {
 
@@ -137,7 +135,14 @@ class CachingDatasource extends BaseDatasource {
             if (isset($parameterValues[$parameter->getName()]))
                 $sourceParameterValues[$parameter->getName()] = $parameterValues[$parameter->getName()];
         }
-        $encodedParameters = json_encode($sourceParameterValues);
+
+        if ($config->isHashing()) {
+            $encodedParameters = json_encode(["hash" => md5(json_encode($sourceParameterValues))]);
+        } else{
+            $encodedParameters = json_encode($sourceParameterValues);
+        }
+
+
 
         // Get a cache check data item
         $checkDataItem = $this->getCacheCheckDataItem($cacheDatasourceInstance, $config, $encodedParameters);
@@ -239,12 +244,13 @@ class CachingDatasource extends BaseDatasource {
             $cacheDatasource = $cacheDatasource->applyTransformation($appliedTransformation, $parameterValues);
         }
 
-
         return $cacheDatasource->materialise($parameterValues);
 
     }
 
     /**
+     * Get the cache item which matches the encoded parameters, or return null if there's nothing in the cache
+     *
      * @param DatasourceInstance $cacheDatasourceInstance
      * @param CachingDatasourceConfig $config
      * @param $encodedParameters

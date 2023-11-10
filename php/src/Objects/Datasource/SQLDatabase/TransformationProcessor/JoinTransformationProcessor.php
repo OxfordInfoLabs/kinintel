@@ -215,6 +215,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 $joinColumns = [];
                 while ($parentRow = $parentDataset->nextDataItem()) {
 
+
                     // Set any column parameters accordingly
                     $columnValues = [];
                     foreach ($columnParameters as $parameterName => $columnName) {
@@ -251,6 +252,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 if (sizeof($asyncInstances)) {
                     $joinColumns = $this->processAsyncInstances($processor, $asyncInstances, $parentValues, $newJoinData) ?? $joinColumns;
                 }
+
 
 
                 // Derive new columns for join dataset or skip entirely if no join columns to create
