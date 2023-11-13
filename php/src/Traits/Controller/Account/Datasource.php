@@ -15,6 +15,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Datasource\DocumentUploadLongRunningTask;
 use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 
 /**
@@ -164,6 +165,20 @@ trait Datasource {
      * @param DatasourceUpdateWithStructure $datasourceUpdate
      */
     public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
+        $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
+    }
+
+
+    /**
+     * Update a custom datasource instance with the supplied data and optionally structure
+     *
+     *
+     * @http PATCH /custom/$datasourceInstanceKey
+     *
+     * @param string $datasourceInstanceKey
+     * @param DatasourceUpdate $datasourceUpdate
+     */
+    public function populateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
     }
 
