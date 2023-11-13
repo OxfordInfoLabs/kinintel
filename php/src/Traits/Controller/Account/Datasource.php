@@ -71,6 +71,7 @@ trait Datasource {
      *
      * @param $key
      * @param DatasourceConfigUpdate $documentDatasourceConfig
+     * @unsanitise
      *
      * @return string
      */
