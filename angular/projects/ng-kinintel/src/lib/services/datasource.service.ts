@@ -76,6 +76,10 @@ export class DatasourceService {
     }
 
     public updateDatasourceInstance(key, config) {
+        return this.http.put(this.config.backendURL + '/datasource/' + key, config).toPromise();
+    }
+
+    public updateCustomDatasourceInstance(key, config) {
         return this.http.patch(this.config.backendURL + '/datasource/custom/' + key, config).toPromise();
     }
 
