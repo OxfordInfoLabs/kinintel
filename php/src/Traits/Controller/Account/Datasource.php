@@ -177,7 +177,7 @@ trait Datasource {
      *
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdate $datasourceUpdate
-     * @unsanitise
+     * @unsanitise datasourceUpdate
      */
     public function populateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
