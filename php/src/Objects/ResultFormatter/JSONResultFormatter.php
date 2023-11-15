@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\ResultFormatter;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinikit\Core\Util\Primitive;
 use Kinintel\Objects\Dataset\Dataset;
@@ -146,6 +147,7 @@ class JSONResultFormatter implements ResultFormatter {
             $decodedResult = $this->drillDown($resultPath, $decodedResult);
         }
 
+
         // If a single result, convert to array for processing
         if (!is_array($decodedResult) || $this->isSingleResult()) {
             $decodedResult = [$decodedResult];
@@ -155,6 +157,7 @@ class JSONResultFormatter implements ResultFormatter {
 
         // Deal with any offset and limit up front
         $decodedResult = array_slice($decodedResult, $offset, $limit);
+
 
         // Loop through each item
         foreach ($decodedResult as $item) {
