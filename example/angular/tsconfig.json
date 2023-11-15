@@ -2,25 +2,26 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": "./",
-        "outDir": "./dist/out-tsc",
-        "sourceMap": true,
-        "declaration": false,
-        "downlevelIteration": true,
-        "experimentalDecorators": true,
-        "moduleResolution": "node",
-        "importHelpers": true,
-        "target": "es2020",
-        "module": "es2020",
-        "esModuleInterop":true,
-        "allowSyntheticDefaultImports": true,
-        "lib": [
-            "es2018",
-            "dom"
-        ],
-        "types": [
-            "resize-observer-browser"
-        ]
+      "baseUrl": "./",
+      "outDir": "./dist/out-tsc",
+      "sourceMap": true,
+      "declaration": false,
+      "downlevelIteration": true,
+      "experimentalDecorators": true,
+      "moduleResolution": "node",
+      "importHelpers": true,
+      "target": "ES2022",
+      "module": "es2020",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "lib": [
+        "es2018",
+        "dom"
+      ],
+      "types": [
+        "resize-observer-browser"
+      ],
+      "useDefineForClassFields": false
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false
