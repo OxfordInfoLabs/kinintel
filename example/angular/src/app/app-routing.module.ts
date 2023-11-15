@@ -20,6 +20,7 @@ import {CreateDatasourceComponent} from './views/datasource/create-datasource/cr
 import {DocumentDatasourceComponent} from './views/datasource/document-datasource/document-datasource.component';
 import {DashboardChangesGuard} from 'ng-kinintel';
 import {ApiKeysComponent} from './views/api-keys/api-keys.component';
+import {DashboardWidgetsComponent} from './views/dashboard-widgets/dashboard-widgets.component';
 
 const routes: Routes = [
     {
@@ -29,6 +30,10 @@ const routes: Routes = [
             {
                 path: 'home',
                 component: HomeComponent
+            },
+            {
+                path: 'dashboard-widgets',
+                component: DashboardWidgetsComponent
             },
             {
                 path: 'dashboards',

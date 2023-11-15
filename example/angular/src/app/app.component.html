@@ -40,6 +40,14 @@
                 </a>
             </div>
 
+            <div class="menu-items">
+                <p class="menu-title">Development</p>
+                <a [routerLink]="['/dashboard-widgets']" routerLinkActive="active" class="menu-item">
+                    <mat-icon>dashboard_customize</mat-icon>
+                    <span>Dashboard Widgets</span>
+                </a>
+            </div>
+
             <ng-template [ngIf]="loggedIn">
                 <div class="menu-items">
                     <p class="menu-title">Components</p>

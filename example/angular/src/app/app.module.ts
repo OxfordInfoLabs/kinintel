@@ -39,6 +39,7 @@ import {QuillModule} from 'ngx-quill';
 import { CreateDatasourceComponent } from './views/datasource/create-datasource/create-datasource.component';
 import { DocumentDatasourceComponent } from './views/datasource/document-datasource/document-datasource.component';
 import { ApiKeysComponent } from './views/api-keys/api-keys.component';
+import { DashboardWidgetsComponent } from './views/dashboard-widgets/dashboard-widgets.component';
 
 @NgModule({
     declarations: [
@@ -61,7 +62,8 @@ import { ApiKeysComponent } from './views/api-keys/api-keys.component';
         FeedsComponent,
         CreateDatasourceComponent,
         DocumentDatasourceComponent,
-        ApiKeysComponent
+        ApiKeysComponent,
+        DashboardWidgetsComponent
     ],
     imports: [
         BrowserModule,
