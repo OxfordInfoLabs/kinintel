@@ -2,7 +2,7 @@ import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChil
 import {MediaMatcher} from '@angular/cdk/layout';
 import {MatSidenav} from '@angular/material/sidenav';
 import {SidenavService} from './services/sidenav.service';
-import {MatDialog} from '@angular/material/dialog';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ProjectPickerComponent, ProjectService, TagPickerComponent, TagService} from 'ng-kinintel';
 import {Subscription} from 'rxjs';
 import {environment} from '../environments/environment';

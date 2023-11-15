@@ -8,7 +8,7 @@ import { throwError } from 'rxjs/internal/observable/throwError';
 import { finalize, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { AuthenticationService } from 'ng-kiniauth';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {Router} from '@angular/router';
 
 @Injectable()
