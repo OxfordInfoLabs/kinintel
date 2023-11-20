@@ -32,4 +32,16 @@ class DocxTextExtractorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("Hello Docx Test", $output);
     }
 
+    public function testCanExtractChunksFromFile(){
+        $chunks = $this->docxExtractor->extractChunksFromFile(__DIR__ . "/lorem_ipsum_with_images.docx");
+        foreach ($chunks as $chunk) {
+            if (str_contains($chunk->getText(), "Vestibulum neque massa")){
+                $firstChunk = $chunk->getText();
+            }
+        }
+
+        $this->assertTrue(str_contains($firstChunk, "Morbi in ullamcorper"));
+        $this->assertFalse(str_contains($firstChunk, "Maecenas mauris lectus"));
+    }
+
 }

@@ -51,4 +51,505 @@ a new line</b>";
         $this->assertEquals("tab, space and a new line", $out);
     }
 
+    public function testCanExtractTextWithChunks(){
+        //Link: https://www.intgovforum.org/en/content/igf-2019-ws-191-public-interest-data-where-are-we-to-do-what
+        $htmlString = "<!DOCTYPE html>
+<html lang=\"en\" dir=\"ltr\" prefix=\"content: http://purl.org/rss/1.0/modules/content/  dc: http://purl.org/dc/terms/  foaf: http://xmlns.com/foaf/0.1/  og: http://ogp.me/ns#  rdfs: http://www.w3.org/2000/01/rdf-schema#  schema: http://schema.org/  sioc: http://rdfs.org/sioc/ns#  sioct: http://rdfs.org/sioc/types#  skos: http://www.w3.org/2004/02/skos/core#  xsd: http://www.w3.org/2001/XMLSchema# \" class=\"h-100\">
+<head>
+<meta charset=\"utf-8\" />
+<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-57305801-4\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script type=\"21bb286daa35f52b91e55043-text/javascript\">window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments)};gtag(\"js\", new Date());gtag(\"config\", \"UA-57305801-4\", {\"groups\":\"default\",\"allow_ad_personalization_signals\":false});</script>
+<link rel=\"canonical\" href=\"https://www.intgovforum.org/en/content/igf-2019-ws-191-public-interest-data-where-are-we-to-do-what\" />
+<meta name=\"MobileOptimized\" content=\"width\" />
+<meta name=\"HandheldFriendly\" content=\"true\" />
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+<link rel=\"icon\" href=\"/sites/default/files/inline-images/UN_logo_2022_emblem.png\" type=\"image/png\" />
+<link rel=\"alternate\" hreflang=\"en\" href=\"https://www.intgovforum.org/en/content/igf-2019-ws-191-public-interest-data-where-are-we-to-do-what\" />
+<title>IGF 2019 WS #191
+ Public Interest Data: Where Are We? To Do What? | Internet Governance Forum</title>
+<link rel=\"stylesheet\" media=\"all\" href=\"/sites/default/files/css/css_o5sC0xQCbQULDmRgV2oqnrOhKMMOCY4k97OmCOti9f4.css\" />
+<link rel=\"stylesheet\" media=\"all\" href=\"/sites/default/files/css/css_6k9gVxbh3cPabwSGMeQ9Yxb5xWxsGd-jw0RvmsraXB8.css\" />
+<script src=\"/core/assets/vendor/modernizr/modernizr.min.js?v=3.11.7\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script src=\"/core/misc/modernizr-additional-tests.js?v=3.11.7\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script src=\"https://use.fontawesome.com/releases/v5.13.1/js/all.js\" defer crossorigin=\"anonymous\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script src=\"https://use.fontawesome.com/releases/v5.13.1/js/v4-shims.js\" defer crossorigin=\"anonymous\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+</head>
+<body class=\"nocommonclass path-node page-node-type-workshop-proposal   d-flex flex-column h-100\">
+<a href=\"#main-content\" class=\"visually-hidden focusable skip-link\">
+        Skip to main content
+        </a>
+<div class=\"dialog-off-canvas-main-canvas h-100\" data-off-canvas-main-canvas>
+<header class=\"header nav-down\">
+<div class=\"container-fluid top-header\">
+<div class=\"container\">
+<div class=\"region region-header\">
+<div id=\"block-unitednationsblock\" class=\"col-lg-5 col-md-5 col-sm-12 united-nation-header block block-block-content block-block-content7024c33a-3cdc-4d14-b95c-cd019927eb4b block-\" id>
+<div class=\"clearfix text-formatted field field--name-body field--type-text-with-summary field--label-hidden field__item\"><div class=\"un-top-header\">
+<p class=\"United-Nations-link\"><a href=\"https://www.un.org/en/\" rel=\"noopener noreferrer\" target=\"_blank\">Welcome to the United Nations</a> <span> |</span> <a href=\"https://www.un.org/en/desa\" rel=\"noopener noreferrer\" target=\"_blank\">Department of Economic and Social Affairs</a></p>
+</div>
+</div>
+</div>
+<div id=\"block-usermenu-2\" class=\"col-lg-1 col-md-1 col-sm-12 profile-block block block-superfish block-superfishaccount block-\" id>
+<ul id=\"superfish-account\" class=\"menu sf-menu sf-account sf-horizontal sf-style-none\">
+<li id=\"account-menu-link-contentef1f9374-33d6-4087-9cdc-983f188fc4bc--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentaccount view-mode-superfish menu-dropdown menu-type-superfish\"></div><span class=\"sf-depth-1 menuparent nolink\"><i class=\"fab fa fa-user\" aria-hidden=\"true\"></i><span class=\"link-text\">Profile</span></span><ul><li id=\"account-menu-link-contentc62daca8-241e-4f32-bcec-e77993bcde1a--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentaccount view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/resource-persons\" class=\"sf-depth-2\">Find/Become a Resource Person</a></li><li id=\"account-menu-link-contenta711e8a0-3eef-4246-aed4-10e1b681778b--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentaccount view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/request-the-floor\" class=\"sf-depth-2\">Request Floor in Meetings</a></li><li id=\"account-menu-link-content5b1d2420-9646-49d9-bcc2-498a26f84660--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentaccount view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/sign-up-and-contribute-to-igf-mailing-lists\" class=\"sf-depth-2\">Subscribe to Our Mailing Lists</a></li><li id=\"account-menu-link-contentc8b68627-d8a9-4eb4-88f8-2b0cd10bb8e9--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentaccount view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/user/login\" class=\"use-ajax ajax-login igf-login sf-depth-2 use-ajax ajax-login\" data-dialog-type=\"modal\" data-dialog-options=\"{&quot;width&quot;:&quot;700&quot;,&quot;title&quot;:&quot;Have an account? Login&quot;}\" title=\"Login is required for personalized operations, such as events registration or submissions\">Login / Register</a></li></ul></li>
+</ul>
+</div>
+<div class=\"views-exposed-form bef-exposed-form col-lg-12 col-md-12 col-sm-12 search-block block block-views block-views-exposed-filter-blocksearch-views-block-filter-block-plugin-display-block-1 block-\" data-drupal-selector=\"views-exposed-form-search-views-block-filter-block-plugin-display-block-1\" id=\"block-exposedformsearchviews-block-filter-block-plugin-display-block-1\" id>
+<form action=\"/en/search\" method=\"get\" id=\"views-exposed-form-search-views-block-filter-block-plugin-display-block-1\" accept-charset=\"UTF-8\">
+<div class=\"form--inline clearfix\">
+<div class=\"js-form-item form-item js-form-type-search-api-autocomplete form-type-search-api-autocomplete js-form-item-search-api-fulltext form-item-search-api-fulltext\">
+<label for=\"edit-search-api-fulltext\">Search</label>
+<input data-drupal-selector=\"edit-search-api-fulltext\" type=\"text\" id=\"edit-search-api-fulltext\" name=\"search_api_fulltext\" value size=\"30\" maxlength=\"128\" class=\"form-text form-control\" />
+</div>
+<div class=\"js-form-item form-item js-form-type-textfield form-type-textfield js-form-item-feed-me form-item-feed-me\">
+<label for=\"edit-feed-me\">Feed me</label>
+<input class=\"feed_me_textfield form-text form-control\" data-drupal-selector=\"edit-feed-me\" type=\"text\" id=\"edit-feed-me\" name=\"feed_me\" value size=\"60\" maxlength=\"128\" />
+</div>
+<div data-drupal-selector=\"edit-actions\" class=\"form-actions js-form-wrapper form-wrapper\" id=\"edit-actions\">
+<input data-drupal-selector=\"edit-submit-search\" type=\"submit\" id=\"edit-submit-search\" value=\"Apply\" class=\"button js-form-submit form-submit btn btn-primary\" />
+<input data-drupal-selector=\"edit-reset\" type=\"submit\" id=\"edit-reset\" name=\"op\" value=\"Reset\" class=\"button js-form-submit form-submit btn btn-primary\" />
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<div class=\"container-fluid main-header\">
+<nav class=\"navbar navbar-expand-lg    container\">
+<div class=\"container-fluid m-0 p-0 row mx-auto\">
+<div class=\"col-auto p-0\">
+<div class=\"region region-nav-branding\">
+<div id=\"block-igf-branding\" class=\"block block-system block-system-branding-block block-\" id>
+<div class=\"navbar-brand d-flex align-items-center\">
+<a href=\"/en\" title=\"Home\" rel=\"home\" class=\"site-logo d-block\">
+<img src=\"/sites/default/files/igflogo2.png\" alt=\"Home\" />
+</a>
+<div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=\"col-3 col-md-auto p-0 text-right\">
+<button class=\"navbar-toggler collapsed\" type=\"button\" data-toggle=\"collapse\" data-target=\"#navbarSupportedContent\" aria-controls=\"navbarSupportedContent\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">
+<span class=\"navbar-toggler-icon\"></span>
+</button>
+</div>
+<div class=\"collapse navbar-collapse col-12 col-md-auto p-0 justify-content-end\" id=\"navbarSupportedContent\">
+<div class=\"region region-nav-main\">
+<div id=\"block-headermenu-2\" class=\"header-menu block block-superfish block-superfishheader-menu block-\" id>
+<ul id=\"superfish-header-menu\" class=\"menu sf-menu sf-header-menu sf-horizontal sf-style-none\">
+<li id=\"header-menu-menu-link-contentbc05beb5-85bb-46b6-ac84-04fbad21d0de--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2021-08/About-us.svg\" alt=\"About IGF\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><span class=\"sf-depth-1 menuparent nolink\">About</span><ul><li id=\"header-menu-menu-link-contentd055eedc-9dab-499e-8118-1a072655eb0a--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about\" class=\"sf-depth-2 menuparent\">About</a><ul><li id=\"header-menu-menu-link-contentcac001c3-9f17-4aa7-8764-f230df1c1ced--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#about-us\" class=\"sf-depth-3\">About Us</a></li><li id=\"header-menu-menu-link-contentb37f7732-9e06-4784-a737-2e6d82a7de89--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#get-started\" class=\"sf-depth-3\">Get Started</a></li><li id=\"header-menu-menu-link-content95f06d75-4c66-4415-9003-3b12be9aec16--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#team\" class=\"sf-depth-3\">Team</a></li><li id=\"header-menu-menu-link-content8881d43d-d3c4-4bac-9c6f-ee1e96745ef6--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#about-igf-faqs\" class=\"sf-depth-3\">About IGF FAQs</a></li><li id=\"header-menu-menu-link-content84d6cd60-1241-4aa5-bab8-1386a7ce06e6--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#donors-to-the-igf-trust-fund\" class=\"sf-depth-3\">IGF Donors</a></li><li id=\"header-menu-menu-link-content0e992bba-1964-49a6-b620-e3f9e61cfdaa--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#igf-code-of-conduct\" class=\"sf-depth-3\">Code of Conduct</a></li><li id=\"header-menu-menu-link-contentb4f3d1da-f489-4c10-83be-9ce30de7f4b8--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#work-with-us\" class=\"sf-depth-3\">Work With Us</a></li><li id=\"header-menu-menu-link-content769813a0-0316-4dda-81b4-e29018f4b5da--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/sign-up-and-contribute-to-igf-mailing-lists\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">IGF Mailing Lists</a></li><li id=\"header-menu-menu-link-content7fd8748b-22b3-49f9-882a-363f5516aba9--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/about#contact-us\" class=\"sf-depth-3\">Contact Us</a></li></ul></li><li id=\"header-menu-menu-link-contenta642ec2d-4317-46ba-b265-e3eefc9256f4--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-leadership-panel-members\" class=\"sf-depth-2 sf-external menuparent\" title=\"IGF Leadership Panel\" rel=\"noreferrer\">IGF Leadership Panel</a><ul><li id=\"header-menu-menu-link-content2f25206f-8ed1-47d3-9814-8af284c725d8--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/terms-of-reference-for-the-igf-leadership-panel\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Terms of Reference</a></li><li id=\"header-menu-menu-link-contenta76f6592-3a2f-4fcd-bc83-cc927487f1ae--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-leadership-panel-members\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Panel Members</a></li><li id=\"header-menu-menu-link-contentddb808ae-ef09-4ccf-ad90-d9d8ba183e70--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/leadership-panel-meeting-summaries?check_logged_in=1\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Panel Outputs &amp; Meeting Records</a></li></ul></li><li id=\"header-menu-menu-link-content5e89e2ee-63fd-47ff-b405-9069f5be90ef--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/about-mag\" class=\"sf-depth-2 menuparent\">Multi-stakeholder Advisory Group</a><ul><li id=\"header-menu-menu-link-content807fd3db-3dba-40b0-9472-16e2d9aa5b1e--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/about-mag\" class=\"d-md-none sf-depth-3\">Multi-stakeholder Advisory Group</a></li><li id=\"header-menu-menu-link-content94366053-adfb-4de9-9fb0-cc739cddc328--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/mag-terms-of-reference\" class=\"sf-depth-3\">MAG Terms of Reference</a></li><li id=\"header-menu-menu-link-content7371afc3-585c-4905-a6d8-0a6198ec63f6--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/mag-chair-terms-of-reference\" class=\"sf-depth-3\">MAG Chair Terms of Reference</a></li><li id=\"header-menu-menu-link-contentf0fea5df-c596-4d83-9de0-a7e2acff081e--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/an-igf-2023-program-addressing-digital-change-head-on-message-from-the-mag-chair\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">MAG Chair&#039;s Blog</a></li><li id=\"header-menu-menu-link-content59f91187-aa90-4389-b267-5a97dbef9412--2\" class=\"sf-depth-3 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/mag-2024-members\" class=\"sf-depth-3 sf-external menuparent\" rel=\"noreferrer\">MAG Members</a><ul><li id=\"header-menu-menu-link-content4754910f-62fa-442c-ac26-472db55169ff--2\" class=\"sf-depth-4 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/mag-2024-members\" class=\"d-md-none sf-depth-4 sf-external\" rel=\"noreferrer\">MAG Members</a></li><li id=\"header-menu-menu-link-contentcb4fa677-5af0-4c33-b479-c9c79bddec14--2\" class=\"sf-depth-4 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/previous-mag-members\" class=\"sf-depth-4\">Previous MAG Members</a></li></ul></li><li id=\"header-menu-menu-link-content0f06210c-68d9-42fe-a750-ebf95dae8d3c--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/mag-working-groups\" class=\"sf-depth-3\">MAG Working Groups</a></li><li id=\"header-menu-menu-link-content9c59157f-c2c9-4b49-93d9-3e879f015415--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/mag-meeting-records\" class=\"sf-depth-3\">MAG Meeting Records</a></li><li id=\"header-menu-menu-link-contentd59a1c3d-181b-41fc-b96c-bcf568aa7e2f--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/mag-activities\" class=\"sf-depth-3\">MAG Activities </a></li><li id=\"header-menu-menu-link-content62d23f6b-d753-426c-83a2-b9b8a68e6216--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/mag-member-dashboard\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">MAG Member Dashboard</a></li></ul></li><li id=\"header-menu-menu-link-content83080619-955f-4896-8bf2-79a0c7c02af7--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-expert-group-meeting-egm\" class=\"sf-depth-2 sf-external menuparent\" title=\"IGF Expert Group Meeting (EGM)\" rel=\"noreferrer\">IGF Expert Group Meeting (EGM)</a><ul><li id=\"header-menu-menu-link-content068df966-76f4-4e4a-a847-8e6578045671--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/report-from-expert-group-meeting\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Report</a></li></ul></li><li id=\"header-menu-menu-link-content99c0fe99-86c7-4efd-bd3c-f13c99bb489c--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/the-igf-and-un-processes-0\" class=\"sf-depth-2 sf-external menuparent\" rel=\"noreferrer\">The IGF and UN Processes</a><ul><li id=\"header-menu-menu-link-content79561be0-9824-4270-8735-172692286018--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/wsis20-and-igf20-review-by-the-un-general-assembly-2025\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">WSIS+20 and IGF+20</a></li><li id=\"header-menu-menu-link-contentca119dc3-d6aa-4ff2-891b-93e3fa7ba538--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-and-core-un-agendas\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">IGF and Core UN Agendas</a></li><li id=\"header-menu-menu-link-contentaa6c7f1f-241e-434e-aeb9-b8eddbf00614--2\" class=\"sf-depth-3 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-engagement-within-the-un-system\" class=\"sf-depth-3 sf-external menuparent\" rel=\"noreferrer\">Engagement within the UN System</a><ul><li id=\"header-menu-menu-link-contentb9f98c2f-4fa2-4d29-9d73-3e06531619b9--2\" class=\"sf-depth-4 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/un-agency-contributions-to-igf-open-consultations\" class=\"sf-depth-4 sf-external\" rel=\"noreferrer\">UN Inputs to IGF Open Consultations</a></li></ul></li></ul></li></ul></li><li id=\"header-menu-menu-link-content45a979d5-4cb1-4116-8b4a-db8e0a248ab3--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2022-06/IMG_5053_45.jpg\" width=\"45\" height=\"45\" alt=\"Support the IGF\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"/en/content/donate\" class=\"sf-depth-1 menuparent\">Support the IGF</a><ul><li id=\"header-menu-menu-link-content86635c0e-3fc4-4f51-94cd-e9e322ac729f--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/support-the-igf\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Donate</a></li><li id=\"header-menu-menu-link-content7507e59b-4c70-4aa8-8a47-fd2c49fc540e--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-trust-fund-documents\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF Trust Fund</a></li><li id=\"header-menu-menu-link-contentcfe9f5b2-2008-44c4-8ced-f028e7a4aba3--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/content/hosting-the-igf\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Host the IGF</a></li></ul></li><li id=\"header-menu-menu-link-content96faf282-2dda-41ef-bccd-fa117cb85dcc--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2023-09/IGF%202023%20icon.svg\" alt=\"IGF 2023\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"https://igf2023.intgovforum.org\" class=\"sf-depth-1 sf-external menuparent\" rel=\"noreferrer\">IGF 2023</a><ul><li id=\"header-menu-menu-link-content66e392fd-f000-407f-9e12-c5aaab552314--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-outputs\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF 2023 Outputs</a></li><li id=\"header-menu-menu-link-content383c86d0-60f6-4750-ab1e-bcf2b12ea266--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/schedule\" class=\"sf-depth-2 menuparent\">IGF 2023 Schedule (interactive)</a><ul><li id=\"header-menu-menu-link-content2d86c40c-1779-438e-b880-f79e04c9981b--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/filedepot_download/290/26092\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">IGF 2023 Schedule (excel)</a></li></ul></li><li id=\"header-menu-menu-link-contentf491be7a-a480-41b4-8eee-0d1766a1bf21--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://indico.un.org/event/1006568/\" class=\"sf-depth-2 sf-external menuparent\" rel=\"noreferrer\">Register for IGF 2023</a><ul><li id=\"header-menu-menu-link-content73bf4632-8746-4b37-b8a3-b73526742cd5--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://indico.un.org/event/1006568/registrations/participants\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">List of registered participants</a></li></ul></li><li id=\"header-menu-menu-link-content5cd50b60-306b-4a19-bc6d-531c80225e66--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/reserve/node.room_reservations_room/calendar/10/08\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Book Bilateral Meeting Rooms</a></li><li id=\"header-menu-menu-link-content8d39b9cf-ce98-44b6-9e11-7d1d447527fe--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-remote-hubs\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Organise a Remote Hub</a></li><li id=\"header-menu-menu-link-contentbef412fc-55bd-45f0-8ffb-3ee20d998539--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/form/igf-2023-music-night\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Participate in IGF 2023 Music Night</a></li><li id=\"header-menu-menu-link-content23c63ba1-8833-47a2-bae6-79bf346a655a--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/igf-village-2023\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF Village</a></li><li id=\"header-menu-menu-link-content3536fd2b-d87e-4491-b101-b7a3cddd240e--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/social-media-guidance-at-18th-igf\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Social Media Guidance at 18th IGF</a></li><li id=\"header-menu-menu-link-content07a14793-ab9a-44d8-b76d-f844fe094210--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-sessions\" class=\"sf-depth-2 sf-external menuparent\" rel=\"noreferrer\">IGF 2023 Sessions</a><ul><li id=\"header-menu-menu-link-contentcbbcf9ff-f636-419c-9073-581e5f238421--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-high-level-sessions\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">High-Level Sessions</a></li><li id=\"header-menu-menu-link-contentac91e238-b2cd-42c7-a752-18d8dad42c04--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/igf-2023-main-sessions\" class=\"sf-depth-3\">Main Sessions</a></li><li id=\"header-menu-menu-link-contentc7781338-1dab-4128-9475-26c45d797844--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/content/igf-2023-other-sessions\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Other Main Sessions</a></li><li id=\"header-menu-menu-link-content69bbf96a-e5c7-40bc-a900-6f953071d58a--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-workshops\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Workshops</a></li><li id=\"header-menu-menu-link-content4d3ab735-ec12-4e71-a090-0a7fb04ad8db--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-open-forum\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Open Forums</a></li><li id=\"header-menu-menu-link-contentfbe868af-a4e6-4c51-a8da-8ae9eac85156--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-town-halls\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Town Halls</a></li><li id=\"header-menu-menu-link-content0a5381b4-5b9e-497e-92c2-623dcf883088--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-lightning-talks\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Lightning Talks</a></li><li id=\"header-menu-menu-link-contentcdfdcee3-6147-4fe9-807b-cb92d3701fab--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-launch-and-awards\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Launches and Awards</a></li><li id=\"header-menu-menu-link-content42df9d7f-b620-45c0-a0d8-765757b00adf--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-networking-session\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Networking Sessions</a></li><li id=\"header-menu-menu-link-contentf0ee87e1-7826-4393-8992-cb200e15a9b6--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-day-0-events\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Day 0 Events</a></li><li id=\"header-menu-menu-link-content2bcb056f-d65e-4361-ba37-c210967ecee9--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-dynamic-coalitions\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Dynamic Coalition Sessions</a></li><li id=\"header-menu-menu-link-contentfe6710c5-e15b-4d87-a3d5-8f3746c509cb--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-nris-sessions\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">IGF 2023 NRIs Sessions</a></li><li id=\"header-menu-menu-link-content808d23b3-7d1a-4db7-89b7-c2534a44de08--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-side-events\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Side Events</a></li></ul></li><li id=\"header-menu-menu-link-content6379f6f1-9fbd-4566-bdcc-ae15e7f93f32--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/igf-2023-high-level-track\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF 2023 High Level Track</a></li><li id=\"header-menu-menu-link-contentb420b1ac-2274-45bb-a12f-69dd3f904611--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-parliamentary-track\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF 2023 Parliamentary Track</a></li><li id=\"header-menu-menu-link-contentd29a7985-c79b-4b50-8f90-8a76089e2199--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-youth-track\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF Youth Track</a></li><li id=\"header-menu-menu-link-contentfdf42aa1-e868-4912-977a-92d4d061b4c8--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-newsletter-january-2023\" class=\"sf-depth-2 sf-external menuparent\" rel=\"noreferrer\">Newsletter</a><ul><li id=\"header-menu-menu-link-contentc65f9e9a-a471-425b-ac77-616357330229--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-newsletter-january-2023\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">January</a></li></ul></li></ul></li><li id=\"header-menu-menu-link-content80cf74af-cbfb-4a84-b994-a20c485b733a--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2021-04/Intersessional.svg\" alt=\"Intersessional IGF\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"/en/content/thematic-intersessional-work\" class=\"sf-depth-1 menuparent\">Intersessional Work</a><ul><li id=\"header-menu-menu-link-content78f2d0b0-0268-405e-ad10-f17d852f46f4--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/thematic-intersessional-work\" class=\"d-md-none sf-depth-2\">Thematic Intersessional Work</a></li><li id=\"header-menu-menu-link-content9b503d77-728b-4796-a977-9c9bd628559d--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/dynamic-coalitions\" class=\"sf-depth-2 menuparent\">Dynamic Coalitions</a><ul><li id=\"header-menu-menu-link-contentf2d89db8-43f7-4168-b3a9-095de74a2764--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/dynamic-coalitions\" class=\"d-md-none d-lg-none sf-depth-3\">Dynamic Coalitions</a></li><li id=\"header-menu-menu-link-content9f81285c-31f2-4615-8fbb-c2f3f7df5818--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/explore-dynamic-coalitions\" class=\"sf-depth-3\">All Dynamic Coalitions</a></li><li id=\"header-menu-menu-link-contentf9fc4d1f-b28d-4a0f-9d93-072c92785e35--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/dc-coordination-activities\" class=\"sf-depth-3\">DC Coordination Activities</a></li><li id=\"header-menu-menu-link-contentf3dcd38e-cb7f-4f76-8ea0-4251de73e347--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/terms-of-reference-dynamic-coalitions-dc-coordination-group-dccg\" class=\"sf-depth-3\">Terms of Reference</a></li></ul></li><li id=\"header-menu-menu-link-content5bb53174-d1cb-478b-a782-1afacc5650c0--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/best-practice-forums-bpfs\" class=\"sf-depth-2 menuparent\">Best Practice Forums</a><ul><li id=\"header-menu-menu-link-contentbff6fb01-0b74-4379-8b1b-a5154796ef9d--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/best-practice-forums-bpfs\" class=\"d-md-none d-lg-none sf-depth-3\">Best Practice Forums</a></li><li id=\"header-menu-menu-link-content5790dee8-da0c-404c-929f-03542d46ad1e--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/bpf-cybersecurity\" class=\"sf-depth-3\">BPF Cybersecurity</a></li><li id=\"header-menu-menu-link-content8cd454f7-05db-4088-8137-52a889ef9295--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/bpfs-outputs\" class=\"sf-depth-3\">Previous Work</a></li></ul></li><li id=\"header-menu-menu-link-content063c853b-ea4b-4218-a210-746ab88dda65--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/policy-networks\" class=\"sf-depth-2 menuparent\">Policy Networks</a><ul><li id=\"header-menu-menu-link-content11014b65-7f43-4acd-b9bb-fa8052b93d70--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/policy-network-on-artificial-intelligence-pnai\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Policy Network on Artificial Intelligence </a></li><li id=\"header-menu-menu-link-content14f18780-bb11-43a2-b164-baf2972c0488--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/policy-network-on-meaningful-access-pnma\" class=\"sf-depth-3\">Policy Network on Meaningful Access</a></li><li id=\"header-menu-menu-link-contente031bd4e-553f-4678-afd1-962f73dadf08--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/policy-network-on-internet-fragmentation\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Policy Network on Internet Fragmentation</a></li><li id=\"header-menu-menu-link-contentc8d25644-180d-42ff-9240-b8e1856ee143--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"http://intgovforum.org/en/content/overview-of-policy-networks\" class=\"sf-depth-3 sf-external\" title=\"Past work\" rel=\"noreferrer\">Previous Work</a></li></ul></li><li id=\"header-menu-menu-link-content4cfb9228-057a-4346-bbef-11d49ef55de7--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-capacity-development-0\" class=\"sf-depth-2 sf-external menuparent\" rel=\"noreferrer\">Capacity Development</a><ul><li id=\"header-menu-menu-link-contente06ec15c-5b53-423f-a6d4-039083c03d8c--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/our-digital-future\" class=\"sf-depth-3\">Our Digital Future: Capacity Development Workshop Series</a></li><li id=\"header-menu-menu-link-content9bb50f86-fcd9-46b5-ad62-8b7ab385cf2d--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-capacity-development-workshops\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Capacity Development Workshops</a></li><li id=\"header-menu-menu-link-content23f63a02-aabe-4f24-befa-df4f323365c5--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2022-call-for-nris-grants\" class=\"sf-depth-3 sf-external\" title=\"NRIs Grants\" rel=\"noreferrer\">NRIs Grants</a></li><li id=\"header-menu-menu-link-contentf45aa4fe-73a6-404e-947e-c12f78c82f1a--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/supporting-sigs\" class=\"sf-depth-3 sf-external\" title=\"Syllabus ‎for Schools on Internet Governance \" rel=\"noreferrer\">Syllabus ‎for Schools on Internet Governance </a></li><li id=\"header-menu-menu-link-content05ff4562-1b41-4826-a439-4b706a83982c--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-parliamentary-track\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">Parliamentary Track</a></li><li id=\"header-menu-menu-link-content605ddbe5-dc4d-4574-96f4-bb17347db436--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-youth-track\" class=\"sf-depth-3 sf-external\" title=\"Youth Track\" rel=\"noreferrer\">Youth track</a></li></ul></li><li id=\"header-menu-menu-link-content3674ea01-30f9-40c0-9421-73d3e43a8e15--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/intersessional-news\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">Intersessional News</a></li></ul></li><li id=\"header-menu-menu-link-content3cebc86d-c1ad-4ca0-a83b-32ab1e60e94e--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2021-07/IGF_Initiatives.svg\" alt=\"National and Regional IGFs Menu\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"/en/content/national-and-regional-igf-initiatives\" class=\"sf-depth-1 menuparent\">National and Regional IGFs</a><ul><li id=\"header-menu-menu-link-content8fa0dc4e-25c0-467d-baec-c35ca55bcb2b--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/national-and-regional-igf-initiatives\" class=\"d-md-none sf-depth-2\">National and Regional IGFs</a></li><li id=\"header-menu-menu-link-content91d63594-f669-435e-ba09-87805ef343c1--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/frequently-asked-questions-about-the-nris\" class=\"sf-depth-2\">NRIs FAQs</a></li><li id=\"header-menu-menu-link-content917ac784-a349-478c-b0f8-2571eeff03df--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/national-igf-initiatives\" class=\"sf-depth-2 menuparent\">National IGF Initiatives</a><ul><li id=\"header-menu-menu-link-content3e2195b4-9976-4f44-9140-32e46e32fbad--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/national-igf-initiatives\" class=\"d-md-none sf-depth-3\">National IGF Initiatives</a></li><li id=\"header-menu-menu-link-contente876d9a5-39e1-4886-9996-a856348005f7--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/african-regional-group\" class=\"sf-depth-3\">Africa</a></li><li id=\"header-menu-menu-link-contentaf3dd6b7-5cb5-4180-8748-abb542d27df9--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/asia-pacific-regional-group\" class=\"sf-depth-3\">Asia Pacific</a></li><li id=\"header-menu-menu-link-content19213037-460b-4526-876f-dde1b4d9d661--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/eastern-european-regional-group\" class=\"sf-depth-3\">Eastern Europe</a></li><li id=\"header-menu-menu-link-content8b042851-9248-480d-a271-8ab11ba02c60--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/latin-american-and-caribbean-regional-group-grulac\" class=\"sf-depth-3\">GRULAC</a></li><li id=\"header-menu-menu-link-content16b288fa-c478-471d-b4ad-4092b085a437--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/western-european-and-others-regional-group-weog\" class=\"sf-depth-3\">WEOG</a></li></ul></li><li id=\"header-menu-menu-link-contentb4b75db2-ed51-4947-8929-c1d1d2bfdc1f--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/regional-igf-initiatives\" class=\"sf-depth-2\">Regional IGF Initiatives</a></li><li id=\"header-menu-menu-link-contentd300ef5f-5cb0-4436-8ee6-ad40f57046c0--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/youth-initiatives\" class=\"sf-depth-2\">Youth Initiatives</a></li><li id=\"header-menu-menu-link-content5fce6eda-c41d-4e2f-bbd7-0140ccea6dae--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/nris-toolkit-how-to-start-your-igf-initiative\" class=\"sf-depth-2\">NRIs Toolkit: How to Start Your IGF Initiative?</a></li><li id=\"header-menu-menu-link-contenta1b2dbe0-409d-4bff-b242-e997a6586b5d--2\" class=\"sf-depth-2 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/nris-collaborative-work\" class=\"sf-depth-2 menuparent\">NRIs Collaborative Work</a><ul><li id=\"header-menu-menu-link-content51505d48-58c0-4817-9314-766569f46609--2\" class=\"sf-depth-3 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-nris%C2%A0preparatory-process\" class=\"sf-depth-3 sf-external\" rel=\"noreferrer\">IGF 2023: NRIs Preparatory Process</a></li><li id=\"header-menu-menu-link-content98c2a1ff-0536-4bfb-9022-6ce726c55bdf--2\" class=\"sf-depth-3 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2022-nris%C2%A0preparatory-process\" class=\"sf-depth-3 sf-external menuparent\" rel=\"noreferrer\">IGF 2022 Preparatory Process</a><ul><li id=\"header-menu-menu-link-contentf420e94e-297b-40be-afd4-599d454c9405--2\" class=\"sf-depth-4 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/content/igf-2022-nris-collaborative-sessions\" class=\"sf-depth-4 sf-external\" rel=\"noreferrer\">IGF 2022 NRIs Collaborative Sessions</a></li></ul></li></ul></li><li id=\"header-menu-menu-link-content9e27fa37-9921-45b0-8e2d-be6b1b30d3b2--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/nri-news\" class=\"sf-depth-2\">NRIs News</a></li><li id=\"header-menu-menu-link-content7d9a3804-00a9-44bb-b8e4-1ff26b4dddf5--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://intgovforum.org/en/nri-library/outputs\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">NRIs Library</a></li><li id=\"header-menu-menu-link-content23601c97-a8a4-4ab8-8b06-d264b20794f6--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2022-call-for-nris-grants\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF 2023 NRIs Call for Grants</a></li><li id=\"header-menu-menu-link-contentf1c3b73e-9019-4c89-9344-e9f79cde363e--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/nri-dashboard\" class=\"sf-depth-2\">NRI Dashboard</a></li><li id=\"header-menu-menu-link-content54064212-d72f-43c2-9006-83ed27faa581--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/nris-meetings-in-2023\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">NRIs 2023 Meetings - overview</a></li></ul></li><li id=\"header-menu-menu-link-content2bb14012-bc25-4c8d-8b35-ab0b30bbb181--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2021-07/Publication_Reports.svg\" alt=\"Publications &amp; Reports Menu\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"/en/content/igf-annual-meetings-proceedings\" class=\"sf-depth-1 menuparent\">Publications and Reports</a><ul><li id=\"header-menu-menu-link-contentc9633d61-db4b-44a7-9df7-e39ba46a63f2--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/igf-annual-meetings-proceedings\" class=\"d-md-none sf-depth-2\">Publications and Reports</a></li><li id=\"header-menu-menu-link-content99b58d95-8abe-44d8-a60a-3f524d8b0b77--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/igf-annual-meetings-proceedings\" class=\"sf-depth-2\">IGF Annual Meeting Proceedings</a></li><li id=\"header-menu-menu-link-content2fa88ccb-31bf-4a65-b639-5472a5300f7a--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/igf-retreat-documents\" class=\"sf-depth-2\">IGF Retreat Documents</a></li><li id=\"header-menu-menu-link-content9e2c9bd6-1d45-4650-a712-3d51c42dad51--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/cstd-reports-1\" class=\"sf-depth-2\">CSTD Reports</a></li><li id=\"header-menu-menu-link-content7ae44513-e271-452c-a138-a3e16712a050--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"/en/content/un-general-assembly-resolutions-on-icts-for-sustainable-development\" class=\"sf-depth-2\">UN GA Resolutions on ICT for SD</a></li></ul></li><li id=\"header-menu-menu-link-content5328ac0c-2f2e-40a6-9e4f-95f1f8643c36--2\" class=\"sf-depth-1 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2021-08/calendar_0.svg\" alt=\"Event Calendar\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"/en/calendar\" class=\"sf-depth-1\">Calendar</a></li><li id=\"header-menu-menu-link-contenta5301aa3-61a3-4739-a8ab-de6bcb029e20--2\" class=\"sf-depth-1 menuparent\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"><div class=\"field field--name-field-menu-image field--type-image field--label-hidden field__item\"><img src=\"/sites/default/files/2021-04/Press_0.svg\" alt=\"IGF Press Menu\" loading=\"lazy\" typeof=\"foaf:Image\" class=\"img-fluid\" /></div></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-information-for-media-0\" class=\"sf-depth-1 sf-external menuparent\" rel=\"noreferrer\">Press</a><ul><li id=\"header-menu-menu-link-contentc0201d23-e646-448e-8575-a8b75d39914b--2\" class=\"sf-depth-2 sf-no-children\"><div class=\"menu_link_content menu-link-contentheader-menu view-mode-superfish menu-dropdown menu-type-superfish\"></div><a href=\"https://www.intgovforum.org/en/content/igf-2023-information-for-media-1\" class=\"sf-depth-2 sf-external\" rel=\"noreferrer\">IGF 2023 Information for Media</a></li></ul></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</div>
+</header>
+<main role=\"main\">
+<a id=\"main-content\" tabindex=\"-1\"></a>
+<div class=\"container-fluid m-0 p-0\">
+<div class=\"main-page\">
+<div class=\"region region-status-message\">
+<div data-drupal-messages-fallback class=\"hidden\"></div>
+</div>
+<div class=\"container\">
+<div class=\"region region-breadcrumb\">
+<div id=\"block-igf-breadcrumbs\" class=\"block block-system block-system-breadcrumb-block block-\" id>
+<nav aria-label=\"breadcrumb\">
+<h2 id=\"system-breadcrumb\" class=\"visually-hidden\">Breadcrumb</h2>
+<ol class=\"breadcrumb\">
+<li class=\"breadcrumb-item\">
+<a href=\"/en\">Home</a>
+</li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+<div class=\"container page-container\">
+<div class=\"row\">
+<div class=\"col-12 col-lg-9 side-main-body\">
+<div class=\"region region-content\">
+<div id=\"block-igf2023-highleveltrack\" class=\"container page-title-35 block block-core block-page-title-block block-\" id>
+<h1 class=\"display-4 text-center page-title\"><span class=\"field field--name-title field--type-string field--label-hidden\">IGF 2019 WS #191<br/>
+Public Interest Data: Where Are We? To Do What?</span>
+</h1>
+</div>
+<div id=\"block-igf-system-main\" class=\"block block-system block-system-main-block block-\" id>
+<article role=\"article\" about=\"/en/content/igf-2019-ws-191-public-interest-data-where-are-we-to-do-what\" class=\"node node--type-workshop-proposal node--view-mode-full\">
+<div class=\"node__content\">
+<div class=\" group-information field-group-htabs field-group-tabs-wrapper\"><div data-horizontal-tabs-panes>
+<input class=\"horizontal-tabs-active-tab form-control\" type=\"hidden\" />
+<details class=\"group-session field-group-htab js-form-wrapper form-wrapper\" id=\"edit-group-session\"> <summary role=\"button\" aria-controls=\"edit-group-session\" aria-expanded=\"false\" aria-pressed=\"false\">Session</summary><div class=\"details-wrapper\">
+<div class=\"clearfix text-formatted field field--name-field-theme field--type-text-long field--label-inline\">
+<div class=\"field__label\">Subtheme</div>
+<div class=\"field__item\"><p><a target=\"_blank\" href=\"https://www.intgovforum.org/multilingual/taxonomy/term/427\">Data Governance</a></p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-sub-theme field--type-text-long field--label-inline\">
+<div class=\"field__label\">Issue(s)</div>
+<div class=\"field__item\"><p><a target=\"_blank\" href=\"https://www.intgovforum.org/multilingual/taxonomy/term/567\">Accountability</a><br/><a target=\"_blank\" href=\"https://www.intgovforum.org/multilingual/taxonomy/term/571\">Data driven economy</a><br/><a target=\"_blank\" href=\"https://www.intgovforum.org/multilingual/taxonomy/term/576\">Data Sovereignty</a><br/></p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-organizers-information field--type-text-long field--label-hidden field__item\"><p><b>Organizer 1: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/8587\">Laurent Cytermann</a>, Conseil d'Etat<br/><b>Organizer 2: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/9082\">Salwa Toko </a>, French Digital Council - Conseil national du numérique <br/></p>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-speakers field--type-text-long field--label-hidden field__item\"><p><b>Speaker 1: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/8808\">Paula Forteza</a>, Government, Western European and Others Group (WEOG)<br/><b>Speaker 2: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/1479\">Carolyn Nguyen</a>, Private Sector, Western European and Others Group (WEOG)<br/><b>Speaker 3: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/9155\">Chérif Diallo</a>, Government, African Group<br/><b>Speaker 4: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/9105\">Sebastien Soriano</a>, Government, Western European and Others Group (WEOG)<br/><b>Speaker 5: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/1438\">Luca Belli</a>, Civil Society, Latin American and Caribbean Group (GRULAC)<br/><b>Speaker 6: </b><a target=\"_blank\" href=\"https://www.intgovforum.org/user/5417\">Lucien M. CASTEX</a>, Technical Community, Western European and Others Group (WEOG)<br/></p>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-additional-speakers field--type-text-long field--label-above\">
+<div class=\"field__label\">Additional Speakers</div>
+<div class=\"field__item\"><p dir=\"ltr\"><strong>Organizer 1: </strong>Annie Blandin, French Digital Council - Conseil national du numérique CNNum (WEOG)</p>
+<p dir=\"ltr\"><strong>Organizer 2:</strong><a href=\"https://www.intgovforum.org/user/5417\"><strong> </strong></a>Laurent Cytermann, Government, Western European and Others Group (WEOG)</p>
+<p> </p>
+<p dir=\"ltr\"><strong>Speaker 1: </strong><a href=\"https://www.intgovforum.org/user/login?destination=user/13404\"><u>Francesca Bria</u></a>, Government, Western European and Others Group (WEOG) </p>
+<p dir=\"ltr\"><strong>Speaker 2:</strong><a href=\"https://www.intgovforum.org/user/9105\"><strong> </strong><u>Sebastien Soriano</u></a>, Technical Community, Western European and Others Group (WEOG)</p>
+<p dir=\"ltr\"><strong>Speaker 3:</strong><a href=\"https://www.intgovforum.org/user/1438\"><strong> </strong><u>Luca Belli</u></a>, Civil Society, Latin American and Caribbean Group (GRULAC)</p>
+<p dir=\"ltr\"><strong>Speaker 4:</strong><a href=\"https://www.intgovforum.org/user/9155\"><strong> </strong><u>Chérif Diallo</u></a>, Government, African Group </p>
+<p><strong>Speaker 5</strong> : <a href=\"https://www.intgovforum.org/users/lucien-castex\"><u>Lucien Castex</u></a>, Internet Society, Technical community (WEOG)</p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-onsite-moderator field--type-text field--label-inline\">
+<div class=\"field__label\">Moderator</div>
+<div class=\"field__item\"><p><a target=\"_blank\" href=\"https://www.intgovforum.org/user/8587\">Laurent Cytermann</a>, Government, Western European and Others Group (WEOG)<br/></p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-online-moderator field--type-text field--label-inline\">
+<div class=\"field__label\">Online Moderator</div>
+<div class=\"field__item\"><p><a target=\"_blank\" href=\"https://www.intgovforum.org/user/10802\">Theodore Christakis</a>, Civil Society, Western European and Others Group (WEOG)<br/></p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-rapporteur field--type-text field--label-inline\">
+<div class=\"field__label\">Rapporteur</div>
+<div class=\"field__item\"><p><a target=\"_blank\" href=\"https://www.intgovforum.org/user/8587\">Laurent Cytermann</a>, Government, Western European and Others Group (WEOG)<br/></p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-co-organizers field--type-text-long field--label-inline\">
+<div class=\"field__label\">Format</div>
+<div class=\"field__item\"><p>Debate - Auditorium - 90 Min</p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-policy-questions field--type-text-long field--label-above\">
+<div class=\"field__label\">Policy Question(s)</div>
+<div class=\"field__item\"><ul><li dir=\"ltr\">
+<p dir=\"ltr\">What is the definition of public interest data? </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">What are the legislative frameworks on the sharing of public interest data?</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">How to encourage actors to share their data in the goal of the general interest?</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">What regulation for public interest data?</p>
+</li>
+</ul></div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-sdgs field--type-text-long field--label-above\">
+<div class=\"field__label\">SDGs</div>
+<div class=\"field__item\"><p>GOAL 1: No Poverty<br/>GOAL 2: Zero Hunger<br/>GOAL 3: Good Health and Well-Being<br/>GOAL 4: Quality Education<br/>GOAL 5: Gender Equality<br/>GOAL 6: Clean Water and Sanitation<br/>GOAL 7: Affordable and Clean Energy<br/>GOAL 8: Decent Work and Economic Growth<br/>GOAL 9: Industry, Innovation and Infrastructure<br/>GOAL 10: Reduced Inequalities<br/>GOAL 11: Sustainable Cities and Communities<br/>GOAL 12: Responsible Production and Consumption<br/>GOAL 13: Climate Action<br/>GOAL 14: Life Below Water<br/>GOAL 15: Life on Land<br/>GOAL 16: Peace, Justice and Strong Institutions<br/>GOAL 17: Partnerships for the Goals<br/></p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-session-content field--type-text-long field--label-hidden field__item\"><p dir=\"ltr\">DESCRIPTION</p>
+<p dir=\"ltr\"><strong>Public interest data also named as data of general interest can be defined as private data whose opening is justified by a goal of public interest - for example health or ecology. </strong></p>
+<p dir=\"ltr\"><strong>Public sector bodies like private companies are adopting data-driven decision making and build up data analytics capacities</strong>. Statistical offices are reflecting to what extent the traditional, cost-intensive data gathering methods can be replaced by Big Data analytics. In a number of scenarios, public sector bodies could significantly improve their decision making using commercially-held information, notably for reasons of public health policy, spatial and urban planning, natural and technological risk management, managing energy supply grids or protecting the environment. </p>
+<p dir=\"ltr\"><strong>In 2016, the French Act for a Digital Republic introduced a legislation on public interest data</strong>. Indeed, France has put in place the possibility for the government to request commercial players to give access to data they hold for the purpose of establishing public statistics. This is subject to a number of procedural safeguards, namely a structured discussion with the private operator, a study on the feasibility and opportunity of such request and a consultation of the National Statistics Council. The decision to grant the right to access commercial data is taken by the minister in charge. Along those lines, more authorities could be identified that could be granted such a right to access commercially-held data, while at the same time procedural safeguards would need to be put in place so that existing rights on data are being respected and compensation mechanism being devised. Similarly, enhanced access to commercially-held data for scientific researchers funded from public resources could be contemplated. Recently, new insights have emerged in France on public data interest in the context of the French general assembly for the new digital regulations. Moreover, the rise of artificial intelligence (AI) gives new momentum to this issue, as the training of algorithms requires a huge amount of data.</p>
+<p dir=\"ltr\"><strong>If France is a pioneer, many countries and the European Union are starting to think about legislation on data of general interest. It is therefore time to think about a coherent legal framework for public interest data and ways to facilitate data sharing between economic actors. For example, the principle of circulation of data is written on the INSPIRE directive and the regulation on the free flow of non-personal data. It is also a priority of the new mandature of the European Union.  </strong></p>
+<p dir=\"ltr\">SESSION EXPECTED OUTCOMES</p>
+<p dir=\"ltr\"><strong>This panel will propose a contribution to the framing of a common data space, which should make room for the opening of private data</strong>. </p>
+<p dir=\"ltr\">In a first session, it will <strong>explore the different regulatory frameworks</strong> applied to the data of public interest, to open the discussion on <strong>how to define class of data to which access could be given, to public and private sectors bodies, associations and publicly funded researchers. </strong>Indeed, this panel will have drawn a complete picture of the different regulatory methods applied today to public interest data with concrete examples.<strong> </strong></p>
+<p dir=\"ltr\"><strong>In a second session, this panel will also discuss about the regulation on public interest data. </strong>At the end of each session, the moderator will then open the floor for interaction with the public to engage in a discussion about the future of legislation on public interest data.</p>
+<p dir=\"ltr\"><strong>Interventions: </strong></p>
+<ul><li dir=\"ltr\">
+<p dir=\"ltr\">Annie Blandin, member of the French Digital Council (independent advisory commission created to address all the questions set up by the development of the digital in society and economy) will discuss about the recent French debate of public interest data especially the environmental data. </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Francesca Bria, Barcelona's Chief Technology and Digital will discuss on how to give back the control of data to citizens and how Barcelona shows that citizens' <em>data</em> can generate public value.</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Chérif Diallo, Director of ICT at the Telecommunication Ministry in Senegal, will bring his expertise on a State centered, traditional regulation and will be able to share with the public the recent framework put in place in Senegal. </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Sebastien Soriano, president of the french regulator ARCEP will explain how to give back the power of information to the many. Data is full of promises, not only for Big Tech but also to empower the many. By regulating with data, regulators can use the power of information to shed light on how markets operate, steer them towards the achievement of public policy goals and enable users to make more informed choices. </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Luca Belli, PhD is Professor of Internet Governance and Regulation at Fundação Getulio Vargas (FGV) Law School, where he heads the CyberBRICS project, and associated researcher at Centre de Droit Public Comparé of Paris 2 University. He will explain the brazilian legislations and reflections on open data and on public interest data. </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Lucien Castex, researcher at Université Sorbonne Nouvelle and Secretary General of Internet Society France, has in depth knowledge of a variety of policy issues concerning internet Governance and Internet regulation. He will talk about the link between innovation and public interest data, with the case study of artificial intelligence. </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Laurent Cytermann, member of Conseil d’Etat France will introduce, conclude and moderate this session. He is an expert of public interest data in France. </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Marylou Le Roy, legal and institutional affaires officer of the French Digital Council will moderate the online participation.</p>
+</li>
+</ul></div>
+<div class=\"clearfix text-formatted field field--name-field-discussion-facilitation field--type-text-long field--label-hidden field__item\"><p dir=\"ltr\">The list below provides examples of the ways discussion and presentation will be facilitated amongst speakers, audience members, and online participants and ensure the session format is used to its optimum: Seating: The panel of experts will debate share their expertise and their vision on Internet regulation sitting at the same table so the participants can see and hear them. It will be an effective way to compare and contrast the various positions of the panel. The moderator will open the discussion with a general review of the policy question and then speakers will provide their remarks on the question and then address questions from the moderator. At least 30 minutes will be allowed for questions/comments from the audience.</p>
+<p dir=\"ltr\"><u>Media:</u> The organizers will explore the use of visuals (i.e. interactive presentation, charts) to animate the session and aid those whose native language may not be English. Experts who have short video material to share will be encouraged to help animate discussion and debate on these examples. Video material may also be considered to help engage remote participants.</p>
+<p dir=\"ltr\"><u>Preparation:</u> One prep call has been organised for all speakers, moderators and co-organisers before the workshop so that everyone has a chance to meet, share views and prepare for the session. <strong>A conference on public interest data has been organised on this theme during the French Internet Governance Forum on July 4th, 2019. </strong></p>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-relevance field--type-text-long field--label-hidden field__item\"><p dir=\"ltr\">Public interest data are and will be at the center of the problems of the data economy and the data governance. The share of public interest data will impact the Internet Governance especially the relations between Governments and the private sector.</p>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-online-participation field--type-text-long field--label-above\">
+<div class=\"field__label\">Online Participation</div>
+<div class=\"field__item\"><p>The remote moderator will be involved throughout workshop to include participation from online viewers. The onsite moderator will frequently communicate with the remote moderator during the session to ensure remote participants’ views/questions are reflected and integrated to the discussion, specially suring the Q&amp;A sequence. This will ensure remote participations are given the opportunity to interact with multiple experts remotely. Organizers have specially invited a participant to act as the remote moderator and will share information with the remote moderator about training sessions for remote participation at IGF and ensure they have all the necessary information. Co-organizers will ensure that the workshop is promoted in advance to the wider community to give remote participants the opportunity to prepare questions and interventions in advance. We can include the intervention from youth participants from Latin America and Africa to increase diversity and bring fresh opinions and questions to the debate. Any handouts prepared in advance for the panel will be shared with remote participants at the start of the session so that they have the necessary material to participate.</p>
+<p><strong>Proposed Additional Tools: </strong>The position of the French administration on public interest data are published on the French Digital Council website under the Creative commons licences. Given the varied background of discussants and audience members, organisers will explore introducing questions to animate discussion on social media in the run up to the workshop. This will introduce the subject, encourage conversation and create links to other dialogues on digital skills taking place in other forums to create awareness and help prepare in-person and remote participants for the workshop.</p>
+</div>
+</div>
+<div class=\"clearfix text-formatted field field--name-field-agenda field--type-text-long field--label-above\">
+<div class=\"field__label\">Agenda</div>
+<div class=\"field__item\"><ul><li dir=\"ltr\">
+<p dir=\"ltr\">Introduction by Laurent Cytermann (Conseil d’Etat France) (5 min) on the definition of public interest data</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">First session : The framework of public interest data </p>
+<ul><li dir=\"ltr\">
+<p dir=\"ltr\">Reflections on Data of public interest : the case of environmental data by Annie Blandin (9 min)</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Innovation and Data of public interest : the case of artificial intelligence by Lucien Castex (9 min)</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Reflections on open data and data of public interest : Brazil by Luca Belli (9 min)</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Q&amp;A and debate moderated by Laurent Cytermann (Conseil d’Etat France) (10 min)</p>
+</li>
+</ul></li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Second session : Regulation and public interest data </p>
+<ul><li dir=\"ltr\">
+<p dir=\"ltr\">State regulation and data of public interest by Chérif Diallo (Senegalese Government) (9 min)</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Data-driven regulation and data of public interest by Sébastien Soriano (ARCEP) (9 min) </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Cities Driving for Personal <em>Data</em> by Francesca Bria (Barcelona's Chief Technology and Digital) (9 min) </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Q&amp;A and debate moderated by Laurent Cytermann (Conseil d’Etat France) (9 min)</p>
+</li>
+</ul></li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">Conclusion by Laurent Cytermann (Conseil d’Etat France) (5 min)</p>
+</li>
+</ul></div>
+</div>
+</div>
+</details>
+<details id=\"edit-group-report\" class=\"js-form-wrapper form-wrapper\"> <summary role=\"button\" aria-controls=\"edit-group-report\" aria-expanded=\"false\" aria-pressed=\"false\">Report</summary><div class=\"details-wrapper\">
+<div class=\"clearfix text-formatted field field--name-field-key-policy-questions field--type-text-long field--label-above\">
+<div class=\"field__label\">1. Key Policy Questions and Expectations</div>
+<div class=\"field__item\"><ul><li dir=\"ltr\">
+<p dir=\"ltr\">What is the definition of public interest data? </p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">What are the legislative frameworks on the sharing of public interest data?</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">How to encourage actors to share their data in the goal of the general interest?</p>
+</li>
+<li dir=\"ltr\">
+<p dir=\"ltr\">What regulation for public interest data?</p>
+</li>
+</ul></div>
+</div>
+</div>
+</details>
+</div>
+</div><section id=\"node-workshop-proposal-comment-node-workshop-proposal\" class=\"field field--name-comment-node-workshop-proposal field--type-comment field--label-hidden comment-wrapper\">
+</section>
+</div>
+</article>
+</div>
+</div>
+</div>
+<div class=\"col-12 col-lg-3 side-bar-body\">
+<div class=\"region region-sidebar-second\">
+<div class=\"views-element-container schedule-sidebar block block-views block-views-blocksubscription-block-1 block-\" id=\"block-views-block-subscription-block-1\" id>
+<div><div class=\"view view-subscription view-id-subscription view-display-id-block_1 js-view-dom-id-e32eabbdf52fc0494be8d4827c1931019421d964f3f2556c8f41bdad0090f76d\">
+<div class=\"view-content\">
+<div class=\"views-row\"><div class=\"views-field views-field-schedule-flag-link\"><span class=\"field-content\"><a href=\"/en/user/login?destination=en/content/igf-2019-ws-191-public-interest-data-where-are-we-to-do-what\">Add this session to my schedule</a></span></div><div class=\"views-field views-field-views-conditional-field-2\"><span class=\"field-content\"></span></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class=\"mt-auto footer     \">
+<div class=\"container-fluid m-0 p-0\">
+<div class=\"container\">
+<div class=\"row\">
+<div class=\"col-md-3\">
+<div class=\"region region-footer1\">
+<div id=\"block-footerunitednations\" class=\"block block-block-content block-block-content9f8c098a-4744-44af-b2f1-1ee337a70995 block-\" id>
+<div class=\"clearfix text-formatted field field--name-body field--type-text-with-summary field--label-hidden field__item\"><div class=\"footer-united-nation\">
+<p><img alt=\"United Nations Logo\" class=\"img-responsive\" data-entity-type=\"file\" data-entity-uuid src=\"/sites/default/files/inline-images/UN_logo_2022_emblem.png\" width=\"100\"></img></p>
+<p>UNITED NATIONS</p>
+</div>
+</div>
+</div>
+<div class=\"views-exposed-form bef-exposed-form col-lg-12 col-md-12 col-sm-12 block block-views block-views-exposed-filter-blocksearch-search-block block-\" data-bef-auto-submit-full-form data-bef-auto-submit data-bef-auto-submit-delay=\"500\" data-drupal-selector=\"views-exposed-form-search-search-block\" id=\"block-exposedformsearchsearch-block\" id>
+<form action=\"/en/search\" method=\"get\" id=\"views-exposed-form-search-search-block\" accept-charset=\"UTF-8\">
+<div class=\"form--inline clearfix\">
+<div class=\"js-form-item form-item js-form-type-search-api-autocomplete form-type-search-api-autocomplete js-form-item-search-api-fulltext form-item-search-api-fulltext\">
+<input data-bef-auto-submit-exclude data-drupal-selector=\"edit-search-api-fulltext\" type=\"text\" id=\"edit-search-api-fulltext--2\" name=\"search_api_fulltext\" value=\"Search\" size=\"30\" maxlength=\"128\" class=\"form-text form-control\" />
+</div>
+<div class=\"js-form-item form-item js-form-type-textfield form-type-textfield js-form-item-feed-me form-item-feed-me\">
+<label for=\"edit-feed-me--2\">Feed me</label>
+<input class=\"feed_me_textfield form-text form-control\" data-drupal-selector=\"edit-feed-me\" type=\"text\" id=\"edit-feed-me--2\" name=\"feed_me\" value size=\"60\" maxlength=\"128\" />
+</div>
+<div data-drupal-selector=\"edit-actions\" class=\"form-actions js-form-wrapper form-wrapper\" id=\"edit-actions--2\">
+<input data-bef-auto-submit-click class=\"js-hide button js-form-submit form-submit btn btn-primary\" data-drupal-selector=\"edit-submit-search-2\" type=\"submit\" id=\"edit-submit-search--2\" value=\"Apply\" />
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<div class=\"col-md-3\">
+<div class=\"region region-footer2\">
+<nav role=\"navigation\" aria-labelledby=\"block-resources-menu\" id=\"block-resources\" class=\"footer-resources block block-menu navigation menu--resources\">
+<h5 id=\"block-resources-menu\">Resources</h5>
+<ul class=\"nav navbar-nav\">
+<li class=\"nav-item\">
+<a href=\"/en/document-explorer\" class=\"nav-link\" data-drupal-link-system-path=\"document-explorer\">Documents</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/publications\" class=\"nav-link\" data-drupal-link-system-path=\"filedepot/folder/8\">Publications</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/press\" class=\"nav-link\" data-drupal-link-system-path=\"filedepot/folder/6\">Press</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/glossary\" class=\"nav-link\" data-drupal-link-system-path=\"glossary\">Glossary</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=\"col-md-3\">
+<div class=\"region region-footer3\">
+<nav role=\"navigation\" aria-labelledby=\"block-additionalinformation-menu\" id=\"block-additionalinformation\" class=\"footer-additional-info block block-menu navigation menu--additional-information\">
+<h5 id=\"block-additionalinformation-menu\">Additional Information</h5>
+<ul class=\"nav navbar-nav\">
+<li class=\"nav-item\">
+<a href=\"/en/content/donate\" class=\"nav-link\" data-drupal-link-system-path=\"node/16745\">Donate to the IGF</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/content/about-participant-funding\" class=\"nav-link\" data-drupal-link-system-path=\"node/2081\">Participant Funding</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/vacancies\" class=\"nav-link\" data-drupal-link-system-path=\"taxonomy/term/65\">Vacancies</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/content/multilingual-collaboration-at-the-igf\" class=\"nav-link\" data-drupal-link-system-path=\"node/7689\">Multilingualism</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"/en/content/accessibility-statement\" class=\"nav-link\" data-drupal-link-system-path=\"node/17480\">Accessibility</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=\"col-md-3\">
+<div class=\"region region-footer4\">
+<div id=\"block-contactinformation\" class=\"footer-Contact-Info block block-block-content block-block-contentb7320894-86db-4835-ad0a-2ea427e9efba block-\" id>
+<div class=\"clearfix text-formatted field field--name-body field--type-text-with-summary field--label-hidden field__item\"><h5>Contact information</h5>
+<p>United Nations<br/>
+Secretariat of the Internet Governance Forum (IGF)</p>
+<p>Villa&nbsp;Le Bocage<br/>
+Palais des Nations,<br/>
+CH-1211 Geneva 10<br/>
+Switzerland</p>
+<p>igf [at] un [dot] org<br/>
++41 (0) 229 173 411</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</footer>
+<div class=\"social_icons\">
+<div class=\"container\">
+<div class=\"row\">
+<div class=\"col-lg-6 col-md-12 col-12\">
+<div class=\"region region-footer-social-left\">
+<nav role=\"navigation\" aria-labelledby=\"block-igf-engagewithus-menu\" id=\"block-igf-engagewithus\" class=\"container block block-menu navigation menu--engage-with-us\">
+<h5 id=\"block-igf-engagewithus-menu\">CONNECT WITH US</h5>
+<ul class=\"nav navbar-nav\">
+<li aria-label=\"Twitter\" class=\"nav-item\">
+<a href=\"https://mobile.twitter.com/intgovforum\" class=\"nav-link\" aria-label=\"twitter\" target=\"_blank\" rel=\"noopener noreferrer\"><i class=\"fab fa-twitter-square\" aria-hidden=\"true\"></i></a>
+</li>
+<li aria-label=\"Facebook\" class=\"nav-item\">
+<a href=\"https://www.facebook.com/IntGovForum\" class=\"nav-link\" aria-label=\"facebook\" target=\"_blank\" rel=\"noopener noreferrer\"><i class=\"fab fa-facebook-square\" aria-hidden=\"true\"></i></a>
+</li>
+<li aria-label=\"Youtube\" class=\"nav-item\">
+<a href=\"https://www.youtube.com/user/igf\" class=\"nav-link\" aria-label=\"youtube\" target=\"_blank\" rel=\"noopener noreferrer\"><i class=\"fab fa-youtube\" aria-hidden=\"true\"></i></a>
+</li>
+<li aria-label=\"Instagram\" class=\"nav-item\">
+<a href=\"https://www.instagram.com/intgovforum/\" class=\"nav-link\" aria-label=\"instagram\" target=\"_blank\" rel=\"noopener noreferrer\"><i class=\"fab fa-instagram\" aria-hidden=\"true\"></i></a>
+</li>
+<li aria-label=\"Albums\" class=\"nav-item\">
+<a href=\"https://www.flickr.com/photos/185833270@N04/albums\" class=\"nav-link\" aria-label=\"flickr\" target=\"_blank\" rel=\"noopener noreferrer\"><i class=\"fab fa-flickr\" aria-hidden=\"true\"></i></a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=\"col-lg-6 col-md-12 col-12\">
+<div class=\"region region-footer-social-right\">
+<div id=\"block-newslettersubscribefooter\" class=\"block block-block-content block-block-content868ca34e-2531-434e-b32c-1f1a1fa132c2 block-\" id>
+<div class=\"clearfix text-formatted field field--name-body field--type-text-with-summary field--label-hidden field__item\"><p><a class=\"btn btn-primary\" href=\"/content/igf-communications-subscription\" type=\"button\">Subscribe To Our Communications Here</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=\"region region-copyright\">
+<nav role=\"navigation\" aria-labelledby=\"block-igf-footer-menu\" id=\"block-igf-footer\" class=\"container block block-menu navigation menu--footer\">
+<h5 class=\"visually-hidden\" id=\"block-igf-footer-menu\">Footer menu</h5>
+<ul class=\"nav navbar-nav\">
+<li class=\"nav-item\">
+<a href=\"https://www.un.org/en/about-us/copyright\" class=\"nav-link\" rel=\"noreferrer\">Copyright</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"https://www.un.org/en/sections/about-website/privacy-notice/\" class=\"nav-link\" rel=\"noreferrer\">Privacy Notice</a>
+</li>
+<li class=\"nav-item\">
+<a href=\"https://www.un.org/en/sections/about-website/terms-use/\" class=\"nav-link\" rel=\"noreferrer\">Terms of Use</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<script type=\"application/json\" data-drupal-selector=\"drupal-settings-json\">{\"path\":{\"baseUrl\":\"\\/\",\"scriptPath\":null,\"pathPrefix\":\"en\\/\",\"currentPath\":\"node\\/7840\",\"currentPathIsAdmin\":false,\"isFront\":false,\"currentLanguage\":\"en\"},\"pluralDelimiter\":\"\\u0003\",\"suppressDeprecationErrors\":true,\"ajaxPageState\":{\"libraries\":\"addtocal\\/addtocal,ajax_comments\\/commands,back_to_top\\/back_to_top_icon,back_to_top\\/back_to_top_js,better_exposed_filters\\/auto_submit,better_exposed_filters\\/general,bootstrap4\\/bootstrap4-js-latest,bootstrap4\\/global-styling,calendar\\/calendar.theme,classy\\/base,classy\\/messages,classy\\/node,core\\/drupal.collapse,core\\/normalize,field_group\\/element.horizontal_tabs,fontawesome\\/fontawesome.svg,fontawesome\\/fontawesome.svg.shim,formtips\\/formtips,google_analytics\\/google_analytics,igf\\/global-js,igf\\/global-styling,spamicide\\/spamicide,superfish\\/superfish,superfish\\/superfish_hoverintent,superfish\\/superfish_smallscreen,superfish\\/superfish_supersubs,superfish\\/superfish_supposition,system\\/base,views\\/views.module\",\"theme\":\"igf\",\"theme_token\":null},\"ajaxTrustedUrl\":{\"\\/en\\/search\":true},\"formtips\":{\"selectors\":[\"\"],\"interval\":100,\"sensitivity\":1,\"timeout\":0,\"max_width\":\"500px\",\"trigger_action\":\"click\"},\"back_to_top\":{\"back_to_top_button_trigger\":\"100\",\"back_to_top_prevent_on_mobile\":0,\"back_to_top_prevent_in_admin\":0,\"back_to_top_button_type\":\"image\",\"back_to_top_button_text\":\"Back to top\"},\"google_analytics\":{\"account\":\"UA-57305801-4\",\"trackOutbound\":true,\"trackMailto\":true,\"trackDownload\":true,\"trackDownloadExtensions\":\"7z|aac|arc|arj|asf|asx|avi|bin|csv|doc(x|m)?|dot(x|m)?|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt(x|m)?|pot(x|m)?|pps(x|m)?|ppam|sld(x|m)?|thmx|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls(x|m|b)?|xlt(x|m)|xlam|xml|z|zip\",\"trackDomainMode\":1},\"igf_custom\":{\"base_url\":\"https:\\/\\/www.intgovforum.org\\/en\"},\"field_group\":{\"tabs\":{\"mode\":\"default\",\"context\":\"view\",\"settings\":{\"classes\":\"group-information field-group-htabs\",\"id\":\"\",\"formatter\":\"\",\"direction\":\"horizontal\"}},\"tab\":{\"mode\":\"default\",\"context\":\"view\",\"settings\":{\"classes\":\"group-session field-group-htab\",\"id\":\"\",\"formatter\":\"closed\",\"description\":\"\"}}},\"superfish\":{\"superfish-header-menu\":{\"id\":\"superfish-header-menu\",\"sf\":{\"animation\":{\"opacity\":\"show\",\"height\":\"show\"},\"speed\":\"fast\",\"autoArrows\":false},\"plugins\":{\"smallscreen\":{\"mode\":\"window_width\",\"title\":\"Header Menu\"},\"supposition\":true,\"supersubs\":true}},\"superfish-account\":{\"id\":\"superfish-account\",\"sf\":{\"animation\":{\"opacity\":\"show\",\"height\":\"show\"},\"speed\":\"fast\"},\"plugins\":{\"smallscreen\":{\"mode\":\"window_width\",\"title\":\"User menu\"},\"supposition\":true,\"supersubs\":true}}},\"user\":{\"uid\":0,\"permissionsHash\":\"eda4739e3240bc92f89a0393fa5422398927a7d9a42365b366aee4b7400a616c\"}}</script>
+<script src=\"/sites/default/files/js/js_9ykazaI0mVw6udPiqSCZoVHA8LAaQPKJ79WiOibbZXY.js\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script src=\"//cdn.jsdelivr.net/npm/details-polyfill@1/index.min.js\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script src=\"/sites/default/files/js/js_S1peHXd0SuPbqPud2-WiVBvwxERkOOmZrwAZ99geHUo.js\" type=\"21bb286daa35f52b91e55043-text/javascript\"></script>
+<script src=\"/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js\" data-cf-settings=\"21bb286daa35f52b91e55043-|49\" defer></script></body>
+</html>";
+        $chunks = $this->htmlExtractor->extractChunksFromString($htmlString);
+        foreach ($chunks as $chunk) {
+            if (str_contains($chunk->getText(), "adopting data-driven decision")){
+                $dataDrivenChunk = $chunk->getText();
+            }
+        }
+
+        $this->assertTrue(str_contains($dataDrivenChunk, "managing energy supply grids or protecting the environment"));
+        $this->assertFalse(str_contains($dataDrivenChunk, "Annie Blandin, member of the French Digital Council"));
+    }
 }

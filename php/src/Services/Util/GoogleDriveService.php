@@ -16,6 +16,8 @@ class GoogleDriveService {
     private Drive $drive;
 
     public function __construct(private AuthenticationCredentialsService $credentialsService) {
+    }
+    private function initiateCredentialsFromConfig(){
         $credentialsKey = Configuration::readParameter("google.drive.credentials.key");
         if (!$credentialsKey) {
             Logger::log("No credentials found for Google Drive");
@@ -32,23 +34,15 @@ class GoogleDriveService {
         }
     }
 
-    public function setCredentials(string $credentials) {
-        echo "\n\n\n";
-        echo $credentials;
-        $credentials = json_decode($credentials, true);
-        if (!$credentials) throw new Exception("Bad Google Drive Credentials");
-        $this->client = new Client(["credentials" => $credentials]);
-        $this->client->addScope(Drive::DRIVE);
-        $this->drive = new Drive($this->client);
-    }
-
     /**
      * @param string $id
-     * @return Response
+     * @return array
      * @throws Exception
      */
     public function downloadFile(string $id) {
-        if (!isset($this->drive)) throw new Exception("Credentials for GoogleDriveService not set");
+        if (!isset($this->drive)) {
+            $this->initiateCredentialsFromConfig();
+        };
         $response = $this->drive->files->get($id, ['alt' => 'media']);
         $contents = $response->getBody()->getContents();
         $filetype = $response->getHeaders()["Content-Type"][0];

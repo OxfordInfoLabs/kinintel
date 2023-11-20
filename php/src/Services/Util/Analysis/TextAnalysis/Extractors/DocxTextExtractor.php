@@ -6,6 +6,8 @@ use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
 
 class DocxTextExtractor implements DocumentTextExtractor {
 
+    use ParagraphExtractorTrait;
+
     public function extractTextFromString($string) {
         $tmpDir = sys_get_temp_dir();
         $filePath = tempnam($tmpDir, "docx");
@@ -14,7 +16,12 @@ class DocxTextExtractor implements DocumentTextExtractor {
     }
 
     public function extractTextFromFile($filePath) {
+        $strippedContent = $this->extractRawTextFromFile($filePath);
+        $flatText = preg_replace("/\r|\n|\t/", "", $strippedContent);
+        return $flatText;
+    }
 
+    public function extractRawTextFromFile($filePath) {
         $content = '';
 
         $zipArchive = new \ZipArchive();
@@ -39,8 +46,22 @@ class DocxTextExtractor implements DocumentTextExtractor {
 
         $content = str_replace('</w:r></w:p></w:tc><w:tc>', " ", $content);
         $content = str_replace('</w:r></w:p>', "\r\n", $content);
-        $striped_content = strip_tags($content);
+        $strippedContent = strip_tags($content);
 
-        return preg_replace("/\r|\n|\t/", "", $striped_content);
+        return $strippedContent;
+    }
+
+    public function extractChunksFromFile($filePath, $minChunkLength = self::MIN_CHUNK_LENGTH) {
+        $text = $this->extractRawTextFromFile($filePath);
+        $chunks = $this->extractParagraphs($text, $minChunkLength);
+        return $chunks;
+    }
+
+    public function extractChunksFromString($string, $minChunkLength = self::MIN_CHUNK_LENGTH) {
+        $tmpDir = sys_get_temp_dir();
+        $filePath = tempnam($tmpDir, "docx");
+        file_put_contents($filePath, $string);
+        $text = $this->extractRawTextFromFile($filePath);
+        return $this->extractParagraphs($text, $minChunkLength);
     }
 }
