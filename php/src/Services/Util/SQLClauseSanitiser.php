@@ -176,6 +176,12 @@ class SQLClauseSanitiser {
 
         // Look for columns, literals or existing ? values
         $sqlString = preg_replace_callback("/(\[\[[a-zA-Z0-9\-_]*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
+            $literal = $matches[0];
+            if (trim($literal, "[]") != $literal) {
+                $columnNames[] = $literal;
+                return "$" . (sizeof($columnNames) - 1);
+            }
+
             $literal = trim($matches[0], "' ");
 
             // If a numerical value passed, ensure we cast accordingly
@@ -187,10 +193,7 @@ class SQLClauseSanitiser {
                 }
             }
 
-            if (trim($literal, "[]") != $literal) {
-                $columnNames[] = $literal;
-                return "$" . (sizeof($columnNames) - 1);
-            } else if ($literal === "?") {
+            if ($literal === "?") {
                 $parameterValues[] = array_shift($existingParams);
             } else {
                 $parameterValues[] = $literal;

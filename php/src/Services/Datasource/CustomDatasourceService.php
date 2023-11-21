@@ -175,7 +175,7 @@ class CustomDatasourceService {
             new Field("chunk_number", "Chunk Number", null, Field::TYPE_INTEGER, true),
             new Field("chunk_pointer", "Chunk Pointer", null, Field::TYPE_INTEGER),
             new Field("chunk_length", "Chunk Length", null, Field::TYPE_INTEGER),
-            new Field("embedding", "Embedding", null, Field::TYPE_MEDIUM_STRING)
+            new Field("embedding", "Embedding", null, Field::TYPE_LONG_STRING)
         ];
 
         $embeddingInstanceKey = "chunks_" . $newDatasourceKey;

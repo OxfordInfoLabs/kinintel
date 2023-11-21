@@ -36,21 +36,7 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
      * @throws Exception
      */
     public function embedString(string $text): array {
-        $payload = ['input'=>$text, 'model'=>'text-embedding-ada-002'];
-        $headers = $this->constructHeaders();
-
-        $request = new Request(
-            "https://api.openai.com/v1/embeddings", "POST",
-            payload: json_encode($payload), headers: $headers);
-
-        $response = $this->dispatcher->dispatch($request);
-        $jsonResponse = json_decode($response->getBody(), true);
-
-        //Handle errors
-        if (!$jsonResponse) throw new \Exception("Failed to bind bad OpenAI API response");
-        if (isset($jsonResponse["error"])) throw new Exception($jsonResponse["error"]["message"]);
-
-        return $jsonResponse["data"][0]["embedding"];
+        return $this->embedStrings([$text])[0];
     }
 
     public function compareEmbedding($embedding1, $embedding2) : float{
@@ -58,18 +44,21 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
     }
 
     /**
+     * Return an array of embedding objects
      * @param string[] $texts
      * @return array[]
      * @throws Exception
      */
     public function embedStrings(array $texts, $noAttempts = 0): array {
-
+        $texts = array_map($this->sanitiseText(...), $texts);
         $payload = ['input'=>$texts, 'model'=>'text-embedding-ada-002'];
         $headers = $this->constructHeaders();
+        $jsonPayload = json_encode($payload);
+        if (!$jsonPayload) throw new Exception("Bad arguments passed to embed strings: " . print_r($texts, true));
 
         $request = new Request(
             "https://api.openai.com/v1/embeddings", "POST",
-            payload: json_encode($payload), headers: $headers);
+            payload: $jsonPayload, headers: $headers);
 
         $response = $this->dispatcher->dispatch($request);
         $jsonResponse = json_decode($response->getBody(), true);
@@ -113,5 +102,10 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
         $headers = $credentials->getAuthParams();
         $headers["Content-Type"] = "application/json";
         return new Headers($headers);
+    }
+
+    private function sanitiseText(string $text) {
+        $out = str_replace("\\", "", $text);
+        return $out;
     }
 }

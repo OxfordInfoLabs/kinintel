@@ -10,6 +10,10 @@ class TextChunk {
     ) {
     }
 
+    public function setText(string $text): void {
+        $this->text = $text;
+    }
+
     public function getText(): string {
         return $this->text;
     }

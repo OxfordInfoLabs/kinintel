@@ -199,10 +199,16 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
                 if ($extractor && ($config->isIndexContent() or $config->isStoreText())) {
                     $text = isset($row["documentSource"]) ? $extractor->extractTextFromString($row["documentSource"]) : $extractor->extractTextFromFile($row["documentFilePath"]);
+                    // Throw away bad UTF8 characters
+                    $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
                 } else $text = null;
 
                 if ($extractor and $config->isChunkContent()) {
                     $chunks = isset($row["documentSource"]) ? $extractor->extractChunksFromString($row["documentSource"]) : $extractor->extractChunksFromFile($row["documentFilePath"]);
+                    // Throw away bad UTF8 Characters
+                    foreach ($chunks as $chunk){
+                        $chunk->setText(mb_convert_encoding($chunk->getText(), 'UTF-8', 'UTF-8'));
+                    }
                 } else $chunks = null;
 
                 if ($config->isStoreText())
@@ -351,7 +357,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
      * @param TextChunk[] $chunks
      * @return array[]
      */
-    public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 20000): array {
+    public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 50000): array {
         if (!$chunks) return [];
         /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);

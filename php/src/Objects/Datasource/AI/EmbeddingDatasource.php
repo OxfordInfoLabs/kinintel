@@ -16,11 +16,15 @@ class EmbeddingDatasource extends BaseDatasource {
         /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);
         $embedding = $embeddingService->embedString($parameterValues["textToEmbed"]);
-        return new ArrayTabularDataset([new Field("embedding")], [json_encode($embedding)]);
+        return new ArrayTabularDataset([new Field("embedding")], [["embedding" => json_encode($embedding)]]);
     }
 
     public function getSupportedTransformationClasses() {
         return [];
+    }
+
+    public function isAuthenticationRequired() {
+        return false;
     }
 
     public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {

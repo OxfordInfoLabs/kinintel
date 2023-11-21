@@ -63,6 +63,7 @@ class OpenAIEmbeddingServiceTest extends TestBase {
         $mockDispatcher = MockObjectProvider::instance()->getMockInstance(HttpRequestDispatcher::class);
         $mockedEmbeddingService = new OpenAIEmbeddingService($mockDispatcher, $this->credentialsService);
 
+        // Turns a list of numerical embedding vectors into a Response obj
         $toBody = function($embeds){
             $mappedEmbeds = array_map(fn($embed) => ["embedding" => $embed], $embeds);
             $out = [
@@ -85,6 +86,32 @@ class OpenAIEmbeddingServiceTest extends TestBase {
             $this->embeddingService->compareEmbedding($targetEmbed, $goodEmbed) >
             $this->embeddingService->compareEmbedding($targetEmbed, $badEmbed)
         );
+    }
+
+    public function testGetEmbeddingWorksWithTextWithBackslash(){
+        $mockDispatcher = MockObjectProvider::instance()->getMockInstance(HttpRequestDispatcher::class);
+        $mockEmbeddingService = new OpenAIEmbeddingService($mockDispatcher, $this->credentialsService);
+        $target = "This is target\\\\";
+
+        // Turns a list of numerical embedding vectors into a Response obj
+        $toBody = function($embeds){
+            $mappedEmbeds = array_map(fn($embed) => ["embedding" => $embed], $embeds);
+            $out = [
+                "data" => $mappedEmbeds
+            ];
+
+            return new \GuzzleHttp\Psr7\Response(body: json_encode($out));
+        };
+
+        $mockDispatcher->returnValue("dispatch", $toBody([0, 1]));
+        $embeddings = $mockEmbeddingService->embedStrings([$target]);
+        $hist = $mockDispatcher->getMethodCallHistory("dispatch");
+        /** @var \Kinikit\Core\HTTP\Request\Request $req */
+        $req = $hist[0][0];
+        $payload = $req->getPayload();
+
+        $this->assertTrue(str_contains($payload, "\"input\":[\"This is target\"]"));
+
     }
 
     public function testHitRealAPI(){
