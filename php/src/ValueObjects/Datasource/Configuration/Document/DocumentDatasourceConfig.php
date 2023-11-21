@@ -37,6 +37,16 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
      */
     private $maxPhraseLength;
 
+    /**
+     * @var boolean
+     */
+    private $chunkContent;
+
+    /**
+     * Whether to store embeddings of the chunks of text in the document
+     * @var boolean
+     */
+    private $indexChunksByAI;
 
     /**
      * @var string
@@ -48,23 +58,43 @@ class DocumentDatasourceConfig extends SQLDatabaseDatasourceConfig {
      * @param string $tableName
      * @param boolean $storeOriginal
      * @param string $storeText
-     * @param boolean $indexContent
+     * @param bool $indexContent
      * @param StopWord[] $stopWords
      * @param integer $minPhraseLength
      * @param integer $maxPhraseLength
      * @param string $customDocumentParser
+     * @param bool $chunkContent
+     * @param bool $indexChunksByAI
      */
     public function __construct($tableName = "", $storeOriginal = false, $storeText = false, $indexContent = false, $stopWords = [], $minPhraseLength = 1, $maxPhraseLength = 1,
-                                $customDocumentParser = null) {
+                                $customDocumentParser = null, $chunkContent = false, $indexChunksByAI = false) {
         $this->storeOriginal = $storeOriginal;
         $this->storeText = $storeText;
         $this->indexContent = $indexContent;
+        $this->indexChunksByAI = $indexChunksByAI;
         $this->stopWords = $stopWords;
         $this->minPhraseLength = $minPhraseLength;
         $this->maxPhraseLength = $maxPhraseLength;
         $this->customDocumentParser = $customDocumentParser;
 
         parent::__construct(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tableName);
+        $this->chunkContent = $chunkContent;
+    }
+
+    public function isChunkContent(): bool {
+        return $this->chunkContent;
+    }
+
+    public function setChunkContent($chunkContent): void {
+        $this->chunkContent = $chunkContent;
+    }
+
+    public function isIndexChunksByAI() {
+        return $this->indexChunksByAI;
+    }
+
+    public function setIndexChunksByAI($indexChunksByAI): void {
+        $this->indexChunksByAI = $indexChunksByAI;
     }
 
     /**

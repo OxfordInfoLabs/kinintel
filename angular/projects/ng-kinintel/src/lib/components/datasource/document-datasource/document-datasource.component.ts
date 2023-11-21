@@ -137,6 +137,14 @@ export class DocumentDatasourceComponent implements OnInit {
         }
     }
 
+    public chunkContentChange(change) {
+        if (change){
+            if (!this.datasource.config.chunkContent){
+                this.datasource.config.indexChunksByAI = false
+            }
+        }
+    }
+
     public updateBuiltInStopWordConfig(value) {
         _.remove(this.datasource.config.stopWords, stopWord => {
             return stopWord.builtIn !== undefined;

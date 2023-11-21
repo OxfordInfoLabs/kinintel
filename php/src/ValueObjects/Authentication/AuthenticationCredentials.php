@@ -15,6 +15,7 @@ namespace Kinintel\ValueObjects\Authentication;
  * @implementation http-headers \Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials
  * @implementation http-substitution \Kinintel\ValueObjects\Authentication\WebService\SubstitutionParameterAuthenticationCredentials
  * @implementation ftp \Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials
+ * @implementation epp \Kinireg\Objects\Registry\Credentials\EPPCredentials
  *
  * @implementation mysql \Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials
  * @implementation postgresql \Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials

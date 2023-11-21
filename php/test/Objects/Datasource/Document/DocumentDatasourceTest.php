@@ -16,7 +16,9 @@ use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
+use Kinikit\Persistence\ORM\Document;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
@@ -24,6 +26,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
 use Kinintel\Services\Util\Analysis\TextAnalysis\PhraseExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\TextEmbeddingService;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
@@ -35,6 +38,7 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\TextChunk;
 
 include_once "autoloader.php";
 
@@ -68,6 +72,10 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
      */
     private $tableDDLGenerator;
 
+    private $mockEmbeddingService;
+    private $originalEmbeddingService;
+    private $mockDatasourceService;
+    private $originalDatasourceService;
 
     // Setup
     public function setUp(): void {
@@ -84,6 +92,18 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $this->validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
 
+        $this->originalEmbeddingService = Container::instance()->get(TextEmbeddingService::class);
+        $this->mockEmbeddingService = MockObjectProvider::instance()->getMockInstance(TextEmbeddingService::class);
+        Container::instance()->set(TextEmbeddingService::class, $this->mockEmbeddingService);
+
+        $this->originalDatasourceService = Container::instance()->get(DatasourceService::class);
+        $this->mockDatasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+        Container::instance()->set(DatasourceService::class, $this->mockDatasourceService);
+    }
+
+    public function tearDown(): void {
+        Container::instance()->set(TextEmbeddingService::class, $this->originalEmbeddingService);
+        Container::instance()->set(DatasourceService::class, $this->originalDatasourceService);
     }
 
 
@@ -490,6 +510,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $dataset = new ArrayTabularDataset([new Field("filename"), new Field("documentFilePath")], [["filename" => "test.txt", "documentFilePath" => __DIR__ . "/test.txt"]]);
 
+        $originalExtractor = Container::instance()->getInterfaceImplementation(DocumentTextExtractor::class, "text/plain");
         $mockExtractor = MockObjectProvider::instance()->getMockInstance(DocumentTextExtractor::class);
         Container::instance()->set(get_class($mockExtractor), $mockExtractor);
         Container::instance()->addInterfaceImplementation(DocumentTextExtractor::class, "text/plain", get_class($mockExtractor));
@@ -527,6 +548,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ], ["filename", "imported_date", "file_size", "file_type"]]));
 
+        Container::instance()->addInterfaceImplementation(DocumentTextExtractor::class, "text/plain", $originalExtractor);
         Container::instance()->set(DatasourceService::class, $previousDatasourceService);
     }
 
@@ -718,7 +740,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testOnInstanceDeleteWithoutIndexContentSetMainDataSourceIsDroppedAlongWithIndex() {
+    public function testOnInstanceDeleteWithoutIndexContentSetMainDataSourceIsDroppedAlongWithIndexAndChunks() {
 
         $sqlDatabaseDatasource = new DocumentDatasource(new DocumentDatasourceConfig("test_data", true, true),
             $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
@@ -742,9 +764,11 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($mockDatasourceService->methodWasCalled("removeDatasourceInstance", [
             "index_test_data"
         ]));
+        $this->assertTrue($mockDatasourceService->methodWasCalled("removeDatasourceInstance", [
+            "chunks_test_data"
+        ]));
 
         Container::instance()->set(DatasourceService::class, $originalDatasourceService);
-
 
     }
 
@@ -780,7 +804,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testIfCustomParserConfiguredForDatasourceOnInstanceDeleteIsCalledOnCustomParserWhenOnInstanceDeleteCalledOnDatasourceToEnsureResourcesCleanedUpEffectively() {
+    public function testIfCustomParserConfiguredForDatasourceOnInstanceDeleteIsCalledOnCustomParserWhenOnInstanceDeleteCalledOnDatasourceToEnsureResourcesCleanedUpEffectively() { // ?
 
         $mockDocumentParser = MockObjectProvider::instance()->getMockInstance(CustomDocumentParser::class);
         Container::instance()->addInterfaceImplementation(CustomDocumentParser::class, "test", get_class($mockDocumentParser));
@@ -808,5 +832,196 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testChunkContent() {
+        $config = new DocumentDatasourceConfig(
+            "test_data",
+            false,
+            false,
+            false,
+            false,
+            chunkContent: true, indexChunksByAI: false);
 
+        $inputText = "hello test\n\nit's me";
+
+        $mockExtractor = MockObjectProvider::instance()->getMockInstance(DocumentTextExtractor::class);
+        Container::instance()->set(get_class($mockExtractor), $mockExtractor);
+        Container::instance()->addInterfaceImplementation(DocumentTextExtractor::class, "text/plain", get_class($mockExtractor));
+        $mockExtractor->returnValue("extractChunksFromString", [
+            new TextChunk("hello test", 0, 11),
+            new TextChunk("it's me", 12, 7)
+        ], [$inputText]
+        );
+
+        $documentDatasource = new DocumentDatasource(
+            $config,
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+        $instance = new DatasourceInstance("testChunks", "Test Chunks", "test");
+        $documentDatasource->setInstanceInfo($instance);
+
+        $dataset = new ArrayTabularDataset([
+            new Field("filename"),
+            new Field("documentSource"),
+            new Field("file_type")
+        ], [[
+            "filename" => "test.txt",
+            "documentSource" => $inputText,
+            "file_type" => "text/plain"
+        ]]);
+
+        // Mock out datasource service for the chunk datasource
+        $mockChunkDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $this->mockDatasourceService->returnValue("getDataSourceInstanceByKey", $mockChunkDatasourceInstance, [
+            "chunks_testChunks"
+        ]);
+        $mockChunkDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
+        $mockChunkDatasourceInstance->returnValue("returnDataSource", $mockChunkDatasource);
+        $mockChunkDatasource->returnValue("applyTransformation", $mockChunkDatasource);
+
+        //CALL THE METHOD
+        $documentDatasource->update($dataset);
+
+        $this->assertTrue($mockChunkDatasource->methodWasCalled("update"));
+        $hist = $mockChunkDatasource->getMethodCallHistory("update");
+        /** @var ArrayTabularDataset $chunkUpdateCall */
+        $chunkUpdateCall =  $hist[0][0];
+
+        $columnNames = array_map(fn($col) => $col->getName() ,$chunkUpdateCall->getColumns());
+        $this->assertTrue(in_array("chunk_text", $columnNames));
+        $this->assertTrue(in_array("chunk_number", $columnNames));
+        $this->assertTrue(in_array("chunk_pointer", $columnNames));
+        $this->assertTrue(in_array("chunk_length", $columnNames));
+
+
+        $chunkData = $chunkUpdateCall->getAllData();
+        $this->assertEquals(2, count($chunkData));
+        $this->assertEquals($chunkData[0]["chunk_text"], "hello test");
+
+        $insertHistory = $this->bulkDataManager->getMethodCallHistory("insert");
+        $lastInsertCall = $insertHistory[0];
+        $this->assertEquals("hello test", $lastInsertCall[1][0]["chunks"][0]["chunk_text"]);
+        $this->assertEquals("it's me", $lastInsertCall[1][0]["chunks"][1]["chunk_text"]);
+        //Chunk number starts at zero
+        $this->assertEquals(0, $lastInsertCall[1][0]["chunks"][0]["chunk_number"]);
+    }
+
+    public function testTurnChunksToEmbeddings(){
+        $input = [
+            new TextChunk("abcdef", 0, 6),
+            new TextChunk("ghijklm", 7, 7),
+            new TextChunk("nopqrstuv", 15, 9),
+        ];
+        $this->mockEmbeddingService->returnValue("embedStrings", [[0, 1], [1, 0], [0.5, 0.5]], [["abcdef", "ghijklm", "nopqrstuv"]]);
+
+        $output = DocumentDatasource::turnChunksToEmbeddings($input);
+
+        $hist = $this->mockEmbeddingService->getMethodCallHistory("embedStrings");
+        $this->assertEquals([["abcdef", "ghijklm", "nopqrstuv"]], $hist[0]);
+
+        $this->assertEquals(3, count($output));
+        $this->assertEquals("abcdef", $output[0]["chunk_text"]);
+        $this->assertEquals("nopqrstuv", $output[2]["chunk_text"]);
+
+        $this->assertEquals(15, $output[2]["chunk_pointer"]);
+        $this->assertEquals(9, $output[2]["chunk_length"]);
+
+        $this->assertEquals("[0.5,0.5]", $output[2]["embedding"]);
+    }
+
+    public function testTurnChunksToEmbeddingsSplitsRequestsUp(){
+        $input = [
+            new TextChunk("a really long piece of text.", 0, 28),
+            new TextChunk("a bit more", 29, 10),
+        ];
+//        $this->mockEmbeddingService->returnValue("embedStrings", [[0, 1], [1, 0], [0.5, 0.5]]);
+        $this->mockEmbeddingService->returnValue("embedStrings", [[0, 1]], [["a really long piece of text."]]);
+        $this->mockEmbeddingService->returnValue("embedStrings", [[1, 0]], [["a bit more"]]);
+
+        $output = DocumentDatasource::turnChunksToEmbeddings($input, 10);
+
+        $hist = $this->mockEmbeddingService->getMethodCallHistory("embedStrings");
+        $this->assertEquals(2, count($hist));
+
+        $this->assertEquals(2, count($output));
+        $this->assertEquals("a bit more", $output[1]["chunk_text"]);
+
+        $this->assertEquals(28, $output[0]["chunk_length"]);
+        $this->assertEquals(29, $output[1]["chunk_pointer"]);
+        $this->assertEquals(10, $output[1]["chunk_length"]);
+
+        $this->assertEquals("[0,1]", $output[0]["embedding"]);
+        $this->assertEquals("[1,0]", $output[1]["embedding"]);
+    }
+
+    public function testIndexByAI(){
+        $config = new DocumentDatasourceConfig(
+            "test_data",
+            false,
+            false,
+            false,
+            false,
+            chunkContent: true, indexChunksByAI: true);
+
+        $mockExtractor = MockObjectProvider::instance()->getMockInstance(DocumentTextExtractor::class);
+        Container::instance()->set(get_class($mockExtractor), $mockExtractor);
+        Container::instance()->addInterfaceImplementation(DocumentTextExtractor::class, "text/plain", get_class($mockExtractor));
+        $mockExtractor->returnValue("extractChunksFromString", [
+            new TextChunk("hello test", 0, 11)
+        ], ["hello test"]
+        );
+
+        $documentDatasource = new DocumentDatasource(
+            $config,
+            $this->authCredentials, null, $this->validator, $this->tableDDLGenerator);
+
+        $instance = new DatasourceInstance("testAI", "Test AI", "test");
+        $documentDatasource->setInstanceInfo($instance);
+
+        $dataset = new ArrayTabularDataset([
+            new Field("filename"),
+            new Field("documentSource"),
+            new Field("file_type")
+        ], [[
+            "filename" => "test.txt",
+            "documentSource" => "hello test",
+            "file_type" => "text/plain"
+        ]]);
+
+        $this->mockEmbeddingService->returnValue("embedStrings", [[0.5]], [["hello test"]]);
+
+        // Mock out datasource service for the chunk datasource
+        $mockChunkDatasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $this->mockDatasourceService->returnValue("getDataSourceInstanceByKey", $mockChunkDatasourceInstance, [
+            "chunks_testAI"
+        ]);
+        $mockChunkDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
+        $mockChunkDatasourceInstance->returnValue("returnDataSource", $mockChunkDatasource);
+        $mockChunkDatasource->returnValue("applyTransformation", $mockChunkDatasource);
+
+        //CALL THE METHOD
+        $documentDatasource->update($dataset);
+
+        $this->assertTrue($mockChunkDatasource->methodWasCalled("update"));
+        $hist = $mockChunkDatasource->getMethodCallHistory("update");
+        /** @var ArrayTabularDataset $chunkUpdateCall */
+        $chunkUpdateCall =  $hist[0][0];
+
+        $columnNames = array_map(fn($col) => $col->getName() ,$chunkUpdateCall->getColumns());
+        $this->assertTrue(in_array("chunk_text", $columnNames));
+        $this->assertTrue(in_array("chunk_number", $columnNames));
+        $this->assertTrue(in_array("chunk_pointer", $columnNames));
+        $this->assertTrue(in_array("chunk_length", $columnNames));
+        $this->assertTrue(in_array("embedding", $columnNames));
+
+        $chunkData = $chunkUpdateCall->getAllData();
+        $this->assertEquals("[0.5]", $chunkData[0]["embedding"]);
+
+        $insertHistory = $this->bulkDataManager->getMethodCallHistory("insert");
+        $lastInsertCall = $insertHistory[0];
+        $this->assertTrue($this->mockEmbeddingService->methodWasCalled("embedStrings", [["hello test"]]));
+        $this->assertEquals("hello test", $lastInsertCall[1][0]["chunks"][0]["chunk_text"]);
+        //Chunk number starts at zero
+        $this->assertEquals(0, $lastInsertCall[1][0]["chunks"][0]["chunk_number"]);
+        $this->assertEquals("[0.5]", $lastInsertCall[1][0]["chunks"][0]["embedding"]);
+    }
 }

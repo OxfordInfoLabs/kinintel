@@ -28,6 +28,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceCo
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\TextChunk;
 
 class CustomDatasourceService {
 
@@ -131,7 +132,13 @@ class CustomDatasourceService {
         $newDatasourceKey = "document_data_set_$accountId" . "_" . date("U");
         $config = $datasourceConfigUpdate->getConfig();
         $config["tableName"] = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
-        $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceConfigUpdate->getTitle(), "document", $config, Configuration::readParameter("custom.datasource.credentials.key"));
+        $datasourceInstance = new DatasourceInstance(
+            $newDatasourceKey,
+            $datasourceConfigUpdate->getTitle(),
+            "document",
+            $config,
+            Configuration::readParameter("custom.datasource.credentials.key")
+        );
 
         // Set account id and project key
         $datasourceInstance->setAccountId($accountId);
@@ -139,7 +146,8 @@ class CustomDatasourceService {
 
         $this->datasourceService->saveDataSourceInstance($datasourceInstance);
 
-        $fields = [
+        // Phrase index table
+        $phraseFields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
             new Field("section", "Section", null, Field::TYPE_STRING, true),
             new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
@@ -151,7 +159,7 @@ class CustomDatasourceService {
         $indexDatasourceInstance = new DatasourceInstance($indexInstanceKey, $datasourceConfigUpdate->getTitle() . " Index", "sqldatabase", [
             "source" => "table",
             "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $indexInstanceKey,
-            "columns" => $fields,
+            "columns" => $phraseFields,
             "manageTableStructure" => true
         ], Configuration::readParameter("custom.datasource.credentials.key"));
 
@@ -159,6 +167,29 @@ class CustomDatasourceService {
         $indexDatasourceInstance->setProjectKey($projectKey);
 
         $this->datasourceService->saveDataSourceInstance($indexDatasourceInstance);
+
+        //Chunk Embedding table
+        $chunksFields = [
+            new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
+            new Field("chunk_text", "Chunk Text", null, Field::TYPE_LONG_STRING),
+            new Field("chunk_number", "Chunk Number", null, Field::TYPE_INTEGER, true),
+            new Field("chunk_pointer", "Chunk Pointer", null, Field::TYPE_INTEGER),
+            new Field("chunk_length", "Chunk Length", null, Field::TYPE_INTEGER),
+            new Field("embedding", "Embedding", null, Field::TYPE_MEDIUM_STRING)
+        ];
+
+        $embeddingInstanceKey = "chunks_" . $newDatasourceKey;
+        $embeddingInstance = new DatasourceInstance($embeddingInstanceKey, $datasourceConfigUpdate->getTitle() . " Chunks", "sqldatabase", [
+            "source" => "table",
+            "tableName" => Configuration::readParameter("custom.datasource.table.prefix") . $embeddingInstanceKey,
+            "columns" => $chunksFields,
+            "manageTableStructure" => true
+        ], Configuration::readParameter("custom.datasource.credentials.key"));
+
+        $embeddingInstance->setAccountId($accountId);
+        $embeddingInstance->setProjectKey($projectKey);
+
+        $this->datasourceService->saveDataSourceInstance($embeddingInstance);
 
         if (is_array($config)) {
             /**

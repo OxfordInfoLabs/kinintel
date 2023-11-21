@@ -39,4 +39,42 @@ class TextTextExtractorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanExtractTextAndChunksFromFile(){
+        $text = <<<EOD
+Address Allocation for Private Internets
+
+Status of this Memo
+
+   This document specifies an Internet Best Current Practices for the
+   Internet Community, and requests discussion and suggestions for
+   improvements.  Distribution of this memo is unlimited.
+
+1. Introduction
+
+   For the purposes of this document, an enterprise is an entity
+   autonomously operating a network using TCP/IP and in particular
+   determining the addressing plan and address assignments within that
+   network.
+
+   This document describes address allocation for private internets. The
+   allocation permits full network layer connectivity among all hosts
+   inside an enterprise as well as among all public hosts of different
+   enterprises. The cost of using private internet address space is the
+   potentially costly effort to renumber hosts and networks between
+   public and private.
+
+2. Motivation
+
+   With the proliferation of TCP/IP technology worldwide, including
+   outside the Internet itself, an increasing number of non-connected
+   enterprises use this technology and its addressing capabilities for
+   sole intra-enterprise communications, without any intention to ever
+   directly connect to other enterprises or the Internet itself.
+EOD;
+
+        $chunks = $this->textExtractor->extractChunksFromString($text);
+        $this->assertTrue(str_contains($chunks[2]->getText(), "Internet Best Current Practices"));
+        $this->assertFalse(str_contains($chunks[2]->getText(), "an enterprise is an entity"));
+    }
+
 }

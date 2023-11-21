@@ -35,4 +35,20 @@ class PDFTextExtractorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("Hello Docx Test", $output);
     }
 
+    public function testExtractParagraph(){
+        $filename = __DIR__ . "/SAIGF18Report.pdf";
+        $paragraphs = $this->extractor->extractChunksFromFile($filename);
+
+        foreach ($paragraphs as $paragraph){
+            if (str_contains($paragraph->getText(), "Ms Nomoso Kana made a presentation on how will technology reshape jobs")){
+                $nomsoKanaSegment = $paragraph->getText();
+                break;
+            }
+        }
+
+        $this->assertTrue(isset($nomsoKanaSegment));
+        $this->assertTrue(str_contains($nomsoKanaSegment, "She explained how various industries will be affected by the 4th Industrial Revolution"));
+        $this->assertFalse(str_contains($nomsoKanaSegment, "She emphasised that there’s no Digital Transformation without Connectivity."));
+        $this->assertFalse(str_contains($nomsoKanaSegment, "At least 3000 delegates from around 143 countries descended to Paris"));
+    }
 }

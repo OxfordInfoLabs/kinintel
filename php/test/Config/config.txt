@@ -15,6 +15,7 @@ snapshot.datasource.table.prefix = snapshot.
 
 custom.datasource.credentials.key = test
 custom.datasource.table.prefix = custom.
+openai.api.credentials.key = openai-test
 
 document.datasource.attachment.storage.key = test
 
