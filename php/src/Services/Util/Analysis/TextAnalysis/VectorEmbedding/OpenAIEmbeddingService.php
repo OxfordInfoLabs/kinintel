@@ -53,7 +53,7 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
         $texts = array_map($this->sanitiseText(...), $texts);
         $payload = ['input'=>$texts, 'model'=>'text-embedding-ada-002'];
         $headers = $this->constructHeaders();
-        $jsonPayload = json_encode($payload);
+        $jsonPayload = json_encode($payload, JSON_INVALID_UTF8_IGNORE);
         if (!$jsonPayload) throw new Exception("Bad arguments passed to embed strings: " . print_r($texts, true));
 
         $request = new Request(
