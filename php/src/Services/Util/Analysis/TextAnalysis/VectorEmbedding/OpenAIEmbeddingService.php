@@ -64,12 +64,23 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
         $jsonResponse = json_decode($response->getBody(), true);
 
         //Respond to rate limits
-        if ($response->getStatusCode() == Response::RESPONSE_RATE_LIMITED) {
-            Logger::log("OpenAI api was rate limited");
+        $statusCode = $response->getStatusCode();
+        if ($statusCode == Response::RESPONSE_RATE_LIMITED ||
+            $statusCode == Response::RESPONSE_SERVICE_UNAVAILABLE) {
+
+            if ($statusCode == Response::RESPONSE_RATE_LIMITED){
+                Logger::log("OpenAI api was rate limited");
+            }
+
             // Retry for a maximum of 2 minutes
             if ($noAttempts > 120 / self::SLEEP_SECONDS_WHEN_RATE_LIMITED){
                 throw new Exception("OpenAI has been continually rate limited for too long");
             }
+            sleep(self::SLEEP_SECONDS_WHEN_RATE_LIMITED);
+            return $this->embedStrings($texts, $noAttempts + 1);
+        }
+
+        if ($response->getStatusCode() == Response::RESPONSE_SERVICE_UNAVAILABLE){
             sleep(self::SLEEP_SECONDS_WHEN_RATE_LIMITED);
             return $this->embedStrings($texts, $noAttempts + 1);
         }

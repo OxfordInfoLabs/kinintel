@@ -16,6 +16,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
+use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
@@ -49,6 +50,7 @@ class CustomDatasourceService {
      * @param DatasourceUpdateWithStructure $datasourceUpdate
      * @param string $projectKey
      * @param integer $accountId
+     * @throws Exception
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom") {
 
@@ -325,8 +327,10 @@ class CustomDatasourceService {
      *
      * @param string $datasourceInstanceKey
      * @param string[] $links
+     * @param int $limit
+     * @param int $offset
      * @return void
-     * @throws \Kinikit\Core\Validation\ValidationException
+     * @throws ValidationException
      */
     public function uploadDocumentsFromUrl(string $datasourceInstanceKey, array $links, $limit = PHP_INT_MAX, $offset = 0): void {
         $datasource = $this->datasourceService->getDataSourceInstanceByKey($datasourceInstanceKey)->returnDataSource();

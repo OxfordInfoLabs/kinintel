@@ -905,7 +905,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(0, $lastInsertCall[1][0]["chunks"][0]["chunk_number"]);
     }
 
-    public function testTurnChunksToEmbeddings(){
+    public function testTurnChunksToEmbeddingsBasic(){
         $input = [
             new TextChunk("abcdef", 0, 6),
             new TextChunk("ghijklm", 7, 7),
@@ -928,6 +928,50 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("[0.5,0.5]", $output[2]["embedding"]);
     }
 
+    public function testTurnChunksToEmbeddingsSplitsChunksCorrectly(){
+        $input = [
+            new TextChunk("abcdefghijklmnopqrstuvwxyz", 0, 26),
+            new TextChunk("four five", 26, 9),
+            new TextChunk("four vier", 35, 9)
+        ];
+        $this->mockEmbeddingService->returnValue("embedStrings", [[0, 1]], [["abcdefghijklmno"]]);
+        $this->mockEmbeddingService->returnValue("embedStrings", [[1, 0], [0.5, 0.5]], [["pqrstuvwxyz", "four five"]]);
+        $this->mockEmbeddingService->returnValue("embedStrings", [[-0.5, -0.5]], [["four vier"]]);
+
+        $output = DocumentDatasource::turnChunksToEmbeddings($input, 20, 15);
+
+        $hist = $this->mockEmbeddingService->getMethodCallHistory("embedStrings");
+        $this->assertEquals([["abcdefghijklmno"]], $hist[0]);
+
+        $this->assertEquals(4, count($output));
+        $this->assertEquals("abcdefghijklmno", $output[0]["chunk_text"]);
+        $this->assertEquals("pqrstuvwxyz", $output[1]["chunk_text"]);
+        $this->assertEquals("four five", $output[2]["chunk_text"]);
+        $this->assertEquals("four vier", $output[3]["chunk_text"]);
+
+        $this->assertEquals(15, $output[1]["chunk_pointer"]);
+        $this->assertEquals(11, $output[1]["chunk_length"]);
+
+        $this->assertEquals("[0.5,0.5]", $output[2]["embedding"]);
+    }
+
+    public function testSplitChunk(){
+        $text = "SHORT CHUNK";
+        $testChunk = new TextChunk($text, 0, strlen($text));
+        $chunks = DocumentDatasource::splitChunk($testChunk, 20);
+        $this->assertEquals(1, count($chunks));
+        $this->assertEquals("SHORT CHUNK", $chunks[0]->getText());
+
+        $text = "HELLO! It's me Peter and I'm going to be split up!";
+        $testChunk = new TextChunk($text, 0, strlen($text));
+        $chunks = DocumentDatasource::splitChunk($testChunk, 20);
+        $this->assertEquals(3, count($chunks));
+        $this->assertEquals("HELLO! It's me Peter", $chunks[0]->getText());
+        $this->assertEquals(" split up!", $chunks[2]->getText());
+        $this->assertEquals(40, $chunks[2]->getPointer());
+        $this->assertEquals(10, $chunks[2]->getLength());
+    }
+
     public function testTurnChunksToEmbeddingsSplitsRequestsUp(){
         $input = [
             new TextChunk("a really long piece of text.", 0, 28),
@@ -937,7 +981,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->mockEmbeddingService->returnValue("embedStrings", [[0, 1]], [["a really long piece of text."]]);
         $this->mockEmbeddingService->returnValue("embedStrings", [[1, 0]], [["a bit more"]]);
 
-        $output = DocumentDatasource::turnChunksToEmbeddings($input, 10);
+        $output = DocumentDatasource::turnChunksToEmbeddings($input, 30);
 
         $hist = $this->mockEmbeddingService->getMethodCallHistory("embedStrings");
         $this->assertEquals(2, count($hist));

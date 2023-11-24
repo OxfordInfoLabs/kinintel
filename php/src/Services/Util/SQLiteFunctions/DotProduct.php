@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\Util\SQLiteFunctions;
 
+use Exception;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\MathsUtils;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3CustomFunction;
@@ -17,10 +18,10 @@ class DotProduct implements SQLite3CustomFunction {
      * Execute and return the dot product
      *
      * @param mixed ...$arguments
-     * @return int|mixed
+     * @return float|int
+     * @throws Exception
      */
     public function execute(...$arguments) {
-        Logger::log($arguments);
         $args = [json_decode($arguments[0]), json_decode($arguments[1])];
         if (!is_array($args[0]) || !is_array($args[1])) return null;
         return MathsUtils::dot(...$args);

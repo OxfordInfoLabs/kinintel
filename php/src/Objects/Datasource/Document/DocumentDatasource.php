@@ -357,7 +357,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
      * @param TextChunk[] $chunks
      * @return array[]
      */
-    public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 50000): array {
+    public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 50000, $maxChunkLength = 8191): array {
         if (!$chunks) return [];
         /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);
@@ -369,10 +369,15 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         $chunksToSend = [];
         $length = 0;
         while ($chunk = array_shift($chunks)) {
+            if ($chunk->getLength() > $maxChunkLength){
+                $splitChunks = self::splitChunk($chunk, $maxChunkLength);
+                $chunks = [...$splitChunks, ...$chunks];
+                continue;
+            }
             $chunksToSend[] = $chunk;
             $length += $chunk->getLength();
 
-            if (!$chunks or $length + $chunk->getLength() > $maxRequestCharacters) { // Send payload
+            if (!$chunks or $length + $chunks[0]->getLength() > $maxRequestCharacters) { // Send payload
                 $embeddings = $embeddingService->embedStrings(
                     array_map(fn(TextChunk $c) => $c->getText(), $chunksToSend)
                 );
@@ -381,15 +386,34 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                         "chunk_text" => $chunksToSend[$i]->getText(),
                         "chunk_pointer" => $chunksToSend[$i]->getPointer(),
                         "chunk_length" => $chunksToSend[$i]->getLength(),
-                        "embedding" => json_encode($embeddings[$i]),
+                        "embedding" => "[" . implode(",", $embeddings[$i]) . "]",
                     ];
                 }
 
                 $chunksToSend = [];
+                $length = 0;
             }
+
         }
 
         return $out;
     }
 
+    /**
+     * @param TextChunk $chunk
+     * @param int $maxLength
+     * @return TextChunk[]
+     */
+    public static function splitChunk(TextChunk $chunk, int $maxLength) {
+        $text = $chunk->getText();
+        if (strlen($text) > $maxLength){
+            $head = substr($text, 0, $maxLength);
+            $tail = substr($text, $maxLength);
+            $headChunk = new TextChunk($head, $chunk->getPointer(), $maxLength);
+            $tailChunk = new TextChunk($tail, $chunk->getPointer() + $maxLength, $chunk->getLength() - $maxLength);
+            return [$headChunk, ...self::splitChunk($tailChunk, $maxLength)];
+        } else {
+            return [$chunk];
+        }
+    }
 }
