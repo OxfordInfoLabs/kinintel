@@ -1,17 +1,18 @@
-
 <?php
 
-//namespace Kinintel\Test\Services\Util\Analysis\TextAnalysis\Extractors;
+namespace Kinintel\Test\Services\Util\Analysis\TextAnalysis\Extractors;
 
 use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\ParagraphExtractorTrait;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\TextChunk;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
+
 class ParagraphExtractorTraitTest extends TestCase {
-    public function testCanExtractParagraphs(){
+    public function testCanExtractParagraphs() {
         $fakeExtractor = new class {
             use ParagraphExtractorTrait;
+
             public function getExtractedParagraphs(string $text, int $minParagraphLength) {
                 return $this->extractParagraphs($text, $minParagraphLength);
             }
@@ -27,6 +28,20 @@ class ParagraphExtractorTraitTest extends TestCase {
         $this->assertEquals(
             [new TextChunk("hello test", 0, 10), new TextChunk("got you!", 10, 8)],
             $fakeExtractor->getExtractedParagraphs($text2, 5)
+        );
+
+        // Ends in line breaks
+        $text3 = "hello test\r\n\r";
+        $this->assertEquals(
+            [new TextChunk("hello test", 0,10)],
+            $fakeExtractor->getExtractedParagraphs($text3, 5)
+        );
+
+        // The curious case of the empty string
+        $text4 = "";
+        $this->assertEquals(
+            [],
+            $fakeExtractor->getExtractedParagraphs($text4, 5)
         );
     }
 }
