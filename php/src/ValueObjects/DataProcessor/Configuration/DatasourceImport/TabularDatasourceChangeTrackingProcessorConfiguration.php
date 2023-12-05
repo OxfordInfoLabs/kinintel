@@ -58,7 +58,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     private $offsetField;
 
     /**
-     * @var int
+     * @var mixed
      */
     private $initialOffset;
 
@@ -73,7 +73,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $sourceReadChunkSize
      * @param int $targetWriteChunkSize
      * @param string $offsetField
-     * @param int $initialOffset
+     * @param mixed $initialOffset
      */
     public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
@@ -230,14 +230,14 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     }
 
     /**
-     * @return int
+     * @return mixed
      */
     public function getInitialOffset() {
         return $this->initialOffset;
     }
 
     /**
-     * @param int $initialOffset
+     * @param mixed $initialOffset
      */
     public function setInitialOffset($initialOffset) {
         $this->initialOffset = $initialOffset;
