@@ -177,12 +177,15 @@ class SQLClauseSanitiser {
         // Look for columns, literals or existing ? values
         $sqlString = preg_replace_callback("/(\[\[[a-zA-Z0-9\-_]*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
             $literal = $matches[0];
+
+            //If it's inside square brackets
             if (trim($literal, "[]") != $literal) {
                 $columnNames[] = $literal;
                 return "$" . (sizeof($columnNames) - 1);
             }
 
-            $literal = trim($matches[0], "' ");
+            //Otherwise it's a literal
+            $literal = trim($literal, "'");
 
             // If a numerical value passed, ensure we cast accordingly
             if (is_numeric($literal)) {

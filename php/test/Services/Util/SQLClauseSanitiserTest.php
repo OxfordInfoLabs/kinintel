@@ -135,4 +135,10 @@ class SQLClauseSanitiserTest extends TestBase {
 
     }
 
+    public function testSpacesAreReplaced() {
+        $params = [];
+        $sql = $this->sqlClauseSanitiser->sanitiseSQL("REPLACE('goof ball', ' ', ''", $params);
+        $this->assertEquals(["goof ball", ' ', ''], $params);
+    }
+
 }
