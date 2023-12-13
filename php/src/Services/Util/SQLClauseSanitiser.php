@@ -82,6 +82,9 @@ class SQLClauseSanitiser {
         "DISTINCT" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,
             "description" => "Return the distinct values of X in the group or result set"],
+        "DOT_PRODUCT" => ["params" => ["X", "Y"],
+            "category" => self::NUMERIC_WHITELISTED_FUNCTION,
+            "description" => "Calculate the dot product of 2 vectors in standard embedding format"],
         "EXP" => ["params" => ["X"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Return e (the Euler constant) to the power of X"],
         "FLOOR" => ["params" => ["X"],
@@ -175,7 +178,16 @@ class SQLClauseSanitiser {
 
         // Look for columns, literals or existing ? values
         $sqlString = preg_replace_callback("/(\[\[[a-zA-Z0-9\-_]*?\]\]|'.*?'|[0-9\.]+|\?)/", function ($matches) use (&$parameterValues, &$existingParams, &$columnNames) {
-            $literal = trim($matches[0], "' ");
+            $literal = $matches[0];
+
+            //If it's inside square brackets
+            if (trim($literal, "[]") != $literal) {
+                $columnNames[] = $literal;
+                return "$" . (sizeof($columnNames) - 1);
+            }
+
+            //Otherwise it's a literal
+            $literal = trim($literal, "'");
 
             // If a numerical value passed, ensure we cast accordingly
             if (is_numeric($literal)) {
@@ -186,10 +198,7 @@ class SQLClauseSanitiser {
                 }
             }
 
-            if (trim($literal, "[]") != $literal) {
-                $columnNames[] = $literal;
-                return "$" . (sizeof($columnNames) - 1);
-            } else if ($literal === "?") {
+            if ($literal === "?") {
                 $parameterValues[] = array_shift($existingParams);
             } else {
                 $parameterValues[] = $literal;

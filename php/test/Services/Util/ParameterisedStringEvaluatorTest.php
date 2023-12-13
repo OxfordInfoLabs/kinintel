@@ -15,6 +15,7 @@ class ParameterisedStringEvaluatorTest extends TestBase {
 
     public function testCanEvaluateParameterisedStringWithParametersAndFieldValues() {
 
+        /** @var ParameterisedStringEvaluator $evaluator */
         $evaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
 
         $result = $evaluator->evaluateString("Hello [[string1]], [[date1 | year]] is the {{date2 | monthName}} {{string2}} correct", [

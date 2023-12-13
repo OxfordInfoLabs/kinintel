@@ -57,7 +57,10 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     private $offsetField;
 
-
+    /**
+     * @var mixed
+     */
+    private $initialOffset;
 
     /**
      * @param string[] $sourceDatasourceKeys

@@ -330,6 +330,24 @@
                         </div>
                     </div>
 
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            Chunking
+                            <div class="text-xs font-normal text-gray-500">
+                                Set whether you want to split the documents into chunks for analysis
+                            </div>
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <mat-checkbox class="block mb-4" [(ngModel)]="datasource.config.chunkContent" (ngModelChange)="chunkContentChange($event)"> Chunk Document Content
+                            </mat-checkbox>
+                            <ng-template [ngIf]="datasource.config.chunkContent">
+                                <mat-checkbox class="block mb-4" [(ngModel)]="datasource.config.indexChunksByAI">Index Chunks by AI
+                                </mat-checkbox>
+                            </ng-template>
+                        </div>
+
+                    </div>
+
                     <div *ngIf="datasource.config.indexContent"
                          class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                         <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">

@@ -8,6 +8,7 @@ use Kiniauth\Services\Attachment\AttachmentService;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -18,11 +19,14 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
 use Kinintel\Services\Util\Analysis\TextAnalysis\PhraseExtractor;
+use Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\OpenAIEmbeddingService;
+use Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\TextEmbeddingService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
+use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\TextChunk;
 
 /**
  * Built in document datasource
@@ -39,16 +43,28 @@ class DocumentDatasource extends SQLDatabaseDatasource {
     }
 
     public function getUpdateConfig() {
+        /** @var DocumentDatasourceConfig $config */
+        $config = $this->getConfig();
 
-        $updatableMappedFields = $this->getConfig()->isIndexContent() || $this->getConfig()->getCustomDocumentParser() ? [
-            new UpdatableMappedField("phrases", "index_" . $this->getInstanceInfo()->getKey(), [
+        $updatableMappedFields = [];
+        if ($config->isIndexContent() || $config->getCustomDocumentParser()){
+            $updatableMappedFields[] = new UpdatableMappedField(
+                "phrases",
+                "index_" . $this->getInstanceInfo()->getKey(), [
                 "filename" => "document_file_name"
-            ])
-        ] : [];
+            ]);
+        }
+        if ($config->isChunkContent()){
+            $updatableMappedFields[] = new UpdatableMappedField(
+                "chunks",
+                "chunks_" . $this->getInstanceInfo()->getKey(), [
+                "filename" => "document_file_name"
+            ]);
+        }
 
-        if ($this->getConfig()->getCustomDocumentParser()) {
-            $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $this->getConfig()->getCustomDocumentParser());
-            $updatableMappedFields = array_merge($updatableMappedFields, $customDocumentParser->getAdditionalDocumentUpdatableMappedFields($this->getConfig(), $this->getInstanceInfo()) ?? []);
+        if ($config->getCustomDocumentParser()) {
+            $customDocumentParser = Container::instance()->getInterfaceImplementation(CustomDocumentParser::class, $config->getCustomDocumentParser());
+            $updatableMappedFields = array_merge($updatableMappedFields, $customDocumentParser->getAdditionalDocumentUpdatableMappedFields($config, $this->getInstanceInfo()) ?? []);
         }
 
         return new DatasourceUpdateConfig([], $updatableMappedFields);
@@ -107,13 +123,17 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("phrases");
         }
 
+        if ($config->isChunkContent()) {
+            $fields[] = new Field("chunks");
+        }
+
         /**
          * @var SettingsService $settingsService
          */
         $settingsService = Container::instance()->get(SettingsService::class);
         $settings = $settingsService->getParentAccountSettingValues();
 
-        while ($row = $dataset->nextDataItem()) {
+        while ($row = $dataset->nextDataItem()) { // Foreach document to add or replace
             $newRow = null;
             if (($row["filename"] ?? null) &&
                 ($row["documentSource"] ?? null) &&
@@ -169,19 +189,30 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
                 }
 
-                if ($config->isStoreText() || $config->isIndexContent()) {
-                    try {
-                        /** @var DocumentTextExtractor $extractor */
-                        $extractor = Container::instance()->getInterfaceImplementation(DocumentTextExtractor::class, $fileType);
-
-                        $text = isset($row["documentSource"]) ? $extractor->extractTextFromString($row["documentSource"]) : $extractor->extractTextFromFile($row["documentFilePath"]);
-
-                        if ($config->isStoreText())
-                            $newRow["original_text"] = $text;
-                    } catch (MissingInterfaceImplementationException $e) {
-                        // Missing implemented file type
-                    }
+                // Extraction of text and chunks
+                try {
+                    /** @var DocumentTextExtractor $extractor */
+                    $extractor = Container::instance()->getInterfaceImplementation(DocumentTextExtractor::class, $fileType);
+                } catch (MissingInterfaceImplementationException $e) {
+                    $extractor = null; // Missing implemented file type
                 }
+
+                if ($extractor && ($config->isIndexContent() or $config->isStoreText())) {
+                    $text = isset($row["documentSource"]) ? $extractor->extractTextFromString($row["documentSource"]) : $extractor->extractTextFromFile($row["documentFilePath"]);
+                    // Throw away bad UTF8 characters
+                    $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+                } else $text = null;
+
+                if ($extractor and $config->isChunkContent()) {
+                    $chunks = isset($row["documentSource"]) ? $extractor->extractChunksFromString($row["documentSource"]) : $extractor->extractChunksFromFile($row["documentFilePath"]);
+                    // Throw away bad UTF8 Characters
+                    foreach ($chunks as $chunk){
+                        $chunk->setText(mb_convert_encoding($chunk->getText(), 'UTF-8', 'UTF-8'));
+                    }
+                } else $chunks = null;
+
+                if ($config->isStoreText())
+                    $newRow["original_text"] = $text;
 
                 // If we have a custom document parser, use this instead of the built in.
                 if ($customDocumentParser) {
@@ -212,19 +243,35 @@ class DocumentDatasource extends SQLDatabaseDatasource {
                     }
 
 
-                } else if ($config->isIndexContent()) {
-                    /** @var PhraseExtractor $phraseExtractor */
-                    $phraseExtractor = Container::instance()->get(PhraseExtractor::class);
+                } else {
+                    if ($config->isIndexContent()) {
+                        /** @var PhraseExtractor $phraseExtractor */
+                        $phraseExtractor = Container::instance()->get(PhraseExtractor::class);
 
-                    $phrases = $phraseExtractor->extractPhrases($text, $config->getMaxPhraseLength(), $config->getMinPhraseLength(), $config->getStopWords(), 'EN');
+                        $phrases = $phraseExtractor->extractPhrases($text, $config->getMaxPhraseLength(), $config->getMinPhraseLength(), $config->getStopWords(), 'EN');
 
-                    /** @var Phrase $phrase */
-                    $newRow["phrases"] = array_map(function ($phrase) {
-                        return ["section" => "Main", "phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
-                    }, $phrases ?? []);
+                        /** @var Phrase $phrase */
+                        $newRow["phrases"] = array_map(function ($phrase) {
+                            return ["section" => "Main", "phrase" => $phrase->getPhrase(), "frequency" => $phrase->getFrequency(), "phrase_length" => $phrase->getLength()];
+                        }, $phrases ?? []);
+                    }
+                    if ($config->isChunkContent()){
+                        if ($config->isIndexChunksByAI()) {
+                            $chunks = self::turnChunksToEmbeddings($chunks);
+                        } else {
+                            $chunks = array_map(fn($ch) => [
+                                "chunk_text" => $ch->getText(),
+                                "chunk_pointer" => $ch->getPointer(),
+                                "chunk_length" => $ch->getLength(),
+                            ], $chunks);
+                        }
 
+                        for ($j = 0; $j < count($chunks); $j++) {
+                            $chunks[$j]["chunk_number"] = $j;
+                        }
+                        $newRow["chunks"] = $chunks;
+                    }
                 }
-
 
                 $newRows[] = $newRow;
             }
@@ -233,7 +280,7 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
 
         // Call with updated dataset
-        parent::update(new ArrayTabularDataset($fields, $newRows), $updateMode); // TODO: Change the autogenerated stub
+        parent::update(new ArrayTabularDataset($fields, $newRows), $updateMode);
     }
 
 
@@ -299,7 +346,74 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         } catch (\Exception $e) {
             // Success
         }
+        try {
+            $datasourceService->removeDatasourceInstance("chunks_" . $this->getInstanceInfo()->getKey());
+        } catch (\Exception $e) {
+            // Success
+        }
     }
 
+    /**
+     * @param TextChunk[] $chunks
+     * @return array[]
+     */
+    public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 50000, $maxChunkLength = 8191): array {
+        if (!$chunks) return [];
+        /** @var TextEmbeddingService $embeddingService */
+        $embeddingService = Container::instance()->get(TextEmbeddingService::class);
 
+        // Reset so the chunks are ordered from 0
+        $chunks = array_values($chunks);
+
+        $out = [];
+        $chunksToSend = [];
+        $length = 0;
+        while ($chunk = array_shift($chunks)) {
+            if ($chunk->getLength() > $maxChunkLength){
+                $splitChunks = self::splitChunk($chunk, $maxChunkLength);
+                $chunks = [...$splitChunks, ...$chunks];
+                continue;
+            }
+            $chunksToSend[] = $chunk;
+            $length += $chunk->getLength();
+
+            if (!$chunks or $length + $chunks[0]->getLength() > $maxRequestCharacters) { // Send payload
+                $embeddings = $embeddingService->embedStrings(
+                    array_map(fn(TextChunk $c) => $c->getText(), $chunksToSend)
+                );
+                for ($i = 0; $i < count($chunksToSend); $i++) {
+                    $out[] = [
+                        "chunk_text" => $chunksToSend[$i]->getText(),
+                        "chunk_pointer" => $chunksToSend[$i]->getPointer(),
+                        "chunk_length" => $chunksToSend[$i]->getLength(),
+                        "embedding" => "[" . implode(",", $embeddings[$i]) . "]",
+                    ];
+                }
+
+                $chunksToSend = [];
+                $length = 0;
+            }
+
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param TextChunk $chunk
+     * @param int $maxLength
+     * @return TextChunk[]
+     */
+    public static function splitChunk(TextChunk $chunk, int $maxLength) {
+        $text = $chunk->getText();
+        if (strlen($text) > $maxLength){
+            $head = substr($text, 0, $maxLength);
+            $tail = substr($text, $maxLength);
+            $headChunk = new TextChunk($head, $chunk->getPointer(), $maxLength);
+            $tailChunk = new TextChunk($tail, $chunk->getPointer() + $maxLength, $chunk->getLength() - $maxLength);
+            return [$headChunk, ...self::splitChunk($tailChunk, $maxLength)];
+        } else {
+            return [$chunk];
+        }
+    }
 }

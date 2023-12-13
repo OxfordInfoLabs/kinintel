@@ -45,6 +45,10 @@ class SQLClauseSanitiserTest extends TestBase {
         $this->assertEquals("? || ?", $sql);
         $this->assertSame([33.334, "Hello 123"], $params);
 
+        $params = [];
+        $sql = $this->sqlClauseSanitiser->sanitiseSQL("'[1,0]'", $params);
+        $this->assertEquals("?", $sql);
+        $this->assertSame(["[1,0]"], $params);
     }
 
     public function testSimpleExpressionsInSquareBracketsAreLeftIntact() {
@@ -131,5 +135,10 @@ class SQLClauseSanitiserTest extends TestBase {
 
     }
 
+    public function testSpacesAreReplaced() {
+        $params = [];
+        $sql = $this->sqlClauseSanitiser->sanitiseSQL("REPLACE('goof ball', ' ', ''", $params);
+        $this->assertEquals(["goof ball", ' ', ''], $params);
+    }
 
 }

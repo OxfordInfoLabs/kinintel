@@ -200,7 +200,23 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $value = $evaluator->evaluateFilterValue("{{timePeriod}}", ["timePeriod" => "1_DAYS_AGO"], null, $parameters);
         $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d H:i:s")], $parameters);
         $this->assertEquals("?", $value);
+
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("'{{timePeriod}}'", ["timePeriod" => "2_DAYS_AGO"], null, $parameters);
+        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P2D"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertEquals("?", $value);
     }
 
+    public function testCanProvideParameterisedValuesInAQuotedString(){
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("CONCAT( 'The big {{red}} ', 'fish')", ["red" => "scarlet"], null, $parameters);
+        $this->assertEquals(["The big scarlet ", "fish"], $parameters);
+        $this->assertEquals("CONCAT( ?, ?)", $value);
 
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("CONCAT('It was ',{{furniture}},' shaped', '.')",  ["furniture" => "chair"], null, $parameters);
+        $this->assertEquals(["It was ", "chair", " shaped", "."], $parameters);
+        $this->assertEquals("CONCAT(?,?,?, ?)", $value);
+    }
 }

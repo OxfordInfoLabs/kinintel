@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 
+use DateInterval;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;
@@ -52,38 +53,44 @@ class SQLValueEvaluator {
                 $valueArray = is_array($matchingParamValue) ? $matchingParamValue : [$matchingParamValue];
                 $literals = [];
                 foreach ($valueArray as $matchingParamValueElement) {
+                    // For parameters, we will check if they're wrapped in quotes and substitute them as a literal at the end if they are (hence #~#)
                     if ($matches[1] || !is_numeric($matchingParamValueElement))
-                        $literals[] = "'" . ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "") . "'";
+                        $literals[] = "#~p~#" . ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "") . "#~p~#";
                     else if (is_numeric($matchingParamValueElement))
                         $literals[] = $matchingParamValueElement;
                 }
                 return join(",", $literals);
             }, $valueEntry);
 
+
+
+            $toIntervalStr = [
+                "_YEARS_AGO" => (fn($n) => "P" . $n . "Y"),
+                "_MONTHS_AGO" => (fn($n) => "P" . $n . "M"),
+                "_DAYS_AGO" => (fn($n) => "P" . $n . "D"),
+                "_HOURS_AGO" => (fn($n) => "PT" . $n . "H"),
+                "_MINUTES_AGO" => (fn($n) => "PT" . $n . "M"),
+                "_SECONDS_AGO" => (fn($n) => "PT" . $n . "S"),
+            ];
+
             // Evaluate time offset parameters for days ago and hours ago
-            $value = preg_replace_callback("/'*([0-9]+)_YEARS_AGO'*/", function ($matches) use (&$outputParameters) {
-                return "'" . (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "Y"))->format("Y-m-d H:i:s") . "'";
-            }, $value);
+            foreach ($toIntervalStr as $suffix => $toInterval){
+                $value = preg_replace_callback("/'*([0-9]+)$suffix'*/", function ($matches) use ($toInterval) {
+                    return "#~d~#" . (new \DateTime())->sub(new DateInterval($toInterval($matches[1])))->format("Y-m-d H:i:s") . "#~d~#";
+                }, $value);
+            }
 
-            $value = preg_replace_callback("/'*([0-9]+)_MONTHS_AGO'*/", function ($matches) use (&$outputParameters) {
-                return "'" . (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "M"))->format("Y-m-d H:i:s") . "'";
+            //Substitute the #~# back in for {{param}} if the variable is exposed
+            $value = preg_replace_callback("/'[^']*?'/", function($matches){ //Foreach group of quotes
+                return str_replace("#~p~#", "", $matches[0]); //Remove the #~#
             }, $value);
+            $value = str_replace("#~p~#", "'", $value); //Remove all other #~#
 
-            $value = preg_replace_callback("/'*([0-9]+)_DAYS_AGO'*/", function ($matches) use (&$outputParameters) {
-                return "'" . (new \DateTime())->sub(new \DateInterval("P" . $matches[1] . "D"))->format("Y-m-d H:i:s") . "'";
+            //Substitute the #~d~# for quotes for 1_DAYS_AGO if the variable is exposed
+            $value = preg_replace_callback("/'[^']*?'/", function($matches){ //Foreach group of quotes
+                return str_replace("#~d~#", "", $matches[0]); //Remove the #~#
             }, $value);
-
-            $value = preg_replace_callback("/'*([0-9]+)_HOURS_AGO'*/", function ($matches) use (&$outputParameters) {
-                return "'" . (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "H"))->format("Y-m-d H:i:s") . "'";
-            }, $value);
-
-            $value = preg_replace_callback("/'*([0-9]+)_MINUTES_AGO'*/", function ($matches) use (&$outputParameters) {
-                return "'" . (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "M"))->format("Y-m-d H:i:s") . "'";
-            }, $value);
-
-            $value = preg_replace_callback("/'*([0-9]+)_SECONDS_AGO'*/", function ($matches) use (&$outputParameters) {
-                return "'" . (new \DateTime())->sub(new \DateInterval("PT" . $matches[1] . "S"))->format("Y-m-d H:i:s") . "'";
-            }, $value);
+            $value = str_replace("#~d~#", "'", $value);
 
 
             // If no [[ or ( expressions assume this is a single string
@@ -124,7 +131,6 @@ class SQLValueEvaluator {
                 array_splice($outputParameters, sizeof($outputParameters), 0, $candidateParams);
 
             }
-
 
             $valueStrings[] = $value;
 

@@ -180,8 +180,8 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
-    public function testCanCreateDocumentDatasourceInstanceAndIndexDatasourceInstance() {
-        $fields = [
+    public function testCanCreateDocumentDatasourceInstanceAndIndexDatasourceInstanceAndChunkDatasourceInstance() {
+        $indexFields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
             new Field("section", "Section", null, Field::TYPE_STRING, true),
             new Field("phrase", "Phrase", null, Field::TYPE_STRING, true),
@@ -189,15 +189,29 @@ class CustomDatasourceServiceTest extends TestBase {
             new Field("frequency", "Frequency", null, Field::TYPE_INTEGER)
         ];
 
+        $chunkFields = [
+            new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
+            new Field("chunk_text", "Chunk Text", null, Field::TYPE_LONG_STRING),
+            new Field("chunk_number", "Chunk Number", null, Field::TYPE_INTEGER, true),
+            new Field("chunk_pointer", "Chunk Pointer", null, Field::TYPE_INTEGER),
+            new Field("chunk_length", "Chunk Length", null, Field::TYPE_INTEGER),
+            new Field("embedding", "Embedding", null, Field::TYPE_LONG_STRING)
+        ];
+
         $documentDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "document_data_set_4_" . date("U"),
             "storeOriginal" => true, "storeText" => true, "indexContent" => true];
         $documentIndexDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "index_document_data_set_4_" . date("U"),
-            "source" => "table", "columns" => $fields, "manageTableStructure" => true];
+            "source" => "table", "columns" => $indexFields, "manageTableStructure" => true];
+        $documentChunksDatasourceConfig = ["tableName" => Configuration::readParameter("custom.datasource.table.prefix") . "chunks_document_data_set_4_" . date("U"),
+            "source" => "table", "columns" => $chunkFields, "manageTableStructure" => true];
 
         $expectedInstance = new DatasourceInstance("document_data_set_4_" . date("U"), "TheBestTitle", "document",
             $documentDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
         $expectedIndexInstance = new DatasourceInstance("index_document_data_set_4_" . date("U"), "TheBestTitle Index",
             "sqldatabase", $documentIndexDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
+        $expectedChunksInstance = new DatasourceInstance("chunks_document_data_set_4_" . date("U"), "TheBestTitle Chunks",
+            "sqldatabase", $documentChunksDatasourceConfig, Configuration::readParameter("custom.datasource.credentials.key"));
+
 
         $expectedInstance->setAccountId(4);
         $expectedInstance->setProjectKey("theBestKey");
@@ -205,15 +219,20 @@ class CustomDatasourceServiceTest extends TestBase {
         $expectedIndexInstance->setAccountId(4);
         $expectedIndexInstance->setProjectKey("theBestKey");
 
+        $expectedChunksInstance->setAccountId(4);
+        $expectedChunksInstance->setProjectKey("theBestKey");
+
         $updateConfig = new DatasourceConfigUpdate("TheBestTitle", $documentDatasourceConfig);
 
         $expectedInstanceKey = $this->customDatasourceService->createDocumentDatasourceInstance($updateConfig, "theBestKey", 4);
 
         $this->assertEquals($expectedInstance, $this->datasourceService->getMethodCallHistory("saveDataSourceInstance")[0][0]);
         $this->assertEquals($expectedIndexInstance, $this->datasourceService->getMethodCallHistory("saveDataSourceInstance")[1][0]);
+        $this->assertEquals($expectedChunksInstance, $this->datasourceService->getMethodCallHistory("saveDataSourceInstance")[2][0]);
 
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [$expectedInstance]));
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [$expectedIndexInstance]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [$expectedChunksInstance]));
         $this->assertEquals("document_data_set_4_" . date("U"), $expectedInstanceKey);
     }
 
@@ -247,7 +266,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $links = [
             "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
             "https://freetestdata.com/wp-content/uploads/2023/03/Sample_HTML_for_testing.html",
-            "https://filesamples.com/samples/document/docx/sample3.docx",
+            "https://calibre-ebook.com/downloads/demos/demo.docx",
             "https://drive.google.com/file/d/1slIH6T0vq0RoPJW5QSEU7VwsqSCNt5Iv/view?usp=share_link",
             "https://drive.google.com/uc?export=download&id=1Dr3vL2yLVIsMVVzsTVtXnkYv5-MECzaY"
         ];
@@ -287,7 +306,7 @@ class CustomDatasourceServiceTest extends TestBase {
         //FileSamples docx
         $testDocx = $callHistory[2][0]->nextRawDataItem();
         $docxParser = Container::instance()->get(DocxTextExtractor::class);
-        $this->assertTrue(str_contains($docxParser->extractTextFromString($testDocx["documentSource"]), "Documents may contain images"));
+        $this->assertTrue(str_contains($docxParser->extractTextFromString($testDocx["documentSource"]), "Demonstration of DOCX support in calibre"));
         $this->assertEquals("application/vnd.openxmlformats-officedocument.wordprocessingml.document", $testDocx["file_type"]);
 
         //Google Drive .pdf
