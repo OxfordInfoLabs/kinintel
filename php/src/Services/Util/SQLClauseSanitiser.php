@@ -119,6 +119,8 @@ class SQLClauseSanitiser {
             "description" => "Replaces all occurrences of the string passed as Y with the string passed as Z in the string X"],
         "ROUND" => ["params" => ["X", "Y"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Rounds the supplied number X to number of decimal places supplied as Y (defaults to 0 dp)"],
+        "ROW_COUNT" => ["params" => [], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
+            "description" => "Returns the number of rows in the current data set"],
         "ROW_NUMBER" => ["params" => [], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the sequential index of the current row in the current data set"],
         "RTRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
