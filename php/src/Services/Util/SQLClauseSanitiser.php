@@ -52,7 +52,9 @@ class SQLClauseSanitiser {
         "NULL",
         "OR",
         "THEN",
-        "WHEN"
+        "WHEN",
+        "ASC",
+        "DESC"
     ];
 
     // List of white listed functions along with parameter info
