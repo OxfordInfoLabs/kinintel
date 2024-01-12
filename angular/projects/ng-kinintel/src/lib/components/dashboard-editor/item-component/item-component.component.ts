@@ -21,6 +21,7 @@ import {Location} from '@angular/common';
 import {ActionEvent} from '../../../objects/action-event';
 import {ExternalService} from '../../../services/external.service';
 import {ProjectService} from '../../../services/project.service';
+import {map} from "rxjs/operators";
 
 declare var window: any;
 
@@ -958,18 +959,20 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                             }), ['value'], ['desc']).slice(0, 100);
                         }
                     } else if (this.wordCloud.populationMethod === 'WHOLE') {
-                        const max = _.maxBy(this.dataset.allData, item => {
+                        const maxFreq = _.maxBy(this.dataset.allData, item => {
                             return Number(item[this.wordCloud.frequency]);
-                        });
-
-                        const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 1000;
+                        })[this.wordCloud.frequency];
+                        const maxWordWidth : number = _.max(_.map(this.dataset.allData, item =>
+                            item[this.wordCloud.column].length * item[this.wordCloud.frequency] / maxFreq
+                        ));
+                        const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 3000;
                         this.wordCloud.data = _.orderBy(this.dataset.allData.map(item => {
                             const text = item[this.wordCloud.column];
-                            const textValue = item[this.wordCloud.frequency];
+                            const itemFrequency = item[this.wordCloud.frequency];
 
                             return {
                                 text,
-                                value: ((Number(textValue) / Number(max[this.wordCloud.frequency])) * _.min([fontSize, 120]))
+                                value: ((8/maxWordWidth) * (Number(itemFrequency) / Number(maxFreq)) * _.min([fontSize, 400]))
                             };
                         }), ['value'], ['desc']).slice(0, 100);
                     }
