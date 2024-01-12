@@ -11,6 +11,8 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
@@ -28,6 +30,8 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredenti
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -208,7 +212,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanMaterialiseDataSetWhenPagingViaParameters() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "",
-        "SELECT * FROM main_table m LIMIT {{limit}} OFFSET {{offset}}",[], false, true), $this->authCredentials, null, $this->validator);
+            "SELECT * FROM main_table m LIMIT {{limit}} OFFSET {{offset}}", [], false, true), $this->authCredentials, null, $this->validator);
 
         $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(100, 0));
         $sqlDatabaseDatasource->materialiseDataset();
@@ -220,7 +224,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testCanMaterialiseDataSetWithComplexQueryWhenPagingViaParameters() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_QUERY, "",
-            "SELECT * FROM main_table m LIMIT {{limit}} OFFSET {{offset}} LEFT JOIN SELECT * FROM other_table o ON m.this = o.that",[], false, true), $this->authCredentials, null, $this->validator);
+            "SELECT * FROM main_table m LIMIT {{limit}} OFFSET {{offset}} LEFT JOIN SELECT * FROM other_table o ON m.this = o.that", [], false, true), $this->authCredentials, null, $this->validator);
 
         $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(10, 20));
         $sqlDatabaseDatasource->materialiseDataset();
@@ -725,6 +729,119 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
             "NEW TABLE MODIFY"
         ]));
+    }
+
+
+    public function testWhenManagingTableStructureOnInstanceSaveIndexesAreCreatedAsPartOfCreateTableForNewOne() {
+
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $config = new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", []);
+
+        $datasource = new SQLDatabaseDatasource($config,
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+
+        // Throw an exception when getting table meta data
+        $this->databaseConnection->throwException("getTableMetaData", new SQLException("Table does not exist"), [
+            "mytable"
+        ]);
+
+        // Expect create table statement created using ddl generator
+        $newMetaData = new TableMetaData("mytable", [
+            new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
+            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false),
+            new TableColumn("notes", TableColumn::SQL_LONGBLOB)
+        ], [
+            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
+            new TableIndex(md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
+        ]);
+
+
+        $ddlGenerator->returnValue("generateTableCreateSQL", "NEW TABLE CREATE", [
+            $newMetaData,
+            $this->databaseConnection
+        ]);
+
+
+        $config->setColumns([
+            new Field("when", null, null, Field::TYPE_DATE, true),
+            new Field("why", null, null, null, true),
+            new Field("what", null, null, Field::TYPE_MEDIUM_STRING, false),
+            new Field("how_many", null, null, Field::TYPE_INTEGER),
+            new Field("notes", null, null, Field::TYPE_LONG_STRING)
+        ]);
+
+        $config->setIndexes([new Index(["when", "why"]), new Index(["why", "what", "notes"])]);
+
+        // Modify the table structure and ensure a create was made
+        $datasource->onInstanceSave();
+
+        // Expect create to be issued
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
+            "NEW TABLE CREATE"
+        ]));
+
+    }
+
+
+    public function testWhenManagingTableStructureOnInstanceSaveIndexesAreUpdatedAsPartOfUpdateTableForExistingOne() {
+
+        $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
+
+        $config = new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", [], true);
+
+        $datasource = new SQLDatabaseDatasource($config,
+            $this->authCredentials, null, $this->validator, $ddlGenerator);
+
+
+        $existingMetaData = new TableMetaData("mytable", [
+            new TableColumn("which", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
+        ], [
+            new TableIndex(md5("whichwhat"), [new TableIndexColumn("which"), new TableIndexColumn("what", 500)]),
+        ]);
+
+        // Return existing meta data from call
+        $this->databaseConnection->returnValue("getTableMetaData", $existingMetaData, [
+            "mytable"
+        ]);
+
+        // Expect create table statement created using ddl generator
+        $newMetaData = new TableMetaData("mytable", [
+            new UpdatableTableColumn("when", TableColumn::SQL_DATE, null, null, null, true, false, false, "which"),
+            new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, false, "what"),
+            new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
+        ], [
+            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
+        ]);
+
+        $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
+            $existingMetaData,
+            $newMetaData,
+            $this->databaseConnection
+        ]);
+
+        $config->setColumns([
+            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, "which"),
+            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, "what"),
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
+        ]);
+
+        $config->setIndexes([new Index(["when", "why"])]);
+
+        // Modify the table structure and ensure a create was made
+        $datasource->onInstanceSave();
+
+
+        // Expect create to be issued
+        $this->assertTrue($this->databaseConnection->methodWasCalled("executeScript", [
+            "NEW TABLE MODIFY"
+        ]));
+
     }
 
 

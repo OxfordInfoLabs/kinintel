@@ -7,11 +7,13 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
+use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinintel\Exception\DatasourceNotUpdatableException;
@@ -32,6 +34,7 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -494,8 +497,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param $key
      * @return SQLTransformationProcessor
      */
-    private
-    function getTransformationProcessor($key) {
+    private function getTransformationProcessor($key) {
         if (!isset($this->transformationProcessorInstances[$key])) {
             $this->transformationProcessorInstances[$key] = Container::instance()->getInterfaceImplementation(SQLTransformationProcessor::class, $key);
         }
@@ -507,8 +509,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * Update fields (opportunity for datasource to perform any required modifications)
      *
      */
-    protected
-    function updateFields($fields) {
+    protected function updateFields($fields) {
 
         // Construct the column array we need
         $columns = [];
@@ -521,8 +522,30 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             }
         }
 
+        $indexes = [];
+        // If we have a managed table structure, also check for indexes
+        if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfig) {
+            // Index all fields by name
+            $indexedFields = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $fields);
 
-        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
+            // Loop through and map to table index objects
+            foreach ($this->getConfig()->getIndexes() as $index) {
+                $indexFields = $index->getFieldNames();
+                $indexColumns = [];
+                foreach ($indexFields as $indexField) {
+                    $matchingField = $indexedFields[$indexField] ?? null;
+                    if ($matchingField)
+                        $indexColumns[] = $this->sqlColumnFieldMapper->mapFieldToIndexColumn($matchingField);
+                    else
+                        throw new DatasourceUpdateException("You attempted to remove a field which is referenced in an index");
+
+                }
+                $indexes[] = new TableIndex(md5(join("", $indexFields)), $indexColumns);
+            }
+        }
+
+
+        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
 
         // Check to see whether the table already exists

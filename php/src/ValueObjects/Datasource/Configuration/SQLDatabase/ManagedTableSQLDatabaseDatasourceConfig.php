@@ -14,6 +14,26 @@ namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfig {
 
     /**
+     * @var Index[]
+     */
+    private $indexes = [];
+
+    /**
+     * @return Index[]
+     */
+    public function getIndexes() {
+        return $this->indexes;
+    }
+
+    /**
+     * @param Index[] $indexes
+     */
+    public function setIndexes($indexes) {
+        $this->indexes = $indexes;
+    }
+
+
+    /**
      * Force true for manage table structure
      *
      * @return bool

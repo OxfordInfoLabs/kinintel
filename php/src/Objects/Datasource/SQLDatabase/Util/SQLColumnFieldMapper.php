@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinintel\ValueObjects\Dataset\Field;
 
 /**
@@ -28,6 +29,15 @@ class SQLColumnFieldMapper {
         Field::TYPE_ID => TableColumn::SQL_INTEGER,
         Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB
     ];
+
+    /**
+     * Map types which need qualifying with a max bytes for indexing purposes
+     */
+    const FIELD_TYPE_INDEX_MAX_BYTES_MAP = [
+        Field::TYPE_MEDIUM_STRING => 500,
+        Field::TYPE_LONG_STRING => 500
+    ];
+
 
     const FIELD_TYPE_LENGTH_MAP = [
         Field::TYPE_STRING => 255,
@@ -80,6 +90,20 @@ class SQLColumnFieldMapper {
         $autoIncrement = ($fieldType == Field::TYPE_ID);
 
         return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement);
+
+    }
+
+    /**
+     * Map a field to an index column ready for use in creating a table index.
+     * The main purpose of this function is to supply max bytes for string types
+     *
+     * @param Field $field
+     * @return TableIndexColumn
+     */
+    public function mapFieldToIndexColumn($field) {
+
+        $maxBytes = self::FIELD_TYPE_INDEX_MAX_BYTES_MAP[$field->getType()] ?? -1;
+        return new TableIndexColumn($field->getName(), $maxBytes);
 
     }
 
