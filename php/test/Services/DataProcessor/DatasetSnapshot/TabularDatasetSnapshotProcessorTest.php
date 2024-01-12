@@ -23,7 +23,9 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TimeLapseFieldSet;
 use Kinintel\ValueObjects\Dataset\Field;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -149,7 +151,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSource->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test"
@@ -162,7 +164,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $mockDataSourceLatest = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSourceLatest->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test_latest"));
+        $mockDataSourceLatest->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test_latest"));
         $mockDataSourceInstanceLatest->returnValue("returnDataSource", $mockDataSourceLatest);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test_latest"
@@ -175,7 +177,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $mockDataSourcePending = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSourcePending->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test_pending"));
+        $mockDataSourcePending->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test_pending"));
         $mockDataSourceInstancePending->returnValue("returnDataSource", $mockDataSourcePending);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test_pending"
@@ -187,19 +189,19 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $mockDataSourcePending->returnValue("getAuthenticationCredentials", $mockAuthCredentialsPending);
 
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], 25, "mytestsnapshot", true, true);
+        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], 25, "mytestsnapshot", true, true, null, [new Index(["title"]), new Index(["metric"])]);
         $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
         $this->processor->process($instance);
 
 
         // Check config updated with correct set of fields
-        $this->assertTrue($mockDataSourceInstance->methodWasCalled("setConfig", [new SQLDatabaseDatasourceConfig("table", "test", "", [
+        $this->assertTrue($mockDataSourceInstance->methodWasCalled("setConfig", [new ManagedTableSQLDatabaseDatasourceConfig("table", "test", "", [
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title"),
             new Field("metric"),
             new Field("score")
-        ])]));
+        ], false, [new Index(["title"]), new Index(["metric"]),new Index(["snapshot_date","title"]), new Index(["snapshot_date", "metric"])])]));
 
         // Check that the table was created with simple snapshot_date based PK.
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
@@ -265,12 +267,12 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         // Check config updated with correct set of fields
-        $this->assertTrue($mockDataSourceInstanceLatest->methodWasCalled("setConfig", [new SQLDatabaseDatasourceConfig("table", "test_latest", "", [
+        $this->assertTrue($mockDataSourceInstanceLatest->methodWasCalled("setConfig", [new ManagedTableSQLDatabaseDatasourceConfig("table", "test_latest", "", [
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title"),
             new Field("metric"),
             new Field("score")
-        ])]));
+        ], false, [new Index(["title"]), new Index(["metric"])])]));
 
         // Check that the table was created with simple snapshot_date based PK.
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
@@ -391,7 +393,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSource->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test"
@@ -404,7 +406,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $mockDataSourceLatest = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSourceLatest->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test_latest"));
+        $mockDataSourceLatest->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test_latest"));
         $mockDataSourceInstanceLatest->returnValue("returnDataSource", $mockDataSourceLatest);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test_latest"
@@ -417,7 +419,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $mockDataSourcePending = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSourcePending->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test_pending"));
+        $mockDataSourcePending->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test_pending"));
         $mockDataSourceInstancePending->returnValue("returnDataSource", $mockDataSourcePending);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test_pending"
@@ -435,7 +437,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         // Check config updated with correct set of fields
-        $this->assertTrue($mockDataSourceInstance->methodWasCalled("setConfig", [new SQLDatabaseDatasourceConfig("table", "test", "", [
+        $this->assertTrue($mockDataSourceInstance->methodWasCalled("setConfig", [new ManagedTableSQLDatabaseDatasourceConfig("table", "test", "", [
             new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true),
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title"),
@@ -499,7 +501,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         // Check config updated with correct set of fields
-        $this->assertTrue($mockDataSourceInstanceLatest->methodWasCalled("setConfig", [new SQLDatabaseDatasourceConfig("table", "test_latest", "", [
+        $this->assertTrue($mockDataSourceInstanceLatest->methodWasCalled("setConfig", [new ManagedTableSQLDatabaseDatasourceConfig("table", "test_latest", "", [
             new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true),
             new Field("title", "Title"),
             new Field("metric"),
@@ -569,7 +571,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSource->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test"
@@ -738,7 +740,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSource->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test"
@@ -772,7 +774,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
     }
 
 
-    public function testIfSourceDatasetForSnapshotContainsASnapshotItemIdColumnOrSnapshotDateAlreadyTheyAreOmittedFromNewSnapshot(){
+    public function testIfSourceDatasetForSnapshotContainsASnapshotItemIdColumnOrSnapshotDateAlreadyTheyAreOmittedFromNewSnapshot() {
 
         $datasetInstance = new DatasetInstance(null, 1, null);
 
@@ -834,7 +836,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Program a mock data source on return
         $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $mockDataSource->returnValue("getConfig", new SQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSource->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test"));
         $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
         $mockDataSourceInstance->returnValue("getConfig", [
             "tableName" => "test"
@@ -867,5 +869,6 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
     }
+
 
 }

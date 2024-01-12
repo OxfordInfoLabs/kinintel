@@ -14,6 +14,21 @@ namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfig {
 
     /**
+     * Construct a managed table datasource
+     *
+     * @param string $source
+     * @param string $tableName
+     * @param string $query
+     * @param Field[] $columns
+     * @param boolean $pagingViaParameters
+     * @param Index[] $indexes
+     */
+    public function __construct($source, $tableName = "", $query = "", $columns = [], $pagingViaParameters = false, $indexes = []) {
+        parent::__construct($source, $tableName, $query, $columns, true, $pagingViaParameters);
+        $this->indexes = $indexes;
+    }
+
+    /**
      * @var Index[]
      */
     private $indexes = [];

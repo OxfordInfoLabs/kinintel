@@ -2,6 +2,8 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+
 class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
     /**
@@ -22,6 +24,13 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @var string[]
      */
     private $keyFieldNames = [];
+
+
+    /**
+     * @var Index[]
+     */
+    private $indexes = [];
+
 
     /**
      * The name of the field used for detecting newer values in the data set.
@@ -112,6 +121,21 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     public function setKeyFieldNames($keyFieldNames) {
         $this->keyFieldNames = $keyFieldNames;
     }
+
+    /**
+     * @return Index[]
+     */
+    public function getIndexes() {
+        return $this->indexes;
+    }
+
+    /**
+     * @param Index[] $indexes
+     */
+    public function setIndexes($indexes) {
+        $this->indexes = $indexes;
+    }
+
 
     /**
      * @return string
