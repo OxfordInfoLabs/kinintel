@@ -155,9 +155,12 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
                 array_unshift($fields, new Field("snapshot_item_id", null, null, Field::TYPE_STRING, true));
 
 
+                // Grab indexes
+                $indexes = $config->getIndexes() ?: [];
+
                 $datasource = $this->ensureDatasource($config->getSnapshotIdentifier(), $instance->getTitle(),
                     $config,
-                    $fields, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey());
+                    $fields, $indexes, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey());
             }
 
 
@@ -197,7 +200,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
      *
      * @return SQLDatabaseDatasource
      */
-    private function ensureDatasource($instanceKey, $instanceTitle, $instanceConfig, $fields, $accountId, $projectKey) {
+    private function ensureDatasource($instanceKey, $instanceTitle, $instanceConfig, $fields, $indexes, $accountId, $projectKey) {
 
         // Grab config options
         $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
@@ -207,10 +210,11 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
             $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);
             $config = $datasourceInstance->getConfig();
             $config["columns"] = $fields;
+            $config["indexes"] = $indexes;
             $datasourceInstance->setConfig($config);
         } catch (ObjectNotFoundException $e) {
             $datasourceInstance = new DatasourceInstance($instanceKey, $instanceTitle, "snapshot",
-                new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tablePrefix . $instanceKey, null, $fields, true), $credentialsKey);
+                new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tablePrefix . $instanceKey, null, $fields, true, $indexes), $credentialsKey);
             $datasourceInstance->setAccountId($accountId);
             $datasourceInstance->setProjectKey($projectKey);
 

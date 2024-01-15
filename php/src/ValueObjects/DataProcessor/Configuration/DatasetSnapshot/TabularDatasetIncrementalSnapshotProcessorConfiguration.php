@@ -68,15 +68,17 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
      * @param string[] $keyFieldNames
+     * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $readChunkSize = null) {
+    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
         $this->keyFieldNames = $keyFieldNames;
         $this->readChunkSize = $readChunkSize;
+        $this->indexes = $indexes;
     }
 
 
