@@ -6,8 +6,12 @@ namespace Kinintel\Services\Feed;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
+use Kiniauth\Services\Security\Captcha\CaptchaProvider;
+use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\AccessDeniedException;
+use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
@@ -28,14 +32,22 @@ class FeedService {
 
 
     /**
+     * @var GoogleRecaptchaProvider
+     */
+    private $captchaProvider;
+
+
+    /**
      * FeedService constructor.
      *
      * @param DatasetService $datasetService
      * @param SecurityService $securityService
+     * @param GoogleRecaptchaProvider $captchaProvider
      */
-    public function __construct($datasetService, $securityService) {
+    public function __construct($datasetService, $securityService, $captchaProvider) {
         $this->datasetService = $datasetService;
         $this->securityService = $securityService;
+        $this->captchaProvider = $captchaProvider;
     }
 
 
@@ -107,7 +119,7 @@ class FeedService {
     public function isFeedURLAvailable($feedUrl, $currentItemId = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         // Use feed validator
-        $feed = new Feed(new FeedSummary($feedUrl, null, null, null, null, 0, $currentItemId), null, $accountId);
+        $feed = new Feed(new FeedSummary($feedUrl, null, null, null, null, 0, null, $currentItemId), null, $accountId);
         return sizeof($feed->validate()) == 0;
     }
 
@@ -146,8 +158,11 @@ class FeedService {
      *
      * @param string $feedPath
      * @param array $parameterValues
+     * @param int $offset
+     * @param int $limit
+     * @param Request $request
      */
-    public function evaluateFeed($feedPath, $parameterValues = [], $offset = 0, $limit = 50) {
+    public function evaluateFeed($feedPath, $parameterValues = [], $offset = 0, $limit = 50, $request = null) {
 
         // Check matching feeds
         $matchingFeeds = Feed::filter("WHERE path = ?", $feedPath);
@@ -163,6 +178,25 @@ class FeedService {
         if ($feed->getProjectKey() && !$this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "feedaccess", $feed->getProjectKey())) {
             throw new AccessDeniedException("You have not been granted access to feeds");
         }
+
+
+        // If we require a captcha, confirm this now
+        if ($feed->getWebsiteConfig()->isRequiresCaptcha()) {
+            if (!$request || !$request->getHeaders()->getCustomHeader("X_CAPTCHA_TOKEN"))
+                throw new AccessDeniedException("Captcha required but not supplied");
+
+            $captchaKey = $request->getHeaders()->getCustomHeader("X_CAPTCHA_TOKEN");
+
+            // Verify the captcha
+            $this->captchaProvider->setRecaptchaSecretKey($feed->getWebsiteConfig()->getCaptchaConfig());
+
+            if (!$this->captchaProvider->verifyCaptcha($captchaKey, $request)) {
+                throw new AccessDeniedException("Invalid Captcha Supplied for Feed");
+            }
+
+
+        }
+
 
         // Grab the data set instance summary for this feed
         $datasetInstanceSummary = $this->datasetService->getDataSetInstance($feed->getDatasetInstanceId());
