@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@revolist/angular-datagrid": "^3.0.52"
+  }
+}

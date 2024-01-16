@@ -21,9 +21,9 @@ export class ProjectService {
         }
     }
 
-    public getProjects(filterString = '') {
+    public getProjects(filterString = '', limit= 10, offset= 0) {
         return this.http.get(this.config.backendURL + '/project', {
-            params: {filterString}
+            params: {filterString, limit: limit.toString(), offset: offset.toString()}
         });
     }
 
@@ -33,6 +33,12 @@ export class ProjectService {
 
     public createProject(name, description) {
         return this.http.post(this.config.backendURL + '/project', {
+            name, description
+        }).toPromise();
+    }
+
+    public updateProject(name: string, description: string, key: string) {
+        return this.http.put(this.config.backendURL + '/project/' + key, {
             name, description
         }).toPromise();
     }

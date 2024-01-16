@@ -271,7 +271,8 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 newTitle: this.newTitle ? this.newTitle + ' Name' : null,
                 newDescription: this.newDescription || null,
                 accountId: this.accountId,
-                breadcrumb: this.headingLabel || 'Datasets'
+                breadcrumb: this.headingLabel || 'Datasets',
+                url: this.url
             }
         });
         dialogRef.afterClosed().subscribe(res => {
