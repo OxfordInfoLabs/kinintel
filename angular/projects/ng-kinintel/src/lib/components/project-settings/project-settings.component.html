@@ -250,4 +250,52 @@
             </div>
         </div>
     </div>
+
+    <div class="hidden sm:block" aria-hidden="true">
+        <div class="py-5">
+            <div class="border-t border-gray-200"></div>
+        </div>
+    </div>
+
+    <div class="mt-10 sm:mt-0">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+            <div class="md:col-span-1">
+                <div class="px-4 sm:px-0">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Project Colour Palette</h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        A selection of colours to use as default colours around the project in charts etc.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-5 md:col-span-2 md:mt-0">
+                <div class="overflow-hidden shadow sm:rounded-md">
+                    <div class="bg-white px-4 py-5 sm:p-6">
+                        <label class="mb-2">
+                            Select Colours
+                            <ng-template ngFor let-colour [ngForOf]="projectSettings.colours" let-i="index">
+                                <div class="my-2 flex items-center justify-between">
+                                    <input type="color" [(ngModel)]="projectSettings.colours[i]">
+                                    <button mat-icon-button color="warn" (click)="projectSettings.colours.splice(i, 1)">
+                                        <mat-icon>clear</mat-icon>
+                                    </button>
+                                </div>
+                            </ng-template>
+
+                        </label>
+
+                        <button type="button" (click)="projectSettings.colours.push('')"
+                                class="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm ">
+                            Add Colour
+                        </button>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                        <button type="button" (click)="saveChanges()"
+                                class="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm ">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

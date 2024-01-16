@@ -4,7 +4,7 @@ import {
     Component,
     ComponentFactoryResolver,
     EmbeddedViewRef,
-    HostBinding,
+    HostBinding, HostListener,
     Injector,
     Input,
     OnDestroy,
@@ -37,6 +37,8 @@ import {ActionEvent} from '../../objects/action-event';
 import {
     DashboardSettingsComponent
 } from './dashboard-settings/dashboard-settings.component';
+import {ComponentCanDeactivate} from '../../../lib/guards/dashboard-changes.guard';
+import * as sha512 from 'js-sha512' ;
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -44,7 +46,7 @@ import {
     styleUrls: ['./dashboard-editor.component.sass'],
     encapsulation: ViewEncapsulation.None
 })
-export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit, AfterViewInit, OnDestroy {
 
     @Input() sidenavService: any;
     @Input() accountId: any;
@@ -164,9 +166,19 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     private routeURL: string;
     private initialGrid: any;
     private itemComponents: ItemComponentComponent[] = [];
+    private dashboardHash: string;
+    private dashboardClone: any;
 
     public static myClone(event) {
         return event.target.cloneNode(true);
+    }
+
+    @HostListener('window:beforeunload')
+    canDeactivate(): Observable<boolean> | boolean {
+        // insert logic to check if there are pending changes here;
+        // returning true will navigate without confirmation
+        // returning false will show a confirm dialog before navigating away
+        return true;
     }
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
@@ -294,6 +306,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             this.dashboard.layoutSettings = {};
         }
 
+        this.dashboardHash = sha512.sha512(JSON.stringify(this.dashboard));
+        this.dashboardClone = _.cloneDeep(this.dashboard);
+
         setTimeout(() => {
             this.showEditPanel = true;
             this.sidenavService.close();
@@ -367,7 +382,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public async reloadDashboard() {
         for (const item of this.itemComponents) {
-            await item.init(true);
+            if (item.dashboardDatasetInstance) {
+                await item.init(true);
+            }
         }
     }
 
@@ -422,6 +439,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
             gridItem.content = itemElement.children.item(0).outerHTML;
         });
+
+        this.dashboard.datasetInstances = _.filter(this.dashboard.datasetInstances);
+
         return this.dashboardService.saveDashboard(this.dashboard, this.accountId).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {

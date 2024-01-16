@@ -47,7 +47,7 @@ export class DataExplorerComponent implements OnInit {
         this.admin = !!this.data.admin;
         this.accountId = this.data.accountId;
         this.breadcrumb = this.data.breadcrumb;
-
+console.log(this.datasetInstanceSummary);
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;
         }
@@ -81,6 +81,18 @@ export class DataExplorerComponent implements OnInit {
         this.showSnapshots = !this.showSnapshots;
         if (this.showSnapshots) {
             this.loadSnapshotProfiles();
+        }
+    }
+
+    public viewSource(source: any) {
+        if (source.datasourceInstanceKey) {
+            if (source.type === 'custom') {
+
+            } else if (source.type === 'snapshot') {
+
+            }
+        } else if (source.datasetInstanceId) {
+            window.open('')
         }
     }
 

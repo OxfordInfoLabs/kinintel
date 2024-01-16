@@ -60,7 +60,7 @@
                     <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
                         <ng-template [ngIf]="datasetInstanceSummary.source.datasourceInstanceKey">
                             <img *ngIf="['custom', 'snapshot'].indexOf(datasetInstanceSummary.source.type) === -1"
-                                 src="/assets/favicon-rev.png" class="w-2.5 mx-1.5">
+                                 src="/assets/favicon.png" class="w-2.5 mx-1.5">
                             <mat-icon *ngIf="datasetInstanceSummary.source.type === 'custom'" class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
                             <mat-icon *ngIf="datasetInstanceSummary.source.type === 'snapshot'" class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
                         </ng-template>

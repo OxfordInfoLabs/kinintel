@@ -20,6 +20,7 @@ export class ProjectSettingsComponent implements OnInit {
     @Input() dashboardURL: string;
     @Input() queryURL: string;
     @Input() datasourceURLs: any;
+    @Input() defaultColours: string[] = [''];
 
     public projectSettings: any = {};
     public categories: any = [];
@@ -53,10 +54,14 @@ export class ProjectSettingsComponent implements OnInit {
             this.activeProject = activeProject;
 
             this.projectSettings = this.activeProject.settings ? (Array.isArray(this.activeProject.settings) ? {
-                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: [], colours: []
             } : this.activeProject.settings) : {
-                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: []
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: [], colours: []
             };
+
+            if (!this.projectSettings.colours.length) {
+                this.projectSettings.colours = this.defaultColours;
+            }
 
             this.getCategories();
         });

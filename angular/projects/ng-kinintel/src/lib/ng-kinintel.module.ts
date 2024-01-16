@@ -1,4 +1,4 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
+import {CUSTOM_ELEMENTS_SCHEMA, ModuleWithProviders, NgModule} from '@angular/core';
 import {DashboardEditorComponent} from './components/dashboard-editor/dashboard-editor.component';
 import {MatLegacyButtonModule as MatButtonModule} from '@angular/material/legacy-button';
 import {MatIconModule} from '@angular/material/icon';
@@ -87,6 +87,9 @@ import {DashboardChangesGuard} from './guards/dashboard-changes.guard';
 import { DashboardSettingsComponent } from './components/dashboard-editor/dashboard-settings/dashboard-settings.component';
 import { ApiAccessComponent } from './components/datasource/create-datasource/api-access/api-access.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { TabularDatasourceComponent } from './components/datasource/create-datasource/tabular-datasource/tabular-datasource.component';
+import { MoveTransformationConfirmationComponent } from './components/dataset/dataset-editor/move-transformation-confirmation/move-transformation-confirmation.component';
+import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
 
 @NgModule({
     declarations: [
@@ -142,7 +145,9 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
         ProjectLinkSelectionComponent,
         UpstreamChangesConfirmationComponent,
         DashboardSettingsComponent,
-        ApiAccessComponent
+        ApiAccessComponent,
+        TabularDatasourceComponent,
+        MoveTransformationConfirmationComponent
     ],
     imports: [
         BrowserModule,
@@ -179,7 +184,9 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
         AngularD3CloudModule,
         MatProgressBarModule,
         CodemirrorModule,
-        ClipboardModule
+        ClipboardModule,
+        CdkOverlayOrigin,
+        CdkConnectedOverlay
     ],
     exports: [
         DashboardEditorComponent,
@@ -206,9 +213,11 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
         CreateDatasourceComponent,
         DocumentDatasourceComponent,
         ProjectSettingsComponent,
-        UpstreamChangesConfirmationComponent
+        UpstreamChangesConfirmationComponent,
+        TabularDatasourceComponent
     ],
-    providers: [DashboardChangesGuard]
+    providers: [DashboardChangesGuard],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class NgKinintelModule {
     static forRoot(conf?: KinintelModuleConfig): ModuleWithProviders<NgKinintelModule> {

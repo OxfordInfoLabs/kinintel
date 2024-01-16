@@ -2,7 +2,11 @@ import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy} from 
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {
+    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+    MatLegacyDialog as MatDialog,
+    MatLegacyDialogRef as MatDialogRef
+} from '@angular/material/legacy-dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.component';
 import {DatasetCreateFormulaComponent} from './dataset-create-formula/dataset-create-formula.component';
@@ -21,6 +25,10 @@ import {
 import {
     DatasetNameDialogComponent
 } from '../dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {
+    MoveTransformationConfirmationComponent
+} from '../dataset-editor/move-transformation-confirmation/move-transformation-confirmation.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -127,25 +135,68 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-    public addFilter() {
-        const visibleFilters = _.filter(this.datasetInstanceSummary.transformationInstances, {hide: false});
-        if (!visibleFilters.length) {
-            this.datasetInstanceSummary.transformationInstances.push({
-                type: 'filter',
-                config: {
-                    logic: 'AND',
-                    filters: [{
-                        lhsExpression: '',
-                        rhsExpression: '',
-                        filterType: ''
-                    }],
-                    filterJunctions: []
-                },
-                hide: false
-            });
+    public drop(event: CdkDragDrop<any>) {
+        this.dialog.open(MoveTransformationConfirmationComponent, {
+            width: '700px',
+            height: '275px'
+        }).afterClosed().subscribe(res => {
+            if (res === 'proceed') {
+                this.datasetInstanceSummary.transformationInstances[event.previousContainer.data.index] = event.container.data.item;
+                this.datasetInstanceSummary.transformationInstances[event.container.data.index] = event.previousContainer.data.item;
+                this.evaluateDataset();
+            }
+        });
+    }
+
+    public async insertTransformation(index: number, transformationType: string, nextTransformation: any) {
+        await this.excludeUpstreamTransformations(nextTransformation);
+
+        switch (transformationType) {
+            case 'columns':
+                this.editColumnSettings(null, null, index);
+                break;
+            case 'formula':
+                this.createFormula(null, null, index);
+                break;
+            case 'join':
+                this.joinData(null, null, index);
+                break;
+            case 'summarise':
+                this.summariseData(null, null, index);
+                break;
+            case 'filter':
+                this.addFilter(index);
+                break;
+        }
+    }
+
+    public addFilter(insertIndex?: number) {
+        _.forEach(this.datasetInstanceSummary.transformationInstances || [], transformation => {
+            transformation.hide = true;
+        });
+
+        const filterTransformation = {
+            type: 'filter',
+            config: {
+                logic: 'AND',
+                filters: [{
+                    lhsExpression: '',
+                    rhsExpression: '',
+                    filterType: ''
+                }],
+                filterJunctions: []
+            },
+            hide: false
+        };
+
+        if (!_.isNil(insertIndex) && insertIndex >= 0) {
+            this.datasetInstanceSummary.transformationInstances.splice(insertIndex, 0, filterTransformation);
+        } else {
+            this.datasetInstanceSummary.transformationInstances.push(filterTransformation);
         }
 
         this.showFilters = true;
+        this.setTerminatingTransformations();
 
         setTimeout(() => {
             const filters = document.getElementById('datasetFilters');
@@ -197,10 +248,26 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
     }
 
+    public enableAllTransformation() {
+        this.datasetInstanceSummary.transformationInstances.forEach((transformation: any) => {
+            transformation.exclude = false;
+        });
+        this.evaluateDataset();
+    }
+
     public disableTransformation(transformation, index) {
         transformation.exclude = !transformation.exclude;
-        this.showPerTerminatingFilters(transformation);
         this.evaluateDataset();
+    }
+
+    public showTransformationDetail(transformation) {
+        const clone = _.clone(transformation);
+        this.terminatingTransformations.forEach(item => {
+            item._showDetail = false;
+        });
+        if (!clone._showDetail) {
+            transformation._showDetail = true;
+        }
     }
 
     public async editTerminatingTransformation(transformation) {
@@ -214,30 +281,26 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             this.showFilters = !hiddenValue;
         } else {
             const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
-            const dataLoadedSub = this.dataLoaded.subscribe(res => {
-                if (transformation.type === 'summarise') {
-                    this.summariseData(clonedTransformation.config, existingIndex);
-                }
-                if (transformation.type === 'join') {
-                    this.joinData(clonedTransformation, existingIndex);
-                }
-                if (transformation.type === 'formula') {
-                    this.createFormula(clonedTransformation, existingIndex);
-                }
-                if (transformation.type === 'columns') {
-                    this.editColumnSettings(clonedTransformation, existingIndex);
-                }
-                dataLoadedSub.unsubscribe();
-            });
+            if (transformation.type === 'summarise') {
+                this.summariseData(clonedTransformation.config, existingIndex);
+            }
+            if (transformation.type === 'join') {
+                this.joinData(clonedTransformation, existingIndex);
+            }
+            if (transformation.type === 'formula') {
+                this.createFormula(clonedTransformation, existingIndex);
+            }
+            if (transformation.type === 'columns') {
+                this.editColumnSettings(clonedTransformation, existingIndex);
+            }
         }
-
     }
 
     public exportData() {
 
     }
 
-    public async editColumnSettings(existingTransformation?, existingIndex?) {
+    public async editColumnSettings(existingTransformation?: any, existingIndex?: number, insertIndex?: number) {
         const clonedColumns = existingTransformation ? _.clone(existingTransformation.config.columns) : null;
 
         const columnSettings = [];
@@ -272,20 +335,19 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     return {title: column.title, name: column.name};
                 });
 
-                if (existingIndex > -1) {
-                    this.datasetInstanceSummary.transformationInstances[existingIndex] = {
-                        type: 'columns',
-                        config: {
-                            columns: fields
-                        }
-                    };
+                const columnTransformation = {
+                    type: 'columns',
+                    config: {
+                        columns: fields
+                    }
+                };
+
+                if (!_.isNil(existingIndex) && existingIndex > -1) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = columnTransformation;
+                } else if (!_.isNil(insertIndex) && insertIndex >= 0) {
+                    this.datasetInstanceSummary.transformationInstances.splice(insertIndex, 0, columnTransformation);
                 } else {
-                    this.datasetInstanceSummary.transformationInstances.push({
-                        type: 'columns',
-                        config: {
-                            columns: fields
-                        }
-                    });
+                    this.datasetInstanceSummary.transformationInstances.push(columnTransformation);
                 }
 
                 this.evaluateDataset();
@@ -306,7 +368,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public createFormula(existingTransformation?, existingIndex?) {
+    public createFormula(existingTransformation?: any, existingIndex?: number, insertIndex?: number) {
         const clonedExpressions = existingTransformation ? _.clone(existingTransformation.config.expressions) : null;
         const dialogRef = this.dialog.open(DatasetCreateFormulaComponent, {
             width: '900px',
@@ -320,20 +382,19 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(formula => {
             if (formula) {
-                if (existingIndex > -1) {
-                    this.datasetInstanceSummary.transformationInstances[existingIndex] = {
-                        type: 'formula',
-                        config: {
-                            expressions: formula
-                        }
-                    };
+                const formulaTransformation = {
+                    type: 'formula',
+                    config: {
+                        expressions: formula
+                    }
+                };
+
+                if (!_.isNil(existingIndex) && existingIndex >= 0) {
+                    this.datasetInstanceSummary.transformationInstances[existingIndex] = formulaTransformation;
+                } else if (!_.isNil(insertIndex) && insertIndex >= 0) {
+                    this.datasetInstanceSummary.transformationInstances.splice(insertIndex, 0, formulaTransformation);
                 } else {
-                    this.datasetInstanceSummary.transformationInstances.push({
-                        type: 'formula',
-                        config: {
-                            expressions: formula
-                        }
-                    });
+                    this.datasetInstanceSummary.transformationInstances.push(formulaTransformation);
                 }
 
                 this.evaluateDataset();
@@ -355,7 +416,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public joinData(transformation?, existingIndex?) {
+    public joinData(transformation?: any, existingIndex?: number, insertIndex?: number) {
         const clonedTransformation = transformation ? _.clone(transformation) : null;
         const data: any = {
             admin: this.admin,
@@ -386,8 +447,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(joinTransformation => {
             if (joinTransformation) {
-                if (existingIndex >= 0) {
+                if (!_.isNil(existingIndex) && existingIndex >= 0) {
                     this.datasetInstanceSummary.transformationInstances[existingIndex] = joinTransformation;
+                } else if (!_.isNil(insertIndex) && insertIndex >= 0) {
+                    this.datasetInstanceSummary.transformationInstances.splice(insertIndex, 0, joinTransformation);
                 } else {
                     this.datasetInstanceSummary.transformationInstances.push(joinTransformation);
                 }
@@ -470,7 +533,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         this.evaluateDataset(true);
     }
 
-    public summariseData(config?, existingIndex?) {
+    public summariseData(config?: any, existingIndex?: number, insertIndex?: number) {
         const clonedConfig = config ? _.clone(config) : null;
         const summariseDialog = this.dialog.open(DatasetSummariseComponent, {
             width: '1100px',
@@ -485,7 +548,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         summariseDialog.afterClosed().subscribe(summariseTransformation => {
             if (summariseTransformation) {
-                if (existingIndex >= 0) {
+                // this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
+                //     instance.exclude = false;
+                // });
+                if (!_.isNil(existingIndex) && existingIndex >= 0) {
                     // Check if anything has changed
                     if (!_.isEqual(clonedConfig, summariseTransformation) && (existingIndex + 1) < this.datasetInstanceSummary.transformationInstances.length) {
                         // Things have changed, ask user to confirm
@@ -515,6 +581,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                         };
                         this.evaluateDataset(true);
                     }
+                } else if (!_.isNil(insertIndex) && insertIndex >= 0) {
+                    this.datasetInstanceSummary.transformationInstances.splice(insertIndex, 0, {
+                        type: 'summarise',
+                        config: summariseTransformation
+                    });
                 } else {
                     this.datasetInstanceSummary.transformationInstances.push({
                         type: 'summarise',
@@ -522,11 +593,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     });
                     this.evaluateDataset(true);
                 }
-
-                // const expressionFields = _.map(summariseTransformation.expressions, 'fieldName');
-                // const allFields = (expressionFields || []).concat(summariseTransformation.summariseFieldNames);
-                //
-                // console.log('SUMMARISE DATA', summariseTransformation, allFields);
             } else {
                 // If we get here then the summarise transformation was cancelled - restore if we have one
                 if (clonedConfig) {
@@ -658,7 +724,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    private excludeUpstreamTransformations(transformation) {
+    public async excludeUpstreamTransformations(transformation) {
         const clonedTransformation = _.clone(transformation);
         // Grab the index of the current transformation - so we know which upstream transformations to exclude
         const existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
@@ -673,9 +739,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
         });
 
-        return this.evaluateDataset().then(() => {
-            return [clonedTransformation, existingIndex];
-        });
+        await this.evaluateDataset();
+        return [clonedTransformation, existingIndex];
     }
 
     private validateFilterJunction(filterConfig) {
@@ -731,25 +796,17 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         this.terminatingTransformations = _.filter(this.datasetInstanceSummary.transformationInstances, (transformation, index) => {
             if (transformation.type === 'summarise') {
                 summarise++;
-                transformation._label = this.getOrdinal(summarise) + ' Summarisation';
+                transformation._label = this.getOrdinal(summarise) + ' Summarise';
                 transformation._disable = summarise < summariseTotal;
                 transformation._active = summarise === summariseTotal;
-
-                if (!transformation.exclude) {
-                    this.hidePreTerminatingFilters(index);
-                }
 
                 return true;
             }
             if (transformation.type === 'join') {
                 join++;
-                transformation._label = this.getOrdinal(join) + ' Join';
+                transformation._label = transformation.config.joinedDataItemTitle || this.getOrdinal(join) + ' Join';
                 transformation._disable = join < joinTotal;
                 transformation._active = join === joinTotal;
-
-                if (!transformation.exclude) {
-                    this.hidePreTerminatingFilters(index);
-                }
 
                 return true;
             }
@@ -760,13 +817,13 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 return true;
             }
             if (transformation.type === 'formula') {
-                transformation._label = 'Formula Expression';
+                transformation._label = transformation.config.expressions[0].fieldTitle;
                 transformation._disable = false;
                 transformation._active = true;
                 return true;
             }
             if (transformation.type === 'columns') {
-                transformation._label = 'Columns Updated';
+                transformation._label = 'Columns Update';
                 transformation._disable = false;
                 transformation._active = true;
                 return true;
@@ -781,103 +838,87 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    private hidePreTerminatingFilters(terminatingIndex) {
-        this.datasetInstanceSummary.transformationInstances.forEach((transformation, index) => {
-            if (transformation.type === 'filter') {
-                transformation.hide = transformation.exclude || terminatingIndex > index;
-            }
-        });
-    }
-
-    private showPerTerminatingFilters(transformation) {
-        const terminatingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, transformation);
-        this.datasetInstanceSummary.transformationInstances.forEach((transformationInstance, index) => {
-            if (transformationInstance.type === 'filter') {
-                transformationInstance.hide = terminatingIndex < index;
-            }
-        });
-
-        this.showFilters = _.some(this.datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false});
-    }
-
     public async evaluateDataset(resetPager?) {
-        if (resetPager) {
-            this.resetPager();
-        }
-
-        const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
-
-        // console.log(clonedDatasetInstance);
-
-        const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
-        let finished = false;
-
-        if (this.dashboardLayoutSettings) {
-            this.dashboardLayoutSettings.limit = this.limit;
-            this.dashboardLayoutSettings.offset = this.offset;
-        }
-
-        this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
-            clonedDatasetInstance,
-            String(this.offset),
-            String(this.limit),
-            trackingKey
-        ).subscribe(dataset => {
-            finished = true;
-            this.dataset = dataset;
-            return this.loadData();
-        }, err => {
-            finished = true;
-            if (err.error && err.error.message) {
-                let message = err.error.message.toLowerCase();
-                if (message.includes('sql')) {
-                    message = 'An error occurred processing your query. Please check any SQL syntax and try again.';
-                }
-                if (!message.includes('parameter') && !message.includes('required')) {
-                    this.snackBar.open(err.error.message, 'Close', {
-                        verticalPosition: 'top',
-                        duration: 5000
-                    });
-                }
+        return new Promise(async (resolve, reject) => {
+            if (resetPager) {
+                this.resetPager();
             }
-            // If the evaluate fails we still want to publish the instance and set the terminating transformations
-            this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
-            this.setTerminatingTransformations();
-            return true;
-        });
 
-        setTimeout(() => {
-            if (!finished) {
-                this.longRunning = true;
-                this.evaluateSub.unsubscribe();
-                this.resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
-                    .subscribe((results: any) => {
-                        if (results.status === 'COMPLETED') {
-                            this.resultsSub.unsubscribe();
-                            this.dataset = results.result;
-                            this.longRunning = false;
-                            return this.loadData();
-                        } else if (results.status === 'FAILED') {
-                            this.resultsSub.unsubscribe();
-                            this.longRunning = false;
-                            const errorMessage = results.result;
-                            if (errorMessage) {
-                                const message = errorMessage.toLowerCase();
-                                if (!message.includes('parameter') && !message.includes('required')) {
-                                    this.snackBar.open(errorMessage, 'Close', {
-                                        verticalPosition: 'top',
-                                        duration: 5000
-                                    });
+            const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
+
+            const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
+            let finished = false;
+
+            if (this.dashboardLayoutSettings) {
+                this.dashboardLayoutSettings.limit = this.limit;
+                this.dashboardLayoutSettings.offset = this.offset;
+            }
+
+            this.evaluateSub = this.datasetService.evaluateDatasetWithTracking(
+                clonedDatasetInstance,
+                String(this.offset),
+                String(this.limit),
+                trackingKey
+            ).subscribe(async dataset => {
+                finished = true;
+                this.dataset = dataset;
+                this.loadData();
+                resolve(true);
+            }, err => {
+                finished = true;
+                if (err.error && err.error.message) {
+                    let message = err.error.message.toLowerCase();
+                    if (message.includes('sql')) {
+                        message = 'An error occurred processing your query. Please check any SQL syntax and try again.';
+                    }
+                    if (!message.includes('parameter') && !message.includes('required')) {
+                        this.snackBar.open(err.error.message, 'Close', {
+                            verticalPosition: 'top',
+                            duration: 5000
+                        });
+                    }
+                }
+                // If the evaluate fails we still want to publish the instance and set the terminating transformations
+                this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
+                this.setTerminatingTransformations();
+
+                return reject(false);
+            });
+
+            setTimeout(() => {
+                if (!finished) {
+                    this.longRunning = true;
+                    this.evaluateSub.unsubscribe();
+                    this.resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
+                        .subscribe((results: any) => {
+                            if (results.status === 'COMPLETED') {
+                                this.resultsSub.unsubscribe();
+                                this.dataset = results.result;
+                                this.longRunning = false;
+                                this.loadData();
+                                resolve(true);
+                            } else if (results.status === 'FAILED') {
+                                this.resultsSub.unsubscribe();
+                                this.longRunning = false;
+                                const errorMessage = results.result;
+                                if (errorMessage) {
+                                    const message = errorMessage.toLowerCase();
+                                    if (!message.includes('parameter') && !message.includes('required')) {
+                                        this.snackBar.open(errorMessage, 'Close', {
+                                            verticalPosition: 'top',
+                                            duration: 5000
+                                        });
+                                    }
                                 }
+                                // If the evaluate fails we still want to publish the instance and set the terminating transformations
+                                this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
+                                this.setTerminatingTransformations();
+                                resolve(false);
                             }
-                            // If the evaluate fails we still want to publish the instance and set the terminating transformations
-                            this.datasetInstanceSummaryChange.emit(this.datasetInstanceSummary);
-                            this.setTerminatingTransformations();
-                        }
-                    });
-            }
-        }, 3000);
-
+                        });
+                }
+            }, 3000);
+        });
     }
 
     private _removeTransformation(transformation, index?) {
@@ -932,6 +973,13 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.id, (this.limit).toString());
         } else if (this.datasetInstanceSummary.instanceKey) {
             localStorage.setItem('datasetInstanceLimit' + this.datasetInstanceSummary.instanceKey, (this.limit).toString());
+        }
+
+        const sort = _.find(this.datasetInstanceSummary.transformationInstances, {type: 'multisort'});
+        if (sort) {
+            const clone = _.clone(sort);
+            _.remove(this.datasetInstanceSummary.transformationInstances, sort);
+            this.datasetInstanceSummary.transformationInstances.push(clone);
         }
 
         // Clone the current instance object, so we can remove any excluded transformations, without affecting

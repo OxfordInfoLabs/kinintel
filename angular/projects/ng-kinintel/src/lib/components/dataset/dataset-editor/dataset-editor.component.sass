@@ -11,6 +11,13 @@
     height: 17px
     background-color: #cecece
 
+.new-transformation
+    .add-transformation
+        display: none
+    &:hover
+        .add-transformation
+            display: flex
+
 .long-running
     position: fixed
     inset: 0
@@ -99,7 +106,6 @@
 .transformation-listing
     display: flex
     align-items: center
-    flex-wrap: wrap
     width: 100%
     background-color: rgba(0,0,0,.07)
     border-bottom: 1px solid #ddd
