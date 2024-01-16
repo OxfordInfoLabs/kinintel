@@ -39,7 +39,7 @@ class Feed {
         if (sizeof($explodedPath) > 1) {
             $limit = $request->getParameter("limit") ?? 50;
             $offset = $request->getParameter("offset") ?? 0;
-            return $this->feedService->evaluateFeed($explodedPath[1], $request->getParameters(), $offset, $limit);
+            return $this->feedService->evaluateFeed($explodedPath[1], $request->getParameters(), $offset, $limit, $request);
         }
 
     }
