@@ -19,18 +19,27 @@ class FeedWebsiteConfig {
 
 
     /**
-     * @var mixed
+     * @var string
      */
-    private $captchaConfig = null;
+    private $captchaSecretKey = null;
+
+    /**
+     * @var float
+     */
+    private $captchaScoreThreshold = null;
+
 
     /**
      * @param string[] $referringDomains
      * @param bool $requiresCaptcha
+     * @param string $captchaSecretKey
+     * @param float $captchaScoreThreshold
      */
-    public function __construct($referringDomains = [], $requiresCaptcha = false, $captchaConfig = null) {
+    public function __construct($referringDomains = [], $requiresCaptcha = false, $captchaSecretKey = null, $captchaScoreThreshold = null) {
         $this->referringDomains = $referringDomains;
         $this->requiresCaptcha = $requiresCaptcha;
-        $this->captchaConfig = $captchaConfig;
+        $this->captchaSecretKey = $captchaSecretKey;
+        $this->captchaScoreThreshold = $captchaScoreThreshold;
     }
 
 
@@ -65,15 +74,29 @@ class FeedWebsiteConfig {
     /**
      * @return mixed
      */
-    public function getCaptchaConfig() {
-        return $this->captchaConfig;
+    public function getCaptchaSecretKey() {
+        return $this->captchaSecretKey;
     }
 
     /**
-     * @param mixed $captchaConfig
+     * @param mixed $captchaSecretKey
      */
-    public function setCaptchaConfig($captchaConfig) {
-        $this->captchaConfig = $captchaConfig;
+    public function setCaptchaSecretKey($captchaSecretKey) {
+        $this->captchaSecretKey = $captchaSecretKey;
+    }
+
+    /**
+     * @return float
+     */
+    public function getCaptchaScoreThreshold() {
+        return $this->captchaScoreThreshold;
+    }
+
+    /**
+     * @param float $captchaScoreThreshold
+     */
+    public function setCaptchaScoreThreshold($captchaScoreThreshold) {
+        $this->captchaScoreThreshold = $captchaScoreThreshold;
     }
 
 

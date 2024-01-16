@@ -373,7 +373,7 @@ class FeedServiceTest extends TestBase {
 
         $feedSummary = new FeedSummary("filter/feed6", 2, [], "test", [
             "config" => "Hello"
-        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY"));
+        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
 
         $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
 
@@ -437,6 +437,11 @@ class FeedServiceTest extends TestBase {
 
         $response = $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, $request);
         $this->assertEquals($expectedResponse, $response);
+
+        // Confirm that the backend google service was configured correctly.
+        $this->assertTrue($this->captchaProvider->methodWasCalled("setRecaptchaSecretKey", ["SECRETKEY"]));
+        $this->assertTrue($this->captchaProvider->methodWasCalled("setRecaptchaScoreThreshold", [0.6]));
+
 
     }
 

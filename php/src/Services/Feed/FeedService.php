@@ -207,7 +207,8 @@ class FeedService {
             $captchaKey = $request->getHeaders()->getCustomHeader("X_CAPTCHA_TOKEN");
 
             // Verify the captcha
-            $this->captchaProvider->setRecaptchaSecretKey($feed->getWebsiteConfig()->getCaptchaConfig());
+            $this->captchaProvider->setRecaptchaSecretKey($feed->getWebsiteConfig()->getCaptchaSecretKey());
+            $this->captchaProvider->setRecaptchaScoreThreshold($feed->getWebsiteConfig()->getCaptchaScoreThreshold());
 
             if (!$this->captchaProvider->verifyCaptcha($captchaKey, $request)) {
                 throw new AccessDeniedException("Invalid Captcha Supplied for Feed");
