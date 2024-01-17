@@ -371,9 +371,9 @@ class FeedServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $feedSummary = new FeedSummary("filter/feed4", 2, [], "test", [
+        $feedSummary = new FeedSummary("filter/feed6", 2, [], "test", [
             "config" => "Hello"
-        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY"));
+        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
 
         $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
 
@@ -400,16 +400,15 @@ class FeedServiceTest extends TestBase {
         // Try one without a valid request
 
         try {
-            $this->feedService->evaluateFeed("filter/feed4");
+            $this->feedService->evaluateFeed("filter/feed6");
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
 
 
-
         // Try one with an invalid request
         try {
-            $this->feedService->evaluateFeed("filter/feed4", [], 0, 50,new Request(new Headers()));
+            $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, new Request(new Headers()));
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -422,7 +421,7 @@ class FeedServiceTest extends TestBase {
 
         // Try one with an invalid request
         try {
-            $this->feedService->evaluateFeed("filter/feed4", [], 0, 50, $request);
+            $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, $request);
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -436,8 +435,96 @@ class FeedServiceTest extends TestBase {
             "CAPTCHAKEY", $request
         ]);
 
-        $response = $this->feedService->evaluateFeed("filter/feed4", [], 0, 50, $request);
+        $response = $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, $request);
         $this->assertEquals($expectedResponse, $response);
+
+        // Confirm that the backend google service was configured correctly.
+        $this->assertTrue($this->captchaProvider->methodWasCalled("setRecaptchaSecretKey", ["SECRETKEY"]));
+        $this->assertTrue($this->captchaProvider->methodWasCalled("setRecaptchaScoreThreshold", [0.6]));
+
+
+    }
+
+
+    public function testRequestHostnameCheckedAgainstReferringDomainsIfSupplied() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("filter/feed5", 2, [], "test", [
+            "config" => "Hello"
+        ], 0, new FeedWebsiteConfig(["happy.com", "test.sad.com"]));
+
+        $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        // Try one without a valid request
+        try {
+            $this->feedService->evaluateFeed("filter/feed5");
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Try one with an invalid request
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        // Try ones with invalid referrers
+        $_SERVER["HTTP_REFERER"] = "https://www.google.com/helloworld?myname=test";
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Subdomain should not be good.
+        $_SERVER["HTTP_REFERER"] = "https://www.happy.com/helloworld?myname=test";
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Subdomain should not be good.
+        $_SERVER["HTTP_REFERER"] = "https://sad.com/helloworld?myname=test";
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        // Valid referrers
+        $_SERVER["HTTP_REFERER"] = "https://happy.com/mypath?hello=true";
+        $response = $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+        $this->assertEquals($expectedResponse, $response);
+
+        // Valid referrers
+        $_SERVER["HTTP_REFERER"] = "https://test.sad.com/mypath?hello=true";
+        $response = $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+        $this->assertEquals($expectedResponse, $response);
+
 
     }
 

@@ -180,6 +180,25 @@ class FeedService {
         }
 
 
+        // If we have referring domains, check these now.
+        if ($feed->getWebsiteConfig()->getReferringDomains()) {
+            if (!$request || !$request->getReferringURL())
+                throw new AccessDeniedException("Invalid website referrer supplied for Feed");
+
+            foreach ($feed->getWebsiteConfig()->getReferringDomains() as $referringDomain) {
+                $found = false;
+                if ($request->getReferringURL()->getHost() == $referringDomain) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                throw new AccessDeniedException("Invalid website referrer supplied for Feed");
+            }
+
+        }
+
         // If we require a captcha, confirm this now
         if ($feed->getWebsiteConfig()->isRequiresCaptcha()) {
             if (!$request || !$request->getHeaders()->getCustomHeader("X_CAPTCHA_TOKEN"))
@@ -188,13 +207,12 @@ class FeedService {
             $captchaKey = $request->getHeaders()->getCustomHeader("X_CAPTCHA_TOKEN");
 
             // Verify the captcha
-            $this->captchaProvider->setRecaptchaSecretKey($feed->getWebsiteConfig()->getCaptchaConfig());
+            $this->captchaProvider->setRecaptchaSecretKey($feed->getWebsiteConfig()->getCaptchaSecretKey());
+            $this->captchaProvider->setRecaptchaScoreThreshold($feed->getWebsiteConfig()->getCaptchaScoreThreshold());
 
             if (!$this->captchaProvider->verifyCaptcha($captchaKey, $request)) {
                 throw new AccessDeniedException("Invalid Captcha Supplied for Feed");
             }
-
-
         }
 
 
