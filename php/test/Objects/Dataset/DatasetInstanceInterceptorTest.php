@@ -5,6 +5,7 @@ namespace Kinintel\Test\Objects\Dataset;
 
 
 use Kiniauth\Objects\MetaData\ObjectStructuredData;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\ItemInUseException;
@@ -28,6 +29,9 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
 
 
     public function setUp(): void {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
         $this->interceptor = Container::instance()->get(DatasetInstanceInterceptor::class);
 
         Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance WHERE title = ?", "Test Dep Dataset");

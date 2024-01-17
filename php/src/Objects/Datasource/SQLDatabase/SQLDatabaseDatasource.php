@@ -27,6 +27,7 @@ use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
@@ -41,6 +42,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -381,6 +383,44 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             }
         } while (sizeof($allData) == 50);
     }
+
+    /**
+     * Delete multiple items from this datasource using a filter junction
+     *
+     * @param FilterJunction $filterJunction
+     * @return null
+     */
+    public function filteredDelete($filterJunction) {
+
+        /**
+         * @var SQLDatabaseDatasourceConfig $config
+         */
+        $config = $this->getConfig();
+
+        if ($config->getSource() !== SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
+            throw new DatasourceUpdateException("Attempted to delete from a SQL datasource which does not have a table source");
+        }
+
+        // Grab the database connection in use
+        $databaseConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
+
+        // Create a junction evaluator
+        $sqlJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $databaseConnection);
+
+        // Grab the table and where clause
+        $table = $config->getTableName();
+        $whereClause = $sqlJunctionEvaluator->evaluateFilterJunctionSQL($filterJunction);
+
+        // Construct delete sql and execute
+        $sql = "DELETE FROM $table";
+        if ($whereClause['sql'] ?? null)
+            $sql .= " WHERE {$whereClause['sql']}";
+
+        $databaseConnection->execute($sql, $whereClause["parameters"]);
+
+
+    }
+
 
     /**
      * Event method called when a parent datasource instance is saved to provide
