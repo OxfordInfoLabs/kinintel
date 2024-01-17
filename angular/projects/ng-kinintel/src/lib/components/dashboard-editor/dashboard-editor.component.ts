@@ -223,8 +223,8 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         };
         this.grid = GridStack.init(options);
 
-        this.grid.on('added', (event: Event, newItems: GridStackNode[]) => {
-            newItems.forEach((item) => {
+        this.grid.on('added', async (event: Event, newItems: GridStackNode[]) => {
+            for (const item of newItems) {
                 let dashboardItemType = null;
                 let itemElement: any = item.el.firstChild;
                 let instanceId = null;
@@ -241,9 +241,10 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                     item.el.firstChild.firstChild.remove();
                 }
 
-                this.addComponentToGridItem(item.el.firstChild, instanceId,
+                await this.addComponentToGridItem(item.el.firstChild, instanceId,
                     dashboardItemType || _.clone(this.itemTypes[item.el.dataset.index]), !!dashboardItemType);
-            });
+            }
+
             if (this.dashboard.displaySettings.inset) {
                 this.updateGridSpacing(this.dashboard.displaySettings.inset, false);
             }
@@ -305,9 +306,6 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         } else {
             this.dashboard.layoutSettings = {};
         }
-
-        this.dashboardHash = sha512.sha512(JSON.stringify(this.dashboard));
-        this.dashboardClone = _.cloneDeep(this.dashboard);
 
         setTimeout(() => {
             this.showEditPanel = true;
@@ -456,7 +454,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         });
     }
 
-    private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
+    private async addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
         if (!this.dashboard.layoutSettings) {
             this.dashboard.layoutSettings = {};
         }
@@ -491,7 +489,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;
-        componentRef.instance.init();
+        await componentRef.instance.init();
         if (load) {
             if (this.dashboard.layoutSettings.dependencies) {
                 const dependencies = this.dashboard.layoutSettings.dependencies[instanceId] || {};
