@@ -435,7 +435,6 @@ export class ConfigureItemComponent implements OnInit {
             chromaScale.mode(this.dashboardItemType.colourMode);
             this.dashboardItemType.backgroundColor = chromaScale.colors(this.dashboardItemType.labels.length);
         } else {
-            console.log(colours);
             this.repeatColours(colours);
         }
 
