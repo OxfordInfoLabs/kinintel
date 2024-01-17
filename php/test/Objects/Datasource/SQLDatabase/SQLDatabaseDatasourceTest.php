@@ -36,9 +36,10 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
-use Kinintel\ValueObjects\Transformation\Query\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Query\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 
 include_once "autoloader.php";
@@ -583,6 +584,38 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testCanDeleteMultipleItemsUsingFilterJunction() {
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+
+        $this->databaseConnection->returnValue("escapeColumn", "`$1`", ["$1"]);
+
+        // Issue a filtered delete
+        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([new Filter("[[test]]", "Market"), new Filter("[[other]]", 33, Filter::FILTER_TYPE_GREATER_THAN)]));
+
+        // Confirm that the expected query was executed
+        $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data WHERE `test` = ? AND `other` > ?", ["Market", 33]]));
+
+
+        // Issue a filtered delete
+        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([new Filter("[[test]]", "Market"), new Filter("[[other]]", [33, 44, 55, 66], Filter::FILTER_TYPE_IN)], [], FilterJunction::LOGIC_OR));
+
+        // Confirm that the expected query was executed
+        $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data WHERE `test` = ? OR `other` IN (?,?,?,?)", ["Market", 33, 44, 55, 66]]));
+
+        // Issue a delete all command with no filters
+        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([], [], FilterJunction::LOGIC_OR));
+
+        // Confirm that the expected query was executed
+        $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data", []]));
+
+
+
+    }
+
+
     public function testWhenManagingTableStructureOnInstanceSaveCreatesTableAccordingToConfiguredFieldsIfNoneExists() {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
@@ -887,7 +920,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         SQLDatabaseDatasource::addCredentialsClass(FTPAuthenticationCredentials::class);
 
         $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class, PostgreSQLAuthenticationCredentials::class, FTPAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
-
 
     }
 

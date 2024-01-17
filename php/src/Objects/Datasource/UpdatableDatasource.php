@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 
 interface UpdatableDatasource {
 
@@ -48,6 +49,15 @@ interface UpdatableDatasource {
      * @return mixed|void
      */
     public function update($dataset, $updateMode = self::UPDATE_MODE_ADD);
+
+
+    /**
+     * Delete multiple items from a data source using a filter junction.
+     *
+     * @param FilterJunction $filterJunction
+     * @return void
+     */
+    public function filteredDelete($filterJunction);
 
 
     /**
