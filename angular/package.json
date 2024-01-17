@@ -9,7 +9,7 @@
     "e2e": "ng e2e",
     "lint": "ng lint",
     "build:lib": "ng build ng-kinintel",
-    "build:lib-p": "ng build ng-kinintel --configuration production",
+    "build:lib-p": "cd projects/ng-kinintel && npm version patch && cd ../.. && ng build ng-kinintel --configuration production",
     "watch:lib": "ng build ng-kinintel --watch"
   },
   "private": true,

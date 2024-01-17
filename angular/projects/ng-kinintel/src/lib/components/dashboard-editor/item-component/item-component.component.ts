@@ -21,7 +21,7 @@ import {Location} from '@angular/common';
 import {ActionEvent} from '../../../objects/action-event';
 import {ExternalService} from '../../../services/external.service';
 import {ProjectService} from '../../../services/project.service';
-import {map} from "rxjs/operators";
+import chroma from 'chroma-js';
 
 declare var window: any;
 
@@ -451,8 +451,13 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
                         fill: !!this.dashboardItemType.fill,
                         borderColor: this.dashboardItemType.borderColor,
-                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
-                        tension: 0.15
+                        backgroundColor: this.dashboardItemType.type === 'line' ?
+                            _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour).alpha(0.5).hex();
+                            }) : this.dashboardItemType.backgroundColor,
+                        tension: 0.15,
+                        pointBackgroundColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null,
+                        pointBorderColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null
                     }
                 ];
                 this.dashboardItemType.labels = _.map(datasetData, item => {
@@ -461,7 +466,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             } else {
                 const chartData = [];
                 const series = _.uniq(_.map(datasetData, this.dashboardItemType.seriesColumn));
-                series.forEach(value => {
+                series.forEach((value, index) => {
                     const seriesResults = _.filter(datasetData, allData => {
                         return allData[this.dashboardItemType.seriesColumn] === value;
                     });
@@ -473,8 +478,13 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         label: value,
                         fill: !!this.dashboardItemType.fill,
                         borderColor: this.dashboardItemType.borderColor,
-                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
-                        tension: 0.15
+                        backgroundColor: this.dashboardItemType.type === 'line' ?
+                            _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour).alpha(0.5).hex();
+                            }) : this.dashboardItemType.backgroundColor,
+                        tension: 0.15,
+                        pointBackgroundColor: this.dashboardItemType.borderColor[index],
+                        pointBorderColor: this.dashboardItemType.borderColor[index]
                     });
                 });
                 this.chartData = chartData;
@@ -531,7 +541,9 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     borderColor: this.dashboardItemType.trendLineColour,
                     fill: false,
                     order: -1,
-                    tension: 0.15
+                    tension: 0.15,
+                    pointBackgroundColor: this.dashboardItemType.trendLineColour,
+                    pointBorderColor: this.dashboardItemType.trendLineColour
                 });
             }
         }

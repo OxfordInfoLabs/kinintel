@@ -930,7 +930,7 @@
                         <label class="mb-4">
                             Colour Palette
                             <select matNativeControl [compareWith]="paletteSelectOption"
-                                [(ngModel)]="dashboardItemType.colourPalette" (ngModelChange)="backgroundColourUpdate()">
+                                [(ngModel)]="dashboardItemType.colourPalette" (ngModelChange)="updateColourPalette()">
                                 <option value="">-- Select Colour Palette--</option>
                                 <option [ngValue]="palette" *ngFor="let palette of colourPalettes">
                                     {{palette.name}}

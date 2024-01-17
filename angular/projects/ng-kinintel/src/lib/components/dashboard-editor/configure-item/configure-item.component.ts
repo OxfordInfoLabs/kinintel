@@ -511,8 +511,11 @@ export class ConfigureItemComponent implements OnInit {
 
     public updateColourPalette() {
         if (this.dashboardItemType.colourPalette) {
+            this.dashboardItemType.colourMode = 'repeat';
             this.repeatColours(this.dashboardItemType.colourPalette.colours);
             this.setChartData();
+        } else {
+            this.backgroundColourUpdate();
         }
     }
 
@@ -537,8 +540,13 @@ export class ConfigureItemComponent implements OnInit {
                         label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
                         fill: !!this.dashboardItemType.fill,
                         borderColor: this.dashboardItemType.borderColor,
-                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
-                        tension: 0.15
+                        backgroundColor: this.dashboardItemType.type === 'line' ?
+                            _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour).alpha(0.5).hex();
+                            }) : this.dashboardItemType.backgroundColor,
+                        tension: 0.15,
+                        pointBackgroundColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null,
+                        pointBorderColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null
                     }
                 ];
                 this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
@@ -547,7 +555,7 @@ export class ConfigureItemComponent implements OnInit {
             } else {
                 const chartData = [];
                 const series = _.uniq(_.map(this.dataset.allData, this.dashboardItemType.seriesColumn));
-                series.forEach(value => {
+                series.forEach((value, index) => {
                     const seriesResults = _.filter(this.dataset.allData, allData => {
                         return allData[this.dashboardItemType.seriesColumn] === value;
                     });
@@ -559,8 +567,13 @@ export class ConfigureItemComponent implements OnInit {
                         label: value,
                         fill: !!this.dashboardItemType.fill,
                         borderColor: this.dashboardItemType.borderColor,
-                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
-                        tension: 0.15
+                        backgroundColor: this.dashboardItemType.type === 'line' ?
+                            _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour).alpha(0.5).hex();
+                            }) : this.dashboardItemType.backgroundColor,
+                        tension: 0.15,
+                        pointBackgroundColor: this.dashboardItemType.borderColor[index],
+                        pointBorderColor: this.dashboardItemType.borderColor[index]
                     });
                 });
                 this.chartData = chartData;
@@ -620,7 +633,9 @@ export class ConfigureItemComponent implements OnInit {
                     borderColor: this.dashboardItemType.trendLineColour,
                     fill: false,
                     order: -1,
-                    tension: 0.15
+                    tension: 0.15,
+                    pointBackgroundColor: this.dashboardItemType.trendLineColour,
+                    pointBorderColor: this.dashboardItemType.trendLineColour
                 });
             }
         }
