@@ -927,53 +927,90 @@
                                           (ngModelChange)="setChartData()" class="block mb-4">Fill Background
                         </mat-slide-toggle>
 
-                        <div class="mt-4 mb-4 align-center justify-between">
-                            <label class="flex-1">
-                                Border Colour
-                                <input type="color" [(ngModel)]="dashboardItemType.borderColor">
-                            </label>
-                        </div>
-                        <div class="mt-4 mb-4 align-center justify-between">
-                            <label class="flex-1">
-                                Background Colour
-                                <ng-template [ngIf]="dashboardItemType.type !== 'line'">Range</ng-template>
-                                <input type="color" [(ngModel)]="dashboardItemType.backgroundColorFrom"
-                                       (ngModelChange)="backgroundColourUpdate()">
-                            </label>
-                            <label class="flex-1" *ngIf="dashboardItemType.type !== 'line'">
-                                &nbsp;
-                                <input type="color" [(ngModel)]="dashboardItemType.backgroundColorTo"
-                                       (ngModelChange)="backgroundColourUpdate()">
-                            </label>
-                        </div>
+                        <label class="mb-4">
+                            Colour Palette
+                            <select matNativeControl [compareWith]="paletteSelectOption"
+                                [(ngModel)]="dashboardItemType.colourPalette" (ngModelChange)="backgroundColourUpdate()">
+                                <option value="">-- Select Colour Palette--</option>
+                                <option [ngValue]="palette" *ngFor="let palette of colourPalettes">
+                                    {{palette.name}}
+                                </option>
+                            </select>
+                        </label>
 
-                        <ng-template
-                            [ngIf]="dashboardItemType.type !== 'line' && Array.isArray(dashboardItemType.backgroundColor)">
-                            <label
-                                *ngIf="dashboardItemType.backgroundColor && dashboardItemType.backgroundColor.length">
-                                Set Individual Colours
-                            </label>
-                            <div *ngFor="let backColour of dashboardItemType.backgroundColor; let i = index">
-                                <ng-template [ngIf]="dataset && dataset.allData[i]">
-                                    <div class="tracking-wider uppercase text-gray-500 text-xs mt-2"
-                                         *ngIf="dataset && dataset.allData">
-                                        {{dataset.allData[i][dashboardItemType.xAxis]}}
-                                    </div>
-                                    <input type="color" (change)="updateChart($event.target.value, i)"
-                                           [name]="'colour' + i" [value]="dashboardItemType.backgroundColor[i]">
-                                </ng-template>
+<!--                        <button mat-flat-button color="accent" (click)="resetDefaultColours()">-->
+<!--                            <div class="flex items-center">-->
+<!--                                Reset to Default Colours-->
+<!--                            </div>-->
+<!--                        </button>-->
+
+
+                        <ng-template [ngIf]="dashboardItemType.type === 'line'">
+                            <div *ngFor="let dataItem of chartData; let i = index" class="mt-4 align-center justify-between">
+                                <label class="flex-1">
+                                    {{_.startCase(dataItem.label)}} Colour
+                                    <input type="color" [(ngModel)]="dashboardItemType.borderColor[i]"
+                                           (ngModelChange)="setChartData()">
+                                </label>
                             </div>
                         </ng-template>
+
+                        <ng-template [ngIf]="dashboardItemType.type !== 'line'">
+                            <div *ngIf="!dashboardItemType.colourPalette" class="mt-4 mb-4 flex items-end justify-between">
+                                <label class="flex-1">
+                                    Background Colour Range
+                                    <input type="color" [(ngModel)]="dashboardItemType.backgroundColorFrom"
+                                           (ngModelChange)="backgroundColourUpdate()">
+                                </label>
+                                <label class="flex-1">
+                                    &nbsp;
+                                    <input type="color" [(ngModel)]="dashboardItemType.backgroundColorTo"
+                                           (ngModelChange)="backgroundColourUpdate()">
+                                </label>
+                            </div>
+
+                            <div class="mt-4 mb-4 align-center justify-between">
+                                <label class="flex-1">
+                                    Colour Generator Mode
+                                    <mat-radio-group [(ngModel)]="dashboardItemType.colourMode"
+                                                     (ngModelChange)="backgroundColourUpdate()">
+                                        <mat-radio-button class="mr-4" value="repeat">Repeat</mat-radio-button>
+                                        <mat-radio-button class="mr-4" value="lrgb">Gradiant</mat-radio-button>
+                                        <mat-radio-button class="mr-4" value="hsl">HSL</mat-radio-button>
+                                        <mat-radio-button value="lch">LCH</mat-radio-button>
+                                    </mat-radio-group>
+                                </label>
+                            </div>
+
+                            <ng-template [ngIf]="Array.isArray(dashboardItemType.backgroundColor)">
+                                <label
+                                    *ngIf="dashboardItemType.backgroundColor && dashboardItemType.backgroundColor.length">
+                                    Set Individual Colours
+                                </label>
+                                <div *ngFor="let backColour of dashboardItemType.backgroundColor; let i = index">
+                                    <ng-template [ngIf]="dataset && dataset.allData[i]">
+                                        <div class="tracking-wider uppercase text-gray-500 text-xs mt-2"
+                                             *ngIf="dataset && dataset.allData">
+                                            {{dataset.allData[i][dashboardItemType.xAxis]}}
+                                        </div>
+                                        <input type="color" (change)="updateChart($event.target.value, i)"
+                                               [name]="'colour' + i" [value]="dashboardItemType.backgroundColor[i]">
+                                    </ng-template>
+                                </div>
+                            </ng-template>
+                        </ng-template>
+
+
+
                     </div>
 
                     <div class="w-6/12 p-4">
                         <canvas #chart baseChart class="sticky top-10" *ngIf="chartData"
                                 [datasets]="chartData"
                                 [labels]="dashboardItemType.labels"
-                                [options]="{scales: {yAxes: [{ticks: {beginAtZero: dashboardItemType.beginAtZero}}]}, responsive: true}"
-                                [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                                [options]="{scales: {y: {beginAtZero: dashboardItemType.beginAtZero}}, responsive: true}"
                                 [legend]="!!dashboardItemType.legend"
-                                [chartType]="dashboardItemType.type"
+                                [type]="dashboardItemType.type"
                                 [plugins]="[]">
                         </canvas>
                     </div>

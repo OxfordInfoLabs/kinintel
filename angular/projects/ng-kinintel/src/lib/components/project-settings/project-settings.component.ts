@@ -54,13 +54,17 @@ export class ProjectSettingsComponent implements OnInit {
             this.activeProject = activeProject;
 
             this.projectSettings = this.activeProject.settings ? (Array.isArray(this.activeProject.settings) ? {
-                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: [], colours: []
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: [], palettes: []
             } : this.activeProject.settings) : {
-                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: [], colours: []
+                hideExisting: false, shortcutPosition: 'after', homeDashboard: {}, shortcutsMenu: [], palettes: []
             };
 
-            if (!this.projectSettings.colours.length) {
-                this.projectSettings.colours = this.defaultColours;
+            if (!this.projectSettings.palettes || !this.projectSettings.palettes.length) {
+                this.projectSettings.palettes = [{
+                    name: 'Default Palette',
+                    colours: this.defaultColours
+                }];
+                this.saveChanges();
             }
 
             this.getCategories();
@@ -142,6 +146,21 @@ export class ProjectSettingsComponent implements OnInit {
                 event.previousIndex,
                 event.currentIndex,
             );
+        }
+    }
+
+    public importColours(values: string, palette: any) {
+        const colours = (values || '').split(',');
+        palette.colours = [];
+        colours.forEach(colour => {
+            palette.colours.push(colour.trim());
+        });
+    }
+
+    public deletePalette(index: number) {
+        const message = 'Are you sure you would like to delete this palette?';
+        if (window.confirm(message)) {
+            this.projectSettings.palettes.splice(index, 1);
         }
     }
 

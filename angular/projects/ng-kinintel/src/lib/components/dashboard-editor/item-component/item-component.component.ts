@@ -449,7 +449,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     {
                         data,
                         label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
-                        fill: !!this.dashboardItemType.fill
+                        fill: !!this.dashboardItemType.fill,
+                        borderColor: this.dashboardItemType.borderColor,
+                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
+                        tension: 0.15
                     }
                 ];
                 this.dashboardItemType.labels = _.map(datasetData, item => {
@@ -468,7 +471,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                             return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
                         }),
                         label: value,
-                        fill: !!this.dashboardItemType.fill
+                        fill: !!this.dashboardItemType.fill,
+                        borderColor: this.dashboardItemType.borderColor,
+                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
+                        tension: 0.15
                     });
                 });
                 this.chartData = chartData;
@@ -524,7 +530,8 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     label: trendLabel,
                     borderColor: this.dashboardItemType.trendLineColour,
                     fill: false,
-                    order: -1
+                    order: -1,
+                    tension: 0.15
                 });
             }
         }
@@ -962,7 +969,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         const maxFreq = _.maxBy(this.dataset.allData, item => {
                             return Number(item[this.wordCloud.frequency]);
                         })[this.wordCloud.frequency];
-                        const maxWordWidth : number = _.max(_.map(this.dataset.allData, item =>
+                        const maxWordWidth: number = _.max(_.map(this.dataset.allData, item =>
                             item[this.wordCloud.column].length * item[this.wordCloud.frequency] / maxFreq
                         ));
                         const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 3000;
@@ -972,7 +979,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
                             return {
                                 text,
-                                value: ((8/maxWordWidth) * (Number(itemFrequency) / Number(maxFreq)) * _.min([fontSize, 400]))
+                                value: ((8 / maxWordWidth) * (Number(itemFrequency) / Number(maxFreq)) * _.min([fontSize, 400]))
                             };
                         }), ['value'], ['desc']).slice(0, 100);
                     }

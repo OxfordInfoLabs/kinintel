@@ -2,7 +2,6 @@ import {CUSTOM_ELEMENTS_SCHEMA, ModuleWithProviders, NgModule} from '@angular/co
 import {DashboardEditorComponent} from './components/dashboard-editor/dashboard-editor.component';
 import {MatLegacyButtonModule as MatButtonModule} from '@angular/material/legacy-button';
 import {MatIconModule} from '@angular/material/icon';
-import {ChartsModule} from 'ng2-charts';
 import {ItemComponentComponent} from './components/dashboard-editor/item-component/item-component.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {CommonModule} from '@angular/common';
@@ -90,6 +89,7 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import { TabularDatasourceComponent } from './components/datasource/create-datasource/tabular-datasource/tabular-datasource.component';
 import { MoveTransformationConfirmationComponent } from './components/dataset/dataset-editor/move-transformation-confirmation/move-transformation-confirmation.component';
 import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
+import {NgChartsModule} from 'ng2-charts';
 
 @NgModule({
     declarations: [
@@ -154,7 +154,7 @@ import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
         CommonModule,
         MatButtonModule,
         MatIconModule,
-        ChartsModule,
+        NgChartsModule,
         MatDialogModule,
         NgxResizableModule,
         MatMenuModule,

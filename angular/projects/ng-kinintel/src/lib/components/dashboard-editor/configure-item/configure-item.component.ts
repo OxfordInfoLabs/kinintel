@@ -1,5 +1,9 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {
+    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+    MatLegacyDialog as MatDialog,
+    MatLegacyDialogRef as MatDialogRef
+} from '@angular/material/legacy-dialog';
 import {
     SourceSelectorDialogComponent
 } from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
@@ -20,6 +24,7 @@ import {ActionEvent} from '../../../objects/action-event';
 import {BaseChartDirective} from 'ng2-charts';
 import regression from 'regression';
 import {ProjectService} from '../../../services/project.service';
+import {scales} from 'chart.js';
 
 @Component({
     selector: 'ki-configure-item',
@@ -125,6 +130,7 @@ export class ConfigureItemComponent implements OnInit {
     public _ = _;
     public docColumns = new Subject();
     public canSetAlerts = false;
+    public colourPalettes: any = [];
 
     protected readonly Array = Array;
 
@@ -152,6 +158,13 @@ export class ConfigureItemComponent implements OnInit {
                 title: 'Action',
                 type: 'action'
             });
+        }
+
+        if (!this.dashboardItemType.colourMode) {
+            this.dashboardItemType.colourMode = 'lrgb';
+        }
+        if (!this.dashboardItemType.borderColor || !Array.isArray(this.dashboardItemType.borderColor)) {
+            this.dashboardItemType.borderColor = [_.isString(this.dashboardItemType.borderColor) ? this.dashboardItemType.borderColor : ''];
         }
 
         if (!this.dashboardDatasetInstance) {
@@ -231,6 +244,11 @@ export class ConfigureItemComponent implements OnInit {
             }
             this.sideOpen = open;
         });
+
+        const project: any = await this.projectService.getProject(this.projectService.activeProject.getValue().projectKey);
+        if (project.settings.palettes && project.settings.palettes.length) {
+            this.colourPalettes = project.settings.palettes;
+        }
     }
 
     public updateChart(newValue, index) {
@@ -392,6 +410,13 @@ export class ConfigureItemComponent implements OnInit {
         return c1 === c2;
     }
 
+    public paletteSelectOption(c1: any, c2: any) {
+        if (!c2) {
+            return true;
+        }
+        return c1.name === c2.name;
+    }
+
     public depSelection(c1: any, c2: any) {
         if (!c2) {
             return true;
@@ -400,14 +425,23 @@ export class ConfigureItemComponent implements OnInit {
     }
 
     public backgroundColourUpdate() {
-        if (this.dashboardItemType.type === 'line') {
-            this.dashboardItemType.backgroundColor = this.dashboardItemType.backgroundColorFrom || 'black';
+        const colours = this.dashboardItemType.colourPalette ? this.dashboardItemType.colourPalette.colours : [
+            this.dashboardItemType.backgroundColorFrom || 'black',
+            this.dashboardItemType.backgroundColorTo || 'black'
+        ];
+
+        if (this.dashboardItemType.colourMode !== 'repeat') {
+            const chromaScale = chroma.scale(colours);
+            chromaScale.mode(this.dashboardItemType.colourMode);
+            this.dashboardItemType.backgroundColor = chromaScale.colors(this.dashboardItemType.labels.length);
         } else {
-            this.dashboardItemType.backgroundColor = chroma.scale([
-                this.dashboardItemType.backgroundColorFrom || 'black',
-                this.dashboardItemType.backgroundColorTo || 'black']
-            ).colors(this.dashboardItemType.labels.length);
+            console.log(colours);
+            this.repeatColours(colours);
         }
+
+        setTimeout(() => {
+            this.setChartData();
+        }, 50);
     }
 
     public async updateInstanceFilterFields(change, instanceKey) {
@@ -470,7 +504,20 @@ export class ConfigureItemComponent implements OnInit {
         this.dialogRef.close(this.dashboardDatasetInstance);
     }
 
-    public setChartData() {
+    public resetDefaultColours() {
+        this.dashboardItemType.backgroundColorFrom = null;
+        this.dashboardItemType.backgroundColorTo = null;
+        this.setChartData();
+    }
+
+    public updateColourPalette() {
+        if (this.dashboardItemType.colourPalette) {
+            this.repeatColours(this.dashboardItemType.colourPalette.colours);
+            this.setChartData();
+        }
+    }
+
+    public async setChartData() {
         if (this.dashboardItemType.xAxis && this.dashboardItemType.yAxis) {
             let data: any;
 
@@ -489,7 +536,10 @@ export class ConfigureItemComponent implements OnInit {
                     {
                         data,
                         label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
-                        fill: !!this.dashboardItemType.fill
+                        fill: !!this.dashboardItemType.fill,
+                        borderColor: this.dashboardItemType.borderColor,
+                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
+                        tension: 0.15
                     }
                 ];
                 this.dashboardItemType.labels = _.map(this.dataset.allData, item => {
@@ -508,7 +558,10 @@ export class ConfigureItemComponent implements OnInit {
                             return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
                         }),
                         label: value,
-                        fill: !!this.dashboardItemType.fill
+                        fill: !!this.dashboardItemType.fill,
+                        borderColor: this.dashboardItemType.borderColor,
+                        backgroundColor: this.dashboardItemType.type === 'line' ? this.dashboardItemType.borderColor : this.dashboardItemType.backgroundColor,
+                        tension: 0.15
                     });
                 });
                 this.chartData = chartData;
@@ -567,7 +620,8 @@ export class ConfigureItemComponent implements OnInit {
                     label: trendLabel,
                     borderColor: this.dashboardItemType.trendLineColour,
                     fill: false,
-                    order: -1
+                    order: -1,
+                    tension: 0.15
                 });
             }
         }
@@ -609,5 +663,27 @@ export class ConfigureItemComponent implements OnInit {
             const defaultData = _.isPlainObject(this[setting]) ? {} : [];
             this.dashboard.layoutSettings[setting][this.dashboardDatasetInstance.instanceKey] = this[setting] || defaultData;
         });
+    }
+
+    private repeatColours(colours: string[]) {
+        this.dashboardItemType.backgroundColor = [];
+        this.dashboardItemType.borderColor = [];
+        while (this.dashboardItemType.backgroundColor.length < this.dataset.allData.length) {
+            for (const colour of colours) {
+                this.dashboardItemType.backgroundColor.push(colour);
+                if (this.dashboardItemType.backgroundColor.length === this.dataset.allData.length) {
+                    break;
+                }
+            }
+        }
+        const dataLength = this.dashboardItemType.type === 'line' ? this.chartData.length : this.dataset.allData;
+        while (this.dashboardItemType.borderColor.length < dataLength) {
+            for (const colour of colours) {
+                this.dashboardItemType.borderColor.push(colour);
+                if (this.dashboardItemType.borderColor.length === dataLength) {
+                    break;
+                }
+            }
+        }
     }
 }
