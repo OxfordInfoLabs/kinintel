@@ -346,6 +346,15 @@ class DatasetService {
 
     }
 
+    /**
+     * Return a snapshot
+     *
+     * @param $profileId
+     * @return mixed
+     */
+    public function getSnapshotProfile($profileId) {
+        return DatasetInstanceSnapshotProfile::fetch($profileId)->returnSummary();
+    }
 
     /**
      * List all snapshots for a dataset instance
