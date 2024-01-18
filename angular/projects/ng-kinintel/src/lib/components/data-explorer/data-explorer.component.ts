@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
 import {DatasetNameDialogComponent} from '../dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import {DatasetService} from '../../services/dataset.service';
@@ -6,6 +6,8 @@ import {Router} from '@angular/router';
 import {SnapshotProfileDialogComponent} from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 import {ExportDataComponent} from './export-data/export-data.component';
 import {ProjectService} from '../../services/project.service';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-data-explorer',
@@ -13,8 +15,9 @@ import {ProjectService} from '../../services/project.service';
     styleUrls: ['./data-explorer.component.sass'],
     host: {class: 'configure-dialog'}
 })
-export class DataExplorerComponent implements OnInit {
+export class DataExplorerComponent implements OnInit, OnDestroy {
 
+    public _ = _;
     public showChart = false;
     public chartData;
     public datasetInstanceSummary: any;
@@ -32,6 +35,7 @@ export class DataExplorerComponent implements OnInit {
 
     private columns: any = [];
     private datasetTitle: string;
+    private timer: number;
 
     constructor(public dialogRef: MatDialogRef<DataExplorerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -47,7 +51,7 @@ export class DataExplorerComponent implements OnInit {
         this.admin = !!this.data.admin;
         this.accountId = this.data.accountId;
         this.breadcrumb = this.data.breadcrumb;
-console.log(this.datasetInstanceSummary);
+
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;
         }
@@ -63,8 +67,22 @@ console.log(this.datasetInstanceSummary);
         this.canExportData = this.projectService.doesActiveProjectHavePrivilege('exportdata');
     }
 
+    ngOnDestroy() {
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+    }
+
     public dataLoaded(data) {
         this.columns = data.columns;
+    }
+
+    public async triggerSnapshot(snapshotProfileId, datasetInstanceId) {
+        await this.datasetService.triggerSnapshot(snapshotProfileId, datasetInstanceId);
+        this.loadSnapshotProfiles();
+        this.timer = setInterval(() => {
+            this.loadSnapshotProfiles();
+        }, 3000);
     }
 
     public exportData() {
@@ -81,18 +99,6 @@ console.log(this.datasetInstanceSummary);
         this.showSnapshots = !this.showSnapshots;
         if (this.showSnapshots) {
             this.loadSnapshotProfiles();
-        }
-    }
-
-    public viewSource(source: any) {
-        if (source.datasourceInstanceKey) {
-            if (source.type === 'custom') {
-
-            } else if (source.type === 'snapshot') {
-
-            }
-        } else if (source.datasetInstanceId) {
-            window.open('')
         }
     }
 

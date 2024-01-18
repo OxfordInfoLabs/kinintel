@@ -52,8 +52,9 @@ export class SnapshotProfileDialogComponent implements OnInit {
                 private datasetService: DatasetService) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit() {
         this.columns = this.data.columns || [];
+
         this.snapshot = this.data.snapshot || {
             processorType: 'tabulardatasetsnapshot',
             taskTimePeriods: [],
@@ -62,10 +63,30 @@ export class SnapshotProfileDialogComponent implements OnInit {
                 keyFieldNames: [],
                 timeLapsedFields: [],
                 createHistory: true,
-                createLatest: true
-            }
+                createLatest: true,
+                indexes: [{fieldNames: []}]
+            },
+
         };
+
+        if (!this.snapshot.processorConfig.indexes || !this.snapshot.processorConfig.indexes.length) {
+            this.snapshot.processorConfig.indexes = [{fieldNames: []}];
+        }
+
         this.datasetInstanceId = this.data.datasetInstanceId || null;
+
+        if (!this.columns.length && this.datasetInstanceId) {
+            const dataset = await this.datasetService.getDataset(this.datasetInstanceId);
+            const res: any = await this.datasetService.evaluateDataset(dataset);
+            this.columns = res.columns;
+        }
+    }
+
+    public removeIndex(index: number) {
+        const message = 'Are you sure you would like to remove this Index?';
+        if (window.confirm(message)) {
+            this.snapshot.processorConfig.indexes.splice(index, 1);
+        }
     }
 
     public selectAll(event) {

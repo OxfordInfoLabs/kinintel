@@ -1,0 +1,69 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Copy Query</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <div class="my-4">
+            <p><b>Title</b></p>
+            <input class="full" type="text" placeholder="Enter title" [(ngModel)]="datasetInstanceSummary.title">
+        </div>
+
+        <div class="my-4">
+            <p><b>Transformations</b></p>
+
+            <ng-template [ngIf]="_.filter(transformations, 'exclude').length">
+                <mat-slide-toggle [(ngModel)]="includeAllTransformations" (ngModelChange)="updateExcludedTransformations()">
+                    Include disabled transformations</mat-slide-toggle>
+                <div class="text-xs text-gray-400">When saving this new query you can decide to exclude any
+                    disabled transformations in the current query.</div>
+
+            </ng-template>
+
+            <div class="mt-4 text-sm text-gray-500">Transformations being copied...</div>
+
+            <div class="flex flex-wrap">
+                <div class="bg-white border rounded-full px-2 py-1 mr-2 text-gray-500"
+                     *ngFor="let transformation of filteredTransformations">
+                    {{_.startCase(transformation.type)}}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="my-4">
+            <p><b>Summary</b></p>
+            <input class="full" type="text" placeholder="Enter summary" [(ngModel)]="datasetInstanceSummary.summary">
+        </div>
+
+        <div class="my-4">
+            <p><b>Description</b></p>
+            <textarea [(ngModel)]="datasetInstanceSummary.description" placeholder="Enter description" rows="5"
+                      class="w-full"></textarea>
+        </div>
+
+        <div class="my-4">
+            <p><b>Categories</b></p>
+
+            <mat-selection-list [compareWith]="showSelected" [(ngModel)]="datasetInstanceSummary.categories" >
+                <mat-list-option *ngFor="let category of categories" checkboxPosition="before" [value]="category">
+                    {{category.category}}
+                </mat-list-option>
+            </mat-selection-list>
+        </div>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close>Cancel</button>
+
+        <button mat-flat-button color="primary" [mat-dialog-close]="filteredTransformations">Save Copy</button>
+    </div>
+
+</div>

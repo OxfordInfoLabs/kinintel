@@ -181,6 +181,9 @@
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
+                                        <button mat-menu-item (click)="editSnapshot(snapshot, snapshots.tag)">
+                                            Edit Snapshot
+                                        </button>
                                         <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
                                             View Parent Query
                                         </button>
@@ -348,6 +351,9 @@
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
+                                        <button mat-menu-item (click)="editSnapshot(snapshot.id, snapshots.project)">
+                                            Edit Snapshot
+                                        </button>
                                         <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
                                             View Parent Query
                                         </button>

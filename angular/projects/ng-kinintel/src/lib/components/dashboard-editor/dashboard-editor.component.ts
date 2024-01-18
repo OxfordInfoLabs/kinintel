@@ -515,6 +515,10 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
 
         this.itemComponents.push(componentRef.instance);
 
+        componentRef.instance.duplicateItem.subscribe(instanceKey => {
+
+        });
+
         return componentRef;
     }
 

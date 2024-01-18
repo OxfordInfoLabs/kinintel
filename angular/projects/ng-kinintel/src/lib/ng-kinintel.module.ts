@@ -90,6 +90,7 @@ import { TabularDatasourceComponent } from './components/datasource/create-datas
 import { MoveTransformationConfirmationComponent } from './components/dataset/dataset-editor/move-transformation-confirmation/move-transformation-confirmation.component';
 import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
 import {NgChartsModule} from 'ng2-charts';
+import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-as-query/save-as-query.component';
 
 @NgModule({
     declarations: [
@@ -147,7 +148,8 @@ import {NgChartsModule} from 'ng2-charts';
         DashboardSettingsComponent,
         ApiAccessComponent,
         TabularDatasourceComponent,
-        MoveTransformationConfirmationComponent
+        MoveTransformationConfirmationComponent,
+        SaveAsQueryComponent
     ],
     imports: [
         BrowserModule,
