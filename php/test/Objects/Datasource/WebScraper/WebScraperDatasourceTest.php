@@ -3,6 +3,7 @@
 namespace Kinintel\Test\Objects\Datasource\WebScraper;
 
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
+use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\HTTP\Response\Response;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
@@ -35,7 +36,7 @@ class WebScraperDatasourceTest extends TestCase {
         $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET));
+            new Request("https://mytest.com", Request::METHOD_GET,[], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
 
         $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@id='grid']//div[@class='row']", [
             new FieldWithXPathSelector("name", "div[@class='name']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
@@ -65,7 +66,7 @@ class WebScraperDatasourceTest extends TestCase {
         $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET));
+            new Request("https://mytest.com", Request::METHOD_GET,[], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
 
         $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@class='rows-compressed']/div", [
             new FieldWithXPathSelector("name", ".", "data-name"),
@@ -94,7 +95,7 @@ class WebScraperDatasourceTest extends TestCase {
         $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET));
+            new Request("https://mytest.com", Request::METHOD_GET,[], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
 
         $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//table/tr", [
             new FieldWithXPathSelector("name", "td[1]", FieldWithXPathSelector::ATTRIBUTE_TEXT),
