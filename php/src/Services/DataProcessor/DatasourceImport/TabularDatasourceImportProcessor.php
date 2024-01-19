@@ -120,6 +120,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
                     $offset = $sourceReadChunkSize ? 0 : null;
                     do {
 
+
                         $paramSet = $this->addTargetSourceParametersIfRequired($config, $paramSet);
                         $sourceDataset = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
 
