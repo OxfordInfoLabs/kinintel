@@ -584,7 +584,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             }
         }
 
-
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
 
@@ -597,6 +596,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         } catch (\Exception $e) {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
+
+
+
 
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);

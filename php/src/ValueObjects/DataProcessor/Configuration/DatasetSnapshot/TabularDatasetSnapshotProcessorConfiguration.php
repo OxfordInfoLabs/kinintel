@@ -62,10 +62,14 @@ class TabularDatasetSnapshotProcessorConfiguration {
 
     /**
      * TabularDatasetSnapshotProcessorConfiguration constructor.
-     * @param bool $createHistory
-     * @param bool $createLatest
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
+     * @param int $datasetInstanceId
+     * @param string $snapshotIdentifier
+     * @param bool $createLatest
+     * @param bool $createHistory
+     * @param int $readChunkSize
+     * @param Index[] $indexes
      */
     public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
         $this->keyFieldNames = $keyFieldNames;
