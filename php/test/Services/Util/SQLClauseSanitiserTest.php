@@ -144,7 +144,6 @@ class SQLClauseSanitiserTest extends TestBase {
     public function testParameterInQuotes() {
         $params = [];
         $sql = $this->sqlClauseSanitiser->sanitiseSQL("CONCAT('{{word}}a', 'that')", $params);
-        echo $sql;
         $this->assertEquals(["{{word}}a",'that'], $params);
     }
 
