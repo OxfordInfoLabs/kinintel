@@ -101,8 +101,13 @@ export class DatasetService {
         });
     }
 
-    public getSnapshotProfilesForDataset(datasetInstanceId) {
-        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId)
+    public getSnapshotProfile(id: number) {
+        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/' + id)
+            .toPromise();
+    }
+
+    public getSnapshotProfilesForDataset(datasetInstanceId: number) {
+        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/dataset/' + datasetInstanceId)
             .toPromise();
     }
 

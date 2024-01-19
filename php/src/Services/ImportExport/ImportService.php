@@ -15,30 +15,13 @@ use Kinintel\ValueObjects\ImportExport\ImportItem;
 
 class ImportService {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
+    private DatasourceService $datasourceService;
+    private DatasetService $datasetService;
+    private DashboardService $dashboardService;
 
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-    /**
-     * @var DashboardService
-     */
-    private $dashboardService;
-
-
-    /**
-     * ImportService constructor.
-     *
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
-     * @param DashboardService $dashboardService
-     */
-    public function __construct($datasourceService, $datasetService, $dashboardService) {
+    public function __construct(DatasourceService $datasourceService,
+                                DatasetService $datasetService,
+                                DashboardService $dashboardService) {
         $this->datasourceService = $datasourceService;
         $this->datasetService = $datasetService;
         $this->dashboardService = $dashboardService;
@@ -46,15 +29,16 @@ class ImportService {
 
 
     /**
-     * Analyse an import and return an import analysis object
+     * Analyse an import and return an import analysis object, which is for frontend to display
+     * so people can checkbox which parts of the file they want.
      *
      * @param Export $export
-     * @param string $projectKey
+     * @param ?string $projectKey
      * @param integer $accountId
      *
      * @return ImportAnalysis
      */
-    public function analyseImport($export, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function analyseImport(Export $export, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT): ImportAnalysis {
 
         /**
          * Loop through supplied datasource instances and check whether or not we need to include them
@@ -110,9 +94,9 @@ class ImportService {
      *
      * @param Export $export
      * @param string $projectKey
-     * @param integer $accountId
+     * @param int $accountId
      */
-    public function importToProject($export, $projectKey, $accountId = null) {
+    public function importToProject(Export $export, $projectKey, $accountId = null) {
 
     }
 

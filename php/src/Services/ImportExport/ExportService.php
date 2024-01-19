@@ -133,7 +133,7 @@ class ExportService {
         }
 
 
-        // Get and add dataset instances
+        // Get and add dashboards
         $dashboards = [];
         foreach ($resourceExportDescriptor->getDashboardIds() ?? [] as $dashboardId) {
             $dashboard = $this->dashboardService->getFullDashboard($dashboardId);
@@ -144,6 +144,8 @@ class ExportService {
 
         // Get all scoped alert groups
         $alertGroups = $this->alertService->listAlertGroups("", PHP_INT_MAX, 0, $projectScope ? $resourceExportDescriptor->getScopeId() : null, $accountId);
+
+        // Get all Feeds
 
         // Return the new export.
         return new Export($resourceExportDescriptor->getScope(), $title, $datasourceInstances, $datasetInstances, $dashboards, $alertGroups, $resourceExportDescriptor->getVersion());

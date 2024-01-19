@@ -87,21 +87,6 @@
                                    (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
             </div>
         </rsz-layout>
-
-        <rsz-layout *ngIf="showChart" class="cell right" [directions]="['none']" [rFlex]="false">
-
-            <div class="cell-contents">
-                <canvas baseChart style="height: 200px"
-                        [datasets]="chartData"
-                        [labels]="['December', 'January', 'February', 'March', 'April']"
-                        [options]="{responsive: true}"
-                        [colors]="[{borderColor: 'rgba(32,166,211,0.7)',backgroundColor: 'rgba(32,166,211,0.3)'}]"
-                        [legend]="false"
-                        [chartType]="'line'"
-                        [plugins]="[]">
-                </canvas>
-            </div>
-        </rsz-layout>
     </rsz-layout>
 
     <rsz-layout *ngIf="showSnapshots" class="row bottom" [directions]="['none']" [rFlex]="false">
@@ -136,6 +121,9 @@
                             <tr>
                                 <th scope="col"
                                     class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                </th>
+                                <th scope="col"
+                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
                                     Title
                                 </th>
                                 <th scope="col"
@@ -158,11 +146,65 @@
                             </thead>
                             <tbody class="bg-white">
                             <tr *ngFor="let snapshot of snapshotProfiles; let i = index">
+                                <td>
+                                    <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
+                                            matTooltip="Trigger snapshot to run now" mat-icon-button
+                                            (click)="triggerSnapshot(snapshot.id, snapshot.processorConfig.datasetInstanceId)">
+                                        <mat-icon>play_arrow</mat-icon>
+                                    </button>
+                                    <svg *ngIf="snapshot.taskStatus === 'RUNNING'"
+                                         class="animate-spin ml-3 mr-2 h-5 w-5 text-secondary"
+                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </td>
                                 <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
                                     {{snapshot.title}}
                                 </td>
-                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500 capitalize">
-                                    {{snapshot.taskStatus}}
+                                <td class="whitespace-nowrap border-b border-gray-200 py-0.5 px-2 text-sm text-gray-500">
+                                    <div
+                                        class="inline-flex text-sm lowercase flex items-center text-white px-3 rounded-full"
+                                        [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger': snapshot.taskStatus === 'FAILED'}">
+                                        <ng-template [ngIf]="snapshot.taskStatus === 'PENDING'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </ng-template>
+                                        <ng-template [ngIf]="snapshot.taskStatus === 'RUNNING'">
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                        stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor"
+                                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </ng-template>
+                                        <ng-template [ngIf]="snapshot.taskStatus === 'COMPLETED'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </ng-template>
+                                        <ng-template [ngIf]="snapshot.taskStatus === 'FAILED'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                                            </svg>
+                                        </ng-template>
+                                        <ng-template [ngIf]="snapshot.taskStatus === 'TIMED_OUT'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </ng-template>
+                                        {{_.startCase(snapshot.taskStatus)}}
+                                    </div>
                                 </td>
                                 <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
                                     {{snapshot.taskLastStartTime}}

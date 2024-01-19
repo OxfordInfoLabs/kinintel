@@ -541,9 +541,9 @@ export class ConfigureItemComponent implements OnInit {
                         fill: !!this.dashboardItemType.fill,
                         borderColor: (this.dashboardItemType.type === 'pie' || this.dashboardItemType.type === 'doughnut') ? chroma('white').alpha(0.2).hex() : this.dashboardItemType.borderColor,
                         backgroundColor: this.dashboardItemType.type === 'line' ?
-                            _.map(this.dashboardItemType.borderColor, colour => {
+                            (Array.isArray(this.dashboardItemType.borderColor) ? _.map(this.dashboardItemType.borderColor, colour => {
                                 return chroma(colour || 'black').alpha(0.5).hex();
-                            }) : this.dashboardItemType.backgroundColor,
+                            }) : chroma(this.dashboardItemType.borderColor || 'black').alpha(0.5).hex()) : this.dashboardItemType.backgroundColor,
                         tension: 0.2,
                         pointBackgroundColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null,
                         pointBorderColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null
@@ -568,9 +568,9 @@ export class ConfigureItemComponent implements OnInit {
                         fill: !!this.dashboardItemType.fill,
                         borderColor: this.dashboardItemType.borderColor,
                         backgroundColor: this.dashboardItemType.type === 'line' ?
-                            _.map(this.dashboardItemType.borderColor, colour => {
+                            (Array.isArray(this.dashboardItemType.borderColor) ? _.map(this.dashboardItemType.borderColor, colour => {
                                 return chroma(colour || 'black').alpha(0.5).hex();
-                            }) : this.dashboardItemType.backgroundColor,
+                            }) : chroma(this.dashboardItemType.borderColor || 'black').alpha(0.5).hex()) : this.dashboardItemType.backgroundColor[index],
                         tension: 0.2,
                         pointBackgroundColor: this.dashboardItemType.borderColor[index],
                         pointBorderColor: this.dashboardItemType.borderColor[index]

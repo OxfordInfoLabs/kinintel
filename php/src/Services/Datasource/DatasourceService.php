@@ -106,6 +106,7 @@ class DatasourceService {
      * @param integer $accountId
      *
      * @return DatasourceInstance
+     * @throws ObjectNotFoundException
      */
     public function getDatasourceInstanceByTitle($title, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         return $this->datasourceDAO->getDatasourceInstanceByTitle($title, $projectKey, $accountId);
@@ -141,6 +142,7 @@ class DatasourceService {
      * @param string $datasourceInstanceKey
      *
      * @return Parameter[]
+     * @throws ObjectNotFoundException
      */
     public function getEvaluatedParameters($datasourceInstanceKey) {
 
@@ -167,6 +169,7 @@ class DatasourceService {
      */
     public function getEvaluatedDataSourceByInstanceKey($datasourceInstanceKey, $parameterValues = [], $transformations = [], $offset = null, $limit = null) {
 
+        /** @var Datasource $datasource */
         list($datasource, $parameterValues) = $this->getTransformedDataSourceByInstanceKey($datasourceInstanceKey, $transformations, $parameterValues, $offset, $limit);
 
         // Return the evaluated data source

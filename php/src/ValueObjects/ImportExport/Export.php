@@ -85,7 +85,7 @@ class Export {
 
 
     /**
-     * Internal array of datasource keys
+     * Internal array of datasource keys which have been generated for the export
      *
      * @var
      */
@@ -93,7 +93,7 @@ class Export {
 
 
     /**
-     * Internal array of dataset ids
+     * Internal array of dataset ids which have been generated for the export
      *
      * @var
      */
@@ -101,7 +101,7 @@ class Export {
 
 
     /**
-     * Internal array of dashboard ids.
+     * Internal array of dashboard ids which have been generated for the export
      *
      * @var
      */
@@ -412,7 +412,7 @@ class Export {
 
     /**
      *
-     * Called from above to process datasource instandces
+     * Called from above to process datasource instances
      *
      *
      * @param $datasetInstance

@@ -77,6 +77,7 @@ class DatasourceDAO {
      * @param integer $accountId
      *
      * @return DatasourceInstance
+     * @throws ObjectNotFoundException
      */
     public function getDatasourceInstanceByTitle($title, $projectKey = null, $accountId = null) {
 

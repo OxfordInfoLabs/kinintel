@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostBinding,
+    Input,
+    OnDestroy,
+    Output,
+    ViewChild
+} from '@angular/core';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
@@ -42,6 +52,8 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     @Input() external = false;
     @Input() queryParams: any;
     @Input() editAlerts = false;
+
+    @Output() duplicateItem: EventEmitter<any> = new EventEmitter<any>();
 
     @HostBinding('class.justify-center') configureClass = false;
 
@@ -231,6 +243,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         if (this.itemLoadedSub) {
             this.itemLoadedSub.unsubscribe();
         }
+    }
+
+    public duplicate() {
+        this.duplicateItem.emit(this.itemInstanceKey);
     }
 
     public configure() {
@@ -452,9 +468,9 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         fill: !!this.dashboardItemType.fill,
                         borderColor: (this.dashboardItemType.type === 'pie' || this.dashboardItemType.type === 'doughnut') ? chroma('white').alpha(0.2).hex() : this.dashboardItemType.borderColor,
                         backgroundColor: this.dashboardItemType.type === 'line' ?
-                            _.map(this.dashboardItemType.borderColor, colour => {
-                                return chroma(colour).alpha(0.5).hex();
-                            }) : this.dashboardItemType.backgroundColor,
+                            (Array.isArray(this.dashboardItemType.borderColor) ? _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour || 'black').alpha(0.5).hex();
+                            }) : chroma(this.dashboardItemType.borderColor || 'black').alpha(0.5).hex()) : this.dashboardItemType.backgroundColor,
                         tension: 0.2,
                         pointBackgroundColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null,
                         pointBorderColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null
@@ -479,9 +495,9 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         fill: !!this.dashboardItemType.fill,
                         borderColor: this.dashboardItemType.borderColor,
                         backgroundColor: this.dashboardItemType.type === 'line' ?
-                            _.map(this.dashboardItemType.borderColor, colour => {
-                                return chroma(colour).alpha(0.5).hex();
-                            }) : this.dashboardItemType.backgroundColor,
+                            (Array.isArray(this.dashboardItemType.borderColor) ? _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour || 'black').alpha(0.5).hex();
+                            }) : chroma(this.dashboardItemType.borderColor || 'black').alpha(0.5).hex()) : this.dashboardItemType.backgroundColor[index],
                         tension: 0.2,
                         pointBackgroundColor: this.dashboardItemType.borderColor[index],
                         pointBorderColor: this.dashboardItemType.borderColor[index]

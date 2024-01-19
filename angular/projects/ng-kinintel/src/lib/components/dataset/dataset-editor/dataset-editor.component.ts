@@ -29,6 +29,9 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {
     MoveTransformationConfirmationComponent
 } from '../dataset-editor/move-transformation-confirmation/move-transformation-confirmation.component';
+import {
+    SaveAsQueryComponent
+} from '../dataset-editor/save-as-query/save-as-query.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -133,6 +136,37 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         if (this.evaluateSub) {
             this.evaluateSub.unsubscribe();
         }
+    }
+
+    public async saveAsQuery() {
+        const newDatasetInstance: any = {
+            title: this.datasetInstanceSummary.title || 'Stored Query' + ' COPY',
+            summary: '',
+            description: '',
+            categories: this.datasetInstanceSummary.categories,
+            datasourceInstanceKey: this.datasetInstanceSummary.datasourceInstanceKey,
+            datasetInstanceId: this.datasetInstanceSummary.datasetInstanceId,
+            tags: this.datasetInstanceSummary.tags,
+            parameterValue: this.datasetInstanceSummary.parameterValues,
+            parameters: this.datasetInstanceSummary.parameters
+        };
+        this.dialog.open(SaveAsQueryComponent, {
+            width: '700px',
+            height: '800px',
+            data: {
+                datasetInstanceSummary: newDatasetInstance,
+                transformations: this.datasetInstanceSummary.transformationInstances
+            }
+        }).afterClosed().subscribe(async transformationInstances => {
+            if (transformationInstances) {
+                newDatasetInstance.transformationInstances = transformationInstances;
+                await this.datasetService.saveDataset(newDatasetInstance, this.accountId);
+                this.snackBar.open('Dataset successfully copied.', 'Close', {
+                    verticalPosition: 'top',
+                    duration: 3000
+                });
+            }
+        });
     }
 
     public drop(event: CdkDragDrop<any>) {
@@ -271,6 +305,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public async editTerminatingTransformation(transformation) {
+        const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
         if (transformation.type === 'filter') {
             const hiddenValue = !transformation.hide;
             const filters = _.filter(this.datasetInstanceSummary.transformationInstances, {type: 'filter'});
@@ -280,7 +315,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             transformation.hide = hiddenValue;
             this.showFilters = !hiddenValue;
         } else {
-            const [clonedTransformation, existingIndex] = await this.excludeUpstreamTransformations(transformation);
             if (transformation.type === 'summarise') {
                 this.summariseData(clonedTransformation.config, existingIndex);
             }
@@ -734,7 +768,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         // Exclude all upstream transformations from the evaluate
         this.datasetInstanceSummary.transformationInstances.forEach((instance, index) => {
-            if (index >= existingIndex) {
+            if ((index >= existingIndex) && instance.type !== 'multisort') {
                 instance.exclude = true;
             }
         });
