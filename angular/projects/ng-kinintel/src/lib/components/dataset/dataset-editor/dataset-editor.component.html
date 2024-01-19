@@ -79,6 +79,11 @@
             filter
         </button>
         <div class="divider"></div>
+        <button (click)="saveAsQuery()"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">file_copy</mat-icon>
+            copy query
+        </button>
         <button (click)="evaluateDataset()"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">sync</mat-icon>
@@ -200,21 +205,126 @@
         <div class="list-title">
             Transformations
         </div>
-        <div class="badge-item mr-1" *ngFor="let transformation of terminatingTransformations; let i = index"
-             [ngClass]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
-            <span class="cursor-pointer"
-                  (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
+        <div class="example-list flex flex-wrap" cdkDropListGroup>
+            <ng-template ngFor let-transformation [ngForOf]="terminatingTransformations" let-i="index">
+                <div cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListOrientation="horizontal"
+                    [cdkDropListData]="{item:transformation,index:i}">
+                    <div class="flex items-center">
+                        <div class="new-transformation flex items-center justify-center w-6 h-6">
+                            <a [matMenuTriggerFor]="addTransformation" class="items-center add-transformation text-primary">
+                                <mat-icon class="flex items-center w-5 h-5 text-xl">add_circle</mat-icon>
+                            </a>
+                            <mat-menu #addTransformation="matMenu">
+                                <button mat-menu-item (click)="insertTransformation(i, 'columns', transformation)">
+                                    Insert Column Transformation
+                                </button>
+                                <button mat-menu-item (click)="insertTransformation(i, 'formula', transformation)">
+                                    Insert Formula Transformation
+                                </button>
+                                <button mat-menu-item (click)="insertTransformation(i, 'join', transformation)">
+                                    Insert Join Transformation
+                                </button>
+                                <button mat-menu-item (click)="insertTransformation(i, 'summarise', transformation)">
+                                    Insert Summarise Transformation
+                                </button>
+                                <button mat-menu-item (click)="insertTransformation(i, 'filter', transformation)">
+                                    Insert Filter Transformation
+                                </button>
+                            </mat-menu>
+                        </div>
 
-            <button [title]="transformation.exclude ? 'Re-enable this transformation' : 'Disable this transformation'"
-                    mat-icon-button (click)="disableTransformation(transformation, i)">
-                <mat-icon *ngIf="!transformation.exclude">block</mat-icon>
-                <mat-icon class="text-orange-400" *ngIf="transformation.exclude">replay</mat-icon>
-            </button>
-            <button title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary"
-                    (click)="removeTransformation(transformation, true)">
-                <mat-icon>cancel</mat-icon>
-            </button>
+                        <div cdkDrag class="pl-0 example-box badge-item w-auto m-0" cdkOverlayOrigin #trigger="cdkOverlayOrigin"
+                             [ngClass]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
+
+                            <button class="-mt-0.5" title="Show transformation details"  mat-icon-button
+                                    (click)="showTransformationDetail(transformation)">
+                                <mat-icon class="ml-1" *ngIf="transformation.type === 'columns'">table_chart</mat-icon>
+                                <mat-icon *ngIf="transformation.type === 'formula'">functions</mat-icon>
+                                <mat-icon *ngIf="transformation.type === 'join'">merge_type</mat-icon>
+                                <mat-icon class="ml-1" *ngIf="transformation.type === 'summarise'">pivot_table_chart</mat-icon>
+                                <mat-icon *ngIf="transformation.type === 'filter'">filter_alt</mat-icon>
+                            </button>
+
+                            <span class="whitespace-nowrap cursor-pointer"
+                                  (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
+
+                            <ng-template [ngIf]="transformation.exclude">
+                                <button class="-ml-1" [title]="'Re-enable this transformation'"
+                                        mat-icon-button (click)="disableTransformation(transformation, i)">
+                                    <mat-icon class="text-orange-400">replay</mat-icon>
+                                </button>
+                            </ng-template>
+                            <ng-template [ngIf]="!transformation.exclude && i + 1 === terminatingTransformations.length">
+                                <button class="-ml-1" [title]="'Disable transformation'"
+                                        mat-icon-button (click)="disableTransformation(transformation, i)">
+                                    <mat-icon>block</mat-icon>
+                                </button>
+                            </ng-template>
+                            <ng-template [ngIf]="!transformation.exclude && i + 1 !== terminatingTransformations.length">
+                                <button class="-ml-1" [matMenuTriggerFor]="disableMenu" [title]="'Disable transformation'"
+                                        mat-icon-button >
+                                    <mat-icon>block</mat-icon>
+                                </button>
+                                <mat-menu #disableMenu="matMenu">
+                                    <button mat-menu-item (click)="disableTransformation(transformation, i)">
+                                        Disable this transformation
+                                    </button>
+                                    <button mat-menu-item (click)="excludeUpstreamTransformations(transformation)">
+                                        Disable subsequent transformation(s)
+                                    </button>
+                                </mat-menu>
+                            </ng-template>
+
+                            <button class="-ml-1" title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary"
+                                    (click)="removeTransformation(transformation, true)">
+                                <mat-icon>cancel</mat-icon>
+                            </button>
+                        </div>
+                        <ng-template
+                            cdkConnectedOverlay
+                            [cdkConnectedOverlayOrigin]="trigger"
+                            [cdkConnectedOverlayOpen]="transformation._showDetail">
+                            <div class="p-4 w-96 bg-white shadow rounded">
+                                <ng-template [ngIf]="transformation.type === 'summarise'">
+                                    <p class="text-sm text-gray-700 mb-0">
+                                        <b>SELECT&nbsp;</b><span *ngFor="let expression of transformation.config.expressions; let i = index"><span *ngIf="i > 0">, </span>{{expression.customExpression || expression.expressionType + '(' + (expression.fieldName || '') + ')'}}</span><ng-template [ngIf]="transformation.config.summariseFieldNames.length"><br><b>GROUP BY&nbsp;</b> {{transformation.config.summariseFieldNames.join(', ')}}</ng-template>
+                                    </p>
+                                </ng-template>
+                                <ng-template [ngIf]="transformation.type === 'formula'">
+                                    <div class="text-sm text-gray-700 mb-0">
+                                        <b>EXPRESSION</b>&nbsp;{{transformation.config.expressions[0].expression}}
+                                    </div>
+                                </ng-template>
+                                <ng-template [ngIf]="transformation.type === 'columns'">
+                                    <div class="text-sm text-gray-700 mb-0">
+                                        <b>COLUMNS</b>&nbsp;{{_.map(transformation.config.columns, 'title').join(', ')}}
+                                    </div>
+                                </ng-template>
+                                <ng-template [ngIf]="transformation.type === 'join'">
+                                    <div class="text-sm text-gray-700 mb-0">
+                                        <b>JOIN COLUMNS</b>&nbsp;{{_.map(transformation.config.joinColumns, 'title').join(', ')}}
+                                    </div>
+                                </ng-template>
+                                <ng-template [ngIf]="transformation.type === 'filter'">
+                                    <div *ngFor="let filter of transformation.config.filters" class="text-sm text-gray-700 mb-0">
+                                        <b>FILTER</b>&nbsp;{{filter.lhsExpression}}&nbsp;<b>{{filter.filterType}}</b>&nbsp;{{filter.rhsExpression}}
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </ng-template>
+                    </div>
+
+                </div>
+                <button *ngIf="_.some(terminatingTransformations, {exclude: true}) && i === terminatingTransformations.length - 1"
+                        class="ml-4 flex items-center border-none bg-primary text-sm rounded-md text-white pr-2 pl-1 py-0.5"
+                        (click)="enableAllTransformation()">
+                    <mat-icon class="mr-1 text-base">replay</mat-icon>
+                    Enable All
+                </button>
+            </ng-template>
+
         </div>
+
     </div>
 </div>
 
@@ -275,7 +385,7 @@
         </div>
         <div class="badge-item outline"
              *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
-            <span>{{sort.fieldName}}&nbsp;{{sort.direction}}</span>
+            <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
             <button mat-icon-button (click)="removeFilter(i)">
                 <mat-icon>cancel</mat-icon>
             </button>

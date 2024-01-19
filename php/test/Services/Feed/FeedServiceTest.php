@@ -4,12 +4,15 @@
 namespace Kinintel\Test\Services\Feed;
 
 use Kiniauth\Objects\Security\Role;
+use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
+use Kinikit\MVC\Request\Headers;
+use Kinikit\MVC\Request\Request;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Exception\FeedNotFoundException;
@@ -20,6 +23,7 @@ use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Feed\FeedService;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Feed\FeedWebsiteConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
@@ -44,11 +48,17 @@ class FeedServiceTest extends TestBase {
      */
     private $securityService;
 
+    /**
+     * @var MockObject
+     */
+    private $captchaProvider;
+
     public function setUp(): void {
 
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
-        $this->feedService = new FeedService($this->datasetService, $this->securityService);
+        $this->captchaProvider = MockObjectProvider::instance()->getMockInstance(GoogleRecaptchaProvider::class);
+        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider);
     }
 
 
@@ -68,7 +78,7 @@ class FeedServiceTest extends TestBase {
         $reFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Hello"
-        ], 0, $feedId);
+        ], 0, null, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, [], null, "test-json"));
         $this->assertEquals($expected, $reFeed);
 
@@ -79,7 +89,7 @@ class FeedServiceTest extends TestBase {
         $reReFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Goodbye"
-        ], 0, $feedId);
+        ], 0, null, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, [], null, "test-json"));
         $this->assertEquals($expected, $reReFeed);
 
@@ -353,6 +363,168 @@ class FeedServiceTest extends TestBase {
 
         $response = $this->feedService->evaluateFeed("/new/feed");
         $this->assertEquals($expectedResponse, $response);
+
+    }
+
+
+    public function testRecaptchaProviderCalledIfConfiguredAsWebsiteConfig() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("filter/feed6", 2, [], "test", [
+            "config" => "Hello"
+        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
+
+        $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+
+        // Try one without a valid request
+
+        try {
+            $this->feedService->evaluateFeed("filter/feed6");
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        // Try one with an invalid request
+        try {
+            $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        $_SERVER["HTTP_X_CAPTCHA_TOKEN"] = "BADCAPTCHA";
+        $request = new Request(new Headers());
+        $this->captchaProvider->returnValue("verifyCaptcha", false, [
+            "BADCAPTCHA", $request
+        ]);
+
+        // Try one with an invalid request
+        try {
+            $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, $request);
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        $_SERVER["HTTP_X_CAPTCHA_TOKEN"] = "CAPTCHAKEY";
+        $request = new Request(new Headers());
+
+        // Try one with a valid request
+        $this->captchaProvider->returnValue("verifyCaptcha", true, [
+            "CAPTCHAKEY", $request
+        ]);
+
+        $response = $this->feedService->evaluateFeed("filter/feed6", [], 0, 50, $request);
+        $this->assertEquals($expectedResponse, $response);
+
+        // Confirm that the backend google service was configured correctly.
+        $this->assertTrue($this->captchaProvider->methodWasCalled("setRecaptchaSecretKey", ["SECRETKEY"]));
+        $this->assertTrue($this->captchaProvider->methodWasCalled("setRecaptchaScoreThreshold", [0.6]));
+
+
+    }
+
+
+    public function testRequestHostnameCheckedAgainstReferringDomainsIfSupplied() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("filter/feed5", 2, [], "test", [
+            "config" => "Hello"
+        ], 0, new FeedWebsiteConfig(["happy.com", "test.sad.com"]));
+
+        $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        // Try one without a valid request
+        try {
+            $this->feedService->evaluateFeed("filter/feed5");
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Try one with an invalid request
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        // Try ones with invalid referrers
+        $_SERVER["HTTP_REFERER"] = "https://www.google.com/helloworld?myname=test";
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Subdomain should not be good.
+        $_SERVER["HTTP_REFERER"] = "https://www.happy.com/helloworld?myname=test";
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+        // Subdomain should not be good.
+        $_SERVER["HTTP_REFERER"] = "https://sad.com/helloworld?myname=test";
+        try {
+            $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+            $this->fail("Should have thrown here");
+        } catch (AccessDeniedException $e) {
+        }
+
+
+        // Valid referrers
+        $_SERVER["HTTP_REFERER"] = "https://happy.com/mypath?hello=true";
+        $response = $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+        $this->assertEquals($expectedResponse, $response);
+
+        // Valid referrers
+        $_SERVER["HTTP_REFERER"] = "https://test.sad.com/mypath?hello=true";
+        $response = $this->feedService->evaluateFeed("filter/feed5", [], 0, 50, new Request(new Headers()));
+        $this->assertEquals($expectedResponse, $response);
+
 
     }
 

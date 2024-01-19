@@ -18,6 +18,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetIncrementalSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -110,7 +111,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
 
         $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id"));
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [new Index(["name", "phone"])]));
 
 
         $snapshotFields = array_merge([
@@ -119,7 +120,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
         $expectedNewDatasourceInstance = new DatasourceInstance("incrementalsnap", "Simple Incremental", "snapshot",
             new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
-                $snapshotFields, true
+                $snapshotFields, true, [new Index(["name", "phone"])]
             ),
             "test"
         );
@@ -229,7 +230,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
 
         $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], 3));
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [], 3));
 
 
         $snapshotFields = array_merge([
@@ -306,7 +307,6 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
 
 
-
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
             new Field("snapshotLastValue")
         ], [["snapshotLastValue" => 25]]), [
@@ -322,7 +322,6 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         $datasourceInstance->returnValue("getConfig", $instanceConfig);
         $datasourceInstance->returnValue("getAccountId", 1);
         $datasourceInstance->returnValue("getProjectKey", "testProject");
-
 
 
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasourceInstance, [
@@ -715,7 +714,6 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
 
     }
-
 
 
 }

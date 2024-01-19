@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingMarkerTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -83,6 +84,17 @@ class DatasourceService {
      */
     public function getDataSourceInstanceByKey($key) {
         return $this->datasourceDAO->getDataSourceInstanceByKey($key);
+    }
+
+
+    /**
+     * Get a datasource instance by key
+     *
+     * @param $importKey
+     * @return DatasourceInstance
+     */
+    public function getDataSourceInstanceByImportKey($importKey, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->getDatasourceInstanceByImportKey($importKey, $accountId);
     }
 
 
@@ -283,6 +295,36 @@ class DatasourceService {
 
 
     /**
+     * Delete from Datasource Instance by key using a filter junction to determine records to delete
+     *
+     * @param string $datasourceInstanceKey
+     * @param FilterJunction $filterJunction
+     */
+    public function filteredDeleteFromDatasourceInstanceByKey($datasourceInstanceKey, $filterJunction) {
+
+        // Grab instance, resolve the datasource and issue a filtered delete
+        $datasourceInstance = $this->datasourceDAO->getDataSourceInstanceByKey($datasourceInstanceKey);
+        list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance);
+        $datasource->filteredDelete($filterJunction);
+    }
+
+
+    /**
+     * Delete from Datasource Instance by key using a filter junction to determine records to delete
+     *
+     * @param string $datasourceInstanceKey
+     * @param FilterJunction $filterJunction
+     */
+    public function filteredDeleteFromDatasourceInstanceByImportKey($importKey, $filterJunction, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        // Grab instance, resolve the datasource and issue a filtered delete
+        $datasourceInstance = $this->datasourceDAO->getDatasourceInstanceByImportKey($importKey, $accountId);
+        list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance);
+        $datasource->filteredDelete($filterJunction);
+    }
+
+
+    /**
      * Update a datasource instance, called from a wrapper above.
      *
      * @param DatasourceInstance $datasourceInstance
@@ -294,26 +336,7 @@ class DatasourceService {
      */
     private function updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure = false) {
 
-        if (!$allowInsecure && ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn())) {
-            throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstance->getKey());
-        }
-
-        // Chek privileges if a project key
-        if ($datasourceInstance->getProjectKey()) {
-            $hasUpdatePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourceupdate", $datasourceInstance->getProjectKey());
-            $hasManagePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourcemanage", $datasourceInstance->getProjectKey());
-
-            if ((!$hasUpdatePrivilege && !$hasManagePrivilege))
-                throw new AccessDeniedException("You have not been granted access to update custom data sources");
-        }
-
-        // Grab the datasource.
-        $datasource = $datasourceInstance->returnDataSource();
-
-
-        if (!($datasource instanceof UpdatableDatasource)) {
-            throw new DatasourceNotUpdatableException($datasource);
-        }
+        list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
 
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
@@ -379,6 +402,43 @@ class DatasourceService {
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getReplaces()), UpdatableDatasource::UPDATE_MODE_REPLACE);
         }
 
+    }
+
+
+    /**
+     * @param $allowInsecure
+     * @param DatasourceInstance $datasourceInstance
+     * @return array
+     * @throws AccessDeniedException
+     * @throws DatasourceNotUpdatableException
+     * @throws ObjectNotFoundException
+     * @throws ValidationException
+     * @throws \Kiniauth\Exception\Security\MissingScopeObjectIdForPrivilegeException
+     * @throws \Kiniauth\Exception\Security\NonExistentPrivilegeException
+     */
+    private function getDatasourceFromInstance(DatasourceInstance $datasourceInstance, $allowInsecure = false) {
+        if (!$allowInsecure && ($datasourceInstance->getAccountId() == null && !$this->securityService->isSuperUserLoggedIn())) {
+            throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstance->getKey());
+        }
+
+        // Chek privileges if a project key
+        $hasManagePrivilege = false;
+        if ($datasourceInstance->getProjectKey()) {
+            $hasUpdatePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourceupdate", $datasourceInstance->getProjectKey());
+            $hasManagePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourcemanage", $datasourceInstance->getProjectKey());
+
+            if ((!$hasUpdatePrivilege && !$hasManagePrivilege))
+                throw new AccessDeniedException("You have not been granted access to update custom data sources");
+        }
+
+        // Grab the datasource.
+        $datasource = $datasourceInstance->returnDataSource();
+
+
+        if (!($datasource instanceof UpdatableDatasource)) {
+            throw new DatasourceNotUpdatableException($datasource);
+        }
+        return array($hasManagePrivilege, $datasource);
     }
 
 

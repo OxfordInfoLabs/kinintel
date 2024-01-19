@@ -4,7 +4,7 @@ import {
     Component,
     ComponentFactoryResolver,
     EmbeddedViewRef,
-    HostBinding,
+    HostBinding, HostListener,
     Injector,
     Input,
     OnDestroy,
@@ -37,6 +37,8 @@ import {ActionEvent} from '../../objects/action-event';
 import {
     DashboardSettingsComponent
 } from './dashboard-settings/dashboard-settings.component';
+import {ComponentCanDeactivate} from '../../../lib/guards/dashboard-changes.guard';
+import * as sha512 from 'js-sha512' ;
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -44,7 +46,7 @@ import {
     styleUrls: ['./dashboard-editor.component.sass'],
     encapsulation: ViewEncapsulation.None
 })
-export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit, AfterViewInit, OnDestroy {
 
     @Input() sidenavService: any;
     @Input() accountId: any;
@@ -164,9 +166,19 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
     private routeURL: string;
     private initialGrid: any;
     private itemComponents: ItemComponentComponent[] = [];
+    private dashboardHash: string;
+    private dashboardClone: any;
 
     public static myClone(event) {
         return event.target.cloneNode(true);
+    }
+
+    @HostListener('window:beforeunload')
+    canDeactivate(): Observable<boolean> | boolean {
+        // insert logic to check if there are pending changes here;
+        // returning true will navigate without confirmation
+        // returning false will show a confirm dialog before navigating away
+        return true;
     }
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
@@ -211,8 +223,8 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         };
         this.grid = GridStack.init(options);
 
-        this.grid.on('added', (event: Event, newItems: GridStackNode[]) => {
-            newItems.forEach((item) => {
+        this.grid.on('added', async (event: Event, newItems: GridStackNode[]) => {
+            for (const item of newItems) {
                 let dashboardItemType = null;
                 let itemElement: any = item.el.firstChild;
                 let instanceId = null;
@@ -229,9 +241,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
                     item.el.firstChild.firstChild.remove();
                 }
 
-                this.addComponentToGridItem(item.el.firstChild, instanceId,
+                await this.addComponentToGridItem(item.el.firstChild, instanceId,
                     dashboardItemType || _.clone(this.itemTypes[item.el.dataset.index]), !!dashboardItemType);
-            });
+            }
+
             if (this.dashboard.displaySettings.inset) {
                 this.updateGridSpacing(this.dashboard.displaySettings.inset, false);
             }
@@ -367,7 +380,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
 
     public async reloadDashboard() {
         for (const item of this.itemComponents) {
-            await item.init(true);
+            if (item.dashboardDatasetInstance) {
+                await item.init(true);
+            }
         }
     }
 
@@ -422,6 +437,9 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
             }
             gridItem.content = itemElement.children.item(0).outerHTML;
         });
+
+        this.dashboard.datasetInstances = _.filter(this.dashboard.datasetInstances);
+
         return this.dashboardService.saveDashboard(this.dashboard, this.accountId).then((dashboardId) => {
             if (showSaved) {
                 this.snackBar.open('Dashboard successfully saved.', 'Close', {
@@ -436,7 +454,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    private addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
+    private async addComponentToGridItem(element, instanceId?, dashboardItemType?, load?) {
         if (!this.dashboard.layoutSettings) {
             this.dashboard.layoutSettings = {};
         }
@@ -471,7 +489,7 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         componentRef.instance.dashboardItemType = chartDetails || (dashboardItemType || {});
         componentRef.instance.itemInstanceKey = instanceId;
         componentRef.instance.configureClass = !load;
-        componentRef.instance.init();
+        await componentRef.instance.init();
         if (load) {
             if (this.dashboard.layoutSettings.dependencies) {
                 const dependencies = this.dashboard.layoutSettings.dependencies[instanceId] || {};
@@ -496,6 +514,10 @@ export class DashboardEditorComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         this.itemComponents.push(componentRef.instance);
+
+        componentRef.instance.duplicateItem.subscribe(instanceKey => {
+
+        });
 
         return componentRef;
     }

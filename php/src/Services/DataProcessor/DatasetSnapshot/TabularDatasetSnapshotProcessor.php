@@ -18,6 +18,7 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -133,16 +134,15 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
 
 
                 if ($config->isCreateHistory())
-                    $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstance, $dataSource);
+                    $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $config->getIndexes(), $columnTimeLapses, $dataSourceInstance, $dataSource);
                 if ($config->isCreateLatest()) {
-                    $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstancePending, $dataSourcePending);
-                    $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
+                    $fields = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $config->getIndexes(), $columnTimeLapses, $dataSourceInstancePending, $dataSourcePending);
+                    $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $config->getIndexes(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
                 }
             }
 
             // Grab all data
             $sourceData = $dataset->getAllData();
-
 
 
             // Generate timelapse data, create update and update data sources
@@ -170,7 +170,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
             $dataSourceLatest->onInstanceDelete();
 
 
-            $fieldsLatest = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
+            $fieldsLatest = $this->updateDatasourceTableStructure($columns, $config->getKeyFieldNames(), $config->getIndexes(), $columnTimeLapses, $dataSourceInstanceLatest, $dataSourceLatest, true);
             $offset = 0;
             do {
                 $pendingDataSet = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($instanceKey . "_pending", [],
@@ -275,20 +275,20 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     /**
      * @param Field[] $columns
      * @param string[] $keyFieldNames
+     * @param $indexes
      * @param int[] $columnTimeLapses
      * @param DatasourceInstance $dataSourceInstance
      * @param Datasource $dataSource
      * @param false $latest
      * @return Field[]
      */
-    private function updateDatasourceTableStructure($columns, $keyFieldNames, $columnTimeLapses, $dataSourceInstance, $dataSource, $latest = false) {
+    private function updateDatasourceTableStructure($columns, $keyFieldNames, $indexes, $columnTimeLapses, $dataSourceInstance, $dataSource, $latest = false) {
 
         // Create fields array
         if (!$latest) $fields = [new Field("snapshot_date", "Snapshot Date", null, Field::TYPE_DATE_TIME, true)];
 
         // Always add a snapshot item id representing the primary key
         $fields[] = new Field("snapshot_item_id", "Snapshot Item Id", null, Field::TYPE_STRING, true);
-
 
         // Add each column and any timelapse variations required
         foreach ($columns as $column) {
@@ -311,12 +311,21 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
                 }
             }
 
-
         }
+
+        if (!$latest) {
+            $checkIndexes = $indexes;
+            foreach ($checkIndexes as $index) {
+                $indexes[] = new Index(array_merge(["snapshot_date"], $index->getFieldNames()));
+            }
+        }
+
 
         // Update fields and save.
         $config = $dataSource->getConfig();
         $config->setColumns($fields);
+        $config->setIndexes($indexes);
+
         $dataSourceInstance->setConfig($config);
         $this->datasourceService->saveDataSourceInstance($dataSourceInstance);
 

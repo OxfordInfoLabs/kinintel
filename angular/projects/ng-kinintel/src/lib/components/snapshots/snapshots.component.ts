@@ -9,6 +9,9 @@ import {DatasetService} from '../../services/dataset.service';
 import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as lodash from 'lodash';
 import {Router} from '@angular/router';
+import {
+    SnapshotProfileDialogComponent
+} from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 const _ = lodash.default;
 
 @Component({
@@ -163,6 +166,23 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
 
     public removeActiveTag() {
         this.tagService.resetActiveTag();
+    }
+
+    public async editSnapshot(snapshotId: number, project: any) {
+        const snapshot: any = await this.datasetService.getSnapshotProfile(snapshotId);
+        const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
+            width: '900px',
+            height: '900px',
+            data: {
+                snapshot,
+                datasetInstanceId: snapshot.processorConfig.datasetInstanceId
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                project.reload.next(Date.now());
+            }
+        });
     }
 
     public delete(snapshotProfileId, datasetInstanceId, snapshot) {

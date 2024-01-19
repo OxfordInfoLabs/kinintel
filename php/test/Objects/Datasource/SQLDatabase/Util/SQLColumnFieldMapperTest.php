@@ -5,6 +5,7 @@ namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 
 use Kinikit\Persistence\Database\MetaData\TableColumn;
+use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\ValueObjects\Dataset\Field;
 
@@ -114,5 +115,35 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+    public function testCanMapFieldsToIndexColumns() {
+        // ID Type
+        $this->assertEquals(new TableIndexColumn("id"),
+            $this->mapper->mapFieldToIndexColumn(new Field("id", null, null, Field::TYPE_ID)));
+
+        // Standard types
+        $this->assertEquals(new TableIndexColumn("integer"),
+            $this->mapper->mapFieldToIndexColumn(new Field("integer", null, null, Field::TYPE_INTEGER)));
+
+        $this->assertEquals(new TableIndexColumn("float"),
+            $this->mapper->mapFieldToIndexColumn(new Field("float", null, null, Field::TYPE_FLOAT)));
+
+        $this->assertEquals(new TableIndexColumn("date"),
+            $this->mapper->mapFieldToIndexColumn(new Field("date", null, null, Field::TYPE_DATE)));
+
+        $this->assertEquals(new TableIndexColumn("datetime"),
+            $this->mapper->mapFieldToIndexColumn(new Field("datetime", null, null, Field::TYPE_DATE_TIME)));
+
+
+        // String types
+        $this->assertEquals(new TableIndexColumn("string"),
+            $this->mapper->mapFieldToIndexColumn(new Field("string", null, null, Field::TYPE_STRING)));
+        $this->assertEquals(new TableIndexColumn("mediumstring", 500),
+            $this->mapper->mapFieldToIndexColumn(new Field("mediumstring", null, null, Field::TYPE_MEDIUM_STRING)));
+        $this->assertEquals(new TableIndexColumn("longstring", 500),
+            $this->mapper->mapFieldToIndexColumn(new Field("longstring", null, null, Field::TYPE_LONG_STRING)));
+
+    }
+
 
 }

@@ -2,6 +2,8 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+
 class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
     /**
@@ -22,6 +24,13 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @var string[]
      */
     private $keyFieldNames = [];
+
+
+    /**
+     * @var Index[]
+     */
+    private $indexes = [];
+
 
     /**
      * The name of the field used for detecting newer values in the data set.
@@ -59,15 +68,17 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
      * @param string[] $keyFieldNames
+     * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $readChunkSize = null) {
+    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
         $this->keyFieldNames = $keyFieldNames;
         $this->readChunkSize = $readChunkSize;
+        $this->indexes = $indexes;
     }
 
 
@@ -112,6 +123,21 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     public function setKeyFieldNames($keyFieldNames) {
         $this->keyFieldNames = $keyFieldNames;
     }
+
+    /**
+     * @return Index[]
+     */
+    public function getIndexes() {
+        return $this->indexes;
+    }
+
+    /**
+     * @param Index[] $indexes
+     */
+    public function setIndexes($indexes) {
+        $this->indexes = $indexes;
+    }
+
 
     /**
      * @return string

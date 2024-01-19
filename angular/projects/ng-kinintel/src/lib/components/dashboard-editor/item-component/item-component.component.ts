@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostBinding,
+    Input,
+    OnDestroy,
+    Output,
+    ViewChild
+} from '@angular/core';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
@@ -21,7 +31,7 @@ import {Location} from '@angular/common';
 import {ActionEvent} from '../../../objects/action-event';
 import {ExternalService} from '../../../services/external.service';
 import {ProjectService} from '../../../services/project.service';
-import {map} from "rxjs/operators";
+import chroma from 'chroma-js';
 
 declare var window: any;
 
@@ -42,6 +52,8 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     @Input() external = false;
     @Input() queryParams: any;
     @Input() editAlerts = false;
+
+    @Output() duplicateItem: EventEmitter<any> = new EventEmitter<any>();
 
     @HostBinding('class.justify-center') configureClass = false;
 
@@ -231,6 +243,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         if (this.itemLoadedSub) {
             this.itemLoadedSub.unsubscribe();
         }
+    }
+
+    public duplicate() {
+        this.duplicateItem.emit(this.itemInstanceKey);
     }
 
     public configure() {
@@ -449,7 +465,15 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     {
                         data,
                         label: _.find(this.filterFields, {name: this.dashboardItemType.xAxis}).title,
-                        fill: !!this.dashboardItemType.fill
+                        fill: !!this.dashboardItemType.fill,
+                        borderColor: (this.dashboardItemType.type === 'pie' || this.dashboardItemType.type === 'doughnut') ? chroma('white').alpha(0.2).hex() : this.dashboardItemType.borderColor,
+                        backgroundColor: this.dashboardItemType.type === 'line' ?
+                            (Array.isArray(this.dashboardItemType.borderColor) ? _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour || 'black').alpha(0.5).hex();
+                            }) : chroma(this.dashboardItemType.borderColor || 'black').alpha(0.5).hex()) : this.dashboardItemType.backgroundColor,
+                        tension: 0.2,
+                        pointBackgroundColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null,
+                        pointBorderColor: this.dashboardItemType.borderColor ? this.dashboardItemType.borderColor[0] : null
                     }
                 ];
                 this.dashboardItemType.labels = _.map(datasetData, item => {
@@ -458,7 +482,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             } else {
                 const chartData = [];
                 const series = _.uniq(_.map(datasetData, this.dashboardItemType.seriesColumn));
-                series.forEach(value => {
+                series.forEach((value, index) => {
                     const seriesResults = _.filter(datasetData, allData => {
                         return allData[this.dashboardItemType.seriesColumn] === value;
                     });
@@ -468,7 +492,15 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                             return {x: item[this.dashboardItemType.xAxis], y: item[this.dashboardItemType.yAxis]};
                         }),
                         label: value,
-                        fill: !!this.dashboardItemType.fill
+                        fill: !!this.dashboardItemType.fill,
+                        borderColor: this.dashboardItemType.borderColor,
+                        backgroundColor: this.dashboardItemType.type === 'line' ?
+                            (Array.isArray(this.dashboardItemType.borderColor) ? _.map(this.dashboardItemType.borderColor, colour => {
+                                return chroma(colour || 'black').alpha(0.5).hex();
+                            }) : chroma(this.dashboardItemType.borderColor || 'black').alpha(0.5).hex()) : this.dashboardItemType.backgroundColor[index],
+                        tension: 0.2,
+                        pointBackgroundColor: this.dashboardItemType.borderColor[index],
+                        pointBorderColor: this.dashboardItemType.borderColor[index]
                     });
                 });
                 this.chartData = chartData;
@@ -524,7 +556,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                     label: trendLabel,
                     borderColor: this.dashboardItemType.trendLineColour,
                     fill: false,
-                    order: -1
+                    order: -1,
+                    tension: 0.15,
+                    pointBackgroundColor: this.dashboardItemType.trendLineColour,
+                    pointBorderColor: this.dashboardItemType.trendLineColour
                 });
             }
         }
@@ -962,7 +997,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         const maxFreq = _.maxBy(this.dataset.allData, item => {
                             return Number(item[this.wordCloud.frequency]);
                         })[this.wordCloud.frequency];
-                        const maxWordWidth : number = _.max(_.map(this.dataset.allData, item =>
+                        const maxWordWidth: number = _.max(_.map(this.dataset.allData, item =>
                             item[this.wordCloud.column].length * item[this.wordCloud.frequency] / maxFreq
                         ));
                         const fontSize = ((this.wordCloud.height) * (this.wordCloud.width)) / 3000;
@@ -972,7 +1007,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
                             return {
                                 text,
-                                value: ((8/maxWordWidth) * (Number(itemFrequency) / Number(maxFreq)) * _.min([fontSize, 400]))
+                                value: ((8 / maxWordWidth) * (Number(itemFrequency) / Number(maxFreq)) * _.min([fontSize, 400]))
                             };
                         }), ['value'], ['desc']).slice(0, 100);
                     }

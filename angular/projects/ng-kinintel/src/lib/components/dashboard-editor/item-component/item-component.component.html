@@ -92,6 +92,10 @@
                 <mat-icon>edit</mat-icon>
                 Edit Item
             </button>
+<!--            <button mat-menu-item (click)="duplicate()">-->
+<!--                <mat-icon>edit</mat-icon>-->
+<!--                Duplicate Item-->
+<!--            </button>-->
             <button *ngIf="canExportData" mat-menu-item (click)="exportData()">
                 <mat-icon>file_download</mat-icon>
                 Export Data
@@ -217,9 +221,8 @@
                     [datasets]="chartData"
                     [labels]="dashboardItemType.labels"
                     [options]="{tooltips: { titleFontSize: 0 }, responsive:true, maintainAspectRatio: false}"
-                    [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
                     [legend]="!!dashboardItemType.legend"
-                    [chartType]="dashboardItemType.type"
+                    [type]="dashboardItemType.type"
                     [plugins]="[]">
             </canvas>
         </ng-template>
@@ -228,10 +231,9 @@
             <canvas baseChart *ngIf="chartData" style="height: 200px"
                     [datasets]="chartData"
                     [labels]="dashboardItemType.labels"
-                    [options]="{tooltips: { titleFontSize: 0 }, scales: {yAxes: [{ticks: {beginAtZero: dashboardItemType.beginAtZero}}]}, responsive:true, maintainAspectRatio: false}"
-                    [colors]="[{borderColor: dashboardItemType.borderColor,backgroundColor: dashboardItemType.backgroundColor}]"
+                    [options]="{tooltips: { titleFontSize: 0 }, scales: {y: {beginAtZero: dashboardItemType.beginAtZero}}, responsive:true, maintainAspectRatio: false}"
                     [legend]="!!dashboardItemType.legend"
-                    [chartType]="dashboardItemType.type"
+                    [type]="dashboardItemType.type"
                     [plugins]="[]">
             </canvas>
         </ng-template>

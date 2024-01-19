@@ -3,6 +3,7 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 use phpDocumentor\Reflection\Types\Integer;
 
 /**
@@ -45,6 +46,11 @@ class TabularDatasetSnapshotProcessorConfiguration {
     private $keyFieldNames;
 
     /**
+     * @var Index[]
+     */
+    private $indexes;
+
+    /**
      * @var TimeLapseFieldSet[]
      */
     private $timeLapsedFields;
@@ -61,7 +67,7 @@ class TabularDatasetSnapshotProcessorConfiguration {
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
         $this->datasetInstanceId = $datasetInstanceId;
@@ -69,6 +75,7 @@ class TabularDatasetSnapshotProcessorConfiguration {
         $this->createLatest = $createLatest;
         $this->createHistory = $createHistory;
         $this->readChunkSize = $readChunkSize;
+        $this->indexes = $indexes;
     }
 
     /**
@@ -113,6 +120,21 @@ class TabularDatasetSnapshotProcessorConfiguration {
     public function setKeyFieldNames($keyFieldNames) {
         $this->keyFieldNames = $keyFieldNames;
     }
+
+    /**
+     * @return Index[]
+     */
+    public function getIndexes() {
+        return $this->indexes;
+    }
+
+    /**
+     * @param Index[] $indexes
+     */
+    public function setIndexes($indexes) {
+        $this->indexes = $indexes;
+    }
+
 
     /**
      * @return TimeLapseFieldSet[]

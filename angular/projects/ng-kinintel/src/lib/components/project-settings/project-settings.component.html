@@ -250,4 +250,104 @@
             </div>
         </div>
     </div>
+
+    <div class="hidden sm:block" aria-hidden="true">
+        <div class="py-5">
+            <div class="border-t border-gray-200"></div>
+        </div>
+    </div>
+
+    <div class="mt-10 sm:mt-0">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+            <div class="md:col-span-1">
+                <div class="px-4 sm:px-0">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Project Colour Palette</h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        A selection of colours to use as default colours around the project in charts etc.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-5 md:col-span-2 md:mt-0">
+                <div class="overflow-hidden shadow sm:rounded-md">
+                    <div class="bg-white px-4 py-5 sm:p-6">
+                        <mat-accordion displayMode="flat">
+                            <mat-expansion-panel class="shadow-none border-b" [expanded]="palette._opened"
+                                                 *ngFor="let palette of projectSettings.palettes; let i = index"
+                                                 (closed)="palette._opened = false;">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        {{palette.name}}
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        <div class="flex items-center">
+                                            <div *ngFor="let colour of palette.colours"
+                                                class="h-4 w-4" [ngStyle]="{'background-color': colour}"></div>
+                                        </div>
+                                    </mat-panel-description>
+                                </mat-expansion-panel-header>
+
+                                <label class="mb-2">
+                                    Palette Name
+                                    <input type="text" placeholder="Enter palette name"
+                                           [(ngModel)]="palette.name"
+                                           class="block w-full min-w-0 flex-1 border-gray-300 sm:text-sm">
+                                </label>
+
+                                <label class="mb-2">
+                                    Import Colour Palette
+                                    <input type="text" #colourPalette  placeholder="Enter each hex colour comma seperated"
+                                           class="block w-full min-w-0 flex-1 border-gray-300 sm:text-sm">
+                                    <button type="button" (click)="importColours(colourPalette.value, palette)"
+                                            class="mt-2 inline-flex items-center justify-center rounded-md border border-white bg-secondary py-1.5 px-4 text-sm font-medium text-white shadow-sm ">
+                                        <mat-icon class="mr-2">upload</mat-icon>
+                                        Import Colours
+                                    </button>
+                                </label>
+
+                                <label class="mb-2">
+                                    Select Palette Colours
+                                    <ng-template ngFor let-colour [ngForOf]="palette.colours" let-i="index">
+                                        <div class="my-2 flex items-center justify-between">
+                                            <input type="color" [(ngModel)]="palette.colours[i]">
+                                            <button mat-icon-button color="warn" (click)="palette.colours.splice(i, 1)">
+                                                <mat-icon>clear</mat-icon>
+                                            </button>
+                                        </div>
+                                    </ng-template>
+
+                                </label>
+
+                                <div class="flex items-center justify-between">
+                                    <button type="button" (click)="deletePalette(i)"
+                                            class="inline-flex justify-center rounded-md border border-danger bg-white py-2 px-4 text-sm font-medium text-danger shadow-sm ">
+                                        Delete Palette
+                                    </button>
+                                    <button type="button" (click)="palette.colours.push('')"
+                                            class="inline-flex items-center justify-center rounded-md border border-white bg-secondary py-1.5 px-4 text-sm font-medium text-white shadow-sm ">
+                                        <mat-icon class="mr-2">add</mat-icon>
+                                        Add Colour
+                                    </button>
+                                </div>
+
+
+                            </mat-expansion-panel>
+                        </mat-accordion>
+
+                        <button type="button" (click)="projectSettings.palettes.push({name: '', colours: [''], _opened: true})"
+                                class="mt-4 inline-flex items-center justify-center rounded-md border border-secondary bg-white py-1.5 px-4 text-sm font-medium text-secondary shadow-sm ">
+                            <mat-icon class="mr-2">add</mat-icon>
+                            Add Palette
+                        </button>
+
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                        <button type="button" (click)="saveChanges()"
+                                class="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm ">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

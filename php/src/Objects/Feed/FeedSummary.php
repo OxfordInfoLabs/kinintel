@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Feed;
 
 use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
+use Kinintel\ValueObjects\Feed\FeedWebsiteConfig;
 
 class FeedSummary extends ActiveRecord {
 
@@ -72,6 +73,12 @@ class FeedSummary extends ActiveRecord {
     protected $datasetLabel;
 
 
+    /**
+     * @var FeedWebsiteConfig
+     * @json
+     * @sqlType LONGTEXT
+     */
+    protected $websiteConfig;
 
 
     /**
@@ -83,8 +90,9 @@ class FeedSummary extends ActiveRecord {
      * @param string $exporterKey
      * @param mixed $exporterConfiguration
      * @param int $cacheTimeSeconds
+     * @param null $websiteConfig
      */
-    public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $cacheTimeSeconds = 0, $id = null) {
+    public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $cacheTimeSeconds = 0, $websiteConfig = null, $id = null) {
         $this->path = $path;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->exposedParameterNames = $exposedParameterNames;
@@ -92,6 +100,7 @@ class FeedSummary extends ActiveRecord {
         $this->exporterConfiguration = $exporterConfiguration;
         $this->id = $id;
         $this->cacheTimeSeconds = $cacheTimeSeconds;
+        $this->websiteConfig = $websiteConfig ?? new FeedWebsiteConfig();
     }
 
 
@@ -198,6 +207,20 @@ class FeedSummary extends ActiveRecord {
      */
     public function setCacheTimeSeconds($cacheTimeSeconds) {
         $this->cacheTimeSeconds = $cacheTimeSeconds;
+    }
+
+    /**
+     * @return FeedWebsiteConfig
+     */
+    public function getWebsiteConfig() {
+        return $this->websiteConfig;
+    }
+
+    /**
+     * @param FeedWebsiteConfig $websiteConfig
+     */
+    public function setWebsiteConfig($websiteConfig) {
+        $this->websiteConfig = $websiteConfig;
     }
 
 

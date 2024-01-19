@@ -54,8 +54,10 @@
                                     Snapshot Processor</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <mat-radio-group [(ngModel)]="snapshot.processorType">
-                                        <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard</mat-radio-button>
-                                        <mat-radio-button value="tabulardatasetincrementalsnapshot">Incremental</mat-radio-button>
+                                        <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard
+                                        </mat-radio-button>
+                                        <mat-radio-button value="tabulardatasetincrementalsnapshot">Incremental
+                                        </mat-radio-button>
                                     </mat-radio-group>
                                 </div>
                             </div>
@@ -70,7 +72,8 @@
                                         <mat-select [(ngModel)]="snapshot.processorConfig.newerValuesFieldName"
                                                     name="newerValuesFieldName" required>
                                             <mat-option [value]="column.name"
-                                                        *ngFor="let column of columns">{{column.title}}</mat-option>
+                                                        *ngFor="let column of columns">{{ column.title }}
+                                            </mat-option>
                                         </mat-select>
                                     </div>
                                 </div>
@@ -93,7 +96,7 @@
                             </ng-template>
 
                             <div *ngIf="snapshot.processorType === 'tabulardatasetsnapshot'"
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                                     Snapshot Type</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0 flex flex-col">
@@ -146,16 +149,16 @@
 
                             <div *ngIf="snapshot.processorConfig.createHistory &&
                                 snapshot.processorType === 'tabulardatasetsnapshot'"
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time Lapse
                                     Fields</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <div class="time-lapsed-field"
                                          *ngFor="let timeLapse of snapshot.processorConfig.timeLapsedFields; let i = index">
                                         <div>
-                                            <div class="mb-1"><b>Day Offsets:</b> {{timeLapse.dayOffsets.join(', ')}}
+                                            <div class="mb-1"><b>Day Offsets:</b> {{ timeLapse.dayOffsets.join(', ') }}
                                             </div>
-                                            <div><b>Field Names:</b> {{timeLapse.fieldNames.join(', ')}}</div>
+                                            <div><b>Field Names:</b> {{ timeLapse.fieldNames.join(', ') }}</div>
                                         </div>
                                         <button mat-icon-button color="warn" (click)="removeTimeLapsedField(i)">
                                             <mat-icon>clear</mat-icon>
@@ -175,7 +178,8 @@
                                                 <mat-select [(ngModel)]="newTimeLapse.dayOffsets"
                                                             name="offsets" required multiple>
                                                     <mat-option [value]="offset.value"
-                                                                *ngFor="let offset of defaultOffsets">{{offset.label}}</mat-option>
+                                                                *ngFor="let offset of defaultOffsets">{{ offset.label }}
+                                                    </mat-option>
                                                     <mat-option [value]="'CUSTOM'">Custom period</mat-option>
                                                 </mat-select>
                                             </label>
@@ -198,7 +202,8 @@
                                                 Field Names
                                                 <mat-select [(ngModel)]="newTimeLapse.fieldNames" multiple name="names">
                                                     <mat-option *ngFor="let column of columns"
-                                                                [value]="column.name">{{column.title}}</mat-option>
+                                                                [value]="column.name">{{ column.title }}
+                                                    </mat-option>
                                                 </mat-select>
                                             </label>
 
@@ -223,7 +228,8 @@
                                     <div class="mb-2 text-xs ">
                                         Select the key fields for this data feed. <br>
                                         <ng-template [ngIf]="snapshot.trigger === 'scheduled'">
-                                            This required where <span class="font-medium">Time Lapse Fields</span> have been
+                                            This required where <span class="font-medium">Time Lapse Fields</span> have
+                                            been
                                             specified.
                                         </ng-template>
                                     </div>
@@ -239,11 +245,42 @@
                                             <span class="ml-2">Select All</span>
                                         </div>
                                         <mat-option *ngFor="let column of columns" (click)="keyFieldClick()"
-                                                    [value]="column.name">{{column.title}}</mat-option>
+                                                    [value]="column.name">{{ column.title }}
+                                        </mat-option>
                                     </mat-select>
                                 </div>
                             </div>
+                            <div
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Indexes
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <div class="mb-2 text-xs ">
+                                        Select the fields you would like to set database indexes on. <br>
+                                    </div>
 
+                                    <ng-template ngFor let-snapshotIndex [ngForOf]="snapshot.processorConfig.indexes"
+                                                 let-i="index">
+                                        <div class="flex items-center justify-between">
+                                            <mat-select [(ngModel)]="snapshot.processorConfig.indexes[i].fieldNames"
+                                                        multiple>
+                                                <mat-option *ngFor="let column of columns"
+                                                            [value]="column.name">{{ column.title }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <button mat-icon-button color="warn" (click)="removeIndex(i)">
+                                                <mat-icon>clear</mat-icon>
+                                            </button>
+                                        </div>
+                                    </ng-template>
+
+                                    <button mat-stroked-button color="primary" class="mt-2 mr-2 bg-white"
+                                            (click)="snapshot.processorConfig.indexes.push({fieldNames: []})">
+                                        Add Indexes
+                                    </button>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -257,7 +294,7 @@
 
             <button mat-flat-button color="primary" (click)="saveSnapshot()"
                     [disabled]="!snapshot.title || selectModel.invalid">
-                {{snapshot.id ? 'Update' : 'Add'}} Snapshot Profile
+                {{ snapshot.id ? 'Update' : 'Add' }} Snapshot Profile
             </button>
         </div>
 

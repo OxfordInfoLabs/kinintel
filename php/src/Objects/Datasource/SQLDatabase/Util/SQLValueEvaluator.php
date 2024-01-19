@@ -93,6 +93,7 @@ class SQLValueEvaluator {
             $value = str_replace("#~d~#", "'", $value);
 
 
+
             // If no [[ or ( expressions assume this is a single string
             if (str_replace(["(", ")"], ["", ""], preg_replace("/\[\[(.*?)\]\]/", "", $value)) == $valueEntry) {
 
@@ -108,13 +109,17 @@ class SQLValueEvaluator {
                 $value = "?";
             } else {
 
+
+
                 $candidateParams = [];
                 $hasUnresolvedStrings = false;
                 $sanitised = $this->sqlClauseSanitiser->sanitiseSQL($value, $candidateParams, $hasUnresolvedStrings);
 
+
                 // Remove any [[ from column names and prefix with table alias if supplied
                 $sanitised = preg_replace("/\[\[(.*?)\]\]/", ($tableAlias ? $tableAlias . "." : "") . $this->databaseConnection->escapeColumn("$1"), $sanitised);
 
+                
                 // Check for presence of unqualified bracket expressions as these
                 // indicate literal string usage.
                 $matches =[];

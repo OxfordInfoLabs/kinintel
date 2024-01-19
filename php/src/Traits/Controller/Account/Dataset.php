@@ -249,9 +249,21 @@ trait Dataset {
     }
 
     /**
+     * Get a snapshot profile by ID
+     *
+     * @http GET /snapshotprofile/$profileId
+     *
+     * @param $profileId
+     * @return mixed
+     */
+    public function getSnapshotProfile($profileId) {
+        return $this->datasetService->getSnapshotProfile($profileId);
+    }
+
+    /**
      * List snapshot profiles for dataset instance by instance id
      *
-     * @http GET /snapshotprofile/$datasetInstanceId
+     * @http GET /snapshotprofile/dataset/$datasetInstanceId
      *
      * @param $datasetInstanceId
      *

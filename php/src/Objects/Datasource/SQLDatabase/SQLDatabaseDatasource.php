@@ -7,11 +7,13 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
+use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
+use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
 use Kinintel\Exception\DatasourceNotUpdatableException;
@@ -25,6 +27,7 @@ use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
+use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
@@ -32,12 +35,14 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -380,6 +385,44 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     }
 
     /**
+     * Delete multiple items from this datasource using a filter junction
+     *
+     * @param FilterJunction $filterJunction
+     * @return null
+     */
+    public function filteredDelete($filterJunction) {
+
+        /**
+         * @var SQLDatabaseDatasourceConfig $config
+         */
+        $config = $this->getConfig();
+
+        if ($config->getSource() !== SQLDatabaseDatasourceConfig::SOURCE_TABLE) {
+            throw new DatasourceUpdateException("Attempted to delete from a SQL datasource which does not have a table source");
+        }
+
+        // Grab the database connection in use
+        $databaseConnection = $this->getAuthenticationCredentials()->returnDatabaseConnection();
+
+        // Create a junction evaluator
+        $sqlJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $databaseConnection);
+
+        // Grab the table and where clause
+        $table = $config->getTableName();
+        $whereClause = $sqlJunctionEvaluator->evaluateFilterJunctionSQL($filterJunction);
+
+        // Construct delete sql and execute
+        $sql = "DELETE FROM $table";
+        if ($whereClause['sql'] ?? null)
+            $sql .= " WHERE {$whereClause['sql']}";
+
+        $databaseConnection->execute($sql, $whereClause["parameters"]);
+
+
+    }
+
+
+    /**
      * Event method called when a parent datasource instance is saved to provide
      * an opportunity to update e.g. structural stuff based on updated config.
      *
@@ -494,8 +537,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param $key
      * @return SQLTransformationProcessor
      */
-    private
-    function getTransformationProcessor($key) {
+    private function getTransformationProcessor($key) {
         if (!isset($this->transformationProcessorInstances[$key])) {
             $this->transformationProcessorInstances[$key] = Container::instance()->getInterfaceImplementation(SQLTransformationProcessor::class, $key);
         }
@@ -507,8 +549,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * Update fields (opportunity for datasource to perform any required modifications)
      *
      */
-    protected
-    function updateFields($fields) {
+    protected function updateFields($fields) {
 
         // Construct the column array we need
         $columns = [];
@@ -521,8 +562,30 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             }
         }
 
+        $indexes = [];
+        // If we have a managed table structure, also check for indexes
+        if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfig) {
+            // Index all fields by name
+            $indexedFields = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $fields);
 
-        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns);
+            // Loop through and map to table index objects
+            foreach ($this->getConfig()->getIndexes() as $index) {
+                $indexFields = $index->getFieldNames();
+                $indexColumns = [];
+                foreach ($indexFields as $indexField) {
+                    $matchingField = $indexedFields[$indexField] ?? null;
+                    if ($matchingField)
+                        $indexColumns[] = $this->sqlColumnFieldMapper->mapFieldToIndexColumn($matchingField);
+                    else
+                        throw new DatasourceUpdateException("You attempted to remove a field which is referenced in an index");
+
+                }
+                $indexes[] = new TableIndex(md5(join("", $indexFields)), $indexColumns);
+            }
+        }
+
+
+        $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
 
         // Check to see whether the table already exists

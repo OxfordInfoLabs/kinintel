@@ -32,6 +32,8 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
@@ -919,6 +921,58 @@ class DatasourceServiceTest extends TestBase {
         ]);
 
         $this->dataSourceService->updateDatasourceInstanceByKey("mynewone", new DatasourceUpdateWithStructure("hello"));
+
+    }
+
+    public function testCanIssueFilteredDeleteForDatasourceInstanceByKey() {
+
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = new TabularResultsDatasourceConfig([]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $filterJunction = new FilterJunction([new Filter("[[name]]", "mark")]);
+        $this->dataSourceService->filteredDeleteFromDatasourceInstanceByKey("test", $filterJunction);
+
+        $this->assertTrue($dataSource->methodWasCalled("filteredDelete", [$filterJunction]));
+
+
+    }
+
+
+    public function testCanIssueFilteredDeleteForDatasourceInstanceByImportKey() {
+
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = new TabularResultsDatasourceConfig([]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDatasourceInstanceByImportKey", $dataSourceInstance, [
+            "test-import",
+            22
+        ]);
+
+        $filterJunction = new FilterJunction([new Filter("[[name]]", "mark")]);
+        $this->dataSourceService->filteredDeleteFromDatasourceInstanceByImportKey("test-import", $filterJunction, 22);
+
+        $this->assertTrue($dataSource->methodWasCalled("filteredDelete", [$filterJunction]));
+
 
     }
 
