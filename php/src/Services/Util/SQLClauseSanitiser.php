@@ -99,7 +99,7 @@ class SQLClauseSanitiser {
         "IFNULL" => ["params" => ["X", "Y"], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first argument if not null or second argument if not null or null if both are null"],
         "INSTR" => ["params" => ["X", "Y"], "category" => self::STRING_WHITELISTED_FUNCTION,
-            "description" => "Return the position of the string supplied as Y within the string supplied as X"],
+            "description" => "Return the position of the string supplied as Y within the string supplied as X. If the Y isn't found in X, return 0"],
         "LEAST" => ["params" => ["X", "Y", "..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Return the smallest value of all supplied arguments"],
         "LENGTH" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,

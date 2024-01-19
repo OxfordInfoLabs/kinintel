@@ -219,4 +219,12 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["It was ", "chair", " shaped", "."], $parameters);
         $this->assertEquals("CONCAT(?,?,?, ?)", $value);
     }
+
+    //TODO
+//    public function testSubstitution(){
+//        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+//        $params = [];
+//        $value = $evaluator->evaluateFilterValue("LEVENSHTEIN('{{word}}a', '{{word}}')", ["word" => "w"], null, $params);
+//        $this->assertEquals(["wa", "w"], $params);
+//    }
 }

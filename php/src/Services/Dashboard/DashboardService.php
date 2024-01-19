@@ -110,6 +110,8 @@ class DashboardService {
      * @param $title
      * @param null $projectKey
      * @param string $accountId
+     * @return Dashboard
+     * @throws ObjectNotFoundException
      */
     public function getDashboardByTitle($title, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
