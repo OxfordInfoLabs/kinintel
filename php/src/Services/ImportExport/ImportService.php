@@ -96,7 +96,7 @@ class ImportService {
      * @param string $projectKey
      * @param int $accountId
      */
-    public function importToProject(Export $export, ImportConfig $importConfig, $projectKey, $accountId = null) {
+    public function importToProject(Export $export, $projectKey, $accountId = null) {
 
     }
 
