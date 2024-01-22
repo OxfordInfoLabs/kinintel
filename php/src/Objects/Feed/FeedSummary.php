@@ -213,7 +213,7 @@ class FeedSummary extends ActiveRecord {
      * @return FeedWebsiteConfig
      */
     public function getWebsiteConfig() {
-        return $this->websiteConfig;
+        return $this->websiteConfig ?? new FeedWebsiteConfig();
     }
 
     /**
