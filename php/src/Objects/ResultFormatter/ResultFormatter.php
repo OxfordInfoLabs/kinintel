@@ -14,6 +14,7 @@ use Kinintel\Objects\Dataset\Dataset;
  * @implementation jsonl Kinintel\Objects\ResultFormatter\JSONLResultFormatter
  * @implementation json Kinintel\Objects\ResultFormatter\JSONResultFormatter
  * @implementation sv Kinintel\Objects\ResultFormatter\SVResultFormatter
+ * @implementation xml Kinintel\Objects\ResultFormatter\XMLResultFormatter
  *
  */
 interface ResultFormatter {
