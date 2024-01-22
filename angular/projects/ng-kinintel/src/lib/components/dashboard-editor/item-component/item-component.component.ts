@@ -131,7 +131,9 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.canExportData = this.projectService.doesActiveProjectHavePrivilege('exportdata');
+        setTimeout(() => {
+            this.canExportData = this.projectService.doesActiveProjectHavePrivilege('exportdata');
+        }, 50);
     }
 
     public async init(evaluate = false) {

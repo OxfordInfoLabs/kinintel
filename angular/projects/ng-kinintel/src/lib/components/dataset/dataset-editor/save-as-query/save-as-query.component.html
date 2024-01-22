@@ -15,7 +15,7 @@
             <input class="full" type="text" placeholder="Enter title" [(ngModel)]="datasetInstanceSummary.title">
         </div>
 
-        <div class="my-4">
+        <div *ngIf="transformations.length" class="my-4">
             <p><b>Transformations</b></p>
 
             <ng-template [ngIf]="_.filter(transformations, 'exclude').length">
