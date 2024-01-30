@@ -231,7 +231,7 @@
             <canvas baseChart *ngIf="chartData" style="height: 200px"
                     [datasets]="chartData"
                     [labels]="dashboardItemType.labels"
-                    [options]="{tooltips: { titleFontSize: 0 }, scales: {y: {beginAtZero: dashboardItemType.beginAtZero}}, responsive:true, maintainAspectRatio: false}"
+                    [options]="{tooltips: { titleFontSize: 0 }, scales: {y: {beginAtZero: dashboardItemType.beginAtZero, max: dashboardItemType.maxValue || null}}, responsive:true, maintainAspectRatio: false}"
                     [legend]="!!dashboardItemType.legend"
                     [type]="dashboardItemType.type"
                     [plugins]="[]">
