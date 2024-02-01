@@ -36,6 +36,15 @@ class UpdatableMappedField {
 
 
     /**
+     * This property is used where the input values for the mapping are literal values
+     * rather than objects so we need to create a wrapper object with a single property
+     * named using the target field name.
+     *
+     * @var string
+     */
+    private $targetFieldName;
+
+    /**
      * The update mode to use for update - defaults to the same as the parent operation
      *
      * @var string
@@ -49,12 +58,14 @@ class UpdatableMappedField {
      * @param string $datasourceInstanceKey
      * @param string[] $parentFieldMappings
      * @param string $updateMode
+     * @param string $targetFieldName
      */
-    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null) {
+    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null, $targetFieldName = null) {
         $this->fieldName = $fieldName;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->parentFieldMappings = $parentFieldMappings;
         $this->updateMode = $updateMode;
+        $this->targetFieldName = $targetFieldName;
     }
 
 
@@ -98,6 +109,20 @@ class UpdatableMappedField {
      */
     public function setParentFieldMappings($parentFieldMappings) {
         $this->parentFieldMappings = $parentFieldMappings;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetFieldName() {
+        return $this->targetFieldName;
+    }
+
+    /**
+     * @param string $targetFieldName
+     */
+    public function setTargetFieldName($targetFieldName) {
+        $this->targetFieldName = $targetFieldName;
     }
 
     /**

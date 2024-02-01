@@ -128,6 +128,63 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testIfArrayOfValuesPassedTheyAreMappedToObjectUsingTargetFieldNameProperty() {
+
+        $config = new DatasourceUpdateConfig([], [
+            new UpdatableMappedField("notes", "notes", [], null, "noteText")
+        ]);
+
+        $this->datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $dataSet = $this->datasource->updateMappedFieldData(new ArrayTabularDataset([new Field("id"), new Field("notes")], [
+            [
+                "id" => 1,
+                "notes" => [
+                    "I am a happy person",
+                    "I love singing"
+                ]
+            ],
+            [
+                "id" => 2,
+                "notes" => [
+                    "I am a sad person",
+                    "I don't love singing"
+                ]
+            ]
+
+        ]));
+
+        // Check columns and data pruned
+        $this->assertEquals([new Field("id")], $dataSet->getColumns());
+        $this->assertEquals([["id" => 1], ["id" => 2]], $dataSet->getAllData());
+
+        $this->assertTrue($this->notesDatasource->methodWasCalled("update",
+            [
+                new ArrayTabularDataset([
+                    new Field("noteText")
+                ],
+                    [
+                        [
+                            "noteText" => "I am a happy person"
+                        ],
+                        [
+                            "noteText" => "I love singing"
+                        ],
+                        [
+                            "noteText" => "I am a sad person"
+                        ],
+                        [
+                            "noteText" => "I don't love singing"
+                        ]
+                    ]),
+                BaseUpdatableDatasource::UPDATE_MODE_ADD
+            ]
+
+        ));
+
+    }
+
 
     public function testParentFieldDataMergedInToMappedDataIfDefinedInConfig() {
 

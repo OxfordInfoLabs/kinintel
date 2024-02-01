@@ -113,6 +113,11 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
                 foreach ($mappedDataItems as $mappedDataItem) {
 
+                    // If a target field name, remap it.
+                    if ($mappedField->getTargetFieldName()) {
+                        $mappedDataItem = [$mappedField->getTargetFieldName() => $mappedDataItem];
+                    }
+
                     foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
                         $mappedDataItem[$childFieldMapping] = $dataItem[$parentFieldMapping] ?? null;
 
