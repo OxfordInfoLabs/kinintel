@@ -917,9 +917,17 @@
                             <input type="text" [(ngModel)]="dashboardItemType.combineRemaingingLabel">
                         </label>
 
-                        <mat-slide-toggle [(ngModel)]="dashboardItemType.beginAtZero" class="block mb-4">
-                            Start Y Axes at Zero
-                        </mat-slide-toggle>
+                        <ng-template [ngIf]="dashboardItemType.type !== 'pie' && dashboardItemType.type !== 'doughnut'">
+                            <label class="mb-4">
+                                Y Axes Max value
+                                <input class="w-1/2" type="number" [(ngModel)]="dashboardItemType.maxValue">
+                            </label>
+
+                            <mat-slide-toggle [(ngModel)]="dashboardItemType.beginAtZero" class="block mb-4">
+                                Start Y Axes at Zero
+                            </mat-slide-toggle>
+                        </ng-template>
+
                         <mat-slide-toggle [(ngModel)]="dashboardItemType.legend" class="block mb-4">Show Legend
                         </mat-slide-toggle>
                         <mat-slide-toggle *ngIf="dashboardItemType.type === 'line'"
@@ -1008,7 +1016,7 @@
                         <canvas #chart baseChart class="sticky top-10" *ngIf="chartData"
                                 [datasets]="chartData"
                                 [labels]="dashboardItemType.labels"
-                                [options]="{scales: {y: {beginAtZero: dashboardItemType.beginAtZero}}, responsive: true}"
+                                [options]="{scales: {y: {beginAtZero: dashboardItemType.beginAtZero, max: dashboardItemType.maxValue || null}}, responsive: true}"
                                 [legend]="!!dashboardItemType.legend"
                                 [type]="dashboardItemType.type"
                                 [plugins]="[]">

@@ -64,13 +64,12 @@ export class SnapshotProfileDialogComponent implements OnInit {
                 timeLapsedFields: [],
                 createHistory: true,
                 createLatest: true,
-                indexes: [{fieldNames: []}]
-            },
-
+                indexes: []
+            }
         };
 
-        if (!this.snapshot.processorConfig.indexes || !this.snapshot.processorConfig.indexes.length) {
-            this.snapshot.processorConfig.indexes = [{fieldNames: []}];
+        if (!this.snapshot.processorConfig.indexes) {
+            this.snapshot.processorConfig.indexes = [];
         }
 
         this.datasetInstanceId = this.data.datasetInstanceId || null;

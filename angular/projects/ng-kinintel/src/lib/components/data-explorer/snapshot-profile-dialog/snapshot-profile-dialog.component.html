@@ -263,7 +263,8 @@
                                     <ng-template ngFor let-snapshotIndex [ngForOf]="snapshot.processorConfig.indexes"
                                                  let-i="index">
                                         <div class="flex items-center justify-between">
-                                            <mat-select [(ngModel)]="snapshot.processorConfig.indexes[i].fieldNames"
+                                            <mat-select [ngClass]="{'border-red-600': !snapshot.processorConfig.indexes[i].fieldNames.length}"
+                                                [(ngModel)]="snapshot.processorConfig.indexes[i].fieldNames"
                                                         multiple>
                                                 <mat-option *ngFor="let column of columns"
                                                             [value]="column.name">{{ column.title }}
