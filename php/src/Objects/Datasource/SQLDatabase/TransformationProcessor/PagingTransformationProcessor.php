@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -21,6 +22,7 @@ class PagingTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
         if ($transformation instanceof PagingTransformation) {
+
             if ($transformation->getLimit() !== null && is_numeric($transformation->getLimit())) {
                 $query->setLimit($transformation->getLimit());
             }

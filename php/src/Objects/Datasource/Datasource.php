@@ -22,6 +22,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation rsync \Kinintel\Objects\Datasource\RSync\RSyncDatasource
  * @implementation union \Kinintel\Objects\Datasource\Union\UnionDatasource
  * @implementation webscraper \Kinintel\Objects\Datasource\WebScraper\WebScraperDatasource
+ * @implementation extending \Kinintel\Objects\Datasource\ExtendingDatasource
  */
 interface Datasource {
 

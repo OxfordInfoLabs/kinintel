@@ -93,6 +93,13 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
                 if (isset($dataset[$key])) {
                     $dataset[$key] = $dataset[$key] + $value; // Array union
                     unset($newData[$key]);
+
+                    if (($value["latest_discover_time"] ?? null) > ($dataset[$key]["latest_discover_time"] ?? null)) {
+                        $dataset[$key]["latest_discover_time"] = $value["latest_discover_time"];
+                    }
+
+                    // Increment sources with results
+                    $dataset[$key]["sources_with_results"]++;
                 }
             }
 
@@ -156,8 +163,9 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
         $columnMappings = $aggSource->getColumnMappings();
         foreach ($data as &$dataItem) {
             $key = "";
+            $discoverTime = $dataItem[$aggSource->getDateColumn()] ?? null;
 
-            // Do the mappings
+            // Do the field mappings
             foreach ($dataItem as $field => $item) {
 
                 // Map across the fields
@@ -170,17 +178,19 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
                 if (in_array($field, $keyFields)) {
                     $key .= $item . "|";
                 }
-
-                // Add source flag
-                $dataItem[$aggSource->getSourceIndicatorColumn()] = true;
-
-                // Add import time
-                $dataItem["window_time"] = $fromDate;
-                $dataItem["discover_month"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("F");
-                $dataItem["discover_month_index"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("n");
-                $dataItem["discover_year"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("Y");
-
             }
+
+
+            // Add source flag
+            $dataItem[$aggSource->getSourceIndicatorColumn()] = true;
+
+            // Set date and time fields
+            $dataItem["window_time"] = $fromDate;
+            $dataItem["latest_discover_time"] = $discoverTime;
+            $dataItem["discover_month"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("F");
+            $dataItem["discover_month_index"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("n");
+            $dataItem["discover_year"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("Y");
+            $dataItem["sources_with_results"] = 1;
 
             $latestData[$key] = $dataItem;
         }
