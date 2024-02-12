@@ -9,4 +9,8 @@ namespace Kinintel\Objects\Dataset;
  */
 interface Dataset {
 
+    /**
+     * @return mixed
+     */
+    public function getAllData();
 }

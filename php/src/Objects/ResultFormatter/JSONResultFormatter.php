@@ -3,8 +3,11 @@
 
 namespace Kinintel\Objects\ResultFormatter;
 
+use Exception;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
+use Kinikit\Core\Util\ArrayUtils;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Util\Primitive;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -48,6 +51,13 @@ class JSONResultFormatter implements ResultFormatter {
     private $rawResultFieldName;
 
     /**
+     * For mapping a property of a parent into a child (see test for example)
+     *
+     * @var array
+     */
+    private $parentPropertyMappings;
+
+    /**
      * JSONWebServiceResultMapping constructor.
      *
      * @param string $resultsOffsetPath
@@ -55,11 +65,17 @@ class JSONResultFormatter implements ResultFormatter {
      * @param bool $singleResult
      * @param string $rawResultFieldName
      */
-    public function __construct($resultsOffsetPath = "", $itemOffsetPath = "", $singleResult = false, $rawResultFieldName = null) {
+    public function __construct($resultsOffsetPath = "",
+                                $itemOffsetPath = "",
+                                $singleResult = false,
+                                $rawResultFieldName = null,
+                                $parentPropertyMappings = []
+    ) {
         $this->resultsOffsetPath = $resultsOffsetPath;
         $this->singleResult = $singleResult;
         $this->itemOffsetPath = $itemOffsetPath;
         $this->rawResultFieldName = $rawResultFieldName;
+        $this->parentPropertyMappings = $parentPropertyMappings;
     }
 
 
@@ -120,18 +136,21 @@ class JSONResultFormatter implements ResultFormatter {
         $this->rawResultFieldName = $rawResultFieldName;
     }
 
+    public function getParentPropertyMappings(): mixed {
+        return $this->parentPropertyMappings;
+    }
+
 
     /**
      * Map the result from the webservice to JSON using configured rules
      *
      * @param ReadableStream $stream
-     * @param array $columns
+     * @param array $passedColumns
      * @param int $limit
      * @param int $offset
      * @return Dataset
      */
     public function format($stream, $passedColumns = [], $limit = PHP_INT_MAX, $offset = 0) {
-
         $columns = [];
         $data = [];
 
@@ -141,12 +160,19 @@ class JSONResultFormatter implements ResultFormatter {
         $originalDecodedResult = json_decode($result, true);
         $decodedResult = $originalDecodedResult;
 
+        // Push down properties from parent to child, if necessary
+        if ($this->parentPropertyMappings) {
+            foreach ($this->parentPropertyMappings as $mapping => $mappedName){
+                $this->insertMappedResult($decodedResult, $mapping, $mappedName, $this->getResultsOffsetPath());
+            }
+        }
+
+
         // if result path, drill down to here first
         if ($this->getResultsOffsetPath()) {
             $resultPath = $this->getResultsOffsetPath();
             $decodedResult = $this->drillDown($resultPath, $decodedResult);
         }
-
 
         // If a single result, convert to array for processing
         if (!is_array($decodedResult) || $this->isSingleResult()) {
@@ -215,36 +241,95 @@ class JSONResultFormatter implements ResultFormatter {
 
 
     // Drill down to a sub path in an object
-    private function drillDown($path, $object) {
-
-        $path = explode(".", $path);
-        foreach ($path as $pathElement) {
-            $arrayName = explode("[", $pathElement);
-
-            if (sizeof($arrayName) == 1) {
-
-                if (isset($object[$pathElement])) {
-                    $object = $object[$pathElement];
-                } else {
-                    $object = [];
-                }
-
-            } else {
-
-
-                $item = $arrayName[0];
-                $offset = rtrim($arrayName[1], "]");
-
-                if (isset($object[$item][$offset])) {
-                    $object = $object[$item][$offset];
-                } else {
-                    $object = [];
-                }
-            }
-
+    public function drillDown(?string $path, $object) {
+        if (!$path) {
+            return $object;
         }
 
-        return $object;
+        $splitMapping = explode(".", $path, 2);
+        [$nextSeg, $newPath] = match (count($splitMapping)) {
+            0 => [null, null],
+            1 => [$splitMapping[0], null],
+            2 => [$splitMapping[0], $splitMapping[1]]
+        };
+
+        // JSON Array case
+        if (array_key_exists(0, $object)){
+            return array_merge(...array_map(fn($subobject) => $this->drillDown($path, $subobject), $object));
+        }
+
+        // Specific index case
+        if (str_contains($nextSeg, "[")){
+            $arrSplitPath = explode("[", $nextSeg);
+            $key = $arrSplitPath[0];
+            $idx = (int) explode("]", $arrSplitPath[1])[0];
+            return $this->drillDown($newPath, $object[$key][$idx]);
+        }
+
+        if ($nextSeg && array_key_exists($nextSeg, $object)){
+            return $this->drillDown($newPath, $object[$nextSeg]);
+        } else {
+            return null;
+        }
+    }
+
+    public function insertMappedResult(
+        array &$arrayToInsert,
+        ?string $mapping,
+        string $mappedName,
+        ?string $resultsOffsetPath,
+        $valueToMove = null) {
+
+        // Case: JSON Array
+        if (array_key_exists(0, $arrayToInsert)){
+            return $arrayToInsert = array_map(
+                fn($subarray) =>
+                    $this->insertMappedResult($subarray, $mapping, $mappedName, $resultsOffsetPath, $valueToMove),
+                $arrayToInsert);
+        }
+
+        if ($mapping){
+            $splitMapping = explode(".", $mapping, 2);
+            [$nextMappingSeg, $newMapping] = match (count($splitMapping)){
+                0 => [null, null],
+                1 => [$splitMapping[0], null],
+                2 => [$splitMapping[0], $splitMapping[1]]
+            };
+        } else {
+            [$nextMappingSeg, $newMapping] = [null, null];
+        }
+
+        if ($nextMappingSeg && !$newMapping){
+            $valueToMove = $arrayToInsert[$mapping];
+            $nextMappingSeg = null;
+        }
+
+        if ($resultsOffsetPath){
+            $splitMapping = explode( ".", $resultsOffsetPath, 2);
+            [$nextROPSeg, $newROP] = match (count($splitMapping)){
+                0 => [null, null],
+                1 => [$splitMapping[0], null],
+                2 => [$splitMapping[0], $splitMapping[1]]
+            };
+        } else {
+            $arrayToInsert[$mappedName] = $valueToMove;
+            return $arrayToInsert;
+        }
+
+        match (true){
+            array_key_exists($nextMappingSeg, $arrayToInsert) && $nextROPSeg == $nextMappingSeg
+                => $this->insertMappedResult($arrayToInsert[$nextMappingSeg], $newMapping, $mappedName, $newROP, $valueToMove),
+
+            array_key_exists($nextROPSeg, $arrayToInsert)
+                => $this->insertMappedResult($arrayToInsert[$nextROPSeg], $newMapping, $mappedName, $newROP, $valueToMove),
+
+            array_key_exists($nextMappingSeg, $arrayToInsert)
+                => throw new Exception("Mapping must be hierarchically above resultsOffsetPath"),
+
+            default
+                => throw new Exception("Not implemented path. mapping: $mapping, ResultsOffsetPath: $resultsOffsetPath, nextROP: $nextROPSeg, ValueToMove: $valueToMove ||| ". print_r($arrayToInsert, true))
+        };
+        return $arrayToInsert;
     }
 
 

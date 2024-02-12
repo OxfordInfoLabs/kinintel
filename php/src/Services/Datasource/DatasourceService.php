@@ -338,6 +338,12 @@ class DatasourceService {
 
         list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
 
+//        try{
+//            list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
+//        } catch (ObjectNotFoundException $e){
+//            throw new AccessDeniedException("You don't have write access to this datasource");
+//        }
+
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
 
@@ -421,7 +427,7 @@ class DatasourceService {
             throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstance->getKey());
         }
 
-        // Chek privileges if a project key
+        // Check privileges if a project key
         $hasManagePrivilege = false;
         if ($datasourceInstance->getProjectKey()) {
             $hasUpdatePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourceupdate", $datasourceInstance->getProjectKey());

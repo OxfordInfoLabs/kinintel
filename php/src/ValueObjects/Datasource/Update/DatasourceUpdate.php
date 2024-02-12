@@ -33,7 +33,8 @@ class DatasourceUpdate {
     private $replaces;
 
     /**
-     * DatasourceUpdate constructor.
+     * Each of the parameters should be in the format of a list of associative arrays with
+     * [ [column1 => value_a1, column2 => value_a2], [column1 => value_b1, column2 => value_b2] ]
      *
      * @param mixed[] $adds
      * @param mixed[] $updates
