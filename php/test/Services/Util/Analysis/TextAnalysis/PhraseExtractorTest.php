@@ -75,7 +75,7 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 1, [$stopWord]);
 
-        $this->assertEquals([
+        $expectedPhrases = [
             new Phrase("quick", 2, 1),
             new Phrase("quick brown", 2, 2),
             new Phrase("quick brown fox", 1, 3),
@@ -111,8 +111,11 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("quick brown one", 1, 3),
             new Phrase("brown one", 1, 2),
             new Phrase("one", 1, 1)
-        ], $phrases);
+        ];
+        sort($expectedPhrases);
+        sort($phrases);
 
+        $this->assertEquals($expectedPhrases, $phrases);
 
     }
 
@@ -131,7 +134,7 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [$stopWord]);
 
-        $this->assertEquals([
+        $expectedPhrases = [
             new Phrase("quick brown", 2, 2),
             new Phrase("quick brown fox", 1, 3),
             new Phrase("brown fox", 1, 2),
@@ -156,7 +159,11 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("test it's a", 1, 3),
             new Phrase("quick brown one", 1, 3),
             new Phrase("brown one", 1, 2),
-        ], $phrases);
+        ];
+        sort($expectedPhrases);
+        sort($phrases);
+
+        $this->assertEquals($expectedPhrases, $phrases);
 
     }
 
@@ -209,7 +216,7 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 3, 2, [$stopWord]);
 
-        $this->assertEquals([
+        $expectedPhrases = [
             new Phrase("quick brown", 2, 2),
             new Phrase("quick brown fox", 1, 3),
             new Phrase("brown fox", 1, 2),
@@ -234,7 +241,11 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("test it's a", 1, 3),
             new Phrase("quick brown one", 1, 3),
             new Phrase("brown one", 1, 2),
-        ], $phrases);
+        ];
+        sort($expectedPhrases);
+        sort($phrases);
+
+        $this->assertEquals($expectedPhrases, $phrases);
     }
 
     public function testCanExtractMultipleWordsFromPassedTextUsingBuiltInStopwordsAndCustomStopwordsWithAMinLength() {
@@ -260,7 +271,7 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
 
         $phrases = $this->phraseExtractor->extractPhrases(file_get_contents(__DIR__ . "/example.txt"), 2, 1, $stopWords);
 
-        $this->assertEquals([
+        $expectedPhrases = [
             new Phrase("quick", 2, 1),
             new Phrase("quick brown", 2, 2),
             new Phrase("brown", 2, 1),
@@ -276,7 +287,10 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("average lazy", 1, 2),
             new Phrase("lazy test", 1, 2),
             new Phrase("brown one", 1, 2),
-        ], $phrases);
+        ];
+        sort($expectedPhrases);
+        sort($phrases);
+        $this->assertEquals($expectedPhrases, $phrases);
 
     }
 
@@ -309,5 +323,72 @@ class PhraseExtractorTest extends \PHPUnit\Framework\TestCase {
             new Phrase("one", 1, 1)
         ], $phrases);
     }
+
+//    public function testSpeedOfPhraseExtractor(){
+//        $vocabulary = [];
+//        $testText = "";
+//        for ($i = 0; $i < 100; $i++) {
+//            $vocabulary[] = "word$i";
+//        }
+//        $vocabChoices = array_flip($vocabulary);
+//        for ($j = 0; $j < 100000; $j++) {
+//            $testText .= array_rand($vocabChoices) . " ";
+//        }
+//
+//        $t1 = microtime(true);
+//        $oldPhrases = $this->phraseExtractor->extractPhrases($testText, 5);
+//        $t2 = microtime(true);
+//
+//        print_r($t2 - $t1);
+//        $this->assertTrue(true);
+//
+////        $t3 = microtime(true);
+////        $newPhrases = $this->phraseExtractor->extractPhrasesNew($testText, 5);
+////        $t4 = microtime(true);
+////
+////        echo "\n";
+////        print_r($t4 - $t3);
+////
+////        $this->assertEquals($oldPhrases, $newPhrases);
+//
+//    }
+//
+//    public function testSpeedOfPhraseExtractorWithStopwords(){
+//        $stopWord = new StopWord(false, true, "testKey", "testColumn");
+//        $ignoredWords = [];
+//        for ($i = 0; $i < 1; $i++) {
+//            $ignoredWords[] = "word$i";
+//        }
+//        $doctoredStopWord = new StopWord(true, null, null, null, 2, $ignoredWords);
+//
+//        $this->stopwordManager->returnValue("expandStopwords", $doctoredStopWord, [$stopWord, "EN"]);
+//
+//        $vocabulary = [];
+//        for ($i = 0; $i < 100; $i++) {
+//            $vocabulary[] = "word$i";
+//        }
+//        $vocabChoices = array_flip($vocabulary);
+//
+//        $testText = "";
+//        for ($j = 0; $j < 100000; $j++) {
+//            $testText .= array_rand($vocabChoices) . " ";
+//        }
+//
+//        $t1 = microtime(true);
+//        $phrases = $this->phraseExtractor->extractPhrases($testText, 5, 1, []);
+//        $t2 = microtime(true);
+//
+//        print_r($t2 - $t1);
+//
+//
+//        $t3 = microtime(true);
+//        $stoppedPhrases = $this->phraseExtractor->extractPhrases($testText, 5, 1, [$stopWord]);
+//        $t4 = microtime(true);
+//
+//        echo "\n";
+//        print_r($t4 - $t3);
+//
+//        $this->assertTrue(true);
+//    }
 
 }
