@@ -22,7 +22,14 @@ class MultiSortTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
         if ($transformation instanceof MultiSortTransformation) {
-            $sortStrings = ObjectArrayUtils::getMemberValueArrayForObjects("sortString", $transformation->getSorts());
+
+            $databaseConnection = $dataSource->returnDatabaseConnection();
+
+            $sortStrings = [];
+            foreach ($transformation->getSorts() as $sort) {
+                $sortStrings[] = $databaseConnection->escapeColumn($sort->getFieldName()) . " " . $sort->getDirection();
+            }
+
             $query->setOrderByClause(join(", ", $sortStrings));
         }
         return $query;
