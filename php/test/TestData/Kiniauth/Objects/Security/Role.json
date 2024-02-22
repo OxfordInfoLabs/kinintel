@@ -16,5 +16,14 @@
     "privileges": [
       "customdatasourceupdate"
     ]
+  },
+  {
+    "name": "Management APIs",
+    "description": "Access to management APIs for creating snapshots and other workflows.",
+    "scope": "PROJECT",
+    "appliesTo": "API_KEY",
+    "privileges": [
+      "snapshotmanage"
+    ]
   }
 ]
