@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 
 
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+
 /**
  * Fixed extension of the sql database datasource config which prescribes managed table
  * functionality.  Used by the snapshot and custom datasources.
@@ -19,7 +21,7 @@ class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfi
      * @param string $source
      * @param string $tableName
      * @param string $query
-     * @param Field[] $columns
+     * @param DatasourceUpdateField[] $columns
      * @param boolean $pagingViaParameters
      * @param Index[] $indexes
      */

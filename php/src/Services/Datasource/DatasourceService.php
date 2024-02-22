@@ -7,6 +7,7 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Exception\AccessDeniedException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
@@ -363,7 +364,6 @@ class DatasourceService {
                 $datasourceInstance->setConfig($config);
 
             }
-
 
             $this->saveDataSourceInstance($datasourceInstance);
 

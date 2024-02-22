@@ -551,12 +551,14 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     protected function updateFields($fields) {
 
+        Logger::log($fields);
+
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
             $column = $this->sqlColumnFieldMapper->mapFieldToTableColumn($field);
             if ($field instanceof DatasourceUpdateField) {
-                $columns[] = new UpdatableTableColumn($column->getName(), $column->getType(), $column->getLength(), $column->getPrecision(), $column->getDefaultValue(), $column->isPrimaryKey(), $column->isAutoIncrement(), $column->isNotNull(), $field->getOriginalName());
+                $columns[] = new UpdatableTableColumn($column->getName(), $column->getType(), $column->getLength(), $column->getPrecision(), $column->getDefaultValue(), $column->isPrimaryKey(), $column->isAutoIncrement(), $column->isNotNull(), $field->getPreviousName());
             } else {
                 $columns[] = $column;
             }
