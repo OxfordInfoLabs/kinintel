@@ -13,6 +13,14 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     private $datasetInstanceId;
 
     /**
+     * Parameter Values for the data set instance if required
+     *
+     * @var mixed[]
+     */
+    private $parameterValues;
+
+
+    /**
      * @var string
      */
     private $snapshotIdentifier;
@@ -64,6 +72,7 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * Construct
      *
      * @param integer $datasetInstanceId
+     * @param mixed[] $parameterValues
      * @param string $snapshotIdentifier
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
@@ -71,7 +80,7 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
+    public function __construct($datasetInstanceId, $parameterValues, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->newerValuesFieldName = $newerValuesFieldName;
@@ -79,6 +88,7 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
         $this->keyFieldNames = $keyFieldNames;
         $this->readChunkSize = $readChunkSize;
         $this->indexes = $indexes;
+        $this->parameterValues = $parameterValues;
     }
 
 
@@ -95,6 +105,21 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     public function setDatasetInstanceId($datasetInstanceId) {
         $this->datasetInstanceId = $datasetInstanceId;
     }
+
+    /**
+     * @return mixed[]
+     */
+    public function getParameterValues() {
+        return $this->parameterValues;
+    }
+
+    /**
+     * @param mixed[] $parameterValues
+     */
+    public function setParameterValues($parameterValues) {
+        $this->parameterValues = $parameterValues;
+    }
+
 
     /**
      * @return string

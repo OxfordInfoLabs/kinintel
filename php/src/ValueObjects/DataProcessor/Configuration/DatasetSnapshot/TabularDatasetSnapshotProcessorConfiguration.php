@@ -24,6 +24,14 @@ class TabularDatasetSnapshotProcessorConfiguration {
 
 
     /**
+     * Parameter Values for the data set instance if required
+     *
+     * @var mixed[]
+     */
+    private $parameterValues;
+
+
+    /**
      * @var string
      */
     private $snapshotIdentifier;
@@ -65,13 +73,14 @@ class TabularDatasetSnapshotProcessorConfiguration {
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
      * @param int $datasetInstanceId
+     * @param mixed[] $parameterValues
      * @param string $snapshotIdentifier
      * @param bool $createLatest
      * @param bool $createHistory
      * @param int $readChunkSize
      * @param Index[] $indexes
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $parameterValues = [], $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
         $this->datasetInstanceId = $datasetInstanceId;
@@ -80,6 +89,7 @@ class TabularDatasetSnapshotProcessorConfiguration {
         $this->createHistory = $createHistory;
         $this->readChunkSize = $readChunkSize;
         $this->indexes = $indexes;
+        $this->parameterValues = $parameterValues;
     }
 
     /**
@@ -95,6 +105,23 @@ class TabularDatasetSnapshotProcessorConfiguration {
     public function setDatasetInstanceId($datasetInstanceId) {
         $this->datasetInstanceId = $datasetInstanceId;
     }
+
+    /**
+     * @return mixed[]
+     */
+    public function getParameterValues() {
+        return $this->parameterValues;
+    }
+
+    /**
+     * @param mixed[] $parameterValues
+     */
+    public function setParameterValues($parameterValues) {
+        $this->parameterValues = $parameterValues;
+    }
+
+
+
 
     /**
      * @return string

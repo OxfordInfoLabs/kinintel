@@ -120,7 +120,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         $offset = 0;
         $now = date("Y-m-d H:i:s");
         do {
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, [], [], $offset, $readChunkSize);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, $config->getParameterValues() ?? [], [], $offset, $readChunkSize);
 
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {

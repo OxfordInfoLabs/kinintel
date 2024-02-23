@@ -135,7 +135,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         do {
 
             // Evaluate the data set
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetInstanceId(), [], $filterTransformations, $offset, $limit);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetInstanceId(), $config->getParameterValues() ?? [], $filterTransformations, $offset, $limit);
             $results = $dataset->getAllData();
 
 
