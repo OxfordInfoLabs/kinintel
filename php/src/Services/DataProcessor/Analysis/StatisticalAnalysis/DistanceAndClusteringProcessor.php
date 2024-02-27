@@ -62,4 +62,9 @@ class DistanceAndClusteringProcessor implements DataProcessor {
 
         return [$resultsHierarchical, $resultsKMeans];
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

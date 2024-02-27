@@ -431,5 +431,8 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         return [$columnTimeLapses, $distinctTimeLapses];
     }
 
+    public function onInstanceDelete($instance) {
+
+    }
 
 }

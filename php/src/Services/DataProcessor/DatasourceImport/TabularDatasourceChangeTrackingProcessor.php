@@ -513,4 +513,8 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         }
     }
 
+    public function onInstanceDelete($instance) {
+
+    }
+
 }
