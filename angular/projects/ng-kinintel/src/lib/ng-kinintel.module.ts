@@ -91,6 +91,9 @@ import { MoveTransformationConfirmationComponent } from './components/dataset/da
 import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
 import {NgChartsModule} from 'ng2-charts';
 import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-as-query/save-as-query.component';
+import { ShareQueryComponent } from './components/dataset/dataset-editor/share-query/share-query.component';
+import { SharedWithMeComponent } from './components/shared-with-me/shared-with-me.component';
+import { MarketplaceComponent } from './components/marketplace/marketplace.component';
 
 @NgModule({
     declarations: [
@@ -149,7 +152,10 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
         ApiAccessComponent,
         TabularDatasourceComponent,
         MoveTransformationConfirmationComponent,
-        SaveAsQueryComponent
+        SaveAsQueryComponent,
+        ShareQueryComponent,
+        SharedWithMeComponent,
+        MarketplaceComponent
     ],
     imports: [
         BrowserModule,
@@ -216,7 +222,9 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
         DocumentDatasourceComponent,
         ProjectSettingsComponent,
         UpstreamChangesConfirmationComponent,
-        TabularDatasourceComponent
+        TabularDatasourceComponent,
+        MarketplaceComponent,
+        SharedWithMeComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
