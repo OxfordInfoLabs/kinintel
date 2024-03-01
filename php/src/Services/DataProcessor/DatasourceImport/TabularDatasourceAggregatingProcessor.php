@@ -197,4 +197,9 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
 
         return $latestData;
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

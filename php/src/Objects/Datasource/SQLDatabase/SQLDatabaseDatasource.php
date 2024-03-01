@@ -551,8 +551,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     protected function updateFields($fields) {
 
-        Logger::log($fields);
-
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
@@ -588,7 +586,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
-
         // Check to see whether the table already exists
         $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
@@ -599,12 +596,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
 
-
-
-
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);
-
 
     }
 

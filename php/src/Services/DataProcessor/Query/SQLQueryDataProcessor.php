@@ -82,4 +82,9 @@ class SQLQueryDataProcessor implements DataProcessor {
         }
 
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

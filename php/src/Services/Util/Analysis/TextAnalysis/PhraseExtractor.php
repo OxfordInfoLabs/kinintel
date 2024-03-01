@@ -38,9 +38,11 @@ class PhraseExtractor {
 
         $allWords = $this->getWords(strtolower($text));
 
-        $phraseCounts = array_map(
-            fn($x) => [], range(1, $maxPhraseLength)
-        );
+
+        $phraseCounts = [];
+        for ($k = 1; $k <= $maxPhraseLength; $k++) {
+            $phraseCounts[$k] = [];
+        }
 
         $numWords = sizeof($allWords);
         for ($i = 0; $i < $numWords; $i++) {

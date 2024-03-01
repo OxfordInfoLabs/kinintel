@@ -11,6 +11,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @implementation tabulardatasourceaggregating \Kinintel\Services\DataProcessor\DatasourceImport\TabularDatasourceAggregatingProcessor
  * @implementation tabulardatasetsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetSnapshotProcessor
  * @implementation tabulardatasetincrementalsnapshot \Kinintel\Services\DataProcessor\DatasetSnapshot\TabularDatasetIncrementalSnapshotProcessor
+ * @implementation vectorembedding \Kinintel\Services\DataProcessor\VectorDataset\VectorDatasetProcessor
  * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
  * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor
  * @implementation multi \Kinintel\Services\DataProcessor\Multi\MultiDataProcessor
@@ -33,5 +34,9 @@ interface DataProcessor {
      */
     public function process($instance);
 
-
+    /**
+     * Clean up when deleted
+     * @param $instance
+     */
+    public function onInstanceDelete($instance);
 }

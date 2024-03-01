@@ -57,4 +57,9 @@ class MultiDataProcessor implements DataProcessor {
             }
         }
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }
