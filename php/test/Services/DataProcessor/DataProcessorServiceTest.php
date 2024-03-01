@@ -3,9 +3,13 @@
 
 namespace Kinintel\Test\Services\DataProcessor;
 
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
+use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kiniauth\Test\TestBase;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
@@ -18,6 +22,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\DataProcessor\DataProcessorDAO;
 use Kinintel\Services\DataProcessor\DataProcessorService;
+use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 
 include_once "autoloader.php";
 
@@ -54,6 +59,12 @@ class DataProcessorServiceTest extends TestBase {
 
 
     /**
+     * @var MockObject
+     */
+    private $scheduledTaskService;
+
+
+    /**
      * Set up method
      */
     public function setUp(): void {
@@ -61,13 +72,129 @@ class DataProcessorServiceTest extends TestBase {
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->accountService = MockObjectProvider::instance()->getMockInstance(AccountService::class);
         $this->activeRecordInterceptor = MockObjectProvider::instance()->getMockInstance(ActiveRecordInterceptor::class);
+        $this->scheduledTaskService = MockObjectProvider::instance()->getMockInstance(ScheduledTaskService::class);
 
         $this->dataProcessorService = new DataProcessorService($this->dataProcessorDao, Container::instance()->get(ObjectBinder::class),
-            Container::instance()->get(Validator::class), $this->securityService, $this->accountService, $this->activeRecordInterceptor);
+            Container::instance()->get(Validator::class), $this->securityService, $this->accountService, $this->activeRecordInterceptor, $this->scheduledTaskService);
     }
 
 
-    public function testInvalidDataProcessorTypeExceptionRaisedIfBadTypeSupplied() {
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testExceptionRaisedIfUnknownProcessorTypeOrInvalidConfigPassedForNewDataProcessor() {
+        $newDataProcessor = new DataProcessorItem("Bad one", "unknown", []);
+
+        try {
+            $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor);
+            $this->fail("Should have thrown here");
+        } catch (InvalidDataProcessorTypeException $e) {
+        }
+
+        $newDataProcessor->setType("multi");
+        try {
+            $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor);
+            $this->fail("Should have thrown here");
+        } catch (InvalidDataProcessorConfigException $e) {
+        }
+    }
+
+    public function testCanSaveSimpleNewValidAdhocDataProcessor() {
+
+        $newDataProcessor = new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
+        $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor, "testProject", 1);
+
+        $this->assertNotNull($newKey);
+        $this->assertStringStartsWith("sqlquery_1_", $newKey);
+
+        $expectedInstance = new DataProcessorInstance($newKey, "Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_ADHOC,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", $newKey, ["dataProcessorKey" => $newKey], []), "testProject", 1), null, null, "testProject", 1);
+
+        $this->assertTrue($this->dataProcessorDao->methodWasCalled("saveProcessorInstance", [
+            $expectedInstance
+        ]));
+
+    }
+
+
+    public function testCanUpdateValidAdhocDataProcessor() {
+
+        $newDataProcessor = new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
+        $newDataProcessor->setKey("updatedone");
+
+        $existingItem = new DataProcessorInstance("updatedone", "Previous Valid",
+            "sqlquery", ["query" => "SELECT * FROM previous_test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_ADHOC,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
+                ["dataProcessorKey" => "updatedone"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, null, 123), "testProject", 1));
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey", $existingItem, ["updatedone"]);
+
+        $expectedInstance = new DataProcessorInstance("updatedone", "Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_ADHOC,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
+                ["dataProcessorKey" => "updatedone"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, null, 123), "testProject", 1), null, null, "testProject", 1);
+
+        $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor, "testProject", 1);
+        $this->assertEquals("updatedone", $newKey);
+
+        $this->assertTrue($this->dataProcessorDao->methodWasCalled("saveProcessorInstance", [
+            $expectedInstance
+        ]));
+    }
+
+
+    public function testCanCreateValidScheduledProcessor() {
+        $newDataProcessor = new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"], DataProcessorInstance::TRIGGER_SCHEDULED, [
+            new ScheduledTaskTimePeriod("20", "3", "10", "30"),
+            new ScheduledTaskTimePeriod(null, null, "11", "20")
+        ]);
+        $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor, "testProject", 1);
+
+        $this->assertNotNull($newKey);
+        $this->assertStringStartsWith("sqlquery_1_", $newKey);
+
+        $expectedInstance = new DataProcessorInstance($newKey, "Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_SCHEDULED,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", $newKey, ["dataProcessorKey" => $newKey],
+                [
+                    new ScheduledTaskTimePeriod("20", "3", "10", "30"),
+                    new ScheduledTaskTimePeriod(null, null, "11", "20")
+                ]), "testProject", 1), null, null, "testProject", 1);
+
+        $this->assertTrue($this->dataProcessorDao->methodWasCalled("saveProcessorInstance", [
+            $expectedInstance
+        ]));
+    }
+
+
+    public function testCanTriggerDataProcessorInstance() {
+
+        $existingItem = new DataProcessorInstance("onetotrigger", "Previous Valid",
+            "sqlquery", ["query" => "SELECT * FROM previous_test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_ADHOC,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
+                ["dataProcessorKey" => "onetotrigger"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, null, 123), "testProject", 1));
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey", $existingItem, ["onetotrigger"]);
+
+        // Trigger data processor
+        $this->dataProcessorService->triggerDataProcessorInstance("onetotrigger");
+
+        // Check scheduled task was triggered
+        $this->assertTrue($this->scheduledTaskService->methodWasCalled("triggerScheduledTask", [123]));
+    }
+
+
+    public function testCanRemoveDataProcessorInstance() {
+
+        $this->dataProcessorService->removeDataProcessorInstance("bingo");
+        $this->assertTrue($this->dataProcessorDao->methodWasCalled("removeProcessorInstance", ["bingo"]));
+    }
+
+
+    public function testInvalidDataProcessorTypeExceptionRaisedIfBadTypeSuppliedToProcess() {
 
         $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
             new DataProcessorInstance("bigone", "Big One", "testbadprocessor", [
@@ -85,7 +212,7 @@ class DataProcessorServiceTest extends TestBase {
     }
 
 
-    public function testInvalidDataProcessorConfigExceptionRaisedIfConfigFailsValidation() {
+    public function testInvalidDataProcessorConfigExceptionRaisedIfConfigFailsValidationOnProcess() {
 
         $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
             new DataProcessorInstance("bigone", "Big One", "testprocessor", []), [
@@ -123,12 +250,12 @@ class DataProcessorServiceTest extends TestBase {
     }
 
 
-    public function testIfAccountLevelInstanceSystemIsLoggedInAsAccount() {
+    public function testIfAccountLevelInstanceSystemIsLoggedInAsAccountOnProcess() {
 
         $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
             new DataProcessorInstance("bigone", "Big One", "testprocessor", [
                 "property" => "TESTING"
-            ], null, 25), [
+            ], null, null, null, null, null, 25), [
                 "bigone"
             ]);
 
@@ -150,7 +277,7 @@ class DataProcessorServiceTest extends TestBase {
     }
 
 
-    public function testIfNoneAccountLevelInstanceSystemIsLoggedInAsSuperUser() {
+    public function testIfNoneAccountLevelInstanceSystemIsLoggedInAsSuperUserOnProcess() {
 
         $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey",
             new DataProcessorInstance("bigone", "Big One", "testprocessor", [

@@ -16,6 +16,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
