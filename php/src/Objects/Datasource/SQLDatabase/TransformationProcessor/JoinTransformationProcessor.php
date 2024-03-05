@@ -48,11 +48,10 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      */
     private $synchronousProcessor;
 
-
     /**
-     * @var HttpLoopbackAsynchronousProcessor
+     * @var AsynchronousProcessor
      */
-    private $loopbackAsynchronousProcessor;
+    private $parallelProcessor;
 
 
     /**
@@ -85,13 +84,13 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @param DatasourceService $datasourceService
      * @param DatasetService $datasetService
      * @param SynchronousProcessor $synchronousProcessor
-     * @param HttpLoopbackAsynchronousProcessor $loopbackAsynchronousProcessor
+     * @param AsynchronousProcessor $parallelProcessor
      */
-    public function __construct($datasourceService, $datasetService, $synchronousProcessor, $loopbackAsynchronousProcessor) {
+    public function __construct($datasourceService, $datasetService, $synchronousProcessor, $parallelProcessor) {
         $this->datasourceService = $datasourceService;
         $this->datasetService = $datasetService;
         $this->synchronousProcessor = $synchronousProcessor;
-        $this->loopbackAsynchronousProcessor = $loopbackAsynchronousProcessor;
+        $this->parallelProcessor = $parallelProcessor;
     }
 
     /**
@@ -204,10 +203,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 // Now materialise the join data set using column values from parent dataset
                 $joinConcurrency = Configuration::readParameter("sqldatabase.datasource.join.default.concurrency") ?? PHP_INT_MAX;
 
-                /**
-                 * @var AsynchronousProcessor $processor
-                 */
-                $processor = $joinConcurrency == PHP_INT_MAX ? $this->synchronousProcessor : $this->loopbackAsynchronousProcessor;
+                /** @var AsynchronousProcessor $processor */
+                $processor = $joinConcurrency == PHP_INT_MAX ? $this->synchronousProcessor : $this->parallelProcessor;
 
                 $newJoinData = [];
                 $asyncInstances = [];
@@ -247,13 +244,10 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 }
 
-
                 // Process the remaining instances
                 if (sizeof($asyncInstances)) {
                     $joinColumns = $this->processAsyncInstances($processor, $asyncInstances, $parentValues, $newJoinData) ?? $joinColumns;
                 }
-
-
 
                 // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
@@ -475,10 +469,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      */
     private function processAsyncInstances($processor, $asyncInstances, $parentValues, &$newJoinData) {
 
-
         $asyncInstances = $processor->executeAndWait($asyncInstances);
-
-
+        if (!$asyncInstances) throw new \Exception("Failed to process async instances");
 
         $joinColumns = [];
 
@@ -507,5 +499,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         return $joinColumns;
     }
 
-
+    public function setParallelProcessor(AsynchronousProcessor $parallelProcessor): void {
+        $this->parallelProcessor = $parallelProcessor;
+    }
 }
