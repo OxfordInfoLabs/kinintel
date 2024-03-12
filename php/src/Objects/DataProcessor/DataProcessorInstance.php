@@ -64,6 +64,7 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      * Related object type if relevant
      *
      * @var string
+     * @values DatasetInstance,DatasourceInstance,Feed
      */
     private $relatedObjectType;
 
@@ -79,6 +80,7 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     // Trigger constants for whether this is adhoc or a scheduled processor.
     const TRIGGER_ADHOC = "adhoc";
     const TRIGGER_SCHEDULED = "scheduled";
+
 
 
     /**

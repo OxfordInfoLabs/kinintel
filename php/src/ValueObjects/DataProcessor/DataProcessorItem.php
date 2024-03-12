@@ -2,6 +2,9 @@
 
 namespace Kinintel\ValueObjects\DataProcessor;
 
+use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
+use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 
@@ -32,6 +35,22 @@ class DataProcessorItem {
      * @var string
      */
     private $trigger;
+
+
+    /**
+     * Related object type if relevant
+     *
+     * @var string
+     */
+    private $relatedObjectType;
+
+
+    /**
+     * Primary key for related object if relevant
+     *
+     * @var string
+     */
+    private $relatedObjectPrimaryKey;
 
 
     /**
@@ -66,6 +85,8 @@ class DataProcessorItem {
      * @param string $type
      * @param mixed $config
      * @param string $trigger
+     * @param string $relatedObjectType
+     * @param mixed $relatedObjectPrimaryKey
      * @param ScheduledTaskTimePeriod[] $taskTimePeriods
      * @param string $taskStatus
      * @param string $taskLastStartTime
@@ -73,7 +94,7 @@ class DataProcessorItem {
      * @param string $taskNextStartTime
      * @param string $key
      */
-    public function __construct($title, $type, $config, $trigger = DataProcessorInstance::TRIGGER_ADHOC, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null, $taskLastEndTime = null, $taskNextStartTime = null, $key = null) {
+    public function __construct($title, $type, $config, $trigger = DataProcessorInstance::TRIGGER_ADHOC, $relatedObjectType = null, $relatedObjectPrimaryKey = null, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null, $taskLastEndTime = null, $taskNextStartTime = null, $key = null) {
         $this->key = $key;
         $this->title = $title;
         $this->type = $type;
@@ -84,6 +105,8 @@ class DataProcessorItem {
         $this->taskLastStartTime = $taskLastStartTime;
         $this->taskLastEndTime = $taskLastEndTime;
         $this->taskNextStartTime = $taskNextStartTime;
+        $this->relatedObjectType = $relatedObjectType;
+        $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
     }
 
 
@@ -158,6 +181,34 @@ class DataProcessorItem {
     }
 
     /**
+     * @return string|null
+     */
+    public function getRelatedObjectType() {
+        return $this->relatedObjectType;
+    }
+
+    /**
+     * @param string|null $relatedObjectType
+     */
+    public function setRelatedObjectType($relatedObjectType) {
+        $this->relatedObjectType = $relatedObjectType;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getRelatedObjectPrimaryKey() {
+        return $this->relatedObjectPrimaryKey;
+    }
+
+    /**
+     * @param mixed|string $relatedObjectPrimaryKey
+     */
+    public function setRelatedObjectPrimaryKey($relatedObjectPrimaryKey) {
+        $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
+    }
+
+    /**
      * @return ScheduledTaskTimePeriod[]
      */
     public function getTaskTimePeriods() {
@@ -225,6 +276,52 @@ class DataProcessorItem {
      */
     public function setTaskNextStartTime($taskNextStartTime) {
         $this->taskNextStartTime = $taskNextStartTime;
+    }
+
+
+    /**
+     * @param $projectKey
+     * @param $accountId
+     * @return void
+     */
+    public function toDataProcessorInstance($projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        // Handle new and existing cases
+        $key = $this->getKey() ?: $this->getType() . "_" . ($accountId ?? 0) . "_" . date("U");
+
+        $scheduledTask = new ScheduledTask(
+            new ScheduledTaskSummary("dataprocessor", $key, ["dataProcessorKey" => $key], []), $projectKey, $accountId);
+
+        // Update the scheduled task
+        if ($this->getTrigger() == DataProcessorInstance::TRIGGER_SCHEDULED) {
+            $scheduledTask->setTimePeriods($this->getTaskTimePeriods() ?? []);
+        } else {
+            $scheduledTask->setTimePeriods([]);
+            $scheduledTask->setNextStartTime(null);
+        }
+
+        // Create a processor
+        return new DataProcessorInstance($key, $this->getTitle(),
+            $this->getType(), $this->getConfig(),
+            $this->getTrigger(), $scheduledTask, $this->getRelatedObjectType(), $this->getRelatedObjectPrimaryKey(), $projectKey, $accountId);
+
+
+    }
+
+    /**
+     * @param DataProcessorInstance $dataProcessorInstance
+     * @return DataProcessorItem
+     */
+    public static function fromDataProcessorInstance($dataProcessorInstance) {
+        return new DataProcessorItem($dataProcessorInstance->getTitle(), $dataProcessorInstance->getType(), $dataProcessorInstance->getConfig(),
+            $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectPrimaryKey(),
+            $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),
+            $dataProcessorInstance->getScheduledTask()?->getStatus(),
+            $dataProcessorInstance->getScheduledTask()?->getLastStartTime(),
+            $dataProcessorInstance->getScheduledTask()?->getLastEndTime(),
+            $dataProcessorInstance->getScheduledTask()?->getNextStartTime(),
+            $dataProcessorInstance->getKey()
+        );
     }
 
 

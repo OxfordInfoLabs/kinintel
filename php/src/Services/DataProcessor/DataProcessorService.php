@@ -85,65 +85,47 @@ class DataProcessorService {
      * Get a data processor instance by instance key
      *
      * @param $instanceKey
-     * @return void
+     * @return DataProcessorInstance
      */
     public function getDataProcessorInstance($instanceKey) {
-
+        return $this->dataProcessorDAO->getDataProcessorInstanceByKey($instanceKey);
     }
 
 
-    public function filterDataProcessorInstances() {
-
+    /**
+     * Filter data processor instances
+     *
+     * @param array $filters
+     * @param string $projectKey
+     * @param int $offset
+     * @param int $limit
+     * @param int $accountId
+     *
+     * @return DataProcessorInstance[]
+     */
+    public function filterDataProcessorInstances($filters = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->dataProcessorDAO->filterDataProcessorInstances($filters, $projectKey, $offset, $limit, $accountId);
     }
 
 
     /**
      * Save data processor from item and optional account and project key
      *
-     * @param DataProcessorItem $dataProcessorItem
-     * @param string $projectKey
-     * @param int $accountId
+     * @param DataProcessorInstance $dataProcessorInstance
      *
      * @return string
      */
-    public function saveDataProcessorInstance($dataProcessorItem, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function saveDataProcessorInstance($dataProcessorInstance) {
 
-        // Handle new and existing cases
-        if ($dataProcessorItem->getKey()) {
-            $key = $dataProcessorItem->getKey();
 
-            // Grab existing instance
-            $existingInstance = $this->dataProcessorDAO->getDataProcessorInstanceByKey($key);
-
-            // Grab scheduled task
-            $scheduledTask = $existingInstance->getScheduledTask();
-
-        } else {
-            $key = $dataProcessorItem->getType() . "_" . ($accountId ?? 0) . "_" . date("U");
-            $scheduledTask = new ScheduledTask(
-                new ScheduledTaskSummary("dataprocessor", $key, ["dataProcessorKey" => $key], []), $projectKey, $accountId);
-        }
-
-        // Update the scheduled task
-        if ($dataProcessorItem->getTrigger() == DataProcessorInstance::TRIGGER_SCHEDULED) {
-            $scheduledTask->setTimePeriods($dataProcessorItem->getTaskTimePeriods() ?? []);
-        } else {
-            $scheduledTask->setTimePeriods([]);
-            $scheduledTask->setNextStartTime(null);
-        }
-
-        // Create a processor
-        $instance = new DataProcessorInstance($key, $dataProcessorItem->getTitle(),
-            $dataProcessorItem->getType(), $dataProcessorItem->getConfig(),
-            $dataProcessorItem->getTrigger(), $scheduledTask, null, null, $projectKey, $accountId);
-
-        // Validate first and throw accordingly
-        $this->validateProcessor($instance);
+        // Validate the processor
+        $this->validateProcessor($dataProcessorInstance);
 
         // Save the processor
-        $this->dataProcessorDAO->saveProcessorInstance($instance);
+        $this->dataProcessorDAO->saveProcessorInstance($dataProcessorInstance);
 
-        return $key;
+
+        return $dataProcessorInstance->getKey();
     }
 
 

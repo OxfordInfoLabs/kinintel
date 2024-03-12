@@ -102,13 +102,13 @@ class DataProcessorDAOTest extends TestBase {
             "targetDatasources" => [[
                 "key" => "test-target"
             ]]
-        ], DataProcessorInstance::TRIGGER_ADHOC, null, "Query", 22, null, 1);
+        ], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 22, null, 1);
         $instance3->save();
 
         $instance4 = new DataProcessorInstance("another-specific-test", "Specific One Again", "sqlquery", [
             "query" => "SELECT * from test",
             "authenticationCredentialsKey" => "test"
-        ], DataProcessorInstance::TRIGGER_ADHOC, null, "Query", 25, null, 1);
+        ], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 25, null, 1);
         $instance4->save();
 
         // Check search ones
@@ -119,7 +119,7 @@ class DataProcessorDAOTest extends TestBase {
         $this->assertEquals([ $instance4], $this->dao->filterDataProcessorInstances(["type" => "sqlquery"], null, 0, 10, null));
 
         // Check related object filters
-        $this->assertEquals([ $instance3], $this->dao->filterDataProcessorInstances(["relatedObjectType" => "Query", "relatedObjectPrimaryKey" => 22], null, 0, 10, null));
+        $this->assertEquals([ $instance3], $this->dao->filterDataProcessorInstances(["relatedObjectType" => "DatasetInstance", "relatedObjectPrimaryKey" => 22], null, 0, 10, null));
 
 
         // Check limits and offsets

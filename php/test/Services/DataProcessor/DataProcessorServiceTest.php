@@ -83,7 +83,7 @@ class DataProcessorServiceTest extends TestBase {
      * @doesNotPerformAssertions
      */
     public function testExceptionRaisedIfUnknownProcessorTypeOrInvalidConfigPassedForNewDataProcessor() {
-        $newDataProcessor = new DataProcessorItem("Bad one", "unknown", []);
+        $newDataProcessor = (new DataProcessorItem("Bad one", "unknown", []))->toDataProcessorInstance();
 
         try {
             $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor);
@@ -101,8 +101,8 @@ class DataProcessorServiceTest extends TestBase {
 
     public function testCanSaveSimpleNewValidAdhocDataProcessor() {
 
-        $newDataProcessor = new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
-        $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor, "testProject", 1);
+        $newDataProcessor = (new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]))->toDataProcessorInstance("testProject", 1);
+        $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor);
 
         $this->assertNotNull($newKey);
         $this->assertStringStartsWith("sqlquery_1_", $newKey);
@@ -118,38 +118,11 @@ class DataProcessorServiceTest extends TestBase {
     }
 
 
-    public function testCanUpdateValidAdhocDataProcessor() {
-
-        $newDataProcessor = new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
-        $newDataProcessor->setKey("updatedone");
-
-        $existingItem = new DataProcessorInstance("updatedone", "Previous Valid",
-            "sqlquery", ["query" => "SELECT * FROM previous_test", "authenticationCredentialsKey" => "test"],
-            DataProcessorInstance::TRIGGER_ADHOC,
-            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
-                ["dataProcessorKey" => "updatedone"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, null, 123), "testProject", 1));
-
-        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey", $existingItem, ["updatedone"]);
-
-        $expectedInstance = new DataProcessorInstance("updatedone", "Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"],
-            DataProcessorInstance::TRIGGER_ADHOC,
-            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
-                ["dataProcessorKey" => "updatedone"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, null, 123), "testProject", 1), null, null, "testProject", 1);
-
-        $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor, "testProject", 1);
-        $this->assertEquals("updatedone", $newKey);
-
-        $this->assertTrue($this->dataProcessorDao->methodWasCalled("saveProcessorInstance", [
-            $expectedInstance
-        ]));
-    }
-
-
     public function testCanCreateValidScheduledProcessor() {
-        $newDataProcessor = new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"], DataProcessorInstance::TRIGGER_SCHEDULED, [
+        $newDataProcessor = (new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"], DataProcessorInstance::TRIGGER_SCHEDULED, null, null, [
             new ScheduledTaskTimePeriod("20", "3", "10", "30"),
             new ScheduledTaskTimePeriod(null, null, "11", "20")
-        ]);
+        ]))->toDataProcessorInstance("testProject", 1);
         $newKey = $this->dataProcessorService->saveDataProcessorInstance($newDataProcessor, "testProject", 1);
 
         $this->assertNotNull($newKey);
@@ -166,6 +139,25 @@ class DataProcessorServiceTest extends TestBase {
         $this->assertTrue($this->dataProcessorDao->methodWasCalled("saveProcessorInstance", [
             $expectedInstance
         ]));
+    }
+
+
+    public function testGettingAndFilteringScheduledProcessorsDelegateDirectlyToDAO() {
+
+        $expectedInstance1 = new DataProcessorInstance("jump", "Jump", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
+        $expectedInstance2 = new DataProcessorInstance("jump2", "Jump 2", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
+        $expectedInstance3 = new DataProcessorInstance("jump3", "Jump 3", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"]);
+
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey", $expectedInstance1, ["jump"]);
+        $this->assertEquals($expectedInstance1, $this->dataProcessorService->getDataProcessorInstance("jump"));
+
+        $this->dataProcessorDao->returnValue("filterDataProcessorInstances", [$expectedInstance1, $expectedInstance2, $expectedInstance3], [
+            ["title" => "Bingo"], "myProject", 25, 50, 33
+        ]);
+
+        $this->assertEquals([$expectedInstance1, $expectedInstance2, $expectedInstance3], $this->dataProcessorService->filterDataProcessorInstances(["title" => "Bingo"], "myProject", 25, 50, 33));
+
     }
 
 
