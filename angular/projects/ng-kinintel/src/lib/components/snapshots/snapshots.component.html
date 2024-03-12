@@ -110,7 +110,7 @@
                                 <div class="mb-1 hover:underline">{{snapshot.snapshotProfileTitle}}</div>
                                 <div>
                                     <span class="inline-flex text-xs pr-2 font-normal text-gray-500">
-                                        {{snapshot.parentDatasetTitle}}
+                                        {{snapshot.relatedObjectTitle}}
                                     </span>
                                 </div>
                             </td>
@@ -164,16 +164,16 @@
                             </td>
                             <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
                                 <div class="flex items-center justify-end">
-                                    <button *ngIf="snapshot.snapshotProfileHistoricalDatasourceInstanceKey" mat-button
+                                    <button *ngIf="snapshot.config.createHistory" mat-button
                                             color="primary"
                                             [disabled]="snapshot.taskStatus === 'PENDING'"
-                                            (click)="view(snapshot.snapshotProfileHistoricalDatasourceInstanceKey)">
+                                            (click)="view(snapshot.key)">
                                         View Historical
                                     </button>
-                                    <button *ngIf="snapshot.snapshotProfileLatestDatasourceInstanceKey" mat-button
+                                    <button *ngIf="snapshot.config.createLatest" mat-button
                                             color="primary"
                                             [disabled]="snapshot.taskStatus === 'PENDING'"
-                                            (click)="view(snapshot.snapshotProfileLatestDatasourceInstanceKey)">
+                                            (click)="view(snapshot.key + '_latest')">
                                         View Latest
                                     </button>
                                     <div class="divider"></div>
@@ -184,7 +184,7 @@
                                         <button mat-menu-item (click)="editSnapshot(snapshot.key, snapshots.tag)">
                                             Edit Snapshot
                                         </button>
-                                        <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
+                                        <button mat-menu-item (click)="viewParent(snapshot.relatedObjectPrimaryKey)">
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
@@ -280,7 +280,7 @@
                                 <div class="mb-1 hover:underline">{{snapshot.title}}</div>
                                 <div>
                                     <span class="inline-flex text-xs pr-2 font-normal text-gray-500">
-                                        {{snapshot.parentDatasetTitle}}
+                                        {{snapshot.relatedObjectTitle}}
                                     </span>
                                 </div>
                             </td>
@@ -334,16 +334,16 @@
                             </td>
                             <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
                                 <div class="flex items-center justify-end">
-                                    <button *ngIf="snapshot.snapshotProfileHistoricalDatasourceInstanceKey" mat-button
+                                    <button *ngIf="snapshot.config.createHistory" mat-button
                                             color="primary"
                                             [disabled]="snapshot.taskStatus === 'PENDING'"
-                                            (click)="view(snapshot.snapshotProfileHistoricalDatasourceInstanceKey)">
+                                            (click)="view(snapshot.key)">
                                         View Historical
                                     </button>
-                                    <button *ngIf="snapshot.snapshotProfileLatestDatasourceInstanceKey" mat-button
+                                    <button *ngIf="snapshot.config.createLatest" mat-button
                                             color="primary"
                                             [disabled]="snapshot.taskStatus === 'PENDING'"
-                                            (click)="view(snapshot.snapshotProfileLatestDatasourceInstanceKey)">
+                                            (click)="view(snapshot.key + '_latest')">
                                         View Latest
                                     </button>
                                     <div class="divider"></div>
@@ -354,7 +354,7 @@
                                         <button mat-menu-item (click)="editSnapshot(snapshot.key, snapshots.project)">
                                             Edit Snapshot
                                         </button>
-                                        <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
+                                        <button mat-menu-item (click)="viewParent(snapshot.relatedObjectPrimaryKey)">
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
