@@ -39,7 +39,7 @@ class PhraseExtractor {
             array_splice($stopWords, $index, 1, [$stopWord]);
         }
 
-        $allWords = $this->getWords(strtolower($text));
+        $allWords = $this->getWords(strtolower($text  ?? ""));
 
 
         $phraseCounts = [];
