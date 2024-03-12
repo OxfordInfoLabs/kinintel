@@ -135,4 +135,8 @@ class PostgreSQLAuthenticationCredentials implements SQLDatabaseCredentials {
 
         return new PostgreSQLDatabaseConnection($params);
     }
+
+    public function query() {
+        // TODO: Implement query() method.
+    }
 }

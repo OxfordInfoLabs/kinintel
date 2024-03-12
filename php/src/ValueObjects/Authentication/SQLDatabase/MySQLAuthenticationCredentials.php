@@ -186,4 +186,8 @@ class MySQLAuthenticationCredentials implements SQLDatabaseCredentials {
 
         return new MySQLDatabaseConnection($params);
     }
+
+    public function query() {
+        // TODO: Implement query() method.
+    }
 }

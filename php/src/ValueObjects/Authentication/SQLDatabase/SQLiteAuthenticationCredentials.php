@@ -49,4 +49,7 @@ class SQLiteAuthenticationCredentials implements SQLDatabaseCredentials {
         ]);
     }
 
+    public function query() {
+        // TODO: Implement query() method.
+    }
 }
