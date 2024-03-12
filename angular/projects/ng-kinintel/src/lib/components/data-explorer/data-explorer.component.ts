@@ -8,6 +8,9 @@ import {ExportDataComponent} from './export-data/export-data.component';
 import {ProjectService} from '../../services/project.service';
 import * as lodash from 'lodash';
 import {DataProcessorService} from '../../services/data-processor.service';
+import {
+    SnapshotApiAccessComponent
+} from './snapshot-api-access/snapshot-api-access.component';
 const _ = lodash.default;
 
 @Component({
@@ -85,6 +88,16 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         this.timer = setInterval(() => {
             this.loadSnapshotProfiles();
         }, 3000);
+    }
+
+    public apiAccess() {
+        const dialogRef = this.dialog.open(SnapshotApiAccessComponent, {
+            width: '600px',
+            height: '530px',
+            data: {
+                datasetInstanceSummary: this.datasetInstanceSummary
+            }
+        });
     }
 
     public exportData() {
