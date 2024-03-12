@@ -2,7 +2,9 @@
 
 namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
+use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Vendors\PostgreSQL\PostgreSQLDatabaseConnection;
 
 class PostgreSQLAuthenticationCredentials implements SQLDatabaseCredentials {
@@ -136,7 +138,33 @@ class PostgreSQLAuthenticationCredentials implements SQLDatabaseCredentials {
         return new PostgreSQLDatabaseConnection($params);
     }
 
-    public function query() {
-        // TODO: Implement query() method.
+    /**
+     * @param string $sql
+     * @param array $parameterValues
+     * @return mixed
+     */
+    public function query($sql, $parameterValues) {
+
+        $sql = $this->parseSQL($sql, $parameterValues);
+
+        $databaseConnection = $this->returnDatabaseConnection();
+        return $databaseConnection->query($sql, $parameterValues);
+
+    }
+
+    /**
+     * @param string $sql
+     * @param array $parameterValues
+     * @return string
+     */
+    public function parseSQL($sql, &$parameterValues = []) {
+
+        // Map the functions
+        $sql = str_ireplace("IFNULL(", "COALESCE(", $sql);
+        $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1,$2)", [null, ","]);
+        $sql = FunctionStringRewriter::rewrite($sql, "INSTR", "POSITION($1 IN $2)", [null, null]);
+        $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "EXTRACT(EPOCH FROM $1)", [0]);
+
+        return $sql;
     }
 }

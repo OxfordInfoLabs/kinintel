@@ -94,7 +94,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM test_data", []
         ]);
 
@@ -133,7 +133,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM BINGO_BONGO", []
         ]);
 
@@ -173,7 +173,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM test_data", []
         ]);
 
@@ -197,7 +197,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM (SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id) A", []
         ]);
 
@@ -244,7 +244,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM (SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id WHERE d.id = 255) A", []
         ]);
 
@@ -310,7 +310,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM ?", [3]
         ]);
 

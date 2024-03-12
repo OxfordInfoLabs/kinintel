@@ -20,6 +20,6 @@ interface SQLDatabaseCredentials extends AuthenticationCredentials {
      *
      * @return mixed
      */
-    public function query();
+    public function query($sql, $parameterValues);
 
 }
