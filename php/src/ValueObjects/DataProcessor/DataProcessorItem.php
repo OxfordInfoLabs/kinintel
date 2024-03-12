@@ -7,6 +7,7 @@ use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceLabel;
 
 class DataProcessorItem {
 
@@ -54,6 +55,12 @@ class DataProcessorItem {
 
 
     /**
+     * @var string
+     */
+    private $relatedObjectTitle;
+
+
+    /**
      * @var ScheduledTaskTimePeriod[]
      */
     private $taskTimePeriods;
@@ -87,6 +94,7 @@ class DataProcessorItem {
      * @param string $trigger
      * @param string $relatedObjectType
      * @param mixed $relatedObjectPrimaryKey
+     * @param string $relatedObjectTitle
      * @param ScheduledTaskTimePeriod[] $taskTimePeriods
      * @param string $taskStatus
      * @param string $taskLastStartTime
@@ -94,7 +102,7 @@ class DataProcessorItem {
      * @param string $taskNextStartTime
      * @param string $key
      */
-    public function __construct($title, $type, $config, $trigger = DataProcessorInstance::TRIGGER_ADHOC, $relatedObjectType = null, $relatedObjectPrimaryKey = null, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null, $taskLastEndTime = null, $taskNextStartTime = null, $key = null) {
+    public function __construct($title, $type, $config, $trigger = DataProcessorInstance::TRIGGER_ADHOC, $relatedObjectType = null, $relatedObjectPrimaryKey = null, $relatedObjectTitle = null, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null, $taskLastEndTime = null, $taskNextStartTime = null, $key = null) {
         $this->key = $key;
         $this->title = $title;
         $this->type = $type;
@@ -107,6 +115,7 @@ class DataProcessorItem {
         $this->taskNextStartTime = $taskNextStartTime;
         $this->relatedObjectType = $relatedObjectType;
         $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
+        $this->relatedObjectTitle = $relatedObjectTitle;
     }
 
 
@@ -207,6 +216,14 @@ class DataProcessorItem {
     public function setRelatedObjectPrimaryKey($relatedObjectPrimaryKey) {
         $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
     }
+
+    /**
+     * @return string
+     */
+    public function getRelatedObjectTitle() {
+        return $this->relatedObjectTitle;
+    }
+
 
     /**
      * @return ScheduledTaskTimePeriod[]
@@ -314,7 +331,7 @@ class DataProcessorItem {
      */
     public static function fromDataProcessorInstance($dataProcessorInstance) {
         return new DataProcessorItem($dataProcessorInstance->getTitle(), $dataProcessorInstance->getType(), $dataProcessorInstance->getConfig(),
-            $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(),
+            $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(), $dataProcessorInstance->getRelatedObjectTitle(),
             $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),
             $dataProcessorInstance->getScheduledTask()?->getStatus(),
             $dataProcessorInstance->getScheduledTask()?->getLastStartTime()?->format("d/m/Y H:i:s"),

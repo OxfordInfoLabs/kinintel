@@ -12,6 +12,7 @@ use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
+use Kinintel\Objects\Dataset\DatasetInstanceLabel;
 use Kinintel\Services\DataProcessor\DataProcessor;
 
 /**
@@ -76,6 +77,21 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      * @var string
      */
     private $relatedObjectKey;
+
+
+    /**
+     * @var DatasetInstanceLabel
+     * @readOnly
+     * @manyToOne
+     * @parentJoinColumns related_object_key
+     */
+    private $relatedDataSetInstance;
+
+
+    // Related object type constants
+    const RELATED_OBJECT_TYPE_DATASET_INSTANCE = "DatasetInstance";
+    const RELATED_OBJECT_TYPE_DATASOURCE_INSTANCE = "DatasourceInstance";
+    const RELATED_OBJECT_TYPE_FEED = "Feed";
 
 
     // Trigger constants for whether this is adhoc or a scheduled processor.
@@ -206,6 +222,20 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
         $this->relatedObjectKey = $relatedObjectKey;
     }
 
+
+    /**
+     * Get related object title if available
+     *
+     * @return string
+     */
+    public function getRelatedObjectTitle() {
+        switch ($this->getRelatedObjectType()) {
+            case self::RELATED_OBJECT_TYPE_DATASET_INSTANCE:
+                return $this->relatedDataSetInstance?->getTitle();
+            default:
+                return "";
+        }
+    }
 
     /**
      * Validate particularly the configuration according to the related

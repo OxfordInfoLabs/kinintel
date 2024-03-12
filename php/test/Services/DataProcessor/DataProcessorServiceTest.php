@@ -119,7 +119,7 @@ class DataProcessorServiceTest extends TestBase {
 
 
     public function testCanCreateValidScheduledProcessor() {
-        $newDataProcessor = (new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"], DataProcessorInstance::TRIGGER_SCHEDULED, null, null, [
+        $newDataProcessor = (new DataProcessorItem("Valid", "sqlquery", ["query" => "SELECT * FROM test", "authenticationCredentialsKey" => "test"], DataProcessorInstance::TRIGGER_SCHEDULED, null, null, null, [
             new ScheduledTaskTimePeriod("20", "3", "10", "30"),
             new ScheduledTaskTimePeriod(null, null, "11", "20")
         ]))->toDataProcessorInstance("testProject", 1);
