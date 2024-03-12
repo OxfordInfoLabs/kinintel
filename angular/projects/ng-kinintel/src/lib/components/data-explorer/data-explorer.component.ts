@@ -7,6 +7,7 @@ import {SnapshotProfileDialogComponent} from '../data-explorer/snapshot-profile-
 import {ExportDataComponent} from './export-data/export-data.component';
 import {ProjectService} from '../../services/project.service';
 import * as lodash from 'lodash';
+import {DataProcessorService} from '../../services/data-processor.service';
 const _ = lodash.default;
 
 @Component({
@@ -42,7 +43,8 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
                 private dialog: MatDialog,
                 private datasetService: DatasetService,
                 private router: Router,
-                private projectService: ProjectService) {
+                private projectService: ProjectService,
+                private dataProcessorService: DataProcessorService) {
     }
 
     ngOnInit(): void {
@@ -158,7 +160,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     }
 
     private loadSnapshotProfiles() {
-        this.datasetService.getSnapshotProfilesForDataset(this.datasetInstanceSummary.id)
+        this.dataProcessorService.filterProcessorsByRelatedItem('snapshot', 'DatasetInstance', this.datasetInstanceSummary.id)
             .then(snapshots => {
                 this.snapshotProfiles = snapshots;
             });

@@ -6,6 +6,7 @@ import {MatLegacySelect as MatSelect} from '@angular/material/legacy-select';
 import { MatLegacyOption as MatOption } from '@angular/material/legacy-core';
 import {TaskTimePeriodsComponent} from '../../task-time-periods/task-time-periods.component';
 import {NgForm, NgModel} from '@angular/forms';
+import {DataProcessorService} from '../../../services/data-processor.service';
 const _ = lodash.default;
 
 @Component({
@@ -49,30 +50,35 @@ export class SnapshotProfileDialogComponent implements OnInit {
 
     constructor(public dialogRef: MatDialogRef<SnapshotProfileDialogComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private dataProcessorService: DataProcessorService) {
     }
 
     async ngOnInit() {
         this.columns = this.data.columns || [];
 
         this.snapshot = this.data.snapshot || {
-            processorType: 'tabulardatasetsnapshot',
+            type: 'tabulardatasetsnapshot',
             taskTimePeriods: [],
             trigger: 'scheduled',
-            processorConfig: {
+            config: {
                 keyFieldNames: [],
                 timeLapsedFields: [],
                 createHistory: true,
                 createLatest: true,
-                indexes: []
+                indexes: [],
+                parameterValues: {key: 'value'}
             }
         };
 
-        if (!this.snapshot.processorConfig.indexes) {
-            this.snapshot.processorConfig.indexes = [];
+        if (!this.snapshot.config.indexes) {
+            this.snapshot.config.indexes = [];
         }
 
         this.datasetInstanceId = this.data.datasetInstanceId || null;
+
+        this.snapshot.relatedObjectType = 'DatasetInstance';
+        this.snapshot.relatedObjectPrimaryKey = this.datasetInstanceId;
 
         if (!this.columns.length && this.datasetInstanceId) {
             const dataset = await this.datasetService.getDataset(this.datasetInstanceId);
@@ -84,7 +90,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
     public removeIndex(index: number) {
         const message = 'Are you sure you would like to remove this Index?';
         if (window.confirm(message)) {
-            this.snapshot.processorConfig.indexes.splice(index, 1);
+            this.snapshot.config.indexes.splice(index, 1);
         }
     }
 
@@ -114,14 +120,14 @@ export class SnapshotProfileDialogComponent implements OnInit {
 
     public updateCreateHistory(value) {
         if (value) {
-            this.snapshot.processorConfig.createLatest = true;
+            this.snapshot.config.createLatest = true;
         }
     }
 
     public removeTimeLapsedField(index) {
         const message = 'Are you sure you would like to remove this snapshot profile?';
         if (window.confirm(message)) {
-            this.snapshot.processorConfig.timeLapsedFields.splice(index, 1);
+            this.snapshot.config.timeLapsedFields.splice(index, 1);
         }
     }
 
@@ -139,7 +145,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
             delete cloned.customDayOffsets;
         }
 
-        this.snapshot.processorConfig.timeLapsedFields.push(cloned);
+        this.snapshot.config.timeLapsedFields.push(cloned);
     }
 
     public async saveSnapshot() {
@@ -153,7 +159,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
 
         setTimeout(async () => {
             if (this.selectModel.valid) {
-                await this.datasetService.saveSnapshotProfile(this.snapshot, this.datasetInstanceId);
+                await this.dataProcessorService.saveProcessor(this.snapshot);
                 this.dialogRef.close(true);
             }
         }, 0);

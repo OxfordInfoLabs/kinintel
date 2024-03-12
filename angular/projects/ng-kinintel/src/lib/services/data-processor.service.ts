@@ -1,7 +1,9 @@
 import {Injectable} from '@angular/core';
-import {KinintelModuleConfig} from "ng-kinintel/src/lib/ng-kinintel.module";
-import {HttpClient} from "@angular/common/http";
-import {ProjectService} from "ng-kinintel/src/lib/services/project.service";
+import {KinintelModuleConfig} from '../../lib/ng-kinintel.module';
+import {HttpClient} from '@angular/common/http';
+import {ProjectService} from '../services/project.service';
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Injectable({
     providedIn: 'root'
@@ -17,8 +19,12 @@ export class DataProcessorService {
     public filterProcessorsByType(type: string = '', searchTerm = '', limit = '10', offset = '0', tags?) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        return this.http.get(this.config.backendURL + '/dataprocessor/type/snapshot', {
-            params: _.omitBy({type, searchTerm, projectKey, limit, offset}, _.isNil)
+        if (type === 'snapshot') {
+            type = 'tabulardatasetsnapshot';
+        }
+
+        return this.http.get(this.config.backendURL + '/dataprocessor/type/' + type, {
+            params: _.omitBy({searchTerm, projectKey, limit, offset}, _.isNil)
         });
     }
 
@@ -27,14 +33,20 @@ export class DataProcessorService {
             .toPromise();
     }
 
-    public getSnapshotProfilesForDataset(datasetInstanceId: number) {
-        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/dataset/' + datasetInstanceId)
+    public filterProcessorsByRelatedItem(type: string = '', relatedType = '', itemId: number) {
+        if (type === 'snapshot') {
+            type = 'tabulardatasetsnapshot';
+        }
+
+        return this.http.get(this.config.backendURL + '/dataprocessor/relatedobject/' + type + '/' + relatedType + '/' + itemId)
             .toPromise();
     }
 
-    public saveSnapshotProfile(snapshotProfileSummary, datasetInstanceId) {
-        return this.http.post(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
-            snapshotProfileSummary)
+    public saveProcessor(processorSummary) {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+
+        return this.http.post(this.config.backendURL + '/dataprocessor?projectKey=' + projectKey,
+            processorSummary)
             .toPromise();
     }
 
