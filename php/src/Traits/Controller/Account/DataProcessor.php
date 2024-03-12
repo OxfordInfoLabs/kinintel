@@ -128,7 +128,7 @@ trait DataProcessor {
      *
      * @http DELETE /
      *
-     * @param $key
+     * @param string $key
      * @return void
      */
     public function removeDataProcessorInstance($key) {
