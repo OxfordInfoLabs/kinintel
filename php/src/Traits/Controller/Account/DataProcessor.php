@@ -2,6 +2,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kiniauth\Services\Security\SecurityService;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 
@@ -14,10 +15,18 @@ trait DataProcessor {
     private $dataProcessorService;
 
     /**
-     * @param DataProcessorService $dataProcessorService
+     * @var SecurityService
      */
-    public function __construct(DataProcessorService $dataProcessorService) {
+    private $securityService;
+
+
+    /**
+     * @param DataProcessorService $dataProcessorService
+     * @param SecurityService $securityService
+     */
+    public function __construct(DataProcessorService $dataProcessorService, SecurityService $securityService) {
         $this->dataProcessorService = $dataProcessorService;
+        $this->securityService = $securityService;
     }
 
 
@@ -109,7 +118,8 @@ trait DataProcessor {
      * @return int
      */
     public function saveDataProcessorInstance($item, $projectKey) {
-        return $this->dataProcessorService->saveDataProcessorInstance($item->toDataProcessorInstance($projectKey));
+        $accountId = $this->securityService->getLoggedInSecurableAndAccount()[1]->getAccountId();
+        return $this->dataProcessorService->saveDataProcessorInstance($item->toDataProcessorInstance($projectKey, $accountId));
     }
 
 

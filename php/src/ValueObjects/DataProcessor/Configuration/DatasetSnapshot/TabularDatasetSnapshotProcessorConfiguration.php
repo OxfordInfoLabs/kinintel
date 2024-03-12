@@ -14,14 +14,6 @@ use phpDocumentor\Reflection\Types\Integer;
  */
 class TabularDatasetSnapshotProcessorConfiguration {
 
-    /**
-     * The dataset instance for which this snapshot is being made.
-     *
-     * @var integer
-     * @required
-     */
-    private $datasetInstanceId;
-
 
     /**
      * Parameter Values for the data set instance if required
@@ -72,7 +64,6 @@ class TabularDatasetSnapshotProcessorConfiguration {
      * TabularDatasetSnapshotProcessorConfiguration constructor.
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
-     * @param int $datasetInstanceId
      * @param mixed[] $parameterValues
      * @param string $snapshotIdentifier
      * @param bool $createLatest
@@ -80,10 +71,9 @@ class TabularDatasetSnapshotProcessorConfiguration {
      * @param int $readChunkSize
      * @param Index[] $indexes
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $parameterValues = [], $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $parameterValues = [], $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
-        $this->datasetInstanceId = $datasetInstanceId;
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->createLatest = $createLatest;
         $this->createHistory = $createHistory;
@@ -92,19 +82,6 @@ class TabularDatasetSnapshotProcessorConfiguration {
         $this->parameterValues = $parameterValues;
     }
 
-    /**
-     * @return integer
-     */
-    public function getDatasetInstanceId() {
-        return $this->datasetInstanceId;
-    }
-
-    /**
-     * @param integer $datasetInstanceId
-     */
-    public function setDatasetInstanceId($datasetInstanceId) {
-        $this->datasetInstanceId = $datasetInstanceId;
-    }
 
     /**
      * @return mixed[]
@@ -119,8 +96,6 @@ class TabularDatasetSnapshotProcessorConfiguration {
     public function setParameterValues($parameterValues) {
         $this->parameterValues = $parameterValues;
     }
-
-
 
 
     /**

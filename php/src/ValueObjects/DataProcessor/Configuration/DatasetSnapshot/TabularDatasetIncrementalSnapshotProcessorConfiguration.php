@@ -6,11 +6,6 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
-    /**
-     * @var integer
-     * @required
-     */
-    private $datasetInstanceId;
 
     /**
      * Parameter Values for the data set instance if required
@@ -71,7 +66,6 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     /**
      * Construct
      *
-     * @param integer $datasetInstanceId
      * @param mixed[] $parameterValues
      * @param string $snapshotIdentifier
      * @param string $newerValuesFieldName
@@ -80,8 +74,7 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $parameterValues, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
-        $this->datasetInstanceId = $datasetInstanceId;
+    public function __construct($parameterValues, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->snapshotIdentifier = $snapshotIdentifier;
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
@@ -92,19 +85,6 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     }
 
 
-    /**
-     * @return int
-     */
-    public function getDatasetInstanceId() {
-        return $this->datasetInstanceId;
-    }
-
-    /**
-     * @param int $datasetInstanceId
-     */
-    public function setDatasetInstanceId($datasetInstanceId) {
-        $this->datasetInstanceId = $datasetInstanceId;
-    }
 
     /**
      * @return mixed[]

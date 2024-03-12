@@ -92,7 +92,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         $config = $instance->returnConfig();
 
         // Read the source dataset instance
-        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
+        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($instance->getRelatedObjectKey());
 
         // Grab the newer values field
         $newerValuesField = $config->getNewerValuesFieldName();
@@ -135,7 +135,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         do {
 
             // Evaluate the data set
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetInstanceId(), $config->getParameterValues() ?? [], $filterTransformations, $offset, $limit);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($instance->getRelatedObjectKey(), $config->getParameterValues() ?? [], $filterTransformations, $offset, $limit);
             $results = $dataset->getAllData();
 
 

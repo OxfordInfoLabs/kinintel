@@ -189,8 +189,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $mockDataSourcePending->returnValue("getAuthenticationCredentials", $mockAuthCredentialsPending);
 
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], 25, [], "mytestsnapshot", true, true, null, [new Index(["title"]), new Index(["metric"])]);
-        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], [], "mytestsnapshot", true, true, null, [new Index(["title"]), new Index(["metric"])]);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config, null, null, "DatasetInstance", 25);
         $this->processor->process($instance);
 
 
@@ -305,7 +305,6 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
     }
 
 
-
     public function testParameterValuesArePassedToQueryIfSuppliedToSnapshot() {
 
         $datasetInstance = new DatasetInstance(null, 1, null);
@@ -382,8 +381,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             new Field("metric"),
             new Field("score")], $firstDatasetPlus);
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, ["test" => "Hello", "test2" => 44], "mytestsnapshot", false, true);
-        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], ["test" => "Hello", "test2" => 44], "mytestsnapshot", false, true);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config, null, null, "DatasetInstance", 25);
         $this->processor->process($instance);
 
 
@@ -524,8 +523,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $mockDataSourcePending->returnValue("getAuthenticationCredentials", $mockAuthCredentialsPending);
 
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], 25, [], "mytestsnapshot", true, true, 5);
-        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], [], "mytestsnapshot", true, true, 5);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
         $this->processor->process($instance);
 
 
@@ -682,7 +681,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ], [
             new TimeLapseFieldSet([1, 7, 30], ["metric"]),
             new TimeLapseFieldSet([5, 15], ["score"])
-        ], 25, [], "mytestsnapshot", false, true);
+        ], [], "mytestsnapshot", false, true);
 
 
         $oneDayAgo = (new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d") . " 13:00:20";
@@ -735,7 +734,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ]);
 
 
-        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
 
         // Process
         $this->processor->process($instance);
@@ -851,8 +850,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             new Field("metric"),
             new Field("score")], $firstDatasetPlus);
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, [], "mytestsnapshot", false, true);
-        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], [], "mytestsnapshot", false, true);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
         $this->processor->process($instance);
 
 
@@ -947,8 +946,8 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             new Field("metric"),
             new Field("score")], $firstDatasetPlus);
 
-        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], 25, [], "mytestsnapshot", false, true);
-        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config);
+        $config = new TabularDatasetSnapshotProcessorConfiguration([], [], [], "mytestsnapshot", false, true);
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
         $this->processor->process($instance);
 
 
