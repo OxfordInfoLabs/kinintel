@@ -18,6 +18,10 @@ class WebScraperDatasourceConfig {
      */
     private $rowsXPath;
 
+    /**
+     * @var integer
+     */
+    private $firstRowOffset;
 
     /**
      * Columns with selectors
@@ -31,9 +35,10 @@ class WebScraperDatasourceConfig {
      * @param string $rowsCSSSelector
      * @param FieldWithXPathSelector[] $columns
      */
-    public function __construct($url, $rowsCSSSelector, $columns) {
+    public function __construct($url, $rowsCSSSelector, $firstRowOffset = 0, $columns = []) {
         $this->url = $url;
         $this->rowsXPath = $rowsCSSSelector;
+        $this->firstRowOffset = $firstRowOffset;
         $this->columns = $columns;
     }
 
@@ -64,6 +69,21 @@ class WebScraperDatasourceConfig {
      */
     public function setRowsXPath($rowsXPath) {
         $this->rowsXPath = $rowsXPath;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFirstRowOffset() {
+        return $this->firstRowOffset;
+    }
+
+    /**
+     * @param int $firstRowOffset
+     * @return void
+     */
+    public function setFirstRowOffset($firstRowOffset) {
+        $this->firstRowOffset = $firstRowOffset;
     }
 
     /**
