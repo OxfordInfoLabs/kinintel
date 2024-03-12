@@ -15,10 +15,6 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     private $parameterValues;
 
 
-    /**
-     * @var string
-     */
-    private $snapshotIdentifier;
 
     /**
      * Key fields which form the primary key for the data set.
@@ -67,15 +63,13 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * Construct
      *
      * @param mixed[] $parameterValues
-     * @param string $snapshotIdentifier
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
      * @param string[] $keyFieldNames
      * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($parameterValues, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
-        $this->snapshotIdentifier = $snapshotIdentifier;
+    public function __construct($parameterValues, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
         $this->keyFieldNames = $keyFieldNames;
@@ -100,20 +94,6 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
         $this->parameterValues = $parameterValues;
     }
 
-
-    /**
-     * @return string
-     */
-    public function getSnapshotIdentifier() {
-        return $this->snapshotIdentifier;
-    }
-
-    /**
-     * @param string $snapshotIdentifier
-     */
-    public function setSnapshotIdentifier($snapshotIdentifier) {
-        $this->snapshotIdentifier = $snapshotIdentifier;
-    }
 
     /**
      * @return string[]

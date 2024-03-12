@@ -22,12 +22,6 @@ class TabularDatasetSnapshotProcessorConfiguration {
      */
     private $parameterValues;
 
-
-    /**
-     * @var string
-     */
-    private $snapshotIdentifier;
-
     /**
      * @var bool
      */
@@ -65,16 +59,14 @@ class TabularDatasetSnapshotProcessorConfiguration {
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
      * @param mixed[] $parameterValues
-     * @param string $snapshotIdentifier
      * @param bool $createLatest
      * @param bool $createHistory
      * @param int $readChunkSize
      * @param Index[] $indexes
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $parameterValues = [], $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $parameterValues = [], $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
-        $this->snapshotIdentifier = $snapshotIdentifier;
         $this->createLatest = $createLatest;
         $this->createHistory = $createHistory;
         $this->readChunkSize = $readChunkSize;
@@ -95,21 +87,6 @@ class TabularDatasetSnapshotProcessorConfiguration {
      */
     public function setParameterValues($parameterValues) {
         $this->parameterValues = $parameterValues;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getSnapshotIdentifier() {
-        return $this->snapshotIdentifier;
-    }
-
-    /**
-     * @param string $snapshotIdentifier
-     */
-    public function setSnapshotIdentifier($snapshotIdentifier) {
-        $this->snapshotIdentifier = $snapshotIdentifier;
     }
 
 

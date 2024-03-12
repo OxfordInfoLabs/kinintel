@@ -1156,8 +1156,7 @@ class DatasetServiceTest extends TestBase {
         /**
          * @var TabularDatasetSnapshotProcessorConfiguration $snapshotConfig
          */
-        $snapshotConfig = $reSnapshot->getDataProcessorInstance()->returnConfig();
-        $identifier = $snapshotConfig->getSnapshotIdentifier();
+        $identifier = $reSnapshot->getDataProcessorInstance()->getKey();
 
         // Remove a snapshot profile
         $datasetService->removeSnapshotProfile($instanceId, $profileId);

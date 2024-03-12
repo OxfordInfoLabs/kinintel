@@ -3,6 +3,7 @@
 namespace Kinintel\Traits\Controller\Account;
 
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 
@@ -57,7 +58,7 @@ trait DataProcessor {
      */
     public function filterProcessorInstancesByType($type, $searchTerm = "", $projectKey = null, $offset = 0, $limit = 10) {
         $matches = $this->dataProcessorService->filterDataProcessorInstances([
-            "type" => $type,
+            "type" => new LikeFilter("type", "%" . $type . "%"),
             "search" => $searchTerm
         ], $projectKey, $offset, $limit);
 
@@ -84,7 +85,7 @@ trait DataProcessor {
      */
     public function filterProcessorInstancesByTypeAndRelatedObject($type, $objectType, $objectPrimaryKey, $searchTerm = "", $projectKey = null, $offset = 0, $limit = 10) {
         $matches = $this->dataProcessorService->filterDataProcessorInstances([
-            "type" => $type,
+            "type" => new LikeFilter("type", "%" . $type . "%"),
             "relatedObjectType" => $objectType,
             "relatedObjectPrimaryKey" => $objectPrimaryKey,
             "search" => $searchTerm

@@ -19,10 +19,6 @@ export class DataProcessorService {
     public filterProcessorsByType(type: string = '', searchTerm = '', limit = '10', offset = '0', tags?) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        if (type === 'snapshot') {
-            type = 'tabulardatasetsnapshot';
-        }
-
         return this.http.get(this.config.backendURL + '/dataprocessor/type/' + type, {
             params: _.omitBy({searchTerm, projectKey, limit, offset}, _.isNil)
         });
@@ -34,9 +30,6 @@ export class DataProcessorService {
     }
 
     public filterProcessorsByRelatedItem(type: string = '', relatedType = '', itemId: number) {
-        if (type === 'snapshot') {
-            type = 'tabulardatasetsnapshot';
-        }
 
         return this.http.get(this.config.backendURL + '/dataprocessor/relatedobject/' + type + '/' + relatedType + '/' + itemId)
             .toPromise();

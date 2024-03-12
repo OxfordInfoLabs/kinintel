@@ -93,7 +93,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($instance->getRelatedObjectKey());
 
         // Get the datasource instance, creating if necessary
-        $instanceKey = $config->getSnapshotIdentifier();
+        $instanceKey = $instance->getKey();
 
 
         list($dataSourceInstance, $dataSourceInstanceLatest, $dataSourceInstancePending) = $this->getDatasourceInstances(
@@ -200,7 +200,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     private function getDatasourceInstances($dataProcessorInstance, $accountId, $projectKey, $config) {
 
         //TODO be refactored
-        $instanceKey = $config->getSnapshotIdentifier();
+        $instanceKey = $dataProcessorInstance->getKey();
 
         $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
         $tablePrefix = Configuration::readParameter("snapshot.datasource.table.prefix");

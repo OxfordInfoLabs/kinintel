@@ -39,8 +39,7 @@ class DatasetInstanceSnapshotProfileInterceptor extends DefaultORMInterceptor {
     public function postDelete($object) {
 
         // Get the snapshot config and look up the identifier
-        $snapshotConfig = $object->getDataProcessorInstance()->returnConfig();
-        $identifier = $snapshotConfig->getSnapshotIdentifier();
+        $identifier = $object->getDataProcessorInstance()->getKey();
 
 
         // Now delete the 3 potential datasources

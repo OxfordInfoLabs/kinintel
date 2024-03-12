@@ -110,8 +110,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [new Index(["name", "phone"])]),null,null,"DatasetInstance",99);
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [new Index(["name", "phone"])]),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -229,8 +229,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [], 3),null,null,"DatasetInstance",99);
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [], 3),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -357,8 +357,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL),null,null,"DatasetInstance",99);
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -457,8 +457,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER),null,null,"DatasetInstance",99);
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -556,8 +556,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(["test" => "Hello", "test2" => 44], "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER)
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration(["test" => "Hello", "test2" => 44], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER)
             ,null,null,"DatasetInstance",99);
 
 
@@ -656,8 +656,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL, [
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL, [
                 "id", "name"
             ]),null,null,"DatasetInstance",99);
 
@@ -757,8 +757,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "incrementalsnap", "id"),null,null,"DatasetInstance",99);
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id"),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
