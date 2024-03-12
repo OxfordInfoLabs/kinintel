@@ -317,9 +317,9 @@ class DataProcessorItem {
             $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(),
             $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),
             $dataProcessorInstance->getScheduledTask()?->getStatus(),
-            $dataProcessorInstance->getScheduledTask()?->getLastStartTime(),
-            $dataProcessorInstance->getScheduledTask()?->getLastEndTime(),
-            $dataProcessorInstance->getScheduledTask()?->getNextStartTime(),
+            $dataProcessorInstance->getScheduledTask()?->getLastStartTime()?->format("d/m/Y H:i:s"),
+            $dataProcessorInstance->getScheduledTask()?->getLastEndTime()?->format("d/m/Y H:i:s"),
+            $dataProcessorInstance->getScheduledTask()?->getNextStartTime()?->format("d/m/Y H:i:s"),
             $dataProcessorInstance->getKey()
         );
     }
