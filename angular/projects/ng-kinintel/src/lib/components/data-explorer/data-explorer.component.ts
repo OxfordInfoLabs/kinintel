@@ -79,8 +79,8 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         this.columns = data.columns;
     }
 
-    public async triggerSnapshot(snapshotProfileId, datasetInstanceId) {
-        await this.datasetService.triggerSnapshot(snapshotProfileId, datasetInstanceId);
+    public async triggerSnapshot(snapshotKey) {
+        await this.dataProcessorService.triggerProcessor(snapshotKey);
         this.loadSnapshotProfiles();
         this.timer = setInterval(() => {
             this.loadSnapshotProfiles();
@@ -111,7 +111,8 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
             data: {
                 snapshot,
                 datasetInstanceId: this.datasetInstanceSummary.id,
-                columns: this.columns
+                columns: this.columns,
+                datasetInstance: this.datasetInstanceSummary
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -124,7 +125,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public deleteSnapshot(snapshot) {
         const message = 'Are you sure you would like to remove this snapshot?';
         if (window.confirm(message)) {
-            this.datasetService.removeSnapshotProfile(snapshot.id, this.datasetInstanceSummary.id)
+            this.dataProcessorService.removeProcessor(snapshot.key)
                 .then(() => {
                     this.loadSnapshotProfiles();
                 });

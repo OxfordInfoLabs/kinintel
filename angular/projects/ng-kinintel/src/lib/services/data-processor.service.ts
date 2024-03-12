@@ -28,8 +28,8 @@ export class DataProcessorService {
         });
     }
 
-    public getSnapshotProfile(id: number) {
-        return this.http.get(this.config.backendURL + '/dataset/snapshotprofile/' + id)
+    public getProcessor(key: string) {
+        return this.http.get(this.config.backendURL + '/dataprocessor/' + key)
             .toPromise();
     }
 
@@ -50,15 +50,14 @@ export class DataProcessorService {
             .toPromise();
     }
 
-    public removeSnapshotProfile(snapshotProfileId, datasetInstanceId) {
-        return this.http.delete(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
-            {params: {snapshotProfileId}})
+    public removeProcessor(processorKey) {
+        return this.http.delete(this.config.backendURL + '/dataprocessor',
+            {body: JSON.stringify(processorKey)})
             .toPromise();
     }
 
-    public triggerSnapshot(snapshotProfileId, datasetInstanceId) {
-        return this.http.patch(this.config.backendURL + '/dataset/snapshotprofile/' + datasetInstanceId,
-            snapshotProfileId)
+    public triggerProcessor(processorKey) {
+        return this.http.patch(this.config.backendURL + '/dataprocessor/' + processorKey, null)
             .toPromise();
     }
 

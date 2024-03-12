@@ -36,6 +36,22 @@
                                 </div>
                             </div>
 
+                            <div *ngIf="snapshot.config.parameterValues && Object.keys(snapshot.config.parameterValues).length"
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Parameter Values
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <ng-template ngFor let-parameterKey [ngForOf]="Object.keys(snapshot.config.parameterValues)">
+                                        <div class="text-gray-600 text-xs">{{_.startCase(parameterKey)}}</div>
+                                        <input type="text" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
+                                               placeholder="Enter a value for {{_.startCase(parameterKey)}}"
+                                               class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                                    </ng-template>
+
+                                </div>
+                            </div>
+
                             <div
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">

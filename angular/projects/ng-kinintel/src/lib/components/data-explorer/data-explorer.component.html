@@ -149,7 +149,7 @@
                                 <td>
                                     <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
                                             matTooltip="Trigger snapshot to run now" mat-icon-button
-                                            (click)="triggerSnapshot(snapshot.id, snapshot.processorConfig.datasetInstanceId)">
+                                            (click)="triggerSnapshot(snapshot.key)">
                                         <mat-icon>play_arrow</mat-icon>
                                     </button>
                                     <svg *ngIf="snapshot.taskStatus === 'RUNNING'"

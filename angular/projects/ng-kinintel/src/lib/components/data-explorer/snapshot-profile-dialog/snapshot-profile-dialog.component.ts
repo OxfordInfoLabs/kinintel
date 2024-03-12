@@ -67,7 +67,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
                 createHistory: true,
                 createLatest: true,
                 indexes: [],
-                parameterValues: {key: 'value'}
+                parameterValues: {}
             }
         };
 
@@ -75,10 +75,21 @@ export class SnapshotProfileDialogComponent implements OnInit {
             this.snapshot.config.indexes = [];
         }
 
+        if (!this.snapshot.config.parameterValues || Array.isArray(this.snapshot.config.parameterValues)) {
+            this.snapshot.config.parameterValues = {};
+        }
+
         this.datasetInstanceId = this.data.datasetInstanceId || null;
 
         this.snapshot.relatedObjectType = 'DatasetInstance';
         this.snapshot.relatedObjectPrimaryKey = this.datasetInstanceId;
+
+        if (this.data.datasetInstance) {
+            const values: any = await this.datasetService.getEvaluatedParameters(this.data.datasetInstance);
+            _.forEach(values, parameter => {
+                this.snapshot.config.parameterValues[parameter.name] = (this.snapshot.config.parameterValues[parameter.name] || parameter.defaultValue) || '';
+            });
+        }
 
         if (!this.columns.length && this.datasetInstanceId) {
             const dataset = await this.datasetService.getDataset(this.datasetInstanceId);
@@ -165,4 +176,5 @@ export class SnapshotProfileDialogComponent implements OnInit {
         }, 0);
     }
 
+    protected readonly Object = Object;
 }

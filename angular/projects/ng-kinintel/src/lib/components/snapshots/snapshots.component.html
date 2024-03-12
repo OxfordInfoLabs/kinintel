@@ -93,7 +93,7 @@
                             <td>
                                 <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
                                         matTooltip="Trigger snapshot to run now" mat-icon-button
-                                        (click)="triggerSnapshot(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.project)">
+                                        (click)="triggerSnapshot(snapshot.key, snapshots.project)">
                                     <mat-icon>play_arrow</mat-icon>
                                 </button>
                                 <svg *ngIf="snapshot.taskStatus === 'RUNNING'"
@@ -181,14 +181,14 @@
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
-                                        <button mat-menu-item (click)="editSnapshot(snapshot, snapshots.tag)">
+                                        <button mat-menu-item (click)="editSnapshot(snapshot.key, snapshots.tag)">
                                             Edit Snapshot
                                         </button>
                                         <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
-                                                (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.tag)">
+                                                (click)="delete(snapshot.key, snapshots.tag)">
                                             Delete Snapshot
                                         </button>
                                     </mat-menu>
@@ -263,7 +263,7 @@
                             <td>
                                 <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
                                         matTooltip="Trigger snapshot to run now" mat-icon-button
-                                        (click)="triggerSnapshot(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.project)">
+                                        (click)="triggerSnapshot(snapshot.key, snapshots.project)">
                                     <mat-icon>play_arrow</mat-icon>
                                 </button>
                                 <svg *ngIf="snapshot.taskStatus === 'RUNNING'"
@@ -351,14 +351,14 @@
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #itemMenu="matMenu">
-                                        <button mat-menu-item (click)="editSnapshot(snapshot.id, snapshots.project)">
+                                        <button mat-menu-item (click)="editSnapshot(snapshot.key, snapshots.project)">
                                             Edit Snapshot
                                         </button>
                                         <button mat-menu-item (click)="viewParent(snapshot.parentDatasetInstanceId)">
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
-                                                (click)="delete(snapshot.id, snapshot.parentDatasetInstanceId, snapshots.project)">
+                                                (click)="delete(snapshot.key, snapshots.project)">
                                             Delete Snapshot
                                         </button>
                                     </mat-menu>

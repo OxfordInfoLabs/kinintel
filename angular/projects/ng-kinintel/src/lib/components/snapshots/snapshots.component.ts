@@ -144,8 +144,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.stopSnapshotWatch();
     }
 
-    public async triggerSnapshot(snapshotProfileId, datasetInstanceId, snapshot) {
-        await this.datasetService.triggerSnapshot(snapshotProfileId, datasetInstanceId);
+    public async triggerSnapshot(snapshotKey, snapshot) {
+        await this.dataProcessorService.triggerProcessor(snapshotKey);
         snapshot.reload.next(Date.now());
     }
 
@@ -170,14 +170,14 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.tagService.resetActiveTag();
     }
 
-    public async editSnapshot(snapshotId: number, project: any) {
-        const snapshot: any = await this.datasetService.getSnapshotProfile(snapshotId);
+    public async editSnapshot(snapshotKey: string, project: any) {
+        const snapshot: any = await this.dataProcessorService.getProcessor(snapshotKey);
         const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
             width: '900px',
             height: '900px',
             data: {
                 snapshot,
-                datasetInstanceId: snapshot.processorConfig.datasetInstanceId
+                datasetInstanceId: snapshot.relatedObjectPrimaryKey
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -187,10 +187,10 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         });
     }
 
-    public delete(snapshotProfileId, datasetInstanceId, snapshot) {
+    public delete(snapshotProfileId, snapshot) {
         const message = 'Are you sure you would like to remove this Snapshot?';
         if (window.confirm(message)) {
-            this.datasetService.removeSnapshotProfile(snapshotProfileId, datasetInstanceId).then(() => {
+            this.dataProcessorService.removeProcessor(snapshotProfileId).then(() => {
                 snapshot.reload.next(Date.now());
             });
         }
