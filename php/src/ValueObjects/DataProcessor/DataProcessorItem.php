@@ -181,28 +181,28 @@ class DataProcessorItem {
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getRelatedObjectType() {
         return $this->relatedObjectType;
     }
 
     /**
-     * @param string|null $relatedObjectType
+     * @param string $relatedObjectType
      */
     public function setRelatedObjectType($relatedObjectType) {
         $this->relatedObjectType = $relatedObjectType;
     }
 
     /**
-     * @return mixed|string
+     * @return mixed
      */
     public function getRelatedObjectPrimaryKey() {
         return $this->relatedObjectPrimaryKey;
     }
 
     /**
-     * @param mixed|string $relatedObjectPrimaryKey
+     * @param mixed $relatedObjectPrimaryKey
      */
     public function setRelatedObjectPrimaryKey($relatedObjectPrimaryKey) {
         $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
