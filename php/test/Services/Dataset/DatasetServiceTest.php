@@ -1355,4 +1355,40 @@ class DatasetServiceTest extends TestBase {
 
     }
 
+
+    public function testCanCheckWhetherManagementKeyIsAvailableForDatasetInstance() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        // Create one from scratch - should be fine
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $datasetInstance->setAccountId(1);
+        $datasetInstance->setManagementKey("existing-key");
+        $datasetInstance->save();
+
+
+        // Now check for account duplicate
+        $newInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $newInstance->setAccountId(1);
+        $this->assertFalse($this->datasetService->managementKeyAvailableForDatasetInstance($newInstance, "existing-key"));
+
+        // Now create a project one from scratch
+        $datasourceInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $datasourceInstance->setAccountId(1);
+        $datasourceInstance->setProjectKey("project1");
+        $datasourceInstance->setManagementKey("project-key");
+        $datasourceInstance->save();
+
+        // Now create an overlapping one
+        $newInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $newInstance->setAccountId(1);
+        $newInstance->setProjectKey("project1");
+        $this->assertFalse($this->datasetService->managementKeyAvailableForDatasetInstance($newInstance, "project-key"));
+
+
+
+    }
+
+
+
 }

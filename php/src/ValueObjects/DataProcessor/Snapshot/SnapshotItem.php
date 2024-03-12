@@ -3,7 +3,6 @@
 namespace Kinintel\ValueObjects\DataProcessor\Snapshot;
 
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 
 class SnapshotItem {
 

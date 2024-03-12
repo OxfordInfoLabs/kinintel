@@ -9,6 +9,7 @@ use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\ItemInUseException;
+use Kinintel\Exception\ManagementKeyAlreadyExistsException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceInterceptor;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
@@ -37,6 +38,27 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance WHERE title = ?", "Test Dep Dataset");
         Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance_snapshot_profile WHERE title = ?", "Test Snapshot");
 
+    }
+
+
+    /**
+     * @doesNotPerformAssertions
+     *
+     */
+    public function testIfManagementKeyDefinedItIsCheckedInPresave(){
+        $masterDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test Dep Dataset", "test-json"));
+        $masterDatasetInstance->setManagementKey("badger");
+        $masterDatasetInstance->save();
+
+        $newDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test Dep Dataset2", "test-json"));
+        $newDatasetInstance->setManagementKey("badger");
+
+        try {
+            $this->interceptor->preSave($newDatasetInstance);
+            $this->fail("Should have thrown here");
+        } catch (ManagementKeyAlreadyExistsException $e){
+            // Success
+        }
     }
 
 

@@ -21,6 +21,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -281,6 +282,35 @@ class DatasetService {
         $dataSetInstance = DatasetInstance::fetch($id);
         $dataSetInstance->remove();
     }
+
+
+    /**
+     * Check whether an import key is available for a supplied datasource instance.
+     *
+     * @param DatasetInstance $datasetInstance
+     * @return boolean
+     */
+    public function managementKeyAvailableForDatasetInstance($datasetInstance, $proposedManagementKey) {
+
+        // If account id or project key, form clause
+        $clauses = ["management_key = ?"];
+        $parameters = [$proposedManagementKey];
+        if ($datasetInstance->getAccountId() || $datasetInstance->getProjectKey()) {
+            $clauses[] = "accountId = ?";
+            $parameters[] = $datasetInstance->getAccountId();
+        } else {
+            $clauses[] = "accountId IS NULL";
+        }
+        if ($datasetInstance->getId()) {
+            $clauses[] = "id <> ?";
+            $parameters[] = $datasetInstance->getId();
+        }
+
+        $matches = DatasetInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
+        return sizeof($matches) ? false : true;
+    }
+
+
 
 
     /**

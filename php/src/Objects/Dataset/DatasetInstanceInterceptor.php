@@ -8,7 +8,10 @@ use Kiniauth\Objects\MetaData\ObjectStructuredData;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\DefaultORMInterceptor;
+use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Exception\ItemInUseException;
+use Kinintel\Exception\ManagementKeyAlreadyExistsException;
+use Kinintel\Services\Dataset\DatasetService;
 
 class DatasetInstanceInterceptor extends DefaultORMInterceptor {
 
@@ -26,14 +29,34 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
 
 
     /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+    /**
      * DatasourceInstanceInterceptor constructor.
      *
      * @param DatabaseConnection $databaseConnection
      * @param MetaDataService $metaDataService
+     * @param DatasetService $datasetService
      */
-    public function __construct($databaseConnection, $metaDataService) {
+    public function __construct($databaseConnection, $metaDataService, $datasetService) {
         $this->databaseConnection = $databaseConnection;
         $this->metaDataService = $metaDataService;
+        $this->datasetService = $datasetService;
+    }
+
+
+    /**
+     * Presave method - checks for uniqueness of management keys
+     *
+     * @param DatasetInstance $object
+     * @return void
+     */
+    public function preSave($object) {
+        if ($object->getManagementKey() && !$this->datasetService->managementKeyAvailableForDatasetInstance($object, $object->getManagementKey())) {
+            throw new ManagementKeyAlreadyExistsException($object->getManagementKey());
+        }
     }
 
 

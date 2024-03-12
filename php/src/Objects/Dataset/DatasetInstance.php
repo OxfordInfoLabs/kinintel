@@ -63,7 +63,8 @@ class DatasetInstance extends DatasetInstanceSummary {
                 $datasetInstanceSummary->getDescription(),
                 $datasetInstanceSummary->getCategories(),
                 $datasetInstanceSummary->getId(),
-                $datasetInstanceSummary->sourceDataset);
+                $datasetInstanceSummary->sourceDataset,
+                $datasetInstanceSummary->getManagementKey());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -154,7 +155,8 @@ class DatasetInstance extends DatasetInstanceSummary {
             $this->description,
             $newCategories,
             $readOnly ? null : $this->id,
-            $this->sourceDataset);
+            $this->sourceDataset,
+            $this->managementKey);
     }
 
 
