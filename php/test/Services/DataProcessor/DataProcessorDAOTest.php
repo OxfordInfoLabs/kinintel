@@ -119,7 +119,7 @@ class DataProcessorDAOTest extends TestBase {
         $this->assertEquals([ $instance4], $this->dao->filterDataProcessorInstances(["type" => "sqlquery"], null, 0, 10, null));
 
         // Check related object filters
-        $this->assertEquals([ $instance3], $this->dao->filterDataProcessorInstances(["relatedObjectType" => "DatasetInstance", "relatedObjectPrimaryKey" => 22], null, 0, 10, null));
+        $this->assertEquals([ $instance3], $this->dao->filterDataProcessorInstances(["relatedObjectType" => "DatasetInstance", "relatedObjectKey" => 22], null, 0, 10, null));
 
 
         // Check limits and offsets

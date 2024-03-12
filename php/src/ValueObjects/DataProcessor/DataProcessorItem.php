@@ -314,7 +314,7 @@ class DataProcessorItem {
      */
     public static function fromDataProcessorInstance($dataProcessorInstance) {
         return new DataProcessorItem($dataProcessorInstance->getTitle(), $dataProcessorInstance->getType(), $dataProcessorInstance->getConfig(),
-            $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectPrimaryKey(),
+            $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(),
             $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),
             $dataProcessorInstance->getScheduledTask()?->getStatus(),
             $dataProcessorInstance->getScheduledTask()?->getLastStartTime(),

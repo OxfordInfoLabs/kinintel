@@ -28,11 +28,11 @@ class SnapshotItem {
 
 
     /**
-     * Matching dataset title
+     * Matching dataset management key
      *
      * @var string
      */
-    private $datasetTitle;
+    private $datasetManagementKey;
 
 
     /**
@@ -48,14 +48,14 @@ class SnapshotItem {
      * @param string $key
      * @param string $title
      * @param string $trigger
-     * @param string $datasetTitle
+     * @param string $datasetManagementKey
      * @param string $status
      */
-    public function __construct($key, $title, $trigger, $datasetTitle, $status) {
+    public function __construct($key, $title, $trigger, $datasetManagementKey, $status) {
         $this->key = $key;
         $this->title = $title;
         $this->trigger = $trigger;
-        $this->datasetTitle = $datasetTitle;
+        $this->datasetManagementKey = $datasetManagementKey;
         $this->status = $status;
     }
 
@@ -83,8 +83,8 @@ class SnapshotItem {
     /**
      * @return string
      */
-    public function getDatasetTitle() {
-        return $this->datasetTitle;
+    public function getDatasetManagementKey() {
+        return $this->datasetManagementKey;
     }
 
     /**
@@ -101,7 +101,7 @@ class SnapshotItem {
     public static function fromDataProcessorInstance($dataProcessorInstance) {
 
         return new SnapshotItem($dataProcessorInstance->getKey(), $dataProcessorInstance->getTitle(),
-            $dataProcessorInstance->getTrigger(), $title, $dataProcessorInstance->getScheduledTask()?->getStatus());
+            $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectKey(), $dataProcessorInstance->getScheduledTask()?->getStatus());
     }
 
 

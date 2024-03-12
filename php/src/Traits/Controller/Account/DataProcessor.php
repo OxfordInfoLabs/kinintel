@@ -105,6 +105,7 @@ trait DataProcessor {
      * @http POST /
      *
      * @param DataProcessorItem $item
+     * @param string $projectKey
      * @return int
      */
     public function saveDataProcessorInstance($item, $projectKey) {

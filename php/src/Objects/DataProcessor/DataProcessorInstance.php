@@ -70,11 +70,12 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
 
 
     /**
-     * Primary key for related object if relevant
+     * Key for the related object if relevant.  This is type specific
+     * e.g. Management Key in case of query.
      *
      * @var string
      */
-    private $relatedObjectPrimaryKey;
+    private $relatedObjectKey;
 
 
     // Trigger constants for whether this is adhoc or a scheduled processor.
@@ -82,17 +83,16 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     const TRIGGER_SCHEDULED = "scheduled";
 
 
-
     /**
      * DataProcessorInstance constructor.
-     * @param string $relatedObjectPrimaryKey
+     * @param string $relatedObjectKey
      * @param string $relatedObjectType
      * @param ScheduledTask $scheduledTask
      * @param string $trigger
      * @param mixed $config
      * @param string $type
      */
-    public function __construct($key, $title, $type, $config = [], $trigger = self::TRIGGER_ADHOC, $scheduledTask = null, $relatedObjectType = null, $relatedObjectPrimaryKey = null,
+    public function __construct($key, $title, $type, $config = [], $trigger = self::TRIGGER_ADHOC, $scheduledTask = null, $relatedObjectType = null, $relatedObjectKey = null,
                                 $projectKey = null, $accountId = null) {
         parent::__construct($key, $title);
 
@@ -103,7 +103,7 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
         $this->trigger = $trigger;
         $this->scheduledTask = $scheduledTask;
         $this->relatedObjectType = $relatedObjectType;
-        $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
+        $this->relatedObjectKey = $relatedObjectKey;
     }
 
 
@@ -195,15 +195,15 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     /**
      * @return string
      */
-    public function getRelatedObjectPrimaryKey() {
-        return $this->relatedObjectPrimaryKey;
+    public function getRelatedObjectKey() {
+        return $this->relatedObjectKey;
     }
 
     /**
-     * @param string $relatedObjectPrimaryKey
+     * @param string $relatedObjectKey
      */
-    public function setRelatedObjectPrimaryKey($relatedObjectPrimaryKey) {
-        $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
+    public function setRelatedObjectKey($relatedObjectKey) {
+        $this->relatedObjectKey = $relatedObjectKey;
     }
 
 

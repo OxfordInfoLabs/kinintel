@@ -38,7 +38,7 @@ class DataProcessorDAO {
     const FILTER_MAP = [
         "type" => "type",
         "relatedObjectType" => "relatedObjectType",
-        "relatedObjectPrimaryKey" => "relatedObjectPrimaryKey",
+        "relatedObjectKey" => "relatedObjectKey",
         "search" => "search"
     ];
 
