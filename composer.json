@@ -10,7 +10,7 @@
   "homepage": "https://kinintel.com",
   "type": "library",
   "require": {
-    "oxil/kiniauth": "dev-async",
+    "oxil/kiniauth": "dev-master",
     "aws/aws-sdk-php": "*",
     "smalot/pdfparser": "dev-master",
     "google/cloud-storage": "dev-main",
