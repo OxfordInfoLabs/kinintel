@@ -23,4 +23,9 @@ class TestDataProcessor implements DataProcessor {
     public function process($instance) {
         $this->processedConfig = $instance->returnConfig();
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

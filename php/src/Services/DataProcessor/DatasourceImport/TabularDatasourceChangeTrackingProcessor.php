@@ -343,7 +343,7 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
                 // If not a duplicate, it is an update
                 if (!in_array($addLine, $deleteFileItems)) {
                     for ($j = 0; $j < sizeof($explodedAddLine); $j++) {
-                        $value = trim($explodedAddLine[$j]) != "" ? trim($explodedAddLine[$j]) : null;
+                        $value = trim($explodedAddLine[$j]) != "" ? trim($explodedAddLine[$j]) : "";
                         if (substr($value, 0, 7) == "base64:")
                             $value = json_decode(base64_decode(substr($value, 7)), true);
 
@@ -511,6 +511,10 @@ class TabularDatasourceChangeTrackingProcessor implements DataProcessor {
         if (!file_exists($directory . "/previous.txt")) {
             touch($directory . "/previous.txt");
         }
+    }
+
+    public function onInstanceDelete($instance) {
+
     }
 
 }

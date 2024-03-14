@@ -107,100 +107,104 @@
         <div class="list-title">
             Parameters
         </div>
-        <ng-template ngFor let-parameter [ngForOf]="parameterValues" let-i=index>
+        <div class="flex items-center overflow-x-scroll">
+            <ng-template ngFor let-parameter [ngForOf]="parameterValues" let-i=index>
 
-            <label class="pl-4">
-                {{parameter.title}}
-                <div class="parameter-input">
-                    <ng-template [ngIf]="parameter.type === 'text'">
-                        <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
-                               [(ngModel)]="parameter.value"
-                               (keyup.enter)="evaluateDataset(true)" required autofocus>
-                    </ng-template>
-                    <ng-template [ngIf]="parameter.type === 'numeric'">
-                        <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
-                               [(ngModel)]="parameter.value"
-                               (keyup.enter)="evaluateDataset(true)" required autofocus>
-                    </ng-template>
-                    <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
-                        <ng-template [ngIf]="!parameter._dateType">
-                            <div class="flex items-center mr-8">
-                                <button (click)="changeDateType($event, parameter, 'picker')"
-                                        class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
-                                    <mat-icon class="text-base">calendar_month</mat-icon>
-                                    Date Picker
-                                </button>
-                                <button (click)="changeDateType($event, parameter, 'period')"
-                                        class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
-                                    <mat-icon class="text-base">restore</mat-icon>
-                                    Time Period
-                                </button>
-                            </div>
-                        </ng-template>
-                        <ng-template [ngIf]="parameter._dateType === 'picker'">
-                            <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'"
-                                   placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                <label class="pl-4">
+                    {{parameter.title}}
+                    <div class="parameter-input">
+                        <ng-template [ngIf]="parameter.type === 'text'">
+                            <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
+                                   [(ngModel)]="parameter.value"
                                    (keyup.enter)="evaluateDataset(true)" required autofocus>
-
-                            <a (click)="changeDateType($event, parameter, 'period')"
-                               matTooltip="Time Period"
-                               class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
-                                <mat-icon class="text-base">restore</mat-icon>
-                            </a>
                         </ng-template>
-                        <ng-template [ngIf]="parameter._dateType === 'period'">
-                            <div class="flex items-center">
-                                <input #periodValue type="number" placeholder="No." required autofocus
-                                       class="w-16 mr-2" min="0" [value]="parameter._periodValue || 1"
-                                       (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
-
-                                <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
-                                        #period
-                                        (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
-                                    <option value="DAYS">Days</option>
-                                    <option value="HOURS">Hours</option>
-                                </select>
-
-                                <div>Ago</div>
-                            </div>
-
-                            <a (click)="changeDateType($event, parameter, 'picker')"
-                               matTooltip="Date Picker"
-                               class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
-                                <mat-icon class="text-base">calendar_month</mat-icon>
-                            </a>
+                        <ng-template [ngIf]="parameter.type === 'numeric'">
+                            <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
+                                   [(ngModel)]="parameter.value"
+                                   (keyup.enter)="evaluateDataset(true)" required autofocus>
                         </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
+                            <ng-template [ngIf]="!parameter._dateType">
+                                <div class="flex items-center mr-8">
+                                    <button (click)="changeDateType($event, parameter, 'picker')"
+                                            class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
+                                        <mat-icon class="text-base">calendar_month</mat-icon>
+                                        Date Picker
+                                    </button>
+                                    <button (click)="changeDateType($event, parameter, 'period')"
+                                            class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
+                                        <mat-icon class="text-base">restore</mat-icon>
+                                        Time Period
+                                    </button>
+                                </div>
+                            </ng-template>
+                            <ng-template [ngIf]="parameter._dateType === 'picker'">
+                                <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'"
+                                       placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                                       (keyup.enter)="evaluateDataset(true)" required autofocus>
 
-                    </ng-template>
-                    <ng-template [ngIf]="parameter.type === 'boolean'">
-                        <mat-slide-toggle class="pr-8" color="primary"
-                                          [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
-                                          required></mat-slide-toggle>
-                    </ng-template>
-                    <ng-template [ngIf]="!parameter._locked">
-                        <button mat-icon-button [matMenuTriggerFor]="paramMenu">
-                            <mat-icon>settings</mat-icon>
-                        </button>
-                        <mat-menu #paramMenu="matMenu">
-                            <button mat-menu-item (click)="addParameter(parameter, i)">Edit Parameter</button>
-                            <button mat-menu-item (click)="removeParameter(parameter)">Remove Parameter</button>
-                        </mat-menu>
-                    </ng-template>
-                </div>
+                                <a (click)="changeDateType($event, parameter, 'period')"
+                                   matTooltip="Time Period"
+                                   class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
+                                    <mat-icon class="text-base">restore</mat-icon>
+                                </a>
+                            </ng-template>
+                            <ng-template [ngIf]="parameter._dateType === 'period'">
+                                <div class="flex items-center">
+                                    <input #periodValue type="number" placeholder="No." required autofocus
+                                           class="w-16 mr-2" min="0" [value]="parameter._periodValue || 1"
+                                           (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
 
-            </label>
+                                    <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
+                                            #period
+                                            (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+                                        <option value="DAYS">Days</option>
+                                        <option value="HOURS">Hours</option>
+                                    </select>
 
-            <div class="divider ml-2" *ngIf="parameterValues.length"></div>
+                                    <div>Ago</div>
+                                </div>
 
-        </ng-template>
+                                <a (click)="changeDateType($event, parameter, 'picker')"
+                                   matTooltip="Date Picker"
+                                   class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
+                                    <mat-icon class="text-base">calendar_month</mat-icon>
+                                </a>
+                            </ng-template>
 
-        <button mat-icon-button color="primary" class="mx-2" (click)="addParameter()">
-            <mat-icon>add_circle</mat-icon>
-        </button>
-        <button mat-flat-button color="primary" class="mr-2 leading-8" *ngIf="parameterValues.length"
-                (click)="evaluateDataset(true)">
-            Apply Parameters
-        </button>
+                        </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'boolean'">
+                            <mat-slide-toggle class="pr-8" color="primary"
+                                              [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
+                                              required></mat-slide-toggle>
+                        </ng-template>
+                        <ng-template [ngIf]="!parameter._locked">
+                            <button mat-icon-button [matMenuTriggerFor]="paramMenu">
+                                <mat-icon>settings</mat-icon>
+                            </button>
+                            <mat-menu #paramMenu="matMenu">
+                                <button mat-menu-item (click)="addParameter(parameter, i)">Edit Parameter</button>
+                                <button mat-menu-item (click)="removeParameter(parameter)">Remove Parameter</button>
+                            </mat-menu>
+                        </ng-template>
+                    </div>
+
+                </label>
+
+                <div class="divider ml-2" *ngIf="parameterValues.length"></div>
+
+            </ng-template>
+            <button mat-icon-button color="primary" class="mx-2" (click)="addParameter()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button type="button" (click)="evaluateDataset(true)"  *ngIf="parameterValues.length"
+                    class="mr-2 flex items-center whitespace-nowrap justify-center px-4 py-1 border border-transparent text-sm rounded-md shadow-sm text-white bg-primary focus:outline-none">
+                Apply Parameters
+            </button>
+        </div>
+
+
+
 
     </div>
 </div>
@@ -388,13 +392,16 @@
         <div class="list-title">
             Sort
         </div>
-        <div class="badge-item outline"
-             *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
-            <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
-            <button mat-icon-button (click)="removeFilter(i)">
-                <mat-icon>cancel</mat-icon>
-            </button>
+        <div class="flex flex-wrap">
+            <div class="badge-item outline"
+                 *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
+                <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
+                <button mat-icon-button (click)="removeFilter(i)">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </div>
         </div>
+
     </div>
 </div>
 

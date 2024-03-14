@@ -280,4 +280,8 @@ class TabularDatasourceImportProcessor implements DataProcessor {
         return $parameters;
     }
 
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

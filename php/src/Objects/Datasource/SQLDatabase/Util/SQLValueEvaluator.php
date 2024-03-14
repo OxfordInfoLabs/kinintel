@@ -60,7 +60,7 @@ class SQLValueEvaluator {
                         $literals[] = $matchingParamValueElement;
                 }
                 return join(",", $literals);
-            }, $valueEntry);
+            }, $valueEntry ?? "");
 
 
 

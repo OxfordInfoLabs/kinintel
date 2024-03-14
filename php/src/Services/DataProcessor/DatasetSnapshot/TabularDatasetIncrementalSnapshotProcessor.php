@@ -226,4 +226,8 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         return $datasourceInstance->returnDataSource();
     }
 
+    public function onInstanceDelete($instance) {
+
+    }
+
 }
