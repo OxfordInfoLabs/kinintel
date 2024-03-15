@@ -218,7 +218,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(100, 0));
         $sqlDatabaseDatasource->materialiseDataset();
 
-        $this->assertTrue($this->databaseConnection->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 100 OFFSET 0) A", []]));
+        $this->assertTrue($this->authCredentials->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 100 OFFSET 0) A", []]));
 
     }
 
@@ -230,7 +230,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(10, 20));
         $sqlDatabaseDatasource->materialiseDataset();
 
-        $this->assertTrue($this->databaseConnection->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 10 OFFSET 20 LEFT JOIN SELECT * FROM other_table o ON m.this = o.that) A", []]));
+        $this->assertTrue($this->authCredentials->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 10 OFFSET 20 LEFT JOIN SELECT * FROM other_table o ON m.this = o.that) A", []]));
 
     }
 
