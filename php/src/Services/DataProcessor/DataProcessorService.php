@@ -5,6 +5,7 @@ namespace Kinintel\Services\DataProcessor;
 
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\Account\AccountService;
@@ -12,6 +13,7 @@ use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDataProcessorConfigException;
@@ -114,6 +116,7 @@ class DataProcessorService {
      * @param DataProcessorInstance $dataProcessorInstance
      *
      * @return string
+     * @hasPrivilege PROJECT:dataprocessormanage($dataProcessorInstance.projectKey)
      */
     public function saveDataProcessorInstance($dataProcessorInstance) {
 
@@ -141,6 +144,10 @@ class DataProcessorService {
         // Get the data processor
         $dataProcessor = $this->dataProcessorDAO->getDataProcessorInstanceByKey($instanceKey);
 
+        if ($dataProcessor->getProjectKey() && !$this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "dataprocessormanage", $dataProcessor->getProjectKey())) {
+            throw new AccessDeniedException("You have not been granted access to manage data processors.");
+        }
+
         // Trigger the scheduled task
         if ($dataProcessor->getScheduledTask()) {
             $this->scheduledTaskService->triggerScheduledTask($dataProcessor->getScheduledTask()->getId());
@@ -155,6 +162,15 @@ class DataProcessorService {
      * @return void
      */
     public function removeDataProcessorInstance($instanceKey) {
+
+
+        // Get the data processor
+        $dataProcessor = $this->dataProcessorDAO->getDataProcessorInstanceByKey($instanceKey);
+
+        if ($dataProcessor->getProjectKey() && !$this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "dataprocessormanage", $dataProcessor->getProjectKey())) {
+            throw new AccessDeniedException("You have not been granted access to manage data processors.");
+        }
+
         $this->dataProcessorDAO->removeProcessorInstance($instanceKey);
     }
 

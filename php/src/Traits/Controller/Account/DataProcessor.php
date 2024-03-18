@@ -87,7 +87,7 @@ trait DataProcessor {
         $matches = $this->dataProcessorService->filterDataProcessorInstances([
             "type" => new LikeFilter("type", "%" . $type . "%"),
             "relatedObjectType" => $objectType,
-            "relatedObjectPrimaryKey" => $objectPrimaryKey,
+            "relatedObjectKey" => $objectPrimaryKey,
             "search" => $searchTerm
         ], $projectKey, $offset, $limit);
 

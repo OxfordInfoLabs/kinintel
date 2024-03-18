@@ -179,9 +179,17 @@ class DataProcessorServiceTest extends TestBase {
     }
 
 
-
-
     public function testCanRemoveDataProcessorInstance() {
+
+
+        $existingItem = new DataProcessorInstance("bingo", "Previous Valid",
+            "sqlquery", ["query" => "SELECT * FROM previous_test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_ADHOC,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
+                ["dataProcessorKey" => "bingo"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, null, 123), "testProject", 1));
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey", $existingItem, ["bingo"]);
+
 
         $this->dataProcessorService->removeDataProcessorInstance("bingo");
         $this->assertTrue($this->dataProcessorDao->methodWasCalled("removeProcessorInstance", ["bingo"]));

@@ -109,6 +109,7 @@ class DataProcessorDAO {
             $filters["project_key"] = $projectKey;
         }
 
+
         return $query->query($filters, "title ASC", $limit, $offset);
     }
 

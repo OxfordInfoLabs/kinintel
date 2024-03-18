@@ -364,6 +364,46 @@ class DatasetServiceTest extends TestBase {
     }
 
 
+    public function testCanGetDatasetInstanceByManagementKey() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $dataSetInstanceSummary1 = new DatasetInstanceSummary("Test dataset 1", "test-json");
+        $dataSetInstanceSummary1->setManagementKey("bingo");
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary1, null, 1);
+        $dataSetInstanceSummary1 = $this->datasetService->getDataSetInstance($id);
+        $fullDatasetInstance1 = $this->datasetService->getFullDataSetInstance($id);
+
+        $dataSetInstanceSummary2 = new DatasetInstanceSummary("Test dataset 2", "test-json");
+        $dataSetInstanceSummary2->setManagementKey("bongo");
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary2, null, 1);
+        $dataSetInstanceSummary2 = $this->datasetService->getDataSetInstance($id);
+        $fullDatasetInstance2 = $this->datasetService->getFullDataSetInstance($id);
+
+
+        $dataSetInstanceSummary3 = new DatasetInstanceSummary("Test dataset 3", "test-json");
+        $dataSetInstanceSummary3->setManagementKey("bingo");
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary3, null, 2);
+        $dataSetInstanceSummary3 = $this->datasetService->getDataSetInstance($id);
+        $fullDatasetInstance3 = $this->datasetService->getFullDataSetInstance($id);
+
+
+        $this->assertEquals($dataSetInstanceSummary1, $this->datasetService->getDatasetInstanceByManagementKey("bingo", 1));
+        $this->assertEquals($dataSetInstanceSummary2, $this->datasetService->getDatasetInstanceByManagementKey("bongo", 1));
+        $this->assertEquals($dataSetInstanceSummary3, $this->datasetService->getDatasetInstanceByManagementKey("bingo", 2));
+
+
+
+        $this->assertEquals($fullDatasetInstance1, $this->datasetService->getFullDataSetInstanceByManagementKey("bingo", 1));
+        $this->assertEquals($fullDatasetInstance2, $this->datasetService->getFullDataSetInstanceByManagementKey("bongo", 1));
+        $this->assertEquals($fullDatasetInstance3, $this->datasetService->getFullDataSetInstanceByManagementKey("bingo", 2));
+
+
+
+    }
+
+
     public function testCanCreateListUpdateAndRemoveSnapshotProfiles() {
 
         // Log in as a person with projects and tags
@@ -1186,21 +1226,20 @@ class DatasetServiceTest extends TestBase {
         try {
             DatasourceInstance::fetch($identifier);
             $this->fail("Should have gone");
-        } catch (ObjectNotFoundException $e){
+        } catch (ObjectNotFoundException $e) {
         }
 
         try {
-            DatasourceInstance::fetch($identifier."_latest");
+            DatasourceInstance::fetch($identifier . "_latest");
             $this->fail("Should have gone");
-        } catch (ObjectNotFoundException $e){
+        } catch (ObjectNotFoundException $e) {
         }
 
         try {
-            DatasourceInstance::fetch($identifier."_pending");
+            DatasourceInstance::fetch($identifier . "_pending");
             $this->fail("Should have gone");
-        } catch (ObjectNotFoundException $e){
+        } catch (ObjectNotFoundException $e) {
         }
-
 
 
     }
@@ -1386,9 +1425,7 @@ class DatasetServiceTest extends TestBase {
         $this->assertFalse($this->datasetService->managementKeyAvailableForDatasetInstance($newInstance, "project-key"));
 
 
-
     }
-
 
 
 }

@@ -64,6 +64,17 @@ class DatasetService {
 
 
     /**
+     * Get dataset instance by management key
+     *
+     * @param string $managementKey
+     * @return DatasetInstanceSummary
+     */
+    public function getDatasetInstanceByManagementKey($managementKey, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->getFullDataSetInstanceByManagementKey($managementKey, $accountId)->returnSummary();
+    }
+
+
+    /**
      * Get an extended version of a dataset instance
      *
      * @param $originalDatasetId
@@ -83,6 +94,34 @@ class DatasetService {
      */
     public function getFullDataSetInstance($id) {
         return DatasetInstance::fetch($id);
+    }
+
+
+    /**
+     * Get full dataset instance
+     *
+     * @param string $managementKey
+     * @param integer $accountId
+     *
+     * @return DatasetInstance
+     */
+    public function getFullDataSetInstanceByManagementKey($managementKey, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        $sql = "WHERE managementKey = ?";
+        $params = [$managementKey];
+
+        if ($accountId) {
+            $sql .= " AND accountId = ?";
+            $params[] = $accountId;
+        } else {
+            $sql .= " AND account_id IS NULL";
+        }
+
+        $matches = DatasetInstance::filter($sql, $params);
+        if (sizeof($matches) > 0) {
+            return $matches[0];
+        } else {
+            throw new ObjectNotFoundException(DatasetInstance::class, $managementKey);
+        }
     }
 
 
@@ -309,8 +348,6 @@ class DatasetService {
         $matches = DatasetInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
         return sizeof($matches) ? false : true;
     }
-
-
 
 
     /**
@@ -580,10 +617,6 @@ class DatasetService {
     }
 
 
-
-
-
-
     /**
      * Wrapper to below function for standard read only use where a data set is being
      * queried
@@ -599,8 +632,6 @@ class DatasetService {
 
         return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
-
-
 
 
     /**
@@ -679,11 +710,8 @@ class DatasetService {
         $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
 
 
-         // Grab the dataset.
+        // Grab the dataset.
         $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
-
-
-
 
 
         // Export the dataset using exporter
