@@ -63,6 +63,7 @@ class Field {
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
     const TYPE_ID = "id";
+    const TYPE_VECTOR = "vector";
 
 
     /**

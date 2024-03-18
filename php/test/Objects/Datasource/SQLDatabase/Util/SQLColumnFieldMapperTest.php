@@ -54,6 +54,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new Field("longblob", null, null, Field::TYPE_LONG_STRING),
             $this->mapper->mapResultSetColumnToField(new TableColumn("longblob", TableColumn::SQL_LONGBLOB)));
 
+        // Vector type (POSTGRESQL Only)
+        $this->assertEquals(new Field("vector", null, null, Field::TYPE_VECTOR),
+            $this->mapper->mapResultSetColumnToField(new TableColumn("vector", TableColumn::SQL_VECTOR)));
+
         // Different sized VARCHARS
         $this->assertEquals(new Field("string", null, null, Field::TYPE_STRING),
             $this->mapper->mapResultSetColumnToField(new TableColumn("string", TableColumn::SQL_VARCHAR)));
@@ -104,6 +108,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("datetime", TableColumn::SQL_DATE_TIME),
             $this->mapper->mapFieldToTableColumn(new Field("datetime", null, null, Field::TYPE_DATE_TIME)));
 
+        // Vector type (POSTGRESQL ONLY)
+        $this->assertEquals(new TableColumn("vector", TableColumn::SQL_VECTOR, 1536),
+            $this->mapper->mapFieldToTableColumn(new Field("vector", null, null, Field::TYPE_VECTOR)));
+
 
         // String types
         $this->assertEquals(new TableColumn("string", TableColumn::SQL_VARCHAR, 255),
@@ -134,6 +142,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableIndexColumn("datetime"),
             $this->mapper->mapFieldToIndexColumn(new Field("datetime", null, null, Field::TYPE_DATE_TIME)));
 
+        // Vector type (POSTGRESQL ONLY)
+        $this->assertEquals(new TableIndexColumn("vector"),
+            $this->mapper->mapFieldToIndexColumn(new Field("vector", null, null, Field::TYPE_VECTOR)));
 
         // String types
         $this->assertEquals(new TableIndexColumn("string"),

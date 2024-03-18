@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
@@ -27,7 +28,8 @@ class SQLColumnFieldMapper {
         Field::TYPE_DATE => TableColumn::SQL_DATE,
         Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
         Field::TYPE_ID => TableColumn::SQL_INTEGER,
-        Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB
+        Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB,
+        Field::TYPE_VECTOR => TableColumn::SQL_VECTOR
     ];
 
     /**
@@ -42,7 +44,8 @@ class SQLColumnFieldMapper {
     const FIELD_TYPE_LENGTH_MAP = [
         Field::TYPE_STRING => 255,
         Field::TYPE_MEDIUM_STRING => 2000,
-        Field::TYPE_ID => 11
+        Field::TYPE_ID => 11,
+        Field::TYPE_VECTOR => 1536
     ];
 
     // Mappings of SQL Types to Field
@@ -66,7 +69,8 @@ class SQLColumnFieldMapper {
         TableColumn::SQL_INTEGER => Field::TYPE_INTEGER,
         TableColumn::SQL_TIME => Field::TYPE_INTEGER,
         TableColumn::SQL_TIMESTAMP => Field::TYPE_DATE_TIME,
-        TableColumn::SQL_UNKNOWN => Field::TYPE_STRING
+        TableColumn::SQL_UNKNOWN => Field::TYPE_STRING,
+        TableColumn::SQL_VECTOR => Field::TYPE_VECTOR
     ];
 
 
