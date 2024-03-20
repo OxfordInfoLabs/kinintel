@@ -15,7 +15,7 @@ class EmbeddingDatasource extends BaseDatasource {
     public function materialiseDataset($parameterValues = []) {
         /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);
-        $embedding = $embeddingService->embedString($parameterValues["textToEmbed"]);
+        $embedding = $embeddingService->embedString($parameterValues["textToEmbed"], $parameterValues["model"]);
         return new ArrayTabularDataset([new Field("embedding")], [["embedding" => json_encode($embedding)]]);
     }
 

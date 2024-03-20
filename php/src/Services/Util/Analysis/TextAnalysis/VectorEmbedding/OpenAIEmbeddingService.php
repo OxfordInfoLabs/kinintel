@@ -23,8 +23,12 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
 
     const SLEEP_SECONDS_WHEN_RATE_LIMITED = 5;
 
+    const MODEL_ADA = "text-embedding-ada-002";
+    const MODEL_V3_SMALL = "text-embedding-3-small";
+    const MODEL_V3_LARGE = "text-embedding-3-large";
+
     public function __construct(
-        private HTTPRequestDispatcher $dispatcher,
+        private HTTPRequestDispatcher            $dispatcher,
         private AuthenticationCredentialsService $credentialsService,
     ) {
     }
@@ -32,26 +36,29 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
     /**
      * Embeds a string to a 1536 dimensional vector using the OpenAI API
      * @param string $text
+     * @param string $model
      * @return float[]
      * @throws Exception
      */
-    public function embedString(string $text): array {
-        return $this->embedStrings([$text])[0];
+    public function embedString(string $text, string $model = self::MODEL_ADA): array {
+        return $this->embedStrings([$text], 0, $model)[0];
     }
 
-    public function compareEmbedding($embedding1, $embedding2) : float{
+    public function compareEmbedding($embedding1, $embedding2): float {
         return MathsUtils::dot($embedding1, $embedding2);
     }
 
     /**
      * Return an array of embedding objects
      * @param string[] $texts
+     * @param int $noAttempts
+     * @param string $model
      * @return array[]
      * @throws Exception
      */
-    public function embedStrings(array $texts, $noAttempts = 0): array {
+    public function embedStrings(array $texts, int $noAttempts = 0, string $model = self::MODEL_ADA): array {
         $texts = array_map($this->sanitiseText(...), $texts);
-        $payload = ['input'=>$texts, 'model'=>'text-embedding-ada-002'];
+        $payload = ['input' => $texts, 'model' => $model];
         $headers = $this->constructHeaders();
         $jsonPayload = json_encode($payload, JSON_INVALID_UTF8_IGNORE);
         if (!$jsonPayload) throw new Exception("Bad arguments passed to embed strings: " . print_r($texts, true));
@@ -68,19 +75,19 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
         if ($statusCode == Response::RESPONSE_RATE_LIMITED ||
             $statusCode == Response::RESPONSE_SERVICE_UNAVAILABLE) {
 
-            if ($statusCode == Response::RESPONSE_RATE_LIMITED){
+            if ($statusCode == Response::RESPONSE_RATE_LIMITED) {
                 Logger::log("OpenAI api was rate limited");
             }
 
             // Retry for a maximum of 2 minutes
-            if ($noAttempts > 120 / self::SLEEP_SECONDS_WHEN_RATE_LIMITED){
+            if ($noAttempts > 120 / self::SLEEP_SECONDS_WHEN_RATE_LIMITED) {
                 throw new Exception("OpenAI has been continually rate limited for too long");
             }
             sleep(self::SLEEP_SECONDS_WHEN_RATE_LIMITED);
             return $this->embedStrings($texts, $noAttempts + 1);
         }
 
-        if ($response->getStatusCode() == Response::RESPONSE_SERVICE_UNAVAILABLE){
+        if ($response->getStatusCode() == Response::RESPONSE_SERVICE_UNAVAILABLE) {
             sleep(self::SLEEP_SECONDS_WHEN_RATE_LIMITED);
             return $this->embedStrings($texts, $noAttempts + 1);
         }
@@ -90,7 +97,7 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
         if (isset($jsonResponse["error"])) throw new Exception($jsonResponse["error"]["message"]);
 
         $data = $jsonResponse["data"];
-        if ($data && in_array("index", $data[0])){
+        if ($data && in_array("index", $data[0])) {
             usort($data, fn($e1, $e2) => $e1["index"] <=> $e2["index"]);
         }
 
@@ -107,7 +114,7 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
 
         /** @var HTTPHeaderAuthenticationCredentials $credentials */
         $credentials = $this->credentialsService->getCredentialsInstanceByKey($credentialsKey)?->returnCredentials();
-        if (!$credentials){
+        if (!$credentials) {
             throw new Exception("No api key found for openai in the config.");
         }
         $headers = $credentials->getAuthParams();

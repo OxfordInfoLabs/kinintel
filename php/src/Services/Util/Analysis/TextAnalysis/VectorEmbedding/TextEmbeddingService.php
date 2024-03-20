@@ -7,10 +7,11 @@ namespace Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding;
  * @defaultImplementation Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\OpenAIEmbeddingService
  */
 interface TextEmbeddingService {
-    public function embedString(string $text) : array;
+    public function embedString(string $text, string $model) : array;
 
     /**
      * @param string[] $texts
+     * @param string $model
      * @return array[]
      */
     public function embedStrings(array $texts) : array;
