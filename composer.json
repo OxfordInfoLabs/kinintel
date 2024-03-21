@@ -14,11 +14,7 @@
     "aws/aws-sdk-php": "*",
     "smalot/pdfparser": "dev-master",
     "google/cloud-storage": "dev-main",
-    "google/apiclient": "^2.15.0",
-    "amphp/parallel": "^2.2",
-    "amphp/socket": "*",
-    "amphp/http": "*",
-    "amphp/http-client": "*"
+    "google/apiclient": "^2.15.0"
   },
   "scripts": {
     "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../kinikit/kinikit-core vendor/oxil/kinikit-core; ln -s ../../../kinikit/kinikit-mvc vendor/oxil/kinikit-mvc; ln -s ../../../kinikit/kinikit-persistence vendor/oxil/kinikit-persistence; ln -s ../../../kiniauth vendor/oxil/kiniauth"
