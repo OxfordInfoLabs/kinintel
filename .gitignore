@@ -7,4 +7,3 @@ Files/*
 .phpunit.result.cache
 .DS_Store
 img/.DS_Store
-php/test/DB/kinintel-test.db
