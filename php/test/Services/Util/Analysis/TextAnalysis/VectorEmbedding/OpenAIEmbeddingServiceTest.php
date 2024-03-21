@@ -2,7 +2,6 @@
 
 namespace Kinintel\Test\Services\Util\Analysis\TextAnalysis\VectorEmbedding;
 
-use AWS\CRT\HTTP\Request;
 use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
@@ -11,9 +10,7 @@ use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
 use Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\OpenAIEmbeddingService;
 use Kinintel\TestBase;
-use Kinintel\ValueObjects\Authentication\Generic\SingleKeyAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
-use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
 class OpenAIEmbeddingServiceTest extends TestBase {

@@ -36,13 +36,6 @@ class DatasetInstance extends DatasetInstanceSummary {
     protected $categories = [];
 
 
-    /**
-     * @var DatasetInstanceSnapshotProfile[]
-     * @oneToMany
-     * @childJoinColumns dataset_instance_id
-     */
-    protected $snapshotProfiles;
-
 
     /**
      * DatasetInstance constructor - used to convert summaries
@@ -81,20 +74,6 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     public function setTags($tags) {
         $this->tags = $tags;
-    }
-
-    /**
-     * @return DatasetInstanceSnapshotProfile[]
-     */
-    public function getSnapshotProfiles() {
-        return $this->snapshotProfiles;
-    }
-
-    /**
-     * @param DatasetInstanceSnapshotProfile[] $snapshotProfiles
-     */
-    public function setSnapshotProfiles($snapshotProfiles) {
-        $this->snapshotProfiles = $snapshotProfiles;
     }
 
 

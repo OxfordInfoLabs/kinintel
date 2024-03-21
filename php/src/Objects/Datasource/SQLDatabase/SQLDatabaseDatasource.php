@@ -4,11 +4,9 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use AWS\CRT\Log;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
-use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;

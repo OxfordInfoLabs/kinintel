@@ -36,7 +36,6 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         $this->interceptor = Container::instance()->get(DatasetInstanceInterceptor::class);
 
         Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance WHERE title = ?", "Test Dep Dataset");
-        Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance_snapshot_profile WHERE title = ?", "Test Snapshot");
 
     }
 
@@ -83,26 +82,6 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-
-    public function testIfDatasetInstanceReferencedBySnapshotItCannotBeDeleted() {
-
-        $masterDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test Dep Dataset", "test-json"));
-        $masterDatasetInstance->save();
-
-        // Check deletion is possible with no references
-        $this->interceptor->preDelete($masterDatasetInstance);
-
-        // Save a snapshot which references the dataset
-        $snapshot = new DatasetInstanceSnapshotProfile($masterDatasetInstance->getId(), "Test Snapshot");
-        $snapshot->save();
-
-        try {
-            $this->interceptor->preDelete($masterDatasetInstance);
-            $this->fail("Should have thrown here");
-        } catch (ItemInUseException $e) {
-            $this->assertTrue(true);
-        }
-    }
 
 
     public function testStructuredDataUpdatedOnPostSaveWithReferencedDatasetsAndDatasources() {

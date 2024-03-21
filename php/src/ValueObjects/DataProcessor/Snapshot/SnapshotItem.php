@@ -4,7 +4,6 @@ namespace Kinintel\ValueObjects\DataProcessor\Snapshot;
 
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 
 class SnapshotItem {

@@ -7,7 +7,6 @@ use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Objects\Dataset\DatasetInstanceLabel;
 
 class DataProcessorItem {
 

@@ -14,23 +14,18 @@ use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
-use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
-use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\DocxTextExtractor;
-use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\PDFTextExtractor;
 use Kinintel\Services\Util\GoogleDriveService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
-use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\TextChunk;
 
 class CustomDatasourceService {
 

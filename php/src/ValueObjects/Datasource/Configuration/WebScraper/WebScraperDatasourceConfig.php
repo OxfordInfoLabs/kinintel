@@ -2,8 +2,6 @@
 
 namespace Kinintel\ValueObjects\Datasource\Configuration\WebScraper;
 
-use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
-
 class WebScraperDatasourceConfig {
 
     /**

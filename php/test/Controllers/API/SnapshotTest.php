@@ -16,7 +16,6 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotDescriptor;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotItem;
-use League\Uri\Contracts\DataPathInterface;
 
 include_once "autoloader.php";
 

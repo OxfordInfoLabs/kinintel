@@ -13,7 +13,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
@@ -24,7 +24,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-class TabularDatasetSnapshotProcessor implements DataProcessor {
+class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
 
     /**
      * @var DatasetService
@@ -431,7 +431,30 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         return [$columnTimeLapses, $distinctTimeLapses];
     }
 
+    /**
+     * On instance delete
+     *
+     * @param $instance
+     * @return void
+     */
     public function onInstanceDelete($instance) {
+
+        // Now delete the 3 potential datasources
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey());
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey() . "_latest");
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey() . "_pending");
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
 
     }
 

@@ -11,7 +11,7 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetIncrementalSnapshotProcessorConfiguration;
@@ -24,7 +24,7 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
+class TabularDatasetIncrementalSnapshotProcessor extends BaseDataProcessor {
 
 
     /**
@@ -226,7 +226,20 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         return $datasourceInstance->returnDataSource();
     }
 
+    /**
+     * Clean up on delete
+     *
+     * @param DataProcessorInstance $instance
+     * @return void
+     */
     public function onInstanceDelete($instance) {
+
+        // Now attempt delete of the datasource
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey());
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
 
     }
 

@@ -20,6 +20,7 @@ use Kinintel\Services\DataProcessor\DataProcessor;
  *
  * @table ki_dataprocessor_instance
  * @generate
+ * @interceptor \Kinintel\Objects\DataProcessor\DataProcessorInstanceInterceptor
  */
 class DataProcessorInstance extends DataProcessorInstanceSummary {
 
@@ -268,6 +269,16 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
     public function returnConfig() {
         list ($processor, $config) = $this->returnProcessorAndConfig();
         return $config;
+    }
+
+
+    /**
+     * @return DataProcessor
+     * @throws ValidationException
+     */
+    public function returnProcessor() {
+        list ($processor, $config) = $this->returnProcessorAndConfig();
+        return $processor;
     }
 
     // Return processor and config

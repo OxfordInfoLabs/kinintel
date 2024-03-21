@@ -6,8 +6,6 @@ namespace Kinintel\Services\DataProcessor;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
@@ -19,7 +17,6 @@ use Kinikit\Core\Validation\Validator;
 use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Exception\InvalidDataProcessorTypeException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 
 class DataProcessorService {
 

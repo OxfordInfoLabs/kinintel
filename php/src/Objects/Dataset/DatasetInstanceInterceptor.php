@@ -8,7 +8,6 @@ use Kiniauth\Objects\MetaData\ObjectStructuredData;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\DefaultORMInterceptor;
-use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Exception\ManagementKeyAlreadyExistsException;
 use Kinintel\Services\Dataset\DatasetService;
@@ -100,13 +99,6 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
             throw new ItemInUseException($object);
         }
 
-
-        // Check for references in snapshots before allowing the delete
-        $references = $this->databaseConnection->query("SELECT COUNT(*) total FROM ki_dataset_instance_snapshot_profile WHERE dataset_instance_id = ?", $object->getId())->fetchAll();
-
-        if ($references[0]["total"]) {
-            throw new ItemInUseException($object);
-        }
 
         // Check for references in snapshots before allowing the delete
         $references = $this->databaseConnection->query("SELECT COUNT(*) total FROM ki_feed WHERE dataset_instance_id = ?", $object->getId())->fetchAll();

@@ -4,7 +4,6 @@
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use phpDocumentor\Reflection\Types\Integer;
 
 /**
  * Configuration for the snapshot processor

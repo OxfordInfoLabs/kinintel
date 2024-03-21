@@ -6,6 +6,7 @@ namespace Kinintel\Test\Services\DataProcessor\DatasetSnapshot;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapper;
 use Kinikit\Persistence\TableMapper\Mapper\TableMapping;
 use Kinintel\Controllers\API\Dataset;
@@ -524,7 +525,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
 
         $config = new TabularDatasetSnapshotProcessorConfiguration(["title", "metric"], [], [], true, true, 5);
-        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
+        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config, null, null, "DatasetInstance", 25);
         $this->processor->process($instance);
 
 
@@ -734,7 +735,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         ]);
 
 
-        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
+        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config, null, null, "DatasetInstance", 25);
 
         // Process
         $this->processor->process($instance);
@@ -851,7 +852,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             new Field("score")], $firstDatasetPlus);
 
         $config = new TabularDatasetSnapshotProcessorConfiguration([], [], [], false, true);
-        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
+        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config, null, null, "DatasetInstance", 25);
         $this->processor->process($instance);
 
 
@@ -947,7 +948,7 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
             new Field("score")], $firstDatasetPlus);
 
         $config = new TabularDatasetSnapshotProcessorConfiguration([], [], [], false, true);
-        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config,null,null,"DatasetInstance",25);
+        $instance = new DataProcessorInstance("mytestsnapshot", "need", "tabulardatasetsnapshot", $config, null, null, "DatasetInstance", 25);
         $this->processor->process($instance);
 
 
@@ -958,6 +959,28 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
 
         // Check all data was updated as expected
         $this->assertTrue($mockDataSource->methodWasCalled("update", [$expectedUpdate, UpdatableDatasource::UPDATE_MODE_REPLACE]));
+
+
+    }
+
+    public function testAllGeneratedDatasourcesAreRemovedOnInstanceDelete() {
+
+        $instance = new DataProcessorInstance("onetogo", "One to Go", "test");
+
+        $this->processor->onInstanceDelete($instance);
+
+        // Check all three deletes are attempted
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", ["onetogo"]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", ["onetogo_latest"]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", ["onetogo_pending"]));
+
+        // Handle exceptions as well
+        $this->datasourceService->throwException("removeDatasourceInstance",new ObjectNotFoundException("TEST",1),["onetogo"]);
+        $this->datasourceService->throwException("removeDatasourceInstance",new ObjectNotFoundException("TEST",1),["onetogo_latest"]);
+        $this->datasourceService->throwException("removeDatasourceInstance",new ObjectNotFoundException("TEST",1),["onetogo_pending"]);
+
+        // Check for silent failures
+        $this->processor->onInstanceDelete($instance);
 
 
     }

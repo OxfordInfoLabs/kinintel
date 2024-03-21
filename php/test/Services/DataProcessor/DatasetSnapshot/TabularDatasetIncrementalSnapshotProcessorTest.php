@@ -816,5 +816,22 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
     }
 
+    public function testGeneratedDatasourceIsRemovedOnInstanceDelete() {
+
+        $instance = new DataProcessorInstance("onetogo", "One to Go", "test");
+
+        $this->snapshotProcessor->onInstanceDelete($instance);
+
+        // Check all three deletes are attempted
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", ["onetogo"]));
+
+        // Handle exceptions as well
+        $this->datasourceService->throwException("removeDatasourceInstance",new ObjectNotFoundException("TEST",1),["onetogo"]);
+
+        // Check for silent failures
+        $this->snapshotProcessor->onInstanceDelete($instance);
+
+
+    }
 
 }
