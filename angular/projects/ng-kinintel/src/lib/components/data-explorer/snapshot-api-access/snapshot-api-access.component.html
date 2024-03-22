@@ -16,10 +16,17 @@
             <input type="text" [(ngModel)]="datasetInstance.managementKey">
         </label>
 
+        <ng-template [ngIf]="showApiAccessDetails">
+            <p>API Details</p>
+        </ng-template>
+
     </div>
 
     <div class="dialog-footer">
         <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+        <button mat-flat-button color="primary" (click)="saveDataset()">
+            Save
+        </button>
     </div>
 
 </div>
