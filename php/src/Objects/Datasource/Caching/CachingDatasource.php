@@ -10,6 +10,7 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
@@ -30,6 +31,11 @@ class CachingDatasource extends BaseDatasource {
     private $datasourceService;
 
     /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+    /**
      * @var Transformation[]
      */
     private $appliedTransformations = [];
@@ -38,6 +44,7 @@ class CachingDatasource extends BaseDatasource {
     public function __construct($config = null, $authenticationCredentials = null, $validator = null) {
         parent::__construct($config, $authenticationCredentials, $validator);
         $this->datasourceService = Container::instance()->get(DatasourceService::class);
+        $this->datasetService = Container::instance()->get(DatasetService::class);
     }
 
 
@@ -97,6 +104,10 @@ class CachingDatasource extends BaseDatasource {
         $this->datasourceService = $datasourceService;
     }
 
+    public function setDatasetService($datasetService) {
+        $this->datasetService = $datasetService;
+    }
+
 
     /**
      * @param array $parameterValues
@@ -109,11 +120,6 @@ class CachingDatasource extends BaseDatasource {
          * @var CachingDatasourceConfig $config
          */
         $config = $this->getConfig();
-
-        /**
-         * @var DatasourceInstance $sourceDatasourceInstance
-         */
-        $sourceDatasourceInstance = $config->getSourceDatasource() ?? $this->datasourceService->getDataSourceInstanceByKey($config->getSourceDatasourceKey());
 
         /**
          * @var DatasourceInstance $cacheDatasourceInstance
@@ -138,10 +144,9 @@ class CachingDatasource extends BaseDatasource {
 
         if ($config->isHashing()) {
             $encodedParameters = json_encode(["hash" => md5(json_encode($sourceParameterValues))]);
-        } else{
+        } else {
             $encodedParameters = json_encode($sourceParameterValues);
         }
-
 
 
         // Get a cache check data item
@@ -172,16 +177,24 @@ class CachingDatasource extends BaseDatasource {
 
             $noSourceResults = true;
 
-            // Materialise the source data set using parameters
-            $sourceDatasource = $sourceDatasourceInstance->returnDataSource();
-            $sourceDataset = $sourceDatasource->materialise($sourceParams);
+            if ($config->getSourceDatasetId()) {
+                $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getSourceDatasetId(), $sourceParams);
+            } else {
+                /**
+                 * @var DatasourceInstance $sourceDatasourceInstance
+                 */
+                $sourceDatasourceInstance = $config->getSourceDatasource() ?? $this->datasourceService->getDataSourceInstanceByKey($config->getSourceDatasourceKey());
 
+                $sourceDatasource = $sourceDatasourceInstance->returnDataSource();
+                $sourceDataset = $sourceDatasource->materialise($sourceParams);
+            }
 
             // Create merged fields ready for insert
             $targetFields = [
                 new Field($config->getCacheDatasourceParametersField()),
                 new Field($config->getCacheDatasourceCachedTimeField())
             ];
+
             // Recreate target fields to ensure we remove any mapping rules to avoid strangeness.
             foreach ($sourceDataset->getColumns() as $column) {
                 $targetFields[] = new Field($column->getName(), $column->getTitle());
