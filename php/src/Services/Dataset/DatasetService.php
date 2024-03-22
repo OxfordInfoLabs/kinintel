@@ -263,12 +263,6 @@ class DatasetService {
 
         $dataSetInstance = new DatasetInstance($dataSetInstanceSummary, $accountId, $projectKey);
 
-        // If existing summary, ensure we sync snapshot profiles.
-        if ($dataSetInstanceSummary->getId()) {
-            $existingDataSetInstance = DatasetInstance::fetch($dataSetInstanceSummary->getId());
-            $dataSetInstance->setSnapshotProfiles($existingDataSetInstance->getSnapshotProfiles());
-        }
-
         // Process tags
         if (sizeof($dataSetInstanceSummary->getTags())) {
             $tags = $this->metaDataService->getObjectTagsFromSummaries($dataSetInstanceSummary->getTags(), $accountId, $projectKey);
