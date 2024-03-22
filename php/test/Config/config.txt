@@ -13,6 +13,9 @@ files.root = Files
 snapshot.datasource.credentials.key = test
 snapshot.datasource.table.prefix = snapshot.
 
+querycache.datasource.credentials.key = test
+querycache.datasource.table.prefix = query_cache.
+
 custom.datasource.credentials.key = test
 custom.datasource.table.prefix = custom.
 openai.api.credentials.key = openai
