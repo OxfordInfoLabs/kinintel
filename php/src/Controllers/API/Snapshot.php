@@ -10,6 +10,7 @@ use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotDescriptor;
@@ -28,13 +29,20 @@ class Snapshot {
      */
     private $dataProcessorService;
 
+
+    /**
+     * @var DatasourceService
+     */
+    private $datasourceService;
+
     /**
      * @param DatasetService $datasetService
      * @param DataProcessorService $dataProcessorService
      */
-    public function __construct(DatasetService $datasetService, DataProcessorService $dataProcessorService) {
+    public function __construct(DatasetService $datasetService, DataProcessorService $dataProcessorService, DatasourceService $datasourceService) {
         $this->datasetService = $datasetService;
         $this->dataProcessorService = $dataProcessorService;
+        $this->datasourceService = $datasourceService;
     }
 
 
@@ -148,8 +156,26 @@ class Snapshot {
     }
 
 
+    /**
+     * Evaluate a snapshot for a management key, optionally limited and offset
+     *
+     * @http GET /$managementKey/$snapshotKey
+     *
+     * @param string $managementKey
+     * @param string $snapshotKey
+     * @param integer $limit
+     * @param integer $offset
+     *
+     * @return Dataset
+     */
+    public function evaluateSnapshotForManagementKey($managementKey, $snapshotKey, $limit = 25, $offset = 0) {
 
+        // Verify snapshot key exists
+        $this->verifySnapshotKeyExistsForManagementKey($managementKey, $snapshotKey);
 
+        // Return the evaluated datasource
+        return $this->datasourceService->getEvaluatedDataSourceByInstanceKey($snapshotKey . "_latest", [], [], $offset, $limit);
+    }
 
 
     /**
