@@ -55,10 +55,17 @@ class UpdatableMappedField {
      * UpdatableMappedField constructor.
      *
      * @param string $fieldName
+     * The name of the field being mapped to the other datasource
      * @param string $datasourceInstanceKey
+     * The key of the datasource to map to
      * @param string[] $parentFieldMappings
+     * An array of mapped fields to synchronise from the parent dataset to the child datasource.
      * @param string $updateMode
+     * The update mode to use for update - defaults to the same as the parent operation
      * @param string $targetFieldName
+     *  This property is used where the input values for the mapping are literal values
+     *  rather than objects so we need to create a wrapper object with a single property
+     *  named using the target field name.
      */
     public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null, $targetFieldName = null) {
         $this->fieldName = $fieldName;
