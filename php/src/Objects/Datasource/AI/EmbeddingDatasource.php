@@ -11,6 +11,11 @@ use Kinintel\ValueObjects\Dataset\Field;
 
 class EmbeddingDatasource extends BaseDatasource {
 
+    /**
+     * Returns a single column "embedding" with the embedded vector as a string
+     * @param $parameterValues
+     * @return ArrayTabularDataset
+     */
     public function materialiseDataset($parameterValues = []) {
         /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);

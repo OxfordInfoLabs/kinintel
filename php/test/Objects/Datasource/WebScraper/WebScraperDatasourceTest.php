@@ -36,9 +36,9 @@ class WebScraperDatasourceTest extends TestCase {
         $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET,[], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
 
-        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@id='grid']//div[@class='row']", [
+        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@id='grid']//div[@class='row']", 0, [
             new FieldWithXPathSelector("name", "div[@class='name']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
             new FieldWithXPathSelector("age", "div[@class='age']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
             new FieldWithXPathSelector("category", "div[@class='category']", FieldWithXPathSelector::ATTRIBUTE_TEXT)
@@ -66,9 +66,9 @@ class WebScraperDatasourceTest extends TestCase {
         $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET,[], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
 
-        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@class='rows-compressed']/div", [
+        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@class='rows-compressed']/div", 0, [
             new FieldWithXPathSelector("name", ".", "data-name"),
             new FieldWithXPathSelector("age", ".", "data-age"),
             new FieldWithXPathSelector("position", "input", "value")
@@ -95,9 +95,9 @@ class WebScraperDatasourceTest extends TestCase {
         $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
 
         $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
-            new Request("https://mytest.com", Request::METHOD_GET,[], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
 
-        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//table/tr", [
+        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//table/tr", 0, [
             new FieldWithXPathSelector("name", "td[1]", FieldWithXPathSelector::ATTRIBUTE_TEXT),
             new FieldWithXPathSelector("age", "td[2]", FieldWithXPathSelector::ATTRIBUTE_TEXT),
             new FieldWithXPathSelector("hobby", "td[3]/span", FieldWithXPathSelector::ATTRIBUTE_HTML)
@@ -119,7 +119,33 @@ class WebScraperDatasourceTest extends TestCase {
 
     }
 
+    public function testDoesAcknowledgeFirstRowOffset() {
 
+        $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test2.html"), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
+
+        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//table//table/tr", 1, [
+            new FieldWithXPathSelector("id", "td[1]", FieldWithXPathSelector::ATTRIBUTE_TEXT),
+            new FieldWithXPathSelector("logged_at", "td[2]", FieldWithXPathSelector::ATTRIBUTE_TEXT),
+            new FieldWithXPathSelector("not_before", "td[3]/span", FieldWithXPathSelector::ATTRIBUTE_TEXT)
+        ]));
+
+        $webScraperDatasource->setHttpRequestDispatcher($this->httpDispatcher);
+
+        $dataset = $webScraperDatasource->materialiseDataset();
+
+        $this->assertEquals(new ArrayTabularDataset([
+            new Field("id"),
+            new Field("logged_at"),
+            new Field("not_before")
+        ], [
+            ["id" => "12312038140", "logged_at" => "2024-03-08"],
+            ["id" => "12312067716", "logged_at" => "2024-03-08"],
+            ["id" => "12188526615", "logged_at" => "2024-02-25"]
+        ]), $dataset);
+    }
 
 
 }

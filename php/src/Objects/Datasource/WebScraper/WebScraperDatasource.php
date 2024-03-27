@@ -9,6 +9,7 @@ use Kinikit\Core\HTTP\Request\Request;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\FieldWithXPathSelector;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\WebScraperDatasourceConfig;
@@ -25,11 +26,17 @@ class WebScraperDatasource extends BaseDatasource {
     private $httpRequestDispatcher;
 
     /**
+     * @var ParameterisedStringEvaluator
+     */
+    private $parameterisedStringEvaluator;
+
+    /**
      * @param WebScraperDatasourceConfig $config
      */
     public function __construct($config = null) {
         parent::__construct($config);
         $this->httpRequestDispatcher = Container::instance()->get(HttpRequestDispatcher::class);
+        $this->parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
     }
 
     /**
@@ -92,8 +99,10 @@ class WebScraperDatasource extends BaseDatasource {
          */
         $config = $this->getConfig();
 
+        $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
+
         // Resolve URL
-        $response = $this->httpRequestDispatcher->dispatch(new Request($config->getUrl(), Request::METHOD_GET, [], null, new Headers([
+        $response = $this->httpRequestDispatcher->dispatch(new Request($url, Request::METHOD_GET, [], null, new Headers([
             Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
         ])));
 
@@ -109,8 +118,11 @@ class WebScraperDatasource extends BaseDatasource {
 
         // Now gather column data
         $data = [];
-        foreach ($rows as $row) {
+        $rows = [...$rows];
 
+        for ($i = $config->getFirstRowOffset(); $i < sizeof($rows); $i++) {
+
+            $row = $rows[$i];
 
             $dataRow = [];
             foreach ($config->getColumns() as $column) {
