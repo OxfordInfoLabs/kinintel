@@ -73,6 +73,43 @@ class Snapshot {
 
 
     /**
+     * Get a snapshot for a given management key and
+     *
+     * @http GET /$managementKey/$snapshotKey
+     *
+     * @param string $managementKey
+     * @param string $snapshotKey
+     *
+     * @return SnapshotItem
+     */
+    public function getSnapshotForManagementKey($managementKey, $snapshotKey) {
+        return $this->verifySnapshotKeyExistsForManagementKey($managementKey, $snapshotKey);
+    }
+
+
+    /**
+     * Evaluate a snapshot for a management key, optionally limited and offset
+     *
+     * @http GET /$managementKey/$snapshotKey/data
+     *
+     * @param string $managementKey
+     * @param string $snapshotKey
+     * @param integer $limit
+     * @param integer $offset
+     *
+     * @return Dataset
+     */
+    public function evaluateSnapshotForManagementKey($managementKey, $snapshotKey, $limit = 25, $offset = 0) {
+
+        // Verify snapshot key exists
+        $this->verifySnapshotKeyExistsForManagementKey($managementKey, $snapshotKey);
+
+        // Return the evaluated datasource
+        return $this->datasourceService->getEvaluatedDataSourceByInstanceKey($snapshotKey . "_latest", [], [], $offset, $limit);
+    }
+
+
+    /**
      * Create snapshot for management key
      *
      * @http POST /$managementKey
@@ -157,28 +194,6 @@ class Snapshot {
 
 
     /**
-     * Evaluate a snapshot for a management key, optionally limited and offset
-     *
-     * @http GET /$managementKey/$snapshotKey
-     *
-     * @param string $managementKey
-     * @param string $snapshotKey
-     * @param integer $limit
-     * @param integer $offset
-     *
-     * @return Dataset
-     */
-    public function evaluateSnapshotForManagementKey($managementKey, $snapshotKey, $limit = 25, $offset = 0) {
-
-        // Verify snapshot key exists
-        $this->verifySnapshotKeyExistsForManagementKey($managementKey, $snapshotKey);
-
-        // Return the evaluated datasource
-        return $this->datasourceService->getEvaluatedDataSourceByInstanceKey($snapshotKey . "_latest", [], [], $offset, $limit);
-    }
-
-
-    /**
      * Trigger a snapshot for a snapshot key
      *
      * @http PATCH /$managementKey/$snapshotKey
@@ -228,9 +243,13 @@ class Snapshot {
     // Return boolean indicator that snapshot key exists for management key
     private function verifySnapshotKeyExistsForManagementKey($managementKey, $snapshotKey) {
         $allSnapshots = $this->listSnapshotsForManagementKey($managementKey);
-        if (!(ObjectArrayUtils::indexArrayOfObjectsByMember("key", $allSnapshots)[$snapshotKey] ?? null)) {
+        $indexedSnapshots = ObjectArrayUtils::indexArrayOfObjectsByMember("key", $allSnapshots);
+        if (!($indexedSnapshots[$snapshotKey] ?? null)) {
             throw new ItemNotFoundException("No snapshot exists for key '$snapshotKey' for data set with management key '$managementKey'");
+        } else {
+            return $indexedSnapshots[$snapshotKey];
         }
     }
+
 
 }

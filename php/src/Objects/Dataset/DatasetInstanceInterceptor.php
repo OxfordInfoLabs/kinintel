@@ -10,6 +10,7 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\DefaultORMInterceptor;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Exception\ManagementKeyAlreadyExistsException;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
 
 class DatasetInstanceInterceptor extends DefaultORMInterceptor {
@@ -32,17 +33,25 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
      */
     private $datasetService;
 
+
+    /**
+     * @var DataProcessorService
+     */
+    private $dataProcessorService;
+
     /**
      * DatasourceInstanceInterceptor constructor.
      *
      * @param DatabaseConnection $databaseConnection
      * @param MetaDataService $metaDataService
      * @param DatasetService $datasetService
+     * @param DataProcessorService $dataProcessorService
      */
-    public function __construct($databaseConnection, $metaDataService, $datasetService) {
+    public function __construct($databaseConnection, $metaDataService, $datasetService, $dataProcessorService) {
         $this->databaseConnection = $databaseConnection;
         $this->metaDataService = $metaDataService;
         $this->datasetService = $datasetService;
+        $this->dataProcessorService = $dataProcessorService;
     }
 
 
@@ -80,6 +89,12 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
         else {
             $this->metaDataService->removeStructuredDataItemsForObjectAndType(DatasetInstance::class, $object->getId(), "referencedDataSource");
             $this->metaDataService->removeStructuredDataItemsForObjectAndType(DatasetInstance::class, $object->getId(), "referencedDataSet");
+        }
+
+        // Grab any related object data processors
+        $relatedDataProcessorInstances = $this->dataProcessorService->filterDataProcessorInstances(["relatedObjectType" => "DatasetInstance", "relatedObjectKey" => $object->getId()], null, 0, 1000000);
+        foreach ($relatedDataProcessorInstances ?? [] as $relatedDataProcessorInstance) {
+            $relatedDataProcessorInstance->returnProcessor()->onRelatedObjectSave($relatedDataProcessorInstance, $object);
         }
 
     }

@@ -5,17 +5,22 @@ namespace Kinintel\Test\Objects\Dataset;
 
 
 use Kiniauth\Objects\MetaData\ObjectStructuredData;
+use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Exception\ManagementKeyAlreadyExistsException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceInterceptor;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\DataProcessorService;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -28,12 +33,20 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
      */
     private $interceptor;
 
+    /**
+     * @var DataProcessorService
+     */
+    private $dataProcessorService;
 
     public function setUp(): void {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $this->interceptor = Container::instance()->get(DatasetInstanceInterceptor::class);
+        $this->dataProcessorService = MockObjectProvider::instance()->getMockInstance(DataProcessorService::class);
+
+        $this->interceptor = new DatasetInstanceInterceptor(Container::instance()->get(DatabaseConnection::class),
+            Container::instance()->get(MetaDataService::class), Container::instance()->get(DatasetService::class),
+            $this->dataProcessorService);
 
         Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_dataset_instance WHERE title = ?", "Test Dep Dataset");
 
@@ -44,7 +57,7 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
      * @doesNotPerformAssertions
      *
      */
-    public function testIfManagementKeyDefinedItIsCheckedInPresave(){
+    public function testIfManagementKeyDefinedItIsCheckedInPresave() {
         $masterDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test Dep Dataset", "test-json"));
         $masterDatasetInstance->setManagementKey("badger");
         $masterDatasetInstance->save();
@@ -55,7 +68,7 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         try {
             $this->interceptor->preSave($newDatasetInstance);
             $this->fail("Should have thrown here");
-        } catch (ManagementKeyAlreadyExistsException $e){
+        } catch (ManagementKeyAlreadyExistsException $e) {
             // Success
         }
     }
@@ -81,7 +94,6 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
         }
 
     }
-
 
 
     public function testStructuredDataUpdatedOnPostSaveWithReferencedDatasetsAndDatasources() {
@@ -159,6 +171,45 @@ class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
+    public function testIfDataProcessorExistsWithRelatedObjectKeyMatchingDatasetOnReferencedObjectSaveIsCalled() {
+
+
+        $instance1 = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $instance2 = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+
+        $processor1 = MockObjectProvider::instance()->getMockInstance(DataProcessor::class);
+        $processor2 = MockObjectProvider::instance()->getMockInstance(DataProcessor::class);
+
+        $instance1->returnValue("returnProcessor", $processor1, []);
+        $instance2->returnValue("returnProcessor", $processor2, []);
+
+        $dataProcessorInstances = [
+            $instance1, $instance2
+        ];
+
+        $this->dataProcessorService->returnValue("filterDataProcessorInstances",
+            $dataProcessorInstances, [
+                ["relatedObjectType" => "DatasetInstance", "relatedObjectKey" => 5000],
+                null,
+                0,
+                1000000
+            ]);
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test Dataset With Processor", "test-json", null, [
+            new TransformationInstance("join", new JoinTransformation("test-json-explicit-creds"))
+        ]));
+        $datasetInstance->setId(5000);
+        $this->interceptor->postSave($datasetInstance);
+
+        // Check on related object save was called
+        $this->assertTrue($processor1->methodWasCalled("onRelatedObjectSave", [$instance1, $datasetInstance]));
+        $this->assertTrue($processor2->methodWasCalled("onRelatedObjectSave", [$instance2, $datasetInstance]));
+
+
+    }
+
 
     public function testIfDatasetReferencedInJoinTransformationInOtherDatasetItCannotBeDeleted() {
 

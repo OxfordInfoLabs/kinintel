@@ -17,16 +17,23 @@ class SnapshotDescriptor {
 
 
     /**
+     * @var string[][]
+     */
+    private $indexes;
+
+
+    /**
      * @var bool
      */
-    private $runNow = false;
+    private $runNow = true;
 
     /**
      * @param string $title
      * @param mixed[] $parameterValues
+     * @param string[][] $indexes
      * @param bool $runNow
      */
-    public function __construct($title, array $parameterValues = [], $runNow = false) {
+    public function __construct($title, array $parameterValues = [], array $indexes = [], $runNow = true) {
         $this->title = $title;
         $this->parameterValues = $parameterValues;
         $this->runNow = $runNow;
@@ -44,6 +51,13 @@ class SnapshotDescriptor {
      */
     public function getParameterValues() {
         return $this->parameterValues;
+    }
+
+    /**
+     * @return string[][]
+     */
+    public function getIndexes() {
+        return $this->indexes;
     }
 
     /**

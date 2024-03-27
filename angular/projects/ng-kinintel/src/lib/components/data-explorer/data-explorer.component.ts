@@ -22,6 +22,7 @@ const _ = lodash.default;
 export class DataExplorerComponent implements OnInit, OnDestroy {
 
     public _ = _;
+    public backendUrl: string;
     public showChart = false;
     public chartData;
     public datasetInstanceSummary: any;
@@ -51,11 +52,13 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+
         this.chartData = !!this.data.showChart;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
         this.accountId = this.data.accountId;
         this.breadcrumb = this.data.breadcrumb;
+        this.backendUrl = this.data.backendUrl;
 
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;
@@ -92,10 +95,11 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
 
     public apiAccess() {
         const dialogRef = this.dialog.open(SnapshotApiAccessComponent, {
-            width: '600px',
+            width: '800px',
             height: '530px',
             data: {
-                datasetInstanceSummary: this.datasetInstanceSummary
+                datasetInstanceSummary: this.datasetInstanceSummary,
+                backendUrl: this.backendUrl
             }
         });
     }

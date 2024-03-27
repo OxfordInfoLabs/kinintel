@@ -85,11 +85,44 @@ class SnapshotTest extends TestBase {
     }
 
 
+    public function testCanGetSingleSnapshotItemUsingManagementKeyAndSnapshotKey() {
+
+        $this->datasetService->returnValue("getDatasetInstanceByManagementKey",
+            new DatasetInstanceSummary("Test", "testing", null, [], [], [], null, null, [], 38, null, "testmanagement"),
+            ["testmanagement"]);
+
+
+        $instances = [
+            new DataProcessorInstance("example1", "Example 1", "tabulardatasetsnapshot", ["property1" => "test"], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 38),
+            new DataProcessorInstance("example2", "Example 2", "tabulardatasetincrementalsnapshot", ["property2" => "test2"], DataProcessorInstance::TRIGGER_SCHEDULED, new ScheduledTask(new ScheduledTaskSummary("test", "Test", [], [], ScheduledTask::STATUS_COMPLETED, "2028-01-01 10:00:00", null, "2020-01-01 10:00:00")), "DatasetInstance", 38)
+        ];
+
+
+        $this->dataProcessorService->returnValue("filterDataProcessorInstances", $instances, [
+            ["type" =>
+                new LikeFilter("type", "%snapshot%"),
+                "relatedObjectType" => "DatasetInstance",
+                "relatedObjectKey" => 38], null, 0, 1000000
+        ]);
+
+        $snapshotItem = $this->snapshot->getSnapshotForManagementKey("testmanagement", "example1");
+        $this->assertEquals(
+            new SnapshotItem("example1", "Example 1", SnapshotItem::STANDARD_SNAPSHOT, ["property1" => "test"], DataProcessorInstance::TRIGGER_ADHOC, "Test", "testmanagement", ScheduledTask::STATUS_PENDING, null, null), $snapshotItem);
+
+        $snapshotItem = $this->snapshot->getSnapshotForManagementKey("testmanagement", "example2");
+
+        $this->assertEquals(
+            new SnapshotItem("example2", "Example 2", SnapshotItem::INCREMENTAL_SNAPSHOT, ["property2" => "test2"], DataProcessorInstance::TRIGGER_SCHEDULED, "Test", "testmanagement", ScheduledTask::STATUS_COMPLETED, "01/01/2020 10:00:00", "01/01/2028 10:00:00"), $snapshotItem);
+
+    }
+
+
     public function testCanCreateSimpleNewAdhocSnapshotForManagementKeyWithTitle() {
 
         $this->datasetService->returnValue("getFullDataSetInstanceByManagementKey",
             new DatasetInstance(new DatasetInstanceSummary("Test", "testing", null, [], [], [], null, null, [], 38, null, "testmanagement"), 3, "helloWorld"),
             ["testmanagement"]);
+
 
 
         $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "My first one", "tabulardatasetsnapshot",
@@ -105,7 +138,7 @@ class SnapshotTest extends TestBase {
         ]);
 
 
-        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one"));
+        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one",[],[], false));
 
         $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
 
@@ -132,7 +165,7 @@ class SnapshotTest extends TestBase {
         ]);
 
 
-        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", ["param1" => "Bernard", "param2" => "Bingo"]));
+        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", ["param1" => "Bernard", "param2" => "Bingo"],[], false));
 
         $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
 
@@ -229,7 +262,7 @@ class SnapshotTest extends TestBase {
         ]);
 
 
-        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], true));
+        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], [], true));
 
         $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
 
