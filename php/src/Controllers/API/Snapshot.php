@@ -15,6 +15,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDat
 use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotDescriptor;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotItem;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 class Snapshot {
 
@@ -125,8 +126,11 @@ class Snapshot {
             // Grab full data set instance
             $fullDataSetInstance = $this->datasetService->getFullDataSetInstanceByManagementKey($managementKey);
 
+            // Map indexes to
+            $indexes = array_map(fn($index) => new Index($index) ,$snapshotDescriptor->getIndexes() ?? []);
+
             // Create config.
-            $config = new TabularDatasetSnapshotProcessorConfiguration([], [], $snapshotDescriptor->getParameterValues(), true, false, null, []);
+            $config = new TabularDatasetSnapshotProcessorConfiguration([], [], $snapshotDescriptor->getParameterValues(), true, false, null, $indexes);
 
             // Create a snapshot item for convenience
             $snapshotItem = new DataProcessorItem($snapshotDescriptor->getTitle(), "tabulardatasetsnapshot", $config, DataProcessorInstance::TRIGGER_ADHOC, DataProcessorInstance::RELATED_OBJECT_TYPE_DATASET_INSTANCE,
@@ -174,6 +178,11 @@ class Snapshot {
         // Update config
         $config = $existingSnapshot->returnConfig();
         $config->setParameterValues($snapshotDescriptor->getParameterValues());
+
+        // Map indexes to
+        $indexes = array_map(fn($index) => new Index($index) ,$snapshotDescriptor->getIndexes() ?? []);
+        $config->setIndexes($indexes);
+        
         $existingSnapshot->setConfig($config);
 
         try {

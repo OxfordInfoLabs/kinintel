@@ -37,6 +37,7 @@ class SnapshotDescriptor {
         $this->title = $title;
         $this->parameterValues = $parameterValues;
         $this->runNow = $runNow;
+        $this->indexes = $indexes;
     }
 
     /**

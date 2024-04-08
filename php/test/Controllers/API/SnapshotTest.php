@@ -19,6 +19,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDat
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotDescriptor;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotItem;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 include_once "autoloader.php";
 
@@ -124,7 +125,6 @@ class SnapshotTest extends TestBase {
             ["testmanagement"]);
 
 
-
         $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "My first one", "tabulardatasetsnapshot",
             new TabularDatasetSnapshotProcessorConfiguration([], [], [], true, false), DataProcessorInstance::TRIGGER_ADHOC,
             new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . date("U"), [
@@ -138,7 +138,7 @@ class SnapshotTest extends TestBase {
         ]);
 
 
-        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one",[],[], false));
+        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], [], false));
 
         $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
 
@@ -153,7 +153,7 @@ class SnapshotTest extends TestBase {
 
 
         $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "My first one", "tabulardatasetsnapshot",
-            new TabularDatasetSnapshotProcessorConfiguration([], [], ["param1" => "Bernard", "param2" => "Bingo"], true, false), DataProcessorInstance::TRIGGER_ADHOC,
+            new TabularDatasetSnapshotProcessorConfiguration([], [], ["param1" => "Bernard", "param2" => "Bingo"], true, false, null, [new Index(["column1", "column2"]), new Index(["column3", "column1"])]), DataProcessorInstance::TRIGGER_ADHOC,
             new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . date("U"), [
                 "dataProcessorKey" => "tabulardatasetsnapshot_3_" . date("U")
             ], []), "helloWorld", 3),
@@ -165,7 +165,7 @@ class SnapshotTest extends TestBase {
         ]);
 
 
-        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", ["param1" => "Bernard", "param2" => "Bingo"],[], false));
+        $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", ["param1" => "Bernard", "param2" => "Bingo"], [["column1", "column2"], ["column3", "column1"]], false));
 
         $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
 
@@ -203,7 +203,9 @@ class SnapshotTest extends TestBase {
 
 
         $expectedInstance = new DataProcessorInstance("existing-data-processor", "Updated Title", "tabulardatasetsnapshot",
-            new TabularDatasetSnapshotProcessorConfiguration([], [], ["param1" => "Hello"], true, false), DataProcessorInstance::TRIGGER_ADHOC,
+            new TabularDatasetSnapshotProcessorConfiguration([], [], ["param1" => "Hello"], true, false, null, [
+                new Index(["column1", "column2"]), new Index(["column3", "column4"])
+            ]), DataProcessorInstance::TRIGGER_ADHOC,
             new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "existing-data-processor", [
                 "dataProcessorKey" => "existing-data-processor"
             ], []), "helloWorld", 3),
@@ -216,7 +218,7 @@ class SnapshotTest extends TestBase {
 
 
         $key = $this->snapshot->updateSnapshotForManagementKey("testmanagement", "existing-data-processor",
-            new SnapshotDescriptor("Updated Title", ["param1" => "Hello"]));
+            new SnapshotDescriptor("Updated Title", ["param1" => "Hello"], [["column1", "column2"], ["column3", "column4"]]));
 
         $this->assertEquals("existing-data-processor", $key);
 
