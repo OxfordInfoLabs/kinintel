@@ -182,7 +182,7 @@ class Snapshot {
         // Map indexes to
         $indexes = array_map(fn($index) => new Index($index) ,$snapshotDescriptor->getIndexes() ?? []);
         $config->setIndexes($indexes);
-        
+
         $existingSnapshot->setConfig($config);
 
         try {
