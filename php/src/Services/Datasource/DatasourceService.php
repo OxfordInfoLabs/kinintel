@@ -7,7 +7,6 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Exception\AccessDeniedException;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
@@ -339,11 +338,6 @@ class DatasourceService {
 
         list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
 
-//        try{
-//            list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
-//        } catch (ObjectNotFoundException $e){
-//            throw new AccessDeniedException("You don't have write access to this datasource");
-//        }
 
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {

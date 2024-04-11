@@ -36,10 +36,9 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
-use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 
 include_once "autoloader.php";

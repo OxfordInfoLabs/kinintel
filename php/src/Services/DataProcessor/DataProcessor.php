@@ -29,14 +29,35 @@ interface DataProcessor {
 
     /**
      * Main process method.  Receives config which should be typed according
-     * to the config class declared above.
+     * to the config class declared above.  This is called to run the processor
+     *
      * @param DataProcessorInstance $instance
      */
     public function process($instance);
 
+
     /**
-     * Clean up when deleted
-     * @param $instance
+     * Save hook, called when an instance is saved.  Useful to modify state
+     *
+     * @param DataProcessorInstance $instance
+     */
+    public function onInstanceSave($instance);
+
+    /**
+     * Delete hook, called when an instance is deleted - useful to clean up database artifacts etc.
+     *
+     * @param DataProcessorInstance $instance
      */
     public function onInstanceDelete($instance);
+
+
+    /**
+     * Hook called when a related object is updated.  Useful if we need to modify state e.g. schema
+     * when things change.
+     *
+     * @param DataProcessorInstance $instance
+     * @param mixed $relatedObject
+     */
+    public function onRelatedObjectSave($instance, $relatedObject);
+
 }

@@ -16,7 +16,6 @@ use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
-use Kinikit\Persistence\ORM\Document;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;

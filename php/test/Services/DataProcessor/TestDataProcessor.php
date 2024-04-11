@@ -5,9 +5,9 @@ namespace Kinintel\Test\Services\DataProcessor;
 
 
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 
-class TestDataProcessor implements DataProcessor {
+class TestDataProcessor extends BaseDataProcessor {
 
     public $processedConfig = null;
 
