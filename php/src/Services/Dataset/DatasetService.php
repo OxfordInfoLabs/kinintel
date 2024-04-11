@@ -3,9 +3,6 @@
 namespace Kinintel\Services\Dataset;
 
 use Kiniauth\Objects\Account\Account;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskInterceptor;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskSummary;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\MVC\Response\Download;
@@ -13,13 +10,9 @@ use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
-use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -63,6 +56,17 @@ class DatasetService {
 
 
     /**
+     * Get dataset instance by management key
+     *
+     * @param string $managementKey
+     * @return DatasetInstanceSummary
+     */
+    public function getDatasetInstanceByManagementKey($managementKey, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->getFullDataSetInstanceByManagementKey($managementKey, $accountId)->returnSummary();
+    }
+
+
+    /**
      * Get an extended version of a dataset instance
      *
      * @param $originalDatasetId
@@ -82,6 +86,34 @@ class DatasetService {
      */
     public function getFullDataSetInstance($id) {
         return DatasetInstance::fetch($id);
+    }
+
+
+    /**
+     * Get full dataset instance
+     *
+     * @param string $managementKey
+     * @param integer $accountId
+     *
+     * @return DatasetInstance
+     */
+    public function getFullDataSetInstanceByManagementKey($managementKey, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        $sql = "WHERE managementKey = ?";
+        $params = [$managementKey];
+
+        if ($accountId) {
+            $sql .= " AND accountId = ?";
+            $params[] = $accountId;
+        } else {
+            $sql .= " AND account_id IS NULL";
+        }
+
+        $matches = DatasetInstance::filter($sql, $params);
+        if (sizeof($matches) > 0) {
+            return $matches[0];
+        } else {
+            throw new ObjectNotFoundException(DatasetInstance::class, $managementKey);
+        }
     }
 
 
@@ -231,12 +263,6 @@ class DatasetService {
 
         $dataSetInstance = new DatasetInstance($dataSetInstanceSummary, $accountId, $projectKey);
 
-        // If existing summary, ensure we sync snapshot profiles.
-        if ($dataSetInstanceSummary->getId()) {
-            $existingDataSetInstance = DatasetInstance::fetch($dataSetInstanceSummary->getId());
-            $dataSetInstance->setSnapshotProfiles($existingDataSetInstance->getSnapshotProfiles());
-        }
-
         // Process tags
         if (sizeof($dataSetInstanceSummary->getTags())) {
             $tags = $this->metaDataService->getObjectTagsFromSummaries($dataSetInstanceSummary->getTags(), $accountId, $projectKey);
@@ -284,247 +310,31 @@ class DatasetService {
 
 
     /**
-     * Filter snapshot profiles for accounts, optionally by project key and tags.
+     * Check whether an import key is available for a supplied datasource instance.
      *
-     * @param string $filterString
-     * @param array $tags
-     * @param string $projectKey
-     * @param int $offset
-     * @param int $limit
-     * @param string $accountId
-     *
+     * @param DatasetInstance $datasetInstance
+     * @return boolean
      */
-    public function filterSnapshotProfiles($filterString = "", $tags = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function managementKeyAvailableForDatasetInstance($datasetInstance, $proposedManagementKey) {
 
-
-        $clauses = [];
-        $params = [];
-        if ($accountId) {
-            $clauses[] = "datasetInstanceLabel.account_id = ?";
-            $params[] = $accountId;
+        // If account id or project key, form clause
+        $clauses = ["management_key = ?"];
+        $parameters = [$proposedManagementKey];
+        if ($datasetInstance->getAccountId() || $datasetInstance->getProjectKey()) {
+            $clauses[] = "accountId = ?";
+            $parameters[] = $datasetInstance->getAccountId();
+        } else {
+            $clauses[] = "accountId IS NULL";
         }
-        if ($projectKey) {
-            $clauses[] = "datasetInstanceLabel.project_key = ?";
-            $params[] = $projectKey;
-        }
-
-        if ($tags && sizeof($tags) > 0) {
-            if ($tags[0] == "NONE") {
-                $clauses[] = "datasetInstanceLabel.tags.tag_key IS NULL";
-            } else {
-                $clauses[] = "datasetInstanceLabel.tags.tag_key IN (" . str_repeat("?", sizeof($tags)) . ")";
-                $params = array_merge($params, $tags);
-            }
+        if ($datasetInstance->getId()) {
+            $clauses[] = "id <> ?";
+            $parameters[] = $datasetInstance->getId();
         }
 
-        if ($filterString) {
-            $clauses[] = "(title LIKE ? OR datasetInstanceLabel.title LIKE ?)";
-            $params[] = "%$filterString%";
-            $params[] = "%$filterString%";
-        }
-
-        $query = sizeof($clauses) ? "WHERE " . join(" AND ", $clauses) : "";
-        $query .= " ORDER BY datasetInstanceLabel.title, title";
-
-        if ($limit) {
-            $query .= " LIMIT ?";
-            $params[] = $limit;
-        }
-        if ($offset) {
-            $query .= " OFFSET ?";
-            $params[] = $offset;
-        }
-
-
-        $snapshotProfiles = DatasetInstanceSnapshotProfile::filter($query, $params);
-
-
-        return array_map(function ($snapshotProfile) {
-            return new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile);
-        }, $snapshotProfiles);
-
-
+        $matches = DatasetInstance::filter("WHERE " . implode(" AND ", $clauses), $parameters);
+        return sizeof($matches) ? false : true;
     }
 
-    /**
-     * Return a snapshot
-     *
-     * @param $profileId
-     * @return mixed
-     */
-    public function getSnapshotProfile($profileId) {
-        return DatasetInstanceSnapshotProfile::fetch($profileId)->returnSummary();
-    }
-
-    /**
-     * List all snapshots for a dataset instance
-     *
-     * @param $datasetInstanceId
-     * @return DatasetInstanceSnapshotProfileSummary[]
-     */
-    public function listSnapshotProfilesForDataSetInstance($datasetInstanceId) {
-
-        // Check we have access to the instance first
-        DatasetInstance::fetch($datasetInstanceId);
-
-        $profiles = DatasetInstanceSnapshotProfile::filter("WHERE datasetInstanceId = ? ORDER BY title", $datasetInstanceId);
-        return array_map(function ($profile) {
-            return $profile->returnSummary();
-        }, $profiles);
-    }
-
-
-    /**
-     * Save a snapshot profile for an instance
-     *
-     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
-     * @param integer $datasetInstanceId
-     */
-    public function saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId) {
-
-        // Security check to ensure we can access the parent instance
-        $datasetInstance = DatasetInstance::fetch($datasetInstanceId);
-
-        // Update the processor configuration object to include the datasetInstanceId
-        $processorConfig = $snapshotProfileSummary->getProcessorConfig() ?? [];
-        $processorConfig["datasetInstanceId"] = $datasetInstanceId;
-
-
-        // If an existing profile we want to update the master one
-        if ($snapshotProfileSummary->getId()) {
-
-            $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileSummary->getId());
-            if ($snapshotProfile->getDatasetInstanceId() != $datasetInstanceId)
-                throw new ObjectNotFoundException(DatasetInstanceSnapshotProfile::class, $snapshotProfileSummary->getId());
-
-            if ($snapshotProfileSummary->getTrigger() == DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE) {
-
-                if (!$snapshotProfile->getScheduledTask()) {
-                    $dataProcessorKey = $processorConfig["snapshotIdentifier"];
-                    $snapshotProfile->setScheduledTask(new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
-                        [
-                            "dataProcessorKey" => $dataProcessorKey
-                        ], $snapshotProfileSummary->getTaskTimePeriods()), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId()));
-                }
-
-
-                $snapshotProfile->setTrigger(DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE);
-
-                $snapshotProfile->getScheduledTask()->setTimePeriods($snapshotProfileSummary->getTaskTimePeriods());
-            } else {
-
-                if (!$snapshotProfile->getScheduledTask()) {
-                    $dataProcessorKey = $processorConfig["snapshotIdentifier"];
-                    $snapshotProfile->setScheduledTask(new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
-                        [
-                            "dataProcessorKey" => $dataProcessorKey
-                        ], []), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId()));
-                }
-
-                $snapshotProfile->setTrigger(DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC);
-                $snapshotProfile->getScheduledTask()->setTimePeriods([]);
-            }
-
-
-            $snapshotProfile->setTitle($snapshotProfileSummary->getTitle());
-
-            $processorConfig["snapshotIdentifier"] = $snapshotProfile->getDataProcessorInstance()->getKey();
-            $snapshotProfile->getDataProcessorInstance()->setType($snapshotProfileSummary->getProcessorType());
-            $snapshotProfile->getDataProcessorInstance()->setConfig($processorConfig);
-
-
-        } // Otherwise create new
-        else {
-
-            $dataProcessorKey = "dataset_snapshot_" . (new \DateTime())->format("Uv");
-
-            $processorConfig["snapshotIdentifier"] = $dataProcessorKey;
-
-
-            // Create a processor instance
-            $dataProcessorInstance = new DataProcessorInstance($dataProcessorKey,
-                $snapshotProfileSummary->getTitle(),
-                $snapshotProfileSummary->getProcessorType(), $processorConfig,
-                $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
-
-
-            $scheduledTask = $snapshotProfileSummary->getTrigger() == DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE ? new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
-                [
-                    "dataProcessorKey" => $dataProcessorKey
-                ], $snapshotProfileSummary->getTaskTimePeriods()), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId())
-                : new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "Dataset Instance Snapshot:$datasetInstanceId - " . $snapshotProfileSummary->getTitle(),
-                    [
-                        "dataProcessorKey" => $dataProcessorKey
-                    ], []), $datasetInstance->getProjectKey(), $datasetInstance->getAccountId());
-
-
-            $snapshotProfile = new DatasetInstanceSnapshotProfile($datasetInstanceId, $snapshotProfileSummary->getTitle(), $snapshotProfileSummary->getTrigger(), $scheduledTask, $dataProcessorInstance);
-
-
-        }
-
-
-        // Save the profile
-        $snapshotProfile->save();
-
-
-        return $snapshotProfile->getId();
-
-
-    }
-
-
-    /**
-     * Remove a snapshot profile for an instance
-     *
-     * @param $datasetInstanceId
-     * @param $snapshotProfileId
-     */
-    public function removeSnapshotProfile($datasetInstanceId, $snapshotProfileId) {
-
-        // Security check to ensure we can access the parent instance
-        DatasetInstance::fetch($datasetInstanceId);
-
-        // Grab the profile
-        $profile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
-
-        if ($profile->getDatasetInstanceId() == $datasetInstanceId) {
-            $profile->remove();
-        }
-
-
-    }
-
-
-    /**
-     * Trigger a snapshot manually
-     *
-     * @param $datasetInstanceId
-     * @param $snapshotProfileId
-     *
-     */
-    public function triggerSnapshot($datasetInstanceId, $snapshotProfileId) {
-
-        // Security check to ensure we can access the parent instance
-        DatasetInstance::fetch($datasetInstanceId);
-
-        // Grab the profile
-        /**
-         * @var DatasetInstanceSnapshotProfile $profile
-         */
-        $profile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
-
-        $task = $profile->getScheduledTask();
-        $task->setNextStartTime(new \DateTime());
-        $task->setStatus(ScheduledTask::STATUS_PENDING);
-
-        // Suppress normal schedule behaviour here
-        $preDisabled = ScheduledTaskInterceptor::$disabled;
-        ScheduledTaskInterceptor::$disabled = true;
-        $task->save();
-        ScheduledTaskInterceptor::$disabled = $preDisabled;
-
-    }
 
 
     /**
@@ -550,10 +360,6 @@ class DatasetService {
     }
 
 
-
-
-
-
     /**
      * Wrapper to below function for standard read only use where a data set is being
      * queried
@@ -569,8 +375,6 @@ class DatasetService {
 
         return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
-
-
 
 
     /**
@@ -649,11 +453,8 @@ class DatasetService {
         $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
 
 
-         // Grab the dataset.
+        // Grab the dataset.
         $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
-
-
-
 
 
         // Export the dataset using exporter

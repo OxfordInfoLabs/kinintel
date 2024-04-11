@@ -3,7 +3,6 @@
 namespace Kinintel\Services\Util\SQLiteFunctions;
 
 use Exception;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\MathsUtils;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3CustomFunction;
 

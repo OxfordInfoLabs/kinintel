@@ -81,6 +81,14 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
 
 
     /**
+     * Management key, used when involving this dataset instance in automated workflows.
+     *
+     * @var string
+     */
+    protected $managementKey;
+
+
+    /**
      * DatasetInstance constructor.
      *
      * @param string $title
@@ -93,9 +101,12 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      * @param string $description
      * @param CategorySummary[] $categories
      * @param integer $id
+     * @param DatasetInstanceSearchResult $sourceDataSet
+     * @param string $managementKey
      */
     public function __construct($title, $datasourceInstanceKey = null, $datasetInstanceId = null, $transformationInstances = [], $parameters = [],
-                                $parameterValues = [], $summary = null, $description = null, $categories = [], $id = null, $sourceDataSet = null) {
+                                $parameterValues = [], $summary = null, $description = null, $categories = [], $id = null, $sourceDataSet = null,
+                                $managementKey = null) {
         $this->title = $title;
         $this->summary = $summary;
         $this->description = $description;
@@ -107,6 +118,7 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
         $this->parameterValues = $parameterValues;
         $this->id = $id;
         $this->sourceDataset = $sourceDataSet;
+        $this->managementKey = $managementKey;
     }
 
     /**
@@ -192,6 +204,20 @@ class DatasetInstanceSummary extends BaseDatasetInstance {
      */
     public function setCategories($categories) {
         $this->categories = $categories;
+    }
+
+    /**
+     * @return string
+     */
+    public function getManagementKey() {
+        return $this->managementKey;
+    }
+
+    /**
+     * @param string $managementKey
+     */
+    public function setManagementKey($managementKey) {
+        $this->managementKey = $managementKey;
     }
 
 
