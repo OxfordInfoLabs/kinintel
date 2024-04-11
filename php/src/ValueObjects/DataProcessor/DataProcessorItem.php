@@ -11,110 +11,33 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 class DataProcessorItem {
 
     /**
-     * @var string
-     */
-    private $key;
-
-    /**
-     * @var string
-     */
-    private $title;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var mixed
-     */
-    private $config;
-
-
-    /**
-     * @var string
-     */
-    private $trigger;
-
-
-    /**
-     * Related object type if relevant
-     *
-     * @var string
-     */
-    private $relatedObjectType;
-
-
-    /**
-     * Primary key for related object if relevant
-     *
-     * @var string
-     */
-    private $relatedObjectPrimaryKey;
-
-
-    /**
-     * @var string
-     */
-    private $relatedObjectTitle;
-
-
-    /**
-     * @var ScheduledTaskTimePeriod[]
-     */
-    private $taskTimePeriods;
-
-
-    /**
-     * @var string
-     */
-    private $taskStatus;
-
-    /**
-     * @var string
-     */
-    private $taskLastStartTime;
-
-    /**
-     * @var string
-     */
-    private $taskLastEndTime;
-
-
-    /**
-     * @var string
-     */
-    private $taskNextStartTime;
-
-    /**
-     * @param string $title
-     * @param string $type
+     * @param string|null $title
+     * @param string|null $type
      * @param mixed $config
-     * @param string $trigger
-     * @param string $relatedObjectType
-     * @param mixed $relatedObjectPrimaryKey
-     * @param string $relatedObjectTitle
+     * @param string|null $trigger
+     * @param string|null $relatedObjectType Related object type if relevant e.g. DatasetInstance, DatasourceInstance
+     * @param mixed $relatedObjectPrimaryKey Primary key for related object if relevant
+     * @param string|null $relatedObjectTitle
      * @param ScheduledTaskTimePeriod[] $taskTimePeriods
-     * @param string $taskStatus
-     * @param string $taskLastStartTime
-     * @param string $taskLastEndTime
-     * @param string $taskNextStartTime
-     * @param string $key
+     * @param string|null $taskStatus
+     * @param string|null $taskLastStartTime
+     * @param string|null $taskLastEndTime
+     * @param string|null $taskNextStartTime
+     * @param string|null $key
      */
-    public function __construct($title, $type, $config, $trigger = DataProcessorInstance::TRIGGER_ADHOC, $relatedObjectType = null, $relatedObjectPrimaryKey = null, $relatedObjectTitle = null, $taskTimePeriods = [], $taskStatus = null, $taskLastStartTime = null, $taskLastEndTime = null, $taskNextStartTime = null, $key = null) {
-        $this->key = $key;
-        $this->title = $title;
-        $this->type = $type;
-        $this->config = $config;
-        $this->trigger = $trigger;
-        $this->taskTimePeriods = $taskTimePeriods;
-        $this->taskStatus = $taskStatus;
-        $this->taskLastStartTime = $taskLastStartTime;
-        $this->taskLastEndTime = $taskLastEndTime;
-        $this->taskNextStartTime = $taskNextStartTime;
-        $this->relatedObjectType = $relatedObjectType;
-        $this->relatedObjectPrimaryKey = $relatedObjectPrimaryKey;
-        $this->relatedObjectTitle = $relatedObjectTitle;
+    public function __construct(private ?string $title,
+                                private ?string $type,
+                                private mixed $config,
+                                private ?string $trigger = DataProcessorInstance::TRIGGER_ADHOC,
+                                private ?string $relatedObjectType = null,
+                                private ?string $relatedObjectPrimaryKey = null,
+                                private ?string $relatedObjectTitle = null,
+                                private $taskTimePeriods = [],
+                                private ?string $taskStatus = null,
+                                private ?string $taskLastStartTime = null,
+                                private ?string $taskLastEndTime = null,
+                                private ?string $taskNextStartTime = null,
+                                private ?string $key = null) {
     }
 
 
@@ -300,7 +223,10 @@ class DataProcessorItem {
      * @param $accountId
      * @return void
      */
-    public function toDataProcessorInstance($projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function toDataProcessorInstance(
+        $projectKey = null,
+        $accountId = Account::LOGGED_IN_ACCOUNT
+    ) : DataProcessorInstance {
 
         // Handle new and existing cases
         $key = $this->getKey() ?: $this->getType() . "_" . ($accountId ?? 0) . "_" . date("U");
@@ -328,7 +254,7 @@ class DataProcessorItem {
      * @param DataProcessorInstance $dataProcessorInstance
      * @return DataProcessorItem
      */
-    public static function fromDataProcessorInstance($dataProcessorInstance) {
+    public static function fromDataProcessorInstance($dataProcessorInstance) : DataProcessorItem {
         return new DataProcessorItem($dataProcessorInstance->getTitle(), $dataProcessorInstance->getType(), $dataProcessorInstance->getConfig(),
             $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(), $dataProcessorInstance->getRelatedObjectTitle(),
             $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),
