@@ -42,6 +42,7 @@ export class DatasetFilterComponent implements OnInit {
 
     public customValue = false;
     public customLhs = false;
+    public _ = _;
 
     constructor(private dialog: MatDialog) {
     }
@@ -88,17 +89,20 @@ export class DatasetFilterComponent implements OnInit {
 
 
     updateFilterType(filter: any) {
-
-        if (filter.filterType !== "similarto" && filter.filterType !== "between") {
+        if (filter.filterType !== 'similarto' && filter.filterType !== 'between') {
             if (filter.rhsExpression && filter.rhsExpression.length > 1) {
                 filter.rhsExpression = filter.rhsExpression.slice(0, 1);
             }
         }
-
+        if (filter.filterType === 'similarto') {
+            if (!filter.rhsExpression[1]) {
+                filter.rhsExpression[1] = 1;
+            }
+        }
     }
 
     public updateExpressionType(filter, type, value?, fieldIndex = 0) {
-        filter[fieldIndex == 0 ? "_expType" : "_otherExpType"] = type;
+        filter[fieldIndex === 0 ? '_expType' : '_otherExpType'] = type;
         if (type === 'period') {
             filter.rhsExpression[fieldIndex] = `${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`;
         } else {
