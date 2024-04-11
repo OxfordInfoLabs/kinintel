@@ -104,6 +104,8 @@ class SQLClauseSanitiser {
             "description" => "Return the smallest value of all supplied arguments"],
         "LENGTH" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Return the length of the string argument supplied"],
+        "LEVENSHTEIN" => ["params" => ["X", "Y"], "category" => self::STRING_WHITELISTED_FUNCTION,
+            "description" => "Return the Levenshtein edit distance between the two strings passed as X and Y.  This is the number of letter swaps required to turn X into Y"],
         "LN" => ["params" => ["X"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the natural logarithm of X"],
         "LOG" => ["params" => ["B", "X"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
