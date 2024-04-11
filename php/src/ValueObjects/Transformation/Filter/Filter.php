@@ -44,11 +44,11 @@ class Filter {
     const FILTER_TYPE_STARTS_WITH = "startswith";
     const FILTER_TYPE_ENDS_WITH = "endswith";
     const FILTER_TYPE_CONTAINS = "contains";
-    const FILTER_TYPE_SIMILAR_TO = "similarto";
     const FILTER_TYPE_LIKE = "like";
     const FILTER_TYPE_NOT_LIKE = "notlike";
 
     // Filter type constants (multi valued)
+    const FILTER_TYPE_SIMILAR_TO = "similarto";
     const FILTER_TYPE_BETWEEN = "between";
     const FILTER_TYPE_IN = "in";
     const FILTER_TYPE_NOT_IN = "notin";

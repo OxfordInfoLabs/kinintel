@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -97,10 +98,11 @@ class SQLFilterJunctionEvaluator {
         $lhsParams = [];
         $rhsParams = [];
 
+
         // Map any square brackets to direct columns with table alias or assume whole string is single column
         $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getLhsExpression(), $templateParameters, $this->lhsTableAlias, $lhsParams);
         $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getRhsExpression(), $templateParameters, $this->rhsTableAlias, $rhsParams);
-
+        $rhsExpressionComponents = explode(",", $rhsExpression);
 
         $clause = "";
         switch ($filter->getFilterType()) {
@@ -137,10 +139,10 @@ class SQLFilterJunctionEvaluator {
                 $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression, '%')";
                 break;
             case Filter::FILTER_TYPE_SIMILAR_TO:
-                if (!is_array($rhsParams) || sizeof($rhsParams) !== 2) {
+
+                if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array containing a match string and a maximum distance");
                 }
-                $rhsExpressionComponents = explode(",", $rhsExpression);
 
                 // Add parameters to allow for compound expression.
                 $rhsParams = array_merge($lhsParams, $rhsParams, $rhsParams);
@@ -157,7 +159,7 @@ class SQLFilterJunctionEvaluator {
                 break;
 
             case Filter::FILTER_TYPE_BETWEEN:
-                if (!is_array($rhsParams) || sizeof($rhsParams) !== 2) {
+                if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array");
                 }
                 $clause = "$lhsExpression BETWEEN ? AND ?";

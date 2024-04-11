@@ -72,8 +72,53 @@
             </button>
         </mat-menu>
 
-        <input *ngIf="filter.filterType === 'similarto'" type="text" [(ngModel)]="filter.rhsExpression[1]" name="similarityDistance" placeholder="Maximum Distance"
+
+        <input *ngIf="filter.filterType === 'similarto'" type="number" [(ngModel)]="filter.rhsExpression[1]" name="similarityDistance" placeholder="Maximum Distance"
                class="pl-2 py-2 pr-8 mr-4 full">
+
+        <div *ngIf="filter.filterType === 'between'" class="relative">
+            <input  type="text" *ngIf="!filter._otherExpType" type="text" [(ngModel)]="filter.rhsExpression[1]" name="otherbetween" placeholder="To value"
+               class="pl-2 py-2 pr-8 mr-4 full">
+
+            <input *ngIf="filter._otherExpType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression[1]" name="filterValue" placeholder="Value"
+                   class="pl-2 py-2 pr-10 mr-4 full">
+
+            <ng-template [ngIf]="filter._otherExpType === 'period'">
+                <div class="flex items-center">
+                    <input #periodValue type="number" placeholder="No." required autofocus
+                           class="w-32 mr-2 p-2" min="0" [value]="filter._otherPeriodValue || 1"
+                           (change)="updatePeriodValue(periodValue.value, period.value, filter,1)">
+
+                    <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._otherPeriod || 'DAYS'"
+                            #period (change)="updatePeriodValue(periodValue.value, period.value, filter,1)">
+                        <option value="DAYS">Days</option>
+                        <option value="HOURS">Hours</option>
+                    </select>
+
+                    <div class="font-medium">Ago</div>
+                </div>
+            </ng-template>
+
+            <button class="absolute right-0 -top-0.5" mat-icon-button [matMenuTriggerFor]="otherMenu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #otherMenu="matMenu">
+                <button mat-menu-item (click)="updateExpressionType(filter, null, [], 1)">
+                    <mat-icon>title</mat-icon>
+                    <span>Text</span>
+                </button>
+                <button mat-menu-item (click)="updateExpressionType(filter, 'date-picker', [], 1)">
+                    <mat-icon>calendar_month</mat-icon>
+                    <span>Date Picker</span>
+                </button>
+                <button mat-menu-item (click)="updateExpressionType(filter, 'period', null, 1)">
+                    <mat-icon>restore</mat-icon>
+                    <span>Time Period</span>
+                </button>
+            </mat-menu>
+
+
+        </div>
 
 
     </div>
@@ -117,12 +162,12 @@
 
     <div class="w-full">
         <div>
-            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression" class="mr-4 p-2" >
+            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression[0]" class="mr-4 p-2" >
                 <mat-option value="">-- Select Column Name --</mat-option>
                 <mat-option *ngFor="let field of joinFilterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
             </mat-select>
 
-            <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression"
+            <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression[0]"
                    name="filterValue" placeholder="Custom value" class="mr-4 full p-2">
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
@@ -140,6 +185,14 @@
             </a>
         </div>
     </div>
+
+    <input *ngIf="filter.filterType === 'similarto'" type="number" [(ngModel)]="filter.rhsExpression[1]" name="similarityDistance" placeholder="Maximum Distance"
+           class="pl-2 py-2 pr-8 mr-4 full">
+
+    <input *ngIf="filter.filterType === 'between'" type="text" [(ngModel)]="filter.rhsExpression[1]" name="otherValue" placeholder="Other value"
+           class="pl-2 py-2 pr-8 mr-4 full">
+
+
 
 </ng-template>
 

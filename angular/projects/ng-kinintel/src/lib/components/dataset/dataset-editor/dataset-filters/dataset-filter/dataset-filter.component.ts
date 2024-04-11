@@ -23,6 +23,7 @@ export class DatasetFilterComponent implements OnInit {
         {label: '(>=) Greater Than Or Equal To', value: 'gte', string: '>='},
         {label: '(<) Less Than', value: 'lt', string: '<'},
         {label: '(<=) Less Than Or Equal To', value: 'lte', string: '<='},
+        {label: 'Between', value: 'between', string: 'between'},
         {label: 'Is Null', value: 'null', string: 'is null'},
         {label: 'Not Null', value: 'notnull', string: 'not null'},
         {label: 'Like', value: 'like', string: 'like'},
@@ -56,10 +57,16 @@ export class DatasetFilterComponent implements OnInit {
                 return `[[${field.name}]]` === this.filter.lhsExpression;
             });
 
-        this.customValue = String(this.filter.rhsExpression).length &&
+        this.customValue = this.filter.rhsExpression.length && String(this.filter.rhsExpression[0]).length &&
             !_.find(this.joinFilterFields, field => {
-                return `[[${field.name}]]` === this.filter.rhsExpression;
+                return `[[${field.name}]]` === this.filter.rhsExpression[0];
             });
+
+        // Handle legacy string scenarios.
+        if (_.isString(this.filter.rhsExpression)) {
+            this.filter.rhsExpression = [this.filter.rhsExpression];
+        }
+
 
         if (String(this.filter.rhsExpression[0]).includes('AGO')) {
             this.filter._expType = 'period';
@@ -81,28 +88,26 @@ export class DatasetFilterComponent implements OnInit {
 
 
     updateFilterType(filter: any) {
-        console.log(filter);
 
-        if (filter.filterType !== "similarto") {
+        if (filter.filterType !== "similarto" && filter.filterType !== "between") {
             if (filter.rhsExpression && filter.rhsExpression.length > 1) {
                 filter.rhsExpression = filter.rhsExpression.slice(0, 1);
             }
         }
 
-        console.log(filter);
     }
 
-    public updateExpressionType(filter, type, value?) {
-        filter._expType = type;
+    public updateExpressionType(filter, type, value?, fieldIndex = 0) {
+        filter[fieldIndex == 0 ? "_expType" : "_otherExpType"] = type;
         if (type === 'period') {
-            filter.rhsExpression = [`${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`];
+            filter.rhsExpression[fieldIndex] = `${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`;
         } else {
-            filter.rhsExpression = value;
+            filter.rhsExpression[fieldIndex] = value;
         }
     }
 
-    public updatePeriodValue(value, period, filter) {
-        filter.rhsExpression = [`${value}_${period}_AGO`];
+    public updatePeriodValue(value, period, filter, fieldIndex = 0) {
+        filter.rhsExpression[fieldIndex] = `${value}_${period}_AGO`;
     }
 
     public removeFilter() {

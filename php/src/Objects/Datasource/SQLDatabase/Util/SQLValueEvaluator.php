@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use DateInterval;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
@@ -42,7 +43,9 @@ class SQLValueEvaluator {
      */
     public function evaluateFilterValue($value, $templateParameters = [], $tableAlias = null, &$outputParameters = []) {
 
+
         $valueArray = is_array($value) ? $value : [$value];
+
 
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
@@ -140,6 +143,8 @@ class SQLValueEvaluator {
             $valueStrings[] = $value;
 
         }
+
+
 
         return join(",", $valueStrings);
 
