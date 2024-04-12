@@ -92,7 +92,7 @@
                 <mat-icon>edit</mat-icon>
                 Edit Item
             </button>
-            <button mat-menu-item (click)="duplicate()">
+            <button *ngIf="existingGridItem" mat-menu-item (click)="duplicate()">
                 <mat-icon>copy_all</mat-icon>
                 Duplicate Item
             </button>
