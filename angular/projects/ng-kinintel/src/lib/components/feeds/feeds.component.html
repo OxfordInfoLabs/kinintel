@@ -129,8 +129,7 @@ curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[
 -X <b>GET</b> <span class="text-secondary">{{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></span></pre>
 
                                     </div>
-                                    <button mat-icon-button [cdkCopyToClipboard]="createCurl.textContent"
-                                            (cdkCopyToClipboardCopied)="copied()"
+                                    <button mat-icon-button (click)="copy(createCurl.textContent)"
                                             class="text-white absolute bottom-0 right-0">
                                         <mat-icon>content_copy</mat-icon>
                                     </button>
@@ -148,8 +147,7 @@ curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[
 
                                     </div>
 
-                                    <button mat-icon-button [cdkCopyToClipboard]="createHttps.textContent"
-                                            (cdkCopyToClipboardCopied)="copied()"
+                                    <button mat-icon-button (click)="copy(createCurl.textContent)"
                                             class="text-white absolute bottom-0 right-0">
                                         <mat-icon>content_copy</mat-icon>
                                     </button>
