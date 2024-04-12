@@ -114,6 +114,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     public canExportData = false;
     public externalError = false;
     public quotaExceeded: string = null;
+    public existingGridItem = false;
 
     private itemLoadedSub: Subscription;
     private optimiseSub: Subscription;
@@ -236,6 +237,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         }
 
         this.optimiseSub = this.optimiseSubject.subscribe(res => this.optimise = res);
+
+        this.existingGridItem = !!_.find(this.dashboard.layoutSettings.grid, item => {
+            return item.content.includes(this.itemInstanceKey);
+        });
     }
 
     ngOnDestroy() {

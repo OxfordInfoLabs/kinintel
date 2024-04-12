@@ -92,10 +92,10 @@
                 <mat-icon>edit</mat-icon>
                 Edit Item
             </button>
-<!--            <button mat-menu-item (click)="duplicate()">-->
-<!--                <mat-icon>edit</mat-icon>-->
-<!--                Duplicate Item-->
-<!--            </button>-->
+            <button *ngIf="existingGridItem" mat-menu-item (click)="duplicate()">
+                <mat-icon>copy_all</mat-icon>
+                Duplicate Item
+            </button>
             <button *ngIf="canExportData" mat-menu-item (click)="exportData()">
                 <mat-icon>file_download</mat-icon>
                 Export Data
