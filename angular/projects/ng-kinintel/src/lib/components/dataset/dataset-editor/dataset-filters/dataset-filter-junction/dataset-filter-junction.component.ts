@@ -28,7 +28,7 @@ export class DatasetFilterJunctionComponent implements OnInit {
         if (type === 'single') {
             this.filterJunction.filters.push({
                 lhsExpression: '',
-                rhsExpression: '',
+                rhsExpression: [],
                 filterType: ''
             });
         } else if (type === 'group') {
@@ -36,7 +36,7 @@ export class DatasetFilterJunctionComponent implements OnInit {
                 logic: 'AND',
                 filters: [{
                     lhsExpression: '',
-                    rhsExpression: '',
+                    rhsExpression: [],
                     filterType: ''
                 }],
                 filterJunctions: []

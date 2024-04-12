@@ -3,7 +3,8 @@
         <div>
             <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="p-2 mr-4" name="fieldName">
                 <mat-option value="">-- Select Column Name --</mat-option>
-                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{ field.title }}
+                </mat-option>
             </mat-select>
 
             <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
@@ -11,66 +12,132 @@
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>
-                <mat-checkbox [(ngModel)]="customLhs" (ngModelChange)="updateCustom($event)"></mat-checkbox>Custom expression
+                <mat-checkbox [(ngModel)]="customLhs" (ngModelChange)="updateCustom($event)"></mat-checkbox>
+                Custom expression
             </div>
 
             <a (click)="viewColumns(filterFields)" *ngIf="customLhs && openSide"
                class="text-xs ml-2 hover:underline flex items-center primary">
                 view docs&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                    <path
+                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
                 </svg>
             </a>
         </div>
     </div>
 
-    <mat-select [(ngModel)]="filter.filterType" class="p-2 mr-4" name="filterType">
+    <mat-select [(ngModel)]="filter.filterType" class="p-2 mr-4" name="filterType"
+                (ngModelChange)="updateFilterType(filter)">
         <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
-            {{filterType.label}}
+            {{ filterType.label }}
         </mat-option>
     </mat-select>
 
-    <div class="relative w-full">
-        <input *ngIf="!filter._expType" type="text" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value"
-               class="pl-2 py-2 pr-8 mr-4 full">
-        <input *ngIf="filter._expType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression" name="filterValue" placeholder="Value"
-               class="pl-2 py-2 pr-10 mr-4 full">
+    <div class="w-full flex items-start">
+        <div class="relative w-full">
+            <input *ngIf="!filter._expType" type="text" [(ngModel)]="filter.rhsExpression[0]" name="filterValue"
+                   placeholder="Value"
+                   class="pl-2 py-2 pr-8 mr-4 full">
+            <input *ngIf="filter._expType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression[0]"
+                   name="filterValue" placeholder="Value"
+                   class="pl-2 py-2 pr-10 mr-4 full">
 
-        <ng-template [ngIf]="filter._expType === 'period'">
-            <div class="flex items-center">
-                <input #periodValue type="number" placeholder="No." required autofocus
-                       class="w-32 mr-2 p-2" min="0" [value]="filter._periodValue || 1"
-                       (change)="updatePeriodValue(periodValue.value, period.value, filter)">
+            <ng-template [ngIf]="filter._expType === 'period'">
+                <div class="flex items-center">
+                    <input #periodValue type="number" placeholder="No." required autofocus
+                           class="w-32 mr-2 p-2" min="0" [value]="filter._periodValue || 1"
+                           (change)="updatePeriodValue(periodValue.value, period.value, filter)">
 
-                <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._period || 'DAYS'"
-                        #period (change)="updatePeriodValue(periodValue.value, period.value, filter)">
-                    <option value="DAYS">Days</option>
-                    <option value="HOURS">Hours</option>
+                    <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._period || 'DAYS'"
+                            #period (change)="updatePeriodValue(periodValue.value, period.value, filter)">
+                        <option value="DAYS">Days</option>
+                        <option value="HOURS">Hours</option>
+                    </select>
+
+                    <div class="font-medium">Ago</div>
+                </div>
+            </ng-template>
+
+            <button class="absolute right-0 -top-0.5" mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="updateExpressionType(filter, null, [])">
+                    <mat-icon>title</mat-icon>
+                    <span>Text</span>
+                </button>
+                <button mat-menu-item (click)="updateExpressionType(filter, 'date-picker', [])">
+                    <mat-icon>calendar_month</mat-icon>
+                    <span>Date Picker</span>
+                </button>
+                <button mat-menu-item (click)="updateExpressionType(filter, 'period')">
+                    <mat-icon>restore</mat-icon>
+                    <span>Time Period</span>
+                </button>
+            </mat-menu>
+        </div>
+        <div *ngIf="(filter.filterType === 'similarto' || filter.filterType === 'between')"
+             class="ml-2 relative w-full">
+
+            <ng-template [ngIf]="filter.filterType === 'similarto'">
+                <select class="w-full" name="similarityDistance" [(ngModel)]="filter.rhsExpression[1]">
+                    <option *ngFor="let val of _.range(10)" [value]="val + 1">
+                        {{ val + 1 }}
+                    </option>
                 </select>
+                <div class="text-xs text-gray-400">Select Maximum Number of Changes</div>
+            </ng-template>
 
-                <div class="font-medium">Ago</div>
+            <div *ngIf="filter.filterType === 'between'" class="relative flex items-center">
+                <div class="mr-2 font-medium">and</div>
+                <input type="text" *ngIf="!filter._otherExpType" type="text" [(ngModel)]="filter.rhsExpression[1]"
+                       name="otherbetween" placeholder="To value"
+                       class="pl-2 py-2 pr-8 full">
+
+                <input *ngIf="filter._otherExpType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression[1]"
+                       name="filterValue" placeholder="Value"
+                       class="pl-2 py-2 pr-10 mr-4 full">
+
+                <ng-template [ngIf]="filter._otherExpType === 'period'">
+                    <div class="flex items-center">
+                        <input #periodValue type="number" placeholder="No." required autofocus
+                               class="w-32 mr-2 p-2" min="0" [value]="filter._otherPeriodValue || 1"
+                               (change)="updatePeriodValue(periodValue.value, period.value, filter,1)">
+
+                        <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._otherPeriod || 'DAYS'"
+                                #period (change)="updatePeriodValue(periodValue.value, period.value, filter,1)">
+                            <option value="DAYS">Days</option>
+                            <option value="HOURS">Hours</option>
+                        </select>
+
+                        <div class="font-medium">Ago</div>
+                    </div>
+                </ng-template>
+
+                <button class="absolute right-0 -top-0.5" mat-icon-button [matMenuTriggerFor]="otherMenu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #otherMenu="matMenu">
+                    <button mat-menu-item (click)="updateExpressionType(filter, null, [], 1)">
+                        <mat-icon>title</mat-icon>
+                        <span>Text</span>
+                    </button>
+                    <button mat-menu-item (click)="updateExpressionType(filter, 'date-picker', [], 1)">
+                        <mat-icon>calendar_month</mat-icon>
+                        <span>Date Picker</span>
+                    </button>
+                    <button mat-menu-item (click)="updateExpressionType(filter, 'period', null, 1)">
+                        <mat-icon>restore</mat-icon>
+                        <span>Time Period</span>
+                    </button>
+                </mat-menu>
+
+
             </div>
-        </ng-template>
-
-        <button class="absolute right-0 -top-0.5" mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="updateFilterType(filter, null, '')">
-                <mat-icon>title</mat-icon>
-                <span>Text</span>
-            </button>
-            <button mat-menu-item (click)="updateFilterType(filter, 'date-picker', '')">
-                <mat-icon>calendar_month</mat-icon>
-                <span>Date Picker</span>
-            </button>
-            <button mat-menu-item (click)="updateFilterType(filter, 'period')">
-                <mat-icon>restore</mat-icon>
-                <span>Time Period</span>
-            </button>
-        </mat-menu>
+        </div>
     </div>
 
 </ng-template>
@@ -81,7 +148,8 @@
         <div>
             <mat-select *ngIf="!customLhs" [(value)]="filter.lhsExpression" class="mr-4 p-2" name="fieldName">
                 <mat-option value="">-- Select Column Name --</mat-option>
-                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+                <mat-option *ngFor="let field of filterFields" [value]="'[['+field.name+']]'">{{ field.title }}
+                </mat-option>
             </mat-select>
 
             <input *ngIf="customLhs" type="text" [(ngModel)]="filter.lhsExpression"
@@ -89,15 +157,17 @@
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>
-                <mat-checkbox [(ngModel)]="customLhs" (ngModelChange)="updateCustom($event)"></mat-checkbox>Custom expression
+                <mat-checkbox [(ngModel)]="customLhs" (ngModelChange)="updateCustom($event)"></mat-checkbox>
+                Custom expression
             </div>
 
             <a (click)="viewColumns(filterFields)" *ngIf="customLhs && openSide"
                class="text-xs ml-2 hover:underline flex items-center primary">
                 view docs&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                    <path
+                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
                 </svg>
             </a>
         </div>
@@ -106,35 +176,47 @@
     <mat-select [(ngModel)]="filter.filterType" class="mr-4 p-2" name="filterType">
         <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
-            {{filterType.label}}
+            {{ filterType.label }}
         </mat-option>
     </mat-select>
 
     <div class="w-full">
         <div>
-            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression" class="mr-4 p-2" >
+            <mat-select *ngIf="!customValue" [(value)]="filter.rhsExpression[0]" class="mr-4 p-2">
                 <mat-option value="">-- Select Column Name --</mat-option>
-                <mat-option *ngFor="let field of joinFilterFields" [value]="'[['+field.name+']]'">{{field.title}}</mat-option>
+                <mat-option *ngFor="let field of joinFilterFields" [value]="'[['+field.name+']]'">{{ field.title }}
+                </mat-option>
             </mat-select>
 
-            <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression"
+            <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression[0]"
                    name="filterValue" placeholder="Custom value" class="mr-4 full p-2">
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>
-                <mat-checkbox [(ngModel)]="customValue" (ngModelChange)="updateCustom($event)"></mat-checkbox>Custom expression
+                <mat-checkbox [(ngModel)]="customValue" (ngModelChange)="updateCustom($event)"></mat-checkbox>
+                Custom expression
             </div>
 
             <a (click)="viewColumns(filterFields)" *ngIf="customValue && openSide"
                class="text-xs ml-2 hover:underline flex items-center primary">
                 view docs&nbsp;
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                    <path
+                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
                 </svg>
             </a>
         </div>
     </div>
+
+    <input *ngIf="filter.filterType === 'similarto'" type="number" [(ngModel)]="filter.rhsExpression[1]"
+           name="similarityDistance" placeholder="Maximum Distance"
+           class="pl-2 py-2 pr-8 mr-4 full">
+
+    <input *ngIf="filter.filterType === 'between'" type="text" [(ngModel)]="filter.rhsExpression[1]" name="otherValue"
+           placeholder="Other value"
+           class="pl-2 py-2 pr-8 mr-4 full">
+
 
 </ng-template>
 

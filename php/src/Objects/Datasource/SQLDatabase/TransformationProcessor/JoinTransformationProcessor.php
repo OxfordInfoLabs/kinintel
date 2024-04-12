@@ -11,6 +11,7 @@ use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
 use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Controllers\Internal\ProcessedDataset;
 use Kinintel\Exception\DatasourceTransformationException;
@@ -349,6 +350,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             // Evaluate join criteria if supplied
             $joinCriteria = "1 = 1";
             $joinParameters = [];
+
+
             if ($transformation->getJoinFilters() && (sizeof($transformation->getJoinFilters()->getFilters()) || sizeof($transformation->getJoinFilters()->getFilterJunctions()))) {
 
                 $evaluator = new SQLFilterJunctionEvaluator($mainTableAlias, $childTableAlias, $dataSource->returnDatabaseConnection());
