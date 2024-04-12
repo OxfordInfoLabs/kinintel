@@ -254,7 +254,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Logger::log($query->getParameters());
         Logger::log($query->getSQL());
 
-        $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
+        $authenticationCredentials = $this->getAuthenticationCredentials();
+        $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
 
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
