@@ -15,4 +15,11 @@ interface SQLDatabaseCredentials extends AuthenticationCredentials {
      */
     public function returnDatabaseConnection();
 
+    /**
+     * Execute a query on the sql database for the supplied credentials
+     *
+     * @return mixed
+     */
+    public function query($sql, $parameterValues);
+
 }
