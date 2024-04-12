@@ -102,9 +102,15 @@
                         </p>
                     </div>
                 </div>
-                <div class="flex flex-col-reverse justify-stretch">
+
+                <div class="flex flex-1 items-center justify-end">
+                    <button type="button" (click)="apiAccess()"
+                            class="inline-flex items-center justify-center px-4 py-2 mr-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary bg-gray-100 focus:outline-none">
+                        API Access
+                    </button>
+
                     <button type="button" (click)="editSnapshot(null)"
-                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
+                            class="inline-flex items-center justify-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
                         <mat-icon>add</mat-icon>
                         New Snapshot Profile
                     </button>
@@ -149,7 +155,7 @@
                                 <td>
                                     <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
                                             matTooltip="Trigger snapshot to run now" mat-icon-button
-                                            (click)="triggerSnapshot(snapshot.id, snapshot.processorConfig.datasetInstanceId)">
+                                            (click)="triggerSnapshot(snapshot.key)">
                                         <mat-icon>play_arrow</mat-icon>
                                     </button>
                                     <svg *ngIf="snapshot.taskStatus === 'RUNNING'"

@@ -36,10 +36,10 @@
                     </button>
                 </ng-template>
                 <ng-template [ngIf]="tableData[tableKey].type === 'snapshot'">
-                    <button mat-button color="primary" (click)="select(dataItem.snapshotProfileHistoricalDatasourceInstanceKey, tableData[tableKey].type)">
+                    <button mat-button color="primary" (click)="select(dataItem.key, tableData[tableKey].type)">
                         Select Historical
                     </button>
-                    <button mat-button color="primary" (click)="select(dataItem.snapshotProfileLatestDatasourceInstanceKey, tableData[tableKey].type)">
+                    <button mat-button color="primary" (click)="select(dataItem.key + '_latest', tableData[tableKey].type)">
                         Select Latest
                     </button>
                 </ng-template>

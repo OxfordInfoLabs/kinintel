@@ -4,6 +4,7 @@ import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators
 import {DatasetService} from '../../services/dataset.service';
 import {DatasourceService} from '../../services/datasource.service';
 import * as lodash from 'lodash';
+import {DataProcessorService} from '../../services/data-processor.service';
 const _ = lodash.default;
 
 @Component({
@@ -45,7 +46,8 @@ export class DataPickerComponent implements OnInit {
     };
 
     constructor(private datasetService: DatasetService,
-                private datasourceService: DatasourceService) {
+                private datasourceService: DatasourceService,
+                private dataProcessorService: DataProcessorService) {
     }
 
     ngOnInit(): void {
@@ -174,7 +176,8 @@ export class DataPickerComponent implements OnInit {
     }
 
     private getSnapshots(limit, offset) {
-        return this.datasetService.listSnapshotProfiles(
+        return this.dataProcessorService.filterProcessorsByType(
+            'snapshot',
             this.searchText.getValue() || '',
             limit.toString(),
             offset.toString()

@@ -4,7 +4,6 @@ namespace Kinintel\Test\Objects\ResultFormatter;
 
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Objects\ResultFormatter\JSONResultFormatter;
 use Kinintel\Objects\ResultFormatter\XMLResultFormatter;
 use Kinintel\ValueObjects\Dataset\Field;
 

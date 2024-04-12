@@ -23,7 +23,7 @@
     "scope": "PROJECT",
     "appliesTo": "API_KEY",
     "privileges": [
-      "snapshotmanage"
+      "dataprocessormanage"
     ]
   }
 ]

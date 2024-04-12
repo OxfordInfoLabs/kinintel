@@ -6,16 +6,15 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
-    /**
-     * @var integer
-     * @required
-     */
-    private $datasetInstanceId;
 
     /**
-     * @var string
+     * Parameter Values for the data set instance if required
+     *
+     * @var mixed[]
      */
-    private $snapshotIdentifier;
+    private $parameterValues;
+
+
 
     /**
      * Key fields which form the primary key for the data set.
@@ -63,52 +62,38 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     /**
      * Construct
      *
-     * @param integer $datasetInstanceId
-     * @param string $snapshotIdentifier
+     * @param mixed[] $parameterValues
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
      * @param string[] $keyFieldNames
      * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
-        $this->datasetInstanceId = $datasetInstanceId;
-        $this->snapshotIdentifier = $snapshotIdentifier;
+    public function __construct($parameterValues, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
         $this->keyFieldNames = $keyFieldNames;
         $this->readChunkSize = $readChunkSize;
         $this->indexes = $indexes;
+        $this->parameterValues = $parameterValues;
     }
 
 
-    /**
-     * @return int
-     */
-    public function getDatasetInstanceId() {
-        return $this->datasetInstanceId;
-    }
 
     /**
-     * @param int $datasetInstanceId
+     * @return mixed[]
      */
-    public function setDatasetInstanceId($datasetInstanceId) {
-        $this->datasetInstanceId = $datasetInstanceId;
+    public function getParameterValues() {
+        return $this->parameterValues;
     }
 
     /**
-     * @return string
+     * @param mixed[] $parameterValues
      */
-    public function getSnapshotIdentifier() {
-        return $this->snapshotIdentifier;
+    public function setParameterValues($parameterValues) {
+        $this->parameterValues = $parameterValues;
     }
 
-    /**
-     * @param string $snapshotIdentifier
-     */
-    public function setSnapshotIdentifier($snapshotIdentifier) {
-        $this->snapshotIdentifier = $snapshotIdentifier;
-    }
 
     /**
      * @return string[]
