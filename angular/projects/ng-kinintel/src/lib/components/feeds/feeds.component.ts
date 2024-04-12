@@ -76,7 +76,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
     }
 
     public async copy(text: string) {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(text.trim());
         this.copied();
     }
 
