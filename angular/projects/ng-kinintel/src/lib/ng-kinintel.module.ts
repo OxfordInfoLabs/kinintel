@@ -94,6 +94,7 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
 import { ShareQueryComponent } from './components/dataset/dataset-editor/share-query/share-query.component';
 import { SharedWithMeComponent } from './components/shared-with-me/shared-with-me.component';
 import { MarketplaceComponent } from './components/marketplace/marketplace.component';
+import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-api-access/snapshot-api-access.component';
 
 @NgModule({
     declarations: [
@@ -155,7 +156,8 @@ import { MarketplaceComponent } from './components/marketplace/marketplace.compo
         SaveAsQueryComponent,
         ShareQueryComponent,
         SharedWithMeComponent,
-        MarketplaceComponent
+        MarketplaceComponent,
+        SnapshotApiAccessComponent
     ],
     imports: [
         BrowserModule,
@@ -224,7 +226,8 @@ import { MarketplaceComponent } from './components/marketplace/marketplace.compo
         UpstreamChangesConfirmationComponent,
         TabularDatasourceComponent,
         MarketplaceComponent,
-        SharedWithMeComponent
+        SharedWithMeComponent,
+        SnapshotApiAccessComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

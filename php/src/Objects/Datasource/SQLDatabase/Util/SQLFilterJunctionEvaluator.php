@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -97,10 +98,11 @@ class SQLFilterJunctionEvaluator {
         $lhsParams = [];
         $rhsParams = [];
 
+
         // Map any square brackets to direct columns with table alias or assume whole string is single column
         $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getLhsExpression(), $templateParameters, $this->lhsTableAlias, $lhsParams);
         $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getRhsExpression(), $templateParameters, $this->rhsTableAlias, $rhsParams);
-
+        $rhsExpressionComponents = explode(",", $rhsExpression);
 
         $clause = "";
         switch ($filter->getFilterType()) {
@@ -127,15 +129,37 @@ class SQLFilterJunctionEvaluator {
             case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
                 $clause = "$lhsExpression <= $rhsExpression";
                 break;
+            case Filter::FILTER_TYPE_STARTS_WITH:
+                $clause = "$lhsExpression LIKE CONCAT($rhsExpression,'%')";
+                break;
+            case Filter::FILTER_TYPE_ENDS_WITH:
+                $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression)";
+                break;
+            case Filter::FILTER_TYPE_CONTAINS:
+                $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression, '%')";
+                break;
+            case Filter::FILTER_TYPE_SIMILAR_TO:
+
+                if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
+                    throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array containing a match string and a maximum distance");
+                }
+
+                // Add parameters to allow for compound expression.
+                $rhsParams = array_merge($lhsParams, $rhsParams, $rhsParams);
+
+                $clause = "(ABS(LENGTH($lhsExpression) - LENGTH($rhsExpressionComponents[0])) <= $rhsExpressionComponents[1]) AND (LEVENSHTEIN($lhsExpression, $rhsExpressionComponents[0]) <= $rhsExpressionComponents[1])";
+                break;
             case Filter::FILTER_TYPE_LIKE:
-                $clause = "$lhsExpression LIKE $rhsExpression";
+            case Filter::FILTER_TYPE_NOT_LIKE:
+                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "LIKE $rhsExpression";
                 if (sizeof($rhsParams))
                     $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
                 if (sizeof($lhsParams))
                     $lhsParams[sizeof($lhsParams) - 1] = str_replace("*", "%", $lhsParams[sizeof($lhsParams) - 1]);
                 break;
+
             case Filter::FILTER_TYPE_BETWEEN:
-                if (!is_array($rhsParams) || sizeof($rhsParams) !== 2) {
+                if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array");
                 }
                 $clause = "$lhsExpression BETWEEN ? AND ?";
@@ -151,7 +175,7 @@ class SQLFilterJunctionEvaluator {
                 break;
         }
 
-        
+
         // Add both lhs and rhs params
         if (sizeof($lhsParams))
             array_splice($parameters, sizeof($parameters), 0, $lhsParams);

@@ -7,7 +7,6 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
-use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
@@ -255,7 +254,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Logger::log($query->getParameters());
         Logger::log($query->getSQL());
 
-        $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
+        $authenticationCredentials = $this->getAuthenticationCredentials();
+        $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
 
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
@@ -551,8 +551,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     protected function updateFields($fields) {
 
-        Logger::log($fields);
-
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
@@ -588,7 +586,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
-
         // Check to see whether the table already exists
         $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
@@ -599,12 +596,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
 
-
-
-
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);
-
 
     }
 

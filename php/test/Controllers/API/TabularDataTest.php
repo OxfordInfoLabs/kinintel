@@ -2,7 +2,6 @@
 
 namespace Kinintel\Test\Controllers\API;
 
-use Google\CRC32\Table;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Controllers\API\TabularData;

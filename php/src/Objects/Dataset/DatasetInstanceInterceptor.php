@@ -9,6 +9,9 @@ use Kiniauth\Services\MetaData\MetaDataService;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Interceptor\DefaultORMInterceptor;
 use Kinintel\Exception\ItemInUseException;
+use Kinintel\Exception\ManagementKeyAlreadyExistsException;
+use Kinintel\Services\DataProcessor\DataProcessorService;
+use Kinintel\Services\Dataset\DatasetService;
 
 class DatasetInstanceInterceptor extends DefaultORMInterceptor {
 
@@ -26,14 +29,42 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
 
 
     /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+
+    /**
+     * @var DataProcessorService
+     */
+    private $dataProcessorService;
+
+    /**
      * DatasourceInstanceInterceptor constructor.
      *
      * @param DatabaseConnection $databaseConnection
      * @param MetaDataService $metaDataService
+     * @param DatasetService $datasetService
+     * @param DataProcessorService $dataProcessorService
      */
-    public function __construct($databaseConnection, $metaDataService) {
+    public function __construct($databaseConnection, $metaDataService, $datasetService, $dataProcessorService) {
         $this->databaseConnection = $databaseConnection;
         $this->metaDataService = $metaDataService;
+        $this->datasetService = $datasetService;
+        $this->dataProcessorService = $dataProcessorService;
+    }
+
+
+    /**
+     * Presave method - checks for uniqueness of management keys
+     *
+     * @param DatasetInstance $object
+     * @return void
+     */
+    public function preSave($object) {
+        if ($object->getManagementKey() && !$this->datasetService->managementKeyAvailableForDatasetInstance($object, $object->getManagementKey())) {
+            throw new ManagementKeyAlreadyExistsException($object->getManagementKey());
+        }
     }
 
 
@@ -60,6 +91,12 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
             $this->metaDataService->removeStructuredDataItemsForObjectAndType(DatasetInstance::class, $object->getId(), "referencedDataSet");
         }
 
+        // Grab any related object data processors
+        $relatedDataProcessorInstances = $this->dataProcessorService->filterDataProcessorInstances(["relatedObjectType" => "DatasetInstance", "relatedObjectKey" => $object->getId()], null, 0, 1000000);
+        foreach ($relatedDataProcessorInstances ?? [] as $relatedDataProcessorInstance) {
+            $relatedDataProcessorInstance->returnProcessor()->onRelatedObjectSave($relatedDataProcessorInstance, $object);
+        }
+
     }
 
 
@@ -77,13 +114,6 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
             throw new ItemInUseException($object);
         }
 
-
-        // Check for references in snapshots before allowing the delete
-        $references = $this->databaseConnection->query("SELECT COUNT(*) total FROM ki_dataset_instance_snapshot_profile WHERE dataset_instance_id = ?", $object->getId())->fetchAll();
-
-        if ($references[0]["total"]) {
-            throw new ItemInUseException($object);
-        }
 
         // Check for references in snapshots before allowing the delete
         $references = $this->databaseConnection->query("SELECT COUNT(*) total FROM ki_feed WHERE dataset_instance_id = ?", $object->getId())->fetchAll();

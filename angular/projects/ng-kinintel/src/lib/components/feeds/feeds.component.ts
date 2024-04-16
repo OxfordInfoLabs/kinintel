@@ -75,6 +75,11 @@ export class FeedsComponent implements OnInit, OnDestroy {
 
     }
 
+    public async copy(text: string) {
+        await navigator.clipboard.writeText(text.trim());
+        this.copied();
+    }
+
     public copied() {
         this.snackBar.open('Copied to Clipboard', null, {
             duration: 2000,

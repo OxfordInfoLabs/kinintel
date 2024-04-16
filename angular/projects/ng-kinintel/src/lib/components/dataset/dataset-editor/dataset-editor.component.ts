@@ -68,7 +68,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         logic: 'AND',
         filters: [{
             lhsExpression: '',
-            rhsExpression: '',
+            rhsExpression: [],
             filterType: ''
         }],
         filterJunctions: []
@@ -230,7 +230,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 logic: 'AND',
                 filters: [{
                     lhsExpression: '',
-                    rhsExpression: '',
+                    rhsExpression: [],
                     filterType: ''
                 }],
                 filterJunctions: []

@@ -4,7 +4,7 @@ namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceAggregatingProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceAggregatingSource;
@@ -15,7 +15,7 @@ use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-class TabularDatasourceAggregatingProcessor implements DataProcessor {
+class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
 
     /**
      * @var DatasourceService

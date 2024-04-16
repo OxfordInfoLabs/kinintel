@@ -7,7 +7,6 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -208,6 +207,7 @@ class WebServiceDatasource extends BaseDatasource {
 
             // Evaluate params
             $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
+
 
 
             if ($config->isEncodeURLParameters()) {

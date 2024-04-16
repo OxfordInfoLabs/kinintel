@@ -36,10 +36,9 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
-use Kinintel\ValueObjects\Transformation\Filter\Filter;
-use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 
 include_once "autoloader.php";
@@ -94,7 +93,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM test_data", []
         ]);
 
@@ -133,7 +132,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM BINGO_BONGO", []
         ]);
 
@@ -173,7 +172,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM test_data", []
         ]);
 
@@ -197,7 +196,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM (SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id) A", []
         ]);
 
@@ -218,7 +217,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(100, 0));
         $sqlDatabaseDatasource->materialiseDataset();
 
-        $this->assertTrue($this->databaseConnection->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 100 OFFSET 0) A", []]));
+        $this->assertTrue($this->authCredentials->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 100 OFFSET 0) A", []]));
 
     }
 
@@ -230,7 +229,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource->applyTransformation(new PagingTransformation(10, 20));
         $sqlDatabaseDatasource->materialiseDataset();
 
-        $this->assertTrue($this->databaseConnection->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 10 OFFSET 20 LEFT JOIN SELECT * FROM other_table o ON m.this = o.that) A", []]));
+        $this->assertTrue($this->authCredentials->methodWasCalled("query", ["SELECT * FROM (SELECT * FROM main_table m LIMIT 10 OFFSET 20 LEFT JOIN SELECT * FROM other_table o ON m.this = o.that) A", []]));
 
     }
 
@@ -244,7 +243,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM (SELECT * FROM test_data d LEFT JOIN other_table o ON d.id = o.test_id WHERE d.id = 255) A", []
         ]);
 
@@ -310,7 +309,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
-        $this->databaseConnection->returnValue("query", $resultSet, [
+        $this->authCredentials->returnValue("query", $resultSet, [
             "SELECT * FROM ?", [3]
         ]);
 

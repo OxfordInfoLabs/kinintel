@@ -6,7 +6,6 @@ namespace Kinintel\Traits\Controller\Account;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\StringUtils;
 use Kinikit\MVC\Request\FileUpload;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
