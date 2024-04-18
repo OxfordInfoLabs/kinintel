@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
@@ -28,7 +29,6 @@ use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransform
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
@@ -376,7 +376,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         throw new DuplicateEntriesException();
                     } else {
                         Logger::log("SQL Error: " . $e->getMessage());
-                        throw new \Exception("An unexpected error occurred updating the datasource");
+                        throw new DebugException(
+                            message: "An unexpected error occurred updating the datasource",
+                            debugMessage: "SQL Error " . $e->getMessage()
+                        );
                     }
                 }
 
