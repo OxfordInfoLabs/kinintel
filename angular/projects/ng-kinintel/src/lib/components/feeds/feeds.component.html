@@ -129,8 +129,7 @@ curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[
 -X <b>GET</b> <span class="text-secondary">{{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></span></pre>
 
                                     </div>
-                                    <button mat-icon-button [cdkCopyToClipboard]="createCurl.textContent"
-                                            (cdkCopyToClipboardCopied)="copied()"
+                                    <button mat-icon-button (click)="copy(createCurl.textContent)"
                                             class="text-white absolute bottom-0 right-0">
                                         <mat-icon>content_copy</mat-icon>
                                     </button>
@@ -141,15 +140,9 @@ curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[
                                     <div class="text-sm mb-2">
                                         We recommend only using this for testing the API endpoint.
                                     </div>
-                                    <div #createHttps class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">
-                {{feedUrl}}{{feed.path}}<span class="text-secondary">?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b></span><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames"><span class="text-secondary">&{{param}}=<b>[[VALUE]]</b></span></ng-template>
-</pre>
+                                    <div #createHttps class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4"><pre class="whitespace-normal">{{feedUrl}}{{feed.path}}<span class="text-secondary">?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b></span><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames"><span class="text-secondary">&{{param}}=<b>[[VALUE]]</b></span></ng-template></pre></div>
 
-                                    </div>
-
-                                    <button mat-icon-button [cdkCopyToClipboard]="createHttps.textContent"
-                                            (cdkCopyToClipboardCopied)="copied()"
+                                    <button mat-icon-button (click)="copy(createHttps.textContent)"
                                             class="text-white absolute bottom-0 right-0">
                                         <mat-icon>content_copy</mat-icon>
                                     </button>

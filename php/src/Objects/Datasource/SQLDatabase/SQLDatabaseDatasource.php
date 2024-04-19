@@ -5,9 +5,9 @@ namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\TemplateParser;
-use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
@@ -29,7 +29,6 @@ use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransform
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Objects\Datasource\UpdatableDatasourceTrait;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
@@ -255,7 +254,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Logger::log($query->getParameters());
         Logger::log($query->getSQL());
 
-        $resultSet = $dbConnection->query($query->getSQL(), $query->getParameters());
+        $authenticationCredentials = $this->getAuthenticationCredentials();
+        $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
 
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
@@ -376,7 +376,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         throw new DuplicateEntriesException();
                     } else {
                         Logger::log("SQL Error: " . $e->getMessage());
-                        throw new \Exception("An unexpected error occurred updating the datasource");
+                        throw new DebugException(
+                            message: "An unexpected error occurred updating the datasource",
+                            debugMessage: "SQL Error " . $e->getMessage()
+                        );
                     }
                 }
 
@@ -551,8 +554,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     protected function updateFields($fields) {
 
-        Logger::log($fields);
-
         // Construct the column array we need
         $columns = [];
         foreach ($fields as $field) {
@@ -588,7 +589,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
-
         // Check to see whether the table already exists
         $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
@@ -599,12 +599,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
 
-
-
-
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);
-
 
     }
 

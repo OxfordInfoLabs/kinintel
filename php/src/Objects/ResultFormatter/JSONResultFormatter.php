@@ -4,10 +4,7 @@
 namespace Kinintel\Objects\ResultFormatter;
 
 use Exception;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
-use Kinikit\Core\Util\ArrayUtils;
-use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Util\Primitive;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;

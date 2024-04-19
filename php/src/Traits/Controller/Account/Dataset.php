@@ -7,7 +7,6 @@ use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kinikit\Core\Util\StringUtils;
-use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -227,100 +226,6 @@ trait Dataset {
             $exportDataset->getOffset(), $exportDataset->getLimit());
     }
 
-
-    /**
-     * Filter snapshot profiles optionally by a string, project and tags
-     *
-     * @http GET /snapshotprofile
-     *
-     * @param string $filterString
-     * @param string $projectKey
-     * @param string $tags
-     * @param int $offset
-     * @param int $limit
-     *
-     * @hasPrivilege PROJECT:snapshotaccess($projectKey)
-     *
-     * @return \Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult[]
-     */
-    public function filterSnapshotProfiles($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
-        $tags = $tags ? explode(",", $tags) : [];
-        return $this->datasetService->filterSnapshotProfiles($filterString, $tags, $projectKey, $offset, $limit);
-    }
-
-    /**
-     * Get a snapshot profile by ID
-     *
-     * @http GET /snapshotprofile/$profileId
-     *
-     * @param $profileId
-     * @return mixed
-     */
-    public function getSnapshotProfile($profileId) {
-        return $this->datasetService->getSnapshotProfile($profileId);
-    }
-
-    /**
-     * List snapshot profiles for dataset instance by instance id
-     *
-     * @http GET /snapshotprofile/dataset/$datasetInstanceId
-     *
-     * @param $datasetInstanceId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     */
-    public function listSnapshotProfilesForDataSetInstance($datasetInstanceId) {
-        return $this->datasetService->listSnapshotProfilesForDataSetInstance($datasetInstanceId);
-    }
-
-
-    /**
-     * Save a snapshot profile for an instance
-     *
-     * @http POST /snapshotprofile/$datasetInstanceId
-     *
-     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
-     * @param $datasetInstanceId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     */
-    public function saveSnapshotProfile($datasetInstanceId, $snapshotProfileSummary) {
-        $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId);
-    }
-
-
-    /**
-     * Remove a snapshot profile for an instance
-     *
-     * @http DELETE /snapshotprofile/$datasetInstanceId
-     *
-     * @param $datasetInstanceId
-     * @param $snapshotProfileId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     */
-    public function removeSnapshotProfile($snapshotProfileId, $datasetInstanceId) {
-        $this->datasetService->removeSnapshotProfile($datasetInstanceId, $snapshotProfileId);
-    }
-
-    /**
-     * Trigger an adhoc snapshot
-     *
-     * @http PATCH /snapshotprofile/$datasetInstanceId
-     *
-     * @param $datasetInstanceId
-     * @param $snapshotProfileId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     *
-     */
-    public function triggerSnapshot($datasetInstanceId, $snapshotProfileId) {
-        $this->datasetService->triggerSnapshot($datasetInstanceId, $snapshotProfileId);
-    }
 
 
     /**

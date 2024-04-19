@@ -32,7 +32,7 @@
                     Insert a set of rows to the data source identified by the passed import key
                 </div>
                 <div #create class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
                         class="text-white absolute bottom-0 right-0">

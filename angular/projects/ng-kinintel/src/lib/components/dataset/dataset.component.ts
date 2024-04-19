@@ -23,6 +23,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     @Input() headingLabel: string;
     @Input() headingDescription: string;
+    @Input() backendUrl:string;
     @Input() newTitle: string;
     @Input() newDescription: string;
     @Input() hideCreate: boolean;
@@ -266,6 +267,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             closeOnNavigation: true,
             data: {
                 datasetInstanceSummary,
+                backendUrl: this.backendUrl,
                 showChart: false,
                 admin: this.admin,
                 newTitle: this.newTitle ? this.newTitle + ' Name' : null,

@@ -5,7 +5,6 @@ namespace Kinintel\Services\Util;
 use Exception;
 use Google\Client;
 use Google\Service\Drive;
-use GuzzleHttp\Psr7\Response;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;

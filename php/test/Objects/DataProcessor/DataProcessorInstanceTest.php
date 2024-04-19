@@ -14,6 +14,7 @@ include_once "autoloader.php";
 
 class DataProcessorInstanceTest extends \PHPUnit\Framework\TestCase {
 
+
     public function testCanValidateProcessorInstanceBasedOnProcessorTypeAndConfig() {
 
         Container::instance()->addInterfaceImplementation(DataProcessor::class, "testprocessor", TestDataProcessor::class);

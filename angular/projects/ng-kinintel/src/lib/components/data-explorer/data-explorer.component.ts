@@ -7,6 +7,10 @@ import {SnapshotProfileDialogComponent} from '../data-explorer/snapshot-profile-
 import {ExportDataComponent} from './export-data/export-data.component';
 import {ProjectService} from '../../services/project.service';
 import * as lodash from 'lodash';
+import {DataProcessorService} from '../../services/data-processor.service';
+import {
+    SnapshotApiAccessComponent
+} from './snapshot-api-access/snapshot-api-access.component';
 const _ = lodash.default;
 
 @Component({
@@ -18,6 +22,7 @@ const _ = lodash.default;
 export class DataExplorerComponent implements OnInit, OnDestroy {
 
     public _ = _;
+    public backendUrl: string;
     public showChart = false;
     public chartData;
     public datasetInstanceSummary: any;
@@ -42,15 +47,18 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
                 private dialog: MatDialog,
                 private datasetService: DatasetService,
                 private router: Router,
-                private projectService: ProjectService) {
+                private projectService: ProjectService,
+                private dataProcessorService: DataProcessorService) {
     }
 
     ngOnInit(): void {
+
         this.chartData = !!this.data.showChart;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
         this.accountId = this.data.accountId;
         this.breadcrumb = this.data.breadcrumb;
+        this.backendUrl = this.data.backendUrl;
 
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;
@@ -77,12 +85,23 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         this.columns = data.columns;
     }
 
-    public async triggerSnapshot(snapshotProfileId, datasetInstanceId) {
-        await this.datasetService.triggerSnapshot(snapshotProfileId, datasetInstanceId);
+    public async triggerSnapshot(snapshotKey) {
+        await this.dataProcessorService.triggerProcessor(snapshotKey);
         this.loadSnapshotProfiles();
         this.timer = setInterval(() => {
             this.loadSnapshotProfiles();
         }, 3000);
+    }
+
+    public apiAccess() {
+        const dialogRef = this.dialog.open(SnapshotApiAccessComponent, {
+            width: '800px',
+            height: '530px',
+            data: {
+                datasetInstanceSummary: this.datasetInstanceSummary,
+                backendUrl: this.backendUrl
+            }
+        });
     }
 
     public exportData() {
@@ -109,7 +128,8 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
             data: {
                 snapshot,
                 datasetInstanceId: this.datasetInstanceSummary.id,
-                columns: this.columns
+                columns: this.columns,
+                datasetInstance: this.datasetInstanceSummary
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -122,7 +142,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public deleteSnapshot(snapshot) {
         const message = 'Are you sure you would like to remove this snapshot?';
         if (window.confirm(message)) {
-            this.datasetService.removeSnapshotProfile(snapshot.id, this.datasetInstanceSummary.id)
+            this.dataProcessorService.removeProcessor(snapshot.key)
                 .then(() => {
                     this.loadSnapshotProfiles();
                 });
@@ -158,7 +178,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     }
 
     private loadSnapshotProfiles() {
-        this.datasetService.getSnapshotProfilesForDataset(this.datasetInstanceSummary.id)
+        this.dataProcessorService.filterProcessorsByRelatedItem('snapshot', 'DatasetInstance', this.datasetInstanceSummary.id)
             .then(snapshots => {
                 this.snapshotProfiles = snapshots;
             });
