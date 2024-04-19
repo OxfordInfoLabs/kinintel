@@ -184,4 +184,12 @@ class QueryCachingDataProcessor implements DataProcessor {
         }
 
     }
+
+    public function onInstanceSave($instance) {
+
+    }
+
+    public function onRelatedObjectSave($instance, $relatedObject) {
+
+    }
 }
