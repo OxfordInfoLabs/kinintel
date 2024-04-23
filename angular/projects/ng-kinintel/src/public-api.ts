@@ -31,6 +31,7 @@ export * from './lib/components/dataset/dataset-editor/upstream-changes-confirma
 // export * from './lib/components/datasource/create-datasource/api-access/api-access.component';
 export * from './lib/components/datasource/create-datasource/tabular-datasource/tabular-datasource.component';
 export * from './lib/components/data-explorer/snapshot-api-access/snapshot-api-access.component';
+export * from './lib/components/query-caching/query-caching.component';
 
 export * from './lib/guards/dashboard-changes.guard';
 
