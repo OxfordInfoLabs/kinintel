@@ -16,4 +16,4 @@ before_install:
   - sudo psql -c "create user kininteltest with password 'kininteltest' CREATEDB;" -U postgres
   - sudo psql -c 'create database kininteltest;' -U postgres
 before_script: composer clearcache; composer install; composer update;  cd php/test
-script: phpunit .
+script: ./vendor/bin/phpunit .
