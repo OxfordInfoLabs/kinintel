@@ -18,7 +18,7 @@ class Regexp implements SQLite3CustomFunction {
      * @param mixed ...$arguments
      * @return mixed
      */
-    public function execute(...$arguments) {
+    public function execute(...$arguments) : int {
         return (sizeof($arguments) == 2) && preg_match('/^' . $arguments[0] . '$/i', $arguments[1]) ? 1 : 0;
     }
 
