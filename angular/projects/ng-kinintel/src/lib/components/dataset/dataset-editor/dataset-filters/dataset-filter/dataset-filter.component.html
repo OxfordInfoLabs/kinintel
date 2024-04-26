@@ -94,7 +94,7 @@
             <ng-template [ngIf]="filter.filterType === 'like' || filter.filterType === 'notlike'">
                 <select class="w-full" name="regexp" [(ngModel)]="filter.rhsExpression[1]">
                     <option  [value]="'likewildcard'">
-                        Wilcard pattern
+                        Wildcard pattern
                     </option>
                     <option  [value]="'likeregexp'">
                         Regular Expression
