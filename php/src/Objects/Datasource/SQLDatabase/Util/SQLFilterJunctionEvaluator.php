@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -16,29 +17,20 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
  */
 class SQLFilterJunctionEvaluator {
 
-    /**
-     * @var string
-     */
-    private $lhsTableAlias = null;
+    private ?string $lhsTableAlias = null;
 
-    /**
-     * @var string
-     */
-    private $rhsTableAlias = null;
+    private ?string $rhsTableAlias = null;
 
-
-    /**
-     * @var SQLValueEvaluator
-     */
-    private $sqlFilterValueEvaluator;
+    private SQLValueEvaluator $sqlFilterValueEvaluator;
 
     /**
      * Construct optionally with a lhs and rhs table alias if required
      *
      * SQLFilterJunctionEvaluator constructor.
      *
-     * @param string $lhsTableAlias
-     * @param string $rhsTableAlias
+     * @param string|null $lhsTableAlias
+     * @param string|null $rhsTableAlias
+     * @param DatabaseConnection|null $databaseConnection
      */
     public function __construct($lhsTableAlias = null, $rhsTableAlias = null, $databaseConnection = null) {
         $this->lhsTableAlias = $lhsTableAlias;
