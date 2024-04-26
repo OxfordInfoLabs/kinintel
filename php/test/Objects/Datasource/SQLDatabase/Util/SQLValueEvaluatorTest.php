@@ -6,6 +6,7 @@ namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
+use function PHPUnit\Framework\assertEquals;
 
 include_once "autoloader.php";
 
@@ -223,6 +224,26 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $value = $evaluator->evaluateFilterValue("CONCAT('It was ',{{furniture}},' shaped', '.')",  ["furniture" => "chair"], null, $parameters);
         $this->assertEquals(["It was ", "chair", " shaped", "."], $parameters);
         $this->assertEquals("CONCAT(?,?,?, ?)", $value);
+    }
+
+    public function testRegexIsParsedCorrectly(){
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("'like'", outputParameters: $parameters);
+        $this->assertEquals(["'like'"], $parameters);
+        $this->assertEquals("?", $value);
+
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("[2-9]|[12]\d|3[0-6]", outputParameters: $parameters);
+        $this->assertEquals(["[2-9]|[12]\d|3[0-6]"], $parameters);
+        $this->assertEquals("?", $value);
+
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("w{3}\.google\.com", outputParameters: $parameters);
+        assertEquals(1, preg_match("/w{3}\.google\.com/", "www.google.com"));
+        $this->assertEquals(["w{3}\.google\.com"], $parameters);
+        $this->assertEquals("?", $value);
+
     }
 
     //TODO
