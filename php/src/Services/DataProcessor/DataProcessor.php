@@ -14,6 +14,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @implementation vectorembedding \Kinintel\Services\DataProcessor\VectorDataset\VectorDatasetProcessor
  * @implementation distanceandclustering \Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessor
  * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor
+ * @implementation querycaching \Kinintel\Services\DataProcessor\Query\QueryCachingDataProcessor
  * @implementation multi \Kinintel\Services\DataProcessor\Multi\MultiDataProcessor
  */
 interface DataProcessor {
