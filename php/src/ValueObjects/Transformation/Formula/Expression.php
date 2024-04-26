@@ -75,9 +75,6 @@ class Expression {
     // Return SQL clause
     public function returnSQLClause(&$clauseParams, $parameterValues, $databaseConnection) {
 
-        /**
-         * @var SQLValueEvaluator $sqlValueEvaluator
-         */
         $sqlValueEvaluator = new SQLValueEvaluator($databaseConnection);
 
         // SQL Santise and substitute params

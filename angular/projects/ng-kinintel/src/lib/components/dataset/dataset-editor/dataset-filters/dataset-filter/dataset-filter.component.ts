@@ -89,7 +89,8 @@ export class DatasetFilterComponent implements OnInit {
 
 
     updateFilterType(filter: any) {
-        if (filter.filterType !== 'similarto' && filter.filterType !== 'between') {
+        if (filter.filterType !== 'similarto' && filter.filterType !== 'between'
+            && filter.filterType !== 'like' && filter.filterType !== 'notlike') {
             if (filter.rhsExpression && filter.rhsExpression.length > 1) {
                 filter.rhsExpression = filter.rhsExpression.slice(0, 1);
             }
@@ -98,6 +99,12 @@ export class DatasetFilterComponent implements OnInit {
             if (!filter.rhsExpression[1]) {
                 filter.rhsExpression[1] = 1;
             }
+        }
+        if (filter.filterType === 'like' || filter.filterType === 'notlike') {
+            if (!filter.rhsExpression[1]) {
+                filter.rhsExpression[1] = 'likewildcard';
+            }
+            console.log(filter);
         }
     }
 

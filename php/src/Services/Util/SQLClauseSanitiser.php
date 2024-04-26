@@ -51,6 +51,7 @@ class SQLClauseSanitiser {
         "NOTNULL",
         "NULL",
         "OR",
+        "RLIKE",
         "THEN",
         "WHEN",
         "ASC",

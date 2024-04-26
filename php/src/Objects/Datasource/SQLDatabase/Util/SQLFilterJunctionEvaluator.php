@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Core\Logging\Logger;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -16,29 +17,20 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
  */
 class SQLFilterJunctionEvaluator {
 
-    /**
-     * @var string
-     */
-    private $lhsTableAlias = null;
+    private ?string $lhsTableAlias = null;
 
-    /**
-     * @var string
-     */
-    private $rhsTableAlias = null;
+    private ?string $rhsTableAlias = null;
 
-
-    /**
-     * @var SQLValueEvaluator
-     */
-    private $sqlFilterValueEvaluator;
+    private SQLValueEvaluator $sqlFilterValueEvaluator;
 
     /**
      * Construct optionally with a lhs and rhs table alias if required
      *
      * SQLFilterJunctionEvaluator constructor.
      *
-     * @param string $lhsTableAlias
-     * @param string $rhsTableAlias
+     * @param string|null $lhsTableAlias
+     * @param string|null $rhsTableAlias
+     * @param DatabaseConnection|null $databaseConnection
      */
     public function __construct($lhsTableAlias = null, $rhsTableAlias = null, $databaseConnection = null) {
         $this->lhsTableAlias = $lhsTableAlias;
@@ -151,11 +143,29 @@ class SQLFilterJunctionEvaluator {
                 break;
             case Filter::FILTER_TYPE_LIKE:
             case Filter::FILTER_TYPE_NOT_LIKE:
-                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "LIKE $rhsExpression";
-                if (sizeof($rhsParams))
-                    $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
-                if (sizeof($lhsParams))
-                    $lhsParams[sizeof($lhsParams) - 1] = str_replace("*", "%", $lhsParams[sizeof($lhsParams) - 1]);
+
+                $last = $rhsParams[count($rhsParams ?? []) - 1] ?? null;
+
+                $regexp = match ($last) {
+                    Filter::LIKE_MATCH_REGEXP => true,
+                    default => false
+                };
+
+                // * will work when you only have one LHS or RHS parameter (e.g. not with CONCAT(?, ?))
+                if (!$regexp && sizeof($rhsParams))
+                    $rhsParams[0] = str_replace("*", "%", $rhsParams[0]);
+                if (!$regexp && sizeof($lhsParams))
+                    $lhsParams[0] = str_replace("*", "%", $lhsParams[0]);
+
+                $likeKeyword = $regexp ? "RLIKE" : "LIKE";
+
+                if ($last == Filter::LIKE_MATCH_REGEXP || $last == Filter::LIKE_MATCH_WILDCARD) {
+                    array_pop($rhsParams);
+                    array_pop($rhsExpressionComponents);
+                }
+
+                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "$likeKeyword " . join(",", $rhsExpressionComponents);
+
                 break;
 
             case Filter::FILTER_TYPE_BETWEEN:
