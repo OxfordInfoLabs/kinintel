@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
@@ -67,13 +68,13 @@ class SQLiteAuthenticationCredentials implements SQLDatabaseCredentials {
         $sql = FunctionStringRewriter::rewrite($sql, "TOTAL", "SUM($1) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "PERCENT", "100 * $1 / SUM($1) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "ROW_COUNT", "COUNT(*) OVER ()", [0], $parameterValues);
+        $sql = preg_replace("/(\W)RLIKE(\W)/", "$1REGEXP$2", $sql);
 
         // Handle custom aggregate functions
         $sql = FunctionStringRewriter::rewrite($sql, "COUNT_PERCENT", "100 * COUNT($1) / COUNT_TOTAL($1)", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "SUM_PERCENT", "100 * SUM($1) / SUM_TOTAL($1)", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "COUNT_TOTAL", "SUM(COUNT($1)) OVER ()", [0], $parameterValues);
         $sql = FunctionStringRewriter::rewrite($sql, "SUM_TOTAL", "SUM(SUM($1)) OVER ()", [0], $parameterValues);
-
 
         return $sql;
     }

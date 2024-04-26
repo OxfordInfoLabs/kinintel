@@ -151,11 +151,25 @@ class SQLFilterJunctionEvaluator {
                 break;
             case Filter::FILTER_TYPE_LIKE:
             case Filter::FILTER_TYPE_NOT_LIKE:
-                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "LIKE $rhsExpression";
-                if (sizeof($rhsParams))
-                    $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
-                if (sizeof($lhsParams))
-                    $lhsParams[sizeof($lhsParams) - 1] = str_replace("*", "%", $lhsParams[sizeof($lhsParams) - 1]);
+
+                // If a second expression we are expecting
+                $regexp = sizeof($rhsExpressionComponents) > 1 ?
+                    $rhsParams[sizeof($rhsParams) - 1] == Filter::LIKE_MATCH_REGEXP : false;
+
+                if (!$regexp && sizeof($rhsParams))
+                    $rhsParams[0] = str_replace("*", "%", $rhsParams[0]);
+                if (!$regexp && sizeof($lhsParams))
+                    $lhsParams[0] = str_replace("*", "%", $lhsParams[0]);
+
+                $likeKeyword = $regexp ? "RLIKE" : "LIKE";
+
+                if (sizeof($rhsExpressionComponents) > 1) {
+                    array_pop($rhsParams);
+                    array_pop($rhsExpressionComponents);
+                }
+
+                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "$likeKeyword " . join(",", $rhsExpressionComponents);
+
                 break;
 
             case Filter::FILTER_TYPE_BETWEEN:

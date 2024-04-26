@@ -12,6 +12,7 @@ use Kinintel\Services\DataProcessor\DataProcessorTask;
 use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
 use Kinintel\Services\Util\SQLiteFunctions\DotProduct;
 use Kinintel\Services\Util\SQLiteFunctions\Levenshtein;
+use Kinintel\Services\Util\SQLiteFunctions\Regexp;
 
 class Bootstrap implements ApplicationBootstrap {
 
@@ -19,6 +20,7 @@ class Bootstrap implements ApplicationBootstrap {
     public function setup() {
         SQLite3DatabaseConnection::addCustomFunction(new DotProduct());
         SQLite3DatabaseConnection::addCustomFunction(new Levenshtein());
+        SQLite3DatabaseConnection::addCustomFunction(new Regexp());
 
         // Inject task implementations specific to kinintel
         Container::instance()->addInterfaceImplementation(Task::class, "alertgroup", AlertGroupTask::class);

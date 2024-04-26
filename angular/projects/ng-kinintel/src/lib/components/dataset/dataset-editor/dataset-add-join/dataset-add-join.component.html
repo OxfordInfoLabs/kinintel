@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <mat-horizontal-stepper [linear]="true" #stepper>
+        <mat-horizontal-stepper [linear]="true" #stepper [animationDuration]="0">
             <mat-step [completed]="selectedSource" label="Select data">
 
                 <ki-data-picker [admin]="admin" (selected)="select($event, stepper)"></ki-data-picker>
