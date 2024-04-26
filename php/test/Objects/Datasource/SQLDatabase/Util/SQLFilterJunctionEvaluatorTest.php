@@ -198,6 +198,21 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ])));
 
 
+        // LIKE FORMULA
+        $this->assertEquals([
+            "sql" => "\"name\" LIKE CONCAT(%, ?, %)",
+            "parameters" => ["hi"]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", ["CONCAT(%, 'hi', %)", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_LIKE)
+        ])));
+
+        // MISSING LIKE_MATCH_WILDCARD Defaults to wildcard
+        $this->assertEquals([
+            "sql" => "\"name\" LIKE CONCAT(%, ?, %)",
+            "parameters" => ["hi"]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", ["CONCAT(%, 'hi', %)"], Filter::FILTER_TYPE_LIKE)
+        ])));
 
 
         // REGEXP LIKE

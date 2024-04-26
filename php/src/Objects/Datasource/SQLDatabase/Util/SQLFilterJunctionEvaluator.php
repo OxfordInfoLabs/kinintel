@@ -144,10 +144,14 @@ class SQLFilterJunctionEvaluator {
             case Filter::FILTER_TYPE_LIKE:
             case Filter::FILTER_TYPE_NOT_LIKE:
 
-                // If a second expression we are expecting
-                $regexp = sizeof($rhsExpressionComponents) > 1 ?
-                    $rhsParams[sizeof($rhsParams) - 1] == Filter::LIKE_MATCH_REGEXP : false;
+                $last = $rhsParams[count($rhsParams ?? []) - 1] ?? null;
 
+                $regexp = match ($last) {
+                    Filter::LIKE_MATCH_REGEXP => true,
+                    default => false
+                };
+
+                // * will work when you only have one LHS or RHS parameter (e.g. not with CONCAT(?, ?))
                 if (!$regexp && sizeof($rhsParams))
                     $rhsParams[0] = str_replace("*", "%", $rhsParams[0]);
                 if (!$regexp && sizeof($lhsParams))
@@ -155,7 +159,7 @@ class SQLFilterJunctionEvaluator {
 
                 $likeKeyword = $regexp ? "RLIKE" : "LIKE";
 
-                if (sizeof($rhsExpressionComponents) > 1) {
+                if ($last == Filter::LIKE_MATCH_REGEXP || $last == Filter::LIKE_MATCH_WILDCARD) {
                     array_pop($rhsParams);
                     array_pop($rhsExpressionComponents);
                 }
