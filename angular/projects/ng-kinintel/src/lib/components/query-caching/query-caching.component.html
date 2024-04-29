@@ -68,7 +68,7 @@
 
                                     <div class="flex items-center justify-center">
                                         <div class="text-xs text-gray-400 mr-10">
-                                            Showing {{offset + 1}} - {{(page * limit) - (limit - feeds.length)}}</div>
+                                            Showing {{offset + 1}} - {{(page * limit) - (limit - queries.length)}}</div>
                                         <select [value]="limit" (change)="pageSizeChange($event.target.value)"
                                                 class="mr-8 p-1.5">
                                             <option [value]="1">1</option>
