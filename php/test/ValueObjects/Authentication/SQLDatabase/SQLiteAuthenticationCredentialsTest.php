@@ -53,6 +53,9 @@ class SQLiteAuthenticationCredentialsTest extends TestCase {
         $sql = "PERCENT(test)";
         $this->assertEquals("100 * test / SUM(test) OVER ()", $authCreds->parseSQL($sql));
 
+        $sql = "a RLIKE b";
+        $this->assertEquals("a REGEXP b", $authCreds->parseSQL($sql));
+
     }
 
 }
