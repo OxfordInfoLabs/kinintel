@@ -35,12 +35,16 @@ export class DataProcessorService {
             .toPromise();
     }
 
-    public saveProcessor(processorSummary) {
+    public saveProcessor(processorSummary, autoStart = false) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        return this.http.post(this.config.backendURL + '/dataprocessor?projectKey=' + projectKey,
-            processorSummary)
-            .toPromise();
+        let url = this.config.backendURL + '/dataprocessor?projectKey=' + projectKey;
+
+        if (autoStart) {
+            url += '&autoStart=true';
+        }
+
+        return this.http.post(url, processorSummary).toPromise();
     }
 
     public removeProcessor(processorKey) {

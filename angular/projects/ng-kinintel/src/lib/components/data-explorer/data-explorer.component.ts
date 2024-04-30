@@ -17,6 +17,10 @@ import {DataProcessorService} from '../../services/data-processor.service';
 import {
     SnapshotApiAccessComponent
 } from './snapshot-api-access/snapshot-api-access.component';
+import {
+    EditQueryCacheComponent
+} from '../query-caching/edit-query-cache/edit-query-cache.component';
+import {Subject} from 'rxjs';
 
 const _ = lodash.default;
 
@@ -46,6 +50,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public breadcrumb: string;
     public canHaveSnapshots = false;
     public canExportData = false;
+    public reloadCache = new Subject();
 
     private columns: any = [];
     private datasetTitle: string;
@@ -161,12 +166,12 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         this.showSnapshots = false;
         this.showQueryCache = !this.showQueryCache;
         if (this.showQueryCache) {
-            this.queryCacheResults = await this.loadProcessorItems('querycaching');
+            this.queryCacheResults = await this.dataProcessorService.filterProcessorsByType('querycaching', '', '1', '0').toPromise();
         }
     }
 
     public editQueryCache(cache: any) {
-        const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
+        const dialogRef = this.dialog.open(EditQueryCacheComponent, {
             width: '900px',
             height: '900px',
             data: {
@@ -178,7 +183,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         });
         dialogRef.afterClosed().subscribe(async res => {
             if (res) {
-                this.queryCacheResults = await this.loadProcessorItems('querycaching');
+                this.reloadCache.next(Date.now());
             }
         });
     }

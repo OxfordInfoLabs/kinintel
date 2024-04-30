@@ -1,7 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {DataProcessorService} from '../../services/data-processor.service';
+import {DataProcessorService, } from '../../services/data-processor.service';
+import * as lodash from 'lodash';
+import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
+import {Router} from '@angular/router';
+import {DatasetService} from '../../services/dataset.service';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {
+    EditQueryCacheComponent
+} from '../query-caching/edit-query-cache/edit-query-cache.component';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-query-caching',
@@ -10,6 +19,9 @@ import {DataProcessorService} from '../../services/data-processor.service';
 })
 export class QueryCachingComponent implements OnInit {
 
+    @Input() admin: boolean;
+    @Input() reload = new Subject();
+
     public queries: any = [];
     public searchText = new BehaviorSubject('');
     public limit = 10;
@@ -17,10 +29,14 @@ export class QueryCachingComponent implements OnInit {
     public page = 1;
     public endOfResults = false;
     public loading = true;
+    public _ = _;
 
-    private reload = new Subject();
 
-    constructor(private dataProcessorService: DataProcessorService) {
+
+    constructor(private dataProcessorService: DataProcessorService,
+                private router: Router,
+                private datasetService: DatasetService,
+                private dialog: MatDialog) {
     }
 
     ngOnInit() {
@@ -61,6 +77,74 @@ export class QueryCachingComponent implements OnInit {
         this.offset = 0;
         this.limit = value;
         this.reload.next(Date.now());
+    }
+
+    public view(datasourceKey) {
+        const datasetInstanceSummary = {
+            datasetInstanceId: null,
+            datasourceInstanceKey: datasourceKey,
+            transformationInstances: [],
+            parameterValues: {},
+            parameters: []
+        };
+        this.openDialogEditor(datasetInstanceSummary);
+    }
+
+    public viewParent(parentDatasetInstanceId) {
+        this.datasetService.getDataset(parentDatasetInstanceId).then(datasetInstanceSummary => {
+            this.openDialogEditor(datasetInstanceSummary);
+        });
+    }
+
+    public delete(cacheKey) {
+        const message = 'Are you sure you would like to remove this Query Cache?';
+        if (window.confirm(message)) {
+            this.dataProcessorService.removeProcessor(cacheKey).then(() => {
+                this.reload.next(Date.now());
+            });
+        }
+    }
+
+    public async editCache(cacheKey: string) {
+        const cache: any = await this.dataProcessorService.getProcessor(cacheKey);
+        const dialogRef = this.dialog.open(EditQueryCacheComponent, {
+            width: '900px',
+            height: '900px',
+            data: {
+                cache,
+                datasetInstanceId: cache.config.sourceQueryId
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                this.reload.next(Date.now());
+            }
+        });
+    }
+
+    private openDialogEditor(datasetInstanceSummary) {
+        this.router.navigate(['/snapshots'], {fragment: _.kebabCase(datasetInstanceSummary.title || datasetInstanceSummary.datasourceInstanceKey)});
+        const dialogRef = this.dialog.open(DataExplorerComponent, {
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            hasBackdrop: false,
+            data: {
+                datasetInstanceSummary,
+                showChart: false,
+                admin: this.admin,
+                breadcrumb: 'Snapshots'
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res && res.breadcrumb) {
+                return this.router.navigate([res.breadcrumb], {fragment: null});
+            } else {
+                this.router.navigate(['/query-caching'], {fragment: null});
+            }
+            this.reload.next(Date.now());
+        });
     }
 
     private getQueries() {

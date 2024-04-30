@@ -28,7 +28,7 @@
     </div>
 
 
-    <div class="group-filters" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
+    <div class="group-filters mb-4" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
         <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]" [openSide]="openSide"
                                     [joinFilterFields]="joinFilterFields" [joinFieldsName]="joinFieldsName"
                                     [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
