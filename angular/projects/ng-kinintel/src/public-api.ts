@@ -33,6 +33,7 @@ export * from './lib/components/datasource/create-datasource/tabular-datasource/
 export * from './lib/components/marketplace/marketplace.component';
 export * from './lib/components/shared-with-me/shared-with-me.component';
 export * from './lib/components/data-explorer/snapshot-api-access/snapshot-api-access.component';
+export * from './lib/components/query-caching/query-caching.component';
 
 export * from './lib/guards/dashboard-changes.guard';
 

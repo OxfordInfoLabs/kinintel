@@ -94,7 +94,11 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
 import { ShareQueryComponent } from './components/dataset/dataset-editor/share-query/share-query.component';
 import { SharedWithMeComponent } from './components/shared-with-me/shared-with-me.component';
 import { MarketplaceComponent } from './components/marketplace/marketplace.component';
-import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-api-access/snapshot-api-access.component';
+import { QueryCachingComponent } from './components/query-caching/query-caching.component';
+import { EditQueryCacheComponent } from './components/query-caching/edit-query-cache/edit-query-cache.component';
+import {
+    SnapshotApiAccessComponent
+} from "./components/data-explorer/snapshot-api-access/snapshot-api-access.component";
 
 @NgModule({
     declarations: [
@@ -157,6 +161,8 @@ import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-
         ShareQueryComponent,
         SharedWithMeComponent,
         MarketplaceComponent,
+        QueryCachingComponent,
+        EditQueryCacheComponent,
         SnapshotApiAccessComponent
     ],
     imports: [
@@ -200,19 +206,11 @@ import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-
     ],
     exports: [
         DashboardEditorComponent,
-        // ItemComponentComponent,
-        // ConfigureItemComponent,
         DatasourceComponent,
         DatasetComponent,
-        // DatasetEditorComponent,
         ProjectPickerComponent,
-        // DatasetFilterComponent,
-        // DataExplorerComponent,
         TagPickerComponent,
         DashboardsComponent,
-        // DatasetFilterJunctionComponent,
-        // DatasetNameDialogComponent,
-        // DatasetFiltersComponent,
         NotificationGroupsComponent,
         EditNotificationGroupComponent,
         AlertGroupsComponent,
@@ -227,7 +225,8 @@ import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-
         TabularDatasourceComponent,
         MarketplaceComponent,
         SharedWithMeComponent,
-        SnapshotApiAccessComponent
+        SnapshotApiAccessComponent,
+        QueryCachingComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

@@ -1,7 +1,7 @@
 <div class="bg-gray-50 configure-header border-b border-gray-200">
     <div class="w-full flex items-center">
         <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.title && !editTitle">
-            <div (click)="editTitle = !editTitle">{{datasetInstanceSummary.title}}</div>
+            <div (click)="editTitle = !editTitle">{{ datasetInstanceSummary.title }}</div>
         </ng-template>
         <ng-template [ngIf]="datasetInstanceSummary && editTitle">
             <input type="text" class="w-1/4 text-sm"
@@ -28,8 +28,11 @@
             <div class="flex items-center">
                 <a [mat-dialog-close]="{breadcrumb: '/'}" class="text-gray-400 hover:text-gray-500">
                     <!-- Heroicon name: mini/home -->
-                    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
+                    <svg class="h-5 w-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                         fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"
+                              clip-rule="evenodd"/>
                     </svg>
                     <span class="sr-only">Home</span>
                 </a>
@@ -38,36 +41,41 @@
 
         <li class="flex truncate">
             <div class="flex items-center">
-                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none"
+                     fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z"/>
                 </svg>
                 <a [mat-dialog-close]="true"
                    class="capitalize ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                    {{breadcrumb}}</a>
+                    {{ breadcrumb }}</a>
             </div>
         </li>
 
         <li class="flex truncate" *ngIf="datasetInstanceSummary">
             <div class="flex items-center">
-                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z" />
+                <svg class="h-full w-6 flex-shrink-0 text-gray-200" viewBox="0 0 24 44" preserveAspectRatio="none"
+                     fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M.293 0l22 22-22 22h1.414l22-22-22-22H.293z"/>
                 </svg>
                 <a class="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" aria-current="page">
-                    {{datasetInstanceSummary.title || 'Data Explorer'}}
+                    {{ datasetInstanceSummary.title || 'Data Explorer' }}
                 </a>
                 <ng-template [ngIf]="datasetInstanceSummary && datasetInstanceSummary.source">
-                    <span class="flex items-center border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
+                    <span
+                        class="flex items-center border border-gray-200 text-xs px-2 py-0.5 rounded-xl ml-2 font-thin bg-gray-100">
                     <span class="uppercase tracking-wider text-gray-700 font-medium">Querying:</span>
                         <ng-template [ngIf]="datasetInstanceSummary.source.datasourceInstanceKey">
                             <img *ngIf="['custom', 'snapshot'].indexOf(datasetInstanceSummary.source.type) === -1"
                                  src="/assets/favicon.png" class="w-2.5 mx-1.5">
-                            <mat-icon *ngIf="datasetInstanceSummary.source.type === 'custom'" class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
-                            <mat-icon *ngIf="datasetInstanceSummary.source.type === 'snapshot'" class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
+                            <mat-icon *ngIf="datasetInstanceSummary.source.type === 'custom'"
+                                      class="h-4 w-4 text-lg leading-4 mx-1.5">upload_file</mat-icon>
+                            <mat-icon *ngIf="datasetInstanceSummary.source.type === 'snapshot'"
+                                      class="h-4 w-4 text-lg leading-4 mx-1.5">history</mat-icon>
                         </ng-template>
                         <ng-template [ngIf]="!datasetInstanceSummary.source.datasourceInstanceKey">
                             <mat-icon class="h-4 w-4 text-lg leading-4 mx-1.5">query_stats</mat-icon>
                         </ng-template>
-                        &nbsp;{{datasetInstanceSummary.source.title}}
+                        &nbsp;{{ datasetInstanceSummary.source.title }}
                     </span>
                 </ng-template>
             </div>
@@ -76,8 +84,8 @@
 </nav>
 <div class="configure-content">
 
-    <rsz-layout class="row top" [directions]="showSnapshots ? ['bottom'] : ['none']"
-                [rFlex]="showSnapshots">
+    <rsz-layout class="row top" [directions]="(showSnapshots || showQueryCache) ? ['bottom'] : ['none']"
+                [rFlex]="(showSnapshots || showQueryCache)">
 
         <rsz-layout class="cell left no-p" [directions]="showChart ? ['right'] : ['none']" [rFlex]="true"
                     [ngStyle]="{'flex-basis': showChart ? '65%' : '100%'}">
@@ -89,170 +97,223 @@
         </rsz-layout>
     </rsz-layout>
 
-    <rsz-layout *ngIf="showSnapshots" class="row bottom" [directions]="['none']" [rFlex]="false">
-        <div class="px-6 py-3 bg-white border-b border-gray-200">
-            <div class="md:flex md:items-center md:justify-between md:space-x-5">
-                <div class="flex items-start flex-1">
-                    <div class="pt-1.5">
-                        <h1 class="text-xl font-bold text-gray-900 mb-0">
-                            <div>Snapshot Profiles</div>
-                        </h1>
-                        <p class="text-xs font-medium text-gray-500">
-                            A list of all the snapshots that have been created for this stored query.
-                        </p>
+    <rsz-layout *ngIf="showSnapshots || showQueryCache" class="row bottom" [directions]="['none']" [rFlex]="false"
+        [ngClass]="{'overflow-y-scroll': showQueryCache}">
+        <ng-template [ngIf]="showSnapshots">
+            <div class="px-6 py-3 bg-white border-b border-gray-200">
+                <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                    <div class="flex items-start flex-1">
+                        <div class="pt-1.5">
+                            <h1 class="text-xl font-bold text-gray-900 mb-0">
+                                <div>Snapshot Profiles</div>
+                            </h1>
+                            <p class="text-xs font-medium text-gray-500">
+                                A list of all the snapshots that have been created for this stored query.
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex flex-1 items-center justify-end">
-                    <button type="button" (click)="apiAccess()"
-                            class="inline-flex items-center justify-center px-4 py-2 mr-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary bg-gray-100 focus:outline-none">
-                        API Access
-                    </button>
+                    <div class="flex flex-1 items-center justify-end">
+                        <button type="button" (click)="apiAccess()"
+                                class="inline-flex items-center justify-center px-4 py-2 mr-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary bg-gray-100 focus:outline-none">
+                            API Access
+                        </button>
 
-                    <button type="button" (click)="editSnapshot(null)"
-                            class="inline-flex items-center justify-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
-                        <mat-icon>add</mat-icon>
-                        New Snapshot Profile
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="px-4 sm:px-6 lg:px-8 mt-0">
-            <div class="flex flex-col">
-                <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
-                    <div class="inline-block min-w-full py-2 align-middle">
-                        <table *ngIf="snapshotProfiles.length"
-                            class="min-w-full border-separate" style="border-spacing: 0">
-                            <thead class="bg-gray-100">
-                            <tr>
-                                <th scope="col"
-                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                </th>
-                                <th scope="col"
-                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                    Title
-                                </th>
-                                <th scope="col"
-                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                    Status
-                                </th>
-                                <th scope="col"
-                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                    Last Started
-                                </th>
-                                <th scope="col"
-                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                    Next Start Time
-                                </th>
-                                <th scope="col"
-                                    class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
-                                    <span class="sr-only">Edit</span>
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white">
-                            <tr *ngFor="let snapshot of snapshotProfiles; let i = index">
-                                <td>
-                                    <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
-                                            matTooltip="Trigger snapshot to run now" mat-icon-button
-                                            (click)="triggerSnapshot(snapshot.key)">
-                                        <mat-icon>play_arrow</mat-icon>
-                                    </button>
-                                    <svg *ngIf="snapshot.taskStatus === 'RUNNING'"
-                                         class="animate-spin ml-3 mr-2 h-5 w-5 text-secondary"
-                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </td>
-                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
-                                    {{snapshot.title}}
-                                </td>
-                                <td class="whitespace-nowrap border-b border-gray-200 py-0.5 px-2 text-sm text-gray-500">
-                                    <div
-                                        class="inline-flex text-sm lowercase flex items-center text-white px-3 rounded-full"
-                                        [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger': snapshot.taskStatus === 'FAILED'}">
-                                        <ng-template [ngIf]="snapshot.taskStatus === 'PENDING'">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                        </ng-template>
-                                        <ng-template [ngIf]="snapshot.taskStatus === 'RUNNING'">
-                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                        stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor"
-                                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        </ng-template>
-                                        <ng-template [ngIf]="snapshot.taskStatus === 'COMPLETED'">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                        </ng-template>
-                                        <ng-template [ngIf]="snapshot.taskStatus === 'FAILED'">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                                            </svg>
-                                        </ng-template>
-                                        <ng-template [ngIf]="snapshot.taskStatus === 'TIMED_OUT'">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </ng-template>
-                                        {{_.startCase(snapshot.taskStatus)}}
-                                    </div>
-                                </td>
-                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
-                                    {{snapshot.taskLastStartTime}}
-                                </td>
-                                <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
-                                    {{snapshot.taskNextStartTime}}
-                                </td>
-                                <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
-                                    <div class="align-center justify-end">
-                                        <button mat-button color="primary" (click)="editSnapshot(snapshot)"> Edit</button>
-                                        <div class="divider"></div>
-                                        <button mat-button color="warn" (click)="deleteSnapshot(snapshot)"> Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            </tbody>
-
-                        </table>
+                        <button type="button" (click)="editSnapshot(null)"
+                                class="inline-flex items-center justify-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
+                            <mat-icon>add</mat-icon>
+                            New Snapshot Profile
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="px-4 sm:px-6 lg:px-8 mt-0">
+                <div class="flex flex-col">
+                    <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+                        <div class="inline-block min-w-full py-2 align-middle">
+                            <table *ngIf="snapshotProfiles.length"
+                                   class="min-w-full border-separate" style="border-spacing: 0">
+                                <thead class="bg-gray-100">
+                                <tr>
+                                    <th scope="col"
+                                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                    </th>
+                                    <th scope="col"
+                                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                        Title
+                                    </th>
+                                    <th scope="col"
+                                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                        Status
+                                    </th>
+                                    <th scope="col"
+                                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                        Last Started
+                                    </th>
+                                    <th scope="col"
+                                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                        Next Start Time
+                                    </th>
+                                    <th scope="col"
+                                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
+                                        <span class="sr-only">Edit</span>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                <tr *ngFor="let snapshot of snapshotProfiles; let i = index">
+                                    <td>
+                                        <button *ngIf="snapshot.taskStatus !== 'RUNNING'" color="primary"
+                                                matTooltip="Trigger snapshot to run now" mat-icon-button
+                                                (click)="triggerSnapshot(snapshot.key)">
+                                            <mat-icon>play_arrow</mat-icon>
+                                        </button>
+                                        <svg *ngIf="snapshot.taskStatus === 'RUNNING'"
+                                             class="animate-spin ml-3 mr-2 h-5 w-5 text-secondary"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                    stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </td>
+                                    <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+                                        {{ snapshot.title }}
+                                    </td>
+                                    <td class="whitespace-nowrap border-b border-gray-200 py-0.5 px-2 text-sm text-gray-500">
+                                        <div
+                                            class="inline-flex text-sm lowercase flex items-center text-white px-3 rounded-full"
+                                            [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger': snapshot.taskStatus === 'FAILED'}">
+                                            <ng-template [ngIf]="snapshot.taskStatus === 'PENDING'">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor"
+                                                     class="-ml-1 w-6 h-6 mr-2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </ng-template>
+                                            <ng-template [ngIf]="snapshot.taskStatus === 'RUNNING'">
+                                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor"
+                                                            stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor"
+                                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </ng-template>
+                                            <ng-template [ngIf]="snapshot.taskStatus === 'COMPLETED'">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor"
+                                                     class="-ml-1 w-6 h-6 mr-2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </ng-template>
+                                            <ng-template [ngIf]="snapshot.taskStatus === 'FAILED'">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor"
+                                                     class="-ml-1 w-6 h-6 mr-2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                                                </svg>
+                                            </ng-template>
+                                            <ng-template [ngIf]="snapshot.taskStatus === 'TIMED_OUT'">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor"
+                                                     class="-ml-1 w-6 h-6 mr-2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </ng-template>
+                                            {{ _.startCase(snapshot.taskStatus) }}
+                                        </div>
+                                    </td>
+                                    <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
+                                        {{ snapshot.taskLastStartTime }}
+                                    </td>
+                                    <td class="whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm text-gray-500">
+                                        {{ snapshot.taskNextStartTime }}
+                                    </td>
+                                    <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
+                                        <div class="align-center justify-end">
+                                            <button mat-button color="primary" (click)="editSnapshot(snapshot)"> Edit
+                                            </button>
+                                            <div class="divider"></div>
+                                            <button mat-button color="warn" (click)="deleteSnapshot(snapshot)"> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
 
-        <div class="p-4" *ngIf="!snapshotProfiles.length">
-            <button type="button" (click)="editSnapshot(null)"
-                    class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+                                </tbody>
 
-                <div class="relative inline-block">
-                    <mat-icon
-                        class="mx-auto text-6xl h-14 w-20 text-gray-300">history
-                    </mat-icon>
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor" stroke-width="4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                    </svg>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <span class="mt-2 block text-sm font-medium text-gray-900">Create Snapshot Profile</span>
-            </button>
-        </div>
+            <div class="p-4" *ngIf="!snapshotProfiles.length">
+                <button type="button" (click)="editSnapshot(null)"
+                        class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+
+                    <div class="relative inline-block">
+                        <mat-icon
+                            class="mx-auto text-6xl h-14 w-20 text-gray-300">history
+                        </mat-icon>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor" stroke-width="4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+
+                    <span class="mt-2 block text-sm font-medium text-gray-900">Create Snapshot Profile</span>
+                </button>
+            </div>
+        </ng-template>
+        <ng-template [ngIf]="showQueryCache">
+            <div class="px-6 py-3 bg-white border-b border-gray-200">
+                <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                    <div class="flex items-start flex-1">
+                        <div class="pt-1.5">
+                            <h1 class="text-xl font-bold text-gray-900 mb-0">
+                                <div>Query Caching</div>
+                            </h1>
+                            <p class="text-xs font-medium text-gray-500">
+                                Set up Query Caching on this data set.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-1 items-center justify-end">
+                        <button type="button" (click)="editQueryCache(null)"
+                                class="inline-flex items-center justify-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
+                            <mat-icon>add</mat-icon>
+                            Create Query Cache
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            <ki-query-caching [limit]="100" [showPager]="false" [reload]="reloadCache"></ki-query-caching>
+            <div class="p-4" *ngIf="!queryCacheResults.length">
+                <button type="button" (click)="editQueryCache(null)"
+                        class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+
+                    <div class="relative inline-block">
+                        <mat-icon class="mx-auto text-6xl h-14 w-20 text-gray-300">memory</mat-icon>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor" stroke-width="4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+
+                    <span class="mt-2 block text-sm font-medium text-gray-900">Create Query Cache</span>
+                </button>
+            </div>
+        </ng-template>
     </rsz-layout>
 </div>
 
@@ -262,7 +323,13 @@
     </button>
     <div class="align-center">
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="datasetInstanceSummary && datasetInstanceSummary.id && canHaveSnapshots" (click)="viewSnapshots()">
+                *ngIf="datasetInstanceSummary && datasetInstanceSummary.id && canHaveSnapshots"
+                (click)="viewQueryCaching()">
+            Query Caching
+        </button>
+        <button mat-stroked-button color="primary" class="mr-2 bg-white"
+                *ngIf="datasetInstanceSummary && datasetInstanceSummary.id && canHaveSnapshots"
+                (click)="viewSnapshots()">
             Manage Snapshots
         </button>
         <button *ngIf="canExportData" mat-stroked-button color="primary" class="mr-2 bg-white" (click)="exportData()">

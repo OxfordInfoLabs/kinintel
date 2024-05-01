@@ -113,7 +113,7 @@ class DatasourceDAO {
      * @param string $projectKey
      * @param integer $accountId
      */
-    public function getDatasourceInstanceByImportKey($importKey,  $accountId = null) {
+    public function getDatasourceInstanceByImportKey($importKey, $accountId = null) {
 
         // If account id or project key, form clause
         $clauses = ["import_key = ?"];
@@ -171,20 +171,25 @@ class DatasourceDAO {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
-     * @param false $includeSnapshots
+     * @param false $includedTypes
      * @param string $projectKey
      * @param int $accountId
      * @param boolean $strictMode
      *
      * @return DatasourceInstanceSearchResult[]
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includeSnapshots = false, $projectKey = null, $accountId = null) {
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includedTypes = [], $projectKey = null, $accountId = null) {
         $this->loadFileSystemDatasources();
 
         if ($accountId || $projectKey) {
 
-            $sql = "WHERE title LIKE ?" . (!$includeSnapshots ? " AND type <> 'snapshot'" : "");
+            $sql = "WHERE title LIKE ?";
             $params = ["%$filterString%"];
+
+            if ($includedTypes && sizeof($includedTypes)) {
+                $sql .= " AND type IN (" . str_repeat("?,", sizeof($includedTypes) - 1) . "?)";
+                $params = array_merge($params, $includedTypes);
+            }
 
             if ($accountId) {
                 $sql .= " AND account_id = ?";
@@ -209,7 +214,7 @@ class DatasourceDAO {
             }
 
             // If still more to get, search the db.
-            $dbMatches = DatasourceInstance::filter("WHERE title LIKE ?" . (!$includeSnapshots ? " AND type <> 'snapshot'" : "") . " AND account_id IS NULL",
+            $dbMatches = DatasourceInstance::filter("WHERE title LIKE ?" . (!$includedTypes ? " AND type <> 'snapshot'" : "") . " AND account_id IS NULL",
                 "%$filterString%");
 
             $newMatches = array_map(function ($dbMatch) {

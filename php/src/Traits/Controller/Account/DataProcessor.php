@@ -116,11 +116,16 @@ trait DataProcessor {
      *
      * @param DataProcessorItem $item
      * @param string $projectKey
-     * @return int
+     * @param boolean $autoStart
+     * @return string
      */
-    public function saveDataProcessorInstance($item, $projectKey) {
+    public function saveDataProcessorInstance($item, $projectKey, $autoStart = false) {
         $accountId = $this->securityService->getLoggedInSecurableAndAccount()[1]->getAccountId();
-        return $this->dataProcessorService->saveDataProcessorInstance($item->toDataProcessorInstance($projectKey, $accountId));
+        $processorKey = $this->dataProcessorService->saveDataProcessorInstance($item->toDataProcessorInstance($projectKey, $accountId));
+        if ($autoStart) {
+            $this->dataProcessorService->triggerDataProcessorInstance($processorKey);
+        }
+        return $processorKey;
     }
 
 
