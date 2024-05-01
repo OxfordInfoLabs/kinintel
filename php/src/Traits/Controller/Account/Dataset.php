@@ -4,9 +4,15 @@
 namespace Kinintel\Traits\Controller\Account;
 
 use Kiniauth\Objects\MetaData\CategorySummary;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
+use Kiniauth\Services\Account\AccountService;
+use Kiniauth\Services\Security\ObjectScopeAccessService;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
+use Kiniauth\ValueObjects\Security\ScopeAccessGroup;
+use Kiniauth\ValueObjects\Security\ScopeAccessItem;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
@@ -40,16 +46,31 @@ trait Dataset {
     private $sqlClauseSanitiser;
 
     /**
+     * @var ObjectScopeAccessService
+     */
+    private $objectScopeAccessService;
+
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+
+    /**
      * Dataset constructor.
      *
      * @param DatasetService $datasetService
      * @param LongRunningTaskService $longRunningTaskService
      * @param SQLClauseSanitiser $sqlClauseSanitiser
+     * @param ObjectScopeAccessService $objectScopeAccessService
+     * @param AccountService $accountService
      */
-    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser) {
+    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser, $objectScopeAccessService, $accountService) {
         $this->datasetService = $datasetService;
         $this->longRunningTaskService = $longRunningTaskService;
         $this->sqlClauseSanitiser = $sqlClauseSanitiser;
+        $this->objectScopeAccessService = $objectScopeAccessService;
+        $this->accountService = $accountService;
     }
 
 
@@ -113,6 +134,44 @@ trait Dataset {
     public function getInUseDatasetInstanceCategories($projectKey = null, $tags = "") {
         return $this->datasetService->getInUseDatasetInstanceCategories($tags, $projectKey);
     }
+
+
+    /**
+     * Get shared access groups for dataset instance
+     *
+     * @http GET /sharedAccessGroups/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @return ScopeAccessGroup[]
+     */
+    public function getSharedAccessGroupsForDatasetInstance($datasetInstanceId) {
+        return $this->objectScopeAccessService->getScopeAccessGroupsForObject(DatasetInstance::class, $datasetInstanceId);
+    }
+
+
+    /**
+     * Invite an account to share a dataset instance
+     *
+     * @http GET /inviteAccountToShare/$datasetInstanceId/$accountExternalIdentifier
+     *
+     * @param int $datasetInstanceId
+     * @param string $accountExternalIdentifier
+     * @param string $expiryDate
+     *
+     * @objectInterceptorDisabled
+     *
+     */
+    public function inviteAccountToShareDatasetInstance($datasetInstanceId, $accountExternalIdentifier, $expiryDate = null) {
+
+        // Grab account
+        $account = $this->accountService->getAccountByExternalIdentifier($accountExternalIdentifier);
+
+        // Invite account using scope access service
+        $this->objectScopeAccessService->inviteAccountAccessGroupsToShareObject(DatasetInstance::class, $datasetInstanceId, [
+            new ScopeAccessGroup([new ScopeAccessItem(Role::SCOPE_ACCOUNT, $account->getAccountId())], false, false, $expiryDate)
+        ], "security/dataset-instance-share");
+    }
+
 
     /**
      * Save a data set instance object
@@ -225,7 +284,6 @@ trait Dataset {
             $exportDataset->getParameterValues(), $exportDataset->getTransformationInstances(),
             $exportDataset->getOffset(), $exportDataset->getLimit());
     }
-
 
 
     /**

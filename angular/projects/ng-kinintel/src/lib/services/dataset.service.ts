@@ -4,6 +4,7 @@ import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {map, switchMap} from 'rxjs/operators';
 import {interval} from 'rxjs';
@@ -91,6 +92,19 @@ export class DatasetService {
             {responseType: 'blob'})
             .toPromise();
     }
+
+
+    public async getSharedAccessGroupsForDatasetInstance(datasetInstanceId) {
+        return this.http.get(this.config.backendURL + `/dataset/sharedAccessGroups/${datasetInstanceId}`).toPromise();
+    }
+
+
+    public async inviteAccountToShareDatasetInstance(datasetInstanceId, accountExternalIdentifier, expiryDate = null) {
+        let path = `/dataset/inviteAccountToShare/${datasetInstanceId}/${accountExternalIdentifier}`;
+        if (expiryDate) path += '?expiryDate=' + expiryDate;
+        this.http.get(this.config.backendURL + path).toPromise();
+    }
+
 
     public listSnapshotProfiles(filterString = '', limit = '10', offset = '0', tags?) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';

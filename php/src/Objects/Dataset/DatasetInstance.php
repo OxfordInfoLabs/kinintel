@@ -7,6 +7,7 @@ use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
+use Kiniauth\Traits\Security\Sharable;
 use Kinikit\Core\DependencyInjection\Container;
 
 
@@ -19,6 +20,7 @@ class DatasetInstance extends DatasetInstanceSummary {
 
     // use account project trait
     use AccountProject;
+    use Sharable;
 
     /**
      * @var ObjectTag[]
@@ -89,6 +91,15 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     public function setCategories($categories) {
         $this->categories = $categories;
+    }
+
+
+    public function getSharableTypeLabel(): string {
+        return "Data set";
+    }
+
+    public function getSharableTitle(): string {
+        return $this->title;
     }
 
 

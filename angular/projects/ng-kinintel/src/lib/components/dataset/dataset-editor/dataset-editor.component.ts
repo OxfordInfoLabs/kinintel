@@ -146,7 +146,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             width: '800px',
             height: '950px',
             data: {
-
+                datasetInstance: this.datasetInstanceSummary
             }
         }).afterClosed().subscribe(res => {
 
