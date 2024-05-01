@@ -72,6 +72,7 @@ class QueryCachingDataProcessorTest extends TestCase {
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getAccountId", 1);
         $processorInstance->returnValue("getProjectKey", "my_project");
+        $processorInstance->returnValue("getKey", "querycache_12345");
 
 
         $processor = new QueryCachingDataProcessor($this->authCreds, $this->datasourceService, $this->datasetService);
@@ -81,7 +82,7 @@ class QueryCachingDataProcessorTest extends TestCase {
 
         $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
             source: "table",
-            tableName: "query_cache.dataset_25_cache",
+            tableName: "query_cache.querycache_12345_cache",
             columns: [
                 new DatasourceUpdateField(
                     name: "parameters",
@@ -106,8 +107,8 @@ class QueryCachingDataProcessorTest extends TestCase {
             ]
         );
 
-        $expectedCacheDatasourceInstance = new DatasourceInstance("dataset-25-cache", "My Query Cache",
-            "sqldatabase", $expectedCacheConfig, "test");
+        $expectedCacheDatasourceInstance = new DatasourceInstance("querycache_12345_cache", "My Query Cache",
+            "querycache", $expectedCacheConfig, "test");
         $expectedCacheDatasourceInstance->setAccountId(1);
         $expectedCacheDatasourceInstance->setProjectKey("my_project");
         $this->assertEquals($expectedCacheDatasourceInstance, $history[0][0]);
@@ -115,12 +116,12 @@ class QueryCachingDataProcessorTest extends TestCase {
 
         $expectedCachingConfig = new CachingDatasourceConfig(
             sourceDatasetId: 25,
-            cachingDatasourceKey: "dataset-25-cache",
+            cachingDatasourceKey: "querycache_12345_cache",
             cacheExpiryDays: 1,
             cacheHours: 12
         );
 
-        $expectedCachingDatasourceInstance = new DatasourceInstance("dataset-25-caching-datasource", "My Query Caching Datasource",
+        $expectedCachingDatasourceInstance = new DatasourceInstance("querycache_12345_caching", "My Query Caching Datasource",
             "caching", $expectedCachingConfig);
         $expectedCachingDatasourceInstance->setAccountId(1);
         $expectedCachingDatasourceInstance->setProjectKey("my_project");
@@ -154,6 +155,7 @@ class QueryCachingDataProcessorTest extends TestCase {
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getAccountId", 1);
         $processorInstance->returnValue("getProjectKey", "my_project");
+        $processorInstance->returnValue("getKey", "querycache_12345");
 
 
         $processor = new QueryCachingDataProcessor($this->authCreds, $this->datasourceService, $this->datasetService);
@@ -163,7 +165,7 @@ class QueryCachingDataProcessorTest extends TestCase {
 
         $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
             source: "table",
-            tableName: "query_cache.dataset_25_cache",
+            tableName: "query_cache.querycache_12345_cache",
             columns: [
                 new DatasourceUpdateField(
                     name: "parameters",
@@ -188,9 +190,9 @@ class QueryCachingDataProcessorTest extends TestCase {
 
 
         $expectedCacheDatasourceInstance = new DatasourceInstance(
-            key: "dataset-25-cache",
+            key: "querycache_12345_cache",
             title: "My Query Cache",
-            type: "sqldatabase",
+            type: "querycache",
             config: $expectedCacheConfig,
             credentialsKey: "test"
         );
@@ -202,13 +204,13 @@ class QueryCachingDataProcessorTest extends TestCase {
 
         $expectedCachingConfig = new CachingDatasourceConfig(
             sourceDatasetId: 25,
-            cachingDatasourceKey: "dataset-25-cache",
+            cachingDatasourceKey: "querycache_12345_cache",
             cacheExpiryDays: 1,
             cacheHours: 12
         );
 
         $expectedCachingDatasourceInstance = new DatasourceInstance(
-            key: "dataset-25-caching-datasource",
+            key: "querycache_12345_caching",
             title: "My Query Caching Datasource",
             type: "caching",
             config: $expectedCachingConfig,

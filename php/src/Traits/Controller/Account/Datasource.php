@@ -106,7 +106,7 @@ trait Datasource {
      * @hasPrivilege PROJECT:customdatasourceaccess($projectKey)
      */
     public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $projectKey = null) {
-        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset, false, $projectKey);
+        return $this->datasourceService->filterDatasourceInstances($filterString, $limit, $offset, ["custom", "document", "sqldatabase"], $projectKey);
     }
 
 
