@@ -44,12 +44,7 @@
                         <tbody *ngFor="let query of queries" class="hover:bg-gray-50">
                         <tr class="hover:bg-gray-50">
                             <td class="boder-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">
-                                <div class="mb-1 hover:underline">{{query.title}}</div>
-                                <div>
-                                    <span class="inline-flex text-xs pr-2 font-normal text-gray-500">
-                                        {{query.relatedObjectTitle}}
-                                    </span>
-                                </div>
+                                {{query.title}}
                             </td>
                             <td class="border-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 <span class="mr-2" *ngIf="query.config.cacheExpiryDays"><b>{{query.config.cacheExpiryDays}}</b> Day(s)</span>
@@ -59,13 +54,13 @@
                                 <div class="flex items-center justify-end">
                                     <button mat-button color="primary"
                                             [disabled]="query.taskStatus === 'PENDING'"
-                                            (click)="view(query.key)">
-                                        View Historical
+                                            (click)="view(query.key + '_cache')">
+                                        View Cache
                                     </button>
                                     <button mat-button color="primary"
                                             [disabled]="query.taskStatus === 'PENDING'"
-                                            (click)="view(query.key + '_latest')">
-                                        View Latest
+                                            (click)="view(query.key + '_caching')">
+                                        Query Latest
                                     </button>
                                     <div class="divider"></div>
                                     <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
@@ -75,7 +70,7 @@
                                         <button mat-menu-item (click)="editCache(query.key)">
                                             Edit Cache
                                         </button>
-                                        <button mat-menu-item (click)="viewParent(query.relatedObjectPrimaryKey)">
+                                        <button mat-menu-item (click)="viewParent(query.config.sourceQueryId)">
                                             View Parent Query
                                         </button>
                                         <button mat-menu-item
@@ -88,7 +83,7 @@
                         </tr>
                         </tbody>
                         <tbody>
-                        <tr>
+                        <tr *ngIf="showPager">
                             <td colspan="5"
                                 class="border-t bg-gray-50 whitespace-nowrap border-b border-gray-200 py-1 px-4 text-sm text-gray-900">
                                 <div class="paging-toolbar flex align-center justify-end">

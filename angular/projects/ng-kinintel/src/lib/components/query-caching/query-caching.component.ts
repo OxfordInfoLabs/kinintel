@@ -21,10 +21,12 @@ export class QueryCachingComponent implements OnInit {
 
     @Input() admin: boolean;
     @Input() reload = new Subject();
+    @Input() showPager = true;
+    @Input() limit = 10;
 
     public queries: any = [];
     public searchText = new BehaviorSubject('');
-    public limit = 10;
+
     public offset = 0;
     public page = 1;
     public endOfResults = false;
@@ -107,12 +109,18 @@ export class QueryCachingComponent implements OnInit {
 
     public async editCache(cacheKey: string) {
         const cache: any = await this.dataProcessorService.getProcessor(cacheKey);
+
+        const dataset = await this.datasetService.getDataset(cache.config.sourceQueryId);
+        const data: any = await this.datasetService.evaluateDataset(dataset);
+        const columns = data.columns;
+
         const dialogRef = this.dialog.open(EditQueryCacheComponent, {
             width: '900px',
             height: '900px',
             data: {
                 cache,
-                datasetInstanceId: cache.config.sourceQueryId
+                datasetInstanceId: cache.config.sourceQueryId,
+                columns
             }
         });
         dialogRef.afterClosed().subscribe(res => {
