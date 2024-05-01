@@ -31,8 +31,8 @@ export class EditQueryCacheComponent implements OnInit {
             type: 'querycaching',
             config: {
                 sourceQueryId: this.data.datasetInstanceId,
-                cacheExpiryDays: '',
-                cacheExpiryHours: '',
+                cacheExpiryDays: null,
+                cacheExpiryHours: null,
                 primaryKeyColumnNames: [],
             }
         };
