@@ -114,9 +114,9 @@ class QueryCachingDataProcessor implements DataProcessor {
         ];
 
         // Create the cache datasource
-        $cacheKey = "dataset-{$queryId}-cache";
+        $cacheKey = $instance->getKey()."_cache";
         $cacheTitle = $sourceQuery->getTitle() . " Cache";
-        $cacheTableName = $tablePrefix . "dataset_{$queryId}_cache";
+        $cacheTableName = $tablePrefix . $cacheKey;
         $cacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
             source: "table",
             tableName: $cacheTableName,
@@ -127,7 +127,7 @@ class QueryCachingDataProcessor implements DataProcessor {
         $cacheDatasourceInstance = new DatasourceInstance(
             key: $cacheKey,
             title: $cacheTitle,
-            type: "sqldatabase",
+            type: "querycache",
             config: $cacheConfig,
             credentialsKey: $credentialsKey
         );
@@ -136,7 +136,7 @@ class QueryCachingDataProcessor implements DataProcessor {
         $this->datasourceService->saveDataSourceInstance($cacheDatasourceInstance);
 
         // Create the wrapper caching datasource
-        $cachingKey = "dataset-{$queryId}-caching-datasource";
+        $cachingKey = $instance->getKey()."_caching";
         $cachingTitle = $sourceQuery->getTitle() . " Caching Datasource";
         $cachingConfig = new CachingDatasourceConfig(
             sourceDatasetId: $queryId,

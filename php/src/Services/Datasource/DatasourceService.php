@@ -69,10 +69,11 @@ class DatasourceService {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
-     * @param false $includeSnapshots
+     * @param array $includedTypes
+     * @param string $projectKey
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includeSnapshots = false, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
-        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includeSnapshots, $projectKey, $accountId);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includedTypes = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includedTypes, $projectKey, $accountId);
     }
 
 
