@@ -79,7 +79,7 @@
                 </button>
             </mat-menu>
         </div>
-        <div *ngIf="(filter.filterType === 'similarto' || filter.filterType === 'between')"
+        <div *ngIf="(filter.filterType === 'similarto' || filter.filterType === 'between' || filter.filterType === 'like' || filter.filterType === 'notlike')"
              class="ml-2 relative w-full">
 
             <ng-template [ngIf]="filter.filterType === 'similarto'">
@@ -89,6 +89,19 @@
                     </option>
                 </select>
                 <div class="text-xs text-gray-400">Select Maximum Number of Changes</div>
+            </ng-template>
+
+            <ng-template [ngIf]="filter.filterType === 'like' || filter.filterType === 'notlike'">
+                <select class="w-full" name="regexp" [(ngModel)]="filter.rhsExpression[1]">
+                    <option  [value]="'likewildcard'">
+                        Wildcard pattern
+                    </option>
+                    <option  [value]="'likeregexp'">
+                        Regular Expression
+                    </option>
+
+                </select>
+                <div class="text-xs text-gray-400">Select Match Type</div>
             </ng-template>
 
             <div *ngIf="filter.filterType === 'between'" class="relative flex items-center">
@@ -173,7 +186,7 @@
         </div>
     </div>
 
-    <mat-select [(ngModel)]="filter.filterType" class="mr-4 p-2" name="filterType">
+    <mat-select [(ngModel)]="filter.filterType" class="mr-4 p-2" name="filterType" (ngModelChange)="updateFilterType(filter)">
         <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{ filterType.label }}
@@ -207,6 +220,19 @@
                 </svg>
             </a>
         </div>
+    </div>
+
+    <div *ngIf="filter.filterType === 'like' || filter.filterType === 'notlike'" class="pl-2 pr-8 mr-4 full">
+        <select name="regexp" [(ngModel)]="filter.rhsExpression[1]">
+            <option  [value]="'likewildcard'">
+                Wildcard pattern
+            </option>
+            <option  [value]="'likeregexp'">
+                Regular Expression
+            </option>
+
+        </select>
+        <div class="text-xs text-gray-400">Select Match Type</div>
     </div>
 
     <input *ngIf="filter.filterType === 'similarto'" type="number" [(ngModel)]="filter.rhsExpression[1]"

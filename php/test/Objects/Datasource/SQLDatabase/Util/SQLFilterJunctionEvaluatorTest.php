@@ -5,6 +5,7 @@ namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -23,7 +24,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
     public function setUp(): void {
         $this->databaseConnection = new SQLite3DatabaseConnection();
     }
-     
+
     public function testCanEvaluateSimpleFilterJunctionToSQLForAllSupportedFilterTypes() {
         $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
@@ -172,6 +173,69 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "*ee*", Filter::FILTER_TYPE_NOT_LIKE)
         ])));
+
+
+
+        // OPEN LIKE EXPLICIT WILCARD TYPE
+        $this->assertEquals([
+            "sql" => "\"name\" LIKE ?",
+            "parameters" => [
+                "%ee%"
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", ["*ee*", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_LIKE)
+        ])));
+
+
+        // NOT LIKE EXPLICIT WILDCARD TYPE
+        $this->assertEquals([
+            "sql" => "\"name\" NOT LIKE ?",
+            "parameters" => [
+                "%ee%"
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", ["*ee*", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_NOT_LIKE)
+        ])));
+
+
+        // LIKE FORMULA
+        $this->assertEquals([
+            "sql" => "\"name\" LIKE CONCAT(%, ?, %)",
+            "parameters" => ["hi"]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", ["CONCAT(%, 'hi', %)", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_LIKE)
+        ])));
+
+        // MISSING LIKE_MATCH_WILDCARD Defaults to wildcard
+        $this->assertEquals([
+            "sql" => "\"name\" LIKE CONCAT(%, ?, %)",
+            "parameters" => ["hi"]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", ["CONCAT(%, 'hi', %)"], Filter::FILTER_TYPE_LIKE)
+        ])));
+
+
+        // REGEXP LIKE
+        $this->assertEquals([
+            "sql" => "\"name\" RLIKE ?",
+            "parameters" => [
+                ".*ee.*"
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", [".*ee.*", Filter::LIKE_MATCH_REGEXP], Filter::FILTER_TYPE_LIKE)
+        ])));
+
+
+        // REGEXP NOT LIKE
+        $this->assertEquals([
+            "sql" => "\"name\" NOT RLIKE ?",
+            "parameters" => [
+                ".*ee.*"
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", [".*ee.*", Filter::LIKE_MATCH_REGEXP], Filter::FILTER_TYPE_NOT_LIKE)
+        ])));
+
 
         // BETWEEN
         $this->assertEquals([

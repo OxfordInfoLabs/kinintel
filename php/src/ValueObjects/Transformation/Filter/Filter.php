@@ -53,6 +53,10 @@ class Filter {
     const FILTER_TYPE_IN = "in";
     const FILTER_TYPE_NOT_IN = "notin";
 
+    // Like match types
+    const LIKE_MATCH_WILDCARD = "likewildcard";
+    const LIKE_MATCH_REGEXP = "likeregexp";
+
     /**
      * Filter constructor.
      *
