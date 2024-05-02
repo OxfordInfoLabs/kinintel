@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;

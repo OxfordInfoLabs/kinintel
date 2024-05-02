@@ -4,7 +4,6 @@ namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
 use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
-use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Vendors\PostgreSQL\PostgreSQLDatabaseConnection;
 
 class PostgreSQLAuthenticationCredentials implements SQLDatabaseCredentials {
