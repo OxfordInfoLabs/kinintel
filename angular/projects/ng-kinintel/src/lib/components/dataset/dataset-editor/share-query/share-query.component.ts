@@ -6,6 +6,7 @@ import {
 import {AccountService, AuthenticationService} from 'ng-kiniauth';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {DatasetService} from '../../../../services/dataset.service';
+import moment from "moment";
 
 @Component({
     selector: 'ki-share-query',
@@ -17,8 +18,7 @@ export class ShareQueryComponent implements OnInit {
 
     public shareWithAccount = false;
     public sharedAccounts: any = [];
-    public listOnMarketplace = false;
-    public marketplaceData: any = {};
+    public invitedAccounts: any = [];
     public session: any;
     public accounts: any;
     public accountSearch: string = '';
@@ -27,6 +27,7 @@ export class ShareQueryComponent implements OnInit {
     public sharingIdentifierError: boolean = false;
     public selectedAccount: any;
     public selectedExpiry: string;
+    public moment: any = moment;
 
     constructor(public dialogRef: MatDialogRef<ShareQueryComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -37,13 +38,20 @@ export class ShareQueryComponent implements OnInit {
 
     async ngOnInit() {
         this.session = await this.authService.getSessionData();
-        await this.loadSharedAccounts();
+        this.loadSharedAccounts();
+        this.loadInvitedAccounts();
     }
 
 
     public async loadSharedAccounts() {
         this.sharedAccounts = await this.datasetService.getSharedAccessGroupsForDatasetInstance(this.data.datasetInstance.id);
     }
+
+
+    public async loadInvitedAccounts() {
+        this.invitedAccounts = await this.datasetService.getInvitedAccessGroupsForDatasetInstance(this.data.datasetInstance.id);
+    }
+
 
     public async filterSharableAccounts() {
         this.accounts = await this.accountService.searchForDiscoverableAccounts(this.accountSearch);
@@ -75,6 +83,20 @@ export class ShareQueryComponent implements OnInit {
     // Invite the selected account to share with the current query.
     public async inviteSelectedAccount() {
         await this.datasetService.inviteAccountToShareDatasetInstance(this.data.datasetInstance.id, this.selectedAccount.externalIdentifier, this.selectedExpiry);
+        this.selectedAccount = null;
+        this.loadInvitedAccounts();
+    }
+
+
+    // Revoke access to a group
+    public async revokeAccessToGroup(accessGroup){
+        await this.datasetService.revokeAccessToGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
+        this.loadSharedAccounts();
+    }
+
+    public async cancelInvitation(accessGroup){
+        await this.datasetService.cancelInvitationForAccessGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
+        this.loadInvitedAccounts();
     }
 
 }

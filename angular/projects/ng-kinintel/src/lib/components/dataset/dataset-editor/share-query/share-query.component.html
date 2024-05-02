@@ -42,51 +42,50 @@
             </div>
 
 
+            <!--            <div class="px-6 py-4">-->
+            <!--                <mat-checkbox-->
+            <!--                    [(ngModel)]="listOnMarketplace">-->
+            <!--                    List Query on Marketplace-->
+            <!--                </mat-checkbox>-->
+            <!--                <div class="text-xs text-gray-400">-->
+            <!--                    Advertise this query to other users via the DAP Marketplace.-->
+            <!--                </div>-->
 
-<!--            <div class="px-6 py-4">-->
-<!--                <mat-checkbox-->
-<!--                    [(ngModel)]="listOnMarketplace">-->
-<!--                    List Query on Marketplace-->
-<!--                </mat-checkbox>-->
-<!--                <div class="text-xs text-gray-400">-->
-<!--                    Advertise this query to other users via the DAP Marketplace.-->
-<!--                </div>-->
+            <!--                <div class="border-l pl-8" *ngIf="listOnMarketplace">-->
 
-<!--                <div class="border-l pl-8" *ngIf="listOnMarketplace">-->
+            <!--                    <div class="my-4">-->
+            <!--                        <p><b>Marketplace Description</b></p>-->
+            <!--                        <textarea [(ngModel)]="marketplaceData.description" placeholder="Enter description" rows="3"-->
+            <!--                                  class="w-full"></textarea>-->
+            <!--                        <div class="text-xs text-gray-400">Describe the data you are offering.</div>-->
+            <!--                    </div>-->
 
-<!--                    <div class="my-4">-->
-<!--                        <p><b>Marketplace Description</b></p>-->
-<!--                        <textarea [(ngModel)]="marketplaceData.description" placeholder="Enter description" rows="3"-->
-<!--                                  class="w-full"></textarea>-->
-<!--                        <div class="text-xs text-gray-400">Describe the data you are offering.</div>-->
-<!--                    </div>-->
+            <!--                    <div class="my-4">-->
+            <!--                        <p><b>Upload Icon</b></p>-->
+            <!--                        <input class="full" type="file" [(ngModel)]="marketplaceData.icon">-->
+            <!--                        <div class="text-xs text-gray-400">Attach a small image to help identify your data.</div>-->
+            <!--                    </div>-->
 
-<!--                    <div class="my-4">-->
-<!--                        <p><b>Upload Icon</b></p>-->
-<!--                        <input class="full" type="file" [(ngModel)]="marketplaceData.icon">-->
-<!--                        <div class="text-xs text-gray-400">Attach a small image to help identify your data.</div>-->
-<!--                    </div>-->
+            <!--                    <div class="my-4">-->
+            <!--                        <p><b>Price</b></p>-->
+            <!--                        <input class="w-1/2" type="number" placeholder="Enter price" [(ngModel)]="marketplaceData.price">-->
+            <!--                        <div class="text-xs text-gray-400">Set a price for accessing this dataset.</div>-->
+            <!--                    </div>-->
 
-<!--                    <div class="my-4">-->
-<!--                        <p><b>Price</b></p>-->
-<!--                        <input class="w-1/2" type="number" placeholder="Enter price" [(ngModel)]="marketplaceData.price">-->
-<!--                        <div class="text-xs text-gray-400">Set a price for accessing this dataset.</div>-->
-<!--                    </div>-->
+            <!--                    <mat-checkbox-->
+            <!--                        [(ngModel)]="marketplaceData.requireVerification">-->
+            <!--                        Require Account Confirmation/Verification-->
+            <!--                    </mat-checkbox>-->
+            <!--                    <div class="text-xs text-gray-400">Perform additional validation on accounts requesting access-->
+            <!--                        to this query.</div>-->
 
-<!--                    <mat-checkbox-->
-<!--                        [(ngModel)]="marketplaceData.requireVerification">-->
-<!--                        Require Account Confirmation/Verification-->
-<!--                    </mat-checkbox>-->
-<!--                    <div class="text-xs text-gray-400">Perform additional validation on accounts requesting access-->
-<!--                        to this query.</div>-->
+            <!--                </div>-->
 
-<!--                </div>-->
-
-<!--            </div>-->
+            <!--            </div>-->
 
             <div class="px-6 py-4">
 
-              <h3>Share with other accounts</h3>
+                <h3>Share with other accounts</h3>
 
                 <div>
 
@@ -103,13 +102,19 @@
                             </mat-option>
                         </mat-autocomplete>
                     </mat-form-field>
-                    <a (click)="enterSharingIdentifier=true" class="text-secondary hover:underline -mt-4 block">or enter a sharing identifier</a>
+                    <a (click)="enterSharingIdentifier=true" class="text-secondary hover:underline -mt-4 block">or enter
+                        a sharing identifier</a>
 
                     <div *ngIf="enterSharingIdentifier" class="flex">
-                        <input class="full" type="text" [(ngModel)]="sharingIdentifier" placeholder="Enter sharing identifier for other account">
-                        <button (click)="lookupSharingIdentifier()" mat-flat-button color="primary" class="ml-2">Lookup</button>
+                        <input class="full" type="text" [(ngModel)]="sharingIdentifier"
+                               placeholder="Enter sharing identifier for other account">
+                        <button (click)="lookupSharingIdentifier()" mat-flat-button color="primary" class="ml-2">
+                            Lookup
+                        </button>
                     </div>
-                    <div class="text-xs text-red-500" *ngIf="sharingIdentifierError">Invalid sharing identifier supplied.</div>
+                    <div class="text-xs text-red-500" *ngIf="sharingIdentifierError">Invalid sharing identifier
+                        supplied.
+                    </div>
 
                 </div>
 
@@ -125,7 +130,8 @@
                                    [(ngModel)]="selectedExpiry">
                         </mat-form-field>
 
-                        <button mat-flat-button color="primary" (click)="inviteSelectedAccount()">Invite to share</button>
+                        <button mat-flat-button color="primary" (click)="inviteSelectedAccount()">Invite to share
+                        </button>
 
                     </div>
 
@@ -133,22 +139,36 @@
                 </div>
 
 
+                <h4 class="mt-4">Invited Accounts</h4>
+
+                <table>
+                    <tr>
+                        <th class="text-left">Account Name</th>
+                        <th class="text-left">Access Expires</th>
+                        <th></th>
+                    </tr>
+                    <tr *ngFor="let account of invitedAccounts">
+                        <td>{{account.scopeAccesses[0].itemLabel}}</td>
+                        <td>{{account.expiryDateString ? moment(account.expiryDateString).format('MMMM Do YYYY') : 'Never'}}</td>
+                        <td><a class="text-secondary hover:underline" (click)="cancelInvitation(account.groupName)">cancel invite</a></td>
+                    </tr>
+                </table>
+
 
                 <h4 class="mt-4">Accounts with Access</h4>
 
                 <table>
                     <tr>
-                        <th>Account Name</th>
-                        <th>Access Expires</th>
+                        <th class="text-left">Account Name</th>
+                        <th class="text-left">Access Expires</th>
                         <th></th>
                     </tr>
                     <tr *ngFor="let account of sharedAccounts">
                         <td>{{account.scopeAccesses[0].itemLabel}}</td>
-                        <td>{{account.expiryDate || 'Never'}}</td>
-                        <td><a>revoke access</a></td>
+                        <td>{{account.expiryDateString ? moment(account.expiryDateString).format('MMMM Do YYYY') : 'Never'}}</td>
+                        <td><a class="text-secondary hover:underline" (click)="revokeAccessToGroup(account.groupName)">revoke access</a></td>
                     </tr>
                 </table>
-
 
 
             </div>

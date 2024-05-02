@@ -98,11 +98,27 @@ export class DatasetService {
         return this.http.get(this.config.backendURL + `/dataset/sharedAccessGroups/${datasetInstanceId}`).toPromise();
     }
 
+    public async revokeAccessToGroupForDatasetInstance(datasetInstanceId, accessGroup) {
+        return this.http.delete(this.config.backendURL + `/dataset/sharedAccessGroups/${datasetInstanceId}`,
+            {body: JSON.stringify(accessGroup)}).toPromise();
+    }
+
+
+    public async getInvitedAccessGroupsForDatasetInstance(datasetInstanceId) {
+        return this.http.get(this.config.backendURL + `/dataset/invitedAccessGroups/${datasetInstanceId}`).toPromise();
+    }
+
 
     public async inviteAccountToShareDatasetInstance(datasetInstanceId, accountExternalIdentifier, expiryDate = null) {
-        let path = `/dataset/inviteAccountToShare/${datasetInstanceId}/${accountExternalIdentifier}`;
+        let path = `/dataset/invitedAccessGroups/${datasetInstanceId}/${accountExternalIdentifier}`;
         if (expiryDate) path += '?expiryDate=' + expiryDate;
-        this.http.get(this.config.backendURL + path).toPromise();
+        return this.http.get(this.config.backendURL + path).toPromise();
+    }
+
+
+    public async cancelInvitationForAccessGroupForDatasetInstance(datasetInstanceId, accessGroup){
+        return this.http.delete(this.config.backendURL + `/dataset/invitedAccessGroups/${datasetInstanceId}`,
+            {body: JSON.stringify(accessGroup)}).toPromise();
     }
 
 

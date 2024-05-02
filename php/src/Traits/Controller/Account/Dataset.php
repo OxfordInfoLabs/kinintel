@@ -150,9 +150,36 @@ trait Dataset {
 
 
     /**
+     * Revoke access to a group for a shared dataset instance
+     *
+     * @http DELETE /sharedAccessGroups/$datasetInstanceId
+     *
+     * @param string $datasetInstanceId
+     * @param string $accessGroup
+     * @return void
+     */
+    public function revokeAccessToGroupForDatasetInstance($datasetInstanceId, $accessGroup) {
+        $this->objectScopeAccessService->removeScopeAccessGroupsFromObject(DatasetInstance::class, $datasetInstanceId, [$accessGroup]);
+    }
+
+
+    /**
+     * Get the invited access groups for a dataset instance
+     *
+     * @http GET /invitedAccessGroups/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @return ScopeAccessGroup[]
+     */
+    public function getInvitedAccessGroupsForDatasetInstance($datasetInstanceId) {
+        return $this->objectScopeAccessService->listInvitationsForSharedObject(DatasetInstance::class, $datasetInstanceId);
+    }
+
+
+    /**
      * Invite an account to share a dataset instance
      *
-     * @http GET /inviteAccountToShare/$datasetInstanceId/$accountExternalIdentifier
+     * @http GET /invitedAccessGroups/$datasetInstanceId/$accountExternalIdentifier
      *
      * @param int $datasetInstanceId
      * @param string $accountExternalIdentifier
@@ -168,8 +195,25 @@ trait Dataset {
 
         // Invite account using scope access service
         $this->objectScopeAccessService->inviteAccountAccessGroupsToShareObject(DatasetInstance::class, $datasetInstanceId, [
-            new ScopeAccessGroup([new ScopeAccessItem(Role::SCOPE_ACCOUNT, $account->getAccountId())], false, false, $expiryDate)
+            new ScopeAccessGroup([new ScopeAccessItem(Role::SCOPE_ACCOUNT, $account->getAccountId())], false, false, $expiryDate ? new \DateTime($expiryDate) : null)
         ], "security/dataset-instance-share");
+    }
+
+
+    /**
+     * Cancel an invitation for access group
+     *
+     * @http DELETE /invitedAccessGroups/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @param $accessGroup
+     *
+     * @return
+     */
+    public function cancelInvitationForAccessGroupForDatasetInstance($datasetInstanceId, $accessGroup) {
+        $this->objectScopeAccessService->cancelAccountInvitationsForAccessGroups(DatasetInstance::class, $datasetInstanceId, [
+            $accessGroup
+        ]);
     }
 
 
