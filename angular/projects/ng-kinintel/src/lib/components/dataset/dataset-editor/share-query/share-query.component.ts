@@ -28,6 +28,8 @@ export class ShareQueryComponent implements OnInit {
     public selectedAccount: any;
     public selectedExpiry: string;
     public moment: any = moment;
+    public marketplaceData: any = {};
+    public listOnMarketplace = false;
 
     constructor(public dialogRef: MatDialogRef<ShareQueryComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -90,13 +92,19 @@ export class ShareQueryComponent implements OnInit {
 
     // Revoke access to a group
     public async revokeAccessToGroup(accessGroup){
-        await this.datasetService.revokeAccessToGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
-        this.loadSharedAccounts();
+        const message = 'Are you sure you would like to revoke access to this account?';
+        if (window.confirm(message)) {
+            await this.datasetService.revokeAccessToGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
+            this.loadSharedAccounts();
+        }
     }
 
     public async cancelInvitation(accessGroup){
-        await this.datasetService.cancelInvitationForAccessGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
-        this.loadInvitedAccounts();
+        const message = 'Are you sure you would like to cancel this invitation?';
+        if (window.confirm(message)) {
+            await this.datasetService.cancelInvitationForAccessGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
+            this.loadInvitedAccounts();
+        }
     }
 
 }
