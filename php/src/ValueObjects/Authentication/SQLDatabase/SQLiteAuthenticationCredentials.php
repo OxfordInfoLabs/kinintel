@@ -4,7 +4,6 @@
 namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;

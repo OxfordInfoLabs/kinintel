@@ -5,9 +5,6 @@ namespace Kinintel\Services\Datasource;
 
 
 use Exception;
-use Google\Client;
-use Google\Service\CloudSearch\UpdateBody;
-use Google\Service\Drive;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTask;
 use Kinikit\Core\Binding\ObjectBinder;

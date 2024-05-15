@@ -2,7 +2,6 @@
 
 namespace Kinintel\Services\Util\Analysis\TextAnalysis;
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;
 
@@ -32,7 +31,6 @@ class PhraseExtractor {
      * @return Phrase[]
      */
     public function extractPhrases($text, $maxPhraseLength = 1, $minPhraseLength = 1, $stopWords = [], $language = 'EN'){
-        $t0 = microtime(true);
 
         foreach ($stopWords as $index => $stopWord) {
             $stopWord = $this->stopwordManager->expandStopwords($stopWord, $language);
@@ -67,8 +65,6 @@ class PhraseExtractor {
                 $finalPhrases[] = new Phrase($phrase, $count, $l);
             }
         }
-
-        Logger::log("Phrase extraction took " . (microtime(true) - $t0));
 
         return $finalPhrases;
     }

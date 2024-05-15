@@ -2,7 +2,6 @@
 
 namespace Kinintel\Services\Util\SQLiteFunctions;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3CustomFunction;
 
 class Regexp implements SQLite3CustomFunction {

@@ -6,7 +6,6 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use DateInterval;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
