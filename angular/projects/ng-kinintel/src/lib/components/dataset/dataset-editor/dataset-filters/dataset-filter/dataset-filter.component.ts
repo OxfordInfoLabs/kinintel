@@ -1,5 +1,6 @@
 import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {Subject} from 'rxjs';
@@ -14,13 +15,19 @@ export class DatasetFilterComponent implements OnInit {
     public static readonly filterTypes = [
         {label: '(==) Equal To', value: 'eq', string: '=='},
         {label: '(!=) Not Equal To', value: 'neq', string: '!='},
-        {label: 'Is Null', value: 'null', string: 'is null'},
-        {label: 'Not Null', value: 'notnull', string: 'not null'},
+        {label: 'Contains', value: 'contains', string: 'contains'},
+        {label: 'Starts with', value: 'startswith', string: 'starts with'},
+        {label: 'Ends with', value: 'endswith', string: 'ends with'},
+        {label: 'Similar to', value: 'similarto', string: 'similar to'},
         {label: '(>) Greater Than', value: 'gt', string: '>'},
         {label: '(>=) Greater Than Or Equal To', value: 'gte', string: '>='},
         {label: '(<) Less Than', value: 'lt', string: '<'},
         {label: '(<=) Less Than Or Equal To', value: 'lte', string: '<='},
+        {label: 'Between', value: 'between', string: 'between'},
+        {label: 'Is Null', value: 'null', string: 'is null'},
+        {label: 'Not Null', value: 'notnull', string: 'not null'},
         {label: 'Like', value: 'like', string: 'like'},
+        {label: 'Not Like', value: 'notlike', string: 'not like'}
     ];
 
     @Input() filter: any;
@@ -35,6 +42,7 @@ export class DatasetFilterComponent implements OnInit {
 
     public customValue = false;
     public customLhs = false;
+    public _ = _;
 
     constructor(private dialog: MatDialog) {
     }
@@ -44,19 +52,26 @@ export class DatasetFilterComponent implements OnInit {
     }
 
     ngOnInit(): void {
+
         this.customLhs = String(this.filter.lhsExpression).length &&
             !_.find(this.filterFields, field => {
                 return `[[${field.name}]]` === this.filter.lhsExpression;
             });
 
-        this.customValue = String(this.filter.rhsExpression).length &&
+        this.customValue = this.filter.rhsExpression.length && String(this.filter.rhsExpression[0]).length &&
             !_.find(this.joinFilterFields, field => {
-                return `[[${field.name}]]` === this.filter.rhsExpression;
+                return `[[${field.name}]]` === this.filter.rhsExpression[0];
             });
 
-        if (String(this.filter.rhsExpression).includes('AGO')) {
+        // Handle legacy string scenarios.
+        if (_.isString(this.filter.rhsExpression)) {
+            this.filter.rhsExpression = [this.filter.rhsExpression];
+        }
+
+
+        if (String(this.filter.rhsExpression[0]).includes('AGO')) {
             this.filter._expType = 'period';
-            const periodValues = this.filter.rhsExpression.split('_');
+            const periodValues = this.filter.rhsExpression[0].split('_');
             this.filter._periodValue = periodValues[0];
             this.filter._period = periodValues[1];
         }
@@ -72,17 +87,38 @@ export class DatasetFilterComponent implements OnInit {
         }
     }
 
-    public updateFilterType(filter, type, value?) {
-        filter._expType = type;
-        if (type === 'period') {
-            filter.rhsExpression = `${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`;
-        } else {
-            filter.rhsExpression = value;
+
+    updateFilterType(filter: any) {
+        if (filter.filterType !== 'similarto' && filter.filterType !== 'between'
+            && filter.filterType !== 'like' && filter.filterType !== 'notlike') {
+            if (filter.rhsExpression && filter.rhsExpression.length > 1) {
+                filter.rhsExpression = filter.rhsExpression.slice(0, 1);
+            }
+        }
+        if (filter.filterType === 'similarto') {
+            if (!filter.rhsExpression[1]) {
+                filter.rhsExpression[1] = 1;
+            }
+        }
+        if (filter.filterType === 'like' || filter.filterType === 'notlike') {
+            if (!filter.rhsExpression[1]) {
+                filter.rhsExpression[1] = 'likewildcard';
+            }
+            console.log(filter);
         }
     }
 
-    public updatePeriodValue(value, period, filter) {
-        filter.rhsExpression = `${value}_${period}_AGO`;
+    public updateExpressionType(filter, type, value?, fieldIndex = 0) {
+        filter[fieldIndex === 0 ? '_expType' : '_otherExpType'] = type;
+        if (type === 'period') {
+            filter.rhsExpression[fieldIndex] = `${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`;
+        } else {
+            filter.rhsExpression[fieldIndex] = value;
+        }
+    }
+
+    public updatePeriodValue(value, period, filter, fieldIndex = 0) {
+        filter.rhsExpression[fieldIndex] = `${value}_${period}_AGO`;
     }
 
     public removeFilter() {
@@ -97,5 +133,6 @@ export class DatasetFilterComponent implements OnInit {
     public getFilterTypes() {
         return DatasetFilterComponent.filterTypes;
     }
+
 
 }

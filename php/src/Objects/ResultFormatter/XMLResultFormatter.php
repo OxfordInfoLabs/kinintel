@@ -2,11 +2,8 @@
 
 namespace Kinintel\Objects\ResultFormatter;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\ReadableStream;
-use Kinikit\Core\Util\Primitive;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\ValueObjects\Dataset\Field;
 
 class XMLResultFormatter implements ResultFormatter {

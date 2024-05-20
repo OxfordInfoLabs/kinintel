@@ -91,6 +91,9 @@ import { MoveTransformationConfirmationComponent } from './components/dataset/da
 import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
 import {NgChartsModule} from 'ng2-charts';
 import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-as-query/save-as-query.component';
+import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-api-access/snapshot-api-access.component';
+import { QueryCachingComponent } from './components/query-caching/query-caching.component';
+import { EditQueryCacheComponent } from './components/query-caching/edit-query-cache/edit-query-cache.component';
 
 @NgModule({
     declarations: [
@@ -149,7 +152,10 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
         ApiAccessComponent,
         TabularDatasourceComponent,
         MoveTransformationConfirmationComponent,
-        SaveAsQueryComponent
+        SaveAsQueryComponent,
+        SnapshotApiAccessComponent,
+        QueryCachingComponent,
+        EditQueryCacheComponent
     ],
     imports: [
         BrowserModule,
@@ -216,7 +222,9 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
         DocumentDatasourceComponent,
         ProjectSettingsComponent,
         UpstreamChangesConfirmationComponent,
-        TabularDatasourceComponent
+        TabularDatasourceComponent,
+        SnapshotApiAccessComponent,
+        QueryCachingComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

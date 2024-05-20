@@ -61,17 +61,15 @@
                             [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex,
                             'w-24 bg-gray-100': columns[rowColIndex].type === 'id',
                             'bg-gray-100': columns[rowColIndex].keyField && this.adds.indexOf(rowIndex) === -1}"
-                            class="p-0 row-cell"
-                            (mouseover)="mouseoverSelection($event, rowIndex, rowColIndex)"
-                            (mousedown)="mousedownSelection($event, rowIndex, rowColIndex)">
+                            class="p-0 row-cell">
                             <div
                                 class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
                                 <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
                                        type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                       *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField" (change)="updateField(field, rowIndex)"
+                                       *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField"
+                                       (change)="updateField(field, rowIndex)"
                                        (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                       (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)"
-                                       (keydown.backspace)="deleteCell(row[rowColumn.name], rowIndex, rowColIndex)">
+                                       (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
 
                                 <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
                                     <div class="text-gray-500 text-xs">{{row[rowColumn.name] || '<\generated\>'}}</div>
@@ -83,8 +81,7 @@
                                                type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
                                                (change)="updateField(field, rowIndex)"
                                                (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                               (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)"
-                                               (keydown.backspace)="deleteCell(row[rowColumn.name], rowIndex, rowColIndex)">
+                                               (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
                                     </ng-template>
                                     <ng-template [ngIf]="this.adds.indexOf(rowIndex) === -1">
                                         <div class="text-gray-500 text-xs">{{row[rowColumn.name]}}</div>

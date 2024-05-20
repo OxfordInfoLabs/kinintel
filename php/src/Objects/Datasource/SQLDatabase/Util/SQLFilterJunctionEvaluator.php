@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -15,29 +16,20 @@ use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
  */
 class SQLFilterJunctionEvaluator {
 
-    /**
-     * @var string
-     */
-    private $lhsTableAlias = null;
+    private ?string $lhsTableAlias = null;
 
-    /**
-     * @var string
-     */
-    private $rhsTableAlias = null;
+    private ?string $rhsTableAlias = null;
 
-
-    /**
-     * @var SQLValueEvaluator
-     */
-    private $sqlFilterValueEvaluator;
+    private SQLValueEvaluator $sqlFilterValueEvaluator;
 
     /**
      * Construct optionally with a lhs and rhs table alias if required
      *
      * SQLFilterJunctionEvaluator constructor.
      *
-     * @param string $lhsTableAlias
-     * @param string $rhsTableAlias
+     * @param string|null $lhsTableAlias
+     * @param string|null $rhsTableAlias
+     * @param DatabaseConnection|null $databaseConnection
      */
     public function __construct($lhsTableAlias = null, $rhsTableAlias = null, $databaseConnection = null) {
         $this->lhsTableAlias = $lhsTableAlias;
@@ -97,10 +89,11 @@ class SQLFilterJunctionEvaluator {
         $lhsParams = [];
         $rhsParams = [];
 
+
         // Map any square brackets to direct columns with table alias or assume whole string is single column
         $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getLhsExpression(), $templateParameters, $this->lhsTableAlias, $lhsParams);
         $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getRhsExpression(), $templateParameters, $this->rhsTableAlias, $rhsParams);
-
+        $rhsExpressionComponents = explode(",", $rhsExpression);
 
         $clause = "";
         switch ($filter->getFilterType()) {
@@ -127,15 +120,55 @@ class SQLFilterJunctionEvaluator {
             case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
                 $clause = "$lhsExpression <= $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_LIKE:
-                $clause = "$lhsExpression LIKE $rhsExpression";
-                if (sizeof($rhsParams))
-                    $rhsParams[sizeof($rhsParams) - 1] = str_replace("*", "%", $rhsParams[sizeof($rhsParams) - 1]);
-                if (sizeof($lhsParams))
-                    $lhsParams[sizeof($lhsParams) - 1] = str_replace("*", "%", $lhsParams[sizeof($lhsParams) - 1]);
+            case Filter::FILTER_TYPE_STARTS_WITH:
+                $clause = "$lhsExpression LIKE CONCAT($rhsExpression,'%')";
                 break;
+            case Filter::FILTER_TYPE_ENDS_WITH:
+                $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression)";
+                break;
+            case Filter::FILTER_TYPE_CONTAINS:
+                $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression, '%')";
+                break;
+            case Filter::FILTER_TYPE_SIMILAR_TO:
+
+                if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
+                    throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array containing a match string and a maximum distance");
+                }
+
+                // Add parameters to allow for compound expression.
+                $rhsParams = array_merge($lhsParams, $rhsParams, $rhsParams);
+
+                $clause = "(ABS(LENGTH($lhsExpression) - LENGTH($rhsExpressionComponents[0])) <= $rhsExpressionComponents[1]) AND (LEVENSHTEIN($lhsExpression, $rhsExpressionComponents[0]) <= $rhsExpressionComponents[1])";
+                break;
+            case Filter::FILTER_TYPE_LIKE:
+            case Filter::FILTER_TYPE_NOT_LIKE:
+
+                $last = $rhsParams[count($rhsParams ?? []) - 1] ?? null;
+
+                $regexp = match ($last) {
+                    Filter::LIKE_MATCH_REGEXP => true,
+                    default => false
+                };
+
+                // * will work when you only have one LHS or RHS parameter (e.g. not with CONCAT(?, ?))
+                if (!$regexp && sizeof($rhsParams))
+                    $rhsParams[0] = str_replace("*", "%", $rhsParams[0]);
+                if (!$regexp && sizeof($lhsParams))
+                    $lhsParams[0] = str_replace("*", "%", $lhsParams[0]);
+
+                $likeKeyword = $regexp ? "RLIKE" : "LIKE";
+
+                if ($last == Filter::LIKE_MATCH_REGEXP || $last == Filter::LIKE_MATCH_WILDCARD) {
+                    array_pop($rhsParams);
+                    array_pop($rhsExpressionComponents);
+                }
+
+                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "$likeKeyword " . join(",", $rhsExpressionComponents);
+
+                break;
+
             case Filter::FILTER_TYPE_BETWEEN:
-                if (!is_array($rhsParams) || sizeof($rhsParams) !== 2) {
+                if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array");
                 }
                 $clause = "$lhsExpression BETWEEN ? AND ?";
@@ -151,7 +184,7 @@ class SQLFilterJunctionEvaluator {
                 break;
         }
 
-        
+
         // Add both lhs and rhs params
         if (sizeof($lhsParams))
             array_splice($parameters, sizeof($parameters), 0, $lhsParams);

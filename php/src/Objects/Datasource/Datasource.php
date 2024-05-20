@@ -23,6 +23,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation union \Kinintel\Objects\Datasource\Union\UnionDatasource
  * @implementation webscraper \Kinintel\Objects\Datasource\WebScraper\WebScraperDatasource
  * @implementation extending \Kinintel\Objects\Datasource\ExtendingDatasource
+ * @implementation querycache \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
  */
 interface Datasource {
 

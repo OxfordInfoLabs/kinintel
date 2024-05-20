@@ -10,7 +10,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
@@ -23,7 +23,7 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 
-class TabularDatasourceImportProcessor implements DataProcessor {
+class TabularDatasourceImportProcessor extends BaseDataProcessor {
 
     /**
      * @var DatasourceService

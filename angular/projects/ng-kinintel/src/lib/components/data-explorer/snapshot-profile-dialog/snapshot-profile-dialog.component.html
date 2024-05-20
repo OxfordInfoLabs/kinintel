@@ -36,6 +36,22 @@
                                 </div>
                             </div>
 
+                            <div *ngIf="snapshot.config.parameterValues && Object.keys(snapshot.config.parameterValues).length"
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Parameter Values
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <ng-template ngFor let-parameterKey [ngForOf]="Object.keys(snapshot.config.parameterValues)">
+                                        <div class="text-gray-600 text-xs">{{_.startCase(parameterKey)}}</div>
+                                        <input type="text" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
+                                               placeholder="Enter a value for {{_.startCase(parameterKey)}}"
+                                               class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                                    </ng-template>
+
+                                </div>
+                            </div>
+
                             <div
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
@@ -53,7 +69,7 @@
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                                     Snapshot Processor</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <mat-radio-group [(ngModel)]="snapshot.processorType">
+                                    <mat-radio-group [(ngModel)]="snapshot.type">
                                         <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard
                                         </mat-radio-button>
                                         <mat-radio-button value="tabulardatasetincrementalsnapshot">Incremental
@@ -62,14 +78,14 @@
                                 </div>
                             </div>
 
-                            <ng-template [ngIf]="snapshot.processorType === 'tabulardatasetincrementalsnapshot'">
+                            <ng-template [ngIf]="snapshot.type === 'tabulardatasetincrementalsnapshot'">
                                 <div
                                     class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                     <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                                         Newer Values Field Name
                                     </label>
                                     <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                        <mat-select [(ngModel)]="snapshot.processorConfig.newerValuesFieldName"
+                                        <mat-select [(ngModel)]="snapshot.config.newerValuesFieldName"
                                                     name="newerValuesFieldName" required>
                                             <mat-option [value]="column.name"
                                                         *ngFor="let column of columns">{{ column.title }}
@@ -84,7 +100,7 @@
                                         Newer Values Rules
                                     </label>
                                     <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                        <mat-select [(ngModel)]="snapshot.processorConfig.newerValuesRules"
+                                        <mat-select [(ngModel)]="snapshot.config.newerValuesRules"
                                                     name="newerValuesRules" required>
                                             <mat-option value="GREATER">Greater Than</mat-option>
                                             <mat-option value="GREATER_OR_EQUAL">Greater Than or Equal To</mat-option>
@@ -95,27 +111,27 @@
                                 </div>
                             </ng-template>
 
-                            <div *ngIf="snapshot.processorType === 'tabulardatasetsnapshot'"
+                            <div *ngIf="snapshot.type === 'tabulardatasetsnapshot'"
                                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                                     Snapshot Type</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0 flex flex-col">
-                                    <mat-checkbox [(ngModel)]="snapshot.processorConfig.createHistory"
+                                    <mat-checkbox [(ngModel)]="snapshot.config.createHistory"
                                                   (ngModelChange)="updateCreateHistory($event)">
                                         Historical
                                     </mat-checkbox>
                                     <div class="text-xs text-gray-600 mb-4">Create regular data snapshots based on the
                                         time periods below.
                                     </div>
-                                    <mat-checkbox [(ngModel)]="snapshot.processorConfig.createLatest"
-                                                  [disabled]="snapshot.processorConfig.createHistory">
+                                    <mat-checkbox [(ngModel)]="snapshot.config.createLatest"
+                                                  [disabled]="snapshot.config.createHistory">
                                         Latest
                                     </mat-checkbox>
                                     <div class="text-xs text-gray-600 mb-2">Save the latest data snapshot as it's own
                                         entity, separate from the history.
                                     </div>
                                     <div
-                                        *ngIf="!_.some([snapshot.processorConfig.createHistory, snapshot.processorConfig.createLatest])"
+                                        *ngIf="!_.some([snapshot.config.createHistory, snapshot.config.createLatest])"
                                         class="mt-6 border-l-4 border-red-600 bg-red-50 p-4">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
@@ -147,14 +163,14 @@
                                 </div>
                             </div>
 
-                            <div *ngIf="snapshot.processorConfig.createHistory &&
-                                snapshot.processorType === 'tabulardatasetsnapshot'"
+                            <div *ngIf="snapshot.config.createHistory &&
+                                snapshot.type === 'tabulardatasetsnapshot'"
                                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time Lapse
                                     Fields</label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <div class="time-lapsed-field"
-                                         *ngFor="let timeLapse of snapshot.processorConfig.timeLapsedFields; let i = index">
+                                         *ngFor="let timeLapse of snapshot.config.timeLapsedFields; let i = index">
                                         <div>
                                             <div class="mb-1"><b>Day Offsets:</b> {{ timeLapse.dayOffsets.join(', ') }}
                                             </div>
@@ -221,7 +237,7 @@
                             <div
                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Key Fields<span *ngIf="snapshot.processorConfig.timeLapsedFields.length"
+                                    Key Fields<span *ngIf="snapshot.config.timeLapsedFields.length"
                                                     class="ml-1 text-red-600">*</span>
                                 </label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
@@ -234,8 +250,8 @@
                                         </ng-template>
                                     </div>
                                     <mat-select #selectModel="ngModel" #selectKeyFields
-                                                [required]="snapshot.processorConfig.timeLapsedFields.length > 0"
-                                                [(ngModel)]="snapshot.processorConfig.keyFieldNames" multiple
+                                                [required]="snapshot.config.timeLapsedFields.length > 0"
+                                                [(ngModel)]="snapshot.config.keyFieldNames" multiple
                                                 [ngClass]="{'border-red-600': selectModel.invalid}">
                                         <div class="px-4 py-3 font-normal flex items-center cursor-pointer"
                                              (click)="selectAll($event)">
@@ -260,11 +276,11 @@
                                         Select the fields you would like to set database indexes on. <br>
                                     </div>
 
-                                    <ng-template ngFor let-snapshotIndex [ngForOf]="snapshot.processorConfig.indexes"
+                                    <ng-template ngFor let-snapshotIndex [ngForOf]="snapshot.config.indexes"
                                                  let-i="index">
                                         <div class="flex items-center justify-between">
-                                            <mat-select [ngClass]="{'border-red-600': !snapshot.processorConfig.indexes[i].fieldNames.length}"
-                                                [(ngModel)]="snapshot.processorConfig.indexes[i].fieldNames"
+                                            <mat-select [ngClass]="{'border-red-600': !snapshot.config.indexes[i].fieldNames.length}"
+                                                [(ngModel)]="snapshot.config.indexes[i].fieldNames"
                                                         multiple>
                                                 <mat-option *ngFor="let column of columns"
                                                             [value]="column.name">{{ column.title }}
@@ -277,7 +293,7 @@
                                     </ng-template>
 
                                     <button mat-stroked-button color="primary" class="mt-2 mr-2 bg-white"
-                                            (click)="snapshot.processorConfig.indexes.push({fieldNames: []})">
+                                            (click)="snapshot.config.indexes.push({fieldNames: []})">
                                         Add Indexes
                                     </button>
                                 </div>

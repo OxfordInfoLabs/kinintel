@@ -30,9 +30,14 @@ class StopwordManager {
         $this->datasourceService = $datasourceService;
     }
 
+    /**
+     * @param StopWord $stopWord
+     * @param string $languageKey
+     * @return StopWord
+     */
     public function expandStopwords($stopWord, $languageKey) {
 
-        if ($stopWord->isBuiltIn()) {
+        if ($stopWord->isBuiltIn() && !$stopWord->isCustom()) {
             $this->expandBuiltInStopwordsByLanguage($stopWord, $languageKey);
 
         } elseif ($stopWord->isCustom() && $stopWord->getDatasourceKey() && $stopWord->getDatasourceColumn()) {

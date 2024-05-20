@@ -9,7 +9,6 @@ use Kinintel\Exception\ImportKeyAlreadyExistsException;
 use Kinintel\Exception\ItemInUseException;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Services\Datasource\DatasourceDAO;
-use Monolog\Logger;
 
 class DatasourceInstanceInterceptor extends DefaultORMInterceptor {
 

@@ -12,6 +12,7 @@ import {Router} from '@angular/router';
 import {
     SnapshotProfileDialogComponent
 } from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
+import {DataProcessorService} from '../../services/data-processor.service';
 const _ = lodash.default;
 
 @Component({
@@ -64,6 +65,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 private tagService: TagService,
                 private projectService: ProjectService,
                 private datasetService: DatasetService,
+                private dataProcessorService: DataProcessorService,
                 private router: Router,
                 public config: KinintelModuleConfig) {
     }
@@ -91,8 +93,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                         this.tagChanges = interval(3000)
                             .pipe(
                                 switchMap(() =>
-                                    this.datasetService.listSnapshotProfiles(
-                                        this.searchText.getValue() || '', String(this.snapshots.tag.limit), String(this.snapshots.tag.offset)).pipe(
+                                    this.dataProcessorService.filterProcessorsByType(
+                                        'snapshot', this.searchText.getValue() || '', String(this.snapshots.tag.limit), String(this.snapshots.tag.offset)).pipe(
                                         map(result => {
                                             return result;
                                         }))
@@ -142,8 +144,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.stopSnapshotWatch();
     }
 
-    public async triggerSnapshot(snapshotProfileId, datasetInstanceId, snapshot) {
-        await this.datasetService.triggerSnapshot(snapshotProfileId, datasetInstanceId);
+    public async triggerSnapshot(snapshotKey, snapshot) {
+        await this.dataProcessorService.triggerProcessor(snapshotKey);
         snapshot.reload.next(Date.now());
     }
 
@@ -168,14 +170,14 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.tagService.resetActiveTag();
     }
 
-    public async editSnapshot(snapshotId: number, project: any) {
-        const snapshot: any = await this.datasetService.getSnapshotProfile(snapshotId);
+    public async editSnapshot(snapshotKey: string, project: any) {
+        const snapshot: any = await this.dataProcessorService.getProcessor(snapshotKey);
         const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
             width: '900px',
             height: '900px',
             data: {
                 snapshot,
-                datasetInstanceId: snapshot.processorConfig.datasetInstanceId
+                datasetInstanceId: snapshot.relatedObjectPrimaryKey
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -185,10 +187,10 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         });
     }
 
-    public delete(snapshotProfileId, datasetInstanceId, snapshot) {
+    public delete(snapshotProfileId, snapshot) {
         const message = 'Are you sure you would like to remove this Snapshot?';
         if (window.confirm(message)) {
-            this.datasetService.removeSnapshotProfile(snapshotProfileId, datasetInstanceId).then(() => {
+            this.dataProcessorService.removeProcessor(snapshotProfileId).then(() => {
                 snapshot.reload.next(Date.now());
             });
         }
@@ -241,7 +243,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     }
 
     private getSnapshots(snapshot, tags?) {
-        return this.datasetService.listSnapshotProfiles(
+        return this.dataProcessorService.filterProcessorsByType(
+            'snapshot',
             this.searchText.getValue() || '',
             snapshot.limit.toString(),
             snapshot.offset.toString(),
@@ -257,7 +260,8 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
         this.projectChanges = interval(3000)
             .pipe(
                 switchMap(() =>
-                    this.datasetService.listSnapshotProfiles(
+                    this.dataProcessorService.filterProcessorsByType(
+                        'snapshot',
                         this.searchText.getValue() || '', String(this.snapshots.project.limit), String(this.snapshots.project.offset), 'NONE').pipe(
                         map(result => {
                             return result;

@@ -31,6 +31,7 @@ class PhraseExtractor {
      * @return Phrase[]
      */
     public function extractPhrases($text, $maxPhraseLength = 1, $minPhraseLength = 1, $stopWords = [], $language = 'EN'){
+
         foreach ($stopWords as $index => $stopWord) {
             $stopWord = $this->stopwordManager->expandStopwords($stopWord, $language);
             array_splice($stopWords, $index, 1, [$stopWord]);
@@ -64,6 +65,7 @@ class PhraseExtractor {
                 $finalPhrases[] = new Phrase($phrase, $count, $l);
             }
         }
+
         return $finalPhrases;
     }
 

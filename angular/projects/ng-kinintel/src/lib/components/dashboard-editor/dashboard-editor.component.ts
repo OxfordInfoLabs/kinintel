@@ -516,6 +516,33 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         this.itemComponents.push(componentRef.instance);
 
         componentRef.instance.duplicateItem.subscribe(instanceKey => {
+            const newInstanceKey = 'i' + Date.now().toString();
+            const existingGrid = _.find(this.dashboard.layoutSettings.grid, item => {
+                return item.content.includes(instanceKey);
+            });
+            if (existingGrid) {
+                const existingDatasourceInstance = _.find(this.dashboard.datasetInstances, {instanceKey});
+                const newDatasourceInstance = _.cloneDeep(existingDatasourceInstance);
+                newDatasourceInstance.instanceKey = newInstanceKey;
+                this.dashboard.datasetInstances.push(newDatasourceInstance);
+
+                _.forEach(this.dashboard.layoutSettings, (item: any, key: string) => {
+                    if (key !== 'grid' && item[instanceKey]) {
+                        item[newInstanceKey] = _.cloneDeep(item[instanceKey]);
+                    }
+                });
+
+                const newElement = document.createElement('ki-item-component');
+                newElement.id = newInstanceKey;
+                newElement.dataset.dashboardItemType = JSON.stringify(dashboardItemType || {});
+                this.grid.addWidget({
+                    w: existingGrid ? existingGrid.w : 3,
+                    h: existingGrid ? existingGrid.h : 3,
+                    x: existingGrid ? existingGrid.x : 0,
+                    y: existingGrid ? existingGrid.y : 0,
+                    content: newElement.outerHTML
+                });
+            }
 
         });
 

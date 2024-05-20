@@ -96,48 +96,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         document.addEventListener('mouseup', () => {
             this.isMouseDown = false;
         });
-
-        document.querySelector('.datasource-table')
-            .addEventListener('copy', (event: ClipboardEvent) => {
-                const data = _.clone(this.rows);
-                const rows = data.splice(this.startRowIndex, this.endRowIndex + 1);
-                const copyData = _.map(rows, (value) => {
-                    const cols = Object.keys(value).splice(this.startCellIndex, this.endCellIndex + 1);
-                    const row = {};
-                    cols.forEach(col => {
-                        row[col] = value[col];
-                    });
-
-                    return row;
-                });
-
-                event.clipboardData.setData('text', JSON.stringify(copyData));
-
-                event.preventDefault();
-            });
-
-        window.addEventListener('paste', (event: any) => {
-            if (this.selectedCell) {
-                const clipboardData = (event.clipboardData || window.clipboardData);
-                let data = [];
-
-                const text = clipboardData.getData('text');
-
-                try {
-                    data = JSON.parse(text);
-
-                    this.insertCellData(data);
-                } catch (error) {
-                    data = text.split('\n');
-                    data = data.map(rows => {
-                        return rows.split('\t');
-                    });
-
-                    this.insertCellData(data);
-                }
-            }
-            event.preventDefault();
-        });
     }
 
     ngOnDestroy() {
@@ -317,7 +275,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public updateField(field, rowIndex) {
         if (this.adds.indexOf(rowIndex) === -1) {
-            this.updates.push(rowIndex);
+            if (this.updates.indexOf(rowIndex) === -1) {
+                this.updates.push(rowIndex);
+            }
         }
     }
 
@@ -353,31 +313,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             const rowCell: any = rowElement.querySelectorAll('.row-cell').item(rowColIndex);
             rowCell.querySelectorAll('.cell-input').item(0).focus();
         }, 0);
-    }
-
-    public deleteCell(value, rowIndex, rowColIndex) {
-        if (!value.length) {
-
-            if (rowColIndex > 0) {
-                setTimeout(() => {
-                    const rowElement = document.querySelectorAll('.table-rows').item(rowIndex);
-                    const rowCell: any = rowElement.querySelectorAll('.row-cell').item(rowColIndex - 1);
-                    rowCell.querySelectorAll('.cell-input').item(0).focus();
-                }, 0);
-                return;
-            }
-
-            if (_.filter(this.rows[rowIndex]).length === 0 &&
-                rowColIndex === 0 && rowIndex > 0) {
-
-                const rowElement = document.querySelectorAll('.table-rows').item(rowIndex - 1);
-                const rowCell: any = rowElement.querySelectorAll('.row-cell').item(0);
-                rowCell.querySelectorAll('.cell-input').item(0).focus();
-
-                this.deleteRow(rowIndex);
-            }
-        }
-
     }
 
     public async save(exit = false) {
@@ -440,33 +375,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public deleteSelectedColumn() {
         this.columns.splice(this.selectedItem._index, 1);
-    }
-
-    public mousedownSelection(event, rowIndex, cellIndex) {
-        this.isMouseDown = true;
-
-        document.querySelectorAll('.datasource-table .bg-indigo-50').forEach(element => {
-            element.classList.remove('bg-indigo-50');
-        });
-
-        this.startRowIndex = rowIndex;
-        this.startCellIndex = cellIndex;
-        this.endRowIndex = rowIndex;
-        this.endCellIndex = cellIndex;
-    }
-
-    public mouseoverSelection(event, rowIndex, cellIndex) {
-        if (!this.isMouseDown) {
-            return;
-        }
-
-        document.querySelectorAll('.row-cell.bg-indigo-50').forEach(element => {
-            element.classList.remove('bg-indigo-50');
-        });
-
-        this.selectCell(rowIndex, cellIndex);
-        this.endRowIndex = rowIndex;
-        this.endCellIndex = cellIndex;
     }
 
     public resetTable() {

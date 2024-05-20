@@ -7,7 +7,6 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Exception\AccessDeniedException;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinikit\Core\Validation\ValidationException;
@@ -70,10 +69,11 @@ class DatasourceService {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
-     * @param false $includeSnapshots
+     * @param array $includedTypes
+     * @param string $projectKey
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includeSnapshots = false, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
-        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includeSnapshots, $projectKey, $accountId);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includedTypes = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includedTypes, $projectKey, $accountId);
     }
 
 
@@ -339,11 +339,6 @@ class DatasourceService {
 
         list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
 
-//        try{
-//            list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
-//        } catch (ObjectNotFoundException $e){
-//            throw new AccessDeniedException("You don't have write access to this datasource");
-//        }
 
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
