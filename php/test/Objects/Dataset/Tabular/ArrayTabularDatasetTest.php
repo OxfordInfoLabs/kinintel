@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
@@ -159,5 +160,33 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testIfErrorThrownOnIncorrectRowStructure(){
+        try {
+            $x = new ArrayTabularDataset([
+                new Field("name", "Name"),
+                new Field("age", "Age"),
+            ],[
+                "name" => "Sam Davis",
+                "age" => 1000
+            ]);
+            $this->fail();
+        } catch (UnsupportedDatasetException $exception){
+            // Success
+        }
+
+        try {
+            $x = new ArrayTabularDataset([
+                new Field("0", "Zero"),
+                new Field("age", "Age"),
+            ],[
+                0 => "Sam Davis",
+                "age" => 1000
+            ]);
+            $this->fail();
+        } catch (UnsupportedDatasetException $exception){
+            // Success
+        }
+        $this->assertTrue(true);
+    }
 
 }
