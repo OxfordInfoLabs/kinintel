@@ -94,6 +94,9 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
 import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-api-access/snapshot-api-access.component';
 import { QueryCachingComponent } from './components/query-caching/query-caching.component';
 import { EditQueryCacheComponent } from './components/query-caching/edit-query-cache/edit-query-cache.component';
+import { VectorEmbeddingComponent } from './components/vector-embedding/vector-embedding.component';
+import { EditVectorEmbeddingComponent } from './components/vector-embedding/edit-vector-embedding/edit-vector-embedding.component';
+import { EmbeddingDatasetSearchComponent } from './components/vector-embedding/edit-vector-embedding/embedding-dataset-search/embedding-dataset-search.component';
 
 @NgModule({
     declarations: [
@@ -155,7 +158,10 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
         SaveAsQueryComponent,
         SnapshotApiAccessComponent,
         QueryCachingComponent,
-        EditQueryCacheComponent
+        EditQueryCacheComponent,
+        VectorEmbeddingComponent,
+        EditVectorEmbeddingComponent,
+        EmbeddingDatasetSearchComponent
     ],
     imports: [
         BrowserModule,
@@ -224,7 +230,8 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
         UpstreamChangesConfirmationComponent,
         TabularDatasourceComponent,
         SnapshotApiAccessComponent,
-        QueryCachingComponent
+        QueryCachingComponent,
+        VectorEmbeddingComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

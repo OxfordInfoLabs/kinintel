@@ -257,4 +257,12 @@ class VectorDatasetProcessor implements DataProcessor {
         $datasourceInstance->remove();
 
     }
+
+    #[\Override] public function onInstanceSave($instance) {
+        // TODO: Implement onInstanceSave() method.
+    }
+
+    #[\Override] public function onRelatedObjectSave($instance, $relatedObject) {
+        // TODO: Implement onRelatedObjectSave() method.
+    }
 }

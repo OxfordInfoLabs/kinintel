@@ -1,0 +1,124 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Vector Embedding</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <ng-template [ngIf]="embedding">
+
+
+        <div class="dialog-content">
+
+            <div class="space-y-8 ">
+                <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+
+                    <div class="space-y-6 sm:space-y-5">
+                        <div
+                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4  sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Embedding Title<span class="ml-1 text-red-600">*</span>
+                            </label>
+                            <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                <input type="text" #embeddingTitle="ngModel"
+                                       [ngClass]="{'border border-red-600': embeddingTitle.invalid}"
+                                       [(ngModel)]="embedding.title" required
+                                       class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                            </div>
+                        </div>
+                        <div class="space-y-6 sm:space-y-5">
+                            <div
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Embedding Dataset<span class="ml-1 text-red-600">*</span>
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <button mat-stroked-button color="primary"
+                                            [ngClass]="{'border border-red-600': !datasetInstanceSummary}"
+                                            (click)="selectDataset()">
+                                        Select Embedding Dataset
+                                    </button>
+                                    <div class="mt-2" *ngIf="datasetInstanceSummary">
+                                        <b>Selected: </b>{{datasetInstanceSummary.title}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Vector Datasource Identifier<span class="ml-1 text-red-600">*</span>
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <input type="text" #vectorDatasourceIdentifier="ngModel"
+                                           [ngClass]="{'border border-red-600': vectorDatasourceIdentifier.invalid}"
+                                           [(ngModel)]="embedding.config.vectorDatasourceIdentifier" required
+                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                                </div>
+                            </div>
+                            <ng-template [ngIf]="columns.length">
+                                <div
+                                    class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Identifier Column Names
+                                    </label>
+                                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                        <mat-select [(ngModel)]="embedding.config.identifierColumnNames"
+                                                    name="primaryKeyColumnNames" required [multiple]="true">
+                                            <mat-option [value]="column.name"
+                                                        *ngFor="let column of columns">{{ column.title }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+                                <div
+                                    class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Content Column Name<span class="ml-1 text-red-600">*</span>
+                                    </label>
+                                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                        <mat-select [(ngModel)]="embedding.config.contentColumnName" #contentColumnName="ngModel"
+                                                    [ngClass]="{'border border-red-600': contentColumnName.invalid}"
+                                                    name="primaryKeyColumnNames" required>
+                                            <mat-option [value]="column.name"
+                                                        *ngFor="let column of columns">{{ column.title }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+                            </ng-template>
+                            <div
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Read Chunk Size
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <input type="number"
+                                           [(ngModel)]="embedding.config.readChunkSize" required
+                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dialog-footer">
+
+            <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+
+            <button mat-flat-button color="primary" (click)="saveEmbedding()"
+                    [disabled]="!embedding.title">
+                Save Vector Embedding
+            </button>
+        </div>
+
+    </ng-template>
+
+</div>
+
+
