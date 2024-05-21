@@ -29,7 +29,8 @@ class ArrayTabularDataset extends TabularDataset {
      */
     public function __construct($columns, ?array $data) {
         parent::__construct($columns);
-        if ($data && (!isset($data[0]) || !is_array($data[0]))) {
+
+        if ($data && (!array_key_exists(0, $data) || (isset($data[0]) && !is_array($data[0])))) {
             throw new UnsupportedDatasetException("ArrayTabularDataset expects an array of arrays!!");
         }
         $this->data = $data;

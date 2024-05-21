@@ -186,6 +186,12 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
         } catch (UnsupportedDatasetException $exception){
             // Success
         }
+        $x = new ArrayTabularDataset([new Field("name", "Name")],
+        [
+            null,
+            ["name" => "Sam Davis"],
+        ]);
+
         $this->assertTrue(true);
     }
 
