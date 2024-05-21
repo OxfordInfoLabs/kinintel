@@ -14,6 +14,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetEvaluatorLongRunningTask;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\SQLClauseSanitiser;
+use Kinintel\ValueObjects\Dataset\ExportDataset;
 
 trait Dataset {
 
@@ -268,5 +269,21 @@ trait Dataset {
         return $this->sqlClauseSanitiser->getWhitelistedFunctions();
     }
 
+    /**
+     * Export a dataset, streaming results directly
+     *
+     * @http POST /export
+     *
+     * @unsanitise $exportDataset
+     *
+     * @param ExportDataset $exportDataset
+     */
+    public function exportDataset(ExportDataset $exportDataset) {
+
+        return $this->datasetService->exportDatasetInstance($exportDataset->getDataSetInstanceSummary(),
+            $exportDataset->getExporterKey(), $exportDataset->getExporterConfiguration(),
+            $exportDataset->getParameterValues(), $exportDataset->getTransformationInstances(),
+            $exportDataset->getOffset(), $exportDataset->getLimit());
+    }
 
 }
