@@ -103,7 +103,7 @@ class EquationDistanceProcessorTest extends TestCase {
         Container::instance()->set(CustomDatasourceService::class, $this->customDatasourceService);
 
         $config = new DistanceConfig("sourceKey", null, "document", "phrase", "frequency");
-        $instance = new DataProcessorInstance("fresh", "Vectors", "distanceandclustering", $config, "thevectorproject", 20);
+        $instance = new DataProcessorInstance("fresh", "Vectors", "distanceandclustering", $config, DataProcessorInstance::TRIGGER_ADHOC, null, null, null, "thevectorproject", 20);
 
         $this->customDatasourceService->returnValue("createTabularSnapshotDatasourceInstance", $mockSnapshotInstance,
             [

@@ -35,6 +35,16 @@
     "scope": "PROJECT"
   },
   {
+    "key": "dataprocessoraccess",
+    "description": "View and use workflow items with a project",
+    "scope": "PROJECT"
+  },
+  {
+    "key": "dataprocessormanage",
+    "description": "Create, edit and remove workflows within a project",
+    "scope": "PROJECT"
+  },
+  {
     "key": "alertmanage",
     "description": "Create, edit and remove alerts within dashboards.",
     "scope": "PROJECT"

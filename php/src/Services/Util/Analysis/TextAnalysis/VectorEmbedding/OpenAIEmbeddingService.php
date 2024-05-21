@@ -10,13 +10,8 @@ use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\MathsUtils;
 use Kinikit\MVC\Response\Response;
-use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
-use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Authentication\Generic\SingleKeyAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
-use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 
 
 class OpenAIEmbeddingService implements TextEmbeddingService {

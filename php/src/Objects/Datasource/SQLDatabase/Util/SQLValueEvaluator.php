@@ -42,7 +42,9 @@ class SQLValueEvaluator {
      */
     public function evaluateFilterValue($value, $templateParameters = [], $tableAlias = null, &$outputParameters = []) {
 
+
         $valueArray = is_array($value) ? $value : [$value];
+
 
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
@@ -140,6 +142,8 @@ class SQLValueEvaluator {
             $valueStrings[] = $value;
 
         }
+
+
 
         return join(",", $valueStrings);
 

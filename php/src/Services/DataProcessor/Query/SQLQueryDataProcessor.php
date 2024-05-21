@@ -8,12 +8,12 @@ use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Query\SQLQueryDataProcessorConfiguration;
 
-class SQLQueryDataProcessor implements DataProcessor {
+class SQLQueryDataProcessor extends BaseDataProcessor {
 
     /**
      * @var AuthenticationCredentialsService

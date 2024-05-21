@@ -609,7 +609,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $outputAsync2 = [$outputAsynchronous3];
 
 
-        // Programme aysynchronous processor
+        // Programme asynchronous processor
         $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync1, [$inputAsync1]);
         $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync2, [$inputAsync2]);
 
@@ -647,6 +647,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             ]
         ]), [[]]);
 
+        $this->processor = new JoinTransformationProcessor($this->dataSourceService,$this->dataSetService,MockObjectProvider::instance()->getMockInstance(SynchronousProcessor::class),$this->asynchronousProcessor);
 
         $this->processor->applyTransformation($transformation, $mainDatasource, []);
 

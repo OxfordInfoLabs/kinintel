@@ -10,6 +10,7 @@ import * as lodash from 'lodash';
 const _ = lodash.default;
 import {DatasetEditorComponent} from '../../dataset-editor/dataset-editor.component';
 import {MatStepper} from '@angular/material/stepper';
+import {DataProcessorService} from '../../../../services/data-processor.service';
 
 @Component({
     selector: 'ki-dataset-add-join',
@@ -83,7 +84,8 @@ export class DatasetAddJoinComponent implements OnInit {
                 private projectService: ProjectService,
                 private tagService: TagService,
                 public dialogRef: MatDialogRef<DatasetAddJoinComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any) {
+                @Inject(MAT_DIALOG_DATA) public data: any,
+                private dataProcessorService: DataProcessorService) {
     }
 
     ngOnInit(): void {
@@ -420,7 +422,8 @@ export class DatasetAddJoinComponent implements OnInit {
     }
 
     private getSnapshots(limit, offset) {
-        return this.datasetService.listSnapshotProfiles(
+        return this.dataProcessorService.filterProcessorsByType(
+            'snapshot',
             this.searchText.getValue() || '',
             limit.toString(),
             offset.toString()

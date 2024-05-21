@@ -15,7 +15,6 @@ class CachingDatasourceConfig {
 
     /**
      * @var string
-     * @requiredEither sourceDatasource
      */
     private $sourceDatasourceKey;
 
@@ -24,6 +23,10 @@ class CachingDatasourceConfig {
      */
     private $sourceDatasource;
 
+    /**
+     * @var int
+     */
+    private $sourceDatasetId;
 
     /**
      * @var string
@@ -102,20 +105,22 @@ class CachingDatasourceConfig {
      *
      * @param string $sourceDatasourceKey
      * @param DatasourceInstance $sourceDatasource
+     * @param int $sourceDatasetId
      * @param string $cachingDatasourceKey
      * @param DatasourceInstance $cachingDatasource
      * @param int $cacheExpiryDays
      * @param int $cacheHours
-     * @poram bool $fallbackToOlder
+     * @param bool $fallbackToOlder
      * @param string $cacheMode
      * @param bool $hashing
      */
-    public function __construct($sourceDatasourceKey = null, $sourceDatasource = null,
+    public function __construct($sourceDatasourceKey = null, $sourceDatasource = null, $sourceDatasetId = null,
                                 $cachingDatasourceKey = null, $cachingDatasource = null,
                                 $cacheExpiryDays = null, $cacheHours = null, $fallbackToOlder = false,
                                 $cacheMode = self::CACHE_MODE_COMPLETE, $hashing = false) {
         $this->sourceDatasourceKey = $sourceDatasourceKey;
         $this->sourceDatasource = $sourceDatasource;
+        $this->sourceDatasetId = $sourceDatasetId;
         $this->cacheDatasourceKey = $cachingDatasourceKey;
         $this->cacheDatasource = $cachingDatasource;
         $this->cacheExpiryDays = $cacheExpiryDays;
@@ -152,6 +157,20 @@ class CachingDatasourceConfig {
      */
     public function setSourceDatasource($sourceDatasource) {
         $this->sourceDatasource = $sourceDatasource;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSourceDatasetId() {
+        return $this->sourceDatasetId;
+    }
+
+    /**
+     * @param int $sourceDatasetId
+     */
+    public function setSourceDatasetId($sourceDatasetId) {
+        $this->sourceDatasetId = $sourceDatasetId;
     }
 
     /**
