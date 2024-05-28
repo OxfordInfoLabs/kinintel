@@ -122,6 +122,21 @@ trait Dataset {
 
 
     /**
+     * Filter dataset instances shared with my account
+     *
+     * @http GET /shared
+     *
+     * @param string $filterString
+     * @param int $offset
+     * @param int $limit
+     * @return DatasetInstanceSearchResult[]
+     */
+    public function filterDatasetInstancesSharedWithAccount($filterString = "", $offset = 0, $limit = 10) {
+        return $this->datasetService->filterDatasetInstancesSharedWithAccount($filterString, $offset, $limit);
+    }
+
+
+    /**
      * Filter in use dataset categories optionally for a project and tags
      *
      * @http GET /inUseCategories

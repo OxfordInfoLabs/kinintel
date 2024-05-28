@@ -35,7 +35,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSource = $this->datasourceDAO->getDataSourceInstanceByKey("test-json");
 
         $this->assertEquals(new DatasourceInstance("test-json", "Test JSON Datasource",
-            "webservice", ["url" => "https://test-json.com/feed"],
+            "webservice", ["url" => "https://jsonplaceholder.typicode.com/users"],
             "http-basic", null, [], [], [], "My first test JSON Datasource"
         ), $dataSource);
 

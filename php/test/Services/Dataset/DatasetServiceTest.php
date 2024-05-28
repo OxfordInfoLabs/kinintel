@@ -10,9 +10,12 @@ use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
+use Kiniauth\Objects\Security\ObjectScopeAccess;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Core\Serialisation\JSON\ObjectToJSONConverter;
 use Kinikit\Core\Testing\MockObject;
@@ -40,6 +43,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 
 include_once "autoloader.php";
 
@@ -65,7 +69,7 @@ class DatasetServiceTest extends TestBase {
 
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->metaDataService = MockObjectProvider::instance()->getMockInstance(MetaDataService::class);
-        $this->datasetService = new DatasetService($this->datasourceService, $this->metaDataService);
+        $this->datasetService = new DatasetService($this->datasourceService, $this->metaDataService, Container::instance()->get(ActiveRecordInterceptor::class));
 
     }
 
@@ -355,6 +359,46 @@ class DatasetServiceTest extends TestBase {
         $this->assertInstanceOf(DatasetInstanceSearchResult::class, $filtered[0]);
         $this->assertEquals("Second Project Dataset", $filtered[0]->getTitle());
 
+
+    }
+
+
+    public function testCanGetFilteredDatasetInstancesSharedWithAccount() {
+
+        // Log in as a person with projects and tags
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $accountDataSet = new DatasetInstanceSummary("Shared Dataset 1", "test-json");
+        $datasetId = $this->datasetService->saveDataSetInstance($accountDataSet, null, 1);
+        (new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 2, "SHAREDDS1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $datasetId))->save();
+        (new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "SHAREDDS2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $datasetId))->save();
+
+        $accountDataSet = new DatasetInstanceSummary("Shared Dataset 2", "test-json");
+        $datasetId2 = $this->datasetService->saveDataSetInstance($accountDataSet, null, 1);
+        (new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "SHAREDDS3", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $datasetId2))->save();
+
+        // Grab datasets
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 2);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1")], $datasets);
+
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 3);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1"),
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2")], $datasets);
+
+        // Filtered on title
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("2", 0, 10, 3);
+        $this->assertEquals([
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2")], $datasets);
+
+        // Offset
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 1, 10, 3);
+        $this->assertEquals([
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2")], $datasets);
+
+        // Limit
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 1, 3);
+        $this->assertEquals([
+            new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1")], $datasets);
 
     }
 
@@ -911,6 +955,90 @@ class DatasetServiceTest extends TestBase {
         $this->assertFalse($this->datasetService->managementKeyAvailableForDatasetInstance($newInstance, "project-key"));
 
 
+    }
+
+
+    public function testInterceptorCorrectlyInterceptsCrossAccountAccessAndWhitelistsWhereAppropriate() {
+
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Test1", "test-json"));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+
+        // Non shared data set other account
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Test2", "test-json"));
+        $dataset2->setAccountId(2);
+        $dataset2->save();
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Test3", "test-json"));
+        $dataset3->setAccountId(3);
+        $dataset3->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+        // Implicit access to dataset in same account as shared dataset
+        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Test4", null,$dataset2->getId()));
+        $dataset4->setAccountId(2);
+        $dataset4->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class),  $dataset4->getId());
+        $objectScopeAccess->save();
+
+        // Shared with other account for transitive testing
+        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Test5", "test-json"));
+        $dataset5->setAccountId(4);
+        $dataset5->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class),  $dataset5->getId());
+        $objectScopeAccess->save();
+
+        // Shared with main account for transitive testing
+        $dataset6 = new DatasetInstance(new DatasetInstanceSummary("Test5", null, $dataset5->getId()));
+        $dataset6->setAccountId(3);
+        $dataset6->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class),  $dataset6->getId());
+        $objectScopeAccess->save();
+
+
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        // Check can return dataset 1
+        $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset1->getId());
+        $this->assertEquals(10, sizeof($result->getAllData()));
+
+
+        // Check can't return dataset 2
+        try {
+            $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset2->getId());
+            $this->fail("Should have thrown here");
+        } catch (ItemNotFoundException $e) {
+        }
+
+
+        // Check can return dataset 3 as shared
+        $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset3->getId());
+        $this->assertEquals(10, sizeof($result->getAllData()));
+
+        // Check can return dataset 4 as shared
+        $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset4->getId());
+        $this->assertEquals(10, sizeof($result->getAllData()));
+
+
+        // Transitive example should fail
+        try {
+            $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset6->getId());
+            $this->fail("Should have thrown here");
+        } catch (ItemNotFoundException $e) {
+        }
     }
 
 

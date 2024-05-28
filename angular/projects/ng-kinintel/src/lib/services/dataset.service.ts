@@ -31,6 +31,24 @@ export class DatasetService {
         });
     }
 
+
+    /**
+     * Get account shared datasets
+     *
+     * @param filterString
+     * @param limit
+     * @param offset
+     */
+    public getAccountSharedDatasets(filterString = '', limit = 10, offset = 0){
+
+        return this.http.get(this.config.backendURL + '/dataset/shared', {
+            params: {
+                filterString, limit, offset
+            }
+        });
+    }
+
+
     public getDataset(id) {
         return this.http.get(`${this.config.backendURL}/dataset/${id}`).toPromise()
             .then((dataset: any) => {

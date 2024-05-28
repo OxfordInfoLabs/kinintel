@@ -1,6 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Observable, of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
+import {DatasetService} from "../../services/dataset.service";
+import {DataExplorerComponent} from "../data-explorer/data-explorer.component";
+import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
+import {Router} from "@angular/router";
+import * as lodash from 'lodash';
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-shared-with-me',
@@ -8,6 +14,12 @@ import {debounceTime, switchMap} from 'rxjs/operators';
     styleUrls: ['./shared-with-me.component.sass']
 })
 export class SharedWithMeComponent implements OnInit {
+
+    @Input() headingDescription: string;
+    @Input() backendUrl: string;
+    @Input() url: string;
+    @Input() tableHeading: string;
+    @Input() headingLabel: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -19,7 +31,7 @@ export class SharedWithMeComponent implements OnInit {
 
     private reload = new Subject();
 
-    constructor() {
+    constructor(private datasetService: DatasetService, private dialog: MatDialog, private router: Router) {
     }
 
     ngOnInit() {
@@ -62,10 +74,46 @@ export class SharedWithMeComponent implements OnInit {
     }
 
     public getDatasets() {
-        return of([
-            {title: 'Scam Abuse Feed 2024', account: 'Abuse Metric House'},
-            {title: 'Phishing Feed Latest', account: 'Phishing "R" Us'},
-            {title: 'Daily Malware Updates', account: 'The Malware Police'},
-        ]);
+        return this.datasetService.getAccountSharedDatasets(this.searchText.getValue(), this.limit, this.offset).toPromise();
     }
+
+
+    // Create extended dataset from source id.
+    public extend(id) {
+        this.datasetService.getExtendedDataset(id).then(datasetInstanceSummary => {
+            this.viewDataset(datasetInstanceSummary);
+        });
+    }
+
+    // View dataset
+    private viewDataset(datasetInstanceSummary) {
+        this.router.navigate([this.url || '/dataset'], {fragment: _.kebabCase(datasetInstanceSummary.title)});
+        const dialogRef = this.dialog.open(DataExplorerComponent, {
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            hasBackdrop: false,
+            closeOnNavigation: true,
+            data: {
+                datasetInstanceSummary,
+                backendUrl: this.backendUrl,
+                showChart: false,
+                admin: false,
+                breadcrumb: this.headingLabel || 'Datasets',
+                url: this.url
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                if (res.breadcrumb) {
+                    return this.router.navigate([res.breadcrumb], {fragment: null});
+                }
+                this.router.navigate([this.url || '/dataset'], {fragment: null});
+                this.reload.next(Date.now());
+            }
+        });
+    }
+
+
 }
