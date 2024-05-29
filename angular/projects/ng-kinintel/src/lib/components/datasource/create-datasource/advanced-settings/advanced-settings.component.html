@@ -1,0 +1,28 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Advanced Settings</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <mat-checkbox class="mb-4" [(ngModel)]="advancedSettings.showAutoIncrement">
+            Show Auto Increment Column
+        </mat-checkbox>
+
+
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button"
+            [matDialogClose]="advancedSettings">Close</button>
+    </div>
+
+</div>
+
+

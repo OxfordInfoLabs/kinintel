@@ -94,6 +94,8 @@ import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-a
 import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-api-access/snapshot-api-access.component';
 import { QueryCachingComponent } from './components/query-caching/query-caching.component';
 import { EditQueryCacheComponent } from './components/query-caching/edit-query-cache/edit-query-cache.component';
+import { ImportWizardComponent } from './components/datasource/create-datasource/import-data/import-wizard/import-wizard.component';
+import { AdvancedSettingsComponent } from './components/datasource/create-datasource/advanced-settings/advanced-settings.component';
 
 @NgModule({
     declarations: [
@@ -155,7 +157,9 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
         SaveAsQueryComponent,
         SnapshotApiAccessComponent,
         QueryCachingComponent,
-        EditQueryCacheComponent
+        EditQueryCacheComponent,
+        ImportWizardComponent,
+        AdvancedSettingsComponent
     ],
     imports: [
         BrowserModule,

@@ -3,6 +3,26 @@
         Operations
     </div>
     <div class="flex items-center flex-wrap w-full justify-end bg-white">
+        <ng-template [ngIf]="_.some(rows, '_selected')">
+            <button (click)="deleteSelectedColumns()"
+                    class="w-28 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                <mat-icon class="text-xl">delete_forever</mat-icon>
+                delete selected
+            </button>
+            <div class="divider"></div>
+        </ng-template>
+
+        <button (click)="addFilter()"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">filter_alt</mat-icon>
+            filter
+        </button>
+        <div class="divider"></div>
+        <button (click)="advancedSettings()" [disabled]="!datasourceInstanceKey"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">tune</mat-icon>
+            advanced
+        </button>
         <button (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">api</mat-icon>
@@ -25,11 +45,17 @@
 
         <div class="create-datasource">
             <div id="tableWrapper" class="flex-1 overflow-y-scroll relative">
-                <table class="datasource-table w-full">
+                <table class="datasource-table table-fixed w-full overflow-scroll">
                     <thead>
                     <tr>
-                        <th *ngFor="let column of columns; let colIndex = index"
-                            class="relative cursor-pointer bg-gray-100 p-2 sticky text-xs"
+                        <th class="w-10 relative cursor-pointer bg-gray-100 p-0 sticky text-xs">
+                            <div class="flex items-center justify-center">
+                                <input type="checkbox" [(ngModel)]="selectAll" (ngModelChange)="updateSelectAll()">
+                            </div>
+                        </th>
+                        <ng-template ngFor let-column [ngForOf]="columns" let-colIndex=index>
+                        <th [id]="column.type + colIndex" *ngIf="column.type === 'id' ? showAutoIncrement : true"
+                            class="w-64 relative cursor-pointer bg-gray-100 p-2 sticky text-xs"
                             [ngClass]="{'bg-indigo-50': selectedItem._index === colIndex, 'border-r-0': (colIndex + 1) === columns.length}">
                             <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
                                 {{column.title}}&nbsp;
@@ -51,57 +77,66 @@
                                 <button mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
                             </mat-menu>
                         </th>
+                        </ng-template>
                     </tr>
                     </thead>
                     <tbody>
                     <tr class="table-rows" [ngClass]="{'bg-gray-200 opacity-30': this.deletes.indexOf(rowIndex) > -1,
                     'bg-green-50': this.adds.indexOf(rowIndex) > -1, 'bg-indigo-100': this.updates.indexOf(rowIndex) > -1}"
                         *ngFor="let row of rows; let rowIndex = index">
-                        <td *ngFor="let rowColumn of columns; let rowColIndex = index"
-                            [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex,
+                        <td class="p-0 row-cell text-center">
+                            <div class="flex items-center justify-center">
+                                <input type="checkbox" [(ngModel)]="row._selected" (ngModelChange)="updateSelected()">
+                            </div>
+                        </td>
+                        <ng-template ngFor let-rowColumn [ngForOf]="columns" let-rowColIndex=index>
+                            <td *ngIf="rowColumn.type === 'id' ? showAutoIncrement : true"
+                                [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex,
                             'w-24 bg-gray-100': columns[rowColIndex].type === 'id',
                             'bg-gray-100': columns[rowColIndex].keyField && this.adds.indexOf(rowIndex) === -1}"
-                            class="p-0 row-cell">
-                            <div
-                                class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
-                                <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
-                                       type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                       *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField"
-                                       (change)="updateField(field, rowIndex)"
-                                       (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                       (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                                class="p-0 row-cell">
+                                <div
+                                    class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
+                                    <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
+                                           type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
+                                           *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField"
+                                           (change)="updateField(field, rowIndex)"
+                                           (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                           (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
 
-                                <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
-                                    <div class="text-gray-500 text-xs">{{row[rowColumn.name] || '<\generated\>'}}</div>
-                                </ng-template>
-
-                                <ng-template [ngIf]="columns[rowColIndex].keyField">
-                                    <ng-template [ngIf]="this.adds.indexOf(rowIndex) > -1">
-                                        <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
-                                               type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                               (change)="updateField(field, rowIndex)"
-                                               (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                               (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-                                    </ng-template>
-                                    <ng-template [ngIf]="this.adds.indexOf(rowIndex) === -1">
-                                        <div class="text-gray-500 text-xs">{{row[rowColumn.name]}}</div>
+                                    <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
+                                        <div class="text-gray-500 text-xs">{{row[rowColumn.name] || '<\generated\>'}}</div>
                                     </ng-template>
 
-                                </ng-template>
+                                    <ng-template [ngIf]="columns[rowColIndex].keyField">
+                                        <ng-template [ngIf]="this.adds.indexOf(rowIndex) > -1">
+                                            <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
+                                                   type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
+                                                   (change)="updateField(field, rowIndex)"
+                                                   (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                                   (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                                        </ng-template>
+                                        <ng-template [ngIf]="this.adds.indexOf(rowIndex) === -1">
+                                            <div class="text-gray-500 text-xs">{{row[rowColumn.name]}}</div>
+                                        </ng-template>
 
-                                <button mat-icon-button [matMenuTriggerFor]="menu"
-                                        class="absolute cell-actions" tabindex="-1">
-                                    <mat-icon>more_vert</mat-icon>
-                                </button>
-                                <mat-menu #menu="matMenu">
-                                    <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
-                                    <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
-                                    <button *ngIf="columns[rowColIndex].type !== 'id'"
-                                        mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell</button>
-                                </mat-menu>
-                            </div>
+                                    </ng-template>
 
-                        </td>
+                                    <button mat-icon-button [matMenuTriggerFor]="menu"
+                                            class="absolute cell-actions" tabindex="-1">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+                                    <mat-menu #menu="matMenu">
+                                        <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
+                                        <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
+                                        <button *ngIf="columns[rowColIndex].type !== 'id'"
+                                                mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell</button>
+                                    </mat-menu>
+                                </div>
+
+                            </td>
+                        </ng-template>
+
                     </tr>
                     </tbody>
                 </table>
@@ -109,7 +144,7 @@
 
 
             <div class="border-t bg-gray-50 py-2 flex align-center justify-between">
-                <button mat-icon-button color="primary" (click)="addRow()">
+                <button mat-icon-button color="primary" title="Add Row" (click)="addRow()">
                     <mat-icon>add_circle</mat-icon>
                 </button>
                 <div class="flex items-center">
@@ -134,7 +169,7 @@
     </div>
 
     <div class="border-l border-r bg-gray-50 -ml-2.5">
-        <button mat-icon-button color="primary" (click)="addColumn()"
+        <button mat-icon-button color="primary" title="Add Column" (click)="addColumn()"
                 class="-mt-0.5">
             <mat-icon>add_circle</mat-icon>
         </button>
@@ -155,16 +190,16 @@
                 </div>
             </label>
 
-            <mat-checkbox class="mb-4" [checked]="_.find(columns, {type: 'id'})"
-                          (change)="updateAutoIncrementColumn($event.checked)">
-                Add ID Column
-            </mat-checkbox>
+<!--            <mat-checkbox class="mb-4" [checked]="_.find(columns, {type: 'id'})"-->
+<!--                          (change)="updateAutoIncrementColumn($event.checked)">-->
+<!--                Add ID Column-->
+<!--            </mat-checkbox>-->
 
-            <div>
-                <button mat-button class="text-red-500" (click)="resetTable()">
-                    Reset Table
-                </button>
-            </div>
+<!--            <div>-->
+<!--                <button mat-button class="text-red-500" (click)="resetTable()">-->
+<!--                    Reset Table-->
+<!--                </button>-->
+<!--            </div>-->
 
             <hr class="my-4">
 

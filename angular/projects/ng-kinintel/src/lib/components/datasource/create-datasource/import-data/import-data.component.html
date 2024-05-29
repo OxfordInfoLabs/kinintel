@@ -10,8 +10,13 @@
 
     <div class="dialog-content">
 
-        <div class="mb-4 text-sm font-thin">* Data will be imported beginning at the currently selected cell.
-            If one is not selected it will overwrite the entire table.</div>
+        <div class="mb-2 text-sm font-thin">Select how you would like to import your data.</div>
+
+        <mat-radio-group class="mb-4 block" [(ngModel)]="importType">
+            <mat-radio-button class="block mb-2" [value]="1">Replace whole dataset</mat-radio-button>
+            <mat-radio-button class="block mb-2" [value]="2" [disabled]="!rows.length">Overwrite duplicates (with same unique key)</mat-radio-button>
+            <mat-radio-button class="block" [value]="3" [disabled]="!rows.length">Add (will fail if duplicates exist with same key)</mat-radio-button>
+        </mat-radio-group>
 
         <label class="mb-4">
             Delimiting character

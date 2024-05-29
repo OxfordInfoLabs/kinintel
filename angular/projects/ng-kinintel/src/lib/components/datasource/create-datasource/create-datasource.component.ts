@@ -10,6 +10,12 @@ import {Location} from '@angular/common';
 import {
     ApiAccessComponent
 } from '../create-datasource/api-access/api-access.component';
+import {
+    AdvancedSettingsComponent
+} from '../create-datasource/advanced-settings/advanced-settings.component';
+import {
+    ImportWizardComponent
+} from 'ng-kinintel/src/lib/components/datasource/create-datasource/import-data/import-wizard/import-wizard.component';
 
 declare var window: any;
 
@@ -62,6 +68,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public limit = 25;
     public page = 1;
     public endOfResults = false;
+    public showAutoIncrement = false;
+    public selectAll = false;
 
     private offset = 0;
     private isMouseDown = false;
@@ -83,7 +91,27 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     ngOnInit(): void {
         this.datasourceInstanceKey = this.route.snapshot.params.key;
 
-        this.loadDatasource();
+        if (this.datasourceInstanceKey) {
+            this.showAutoIncrement = localStorage.getItem(this.datasourceInstanceKey + '_show_id') === 'true';
+        }
+
+        if (this.datasourceInstanceKey) {
+            this.loadDatasource();
+        } else {
+            const dialogRef = this.dialog.open(ImportWizardComponent, {
+                width: '800px',
+                height: '900px',
+                data: {
+                    columns: this.columns,
+                    datasourceUpdate: this.datasourceUpdate,
+                    rows: this.rows,
+                    datasourceInstanceKey: this.datasourceInstanceKey,
+                    reloadURL: this.reloadURL
+                }
+            });
+        }
+
+
     }
 
     ngAfterViewInit() {
@@ -102,6 +130,16 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (this.sidenavService) {
             this.sidenavService.open();
         }
+    }
+
+    public updateSelectAll() {
+        this.rows.map(row => {
+            row._selected = this.selectAll;
+        });
+    }
+
+    public updateSelected() {
+        this.selectAll = _.every(this.rows, '_selected');
     }
 
     public updateAutoIncrementColumn(value) {
@@ -134,14 +172,22 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.columns.push(this.selectedItem);
             this.selectedItem._index = this.columns.length - 1;
         }
+
+        setTimeout(() => {
+            document.getElementById(this.selectedItem.type + this.selectedItem._index).scrollIntoView();
+        });
     }
 
     public import() {
         const dialogRef = this.dialog.open(ImportDataComponent, {
-            width: '600px',
-            height: '600px',
+            width: '800px',
+            height: '900px',
             data: {
-                columns: this.columns
+                columns: this.columns,
+                datasourceUpdate: this.datasourceUpdate,
+                rows: this.rows,
+                datasourceInstanceKey: this.datasourceInstanceKey,
+                reloadURL: this.reloadURL
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -168,6 +214,38 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     this.insertCellData(res.data);
                 }
             }
+        });
+    }
+
+    public deleteSelectedColumns() {
+        this.rows.forEach((row, index) => {
+            if (row._selected) {
+                this.deleteRow(index);
+            }
+        });
+    }
+
+    public addFilter() {
+
+    }
+
+    public advancedSettings() {
+        const dialogRef = this.dialog.open(AdvancedSettingsComponent, {
+            width: '800px',
+            height: '900px',
+            data: {
+                datasourceUpdate: this.datasourceUpdate,
+                datasourceInstanceKey: this.datasourceInstanceKey,
+                backendURL: this.backendURL,
+                columns: this.columns,
+                showAutoIncrement: this.showAutoIncrement
+            }
+        });
+        dialogRef.afterClosed().subscribe(advancedSettings => {
+            this.showAutoIncrement = advancedSettings.showAutoIncrement;
+            localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
+
+
         });
     }
 
@@ -436,6 +514,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.datasourceUpdate.instanceImportKey = res.instanceImportKey;
 
                 this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
+
+                this.selectAll = false;
             });
         }
     }
