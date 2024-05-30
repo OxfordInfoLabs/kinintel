@@ -2,11 +2,13 @@
 
 namespace Kinintel\Test\Services\Application;
 
+use Google\Service\Datastore\Sum;
 use Kiniauth\Objects\Security\ObjectScopeAccess;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\ORM\Query\SummarisedValue;
 use Kinintel\Objects\Application\DataSearch;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -29,10 +31,6 @@ class DataSearchServiceTest extends TestBase {
 
     public function setUp(): void {
         $this->service = Container::instance()->get(DataSearchService::class);
-    }
-
-
-    public function testProjectAndAccountOwnedDataItemsAreCorrectlyIncludedInAccountSearches() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
@@ -114,6 +112,11 @@ class DataSearchServiceTest extends TestBase {
         $processor2->save();
 
 
+    }
+
+
+    public function testProjectAndAccountOwnedDataItemsAreCorrectlyIncludedInAccountSearches() {
+
         // Query for all records as account 1 (non project)
         $account1Records = $this->service->searchForAccountDataItems([], 100, 0, null, 6);
 
@@ -127,9 +130,9 @@ class DataSearchServiceTest extends TestBase {
             [new DataProcessorAction("Latest", "processor-search-1_caching"),
                 new DataProcessorAction("Historical Entries", "processor-search-1_cache")]), $account1Records[2]);
         $this->assertEquals(new DataSearchItem("dataset", $dataset1->getId(), "Search Dataset 1", "A search dataset 1",
-            [new DataProcessorAction("Select", null,$dataset1->getId())]), $account1Records[3]);
+            [new DataProcessorAction("Select", null, $dataset1->getId())]), $account1Records[3]);
         $this->assertEquals(new DataSearchItem("shareddataset", $dataset4->getId(), "Search Shared Dataset 1", "A search shared dataset 1",
-            [new DataProcessorAction("Select", null,$dataset4->getId())]), $account1Records[4]);
+            [new DataProcessorAction("Select", null, $dataset4->getId())]), $account1Records[4]);
         $this->assertEquals(new DataSearchItem("snapshot", "snapshot-search-1", "Snapshot Search 1", "",
             [new DataProcessorAction("Latest", "snapshot-search-1_latest"),
                 new DataProcessorAction("Historical Entries", "snapshot-search-1")]), $account1Records[5]);
@@ -153,14 +156,14 @@ class DataSearchServiceTest extends TestBase {
                 new DataProcessorAction("Historical Entries", "processor-search-3_cache")]), $account1Records[4]);
 
         $this->assertEquals(new DataSearchItem("dataset", $dataset1->getId(), "Search Dataset 1", "A search dataset 1",
-            [new DataProcessorAction("Select", null,$dataset1->getId())]), $account1Records[5]);
+            [new DataProcessorAction("Select", null, $dataset1->getId())]), $account1Records[5]);
 
         $this->assertEquals(new DataSearchItem("dataset", $dataset3->getId(), "Search Dataset 3", "A search dataset 3",
-            [new DataProcessorAction("Select", null,$dataset3->getId())]), $account1Records[6]);
+            [new DataProcessorAction("Select", null, $dataset3->getId())]), $account1Records[6]);
 
 
         $this->assertEquals(new DataSearchItem("shareddataset", $dataset4->getId(), "Search Shared Dataset 1", "A search shared dataset 1",
-            [new DataProcessorAction("Select", null,$dataset4->getId())]), $account1Records[7]);
+            [new DataProcessorAction("Select", null, $dataset4->getId())]), $account1Records[7]);
         $this->assertEquals(new DataSearchItem("snapshot", "snapshot-search-1", "Snapshot Search 1", "",
             [new DataProcessorAction("Latest", "snapshot-search-1_latest"),
                 new DataProcessorAction("Historical Entries", "snapshot-search-1")]), $account1Records[8]);
@@ -207,6 +210,45 @@ class DataSearchServiceTest extends TestBase {
             [new DataProcessorAction("Select", "snapshot-search-3")]), $account1Records[1]);
 
 
+    }
+
+
+    public function testCanGetTypesForSearchTerm() {
+
+        // Account one
+        $types = $this->service->getMatchingAccountDataItemTypesForSearchTerm("", null, 6);
+
+        $this->assertEquals([
+            new SummarisedValue("custom", 1),
+            new SummarisedValue("dataset", 1),
+            new SummarisedValue("globaldataset", 1),
+            new SummarisedValue("querycaching", 1),
+            new SummarisedValue("shareddataset", 1),
+            new SummarisedValue("snapshot", 1)
+        ], $types);
+
+
+        // Project one
+        $types = $this->service->getMatchingAccountDataItemTypesForSearchTerm("", "testProj", 6);
+
+        $this->assertEquals([
+            new SummarisedValue("custom", 2),
+            new SummarisedValue("dataset", 2),
+            new SummarisedValue("globaldataset", 1),
+            new SummarisedValue("querycaching", 2),
+            new SummarisedValue("shareddataset", 1),
+            new SummarisedValue("snapshot", 2)
+        ], $types);
+
+        // Filtered
+        $types = $this->service->getMatchingAccountDataItemTypesForSearchTerm("snapshot", null, 6);
+        $this->assertEquals([new SummarisedValue("snapshot", 1)], $types);
+
+        $types = $this->service->getMatchingAccountDataItemTypesForSearchTerm("dataset", null, 6);
+        $this->assertEquals([
+            new SummarisedValue("dataset", 1),
+            new SummarisedValue("globaldataset", 1),
+            new SummarisedValue("shareddataset", 1)], $types);
 
 
     }

@@ -6,6 +6,7 @@ use Kiniauth\Objects\Account\Account;
 use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
 use Kinikit\Persistence\ORM\Query\Query;
+use Kinikit\Persistence\ORM\Query\SummarisedValue;
 use Kinintel\Objects\Application\DataSearch;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\ValueObjects\Application\DataSearchItem;
@@ -50,8 +51,8 @@ class DataSearchService {
 
             switch ($result->getTypeClass()) {
                 case "DataProcessor":
-                    $dataProcesorInstance = new DataProcessorInstance($result->getIdentifier(), "", $result->getType(), $result->getConfiguration());
-                    $config = $dataProcesorInstance->returnConfig();
+                    $dataProcessorInstance = new DataProcessorInstance($result->getIdentifier(), "", $result->getType(), $result->getConfiguration());
+                    $config = $dataProcessorInstance->returnConfig();
                     if (in_array(DataProcessorActions::class, class_uses($config))) {
                         $actionItems = $config->getProcessorActions($result->getIdentifier());
                     } else {
@@ -70,6 +71,42 @@ class DataSearchService {
                 $actionItems);
 
         }, $results);
+
+    }
+
+    /**
+     * Get matching data item types for a given search term optionally limited by account id and project key.
+     *
+     * @param string $searchTerm
+     * @param string|null $projectKey
+     * @param mixed $accountId
+     *
+     * @return SummarisedValue[]
+     */
+    public function getMatchingAccountDataItemTypesForSearchTerm(string $searchTerm, ?string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $filters = $this->mapFilters(["search" => $searchTerm]);
+        $filters["account_id"] = [$accountId, null];
+
+        $projectKeys = $projectKey ? [$projectKey, null] : [null];
+        $filters["project_key"] = $projectKeys;
+
+        $query = new Query(DataSearch::class);
+        $summarised = $query->summariseByMember("type", $filters, "COUNT(*)");
+        $returnValues = [];
+        foreach ($summarised as $summary) {
+            if (str_contains($summary->getMemberValue(), "snapshot"))
+                $summary = new SummarisedValue("snapshot", $summary->getExpressionValue());
+            if (!isset($returnValues[$summary->getMemberValue()])) {
+                $returnValues[$summary->getMemberValue()] = $summary;
+            } else {
+                $returnValues[$summary->getMemberValue()] = new SummarisedValue($summary->getMemberValue(),
+                    $returnValues[$summary->getMemberValue()]->getExpressionValue() + $summary->getExpressionValue());
+            }
+        }
+
+        return array_values($returnValues);
+
 
     }
 
