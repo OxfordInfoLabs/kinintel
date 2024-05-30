@@ -12,6 +12,8 @@ class DataSearchItem {
         private string $identifier,
         private string $title,
         private ?string $description,
+        private ?string $owningAccountName,
+        private ?string $owningAccountLogo,
         private array  $actionItems
     ) {
         $this->type = str_contains($type, "snapshot") ? "snapshot" : $type;
@@ -44,6 +46,21 @@ class DataSearchItem {
     public function getDescription(): string {
         return $this->description;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getOwningAccountName(): ?string {
+        return $this->owningAccountName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOwningAccountLogo(): ?string {
+        return $this->owningAccountLogo;
+    }
+
 
     /**
      * @return array

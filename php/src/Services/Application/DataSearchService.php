@@ -67,7 +67,10 @@ class DataSearchService {
                     break;
             }
 
-            return new DataSearchItem($result->getType(), $result->getIdentifier(), $result->getTitle(), $result->getDescription(),
+            return new DataSearchItem($result->getType(), $result->getIdentifier(), $result->getTitle(),
+                $result->getDescription(),
+                $result->getOwningAccountName(),
+                $result->getOwningAccountLogo(),
                 $actionItems);
 
         }, $results);
