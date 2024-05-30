@@ -379,26 +379,26 @@ class DatasetServiceTest extends TestBase {
 
         // Grab datasets
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 2);
-        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1")], $datasets);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1",null,null,[],null,null, "Sam Davis Design")], $datasets);
 
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 3);
-        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1"),
-            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2")], $datasets);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1",null,null,[],null,null,"Sam Davis Design"),
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2",null,null,[],null,null,"Sam Davis Design")], $datasets);
 
         // Filtered on title
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("2", 0, 10, 3);
         $this->assertEquals([
-            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2")], $datasets);
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2",null,null,[],null,null,"Sam Davis Design")], $datasets);
 
         // Offset
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 1, 10, 3);
         $this->assertEquals([
-            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2")], $datasets);
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2",null,null,[],null,null,"Sam Davis Design")], $datasets);
 
         // Limit
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 1, 3);
         $this->assertEquals([
-            new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1")], $datasets);
+            new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1",null,null,[],null,null,"Sam Davis Design")], $datasets);
 
     }
 
