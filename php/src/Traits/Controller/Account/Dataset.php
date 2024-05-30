@@ -8,6 +8,7 @@ use Kiniauth\Objects\Security\Role;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Security\ObjectScopeAccessService;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kiniauth\ValueObjects\Security\ScopeAccessGroup;
 use Kiniauth\ValueObjects\Security\ScopeAccessItem;
@@ -55,6 +56,11 @@ trait Dataset {
      */
     private $accountService;
 
+    /**
+     * @var SecurityService
+     */
+    private $securityService;
+
 
     /**
      * Dataset constructor.
@@ -64,13 +70,15 @@ trait Dataset {
      * @param SQLClauseSanitiser $sqlClauseSanitiser
      * @param ObjectScopeAccessService $objectScopeAccessService
      * @param AccountService $accountService
+     * @param SecurityService $securityService
      */
-    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser, $objectScopeAccessService, $accountService) {
+    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser, $objectScopeAccessService, $accountService, $securityService) {
         $this->datasetService = $datasetService;
         $this->longRunningTaskService = $longRunningTaskService;
         $this->sqlClauseSanitiser = $sqlClauseSanitiser;
         $this->objectScopeAccessService = $objectScopeAccessService;
         $this->accountService = $accountService;
+        $this->securityService = $securityService;
     }
 
 
@@ -148,6 +156,28 @@ trait Dataset {
      */
     public function getInUseDatasetInstanceCategories($projectKey = null, $tags = "") {
         return $this->datasetService->getInUseDatasetInstanceCategories($tags, $projectKey);
+    }
+
+
+    /**
+     * Set shared access for a dataset instance for the logged in account
+     *
+     * @http POST /shareWithCurrentAccount/$datasetInstanceId/$shared
+     *
+     * @param string $datasetInstanceId
+     * @param boolean $shared
+     *
+     * @return boolean
+     */
+    public function setSharedAccessForDatasetInstanceForLoggedInAccount($datasetInstanceId, $shared) {
+        list ($loggedInUser, $loggedInAccount) = $this->securityService->getLoggedInSecurableAndAccount();
+        $scopeAccessGroup = new ScopeAccessGroup([
+            new ScopeAccessItem(Role::SCOPE_ACCOUNT, $loggedInAccount->getAccountId())]);
+        if ($shared) {
+            $this->objectScopeAccessService->assignScopeAccessGroupsToObject(DatasetInstance::class, $datasetInstanceId, [$scopeAccessGroup]);
+        } else {
+            $this->objectScopeAccessService->removeScopeAccessGroupsFromObject(DatasetInstance::class, $datasetInstanceId, [$scopeAccessGroup->getGroupName()]);
+        }
     }
 
 

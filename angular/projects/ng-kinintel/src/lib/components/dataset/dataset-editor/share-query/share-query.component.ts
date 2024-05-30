@@ -7,6 +7,9 @@ import {AccountService, AuthenticationService} from 'ng-kiniauth';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {DatasetService} from '../../../../services/dataset.service';
 import moment from "moment";
+import * as lodash from 'lodash';
+
+const _ = lodash.default;
 
 @Component({
     selector: 'ki-share-query',
@@ -30,6 +33,7 @@ export class ShareQueryComponent implements OnInit {
     public moment: any = moment;
     public marketplaceData: any = {};
     public listOnMarketplace = false;
+    protected readonly String = String;
 
     constructor(public dialogRef: MatDialogRef<ShareQueryComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -47,6 +51,9 @@ export class ShareQueryComponent implements OnInit {
 
     public async loadSharedAccounts() {
         this.sharedAccounts = await this.datasetService.getSharedAccessGroupsForDatasetInstance(this.data.datasetInstance.id);
+        this.shareWithAccount = _.some(this.sharedAccounts, sharedAccount => {
+            return _.find(sharedAccount.scopeAccesses, {itemIdentifier: String(this.session.account.accountId)});
+        });
     }
 
 
@@ -57,6 +64,12 @@ export class ShareQueryComponent implements OnInit {
 
     public async filterSharableAccounts() {
         this.accounts = await this.accountService.searchForDiscoverableAccounts(this.accountSearch);
+    }
+
+
+    public async setLoggedInAccountShareStatus(event) {
+        await this.datasetService.setSharedAccessForDatasetInstanceForLoggedInAccount(this.data.datasetInstance.id, event.checked);
+        this.loadSharedAccounts();
     }
 
 
@@ -91,7 +104,7 @@ export class ShareQueryComponent implements OnInit {
 
 
     // Revoke access to a group
-    public async revokeAccessToGroup(accessGroup){
+    public async revokeAccessToGroup(accessGroup) {
         const message = 'Are you sure you would like to revoke access to this account?';
         if (window.confirm(message)) {
             await this.datasetService.revokeAccessToGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
@@ -99,12 +112,14 @@ export class ShareQueryComponent implements OnInit {
         }
     }
 
-    public async cancelInvitation(accessGroup){
+    public async cancelInvitation(accessGroup) {
         const message = 'Are you sure you would like to cancel this invitation?';
         if (window.confirm(message)) {
             await this.datasetService.cancelInvitationForAccessGroupForDatasetInstance(this.data.datasetInstance.id, accessGroup);
             this.loadInvitedAccounts();
         }
     }
+
+
 
 }

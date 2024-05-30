@@ -39,7 +39,7 @@ export class DatasetService {
      * @param limit
      * @param offset
      */
-    public getAccountSharedDatasets(filterString = '', limit = 10, offset = 0){
+    public getAccountSharedDatasets(filterString = '', limit = 10, offset = 0) {
 
         return this.http.get(this.config.backendURL + '/dataset/shared', {
             params: {
@@ -112,6 +112,17 @@ export class DatasetService {
     }
 
 
+    /**
+     * Set shared access for a dataset instance for the logged in account
+     *
+     * @param datasetInstanceId
+     * @param shared
+     */
+    public async setSharedAccessForDatasetInstanceForLoggedInAccount(datasetInstanceId, shared) {
+        return this.http.post(this.config.backendURL + `/dataset/shareWithCurrentAccount/${datasetInstanceId}/${shared}`, {}).toPromise();
+    }
+
+
     public async getSharedAccessGroupsForDatasetInstance(datasetInstanceId) {
         return this.http.get(this.config.backendURL + `/dataset/sharedAccessGroups/${datasetInstanceId}`).toPromise();
     }
@@ -134,9 +145,26 @@ export class DatasetService {
     }
 
 
-    public async cancelInvitationForAccessGroupForDatasetInstance(datasetInstanceId, accessGroup){
+    public async cancelInvitationForAccessGroupForDatasetInstance(datasetInstanceId, accessGroup) {
         return this.http.delete(this.config.backendURL + `/dataset/invitedAccessGroups/${datasetInstanceId}`,
             {body: JSON.stringify(accessGroup)}).toPromise();
+    }
+
+
+    // Get a sharable item for an invitation
+    public async getSharableItemForInvitation(invitationCode) {
+        return this.http.get(this.config.guestURL + `/sharing/${invitationCode}`).toPromise();
+    }
+
+
+    // Accept a sharing invitation using an invitation code.
+    public async acceptSharingInvitation(invitationCode) {
+        this.http.post(this.config.guestURL + `/sharing/${invitationCode}`, {}).toPromise();
+    }
+
+    // Accept a sharing invitation using an invitation code.
+    public async cancelSharingInvitation(invitationCode) {
+        this.http.delete(this.config.guestURL + `/sharing/${invitationCode}`).toPromise();
     }
 
 

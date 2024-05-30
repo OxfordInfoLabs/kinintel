@@ -99,6 +99,7 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
 import {
     SnapshotApiAccessComponent
 } from "./components/data-explorer/snapshot-api-access/snapshot-api-access.component";
+import { DataSharingInviteComponent } from './components/data-sharing-invite/data-sharing-invite.component';
 
 @NgModule({
     declarations: [
@@ -163,7 +164,8 @@ import {
         MarketplaceComponent,
         QueryCachingComponent,
         EditQueryCacheComponent,
-        SnapshotApiAccessComponent
+        SnapshotApiAccessComponent,
+        DataSharingInviteComponent
     ],
     imports: [
         BrowserModule,
@@ -226,7 +228,8 @@ import {
         MarketplaceComponent,
         SharedWithMeComponent,
         SnapshotApiAccessComponent,
-        QueryCachingComponent
+        QueryCachingComponent,
+        DataSharingInviteComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -244,6 +247,7 @@ export class NgKinintelModule {
 
 export class KinintelModuleConfig {
     backendURL: string;
+    guestURL: string;
     externalURL?: string;
     tagLabel?: string;
     tagMenuLabel?: string;

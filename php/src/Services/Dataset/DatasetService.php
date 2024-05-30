@@ -253,7 +253,9 @@ class DatasetService {
             return new DatasetInstanceSearchResult($datasetInstance->getId(),
                 $datasetInstance->getTitle(),
                 $datasetInstance->getSummary(),
-                $datasetInstance->getDescription(), [], null, null);
+                $datasetInstance->getDescription(), [], null, null,
+                $datasetInstance->getAccountSummary()?->getName(),
+                $datasetInstance->getAccountSummary()?->getLogo());
         }, $matches);
 
 
@@ -426,19 +428,17 @@ class DatasetService {
     public function getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = [], $offset = null, $limit = null) {
 
 
-            // Aggregate transformations and parameter values.
-            $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
-            $parameterValues = array_merge($dataSetInstance->getParameterValues() ?? [], $parameterValues ?? []);
+        // Aggregate transformations and parameter values.
+        $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);
+        $parameterValues = array_merge($dataSetInstance->getParameterValues() ?? [], $parameterValues ?? []);
 
-            // Call the appropriate function depending whether a datasource / dataset was being targeted.
-            if ($dataSetInstance->getDatasourceInstanceKey()) {
-                return $this->datasourceService->getEvaluatedDataSourceByInstanceKey($dataSetInstance->getDatasourceInstanceKey(), $parameterValues,
-                    $transformations, $offset, $limit);
-            } else if ($dataSetInstance->getDatasetInstanceId()) {
-                return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(), $parameterValues, $transformations, $offset, $limit);
-            }
-
-
+        // Call the appropriate function depending whether a datasource / dataset was being targeted.
+        if ($dataSetInstance->getDatasourceInstanceKey()) {
+            return $this->datasourceService->getEvaluatedDataSourceByInstanceKey($dataSetInstance->getDatasourceInstanceKey(), $parameterValues,
+                $transformations, $offset, $limit);
+        } else if ($dataSetInstance->getDatasetInstanceId()) {
+            return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(), $parameterValues, $transformations, $offset, $limit);
+        }
 
 
     }
