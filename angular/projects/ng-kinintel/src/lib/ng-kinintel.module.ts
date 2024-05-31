@@ -100,6 +100,7 @@ import {
     SnapshotApiAccessComponent
 } from "./components/data-explorer/snapshot-api-access/snapshot-api-access.component";
 import { DataSharingInviteComponent } from './components/data-sharing-invite/data-sharing-invite.component';
+import { DataSearchComponent } from './components/data-search/data-search.component';
 
 @NgModule({
     declarations: [
@@ -165,7 +166,8 @@ import { DataSharingInviteComponent } from './components/data-sharing-invite/dat
         QueryCachingComponent,
         EditQueryCacheComponent,
         SnapshotApiAccessComponent,
-        DataSharingInviteComponent
+        DataSharingInviteComponent,
+        DataSearchComponent
     ],
     imports: [
         BrowserModule,
@@ -251,4 +253,5 @@ export class KinintelModuleConfig {
     externalURL?: string;
     tagLabel?: string;
     tagMenuLabel?: string;
+    dataSearchTypeMapping?: any;
 }
