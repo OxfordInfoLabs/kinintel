@@ -308,7 +308,9 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public async reloadDashboard() {
         for (const item of this.itemComponents) {
-            await item.init(true);
+            if (item.dashboardDatasetInstance) {
+                await item.init(true);
+            }
         }
     }
 
