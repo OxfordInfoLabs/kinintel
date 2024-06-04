@@ -25,27 +25,10 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class TabularDatasourceImportProcessor extends BaseDataProcessor {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * DatasourceImportProcessor constructor.
-     *
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
-     */
-    public function __construct($datasourceService, $datasetService) {
-        $this->datasourceService = $datasourceService;
-        $this->datasetService = $datasetService;
+    public function __construct(
+        private DatasourceService $datasourceService,
+        private DatasetService $datasetService
+    ) {
     }
 
 
@@ -246,7 +229,6 @@ class TabularDatasourceImportProcessor extends BaseDataProcessor {
 
     /**
      * @param TabularDatasourceImportProcessorConfiguration $config
-     *
      */
     private function addTargetSourceParametersIfRequired($config, $parameters = []) {
 

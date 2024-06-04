@@ -4,6 +4,7 @@ namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Services\DataProcessor\BaseDataProcessor;
@@ -22,26 +23,10 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
-
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-    /**
-     * Datasource service
-     *
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
-     */
-    public function __construct($datasourceService, $datasetService) {
-        $this->datasourceService = $datasourceService;
-        $this->datasetService = $datasetService;
+    public function __construct(
+        private DatasourceService $datasourceService,
+        private DatasetService $datasetService
+    ) {
     }
 
 
@@ -55,8 +40,11 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
     }
 
     /**
-     * Process this datasource
+     * Process this datasource.
      *
+     * This processor takes in a source dataset, which it will save to a text file (placed according to a config param)
+     * If we have a .../previous.txt, we analyse changes and put them into the target datasources (usually tables).
+     * We then place all the entries into .../previous.txt (to look at the next time)
      * @param DataProcessorInstance $instance
      *
      * @return void
@@ -434,9 +422,10 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
 
         // Carry out the update to the latest table
-        $datasourceLatestUpdate = new DatasourceUpdate([], $updates, $deletes, $adds);
-
-        $this->datasourceService->updateDatasourceInstanceByKey($targetLatestDatasourceKey, $datasourceLatestUpdate, true);
+        if ($targetLatestDatasourceKey){
+            $datasourceLatestUpdate = new DatasourceUpdate([], $updates, $deletes, $adds);
+            $this->datasourceService->updateDatasourceInstanceByKey($targetLatestDatasourceKey, $datasourceLatestUpdate, true);
+        }
 
 
         // Construct the changes update and update the changes table
