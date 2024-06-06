@@ -146,6 +146,8 @@ class DatasourceService {
             if ($datasource->getType() == "snapshot") {
                 if (str_ends_with($datasourceKey, "_latest"))
                     $datasourceKey = substr($datasourceKey, 0, strlen($datasourceKey) - 7);
+                if (str_ends_with($datasourceKey, "_pending"))
+                    $datasourceKey = substr($datasourceKey, 0, strlen($datasourceKey) - 8);
 
                 // Grab the matching processor
                 $dataProcessor = $this->dataProcessorService->getDataProcessorInstance($datasourceKey);
