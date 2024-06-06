@@ -23,31 +23,19 @@ export class CreateDatasetComponent implements OnInit {
         this.admin = !!this.data.admin;
     }
 
-    public async select(event) {
-        const type = event.type;
-        const item = event.item;
+    public async select(action) {
         let selectedSource;
 
-        if (type === 'datasource') {
-            const datasource: any = await this.datasourceService.getDatasource(item.key);
+        if (action.datasourceKey) {
             selectedSource = {
                 datasetInstanceId: null,
-                datasourceInstanceKey: datasource.key,
+                datasourceInstanceKey: action.datasourceKey,
                 transformationInstances: [],
                 parameterValues: {},
                 parameters: []
             };
-
-        } else if (type === 'snapshot') {
-            selectedSource = {
-                datasetInstanceId: null,
-                datasourceInstanceKey: item,
-                transformationInstances: [],
-                parameterValues: {},
-                parameters: []
-            };
-        } else {
-            selectedSource = await this.datasetService.getExtendedDataset(item.id);
+        } else if (action.datasetId) {
+            selectedSource = await this.datasetService.getExtendedDataset(action.datasetId);
         }
 
         this.dialogRef.close(selectedSource);

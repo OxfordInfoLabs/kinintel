@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\Datasource;
 
+use Kiniauth\Objects\Account\PublicAccountSummary;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -35,7 +36,7 @@ class DatasourceDAOTest extends TestBase {
         $dataSource = $this->datasourceDAO->getDataSourceInstanceByKey("test-json");
 
         $this->assertEquals(new DatasourceInstance("test-json", "Test JSON Datasource",
-            "webservice", ["url" => "https://test-json.com/feed"],
+            "webservice", ["url" => "https://jsonplaceholder.typicode.com/users"],
             "http-basic", null, [], [], [], "My first test JSON Datasource"
         ), $dataSource);
 
@@ -216,12 +217,14 @@ class DatasourceDAOTest extends TestBase {
             "url" => "https://json-test.com/dbfeed"
         ], "http-basic");
         $dataSourceInstance2->setAccountId(1);
+        $dataSourceInstance2->setAccountSummary(PublicAccountSummary::fetch(1));
         $dataSourceInstance2->save();
 
         $dataSourceInstance3 = new DatasourceInstance("test-account-2", "Test Account", "webservice", [
             "url" => "https://json-test.com/dbfeed"
         ], "http-basic");
         $dataSourceInstance3->setAccountId(2);
+        $dataSourceInstance3->setAccountSummary(PublicAccountSummary::fetch(2));
         $dataSourceInstance3->save();
 
         $dataSourceInstance4 = new DatasourceInstance("test-project-1", "Test Project", "sqldatabase", [
@@ -229,6 +232,7 @@ class DatasourceDAOTest extends TestBase {
             "tableName" => "bob"
         ], "sql");
         $dataSourceInstance4->setAccountId(2);
+        $dataSourceInstance4->setAccountSummary(PublicAccountSummary::fetch(2));
         $dataSourceInstance4->setProjectKey("soapSuds");
         $dataSourceInstance4->save();
 
@@ -237,6 +241,7 @@ class DatasourceDAOTest extends TestBase {
             "tableName" => "bob"
         ], "sql");
         $dataSourceInstance5->setAccountId(2);
+        $dataSourceInstance5->setAccountSummary(PublicAccountSummary::fetch(2));
         $dataSourceInstance5->setProjectKey("wiperBlades");
         $dataSourceInstance5->save();
 
@@ -275,6 +280,7 @@ class DatasourceDAOTest extends TestBase {
             "url" => "https://json-test.com/dbfeed"
         ], "http-basic");
         $dataSourceInstance2->setAccountId(1);
+        $dataSourceInstance2->setAccountSummary(PublicAccountSummary::fetch(1));
         $dataSourceInstance2->setImportKey("import-account");
         $dataSourceInstance2->save();
 
@@ -282,6 +288,7 @@ class DatasourceDAOTest extends TestBase {
             "url" => "https://json-test.com/dbfeed"
         ], "http-basic");
         $dataSourceInstance3->setAccountId(2);
+        $dataSourceInstance3->setAccountSummary(PublicAccountSummary::fetch(2));
         $dataSourceInstance3->setImportKey("import-account");
         $dataSourceInstance3->save();
 
@@ -290,6 +297,7 @@ class DatasourceDAOTest extends TestBase {
             "tableName" => "bob"
         ], "sql");
         $dataSourceInstance4->setAccountId(2);
+        $dataSourceInstance4->setAccountSummary(PublicAccountSummary::fetch(2));
         $dataSourceInstance4->setProjectKey("soapSuds");
         $dataSourceInstance4->setImportKey("import-project");
         $dataSourceInstance4->save();

@@ -207,10 +207,7 @@ export class DatasetAddJoinComponent implements OnInit {
         dataItem.reload.next(Date.now());
     }
 
-    public async select(event, step, reset = true) {
-        const item = event.item;
-        const type = event.type;
-
+    public async select(action, step, reset = true) {
         this.joinFilterFields = null;
         // Reset if we are selecting an item again, not loading initially.
         if (reset) {
@@ -227,33 +224,22 @@ export class DatasetAddJoinComponent implements OnInit {
 
         let requiredParams: any = [];
 
-        if (type === 'datasource') {
-            const datasource: any = await this.datasourceService.getDatasource(item.key);
+        if (action.datasourceKey) {
             this.selectedSource = {
                 datasetInstanceId: null,
-                datasourceInstanceKey: datasource.key,
+                datasourceInstanceKey: action.datasourceKey,
                 transformationInstances: [],
                 parameterValues: {},
                 parameters: []
             };
-            this.joinTransformation.config.joinedDataSourceInstanceKey = item.key;
+            this.joinTransformation.config.joinedDataSourceInstanceKey = action.datasourceKey;
 
             requiredParams = await this.datasourceService.getEvaluatedParameters({
-                key: item.key
+                key: action.datasourceKey
             });
-        } else if (type === 'snapshot') {
-            this.selectedSource = {
-                datasetInstanceId: null,
-                datasourceInstanceKey: item,
-                transformationInstances: [],
-                parameterValues: {},
-                parameters: []
-            };
-
-            this.joinTransformation.config.joinedDataSourceInstanceKey = item;
-        } else {
-            this.selectedSource = await this.datasetService.getDataset(item.id);
-            this.joinTransformation.config.joinedDataSetInstanceId = item.id;
+        } else if (action.datasetId) {
+            this.selectedSource = await this.datasetService.getDataset(action.datasetId);
+            this.joinTransformation.config.joinedDataSetInstanceId = action.datasetId;
 
             requiredParams = await this.datasetService.getEvaluatedParameters(this.selectedSource);
         }

@@ -2,6 +2,7 @@
 
 namespace Kinintel\Test\Services\Alert;
 
+use Kiniauth\Objects\Account\PublicAccountSummary;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupMember;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
@@ -135,7 +136,8 @@ class AlertServiceTest extends TestBase {
         $this->assertEquals([
             new NotificationGroup(new NotificationGroupSummary("Bobby Brown", [
                 new NotificationGroupMember(null, "test@oxil.uk", $notificationGroup->getMembers()[0]->getId())
-            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $notificationGroup->getId()), null, 1)
+            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $notificationGroup->getId()), null, 1,
+                PublicAccountSummary::fetch(1))
         ], $alertGroup->getNotificationGroups());
 
 
@@ -192,7 +194,8 @@ class AlertServiceTest extends TestBase {
         $this->assertEquals([
             new NotificationGroup(new NotificationGroupSummary("All Friends", [
                 new NotificationGroupMember(null, "another@oxil.uk", $newGroup->getMembers()[0]->getId())
-            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $newGroup->getId()), null, 1)
+            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $newGroup->getId()), null, 1,
+                PublicAccountSummary::fetch(1))
         ], $alertGroup->getNotificationGroups());
 
 
@@ -287,7 +290,9 @@ class AlertServiceTest extends TestBase {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
 
-        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1,
+            PublicAccountSummary::fetch(1)
+        );
         $notificationGroup->save();
 
         $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
@@ -434,7 +439,8 @@ class AlertServiceTest extends TestBase {
 
     public function testTemplatedAlertMessagesAreEvaluatedUsingDatasetCountAndDataParams() {
 
-        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1,
+            PublicAccountSummary::fetch(1));
         $notificationGroup->save();
 
         $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
@@ -518,7 +524,8 @@ class AlertServiceTest extends TestBase {
 
     public function testAlertsWithAdditionalFilterTransformationAreEvaluatedAsExpected() {
 
-        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1,
+            PublicAccountSummary::fetch(1));
         $notificationGroup->save();
 
         $alertGroup = new AlertGroupSummary("Test Alert Group", [], [

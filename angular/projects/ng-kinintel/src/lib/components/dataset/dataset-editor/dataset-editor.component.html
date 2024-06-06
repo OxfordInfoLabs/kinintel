@@ -79,15 +79,20 @@
             filter
         </button>
         <div class="divider"></div>
+        <button (click)="evaluateDataset()"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">sync</mat-icon>
+            reload
+        </button>
+        <button (click)="shareQuery()"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">share</mat-icon>
+            share
+        </button>
         <button (click)="saveAsQuery()"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">file_copy</mat-icon>
             copy query
-        </button>
-        <button (click)="evaluateDataset()"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">sync</mat-icon>
-            reload
         </button>
         <button *ngIf="!dashboardLayoutSettings && datasetInstanceSummary.id" (click)="save()"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
