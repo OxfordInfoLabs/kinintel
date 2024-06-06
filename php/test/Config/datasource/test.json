@@ -1,0 +1,6 @@
+{
+  "key": "test",
+  "title": "Test Datasource",
+  "description": "Test Datasource",
+  "type": "\\Kinintel\\Objects\\Datasource\\StubDatasource"
+}

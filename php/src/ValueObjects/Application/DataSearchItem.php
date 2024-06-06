@@ -11,10 +11,10 @@ class DataSearchItem {
         private string $type,
         private string $identifier,
         private string $title,
-        private ?string $description,
-        private ?string $owningAccountName,
-        private ?string $owningAccountLogo,
-        private array  $actionItems
+        private ?string $description = null,
+        private ?string $owningAccountName = null,
+        private ?string $owningAccountLogo = null,
+        private ?array  $actionItems = []
     ) {
         $this->type = str_contains($type, "snapshot") ? "snapshot" : $type;
     }

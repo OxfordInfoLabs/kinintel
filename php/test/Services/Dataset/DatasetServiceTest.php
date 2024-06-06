@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\Dataset;
 
+use Google\Service\Analytics\Resource\Data;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Account\Project;
 use Kiniauth\Objects\MetaData\Category;
@@ -26,6 +27,9 @@ use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Controllers\Account\DataProcessor;
+use Kinintel\Controllers\Admin\Dataset;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
@@ -33,14 +37,25 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\Datasource;
+use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\TestDatasource;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Test\Services\Dataset\Exporter\TestExporterConfig;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Application\DataSearchItem;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
@@ -379,26 +394,26 @@ class DatasetServiceTest extends TestBase {
 
         // Grab datasets
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 2);
-        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1",null,null,[],null,null, "Sam Davis Design")], $datasets);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 3);
-        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1",null,null,[],null,null,"Sam Davis Design"),
-            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2",null,null,[],null,null,"Sam Davis Design")], $datasets);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1", null, null, [], null, null, "Sam Davis Design"),
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
         // Filtered on title
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("2", 0, 10, 3);
         $this->assertEquals([
-            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2",null,null,[],null,null,"Sam Davis Design")], $datasets);
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
         // Offset
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 1, 10, 3);
         $this->assertEquals([
-            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2",null,null,[],null,null,"Sam Davis Design")], $datasets);
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
         // Limit
         $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 1, 3);
         $this->assertEquals([
-            new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1",null,null,[],null,null,"Sam Davis Design")], $datasets);
+            new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
     }
 
@@ -960,23 +975,22 @@ class DatasetServiceTest extends TestBase {
 
     public function testInterceptorCorrectlyInterceptsCrossAccountAccessAndWhitelistsWhereAppropriate() {
 
-
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
         $datasetService = Container::instance()->get(DatasetService::class);
 
         // Self owned data set
-        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Test1", "test-json"));
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Test1", "test"));
         $dataset1->setAccountId(1);
         $dataset1->save();
 
         // Non shared data set other account
-        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Test2", "test-json"));
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Test2", "test"));
         $dataset2->setAccountId(2);
         $dataset2->save();
 
         // Directly shared dataset other account
-        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Test3", "test-json"));
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Test3", "test"));
         $dataset3->setAccountId(3);
         $dataset3->save();
 
@@ -984,19 +998,19 @@ class DatasetServiceTest extends TestBase {
         $objectScopeAccess->save();
 
         // Implicit access to dataset in same account as shared dataset
-        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Test4", null,$dataset2->getId()));
+        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Test4", null, $dataset2->getId()));
         $dataset4->setAccountId(2);
         $dataset4->save();
 
-        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class),  $dataset4->getId());
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset4->getId());
         $objectScopeAccess->save();
 
         // Shared with other account for transitive testing
-        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Test5", "test-json"));
+        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Test5", "test"));
         $dataset5->setAccountId(4);
         $dataset5->save();
 
-        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class),  $dataset5->getId());
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset5->getId());
         $objectScopeAccess->save();
 
         // Shared with main account for transitive testing
@@ -1004,9 +1018,8 @@ class DatasetServiceTest extends TestBase {
         $dataset6->setAccountId(3);
         $dataset6->save();
 
-        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class),  $dataset6->getId());
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset6->getId());
         $objectScopeAccess->save();
-
 
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
@@ -1028,6 +1041,7 @@ class DatasetServiceTest extends TestBase {
         $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset3->getId());
         $this->assertEquals(10, sizeof($result->getAllData()));
 
+
         // Check can return dataset 4 as shared
         $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset4->getId());
         $this->assertEquals(10, sizeof($result->getAllData()));
@@ -1039,6 +1053,289 @@ class DatasetServiceTest extends TestBase {
             $this->fail("Should have thrown here");
         } catch (ItemNotFoundException $e) {
         }
+    }
+
+
+    public function testInterceptorCorrectlyInterceptsJoinedDatasetsForDirectlySharedDatasetsAndWhitelistsAccess() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("My Dataset", "test"));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+
+        // Non shared data set other account
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset Parent", "test"));
+        $dataset2->setAccountId(2);
+        $dataset2->save();
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset", null, $dataset2->getId()));
+        $dataset3->setAccountId(2);
+        $dataset3->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $queryInstance = new DatasetInstance(new DatasetInstanceSummary("Test Query", null, $dataset1->getId(), [
+            new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId(), [],
+                new FilterJunction([new Filter("[[value]]", "[[value]]", Filter::FILTER_TYPE_EQUALS)])
+            ))
+        ]));
+
+        $evaluated = $datasetService->getEvaluatedDataSetForDataSetInstance($queryInstance);
+
+        // Check data as expected
+        $this->assertEquals(2, sizeof($evaluated->getColumns()));
+        $this->assertEquals(10, sizeof($evaluated->getAllData()));
+
+        $this->assertEquals(["value" => "Value 1", "value_2" => "Value 1"], $evaluated->getAllData()[0]);
+
+    }
+
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testExceptionRaisedIfAttemptToJoinDataWithTransitiveDependency() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("My Dataset", "test"));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+
+        // Data set shared with account 2
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Transitive Shared Dataset", "test"));
+        $dataset2->setAccountId(3);
+        $dataset2->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 2, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset2->getId());
+        $objectScopeAccess->save();
+
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset", null, $dataset2->getId()));
+        $dataset3->setAccountId(2);
+        $dataset3->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $queryInstance = new DatasetInstance(new DatasetInstanceSummary("Test Query", null, $dataset1->getId(), [
+            new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId(), [],
+                new FilterJunction([new Filter("[[value]]", "[[value]]", Filter::FILTER_TYPE_EQUALS)])
+            ))
+        ]));
+
+        try {
+            $datasetService->getEvaluatedDataSetForDataSetInstance($queryInstance);
+            $this->fail("Should have thrown here");
+        } catch (ItemNotFoundException $e) {
+        }
+
+    }
+
+    public function testCanGetDatasetTreeForSimpleTerminatingDatasetInstance() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey",
+            new DatasourceInstance("test", "Test", "test"), ["test"]);
+
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Simple Dataset", "test", null, [], [], [], "Simple Dataset Summary"), 1);
+        $datasetInstance->save();
+        $datasetInstance = $this->datasetService->getFullDataSetInstance($datasetInstance->getId());
+
+        $treeById = $this->datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $treeByInstance = $this->datasetService->getDatasetTree($datasetInstance);
+        $this->assertEquals($treeById, $treeByInstance);
+        $this->assertEquals(new DatasetTree(new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Simple Dataset", "Simple Dataset Summary", "Sam Davis Design", null)),
+            $treeByInstance);
+    }
+
+
+    public function testCanGetDatasetTreeWithParentTreesIntact() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey",
+            new DatasourceInstance("test", "Test", "test"), ["test"]);
+
+        $grandparentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Grandparent Dataset", "test", null, [], [], [], "Grandparent Dataset Summary"), 1);
+        $grandparentDatasetInstance->save();
+        $grandparentItem = new DataSearchItem("datasetinstance", $grandparentDatasetInstance->getId(), "Grandparent Dataset", "Grandparent Dataset Summary", "Sam Davis Design");
+
+        $parentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Parent Dataset", null, $grandparentDatasetInstance->getId(), [], [], [], "Parent Dataset Summary"), 1);
+        $parentDatasetInstance->save();
+        $parentItem = new DataSearchItem("datasetinstance", $parentDatasetInstance->getId(), "Parent Dataset", "Parent Dataset Summary", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Child Dataset", null, $parentDatasetInstance->getId(), [], [], [], "Child Dataset Summary"), 1);
+        $datasetInstance->save();
+        $item = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Child Dataset", "Child Dataset Summary", "Sam Davis Design");
+
+        $tree = $this->datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($item, new DatasetTree($parentItem, new DatasetTree($grandparentItem))), $tree);
+
+
+    }
+
+    public function testCanGetDatasetTreeWithJoinedTreesIntact() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey",
+            new DatasourceInstance("test", "Test", "test"), ["test"]);
+
+
+        $grandparentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Grandparent Dataset", "test", null, [], [], [], "Grandparent Dataset Summary"), 1);
+        $grandparentDatasetInstance->save();
+        $grandparentItem = new DataSearchItem("datasetinstance", $grandparentDatasetInstance->getId(), "Grandparent Dataset", "Grandparent Dataset Summary", "Sam Davis Design");
+
+        $parentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Parent Dataset", null, $grandparentDatasetInstance->getId(), [], [], [], "Parent Dataset Summary"), 1);
+        $parentDatasetInstance->save();
+        $parentItem = new DataSearchItem("datasetinstance", $parentDatasetInstance->getId(), "Parent Dataset", "Parent Dataset Summary", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Child Dataset", "test", null, [
+            new TransformationInstance("join", new JoinTransformation(null, $parentDatasetInstance->getId()))
+        ], [], [], "Child Dataset Summary"), 1);
+        $datasetInstance->save();
+        $item = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Child Dataset", "Child Dataset Summary", "Sam Davis Design");
+
+        $tree = $this->datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($item, null, [new DatasetTree($parentItem, new DatasetTree($grandparentItem))]), $tree);
+
+    }
+
+    public function testAccountOwnedDatasourcesAreIncludedInTreeWhenInHierarchy() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+
+        $config = new SQLDatabaseDatasourceConfig("table", "test_custom", "", [new Field("value", null, null, Field::TYPE_STRING, true)]);
+        $accountDatasource = new DatasourceInstance("test-ds", "Test Datasource", "custom", $config, "sql");
+        $accountDatasource->setAccountId(1);
+        $accountDatasource->save();
+
+        $accountDSItem = new DataSearchItem("custom", "test-ds", "Test Datasource", "", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Dataset",
+            $accountDatasource->getKey(), null, [
+                new TransformationInstance("join", new JoinTransformation($accountDatasource->getKey()))
+            ]), 1);
+        $datasetInstance->save();
+        $datasetItem = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Dataset", null, "Sam Davis Design");
+
+        $tree = $datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($datasetItem,
+            new DatasetTree($accountDSItem),
+            [new DatasetTree($accountDSItem)]), $tree);
+
+
+    }
+
+    public function testSnapshotsAreTraversedCorrectlyWithBuildingDatasetsIncludedInTree() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        $derivedDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Derived Dataset", "test"), 1);
+        $derivedDatasetInstance->save();
+        $derivedDatasetItem = new DataSearchItem("datasetinstance", $derivedDatasetInstance->getId(), "Derived Dataset", null, "Sam Davis Design");
+
+        $snapshot = new DataProcessorInstance("test-snap", "Test Snapshot", "tabulardatasetsnapshot", [], null, null, "DatasetInstance", $derivedDatasetInstance->getId());
+        $snapshot->setAccountId(1);
+        $snapshot->save();
+
+        $config = new SQLDatabaseDatasourceConfig("table", "test_snap_latest", "", [new Field("value", null, null, Field::TYPE_STRING, true)]);
+        $snapshotDatasource = new DatasourceInstance("test-snap_latest", "Latest Snapshot", "snapshot", $config, "sql");
+        $snapshotDatasource->setAccountId(1);
+        $snapshotDatasource->save();
+
+        $snapshotItem = new DataSearchItem("snapshot", "test-snap", "Test Snapshot", "", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Dataset",
+            $snapshotDatasource->getKey(), null, [
+                new TransformationInstance("join", new JoinTransformation($snapshotDatasource->getKey()))
+            ]), 1);
+        $datasetInstance->save();
+        $datasetItem = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Dataset", null, "Sam Davis Design");
+
+        $tree = $datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($datasetItem,
+            new DatasetTree($snapshotItem, new DatasetTree($derivedDatasetItem)),
+            [new DatasetTree($snapshotItem, new DatasetTree($derivedDatasetItem))]), $tree);
+
+    }
+
+    public function testSharedDatasetsIncludedInTreeHierarchy() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+
+        // Non shared data set other account
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset Parent", "test"));
+        $dataset2->setAccountId(2);
+        $dataset2->save();
+        $dataset2Item = new DataSearchItem("datasetinstance", $dataset2->getId(), "Shared Dataset Parent", "", "Peter Jones Car Washing");
+
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset", null, $dataset2->getId()));
+        $dataset3->setAccountId(2);
+        $dataset3->save();
+        $dataset3Item = new DataSearchItem("datasetinstance", $dataset3->getId(), "Shared Dataset", "", "Peter Jones Car Washing");
+
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("My Dataset", null, $dataset3->getId(),
+            [
+                new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId()))
+            ]));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+        $dataset1Item = new DataSearchItem("datasetinstance", $dataset1->getId(), "My Dataset", "", "Sam Davis Design");
+
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+
+        // Grab the tree for dataset1
+        $tree = $datasetService->getDatasetTreeByInstanceId($dataset1->getId());
+
+        $this->assertEquals(new DatasetTree($dataset1Item, new DatasetTree($dataset3Item, new DatasetTree($dataset2Item)), [
+            new DatasetTree($dataset3Item, new DatasetTree($dataset2Item))
+        ]), $tree);
+
     }
 
 

@@ -13,8 +13,14 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
  */
 class DatasetServiceInterceptor extends ContainerInterceptor {
 
+    // Overall query depth
+    private $totalQueryDepth = 0;
+
     // Dataset account depths
-    private array $datasetAccountDepths = [];
+    private array $datasetAccountQueryDepths = [];
+
+    // Transaction id
+    private int $transactionId = 0;
 
 
     /**
@@ -39,7 +45,7 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
      */
     public function beforeMethod($objectInstance, $methodName, $params, $methodInspector) {
 
-        if (($methodName == "getEvaluatedDataSetForDataSetInstance")) {
+        if (($methodName == "getEvaluatedDataSetForDataSetInstance") || ($methodName == "getTransformedDatasourceForDataSetInstance")) {
             $datasetInstance = $params["dataSetInstance"] ?? null;
 
             // Upgrade the dataset instance if required
@@ -49,9 +55,14 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
                     $params["dataSetInstance"] = $datasetInstance;
                 }
             }
-            if ($datasetInstance instanceof DatasetInstance) {
-                $this->datasetAccountDepths[$datasetInstance->getAccountId()] = (isset($this->datasetAccountDepths[$datasetInstance->getAccountId()]) ?
-                    $this->datasetAccountDepths[$datasetInstance->getAccountId()] + 1 : 1);
+            // Record depth and create transaction id if not a join scenario
+            if (($datasetInstance instanceof DatasetInstance) && ($methodName == "getEvaluatedDataSetForDataSetInstance")) {
+                if ($this->totalQueryDepth == 0) {
+                    $this->transactionId = date("U");
+                }
+                $this->totalQueryDepth++;
+                $this->datasetAccountQueryDepths[$datasetInstance->getAccountId()] = (isset($this->datasetAccountQueryDepths[$datasetInstance->getAccountId()]) ?
+                    $this->datasetAccountQueryDepths[$datasetInstance->getAccountId()] + 1 : 1);
             }
 
         }
@@ -74,12 +85,13 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
      */
     public function methodCallable($callable, $objectInstance, $methodName, $params, $methodInspector) {
 
+
         $accountId = null;
         if (($methodName == "getEvaluatedDataSetForDataSetInstance") ||
             ($methodName == "getTransformedDatasourceForDataSetInstance") ||
-            ($methodName == "getEvaluatedParameters")) {
+            ($methodName == "getEvaluatedParameters") ||
+            ($methodName == "getDatasetTree")) {
             $datasetInstance = $params["dataSetInstance"] ?? null;
-
 
             // Upgrade the dataset instance if required
             if (!($datasetInstance instanceof DatasetInstance) && ($datasetInstance instanceof DatasetInstanceSummary)) {
@@ -140,7 +152,9 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
         if (($methodName == "getEvaluatedDataSetForDataSetInstance") ||
             ($methodName == "getTransformedDatasourceForDataSetInstance")) {
 
-            $transactionId = date("U");
+            if ($methodName == "getEvaluatedDataSetForDataSetInstance") {
+                $this->totalQueryDepth--;
+            }
 
             $data = ["result" => $success ? "Success" : "Error"];
             if (!$success)
@@ -149,17 +163,17 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
             if ($dataSetInstance && $dataSetInstance->getId()) {
 
                 // If single depth, log the query
-                $level = $this->datasetAccountDepths[$dataSetInstance->getAccountId()] ?? 0;
+                $level = $this->datasetAccountQueryDepths[$dataSetInstance->getAccountId()] ?? 0;
                 if ($level < 2) {
 
                     $this->activityLogger->createLog("Dataset Query", $dataSetInstance->getId(),
                         $dataSetInstance->getTitle(), $data,
-                        $transactionId);
+                        $this->transactionId);
                 }
 
                 // If level more than one don't log.
-                if ($level > 0) {
-                    $this->datasetAccountDepths[$dataSetInstance->getAccountId()]--;
+                if (($level > 0) && ($methodName == "getEvaluatedDataSetForDataSetInstance")) {
+                    $this->datasetAccountQueryDepths[$dataSetInstance->getAccountId()]--;
                 }
 
 

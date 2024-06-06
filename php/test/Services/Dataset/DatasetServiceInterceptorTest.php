@@ -163,6 +163,12 @@ class DatasetServiceInterceptorTest extends TestBase {
         $datasetInstanceSummary = new DatasetInstanceSummary("Test Query", "test-json");
         $datasetInstance = new DatasetInstance($datasetInstanceSummary, 25);
         $datasetInstance->setId(33);
+
+        // Call before method to generate transaction id
+        $this->interceptor->beforeMethod($this->datasetService,"getEvaluatedDataSetForDataSetInstance",[
+            "dataSetInstance" => $datasetInstance
+        ],null);
+
         $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
         ], null, null);
@@ -182,6 +188,13 @@ class DatasetServiceInterceptorTest extends TestBase {
         $datasetInstanceSummary = new DatasetInstanceSummary("Test Query", "test-json");
         $datasetInstance = new DatasetInstance($datasetInstanceSummary, 25);
         $datasetInstance->setId(33);
+
+        // Call before method to generate transaction id
+        $this->interceptor->beforeMethod($this->datasetService,"getEvaluatedDataSetForDataSetInstance",[
+            "dataSetInstance" => $datasetInstance
+        ],null);
+
+
         $this->interceptor->onException($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
         ], new \Exception("Query Failed"), null);
@@ -243,6 +256,8 @@ class DatasetServiceInterceptorTest extends TestBase {
             date("U")
         ]));
     }
+
+
 
 
 }

@@ -17,9 +17,14 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Application\DataSearchItem;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
@@ -54,6 +59,7 @@ class DatasetService {
         $this->datasourceService = $datasourceService;
         $this->metaDataService = $metaDataService;
         $this->activeRecordInterceptor = $activeRecordInterceptor;
+
     }
 
 
@@ -294,6 +300,56 @@ class DatasetService {
         return $this->metaDataService->getMultipleCategoriesByKey($categoryKeys, $projectKey, $accountId);
 
     }
+
+    /**
+     * Get a dataset tree by instance id
+     *
+     * @param $instanceId
+     * @return DatasetTree
+     */
+    public function getDatasetTreeByInstanceId(int $instanceId) {
+        return $this->getDatasetTree($this->getFullDataSetInstance($instanceId));
+    }
+
+    /**
+     * Get a dataset tree for a dataset instance
+     *
+     * @param DatasetInstance $dataSetInstance
+     * @return DatasetTree
+     */
+    public function getDatasetTree(DatasetInstance $dataSetInstance) {
+
+        $searchItem = new DataSearchItem("datasetinstance", $dataSetInstance->getId(), $dataSetInstance->getTitle(), $dataSetInstance->getSummary(), $dataSetInstance?->getAccountSummary()?->getName(),
+            $dataSetInstance?->getAccountSummary()?->getLogo());
+
+        // Resolve hierarchy items
+        $parentTree = null;
+        if ($dataSetInstance->getDatasetInstanceId()) {
+            $parentTree = $this->getDatasetTreeByInstanceId($dataSetInstance->getDatasetInstanceId());
+        } else if ($dataSetInstance->getDatasourceInstanceKey()) {
+            $parentTree = $this->datasourceService->getDatasetTreeForDatasourceKey($dataSetInstance->getDatasourceInstanceKey());
+        }
+
+        // Resolve join items if required
+        $joinedTrees = [];
+        foreach ($dataSetInstance->getTransformationInstances() as $transformationInstance) {
+            if ($transformationInstance->getType() == "join") {
+                $transformation = $transformationInstance->returnTransformation();
+                $joinedTree = null;
+                if ($transformation->getJoinedDatasetInstanceId()) {
+                    $joinedTree = $this->getDatasetTreeByInstanceId($transformation->getJoinedDatasetInstanceId());
+                } else if ($transformation->getJoinedDatasourceInstanceKey()) {
+                    $joinedTree = $this->datasourceService->getDatasetTreeForDatasourceKey($transformation->getJoinedDatasourceInstanceKey());
+                }
+                if ($joinedTree) {
+                    $joinedTrees[] = $joinedTree;
+                }
+            }
+        }
+
+        return new DatasetTree($searchItem, $parentTree, $joinedTrees);
+    }
+
 
     /**
      * Save a data set instance

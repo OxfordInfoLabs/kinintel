@@ -6,6 +6,7 @@ namespace Kinintel\Services\Datasource;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
@@ -20,6 +21,10 @@ use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\DataProcessor\DataProcessorService;
+use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\ValueObjects\Application\DataSearchItem;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
@@ -29,6 +34,9 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingMarkerTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
+/**
+ * @interceptor \Kinintel\Services\Datasource\DatasourceServiceInterceptor
+ */
 class DatasourceService {
 
 
@@ -48,17 +56,26 @@ class DatasourceService {
      */
     private $valueFunctionEvaluator;
 
+
+    /**
+     * @var DataProcessorService
+     */
+    private $dataProcessorService;
+
+
     /**
      * DatasourceService constructor.
      *
      * @param DatasourceDAO $datasourceDAO
      * @param SecurityService $securityService
      * @param ValueFunctionEvaluator $valueFunctionEvaluator
+     * @param DataProcessorService $dataProcessorService
      */
-    public function __construct($datasourceDAO, $securityService, $valueFunctionEvaluator) {
+    public function __construct($datasourceDAO, $securityService, $valueFunctionEvaluator, DataProcessorService $dataProcessorService) {
         $this->datasourceDAO = $datasourceDAO;
         $this->securityService = $securityService;
         $this->valueFunctionEvaluator = $valueFunctionEvaluator;
+        $this->dataProcessorService = $dataProcessorService;
     }
 
 
@@ -111,6 +128,45 @@ class DatasourceService {
      */
     public function getDatasourceInstanceByTitle($title, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         return $this->datasourceDAO->getDatasourceInstanceByTitle($title, $projectKey, $accountId);
+    }
+
+    /**
+     * Get a dataset tree for a datasource key.   This will only
+     * return a value if the datasource has an account id to ignore built in
+     * datasources.
+     *
+     * @param $datasourceKey
+     * @return DatasetTree|null
+     */
+    public function getDatasetTreeForDatasourceKey($datasourceKey) {
+        $datasource = $this->getDataSourceInstanceByKey($datasourceKey);
+
+        // Only record as datasets datasources which are owned by the user.
+        if ($datasource->getAccountId()) {
+            if ($datasource->getType() == "snapshot") {
+                if (str_ends_with($datasourceKey, "_latest"))
+                    $datasourceKey = substr($datasourceKey, 0, strlen($datasourceKey) - 7);
+
+                // Grab the matching processor
+                $dataProcessor = $this->dataProcessorService->getDataProcessorInstance($datasourceKey);
+
+                $dataItem = new DataSearchItem("snapshot", $dataProcessor->getKey(), $dataProcessor->getTitle(), "",
+                    $dataProcessor?->getAccountSummary()?->getName(),
+                    $dataProcessor?->getAccountSummary()?->getLogo());
+
+                $datasetService = Container::instance()->get(DatasetService::class);
+                return new DatasetTree($dataItem, $datasetService->getDatasetTreeByInstanceId($dataProcessor->getRelatedObjectKey()));
+
+            } else {
+                $dataItem = new DataSearchItem($datasource->getType(),$datasource->getKey(),$datasource->getTitle(),"",
+                    $datasource?->getAccountSummary()?->getName(),
+                    $datasource?->getAccountSummary()?->getLogo());
+                return new DatasetTree($dataItem);
+            }
+        }
+
+        return null;
+
     }
 
 
