@@ -24,7 +24,7 @@ export class DatasourceService {
                 private projectService: ProjectService) {
     }
 
-    public createCustomDatasource(datasourceUpdate: DatasourceUpdate) {
+    public createCustomDatasource(datasourceUpdate: DatasourceUpdate): Promise<any> {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         return this.http.post(this.config.backendURL + '/datasource/custom?projectKey=' + projectKey, datasourceUpdate)
             .toPromise();

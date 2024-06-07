@@ -1,5 +1,6 @@
 import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
@@ -15,7 +16,7 @@ import {
 } from '../create-datasource/advanced-settings/advanced-settings.component';
 import {
     ImportWizardComponent
-} from 'ng-kinintel/src/lib/components/datasource/create-datasource/import-data/import-wizard/import-wizard.component';
+} from '../create-datasource/import-data/import-wizard/import-wizard.component';
 
 declare var window: any;
 
@@ -93,14 +94,12 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
         if (this.datasourceInstanceKey) {
             this.showAutoIncrement = localStorage.getItem(this.datasourceInstanceKey + '_show_id') === 'true';
-        }
-
-        if (this.datasourceInstanceKey) {
             this.loadDatasource();
         } else {
             const dialogRef = this.dialog.open(ImportWizardComponent, {
                 width: '800px',
                 height: '900px',
+                disableClose: true,
                 data: {
                     columns: this.columns,
                     datasourceUpdate: this.datasourceUpdate,
@@ -217,12 +216,20 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         });
     }
 
-    public deleteSelectedColumns() {
-        this.rows.forEach((row, index) => {
-            if (row._selected) {
-                this.deleteRow(index);
-            }
-        });
+    public async deleteSelectedColumns() {
+        const message = 'Are you sure you would like to remove all of the selected entries? This action cannot be reversed.';
+        if (window.confirm(message)) {
+            const selected = _.filter(this.rows, '_selected');
+            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, {
+                title: this.datasourceUpdate.title,
+                instanceImportKey: this.datasourceUpdate.instanceImportKey || '',
+                fields: this.datasourceUpdate.fields,
+                adds: [],
+                updates: [],
+                deletes: selected
+            });
+            window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
+        }
     }
 
     public addFilter() {

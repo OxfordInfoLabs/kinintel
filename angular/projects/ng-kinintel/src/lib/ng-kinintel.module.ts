@@ -12,7 +12,6 @@ import {MatLegacyMenuModule as MatMenuModule} from '@angular/material/legacy-men
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatLegacyFormFieldModule as MatFormFieldModule} from '@angular/material/legacy-form-field';
 import {MatLegacyInputModule as MatInputModule} from '@angular/material/legacy-input';
-import {MatLegacyChipsModule as MatChipsModule} from '@angular/material/legacy-chips';
 import {DatasourceComponent} from './components/datasource/datasource.component';
 import {DatasetComponent} from './components/dataset/dataset.component';
 import {DatasetEditorComponent, DatasetEditorPopupComponent} from './components/dataset/dataset-editor/dataset-editor.component';
@@ -96,6 +95,7 @@ import { QueryCachingComponent } from './components/query-caching/query-caching.
 import { EditQueryCacheComponent } from './components/query-caching/edit-query-cache/edit-query-cache.component';
 import { ImportWizardComponent } from './components/datasource/create-datasource/import-data/import-wizard/import-wizard.component';
 import { AdvancedSettingsComponent } from './components/datasource/create-datasource/advanced-settings/advanced-settings.component';
+import {MatChipsModule} from '@angular/material/chips';
 
 @NgModule({
     declarations: [
@@ -198,7 +198,8 @@ import { AdvancedSettingsComponent } from './components/datasource/create-dataso
         CodemirrorModule,
         ClipboardModule,
         CdkOverlayOrigin,
-        CdkConnectedOverlay
+        CdkConnectedOverlay,
+        MatChipsModule
     ],
     exports: [
         DashboardEditorComponent,
@@ -246,7 +247,9 @@ export class NgKinintelModule {
 
 export class KinintelModuleConfig {
     backendURL: string;
+    guestURL: string;
     externalURL?: string;
     tagLabel?: string;
     tagMenuLabel?: string;
+    dataSearchTypeMapping?: any;
 }

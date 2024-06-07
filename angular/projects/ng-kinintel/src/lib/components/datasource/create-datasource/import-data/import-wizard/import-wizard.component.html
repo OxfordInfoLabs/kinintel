@@ -1,1 +1,79 @@
-<p>import-wizard works!</p>
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Import Data</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <label class="mb-4">
+            Datasource Name
+            <input class="w-full" type="text" [(ngModel)]="name" placeholder="Enter datasource name"
+                [ngClass]="{'border-red-500': !name}">
+        </label>
+
+        <div class="font-medium">Enter the columns for this custom datasource.</div>
+
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Dataset Columns</mat-label>
+            <mat-chip-grid #chipGrid aria-label="Enter column name">
+                <mat-chip-row class="bg-white" *ngFor="let column of columns"
+                              (removed)="removeColumn(column)"
+                              [editable]="true"
+                              (edited)="editColumn(column, $event)"
+                              [aria-description]="'press enter to edit ' + column">
+                    {{column}}
+                    <button matChipRemove [attr.aria-label]="'remove ' + column">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </mat-chip-row>
+                <input placeholder="Enter column name and press enter..."
+                       [matChipInputFor]="chipGrid"
+                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                       [matChipInputAddOnBlur]="addOnBlur"
+                       (matChipInputTokenEnd)="addColumn($event)"/>
+            </mat-chip-grid>
+        </mat-form-field>
+        <div *ngIf="!columns.length" class="text-sm text-red-500">Please enter at least 1 column</div>
+
+        <div class="my-8 flex items-center justify-between">
+            <div class="border-b w-full"></div>
+            <div class="mx-4 italic">or</div>
+            <div class="border-b w-full"></div>
+        </div>
+
+        <div class="p-4">
+            <button type="button" (click)="importData()"
+                    class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+
+                <div class="relative inline-block">
+                    <mat-icon
+                        class="mx-auto text-6xl h-14 w-20 text-gray-300">upload_file
+                    </mat-icon>
+<!--                    <svg xmlns="http://www.w3.org/2000/svg"-->
+<!--                         class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"-->
+<!--                         stroke="currentColor" stroke-width="4">-->
+<!--                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>-->
+<!--                    </svg>-->
+                </div>
+
+                <span class="mt-2 block text-sm font-medium text-gray-900">Upload CSV Data</span>
+            </button>
+        </div>
+
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+        <button mat-button mat-flat-button color="primary" type="button" [disabled]="!name || !columns.length"
+                (click)="createStructure()">Create Structure</button>
+    </div>
+
+</div>
+
+

@@ -4,8 +4,8 @@ import {
     MatLegacyDialogRef as MatDialogRef
 } from '@angular/material/legacy-dialog';
 import {Papa} from 'ngx-papaparse';
-import * as lodash from 'lodash';
 import {DatasourceService} from '../../../../services/datasource.service';
+import * as lodash from 'lodash';
 
 const _ = lodash.default;
 
@@ -117,9 +117,14 @@ export class ImportDataComponent implements OnInit {
             this.datasourceUpdate.adds = csvData;
 
             if (!this.datasourceInstanceKey) {
-                const key = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
-                window.location.href = this.reloadURL + '/' + key;
+                this.datasourceInstanceKey = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
+            } else {
+                await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
             }
+            window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
+        } else if (this.importType === 2) {
+
+
 
         }
 
