@@ -171,7 +171,7 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
             if (!$success)
                 $data["errorMessage"] = $errorMessage;
 
-            if (($datasetInstance instanceof DatasetInstanceSummary) && $dataSetInstance->getId()) {
+            if (($dataSetInstance instanceof DatasetInstanceSummary) && $dataSetInstance->getId()) {
 
                 // Grab full dataset instance
                 $fullDatasetInstance = ($dataSetInstance instanceof DatasetInstance) ? $dataSetInstance : $this->fullDatasetInstances[$dataSetInstance->getId()];
