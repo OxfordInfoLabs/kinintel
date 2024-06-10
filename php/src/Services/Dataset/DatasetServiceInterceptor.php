@@ -100,7 +100,7 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
             $datasetInstance = $params["dataSetInstance"] ?? null;
 
 
-            if ($datasetInstance && $datasetInstance->getId()) {
+            if (($datasetInstance instanceof DatasetInstanceSummary) && $datasetInstance->getId()) {
 
                 if (!isset($this->fullDatasetInstances[$datasetInstance->getId()])) {
 
@@ -171,7 +171,7 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
             if (!$success)
                 $data["errorMessage"] = $errorMessage;
 
-            if ($dataSetInstance && $dataSetInstance->getId()) {
+            if (($datasetInstance instanceof DatasetInstanceSummary) && $dataSetInstance->getId()) {
 
                 // Grab full dataset instance
                 $fullDatasetInstance = ($dataSetInstance instanceof DatasetInstance) ? $dataSetInstance : $this->fullDatasetInstances[$dataSetInstance->getId()];
