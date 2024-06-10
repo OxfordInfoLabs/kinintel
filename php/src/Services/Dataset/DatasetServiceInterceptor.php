@@ -5,6 +5,7 @@ namespace Kinintel\Services\Dataset;
 use Kiniauth\Services\Application\ActivityLogger;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\DependencyInjection\ContainerInterceptor;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 
@@ -15,6 +16,9 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
 
     // Overall query depth
     private $totalQueryDepth = 0;
+
+    // Full dataset instances
+    private $fullDatasetInstances = [];
 
     // Dataset account depths
     private array $datasetAccountQueryDepths = [];
@@ -45,14 +49,14 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
      */
     public function beforeMethod($objectInstance, $methodName, $params, $methodInspector) {
 
+
         if (($methodName == "getEvaluatedDataSetForDataSetInstance") || ($methodName == "getTransformedDatasourceForDataSetInstance")) {
             $datasetInstance = $params["dataSetInstance"] ?? null;
 
             // Upgrade the dataset instance if required
             if (!($datasetInstance instanceof DatasetInstance) && ($datasetInstance instanceof DatasetInstanceSummary)) {
-                if ($datasetInstance->getId()) {
-                    $datasetInstance = $objectInstance->getFullDataSetInstance($datasetInstance->getId());
-                    $params["dataSetInstance"] = $datasetInstance;
+                if ($datasetInstance->getId() && !isset($this->fullDatasetInstances[$datasetInstance->getId()])) {
+                    $datasetInstance = $this->fullDatasetInstances[$datasetInstance->getId()] = $objectInstance->getFullDataSetInstance($datasetInstance->getId());
                 }
             }
             // Record depth and create transaction id if not a join scenario
@@ -91,16 +95,23 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
             ($methodName == "getTransformedDatasourceForDataSetInstance") ||
             ($methodName == "getEvaluatedParameters") ||
             ($methodName == "getDatasetTree")) {
+
+
             $datasetInstance = $params["dataSetInstance"] ?? null;
 
-            // Upgrade the dataset instance if required
-            if (!($datasetInstance instanceof DatasetInstance) && ($datasetInstance instanceof DatasetInstanceSummary)) {
-                if ($datasetInstance->getId())
-                    $datasetInstance = $objectInstance->getFullDataSetInstance($datasetInstance->getId());
+
+            if ($datasetInstance && $datasetInstance->getId()) {
+
+                if (!isset($this->fullDatasetInstances[$datasetInstance->getId()])) {
+
+                    $this->fullDatasetInstances[$datasetInstance->getId()] = ($datasetInstance instanceof DatasetInstance) ? $datasetInstance :
+                        $objectInstance->getFullDataSetInstance($datasetInstance->getId());
+                }
+
+                $accountId = $this->fullDatasetInstances[$datasetInstance->getId()]->getAccountId();
             }
-            if ($datasetInstance instanceof DatasetInstance) {
-                $accountId = $datasetInstance->getAccountId();
-            }
+
+
         }
 
         // If an account id, return a new callback with whitelisted read access.
@@ -162,8 +173,11 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
 
             if ($dataSetInstance && $dataSetInstance->getId()) {
 
+                // Grab full dataset instance
+                $fullDatasetInstance = ($dataSetInstance instanceof DatasetInstance) ? $dataSetInstance : $this->fullDatasetInstances[$dataSetInstance->getId()];
+
                 // If single depth, log the query
-                $level = $this->datasetAccountQueryDepths[$dataSetInstance->getAccountId()] ?? 0;
+                $level = $this->datasetAccountQueryDepths[$fullDatasetInstance->getAccountId()] ?? 0;
                 if ($level < 2) {
 
                     $this->activityLogger->createLog("Dataset Query", $dataSetInstance->getId(),
@@ -173,7 +187,7 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
 
                 // If level more than one don't log.
                 if (($level > 0) && ($methodName == "getEvaluatedDataSetForDataSetInstance")) {
-                    $this->datasetAccountQueryDepths[$dataSetInstance->getAccountId()]--;
+                    $this->datasetAccountQueryDepths[$fullDatasetInstance->getAccountId()]--;
                 }
 
 
