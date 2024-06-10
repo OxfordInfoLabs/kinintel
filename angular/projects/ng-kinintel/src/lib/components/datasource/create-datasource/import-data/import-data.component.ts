@@ -92,7 +92,7 @@ export class ImportDataComponent implements OnInit {
 
 
         if (this.import.headerRow) {
-            if (!this.columns.length) {
+            if (!this.columns.length || this.import.replaceColumns) {
                 this.columns = [];
                 this.import.data[0].forEach((header: string, index: number) => {
                     this.columns.push({

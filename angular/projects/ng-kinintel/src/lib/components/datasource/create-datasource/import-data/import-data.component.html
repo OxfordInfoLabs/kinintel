@@ -40,6 +40,10 @@
             File header row required as no columns have been defined.
         </div>
 
+        <mat-checkbox class="mb-4" *ngIf="import.headerRow && columns.length" [(ngModel)]="import.replaceColumns">
+            Replace Columns with Header Row
+        </mat-checkbox>
+
         <hr class="my-4">
 
         <ng-template [ngIf]="import.preview">
