@@ -15,12 +15,49 @@
         </mat-checkbox>
 
 
+        <hr>
+
+        <div class="font-medium text-base mt-6">Create custom primary key</div>
+        <div class="text-gray-500 text-sm mb-6">Drag column(s) to make up the primary key for this datasource</div>
+
+        <div class="flex justify-between">
+            <div class="example-container">
+                <div class="font-medium">Available Columns</div>
+
+                <div
+                    cdkDropList
+                    #columnList="cdkDropList"
+                    [cdkDropListData]="columns"
+                    [cdkDropListConnectedTo]="[pkList]"
+                    class="example-list"
+                    (cdkDropListDropped)="drop($event)">
+                    <div class="example-box" *ngFor="let item of columns" cdkDrag>{{item.title}}</div>
+                </div>
+            </div>
+
+            <div class="example-container">
+                <div class="font-medium">Primary Key(s)</div>
+
+                <div
+                    cdkDropList
+                    #pkList="cdkDropList"
+                    [cdkDropListData]="advancedSettings.primaryKeys"
+                    [cdkDropListConnectedTo]="[columnList]"
+                    class="example-list"
+                    (cdkDropListDropped)="drop($event)">
+                    <div class="example-box" *ngFor="let item of advancedSettings.primaryKeys" cdkDrag>{{item.title}}</div>
+                </div>
+            </div>
+        </div>
+
+
 
     </div>
 
     <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button"
-            [matDialogClose]="advancedSettings">Close</button>
+        <div></div>
+        <button mat-flat-button mat-dialog-close mat-stroked-button color="primary" type="button"
+            [matDialogClose]="advancedSettings">Proceed</button>
     </div>
 
 </div>

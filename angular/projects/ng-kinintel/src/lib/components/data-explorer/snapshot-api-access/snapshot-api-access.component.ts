@@ -30,7 +30,6 @@ export class SnapshotApiAccessComponent implements OnInit {
     }
 
     async ngOnInit() {
-        console.log(this.data);
         this.backendURL = this.data.backendUrl;
         this.datasetInstance = this.data.datasetInstanceSummary;
         this.showApiAccessDetails = !!this.datasetInstance.managementKey;

@@ -43,7 +43,13 @@ export class ImportWizardComponent implements OnInit {
 
         // Add our fruit
         if (value) {
-            this.columns.push(value);
+            this.columns.push(
+                {
+                    title: value,
+                    name: _.snakeCase(value),
+                    type: 'string'
+                }
+            );
         }
 
         // Clear the input value
@@ -67,12 +73,8 @@ export class ImportWizardComponent implements OnInit {
         }
     }
 
-    public removeColumn(column: string) {
-        const index = this.columns.indexOf(column);
-
-        if (index >= 0) {
-            this.columns.splice(index, 1);
-        }
+    public removeColumn(column: any) {
+        _.remove(this.columns, {name: column.name});
     }
 
     public importData() {
@@ -115,7 +117,6 @@ export class ImportWizardComponent implements OnInit {
         const key = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
         window.location.href = this.reloadURL + '/' + key;
     }
-
 
 
 }

@@ -17,6 +17,7 @@ import {
 import {
     ImportWizardComponent
 } from '../create-datasource/import-data/import-wizard/import-wizard.component';
+import {BehaviorSubject} from 'rxjs';
 
 declare var window: any;
 
@@ -71,6 +72,18 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public endOfResults = false;
     public showAutoIncrement = false;
     public selectAll = false;
+    public showFilters = false;
+    public filterFields = [];
+    public filterJunction = {
+        logic: 'AND',
+        filters: [{
+            lhsExpression: '',
+            rhsExpression: [],
+            filterType: ''
+        }],
+        filterJunctions: []
+    };
+    public openSide = new BehaviorSubject(false);
 
     private offset = 0;
     private isMouseDown = false;
@@ -129,6 +142,23 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (this.sidenavService) {
             this.sidenavService.open();
         }
+    }
+
+    public clearFilter() {
+        this.filterJunction = {
+            logic: 'AND',
+            filters: [{
+                lhsExpression: '',
+                rhsExpression: [],
+                filterType: ''
+            }],
+            filterJunctions: []
+        };
+        this.loadDatasource();
+    }
+
+    public applyFilter() {
+        this.loadDatasource([{type: 'filter', config: this.filterJunction}]);
     }
 
     public updateSelectAll() {
@@ -249,10 +279,34 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             }
         });
         dialogRef.afterClosed().subscribe(advancedSettings => {
-            this.showAutoIncrement = advancedSettings.showAutoIncrement;
+            if (advancedSettings.primaryKeys.length) {
+                this.showAutoIncrement = false;
+                _.remove(this.columns, {type: 'id'});
+
+                this.columns.map(column => {
+                    if (_.find(advancedSettings.primaryKeys, {name: column.name})) {
+                        column.keyField = true;
+                    }
+                    return column;
+                });
+
+            } else {
+                this.showAutoIncrement = advancedSettings.showAutoIncrement;
+                if (!_.find(this.columns, {type: 'id'})) {
+                    this.columns.map(column => {
+                        column.keyField = false;
+                        return column;
+                    });
+
+                    this.columns.unshift({
+                        title: 'ID',
+                        name: 'id',
+                        type: 'id'
+                    });
+                }
+            }
+
             localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
-
-
         });
     }
 
@@ -499,19 +553,26 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         this.loadDatasource();
     }
 
-    private loadDatasource() {
+    private loadDatasource(transformationInstances: any[] = []) {
         if (this.datasourceInstanceKey) {
             const evaluatedDatasource = {
                 key: this.datasourceInstanceKey,
-                transformationInstances: [],
+                transformationInstances,
                 parameterValues: {},
                 offset: this.offset,
                 limit: this.limit
             };
+
             this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
                 this.columns = res.columns.map(column => {
                     column.previousName = column.name;
                     return column;
+                });
+                this.filterFields = _.map(this.columns, column => {
+                    return {
+                        title: column.title,
+                        name: column.name
+                    };
                 });
                 this.rows = res.allData;
 

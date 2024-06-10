@@ -25,6 +25,7 @@ export class ImportDataComponent implements OnInit {
     public rows: any = [];
     public datasourceInstanceKey: string;
     public reloadURL: string;
+    public _ = _;
 
     constructor(public dialogRef: MatDialogRef<ImportDataComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -33,15 +34,24 @@ export class ImportDataComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.columns = this.data.columns.slice(0, 3);
+        this.columns = this.data.columns;
         this.datasourceUpdate = this.data.datasourceUpdate || null;
         this.rows = this.data.rows || [];
         this.datasourceInstanceKey = this.data.datasourceInstanceKey || null;
         this.reloadURL = this.data.reloadURL;
+        this.importType = !this.rows.length ? 1 : 3;
 
-        if (!this.rows.length) {
-            this.importType = 1;
+        if (!this.columns.length) {
+            this.import.headerRow = true;
         }
+
+        if (this.columns.length) {
+            this.import.columns = _.filter(this.columns, col => {
+                return col.type !== 'id';
+            });
+        }
+
+        console.log(this.columns);
     }
 
     public fileUpload(event) {
@@ -74,25 +84,32 @@ export class ImportDataComponent implements OnInit {
             this.datasourceUpdate.title = this.import.fileName;
         }
 
-        this.datasourceUpdate.fields = [
-            {title: 'ID', name: 'id', type: 'id'}
-        ];
+        if (!this.columns.length) {
+            this.datasourceUpdate.fields = [
+                {title: 'ID', name: 'id', type: 'id'}
+            ];
+        }
+
 
         if (this.import.headerRow) {
-            this.columns = [];
-            this.import.data[0].forEach((header: string, index: number) => {
-                this.columns.push({
-                    title: header,
-                    name: _.snakeCase(header),
-                    type: 'string'
+            if (!this.columns.length) {
+                this.columns = [];
+                this.import.data[0].forEach((header: string, index: number) => {
+                    this.columns.push({
+                        title: header,
+                        name: _.snakeCase(header),
+                        type: 'string'
+                    });
                 });
-            });
+
+                this.import.columns = this.columns;
+
+                this.columns.forEach(column => {
+                    this.datasourceUpdate.fields.push(column);
+                });
+            }
+
             this.import.data.shift();
-
-
-            this.columns.forEach(column => {
-                this.datasourceUpdate.fields.push(column);
-            });
         }
 
 
@@ -101,7 +118,7 @@ export class ImportDataComponent implements OnInit {
             return _.some(item);
         }).forEach(row => {
             const rowData = {};
-            this.columns.forEach((column: any, index: number) => {
+            this.import.columns.forEach((column: any, index: number) => {
                 rowData[column.name] = row[index];
             });
             csvData.push(rowData);
@@ -121,13 +138,14 @@ export class ImportDataComponent implements OnInit {
             } else {
                 await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
             }
-            window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
         } else if (this.importType === 2) {
-
-
-
+            this.datasourceUpdate.updates = csvData;
+            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
+        } else if (this.importType === 3) {
+            this.datasourceUpdate.adds = csvData;
+            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
         }
 
-        // this.dialogRef.close(this.import);
+        window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
     }
 }

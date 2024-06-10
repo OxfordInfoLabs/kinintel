@@ -22,12 +22,9 @@
             <mat-label>Dataset Columns</mat-label>
             <mat-chip-grid #chipGrid aria-label="Enter column name">
                 <mat-chip-row class="bg-white" *ngFor="let column of columns"
-                              (removed)="removeColumn(column)"
-                              [editable]="true"
-                              (edited)="editColumn(column, $event)"
-                              [aria-description]="'press enter to edit ' + column">
-                    {{column}}
-                    <button matChipRemove [attr.aria-label]="'remove ' + column">
+                              (removed)="removeColumn(column)">
+                    {{column.title}}
+                    <button matChipRemove [attr.aria-label]="'remove ' + column.title">
                         <mat-icon>cancel</mat-icon>
                     </button>
                 </mat-chip-row>
