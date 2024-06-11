@@ -5,6 +5,8 @@ namespace Kinintel\Services\Datasource;
 
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Testing\MockObject;
@@ -14,7 +16,10 @@ use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\InvalidParametersException;
 use Kinintel\Exception\MissingDatasourceUpdaterException;
 use Kinintel\Exception\UnsupportedDatasourceTransformationException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\DatasetInstance;
+use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
@@ -24,9 +29,14 @@ use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
+use Kinintel\Services\DataProcessor\DataProcessorService;
+use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Application\DataSearchItem;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
@@ -35,6 +45,7 @@ use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -74,7 +85,8 @@ class DatasourceServiceTest extends TestBase {
         $this->datasourceDAO = MockObjectProvider::instance()->getMockInstance(DatasourceDAO::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->valueFunctionEvaluator = MockObjectProvider::instance()->getMockInstance(ValueFunctionEvaluator::class);
-        $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService, $this->valueFunctionEvaluator);
+        $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService, $this->valueFunctionEvaluator,
+            \Kinikit\Core\DependencyInjection\Container::instance()->get(DataProcessorService::class));
 
     }
 
@@ -976,4 +988,55 @@ class DatasourceServiceTest extends TestBase {
 
     }
 
+
+    public function testAccountOwnedDatasourcesAreReturnedAsTreeCorrectly() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasourceService $datasourceService
+         */
+        $datasourceService = Container::instance()->get(DatasourceService::class);
+
+        $config = new SQLDatabaseDatasourceConfig("table", "test_custom", "", [new Field("value", null, null, Field::TYPE_STRING, true)]);
+        $accountDatasource = new DatasourceInstance("test-ds", "Test Datasource", "custom", $config, "sql");
+        $accountDatasource->setAccountId(1);
+        $accountDatasource->save();
+
+        $accountDSItem = new DataSearchItem("custom", "test-ds", "Test Datasource", "", "Sam Davis Design");
+
+        $tree = $datasourceService->getDatasetTreeForDatasourceKey("test-ds");
+        $this->assertEquals(new DatasetTree($accountDSItem), $tree);
+
+
+    }
+
+    public function testSnapshotsAreTraversedCorrectlyWithBuildingDatasetsIncludedInTree() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasourceService $datasourceService
+         */
+        $datasourceService = Container::instance()->get(DatasourceService::class);
+
+        $derivedDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Derived Dataset", "test"), 1);
+        $derivedDatasetInstance->save();
+        $derivedDatasetItem = new DataSearchItem("datasetinstance", $derivedDatasetInstance->getId(), "Derived Dataset", null, "Sam Davis Design");
+
+        $snapshot = new DataProcessorInstance("test-snap", "Test Snapshot", "tabulardatasetsnapshot", [], null, null, "DatasetInstance", $derivedDatasetInstance->getId());
+        $snapshot->setAccountId(1);
+        $snapshot->save();
+
+        $config = new SQLDatabaseDatasourceConfig("table", "test_snap_latest", "", [new Field("value", null, null, Field::TYPE_STRING, true)]);
+        $snapshotDatasource = new DatasourceInstance("test-snap_latest", "Latest Snapshot", "snapshot", $config, "sql");
+        $snapshotDatasource->setAccountId(1);
+        $snapshotDatasource->save();
+
+        $snapshotItem = new DataSearchItem("snapshot", "test-snap", "Test Snapshot", "", "Sam Davis Design");
+
+        $tree = $datasourceService->getDatasetTreeForDatasourceKey("test-snap_latest");
+        $this->assertEquals(new DatasetTree($snapshotItem, new DatasetTree($derivedDatasetItem)), $tree);
+
+    }
 }

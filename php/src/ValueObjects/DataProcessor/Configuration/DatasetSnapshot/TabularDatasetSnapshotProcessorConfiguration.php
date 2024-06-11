@@ -3,6 +3,8 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorActions;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 /**
@@ -13,6 +15,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
  */
 class TabularDatasetSnapshotProcessorConfiguration {
 
+    use DataProcessorActions;
 
     /**
      * Parameter Values for the data set instance if required
@@ -175,4 +178,15 @@ class TabularDatasetSnapshotProcessorConfiguration {
     }
 
 
+    public function getProcessorActions($dataProcessorInstanceKey) {
+       $actions = [];
+       if ($this->createLatest){
+           $actions[] = new DataProcessorAction("Latest", $dataProcessorInstanceKey."_latest");
+       }
+       if ($this->createHistory){
+           $actions[] = new DataProcessorAction("Historical Entries", $dataProcessorInstanceKey);
+       }
+
+       return $actions;
+    }
 }

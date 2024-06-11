@@ -110,7 +110,7 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
      * @param string $type
      */
     public function __construct($key, $title, $type, $config = [], $trigger = self::TRIGGER_ADHOC, $scheduledTask = null, $relatedObjectType = null, $relatedObjectKey = null,
-                                $projectKey = null, $accountId = null) {
+                                $projectKey = null, $accountId = null, $accountSummary = null) {
         parent::__construct($key, $title);
 
         $this->type = $type;
@@ -121,6 +121,7 @@ class DataProcessorInstance extends DataProcessorInstanceSummary {
         $this->scheduledTask = $scheduledTask;
         $this->relatedObjectType = $relatedObjectType;
         $this->relatedObjectKey = $relatedObjectKey;
+        $this->accountSummary = $accountSummary;
     }
 
 

@@ -243,7 +243,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
-
         $query = $this->buildQuery($parameterValues);
 
         /**
@@ -522,7 +521,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var $transformation SQLDatabaseTransformation
          */
         foreach ($this->transformations as $transformation) {
-
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
@@ -598,6 +596,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         } catch (\Exception $e) {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
+
 
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);

@@ -1,10 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
-import {DatasetService} from '../../services/dataset.service';
-import {DatasourceService} from '../../services/datasource.service';
 import * as lodash from 'lodash';
-import {DataProcessorService} from '../../services/data-processor.service';
+import {DataSearchService} from '../../services/data-search.service';
+import {KinintelModuleConfig} from '../../ng-kinintel.module';
+
 const _ = lodash.default;
 
 @Component({
@@ -15,176 +15,74 @@ const _ = lodash.default;
 export class DataPickerComponent implements OnInit {
 
     @Input() admin: boolean;
+    @Input() typeMapping: any;
 
     @Output() selected = new EventEmitter();
 
     public Object = Object;
+    public _ = _;
     public searchText = new BehaviorSubject('');
-    public tableData: any = {
-        datasources: {
-            data: [],
-            limit: 5,
-            offset: 0,
-            page: 1,
-            endOfResults: false,
-            shared: false,
-            reload: new Subject(),
-            title: 'My Data',
-            type: 'datasource'
-        },
-        datasets: {
-            data: [],
-            limit: 5,
-            offset: 0,
-            page: 1,
-            endOfResults: false,
-            shared: false,
-            reload: new Subject(),
-            title: 'Stored Queries',
-            type: 'dataset'
-        }
-    };
+    public data: any = [];
+    public page = 1;
+    public limit = 100;
+    public offset = 0;
+    public endOfResults = false;
+    public reload = new Subject();
+    public types: any = [];
+    public selectedType = new BehaviorSubject(null);
 
-    constructor(private datasetService: DatasetService,
-                private datasourceService: DatasourceService,
-                private dataProcessorService: DataProcessorService) {
+
+    constructor(private dataSearchService: DataSearchService,
+                private config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {
-        if (!this.admin) {
-            this.tableData.shared = {
-                data: [],
-                limit: 5,
-                offset: 0,
-                page: 1,
-                endOfResults: false,
-                shared: false,
-                reload: new Subject(),
-                title: 'Data Feeds',
-                type: 'dataset'
-            };
-        }
+        this.typeMapping = this.config.dataSearchTypeMapping ? _.orderBy(this.config.dataSearchTypeMapping, 'order') : null;
 
-        this.tableData.snapshots = {
-            data: [],
-            limit: 5,
-            offset: 0,
-            page: 1,
-            endOfResults: false,
-            shared: false,
-            reload: new Subject(),
-            title: 'Snapshots',
-            type: 'snapshot'
-        };
-
-        merge(this.searchText, this.tableData.datasets.reload)
+        merge(this.searchText, this.reload, this.selectedType)
             .pipe(
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getDatasets(false, this.tableData.datasets.limit, this.tableData.datasets.offset)
+                    this.getDatasets()
                 )
-            ).subscribe((datasets: any) => {
-            this.tableData.datasets.endOfResults = datasets.length < this.tableData.datasets.limit;
-            this.tableData.datasets.data = datasets;
+            ).subscribe(async (datasets: any) => {
+            this.types = await this.dataSearchService.getMatchingDataItemTypesForSearchTerm(this.searchText.getValue() || '');
+            this.endOfResults = datasets.length < this.limit;
+            this.data = datasets;
         });
-
-        merge(this.searchText, this.tableData.snapshots.reload)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getSnapshots(this.tableData.snapshots.limit, this.tableData.snapshots.offset)
-                )
-            ).subscribe((snapshots: any) => {
-            this.tableData.snapshots.endOfResults = snapshots.length < this.tableData.snapshots.limit;
-            this.tableData.snapshots.data = snapshots;
-        });
-
-        merge(this.searchText, this.tableData.datasources.reload)
-            .pipe(
-                debounceTime(300),
-                distinctUntilChanged(),
-                switchMap(() =>
-                    this.getDatasources(this.tableData.datasources.limit, this.tableData.datasources.offset)
-                )
-            ).subscribe((datasources: any) => {
-            this.tableData.datasources.endOfResults = datasources.length < this.tableData.datasources.limit;
-            this.tableData.datasources.data = datasources;
-        });
-
-        if (!this.admin) {
-            merge(this.searchText, this.tableData.shared.reload)
-                .pipe(
-                    debounceTime(300),
-                    distinctUntilChanged(),
-                    switchMap(() =>
-                        this.getDatasets(true, this.tableData.shared.limit, this.tableData.shared.offset)
-                    )
-                ).subscribe((shared: any) => {
-                this.tableData.shared.endOfResults = shared.length < this.tableData.shared.limit;
-                this.tableData.shared.data = shared;
-            });
-        }
     }
 
-    public select(item, type) {
-        this.selected.next({item, type});
+    public select(action) {
+        this.selected.next(action);
     }
 
-    public increaseOffset(dataItem) {
-        dataItem.page = dataItem.page + 1;
-        dataItem.offset = (dataItem.limit * dataItem.page) - dataItem.limit;
-        dataItem.reload.next(Date.now());
+    public increaseOffset() {
+        this.page = this.page + 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
     }
 
-    public decreaseOffset(dataItem) {
-        dataItem.page = dataItem.page <= 1 ? 1 : dataItem.page - 1;
-        dataItem.offset = (dataItem.limit * dataItem.page) - dataItem.limit;
-        dataItem.reload.next(Date.now());
+    public decreaseOffset() {
+        this.page = this.page <= 1 ? 1 : this.page - 1;
+        this.offset = (this.limit * this.page) - this.limit;
+        this.reload.next(Date.now());
     }
 
-    public pageSizeChange(value, dataItem) {
-        dataItem.page = 1;
-        dataItem.offset = 0;
-        dataItem.limit = value;
-        dataItem.reload.next(Date.now());
+    public pageSizeChange(value) {
+        this.page = 1;
+        this.offset = 0;
+        this.limit = value;
+        this.reload.next(Date.now());
     }
 
-    private getDatasets(shared, limit, offset) {
-        return this.datasetService.getDatasets(
-            this.searchText.getValue() || '',
-            limit.toString(),
-            offset.toString(),
-            shared ? null : ''
+    private getDatasets() {
+        return this.dataSearchService.searchForDataItems(
+            {search: this.searchText.getValue() || '', type: this.selectedType.getValue() || null},
+            this.limit,
+            this.offset
         ).pipe(map((datasets: any) => {
                 return datasets;
-            })
-        );
-    }
-
-    private getDatasources(limit, offset) {
-        return this.datasourceService.getDatasources(
-            this.searchText.getValue() || '',
-            limit.toString(),
-            offset.toString(),
-            !!this.admin
-        ).pipe(map((sources: any) => {
-                return sources;
-            })
-        );
-    }
-
-    private getSnapshots(limit, offset) {
-        return this.dataProcessorService.filterProcessorsByType(
-            'snapshot',
-            this.searchText.getValue() || '',
-            limit.toString(),
-            offset.toString()
-        ).pipe(map((snapshots: any) => {
-                return _.filter(snapshots, snapshot => {
-                    return snapshot.taskStatus !== 'PENDING';
-                });
             })
         );
     }
