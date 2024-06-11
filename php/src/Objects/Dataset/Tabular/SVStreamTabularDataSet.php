@@ -167,7 +167,7 @@ class SVStreamTabularDataSet extends TabularDataset {
             $this->readItems++;
 
             // Only continue if we have some content
-            if (is_array($csvLine) && trim($csvLine[0])) {
+            if (is_array($csvLine) && trim($csvLine[0] ?? "")) {
 
                 if ($this->skipRegex) {
                     preg_match($this->skipRegex, $csvLine[0], $matches);
@@ -178,14 +178,14 @@ class SVStreamTabularDataSet extends TabularDataset {
                 $dataItem = [];
                 $columnIndex = 0;
                 foreach ($csvLine as $index => $value) {
-                    if (!in_array($index, $this->ignoreColumnIndexes) && (!$this->skipBlankColumnValues || trim($value))) {
+                    if (!in_array($index, $this->ignoreColumnIndexes) && (!$this->skipBlankColumnValues || trim($value ?? ""))) {
 
                         // Ensure we have enough columns
                         if (!isset($this->csvColumns[$columnIndex]))
                             $this->csvColumns[] = new Field("column" . (sizeof($this->csvColumns) + 1));
 
                         if (isset($this->csvColumns[$columnIndex]))
-                            $dataItem[$this->csvColumns[$columnIndex]->getName()] = trim($value);
+                            $dataItem[$this->csvColumns[$columnIndex]->getName()] = trim($value ?? "");
                         $columnIndex++;
                     }
                 }
@@ -222,7 +222,8 @@ class SVStreamTabularDataSet extends TabularDataset {
         $columns = [];
         foreach ($csvLine as $column) {
             // Expand out the title and the name
-            $name = StringUtils::convertToCamelCase(trim($column));
+            //TODO catch null case here
+            $name = StringUtils::convertToCamelCase(trim($column ?? ""));
             $columns[] = new Field($name);
         }
 
