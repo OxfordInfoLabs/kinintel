@@ -249,7 +249,7 @@ export class NgKinintelModule {
 
 export class KinintelModuleConfig {
     backendURL: string;
-    guestURL: string;
+    guestURL?: string;
     externalURL?: string;
     tagLabel?: string;
     tagMenuLabel?: string;
