@@ -40,7 +40,7 @@
             File header row required as no columns have been defined.
         </div>
 
-        <mat-checkbox class="mb-4" *ngIf="import.headerRow && columns.length" [(ngModel)]="import.replaceColumns">
+        <mat-checkbox class="block mb-4" *ngIf="import.headerRow && columns.length" [(ngModel)]="import.replaceColumns">
             Replace Columns with Header Row
         </mat-checkbox>
 
@@ -52,7 +52,7 @@
             </div>
 
             <table class="preview-table w-full">
-                <ng-template [ngIf]="import.headerRow">
+                <ng-template [ngIf]="import.headerRow && import.replaceColumns">
                     <thead>
                     <tr>
                         <th *ngFor="let header of import.preview[0]">{{header}}</th>
@@ -67,14 +67,14 @@
                     </tr>
                     </tbody>
                 </ng-template>
-                <ng-template [ngIf]="!import.headerRow">
+                <ng-template [ngIf]="!import.headerRow || !import.replaceColumns">
                     <thead>
                     <tr>
                         <th *ngFor="let col of import.columns">{{col.title}}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let row of import.preview">
+                    <tr *ngFor="let row of (!import.headerRow ? import.preview : import.preview.slice(1, 3))">
                         <td *ngFor="let col of import.columns; let i = index">{{row[i]}}</td>
                     </tr>
                     </tbody>

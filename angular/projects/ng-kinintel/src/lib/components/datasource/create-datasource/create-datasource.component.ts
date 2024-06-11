@@ -161,6 +161,22 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         this.loadDatasource([{type: 'filter', config: this.filterJunction}]);
     }
 
+    public sortColumn(column: any, direction: string) {
+        const transformations = [];
+        if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
+            transformations.push({type: 'filter', config: this.filterJunction});
+        }
+
+        transformations.push({
+            type: 'multisort',
+            config: {
+                sorts: [{fieldName: column.name, direction}]
+            }
+        });
+
+        this.loadDatasource(transformations);
+    }
+
     public updateSelectAll() {
         this.rows.map(row => {
             row._selected = this.selectAll;

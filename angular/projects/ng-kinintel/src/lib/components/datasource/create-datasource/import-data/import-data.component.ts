@@ -84,7 +84,7 @@ export class ImportDataComponent implements OnInit {
             this.datasourceUpdate.title = this.import.fileName;
         }
 
-        if (!this.columns.length) {
+        if (!this.columns.length || this.import.replaceColumns) {
             this.datasourceUpdate.fields = [
                 {title: 'ID', name: 'id', type: 'id'}
             ];

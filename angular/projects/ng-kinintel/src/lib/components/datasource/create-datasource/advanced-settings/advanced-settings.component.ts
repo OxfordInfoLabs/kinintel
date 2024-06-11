@@ -29,7 +29,9 @@ export class AdvancedSettingsComponent implements OnInit {
     ngOnInit() {
         this.advancedSettings.showAutoIncrement = this.data.showAutoIncrement || false;
         this.advancedSettings.primaryKeys = _.clone(_.filter(this.data.columns, {keyField: true}));
-        this.columns = _.clone(this.data.columns);
+        this.columns = _.clone(_.filter(this.data.columns, col => {
+            return !col.keyField;
+        }));
     }
 
     public drop(event: CdkDragDrop<string[]>) {

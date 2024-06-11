@@ -10,7 +10,8 @@
 
     <div class="dialog-content">
 
-        <mat-checkbox class="mb-4" [(ngModel)]="advancedSettings.showAutoIncrement">
+        <mat-checkbox class="mb-4" [(ngModel)]="advancedSettings.showAutoIncrement"
+                      [disabled]="advancedSettings.primaryKeys.length">
             Show Auto Increment Column
         </mat-checkbox>
 
@@ -45,7 +46,9 @@
                     [cdkDropListConnectedTo]="[columnList]"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of advancedSettings.primaryKeys" cdkDrag>{{item.title}}</div>
+                    <div class="example-box" *ngFor="let item of advancedSettings.primaryKeys" cdkDrag>
+                        {{item.title}}
+                    </div>
                 </div>
             </div>
         </div>

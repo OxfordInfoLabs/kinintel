@@ -94,6 +94,24 @@
                                     <mat-icon>more_vert</mat-icon>
                                 </button>
                                 <mat-menu #header="matMenu">
+                                    <button mat-menu-item (click)="sortColumn(column, 'asc')">
+                                        <div class="flex items-center justify-between w-full">
+                                            Sort Ascending
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                 class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                    <button mat-menu-item (click)="sortColumn(column, 'desc')">
+                                        <div class="flex items-center justify-between w-full">
+                                            Sort Descending
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                 class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25" />
+                                            </svg>
+                                        </div>
+                                    </button>
                                     <ng-template [ngIf]="column.type !== 'id'">
                                         <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
                                             Insert column before
