@@ -54,6 +54,8 @@ SELECT ds.account_id,
        null            owning_account_logo,
        null         configuration
 FROM ki_datasource_instance ds
+WHERE account_id IS NOT NULL
+AND ds.type IN ('custom', 'document', 'sqldatabase')
 UNION
 SELECT dp.account_id,
        dp.project_key,
@@ -65,4 +67,5 @@ SELECT dp.account_id,
        null            owning_account_name,
        null            owning_account_logo,
        dp.config
-FROM ki_dataprocessor_instance dp;
+FROM ki_dataprocessor_instance dp
+WHERE account_id IS NOT NULL;

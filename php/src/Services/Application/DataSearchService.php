@@ -124,6 +124,10 @@ class DataSearchService {
         if (isset($filters["search"])) {
             $filters["search"] = new LikeFilter(["title", "description"], "%" . $filters["search"] . "%");
         }
+        if (isset($filters["type"])) {
+            $filters["type"] = new LikeFilter(["type"], "%" . $filters["type"] . "%");
+        }
+
         return $filters;
     }
 
