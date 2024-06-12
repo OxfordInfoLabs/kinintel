@@ -143,7 +143,7 @@ class Snapshot {
             if ($snapshotDescriptor->isRunNow())
                 $this->triggerSnapshot($managementKey, $newKey);
 
-            return $newKey;
+            return ["snapshotKey" => $newKey];
 
         } catch (ObjectNotFoundException $e) {
             throw new ItemNotFoundException("No dataset exists with management key '$managementKey'");
@@ -193,11 +193,12 @@ class Snapshot {
             if ($snapshotDescriptor->isRunNow())
                 $this->triggerSnapshot($managementKey, $key);
 
-            return $key;
+            return ["snapshotKey" => $key];
 
         } catch (AccessDeniedException $e) {
             throw new AccessDeniedException("The API key used does not have sufficient permissions to manage snapshots.");
         }
+
 
     }
 
@@ -224,6 +225,8 @@ class Snapshot {
         } catch (AccessDeniedException $e) {
             throw new AccessDeniedException("The API key used does not have sufficient permissions to manage snapshots.");
         }
+
+        return ["status" => "success"];
     }
 
 
@@ -246,6 +249,8 @@ class Snapshot {
         } catch (AccessDeniedException $e) {
             throw new AccessDeniedException("The API key used does not have sufficient permissions to manage snapshots.");
         }
+
+        return ["status" => "success"];
     }
 
 

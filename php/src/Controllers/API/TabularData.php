@@ -115,23 +115,26 @@ class TabularData {
          * Loop through supplied filters and map to full filter array
          */
         $mappedFilters = [];
-        foreach ($filters as $columnName => $value) {
+        foreach ($filters as $filter) {
+
+            $columnName = $filter["column"] ?? null;
 
             if (!in_array($columnName, $columnNames)) {
                 throw new DatasourceUpdateException("Column '$columnName' does not exist on the datasource with key '$importKey' being updated");
             }
 
-            if (is_array($value) && isset($value["value"])) {
-                $matchType = $value["matchType"] ?? Filter::FILTER_TYPE_EQUALS;
-                $value = $value["value"];
-            } else {
-                $matchType = is_array($value) ? Filter::FILTER_TYPE_IN : Filter::FILTER_TYPE_EQUALS;
-            }
+            $value = $filter["value"] ?? null;
+
+            $matchType = $filter["matchType"] ?? (is_array($value) ? Filter::FILTER_TYPE_IN : Filter::FILTER_TYPE_EQUALS);
+
+
             $mappedFilters[] = new Filter("[[" . $columnName . "]]", $value, $matchType);
         }
 
 
         $this->datasourceService->filteredDeleteFromDatasourceInstanceByImportKey($importKey, new FilterJunction($mappedFilters));
+
+        return ["status" => "success"];
     }
 
 
