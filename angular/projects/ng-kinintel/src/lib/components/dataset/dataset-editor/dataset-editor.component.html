@@ -47,49 +47,60 @@
         Operations
     </div>
     <div class="dataset-data-actions">
+        <button (click)="addParameter()"
+                title="Add a parameter to use in filters, expressions etc."
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">text_fields</mat-icon>
+            parameters
+        </button>
+        <div class="divider"></div>
         <button (click)="editColumnSettings()"
+                title="Switch on and off columns for display"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">table_chart</mat-icon>
             columns
         </button>
         <button (click)="createFormula()"
+                title="Create a formula column using an expression based on other columns"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">functions</mat-icon>
             formula
         </button>
         <div class="divider"></div>
+        <button (click)="addFilter()"
+                title="Filter the set using column based restrictions"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">filter_alt</mat-icon>
+            filter
+        </button>
         <button (click)="joinData()"
+                title="Join another data set to the current dataset"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">merge_type</mat-icon>
             join
         </button>
-        <button (click)="addParameter()"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">text_fields</mat-icon>
-            parameters
-        </button>
         <button (click)="summariseData()"
+                title="Summarise this data to produce aggregated totals, sums and other derivations"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">pivot_table_chart</mat-icon>
             summarise
         </button>
-        <button (click)="addFilter()"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">filter_alt</mat-icon>
-            filter
-        </button>
+
         <div class="divider"></div>
         <button (click)="evaluateDataset()"
+                title="Reload this query based upon changes you may have made"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">sync</mat-icon>
             reload
         </button>
-        <button (click)="shareQuery()"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
+                title="Share this query with other account holders"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">share</mat-icon>
             share
         </button>
         <button (click)="saveAsQuery()"
+                title="Make a copy of this query"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">file_copy</mat-icon>
             copy query
