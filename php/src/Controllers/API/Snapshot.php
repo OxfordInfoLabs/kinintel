@@ -16,6 +16,7 @@ use Kinintel\ValueObjects\DataProcessor\DataProcessorItem;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotDescriptor;
 use Kinintel\ValueObjects\DataProcessor\Snapshot\SnapshotItem;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+use League\Uri\Exception;
 
 class Snapshot {
 
@@ -44,6 +45,13 @@ class Snapshot {
         $this->datasetService = $datasetService;
         $this->dataProcessorService = $dataProcessorService;
         $this->datasourceService = $datasourceService;
+    }
+
+    /**
+     * @return void
+     */
+    public function handleRequest(){
+        throw new Exception("Invalid endpoint called");
     }
 
 

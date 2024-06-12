@@ -9,6 +9,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use League\Uri\Exception;
 
 class TabularData {
 
@@ -25,6 +26,13 @@ class TabularData {
      */
     public function __construct($datasourceService) {
         $this->datasourceService = $datasourceService;
+    }
+
+    /**
+     * @return void
+     */
+    public function handleRequest(){
+        throw new Exception("Invalid endpoint called");
     }
 
 
