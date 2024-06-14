@@ -96,10 +96,10 @@
                 <div class="text-sm mb-2">
                     Run a snapshot immediately - the results can be checked by calling the methods above.
                 </div>
-                <div #removeSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                <div #runSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
                     <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-secondary">"{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}/SNAPSHOT_KEY"</span></pre>
                 </div>
-                <button mat-icon-button [cdkCopyToClipboard]="removeSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
+                <button mat-icon-button [cdkCopyToClipboard]="runSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
                         class="text-white absolute bottom-0 right-0">
                     <mat-icon>content_copy</mat-icon>
                 </button>
@@ -129,7 +129,7 @@
             <div class="font-semibold text-sm my-1">Example Response</div>
             <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
                 <pre class="whitespace-normal">
-                    NEW_SNAPSHOT_KEY
+                    {{'{"snapshotKey": "NEW_SNAPSHOT_KEY"}'}}
                 </pre>
             </div>
 
@@ -156,7 +156,7 @@
             <div class="font-semibold text-sm my-1">Example Response</div>
             <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
                 <pre class="whitespace-normal">
-                    EXISTING_SNAPSHOT_KEY
+                    {{'{"snapshotKey": "NEW_SNAPSHOT_KEY"}'}}
                 </pre>
             </div>
 
@@ -173,6 +173,7 @@
                     <mat-icon>content_copy</mat-icon>
                 </button>
             </div>
+
 
 
 
