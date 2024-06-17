@@ -19,6 +19,7 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
 use Kinintel\ValueObjects\Dataset\Field;
+use function Aws\filter;
 
 include_once "autoloader.php";
 
@@ -220,6 +221,9 @@ class DataSearchServiceTest extends TestBase {
             [new DataProcessorAction("Select", "snapshot-search-3")]), $account1Records[1]);
 
 
+        $datasetsInAcc1 = $this->service->searchForAccountDataItems(["search" => "", "type" => "dataset"], 100, 0, "testProj", 6);
+        $snapshotsReturned = array_filter($datasetsInAcc1, fn($row) => $row->getType() == "snapshot");
+        $this->assertEquals(0, sizeof($snapshotsReturned));
     }
 
 

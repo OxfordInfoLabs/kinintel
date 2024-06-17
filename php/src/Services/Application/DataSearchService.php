@@ -4,6 +4,7 @@ namespace Kinintel\Services\Application;
 
 use Kiniauth\Objects\Account\Account;
 use Kinikit\Core\Util\ArrayUtils;
+use Kinikit\Persistence\ORM\Query\Filter\EqualsFilter;
 use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
 use Kinikit\Persistence\ORM\Query\Query;
 use Kinikit\Persistence\ORM\Query\SummarisedValue;
@@ -46,9 +47,7 @@ class DataSearchService {
         $results = $query->query($filters, "title", $limit, $offset);
 
         // Map items to value objects
-        return array_map(function ($result) {
-
-
+        $convertToDataSearchItem = function ($result) {
             switch ($result->getTypeClass()) {
                 case "DataProcessor":
                     $dataProcessorInstance = new DataProcessorInstance($result->getIdentifier(), "", $result->getType(), $result->getConfiguration());
@@ -65,6 +64,8 @@ class DataSearchService {
                 case "Datasource":
                     $actionItems = [new DataProcessorAction("Select", $result->getIdentifier())];
                     break;
+                default:
+                    throw new \Exception("Search result returned {$result->getTypeClass()} as type class.");
             }
 
             return new DataSearchItem($result->getType(), $result->getIdentifier(), $result->getTitle(),
@@ -72,8 +73,9 @@ class DataSearchService {
                 $result->getOwningAccountName(),
                 $result->getOwningAccountLogo(),
                 $actionItems);
+        };
 
-        }, $results);
+        return array_map($convertToDataSearchItem, $results);
 
     }
 
@@ -125,7 +127,8 @@ class DataSearchService {
             $filters["search"] = new LikeFilter(["title", "description"], "%" . $filters["search"] . "%");
         }
         if (isset($filters["type"])) {
-            $filters["type"] = new LikeFilter(["type"], "%" . $filters["type"] . "%");
+            $filterValue = $filters["type"] == "snapshot" ? "%" . $filters["type"] . "%" : $filters["type"];
+            $filters["type"] = new LikeFilter(["type"], $filterValue);
         }
 
         return $filters;
