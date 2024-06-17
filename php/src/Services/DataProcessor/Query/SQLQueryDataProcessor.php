@@ -74,6 +74,8 @@ class SQLQueryDataProcessor extends BaseDataProcessor {
 
     public static function scriptToStatements(string $script) {
         // Delete comments
+        // NOTE: We are allowed to have "#" or " -- hello" in strings!
+        //       This means we need to work out when something is in a quote or comment.
         $inSingleLineComment = false;
         $inMultilineComment = false;
         $inSingleQuotes = false;
@@ -111,7 +113,7 @@ class SQLQueryDataProcessor extends BaseDataProcessor {
                     throw new \AssertionError("Can't be in quotes in a multi-line comment");
                 }
                 $inMultilineComment = false;
-                $i += 2;
+                $i += 2; // Skip the end of the multiline comment.
                 continue;
             }
 
