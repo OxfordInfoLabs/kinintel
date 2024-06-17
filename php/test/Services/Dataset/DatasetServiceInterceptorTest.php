@@ -14,6 +14,9 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Dataset\DatasetServiceInterceptor;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
 
@@ -71,6 +74,7 @@ class DatasetServiceInterceptorTest extends TestBase {
         };
 
         $datasetInstance = new DatasetInstance(null, 25);
+        $datasetInstance->setId(55);
 
         $result = $this->interceptor->methodCallable($callable, $this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
@@ -93,6 +97,7 @@ class DatasetServiceInterceptorTest extends TestBase {
         };
 
         $datasetInstance = new DatasetInstance(null, 25);
+        $datasetInstance->setId(55);
 
         $result = $this->interceptor->methodCallable($callable, $this->datasetService, "getTransformedDatasourceForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
@@ -116,6 +121,7 @@ class DatasetServiceInterceptorTest extends TestBase {
         };
 
         $datasetInstance = new DatasetInstance(null, 25);
+        $datasetInstance->setId(55);
 
         $result = $this->interceptor->methodCallable($callable, $this->datasetService, "getEvaluatedParameters", [
             "dataSetInstance" => $datasetInstance
@@ -139,12 +145,13 @@ class DatasetServiceInterceptorTest extends TestBase {
         };
 
         // Programme return values
-        $datasetInstanceSummary = new DatasetInstanceSummary("test", null, null, null, null, null, null, null, null, 45);
+        $datasetInstanceSummary = new DatasetInstanceSummary("test", null, null, [new TransformationInstance("filter", new FilterTransformation())], [new Parameter("test", "Test")], ["test" => "hello"], null, null, null, 45);
+
         $datasetInstance = new DatasetInstance(null, 25);
         $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [45]);
 
         $result = $this->interceptor->methodCallable($callable, $this->datasetService, "getTransformedDatasourceForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance
+            "dataSetInstance" => $datasetInstanceSummary
         ], null);
 
 
@@ -165,9 +172,9 @@ class DatasetServiceInterceptorTest extends TestBase {
         $datasetInstance->setId(33);
 
         // Call before method to generate transaction id
-        $this->interceptor->beforeMethod($this->datasetService,"getEvaluatedDataSetForDataSetInstance",[
+        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
-        ],null);
+        ], null);
 
         $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
@@ -190,9 +197,9 @@ class DatasetServiceInterceptorTest extends TestBase {
         $datasetInstance->setId(33);
 
         // Call before method to generate transaction id
-        $this->interceptor->beforeMethod($this->datasetService,"getEvaluatedDataSetForDataSetInstance",[
+        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance
-        ],null);
+        ], null);
 
 
         $this->interceptor->onException($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
@@ -232,12 +239,12 @@ class DatasetServiceInterceptorTest extends TestBase {
 
         $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance1
-        ], null,null);
+        ], null, null);
 
 
         $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
             "dataSetInstance" => $datasetInstance2
-        ], null,null);
+        ], null, null);
 
 
         // Check log created for derived query
@@ -256,8 +263,6 @@ class DatasetServiceInterceptorTest extends TestBase {
             date("U")
         ]));
     }
-
-
 
 
 }

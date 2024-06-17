@@ -47,19 +47,19 @@ class TabularDataTest extends TestBase {
     public function testFilteredDeleteConvertsSimplifiedFilterSyntaxIntoFilterJunction() {
 
         // Simple equals filters
-        $this->tabularData->filteredDelete("bingo", ["test" => 3, "test2" => "Mark"]);
+        $this->tabularData->filteredDelete("bingo", [["column" => "test", "value" => 3], ["column" => "test2", "value" => "Mark"]]);
         $this->assertTrue($this->datasourceService->methodWasCalled("filteredDeleteFromDatasourceInstanceByImportKey", ["bingo",
             new FilterJunction([new Filter("[[test]]", 3), new Filter("[[test2]]", "Mark")])]));
 
 
         // In filters for arrays
-        $this->tabularData->filteredDelete("bingo", ["test" => [3, 5, 7], "test2" => ["Mark", "Bob"]]);
+        $this->tabularData->filteredDelete("bingo", [["column" => "test", "value" => [3, 5, 7]], ["column" => "test2", "value" => ["Mark", "Bob"]]]);
         $this->assertTrue($this->datasourceService->methodWasCalled("filteredDeleteFromDatasourceInstanceByImportKey", ["bingo",
             new FilterJunction([new Filter("[[test]]", [3, 5, 7], Filter::FILTER_TYPE_IN), new Filter("[[test2]]", ["Mark", "Bob"], Filter::FILTER_TYPE_IN)])]));
 
 
         // Advanced filtering
-        $this->tabularData->filteredDelete("bingo", ["test" => ["value" => "55", "matchType" => Filter::FILTER_TYPE_GREATER_THAN], "test2" => ["value" => "Mark", "matchType" => Filter::FILTER_TYPE_LIKE]]);
+        $this->tabularData->filteredDelete("bingo", [["column"=> "test", "value" => "55", "matchType" => Filter::FILTER_TYPE_GREATER_THAN], ["column" => "test2", "value" => "Mark", "matchType" => Filter::FILTER_TYPE_LIKE]]);
         $this->assertTrue($this->datasourceService->methodWasCalled("filteredDeleteFromDatasourceInstanceByImportKey", ["bingo",
             new FilterJunction([new Filter("[[test]]", 55, Filter::FILTER_TYPE_GREATER_THAN), new Filter("[[test2]]", "Mark", Filter::FILTER_TYPE_LIKE)])]));
 

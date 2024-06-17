@@ -323,12 +323,14 @@
     </button>
     <div class="align-center">
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="datasetInstanceSummary && datasetInstanceSummary.id && canHaveSnapshots"
+                *ngIf="canHaveSnapshots"
+                [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id"
                 (click)="viewQueryCaching()">
             Query Caching
         </button>
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="datasetInstanceSummary && datasetInstanceSummary.id && canHaveSnapshots"
+                *ngIf="canHaveSnapshots"
+                [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id"
                 (click)="viewSnapshots()">
             Manage Snapshots
         </button>

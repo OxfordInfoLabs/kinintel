@@ -12,6 +12,7 @@ use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kiniauth\ValueObjects\Security\ScopeAccessGroup;
 use Kiniauth\ValueObjects\Security\ScopeAccessItem;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
@@ -330,6 +331,8 @@ trait Dataset {
      * @return \Kinintel\Objects\Dataset\Dataset
      */
     public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25, $trackingKey = null, $projectKey = null) {
+
+
 
         if (!$trackingKey) {
             $trackingKey = date("U") . StringUtils::generateRandomString(5);

@@ -29,10 +29,10 @@
             <div class="relative w-full">
                 <div class="text-base font-semibold">Create</div>
                 <div class="text-sm mb-2">
-                    Insert a set of rows to the data source identified by the passed import key
+                    Insert a set of new rows to the data source identified by the passed import key
                 </div>
                 <div #create class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
                         class="text-white absolute bottom-0 right-0">
@@ -48,7 +48,8 @@
             <div class="relative w-full">
                 <div class="text-base font-semibold">Replace</div>
                 <div class="text-sm mb-2">
-                    Replace a set of rows to the data source identified by the passed import key
+                    Replace a set of rows to the data source identified by the passed import key.  This will perform
+                    an insert or update depending on whether the row already exists according to the unique key.
                 </div>
                 <div #replace class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
             <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
@@ -66,7 +67,8 @@
             <div class="relative w-full">
                 <div class="text-base font-semibold">Update</div>
                 <div class="text-sm mb-2">
-                    Update a set of rows to the data source identified by the passed import key
+                    Update a set of rows to the data source identified by the passed import key.  This will perform
+                    an update based upon the unique key and will not add any new rows if they don't already exist.
                 </div>
                 <div #update class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
             <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PUT</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
@@ -84,7 +86,7 @@
             <div class="relative w-full">
                 <div class="text-base font-semibold">Delete</div>
                 <div class="text-sm mb-2">
-                    Delete a set of rows to the data source identified by the passed import key
+                    Delete a set of rows explicitly by unique key for the data source identified by the passed import key.
                 </div>
                 <div #delete class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
             <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
@@ -100,6 +102,78 @@
 {{'["primary_key_1", "primary_key_2", "primary_key_3"]'}}
             </pre>
             </div>
+
+            <div class="relative w-full">
+                <div class="text-base font-semibold">Filtered Delete</div>
+                <div class="text-sm mb-2">
+                    Delete a set of rows using one or more filter expressions additively to identify the rows for deletion for the data source identified by the passed import key.
+                    <br><br>
+                    Filters are supplied as objects containing a column name supplied as the <b>column</b> property, a match value supplied as the <b>value</b> property and a match type supplied as
+                    the <b>matchType</b> property.
+                    <br><br>
+                    Possible values for the <b>matchType</b> are:<br><br>
+                    <table>
+                        <tr>
+                            <td>eq</td>
+                            <td>for an equals match</td>
+                        </tr>
+                        <tr>
+                            <td>neq</td>
+                            <td>for a not equals match</td>
+                        </tr>
+                        <tr>
+                            <td>null</td>
+                            <td>for a null match</td>
+                        </tr>
+                        <tr>
+                            <td>notnull</td>
+                            <td>for a not null match</td>
+                        </tr>
+                        <tr>
+                            <td>gt</td>
+                            <td>for a greater than match</td>
+                        </tr>
+                        <tr>
+                            <td>lt</td>
+                            <td>for a less than match</td>
+                        </tr>
+                        <tr>
+                            <td>gte</td>
+                            <td>for a greater than or equals match</td>
+                        </tr>
+                        <tr>
+                            <td>lte</td>
+                            <td>for a less than or equals match</td>
+                        </tr>
+                        <tr>
+                            <td>startswith</td>
+                            <td>for a string starts with match</td>
+                        </tr>
+                        <tr>
+                            <td>endswith</td>
+                            <td>for a string ends with match</td>
+                        </tr>
+                        <tr>
+                            <td>contains</td>
+                            <td>or a string contains match</td>
+                        </tr>
+                    </table>
+
+
+                </div>
+                <div #deleteFiltered class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-secondary">{{backendURL}}/api/tabularData/filtered/{{datasourceUpdate.instanceImportKey}}</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="deleteFiltered.textContent"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+            <div class="font-semibold text-sm my-1">Example Payload</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+                <pre class="whitespace-normal" [innerHTML]="deleteFilteredExample"></pre>
+            </div>
+
 
         </ng-template>
     </div>

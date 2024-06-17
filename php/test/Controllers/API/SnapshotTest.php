@@ -140,7 +140,7 @@ class SnapshotTest extends TestBase {
 
         $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], [], false));
 
-        $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
+        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . date("U")], $newKey);
 
     }
 
@@ -167,7 +167,7 @@ class SnapshotTest extends TestBase {
 
         $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", ["param1" => "Bernard", "param2" => "Bingo"], [["column1", "column2"], ["column3", "column1"]], false));
 
-        $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
+        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . date("U")], $newKey);
 
     }
 
@@ -220,7 +220,7 @@ class SnapshotTest extends TestBase {
         $key = $this->snapshot->updateSnapshotForManagementKey("testmanagement", "existing-data-processor",
             new SnapshotDescriptor("Updated Title", ["param1" => "Hello"], [["column1", "column2"], ["column3", "column4"]]));
 
-        $this->assertEquals("existing-data-processor", $key);
+        $this->assertEquals(["snapshotKey" => "existing-data-processor"], $key);
 
 
     }
@@ -266,7 +266,7 @@ class SnapshotTest extends TestBase {
 
         $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], [], true));
 
-        $this->assertEquals("tabulardatasetsnapshot_3_" . date("U"), $newKey);
+        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . date("U")], $newKey);
 
         $this->assertTrue($this->dataProcessorService->methodWasCalled("triggerDataProcessorInstance", [
             "tabulardatasetsnapshot_3_" . date("U")
