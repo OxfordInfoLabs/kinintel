@@ -91,9 +91,16 @@ import { MoveTransformationConfirmationComponent } from './components/dataset/da
 import {CdkConnectedOverlay, CdkOverlayOrigin} from '@angular/cdk/overlay';
 import {NgChartsModule} from 'ng2-charts';
 import { SaveAsQueryComponent } from './components/dataset/dataset-editor/save-as-query/save-as-query.component';
-import { SnapshotApiAccessComponent } from './components/data-explorer/snapshot-api-access/snapshot-api-access.component';
+import { ShareQueryComponent } from './components/dataset/dataset-editor/share-query/share-query.component';
+import { SharedWithMeComponent } from './components/shared-with-me/shared-with-me.component';
+import { MarketplaceComponent } from './components/marketplace/marketplace.component';
 import { QueryCachingComponent } from './components/query-caching/query-caching.component';
 import { EditQueryCacheComponent } from './components/query-caching/edit-query-cache/edit-query-cache.component';
+import {
+    SnapshotApiAccessComponent
+} from "./components/data-explorer/snapshot-api-access/snapshot-api-access.component";
+import { DataSharingInviteComponent } from './components/data-sharing-invite/data-sharing-invite.component';
+import { DataSearchComponent } from './components/data-search/data-search.component';
 
 @NgModule({
     declarations: [
@@ -153,9 +160,14 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
         TabularDatasourceComponent,
         MoveTransformationConfirmationComponent,
         SaveAsQueryComponent,
-        SnapshotApiAccessComponent,
+        ShareQueryComponent,
+        SharedWithMeComponent,
+        MarketplaceComponent,
         QueryCachingComponent,
-        EditQueryCacheComponent
+        EditQueryCacheComponent,
+        SnapshotApiAccessComponent,
+        DataSharingInviteComponent,
+        DataSearchComponent
     ],
     imports: [
         BrowserModule,
@@ -198,19 +210,11 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
     ],
     exports: [
         DashboardEditorComponent,
-        // ItemComponentComponent,
-        // ConfigureItemComponent,
         DatasourceComponent,
         DatasetComponent,
-        // DatasetEditorComponent,
         ProjectPickerComponent,
-        // DatasetFilterComponent,
-        // DataExplorerComponent,
         TagPickerComponent,
         DashboardsComponent,
-        // DatasetFilterJunctionComponent,
-        // DatasetNameDialogComponent,
-        // DatasetFiltersComponent,
         NotificationGroupsComponent,
         EditNotificationGroupComponent,
         AlertGroupsComponent,
@@ -223,8 +227,11 @@ import { EditQueryCacheComponent } from './components/query-caching/edit-query-c
         ProjectSettingsComponent,
         UpstreamChangesConfirmationComponent,
         TabularDatasourceComponent,
+        MarketplaceComponent,
+        SharedWithMeComponent,
         SnapshotApiAccessComponent,
-        QueryCachingComponent
+        QueryCachingComponent,
+        DataSharingInviteComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -242,7 +249,9 @@ export class NgKinintelModule {
 
 export class KinintelModuleConfig {
     backendURL: string;
+    guestURL: string;
     externalURL?: string;
     tagLabel?: string;
     tagMenuLabel?: string;
+    dataSearchTypeMapping?: any;
 }

@@ -606,6 +606,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
 
+
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);
 

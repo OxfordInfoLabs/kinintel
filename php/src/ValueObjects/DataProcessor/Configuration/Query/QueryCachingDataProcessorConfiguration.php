@@ -2,7 +2,12 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\Query;
 
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorActions;
+
 class QueryCachingDataProcessorConfiguration {
+
+    use DataProcessorActions;
 
     /**
      * @var int
@@ -76,4 +81,11 @@ class QueryCachingDataProcessorConfiguration {
         $this->primaryKeyColumnNames = $primaryKeyColumnNames;
     }
 
+    // Get processor actions
+    public function getProcessorActions($dataProcessorInstanceKey) {
+        return [
+            new DataProcessorAction("Latest", $dataProcessorInstanceKey . "_caching"),
+            new DataProcessorAction("Historical Entries", $dataProcessorInstanceKey . "_cache")
+        ];
+    }
 }

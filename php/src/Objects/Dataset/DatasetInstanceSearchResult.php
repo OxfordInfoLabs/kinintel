@@ -63,6 +63,17 @@ class DatasetInstanceSearchResult {
 
 
     /**
+     * @var string
+     */
+    protected $owningAccountName;
+
+
+    /**
+     * @var string
+     */
+    protected $owningAccountLogo;
+
+    /**
      * DatasetInstanceSearchResult constructor.
      *
      * @param int $id
@@ -71,7 +82,9 @@ class DatasetInstanceSearchResult {
      * @param string $description
      * @param CategorySummary[] $categories
      */
-    public function __construct($id, $title, $summary = null, $description = null, $categories = [], $datasetInstanceId = null, $datasourceInstanceKey = null) {
+    public function __construct($id, $title, $summary = null, $description = null, $categories = [], $datasetInstanceId = null,
+                                $datasourceInstanceKey = null,
+    $owningAccountName = null, $owningAccountLogo = null) {
         $this->id = $id;
         $this->title = $title;
         $this->summary = $summary;
@@ -79,6 +92,8 @@ class DatasetInstanceSearchResult {
         $this->categories = $categories;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
+        $this->owningAccountName = $owningAccountName;
+        $this->owningAccountLogo = $owningAccountLogo;
     }
 
 
@@ -178,6 +193,20 @@ class DatasetInstanceSearchResult {
      */
     public function setDatasetInstanceId($datasetInstanceId) {
         $this->datasetInstanceId = $datasetInstanceId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOwningAccountName() {
+        return $this->owningAccountName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOwningAccountLogo(){
+        return $this->owningAccountLogo;
     }
 
 

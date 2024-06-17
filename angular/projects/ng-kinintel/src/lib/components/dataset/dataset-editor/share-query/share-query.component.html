@@ -1,0 +1,195 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>Share Query</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content p-0">
+        <mat-tab-group>
+            <mat-tab label="Sharing">
+                <div class="bg-blue-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <!-- Heroicon name: mini/information-circle -->
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                 fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                      d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z"
+                                      clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1 md:flex md:justify-between">
+                            <p class="text-sm text-blue-700 mb-0">
+                                Share this query with other DAP users via a number of different methods.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 pt-6 pb-4">
+                    <mat-checkbox
+                        [(ngModel)]="shareWithAccount" (change)="setLoggedInAccountShareStatus($event)">
+                        Share With This Account
+                    </mat-checkbox>
+                    <div class="text-xs text-gray-400">
+                        Make this query available to everyone who has access to the
+                        <b>{{ (session && session.account) ? session.account.name : '' }}</b> account.
+                    </div>
+                </div>
+
+                <div class="px-6 py-4">
+
+                    <div class="font-medium mb-2">Share with other accounts</div>
+
+                    <div>
+
+                        <mat-form-field class="w-full mt-0 mb-0" appearance="fill">
+                            <mat-label>Search for Account</mat-label>
+                            <input type="text"
+                                   placeholder="Enter account name"
+                                   matInput
+                                   [(ngModel)]="accountSearch"
+                                   [matAutocomplete]="auto" (keyup)="filterSharableAccounts()">
+                            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectAccount($event.option.value)">
+                                <mat-option *ngFor="let account of accounts" [value]="account">
+                                    {{ account.accountName }}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                        <a (click)="enterSharingIdentifier=true"
+                           class="bg-secondary px-2 py-1 rounded text-white inline-block mb-4">or enter
+                            a sharing identifier</a>
+
+                        <div *ngIf="enterSharingIdentifier" class="flex">
+                            <input class="full" type="text" [(ngModel)]="sharingIdentifier"
+                                   placeholder="Enter sharing identifier for other account">
+                            <button (click)="lookupSharingIdentifier()" mat-flat-button color="primary" class="ml-2">
+                                Lookup
+                            </button>
+                        </div>
+                        <div class="text-xs text-red-500" *ngIf="sharingIdentifierError">Invalid sharing identifier
+                            supplied.
+                        </div>
+
+                    </div>
+
+                    <div *ngIf="selectedAccount" class="mt-8">
+
+                        <h4>Share with account: {{selectedAccount.accountName}}</h4>
+
+                        <div class="flex items-center justify-between">
+                            <mat-form-field appearance="fill">
+                                <mat-label>Expiry Date for sharing</mat-label>
+                                <input type="date"
+                                       matInput
+                                       [(ngModel)]="selectedExpiry">
+                            </mat-form-field>
+
+                            <button mat-flat-button color="primary" (click)="inviteSelectedAccount()">Invite to share
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+                    <hr class="my-8">
+
+                    <div class=" pl-3 tracking-wide uppercase border-b pb-2">Invited Accounts</div>
+
+                    <table class="mb-10">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="w-1/2 sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">Account Name</th>
+                            <th class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">Access Expires</th>
+                            <th class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter"></th>
+                        </tr>
+                        </thead>
+                        <tr *ngFor="let account of invitedAccounts">
+                            <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">{{account.scopeAccesses[0].itemLabel}}</td>
+                            <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">{{account.expiryDateString ? moment(account.expiryDateString).format('MMMM Do YYYY') : 'Never'}}</td>
+                            <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500 text-right">
+                                <a class="text-secondary bg-gray-50 border px-2 py-1 rounded" (click)="cancelInvitation(account.groupName)">cancel invite</a>
+                            </td>
+                        </tr>
+                    </table>
+
+
+                    <div class=" pl-3 tracking-wide uppercase border-b pb-2">Accounts with Access</div>
+
+                    <table>
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="w-1/2 sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">Account Name</th>
+                            <th class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">Access Expires</th>
+                            <th class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter"></th>
+                        </tr>
+                        </thead>
+                        <ng-template ngFor let-account [ngForOf]="sharedAccounts">
+                            <tr *ngIf="String(account.scopeAccesses[0].itemIdentifier) !== String(session.account.accountId)">
+                                <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">{{account.scopeAccesses[0].itemLabel}}</td>
+                                <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">{{account.expiryDateString ? moment(account.expiryDateString).format('MMMM Do YYYY') : 'Never'}}</td>
+                                <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500 text-right">
+                                    <a class="text-secondary bg-gray-50 border px-2 py-1 rounded" (click)="revokeAccessToGroup(account.groupName)">revoke access</a>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </table>
+
+
+                </div>
+            </mat-tab>
+<!--            <mat-tab label="Marketplace">-->
+<!--                <div class="px-6 py-4">-->
+<!--                    <mat-checkbox-->
+<!--                        [(ngModel)]="listOnMarketplace">-->
+<!--                        List Query on Marketplace-->
+<!--                    </mat-checkbox>-->
+<!--                    <div class="text-xs text-gray-400">-->
+<!--                        Advertise this query to other users via the DAP Marketplace.-->
+<!--                    </div>-->
+
+<!--                    <div class="border-l pl-8" *ngIf="listOnMarketplace">-->
+
+<!--                        <div class="my-4">-->
+<!--                            <p><b>Marketplace Description</b></p>-->
+<!--                            <textarea [(ngModel)]="marketplaceData.description" placeholder="Enter description" rows="3"-->
+<!--                                      class="w-full"></textarea>-->
+<!--                            <div class="text-xs text-gray-400">Describe the data you are offering.</div>-->
+<!--                        </div>-->
+
+<!--                        <div class="my-4">-->
+<!--                            <p><b>Upload Icon</b></p>-->
+<!--                            <input class="full" type="file" [(ngModel)]="marketplaceData.icon">-->
+<!--                            <div class="text-xs text-gray-400">Attach a small image to help identify your data.</div>-->
+<!--                        </div>-->
+
+<!--                        <div class="my-4">-->
+<!--                            <p><b>Price</b></p>-->
+<!--                            <input class="w-1/2" type="number" placeholder="Enter price" [(ngModel)]="marketplaceData.price">-->
+<!--                            <div class="text-xs text-gray-400">Set a price for accessing this dataset.</div>-->
+<!--                        </div>-->
+
+<!--                        <mat-checkbox-->
+<!--                            [(ngModel)]="marketplaceData.requireVerification">-->
+<!--                            Require Account Confirmation/Verification-->
+<!--                        </mat-checkbox>-->
+<!--                        <div class="text-xs text-gray-400">Perform additional validation on accounts requesting access-->
+<!--                            to this query.</div>-->
+
+<!--                    </div>-->
+
+<!--                </div>-->
+<!--            </mat-tab>-->
+        </mat-tab-group>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close>Close</button>
+    </div>
+
+</div>

@@ -2,10 +2,13 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorActions;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
+    use DataProcessorActions;
 
     /**
      * Parameter Values for the data set instance if required
@@ -13,7 +16,6 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
      * @var mixed[]
      */
     private $parameterValues;
-
 
 
     /**
@@ -77,7 +79,6 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
         $this->indexes = $indexes;
         $this->parameterValues = $parameterValues;
     }
-
 
 
     /**
@@ -167,4 +168,15 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     }
 
 
+    /**
+     * Return applicable processor actions for this one.
+     *
+     * @param $dataProcessorInstanceKey
+     * @return DataProcessorAction[]
+     */
+    public function getProcessorActions($dataProcessorInstanceKey) {
+        return [
+            new DataProcessorAction("Select", $dataProcessorInstanceKey)
+        ];
+    }
 }
