@@ -19,7 +19,7 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetIncrementalSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -119,7 +119,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         ], $fields);
 
         $expectedNewDatasourceInstance = new DatasourceInstance("incrementalsnap", "Simple Incremental", "snapshot",
-            new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
+            new ManagedTableSQLDatabaseDatasourceConfigConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
                 $snapshotFields, true, [new Index(["name", "phone"])]
             ),
             "test"
@@ -238,7 +238,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         ], $fields);
 
         $expectedNewDatasourceInstance = new DatasourceInstance("incrementalsnap", "Simple Incremental", "snapshot",
-            new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
+            new ManagedTableSQLDatabaseDatasourceConfigConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
                 $snapshotFields, true
             ),
             "test"
@@ -768,7 +768,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
         array_pop($snapshotFields);
 
         $expectedNewDatasourceInstance = new DatasourceInstance("incrementalsnap", "Simple Incremental", "snapshot",
-            new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
+            new ManagedTableSQLDatabaseDatasourceConfigConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "snapshot.incrementalsnap", null,
                 $snapshotFields, true
             ),
             "test"

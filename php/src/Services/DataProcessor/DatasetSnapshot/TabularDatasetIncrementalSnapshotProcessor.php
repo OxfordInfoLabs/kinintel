@@ -16,7 +16,7 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetIncrementalSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -214,7 +214,7 @@ class TabularDatasetIncrementalSnapshotProcessor extends BaseDataProcessor {
             $datasourceInstance->setConfig($config);
         } catch (ObjectNotFoundException $e) {
             $datasourceInstance = new DatasourceInstance($instanceKey, $instanceTitle, "snapshot",
-                new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tablePrefix . $instanceKey, null, $fields, true, $indexes), $credentialsKey);
+                new ManagedTableSQLDatabaseDatasourceConfigConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, $tablePrefix . $instanceKey, null, $fields, true, $indexes), $credentialsKey);
             $datasourceInstance->setAccountId($accountId);
             $datasourceInstance->setProjectKey($projectKey);
 

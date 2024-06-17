@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 
 
+use Kinintel\ValueObjects\Datasource\Configuration\IndexableDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 
 /**
@@ -13,7 +14,13 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
  * Class ManagedTableSQLDatabaseDatasourceConfig
  * @package Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase
  */
-class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfig {
+class ManagedTableSQLDatabaseDatasourceConfigConfig extends SQLDatabaseDatasourceConfig implements IndexableDatasourceConfig {
+
+    /**
+     * @var Index[]
+     */
+    private $indexes = [];
+
 
     /**
      * Construct a managed table datasource
@@ -30,10 +37,6 @@ class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfi
         $this->indexes = $indexes;
     }
 
-    /**
-     * @var Index[]
-     */
-    private $indexes = [];
 
     /**
      * @return Index[]

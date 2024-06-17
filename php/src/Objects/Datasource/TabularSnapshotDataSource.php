@@ -5,7 +5,7 @@ namespace Kinintel\Objects\Datasource;
 
 
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
 
 /**
  * Trivial extension of the SQL Database Datasource to encode the configuration
@@ -22,7 +22,7 @@ class TabularSnapshotDataSource extends SQLDatabaseDatasource {
      * @return string
      */
     public function getConfigClass() {
-        return ManagedTableSQLDatabaseDatasourceConfig::class;
+        return ManagedTableSQLDatabaseDatasourceConfigConfig::class;
     }
 
 }

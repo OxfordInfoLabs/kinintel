@@ -35,7 +35,7 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -572,7 +572,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $indexes = [];
         // If we have a managed table structure, also check for indexes
-        if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfig) {
+        if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfigConfig) {
             // Index all fields by name
             $indexedFields = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $fields);
 

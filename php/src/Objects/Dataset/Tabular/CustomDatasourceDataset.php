@@ -3,6 +3,8 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+
 /**
  * Overload SQL Result Set dataset to include the instance key and title for datasource
  *
@@ -28,18 +30,27 @@ class CustomDatasourceDataset extends SQLResultSetTabularDataset {
      */
     private $instanceImportKey;
 
+
+    /**
+     * @var Index[]
+     */
+    private $indexes;
+
     /**
      * CustomDatasourceDataset constructor.
      *
      * @param SQLResultSetTabularDataset $sqlResultSetTabularDataset
      * @param string $instanceKey
      * @param string $instanceTitle
+     * @param string $instanceImportKey
+     * @param Index[] $indexes
      */
-    public function __construct($sqlResultSetTabularDataset, $instanceKey, $instanceTitle, $instanceImportKey) {
+    public function __construct($sqlResultSetTabularDataset, $instanceKey, $instanceTitle, $instanceImportKey, $indexes = []) {
         parent::__construct($sqlResultSetTabularDataset->returnResultSet(), $sqlResultSetTabularDataset->getColumns());
         $this->instanceKey = $instanceKey;
         $this->instanceTitle = $instanceTitle;
         $this->instanceImportKey = $instanceImportKey;
+        $this->indexes = $indexes;
     }
 
     /**
@@ -61,6 +72,13 @@ class CustomDatasourceDataset extends SQLResultSetTabularDataset {
      */
     public function getInstanceImportKey() {
         return $this->instanceImportKey;
+    }
+
+    /**
+     * @return Index[]
+     */
+    public function getIndexes(): array {
+        return $this->indexes;
     }
 
 
