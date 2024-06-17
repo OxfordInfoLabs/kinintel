@@ -6,7 +6,7 @@ class SQLQueryDataProcessorConfiguration {
 
     /**
      * @var string
-     * @requiredEither queries
+     * @requiredEither queries,scriptFilepath
      */
     private $query;
 
@@ -14,6 +14,8 @@ class SQLQueryDataProcessorConfiguration {
      * @var string[]
      */
     private $queries;
+
+    private ?string $scriptFilepath;
 
     /**
      * @var string
@@ -26,9 +28,10 @@ class SQLQueryDataProcessorConfiguration {
      * @param string[] $queries
      * @param string $authenticationCredentialsKey
      */
-    public function __construct($query = null, $queries = null, $authenticationCredentialsKey = null) {
+    public function __construct($query = null, $queries = null, $scriptFilepath = null, $authenticationCredentialsKey = null) {
         $this->query = $query;
         $this->queries = $queries;
+        $this->scriptFilepath = $scriptFilepath;
         $this->authenticationCredentialsKey = $authenticationCredentialsKey;
     }
 
@@ -74,5 +77,12 @@ class SQLQueryDataProcessorConfiguration {
         $this->authenticationCredentialsKey = $authenticationCredentialsKey;
     }
 
+    public function getScriptFilepath(): ?string {
+        return $this->scriptFilepath;
+    }
+
+    public function setScriptFilepath(?string $scriptFilepath): void {
+        $this->scriptFilepath = $scriptFilepath;
+    }
 
 }
