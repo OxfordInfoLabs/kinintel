@@ -1,6 +1,9 @@
 <div class="border-b w-full flex items-center justify-between ">
-    <div class="leading-5 px-4 text-xs uppercase tracking-wider font-medium border-r-2 text-gray-600">
-        Operations
+    <div class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
+        Name
+        <input type="text" class="w-full py-1.5 ml-4" placeholder="Enter datasource name"
+               [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
+               [(ngModel)]="datasourceUpdate.title">
     </div>
     <div class="flex items-center flex-wrap w-full justify-end bg-white">
         <ng-template [ngIf]="_.some(rows, '_selected')">
@@ -33,6 +36,7 @@
             <mat-icon class="text-xl">upload_file</mat-icon>
             upload
         </button>
+        <div class="divider"></div>
         <button (click)="save()"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">save</mat-icon>
@@ -195,6 +199,9 @@
                     <mat-icon>add_circle</mat-icon>
                 </button>
                 <div class="flex items-center">
+                    <div class="text-xs text-gray-400 mr-10">
+                        Showing {{offset + 1}}
+                        - {{(page * limit) - (limit - rows.length)}}</div>
                     <select [value]="limit" (change)="pageSizeChange($event.target.value)"
                             class="mr-8 p-2">
                         <option [value]="10">10</option>
@@ -222,35 +229,15 @@
         </button>
     </div>
 
-    <div class="bg-gray-100 w-72 h-full p-3 flex justify-between flex-col">
+    <div *ngIf="Object.keys(selectedItem).length" class="bg-gray-100 w-72 h-full p-3 flex justify-between flex-col">
         <div>
             <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
                 Settings
             </div>
-            <label class="mb-4">
-                Datasource Name
-                <input type="text" class="w-full" placeholder="Enter datasource name"
-                       [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
-                       [(ngModel)]="datasourceUpdate.title">
-                <div class="text-xs text-red-500" *ngIf="!datasourceUpdate.title">
-                    Please enter a name for this datasource
-                </div>
-            </label>
-
-            <!--            <mat-checkbox class="mb-4" [checked]="_.find(columns, {type: 'id'})"-->
-            <!--                          (change)="updateAutoIncrementColumn($event.checked)">-->
-            <!--                Add ID Column-->
-            <!--            </mat-checkbox>-->
-
-            <!--            <div>-->
-            <!--                <button mat-button class="text-red-500" (click)="resetTable()">-->
-            <!--                    Reset Table-->
-            <!--                </button>-->
-            <!--            </div>-->
 
             <hr class="my-4">
 
-            <ng-template [ngIf]="selectedItem && selectedItem._tableType">
+            <ng-template [ngIf]="selectedItem._tableType">
                 <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
                     Column
                 </div>
@@ -267,10 +254,6 @@
                             <option [value]="'id'">ID</option>
                         </select>
                     </label>
-
-                    <mat-checkbox class="mb-4" [checked]="true" disabled>
-                        {{ _.filter(columns, 'keyField').length > 1 ? 'Part of Unique Identifier' : 'Unique Identifier' }}
-                    </mat-checkbox>
                 </ng-template>
 
                 <ng-template [ngIf]="selectedItem.type !== 'id'">
@@ -283,12 +266,6 @@
                             </option>
                         </select>
                     </label>
-
-                    <mat-checkbox class="mb-4" [(ngModel)]="selectedItem.keyField"
-                                  [disabled]="_.find(columns, {type:'id'})">
-                        {{ _.filter(columns, 'keyField').length > 1 ? 'Part of Unique Identifier' : 'Unique Identifier' }}
-                    </mat-checkbox>
-
                 </ng-template>
 
 
@@ -298,24 +275,6 @@
 
                 <hr class="my-4">
             </ng-template>
-
-
-            <table class="datasource-table w-full">
-                <tbody>
-                <tr class="bg-indigo-100">
-                    <td class="pl-2">Updated</td>
-                    <td class="pl-2 text-right">{{ updates.length || '' }}</td>
-                </tr>
-                <tr class="bg-gray-200 opacity-30">
-                    <td class="pl-2">Deleted</td>
-                    <td class="pl-2 text-right">{{ deletes.length || '' }}</td>
-                </tr>
-                <tr class="bg-green-50">
-                    <td class="pl-2">Added</td>
-                    <td class="pl-2 text-right">{{ adds.length || '' }}</td>
-                </tr>
-                </tbody>
-            </table>
         </div>
 
         <button mat-flat-button color="primary" (click)="save(true)">

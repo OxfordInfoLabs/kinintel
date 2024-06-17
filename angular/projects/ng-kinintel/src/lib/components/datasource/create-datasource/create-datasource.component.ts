@@ -67,6 +67,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         updates: [],
         deletes: []
     };
+    public offset = 0;
     public limit = 25;
     public page = 1;
     public endOfResults = false;
@@ -84,8 +85,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         filterJunctions: []
     };
     public openSide = new BehaviorSubject(false);
+    public Object = Object;
 
-    private offset = 0;
+
     private isMouseDown = false;
     private startRowIndex = null;
     private startCellIndex = null;
@@ -295,34 +297,38 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             }
         });
         dialogRef.afterClosed().subscribe(advancedSettings => {
-            if (advancedSettings.primaryKeys.length) {
-                this.showAutoIncrement = false;
-                _.remove(this.columns, {type: 'id'});
+            if (advancedSettings) {
+                this.datasourceUpdate.indexes = advancedSettings.indexes.length ? [{fieldNames: _.map(advancedSettings.indexes, 'name')}] : [];
 
-                this.columns.map(column => {
-                    if (_.find(advancedSettings.primaryKeys, {name: column.name})) {
-                        column.keyField = true;
-                    }
-                    return column;
-                });
+                if (advancedSettings.primaryKeys.length) {
+                    this.showAutoIncrement = false;
+                    _.remove(this.columns, {type: 'id'});
 
-            } else {
-                this.showAutoIncrement = advancedSettings.showAutoIncrement;
-                if (!_.find(this.columns, {type: 'id'})) {
                     this.columns.map(column => {
-                        column.keyField = false;
+                        if (_.find(advancedSettings.primaryKeys, {name: column.name})) {
+                            column.keyField = true;
+                        }
                         return column;
                     });
 
-                    this.columns.unshift({
-                        title: 'ID',
-                        name: 'id',
-                        type: 'id'
-                    });
-                }
-            }
+                } else {
+                    this.showAutoIncrement = advancedSettings.showAutoIncrement;
+                    if (!_.find(this.columns, {type: 'id'})) {
+                        this.columns.map(column => {
+                            column.keyField = false;
+                            return column;
+                        });
 
-            localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
+                        this.columns.unshift({
+                            title: 'ID',
+                            name: 'id',
+                            type: 'id'
+                        });
+                    }
+                }
+
+                localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
+            }
         });
     }
 

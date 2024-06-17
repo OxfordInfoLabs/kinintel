@@ -107,11 +107,7 @@ export class ImportWizardComponent implements OnInit {
         ];
 
         this.columns.forEach(column => {
-            this.datasourceUpdate.fields.push({
-                title: column,
-                name: _.snakeCase(column),
-                type: 'string'
-            });
+            this.datasourceUpdate.fields.push(column);
         });
 
         const key = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);

@@ -10,11 +10,13 @@
 
     <div class="dialog-content">
 
-        <mat-checkbox class="mb-4" [(ngModel)]="advancedSettings.showAutoIncrement"
+        <mat-checkbox class="mb-0" [(ngModel)]="advancedSettings.showAutoIncrement"
                       [disabled]="advancedSettings.primaryKeys.length">
             Show Auto Increment Column
         </mat-checkbox>
-
+        <div class="text-xs text-gray-500 mb-8">By default, datasources are created with an auto increment ID primary key
+            column. Show this column using the toggle above.
+        </div>
 
         <hr>
 
@@ -32,7 +34,7 @@
                     [cdkDropListConnectedTo]="[pkList]"
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of columns" cdkDrag>{{item.title}}</div>
+                    <div class="example-box" *ngFor="let item of columns" cdkDrag>{{ item.title }}</div>
                 </div>
             </div>
 
@@ -47,20 +49,56 @@
                     class="example-list"
                     (cdkDropListDropped)="drop($event)">
                     <div class="example-box" *ngFor="let item of advancedSettings.primaryKeys" cdkDrag>
-                        {{item.title}}
+                        {{ item.title }}
                     </div>
                 </div>
             </div>
         </div>
 
+        <hr>
 
+        <div class="font-medium text-base mt-6">Datasource Indexes</div>
+        <div class="text-gray-500 text-sm mb-6">Drag column(s) to set the indexes for this datasource</div>
+
+        <div class="flex justify-between">
+            <div class="example-container">
+                <div class="font-medium">Available Columns</div>
+
+                <div
+                    cdkDropList
+                    #column2List="cdkDropList"
+                    [cdkDropListData]="columns2"
+                    [cdkDropListConnectedTo]="[indexList]"
+                    class="example-list"
+                    (cdkDropListDropped)="drop($event)">
+                    <div class="example-box" *ngFor="let item of columns2" cdkDrag>{{ item.title }}</div>
+                </div>
+            </div>
+
+            <div class="example-container">
+                <div class="font-medium">Indexes</div>
+
+                <div
+                    cdkDropList
+                    #indexList="cdkDropList"
+                    [cdkDropListData]="advancedSettings.indexes"
+                    [cdkDropListConnectedTo]="[column2List]"
+                    class="example-list"
+                    (cdkDropListDropped)="drop($event)">
+                    <div class="example-box" *ngFor="let item of advancedSettings.indexes" cdkDrag>
+                        {{ item.title }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
     <div class="dialog-footer">
         <div></div>
         <button mat-flat-button mat-dialog-close mat-stroked-button color="primary" type="button"
-            [matDialogClose]="advancedSettings">Proceed</button>
+                [matDialogClose]="advancedSettings">Proceed
+        </button>
     </div>
 
 </div>

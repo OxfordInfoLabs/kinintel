@@ -43,6 +43,7 @@ export class ImportDataComponent implements OnInit {
 
         if (!this.columns.length) {
             this.import.headerRow = true;
+            this.import.replaceColumns = true;
         }
 
         if (this.columns.length) {
@@ -50,8 +51,6 @@ export class ImportDataComponent implements OnInit {
                 return col.type !== 'id';
             });
         }
-
-        console.log(this.columns);
     }
 
     public fileUpload(event) {
@@ -79,7 +78,6 @@ export class ImportDataComponent implements OnInit {
 
     public async importData() {
         this.importingData = true;
-        console.log(this.import);
         if (!this.datasourceUpdate.title) {
             this.datasourceUpdate.title = this.import.fileName;
         }
@@ -124,8 +122,6 @@ export class ImportDataComponent implements OnInit {
             csvData.push(rowData);
         });
 
-        console.log(this.datasourceUpdate, csvData);
-
         if (this.importType === 1) {
             if (this.rows.length && this.datasourceInstanceKey) {
                 await this.datasourceService.deleteFromDatasource(this.datasourceInstanceKey, []);
@@ -139,7 +135,7 @@ export class ImportDataComponent implements OnInit {
                 await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
             }
         } else if (this.importType === 2) {
-            this.datasourceUpdate.updates = csvData;
+            this.datasourceUpdate.replaces = csvData;
             await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
         } else if (this.importType === 3) {
             this.datasourceUpdate.adds = csvData;

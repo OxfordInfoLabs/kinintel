@@ -17,9 +17,11 @@ const _ = lodash.default;
 export class AdvancedSettingsComponent implements OnInit {
 
     public columns: any = [];
+    public columns2: any = [];
     public advancedSettings: any = {
         showAutoIncrement: false,
-        primaryKeys: []
+        primaryKeys: [],
+        indexes: []
     };
 
     constructor(public dialogRef: MatDialogRef<AdvancedSettingsComponent>,
@@ -31,6 +33,9 @@ export class AdvancedSettingsComponent implements OnInit {
         this.advancedSettings.primaryKeys = _.clone(_.filter(this.data.columns, {keyField: true}));
         this.columns = _.clone(_.filter(this.data.columns, col => {
             return !col.keyField;
+        }));
+        this.columns2 = _.clone(_.filter(this.data.columns, col => {
+            return true;
         }));
     }
 
