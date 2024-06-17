@@ -60,7 +60,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
     public function __construct(
         private DatasourceService $datasourceService,
         private DatasetService $datasetService,
-        private SynchronousProcessor $synchronousProcessor,
+        private AsynchronousProcessor $synchronousProcessor,
         private AsynchronousProcessor $parallelProcessor,
     ) {
     }
