@@ -77,7 +77,7 @@ class CustomDatasourceDataset extends SQLResultSetTabularDataset {
     /**
      * @return Index[]
      */
-    public function getIndexes(): array {
+    public function getIndexes() {
         return $this->indexes;
     }
 

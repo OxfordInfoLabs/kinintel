@@ -34,7 +34,8 @@ class CustomDataSource extends SQLDatabaseDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
         $sqlResultSet = parent::materialiseDataset($parameterValues);
-        return new CustomDatasourceDataset($sqlResultSet, $this->getInstanceInfo()->getKey(), $this->getInstanceInfo()->getTitle(), $this->getInstanceInfo()->getImportKey());
+        return new CustomDatasourceDataset($sqlResultSet, $this->getInstanceInfo()->getKey(), $this->getInstanceInfo()->getTitle(), $this->getInstanceInfo()->getImportKey(),
+            $this->getConfig()->getIndexes());
     }
 
 
