@@ -24,6 +24,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @var string
+     * @requiredEither targetChangeDatasourceKey,targetSummaryDatasourceKey
      */
     private $targetLatestDatasourceKey;
 
