@@ -53,7 +53,7 @@ export class SnapshotApiAccessComponent implements OnInit {
                 params.push('"' + parameter.name + '": "' + parameter.type + '"');
             });
 
-            payload += ', "params": [' + params.join(", ") + ']';
+            payload += ', "parameterValues": {' + params.join(", ") + '}';
         }
 
         payload += "}";

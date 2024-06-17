@@ -12,6 +12,7 @@ use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
 use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Controllers\Internal\ProcessedDataset;
 use Kinintel\Exception\DatasourceTransformationException;
@@ -79,7 +80,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @throws \Kinintel\Exception\UnsupportedDatasourceTransformationException
      */
     public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
-
 
         $joinDataParameters = [];
 

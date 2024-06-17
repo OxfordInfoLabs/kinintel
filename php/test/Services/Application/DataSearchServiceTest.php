@@ -193,6 +193,16 @@ class DataSearchServiceTest extends TestBase {
                 new DataProcessorAction("Historical Entries", "processor-search-3_cache")]), $typeFiltered[1]);
 
 
+        // Snapshot based type filtering
+        $snapshotFiltered = $this->service->searchForAccountDataItems(["type" => "snapshot"], 100, 0, "testProj", 6);
+        $this->assertEquals(2, sizeof($snapshotFiltered));
+        $this->assertEquals(new DataSearchItem("snapshot", "snapshot-search-1", "Snapshot Search 1", "", "", "",
+            [new DataProcessorAction("Latest", "snapshot-search-1_latest"),
+                new DataProcessorAction("Historical Entries", "snapshot-search-1")]), $snapshotFiltered[0]);
+        $this->assertEquals(new DataSearchItem("snapshot", "snapshot-search-3", "Snapshot Search 3", "", "", "",
+            [new DataProcessorAction("Select", "snapshot-search-3")]), $snapshotFiltered[1]);
+
+
         // Offset and limit
         $account1Records = $this->service->searchForAccountDataItems([], 2, 0, "testProj", 6);
         $this->assertEquals(2, sizeof($account1Records));

@@ -244,7 +244,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
-
         $query = $this->buildQuery($parameterValues);
 
         /**
@@ -529,7 +528,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var $transformation SQLDatabaseTransformation
          */
         foreach ($this->transformations as $transformation) {
-
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
