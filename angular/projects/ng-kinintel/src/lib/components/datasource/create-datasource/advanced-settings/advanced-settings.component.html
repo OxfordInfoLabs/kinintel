@@ -14,7 +14,8 @@
                       [disabled]="advancedSettings.primaryKeys.length">
             Show Auto Increment Column
         </mat-checkbox>
-        <div class="text-xs text-gray-500 mb-8">By default, datasources are created with an auto increment ID primary key
+        <div class="text-xs text-gray-500 mb-8">By default, datasources are created with an auto increment ID primary
+            key
             column. Show this column using the toggle above.
         </div>
 
@@ -58,38 +59,46 @@
         <hr>
 
         <div class="font-medium text-base mt-6">Datasource Indexes</div>
-        <div class="text-gray-500 text-sm mb-6">Drag column(s) to set the indexes for this datasource</div>
+        <div class="text-gray-500 text-sm mb-6">Select the columns to be indexed and drag to reorder if required.</div>
 
-        <div class="flex justify-between">
-            <div class="example-container">
-                <div class="font-medium">Available Columns</div>
+        <ng-template ngFor let-aIndex [ngForOf]="advancedSettings.indexes" let-i=index>
+            <div class="flex justify-between p-3 mb-3 bg-gray-50">
+                <div class="example-container">
+                    <div class="font-medium">Available Columns</div>
 
-                <div
-                    cdkDropList
-                    #column2List="cdkDropList"
-                    [cdkDropListData]="columns2"
-                    [cdkDropListConnectedTo]="[indexList]"
-                    class="example-list"
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of columns2" cdkDrag>{{ item.title }}</div>
+                    <mat-select [(ngModel)]="aIndex.indexCols" (ngModelChange)="updateIndexes(aIndex)" [multiple]="true">
+                        <mat-option *ngFor="let column of columns2" [value]="column">
+                            {{column.title}}
+                        </mat-option>
+                    </mat-select>
+
                 </div>
-            </div>
 
-            <div class="example-container">
-                <div class="font-medium">Indexes</div>
+                <div class="example-container">
+                    <div class="font-medium">Indexes</div>
 
-                <div
-                    cdkDropList
-                    #indexList="cdkDropList"
-                    [cdkDropListData]="advancedSettings.indexes"
-                    [cdkDropListConnectedTo]="[column2List]"
-                    class="example-list"
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of advancedSettings.indexes" cdkDrag>
-                        {{ item.title }}
+                    <div
+                        cdkDropList
+                        class="example-list"
+                        (cdkDropListDropped)="dropIndex($event, aIndex.fieldNames)">
+                        <div class="example-box" *ngFor="let item of aIndex.fieldNames" cdkDrag>
+                            {{ aIndex.indexCols.length ? _.find(aIndex.indexCols, {name: item})?.title : '' }}
+                        </div>
                     </div>
                 </div>
+
+                <button mat-icon-button color="warn" class="self-center" type="button"
+                        (click)="advancedSettings.indexes.splice(i, 1)">
+                    <mat-icon>remove_circle_outline</mat-icon>
+                </button>
             </div>
+        </ng-template>
+        <div class="flex justify-between">
+            <div></div>
+            <button mat-stroked-button color="primary" type="button"
+                (click)="advancedSettings.indexes.push({fieldNames: []})">
+                Create additional index
+            </button>
         </div>
 
     </div>
@@ -97,7 +106,7 @@
     <div class="dialog-footer">
         <div></div>
         <button mat-flat-button mat-dialog-close mat-stroked-button color="primary" type="button"
-                [matDialogClose]="advancedSettings">Proceed
+                (click)="saveChanges()">Save Changes
         </button>
     </div>
 

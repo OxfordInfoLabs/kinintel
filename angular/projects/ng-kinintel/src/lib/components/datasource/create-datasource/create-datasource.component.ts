@@ -298,7 +298,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         });
         dialogRef.afterClosed().subscribe(advancedSettings => {
             if (advancedSettings) {
-                this.datasourceUpdate.indexes = advancedSettings.indexes.length ? [{fieldNames: _.map(advancedSettings.indexes, 'name')}] : [];
+                this.columns = advancedSettings.columns;
+                this.datasourceUpdate.indexes = advancedSettings.indexes;
 
                 if (advancedSettings.primaryKeys.length) {
                     this.showAutoIncrement = false;
@@ -602,6 +603,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
                 this.datasourceUpdate.title = res.instanceTitle;
                 this.datasourceUpdate.instanceImportKey = res.instanceImportKey;
+                this.datasourceUpdate.indexes = res.indexes;
 
                 this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
 
