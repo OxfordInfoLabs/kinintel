@@ -297,37 +297,13 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             }
         });
         dialogRef.afterClosed().subscribe(advancedSettings => {
+            console.log(advancedSettings);
             if (advancedSettings) {
                 this.columns = advancedSettings.columns;
                 this.datasourceUpdate.indexes = advancedSettings.indexes;
+                this.showAutoIncrement = advancedSettings.showAutoIncrement;
 
-                if (advancedSettings.primaryKeys.length) {
-                    this.showAutoIncrement = false;
-                    _.remove(this.columns, {type: 'id'});
-
-                    this.columns.map(column => {
-                        if (_.find(advancedSettings.primaryKeys, {name: column.name})) {
-                            column.keyField = true;
-                        }
-                        return column;
-                    });
-
-                } else {
-                    this.showAutoIncrement = advancedSettings.showAutoIncrement;
-                    if (!_.find(this.columns, {type: 'id'})) {
-                        this.columns.map(column => {
-                            column.keyField = false;
-                            return column;
-                        });
-
-                        this.columns.unshift({
-                            title: 'ID',
-                            name: 'id',
-                            type: 'id'
-                        });
-                    }
-                }
-
+                console.log(this.showAutoIncrement);
                 localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
             }
         });

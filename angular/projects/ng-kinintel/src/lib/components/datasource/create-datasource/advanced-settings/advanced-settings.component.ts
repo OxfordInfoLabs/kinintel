@@ -91,8 +91,10 @@ export class AdvancedSettingsComponent implements OnInit {
 
     public async saveChanges() {
         this.datasourceUpdate.indexes = this.advancedSettings.indexes.length ? this.advancedSettings.indexes : [];
+        let showAutoIncrement = this.advancedSettings.showAutoIncrement;
 
         if (this.advancedSettings.primaryKeys.length) {
+            showAutoIncrement = false;
             _.remove(this.columns, {type: 'id'});
 
             this.columns.map(column => {
@@ -126,7 +128,7 @@ export class AdvancedSettingsComponent implements OnInit {
 
         await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
 
-        this.dialogRef.close({datasourceUpdate: this.datasourceUpdate, columns: this.columns});
+        this.dialogRef.close({datasourceUpdate: this.datasourceUpdate, columns: this.columns, showAutoIncrement});
     }
 
 }
