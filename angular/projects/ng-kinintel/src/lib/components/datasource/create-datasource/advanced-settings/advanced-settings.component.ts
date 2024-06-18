@@ -28,6 +28,7 @@ export class AdvancedSettingsComponent implements OnInit {
     public datasourceUpdate: any;
 
     private datasourceInstanceKey: string;
+    private allColumns: any;
 
     constructor(public dialogRef: MatDialogRef<AdvancedSettingsComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -40,6 +41,7 @@ export class AdvancedSettingsComponent implements OnInit {
 
         this.advancedSettings.showAutoIncrement = this.data.showAutoIncrement || false;
         this.advancedSettings.primaryKeys = _.clone(_.filter(this.data.columns, {keyField: true}));
+        this.allColumns = _.clone(this.data.columns);
         this.columns = _.clone(_.filter(this.data.columns, col => {
             return !col.keyField;
         }));
@@ -55,8 +57,6 @@ export class AdvancedSettingsComponent implements OnInit {
                 }));
             });
         }
-
-        console.log(this.data, this.advancedSettings);
     }
 
     public drop(event: CdkDragDrop<string[]>) {
@@ -90,14 +90,16 @@ export class AdvancedSettingsComponent implements OnInit {
     }
 
     public async saveChanges() {
-        this.datasourceUpdate.indexes = this.advancedSettings.indexes.length ? this.advancedSettings.indexes : [];
+        this.datasourceUpdate.indexes = _.filter(this.advancedSettings.indexes, index => {
+            return index.fieldNames.length;
+        });
         let showAutoIncrement = this.advancedSettings.showAutoIncrement;
 
         if (this.advancedSettings.primaryKeys.length) {
             showAutoIncrement = false;
-            _.remove(this.columns, {type: 'id'});
+            _.remove(this.allColumns, {type: 'id'});
 
-            this.columns.map(column => {
+            this.allColumns.map(column => {
                 if (_.find(this.advancedSettings.primaryKeys, {name: column.name})) {
                     column.keyField = true;
                 }
@@ -105,13 +107,13 @@ export class AdvancedSettingsComponent implements OnInit {
             });
 
         } else {
-            if (!_.find(this.columns, {type: 'id'})) {
-                this.columns.map(column => {
+            if (!_.find(this.allColumns, {type: 'id'})) {
+                this.allColumns.map(column => {
                     column.keyField = false;
                     return column;
                 });
 
-                this.columns.unshift({
+                this.allColumns.unshift({
                     title: 'ID',
                     name: 'id',
                     type: 'id'
@@ -119,7 +121,7 @@ export class AdvancedSettingsComponent implements OnInit {
             }
         }
 
-        this.datasourceUpdate.fields = this.columns.map(column => {
+        this.datasourceUpdate.fields = this.allColumns.map(column => {
             if (column.name === column.previousName) {
                 delete column.previousName;
             }
@@ -128,7 +130,7 @@ export class AdvancedSettingsComponent implements OnInit {
 
         await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
 
-        this.dialogRef.close({datasourceUpdate: this.datasourceUpdate, columns: this.columns, showAutoIncrement});
+        this.dialogRef.close({datasourceUpdate: this.datasourceUpdate, columns: this.allColumns, showAutoIncrement});
     }
 
 }
