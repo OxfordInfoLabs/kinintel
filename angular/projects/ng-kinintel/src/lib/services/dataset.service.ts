@@ -84,12 +84,14 @@ export class DatasetService {
     }
 
     public evaluateDataset(datasetInstanceSummary, offset = '0', limit = '25') {
-        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}`,
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&projectKey=${projectKey}`,
             datasetInstanceSummary).toPromise();
     }
 
     public evaluateDatasetWithTracking(datasetInstanceSummary, offset = '0', limit = '25', trackingKey = '') {
-        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&trackingKey=${trackingKey}`,
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&trackingKey=${trackingKey}&projectKey=${projectKey}`,
             datasetInstanceSummary);
     }
 
