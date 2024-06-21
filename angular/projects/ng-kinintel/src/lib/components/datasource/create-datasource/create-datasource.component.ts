@@ -300,7 +300,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             console.log(advancedSettings);
             if (advancedSettings) {
                 this.columns = advancedSettings.columns;
-                this.datasourceUpdate.indexes = advancedSettings.indexes;
+                this.datasourceUpdate.indexes = advancedSettings.datasourceUpdate.indexes;
                 this.showAutoIncrement = advancedSettings.showAutoIncrement;
 
                 console.log(this.showAutoIncrement);
@@ -347,9 +347,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.removeCellFocusBorder();
             }
         }
-    }
-
-    public clearColumnContents(columnName) {
     }
 
     public deleteColumn(index) {
@@ -496,7 +493,14 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     this.adds = [];
                     this.updates = [];
                     this.deletes = [];
-                    await this.loadDatasource();
+
+                    // If we have a filter in use, apply it to the next load...
+                    const transformations = [];
+                    if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
+                        transformations.push({type: 'filter', config: this.filterJunction});
+                    }
+
+                    await this.loadDatasource(transformations);
                     return true;
                 })
                 .catch(err => {
@@ -513,26 +517,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public deleteSelectedColumn() {
         this.columns.splice(this.selectedItem._index, 1);
-    }
-
-    public resetTable() {
-        const message = 'Are you sure you would like to reset the entire table? This will remove all data and columns. This action cannot be undone.';
-        if (window.confirm(message)) {
-            this.selectedCell = null;
-            this.rows = [];
-            this.columns = [
-                {
-                    title: 'Column 1',
-                    name: 'column_1',
-                    type: 'string'
-                },
-                {
-                    title: 'Column 2',
-                    name: 'column_2',
-                    type: 'string'
-                }
-            ];
-        }
     }
 
     public pageSizeChange(value) {
@@ -580,6 +564,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.datasourceUpdate.title = res.instanceTitle;
                 this.datasourceUpdate.instanceImportKey = res.instanceImportKey;
                 this.datasourceUpdate.indexes = res.indexes;
+                this.datasourceUpdate.adds = [];
+                this.datasourceUpdate.updates = [];
+                this.datasourceUpdate.deletes = [];
 
                 this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
 

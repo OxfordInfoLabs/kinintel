@@ -37,8 +37,8 @@
             upload
         </button>
         <div class="divider"></div>
-        <button (click)="save()"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <button (click)="save()" [disabled]="!adds.length && !updates.length && !deletes.length"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">save</mat-icon>
             save
         </button>
@@ -241,6 +241,10 @@
                 <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
                     Column
                 </div>
+                <label *ngIf="datasourceUpdate.instanceImportKey" class="mb-4">
+                    Column Key
+                    <input type="text" [(ngModel)]="selectedItem.name" disabled>
+                </label>
                 <label class="mb-4">
                     Column Title
                     <input type="text" [(ngModel)]="selectedItem.title" placeholder="Enter column title"

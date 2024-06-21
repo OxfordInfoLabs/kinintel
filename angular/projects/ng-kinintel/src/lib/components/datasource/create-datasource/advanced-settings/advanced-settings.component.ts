@@ -26,6 +26,7 @@ export class AdvancedSettingsComponent implements OnInit {
         indexes: [{fieldNames: []}]
     };
     public datasourceUpdate: any;
+    public errorMessage = '';
 
     private datasourceInstanceKey: string;
     private allColumns: any;
@@ -90,6 +91,7 @@ export class AdvancedSettingsComponent implements OnInit {
     }
 
     public async saveChanges() {
+        this.errorMessage = '';
         this.datasourceUpdate.indexes = _.filter(this.advancedSettings.indexes, index => {
             return index.fieldNames.length;
         });
@@ -128,9 +130,13 @@ export class AdvancedSettingsComponent implements OnInit {
             return column;
         });
 
-        await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
-
-        this.dialogRef.close({datasourceUpdate: this.datasourceUpdate, columns: this.allColumns, showAutoIncrement});
+        try {
+            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
+            this.dialogRef.close({datasourceUpdate: this.datasourceUpdate, columns: this.allColumns, showAutoIncrement});
+        } catch (e) {
+            const error = e.error;
+            this.errorMessage = error.message || 'There was a problem updating this datasource. Please check your settings and try again.';
+        }
     }
 
 }
