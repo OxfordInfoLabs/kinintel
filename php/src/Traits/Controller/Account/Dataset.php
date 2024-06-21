@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\MetaData\CategorySummary;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
@@ -332,7 +333,17 @@ trait Dataset {
      */
     public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25, $trackingKey = null, $projectKey = null) {
 
+        // Set the account id and project key as parameter values
+        $parameterValues = $datasetInstanceSummary->getParameterValues();
 
+        /**
+         * @var Account $account
+         */
+        $account = $this->securityService->getLoggedInSecurableAndAccount()[1];
+        $parameterValues["ACCOUNT_ID"] = $account->getAccountId();
+        $parameterValues["PROJECT_KEY"] = $projectKey;
+
+        $datasetInstanceSummary->setParameterValues($parameterValues);
 
         if (!$trackingKey) {
             $trackingKey = date("U") . StringUtils::generateRandomString(5);
