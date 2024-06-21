@@ -26,6 +26,23 @@
                 Example API Usage
             </div>
 
+            <div class="relative w-full mb-8">
+                <div class="text-base font-semibold">List</div>
+                <div class="text-sm mb-2">
+                    Return the data for this datasource.  This will default to returning the first 100 rows.  Paging can be achieved by supplying
+                    <b>limit</b> and <b>offset</b> parameters and simple exact match filtering can be achieved by supplying values to parameters matching
+                    the column keys.
+                </div>
+                <div #list class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}?limit=50&offset=10{{listQueryString}}</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="list.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+
             <div class="relative w-full">
                 <div class="text-base font-semibold">Create</div>
                 <div class="text-sm mb-2">

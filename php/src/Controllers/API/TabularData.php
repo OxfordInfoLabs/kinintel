@@ -4,11 +4,15 @@
 namespace Kinintel\Controllers\API;
 
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\DatasourceUpdateException;
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 use League\Uri\Exception;
 
 class TabularData {
@@ -31,8 +35,46 @@ class TabularData {
     /**
      * @return void
      */
-    public function handleRequest(){
+    public function handleRequest() {
         throw new Exception("Invalid endpoint called");
+    }
+
+
+    /**
+     * @http GET /$importKey
+     *
+     * @param string $importKey
+     * @param Request $request
+     *
+     * @return Dataset
+     */
+    public function list($importKey, $request) {
+
+        $datasource = $this->datasourceService->getDataSourceInstanceByImportKey($importKey);
+
+        $params = $request->getParameters();
+
+        // Grab offset and limit if they have been passed
+        $offset = $params["offset"] ?? 0;
+        $limit = $params["limit"] ?? 100;
+
+        unset($params["offset"]);
+        unset($params["limit"]);
+
+        // Filters
+        $transformationInstances = [];
+        if (sizeof($params)) {
+            $filters = [];
+            foreach ($params as $key => $value) {
+                $filters[] = new Filter("[[" . $key . "]]", $value);
+            }
+
+
+            $transformationInstances[] = new TransformationInstance("filter", new FilterTransformation($filters));
+        }
+
+        $dataset = $this->datasourceService->getEvaluatedDataSource($datasource, [], $transformationInstances, $offset, $limit);
+        return $dataset->getAllData();
     }
 
 

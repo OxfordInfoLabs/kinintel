@@ -21,6 +21,7 @@ export class ApiAccessComponent implements OnInit {
     public datasourceUpdate: any;
     public datasourceInstanceKey: any;
     public columns: any;
+    public listQueryString: string = '';
     public createExample: string;
     public updateExample: string;
     public deleteFilteredExample: string;
@@ -42,6 +43,7 @@ export class ApiAccessComponent implements OnInit {
         this.showExample = !!this.datasourceUpdate.instanceImportKey;
 
         const example = ['[{'];
+
         this.columns.forEach((column, index) => {
             if (column.type !== 'id') {
                 example.push('<span class="text-secondary">"' + column.name + '":</span> "' + column.type + '"');
@@ -49,6 +51,7 @@ export class ApiAccessComponent implements OnInit {
                     example.push(', ');
                 }
             }
+            this.listQueryString += '&' + column.name + '=VALUE';
         });
         example.push('}]');
         this.createExample = example.join('');
