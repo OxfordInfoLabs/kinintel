@@ -51,7 +51,9 @@ export class ApiAccessComponent implements OnInit {
                     example.push(', ');
                 }
             }
-            this.listQueryString += '&' + column.name + '=VALUE';
+            this.listQueryString += 'filter_' + column.name + '=VALUE&';
+            if (index == this.columns.length - 1)
+                this.listQueryString += 'sort=' + column.name + '|desc';
         });
         example.push('}]');
         this.createExample = example.join('');

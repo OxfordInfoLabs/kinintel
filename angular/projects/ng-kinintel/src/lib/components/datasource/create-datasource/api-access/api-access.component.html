@@ -29,12 +29,65 @@
             <div class="relative w-full mb-8">
                 <div class="text-base font-semibold">List</div>
                 <div class="text-sm mb-2">
-                    Return the data for this datasource.  This will default to returning the first 100 rows.  Paging can be achieved by supplying
-                    <b>limit</b> and <b>offset</b> parameters and simple exact match filtering can be achieved by supplying values to parameters matching
-                    the column keys.
+                    Return the data for this datasource.
+                    <br><br>
+                    Filtering of the returned data can be effected by supplying parameters of the format <b>filter_COLUMNNAME</b>.  The parameter value can either be
+                    simply a value for exact match filtering or a value followed by a | and a match type which should be one of the following values:
+                    <br><br>
+                    <table>
+                        <tr>
+                            <td>eq</td>
+                            <td>for an equals match</td>
+                        </tr>
+                        <tr>
+                            <td>neq</td>
+                            <td>for a not equals match</td>
+                        </tr>
+                        <tr>
+                            <td>null</td>
+                            <td>for a null match</td>
+                        </tr>
+                        <tr>
+                            <td>notnull</td>
+                            <td>for a not null match</td>
+                        </tr>
+                        <tr>
+                            <td>gt</td>
+                            <td>for a greater than match</td>
+                        </tr>
+                        <tr>
+                            <td>lt</td>
+                            <td>for a less than match</td>
+                        </tr>
+                        <tr>
+                            <td>gte</td>
+                            <td>for a greater than or equals match</td>
+                        </tr>
+                        <tr>
+                            <td>lte</td>
+                            <td>for a less than or equals match</td>
+                        </tr>
+                        <tr>
+                            <td>startswith</td>
+                            <td>for a string starts with match</td>
+                        </tr>
+                        <tr>
+                            <td>endswith</td>
+                            <td>for a string ends with match</td>
+                        </tr>
+                        <tr>
+                            <td>contains</td>
+                            <td>or a string contains match</td>
+                        </tr>
+                    </table>
+                    <br><br>
+                    Results can be sorted by supplying a <b>sort</b> parameter which identifies columns to sort and directions (either asc or desc) using pipe separation
+                    <br><br>
+                    By default the first 100 rows will be returned.  Paging can be achieved by supplying
+                    <b>limit</b> and <b>offset</b> parameters.
                 </div>
                 <div #list class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}?limit=50&offset=10{{listQueryString}}</span></pre>
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}?{{listQueryString}}&limit=50&offset=10</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="list.textContent" (cdkCopyToClipboardCopied)="copied()"
                         class="text-white absolute bottom-0 right-0">

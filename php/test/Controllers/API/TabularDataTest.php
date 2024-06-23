@@ -8,6 +8,7 @@ use Kinikit\MVC\Request\Headers;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Controllers\API\TabularData;
 use Kinintel\Exception\DatasourceUpdateException;
+use Kinintel\Exception\FieldNotFoundException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
@@ -18,6 +19,8 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
+use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
@@ -49,7 +52,9 @@ class TabularDataTest extends TestBase {
         $this->tabularData = new TabularData($this->datasourceService);
 
         $this->datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
-        $datasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig("table", "test_data", "", [new Field("test"), new Field("test2")]), null, null);
+        $config = new SQLDatabaseDatasourceConfig("table", "test_data", "", [new Field("test"), new Field("test2")]);
+
+        $datasource = new SQLDatabaseDatasource($config, null, null);
         $this->datasourceInstance->returnValue("returnDataSource", $datasource);
 
         $this->datasourceService->returnValue("getDataSourceInstanceByImportKey", $this->datasourceInstance, ["bingo"]);
@@ -98,20 +103,20 @@ class TabularDataTest extends TestBase {
 
 
         // Default behaviour - no limits or offsets
-        $arrayDataset = new ArrayTabularDataset([new Field("test")], [["test" => 1]]);
+        $arrayDataset = new ArrayTabularDataset([new Field("test", new Field("test2"))], [["test" => 1]]);
 
         $request = MockObjectProvider::instance()->getMockInstance(Request::class);
         $request->returnValue("getParameters", [
-            "a" => 1,
-            "b" => "hello"
+            "filter_test" => 1,
+            "filter_test2" => "hello"
         ]);
 
 
         $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
             $this->datasourceInstance, [], [
                 new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("[[a]]", 1),
-                    new Filter("[[b]]", "hello")
+                    new Filter("[[test]]", 1),
+                    new Filter("[[test2]]", "hello")
                 ]))
             ], 0, 100
         ]);
@@ -124,8 +129,8 @@ class TabularDataTest extends TestBase {
 
         $request = MockObjectProvider::instance()->getMockInstance(Request::class);
         $request->returnValue("getParameters", [
-            "a" => 1,
-            "b" => "hello",
+            "filter_test" => 1,
+            "filter_test2" => "hello",
             "offset" => 5,
             "limit" => 10
         ]);
@@ -134,8 +139,8 @@ class TabularDataTest extends TestBase {
         $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
             $this->datasourceInstance, [], [
                 new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("[[a]]", 1),
-                    new Filter("[[b]]", "hello")
+                    new Filter("[[test]]", 1),
+                    new Filter("[[test2]]", "hello")
                 ]))
             ], 5, 10
         ]);
@@ -145,6 +150,134 @@ class TabularDataTest extends TestBase {
 
     }
 
+    public function testCanSupplyFilterTypesAsPipeSeperatedSuffixesForFiltersWhenListingData() {
+
+
+        // Default behaviour - no limits or offsets
+        $arrayDataset = new ArrayTabularDataset([new Field("test"), new Field("test2")], [["test" => 1]]);
+
+        $request = MockObjectProvider::instance()->getMockInstance(Request::class);
+        $request->returnValue("getParameters", [
+            "filter_test" => "1|gt",
+            "filter_test2" => "*hello*|like"
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
+            $this->datasourceInstance, [], [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("[[test]]", 1,Filter::FILTER_TYPE_GREATER_THAN),
+                    new Filter("[[test2]]", "*hello*", Filter::FILTER_TYPE_LIKE)
+                ]))
+            ], 0, 100
+        ]);
+
+        $this->assertEquals([["test" => 1, "test2" => null]], $this->tabularData->list("bingo", $request));
+
+    }
+
+    public function testCanSortByOneOrMoreFieldsWithOptionalPipeSuffixedDirections(){
+
+        // Simple default sort
+        $arrayDataset = new ArrayTabularDataset([new Field("test"), new Field("test2")], [["test" => 1]]);
+
+        $request = MockObjectProvider::instance()->getMockInstance(Request::class);
+        $request->returnValue("getParameters", [
+            "filter_test" => "1|gt",
+            "filter_test2" => "*hello*|like",
+            "sort" => "test"
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
+            $this->datasourceInstance, [], [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("[[test]]", 1,Filter::FILTER_TYPE_GREATER_THAN),
+                    new Filter("[[test2]]", "*hello*", Filter::FILTER_TYPE_LIKE)
+                ])),
+                new TransformationInstance("multisort", new MultiSortTransformation([
+                    new Sort("test", Sort::DIRECTION_ASC)
+                ]))
+            ], 0, 100
+        ]);
+
+        $this->assertEquals([["test" => 1, "test2" => null]], $this->tabularData->list("bingo", $request));
+
+
+        // More elaborate sort
+        $arrayDataset = new ArrayTabularDataset([new Field("test")], [["test" => 2]]);
+
+        $request = MockObjectProvider::instance()->getMockInstance(Request::class);
+        $request->returnValue("getParameters", [
+            "filter_test" => "1|gt",
+            "filter_test2" => "*hello*|like",
+            "sort" => "test|desc|test2"
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
+            $this->datasourceInstance, [], [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("[[test]]", 1,Filter::FILTER_TYPE_GREATER_THAN),
+                    new Filter("[[test2]]", "*hello*", Filter::FILTER_TYPE_LIKE)
+                ])),
+                new TransformationInstance("multisort", new MultiSortTransformation([
+                    new Sort("test", Sort::DIRECTION_DESC),
+                    new Sort("test2", Sort::DIRECTION_ASC),
+                ]))
+            ], 0, 100
+        ]);
+
+        $this->assertEquals([["test" => 2]], $this->tabularData->list("bingo", $request));
+        
+    }
+
+    public function testInvalidColumnsSuppliedToFilterOrSortAreDetectedAndExceptionRaised(){
+
+        // Simple default sort
+        $arrayDataset = new ArrayTabularDataset([new Field("test")], [["test" => 1]]);
+
+        $request = MockObjectProvider::instance()->getMockInstance(Request::class);
+        $request->returnValue("getParameters", [
+            "filter_a" => "1|gt",
+            "filter_b" => "*hello*|like",
+            "sort" => "c"
+        ]);
+
+        try {
+            $this->tabularData->list("bingo", $request);
+            $this->fail("Should have thrown here");
+        } catch (FieldNotFoundException $e){
+            $this->assertEquals(new FieldNotFoundException("a", "column", "filtering"), $e);
+        }
+
+        $request->returnValue("getParameters", [
+            "filter_test" => "1|gt",
+            "filter_b" => "*hello*|like",
+            "sort" => "c"
+        ]);
+
+        try {
+            $this->tabularData->list("bingo", $request);
+            $this->fail("Should have thrown here");
+        } catch (FieldNotFoundException $e){
+            $this->assertEquals(new FieldNotFoundException("b", "column", "filtering"), $e);
+        }
+
+        $request->returnValue("getParameters", [
+            "filter_test" => "1|gt",
+            "filter_test" => "*hello*|like",
+            "sort" => "c"
+        ]);
+
+        try {
+            $this->tabularData->list("bingo", $request);
+            $this->fail("Should have thrown here");
+        } catch (FieldNotFoundException $e){
+            $this->assertEquals(new FieldNotFoundException("c", "column", "sorting"), $e);
+        }
+
+    }
 
     public function testFilteredDeleteConvertsSimplifiedFilterSyntaxIntoFilterJunction() {
 
