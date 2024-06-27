@@ -18,7 +18,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\Query\QueryCachingDataProc
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use PHPUnit\Framework\TestCase;
@@ -80,7 +80,7 @@ class QueryCachingDataProcessorTest extends TestCase {
 
         $history = $this->datasourceService->getMethodCallHistory("saveDataSourceInstance");
 
-        $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfigConfig(
+        $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
             source: "table",
             tableName: "query_cache.querycache_12345_cache",
             columns: [
@@ -163,7 +163,7 @@ class QueryCachingDataProcessorTest extends TestCase {
 
         $history = $this->datasourceService->getMethodCallHistory("saveDataSourceInstance");
 
-        $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfigConfig(
+        $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
             source: "table",
             tableName: "query_cache.querycache_12345_cache",
             columns: [

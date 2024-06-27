@@ -31,7 +31,7 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCre
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -768,7 +768,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $config = new ManagedTableSQLDatabaseDatasourceConfigConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", []);
+        $config = new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", []);
 
         $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);
@@ -823,7 +823,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $ddlGenerator = MockObjectProvider::instance()->getMockInstance(TableDDLGenerator::class);
 
-        $config = new ManagedTableSQLDatabaseDatasourceConfigConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", [], true);
+        $config = new ManagedTableSQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "mytable", "", [], true);
 
         $datasource = new SQLDatabaseDatasource($config,
             $this->authCredentials, null, $this->validator, $ddlGenerator);

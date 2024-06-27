@@ -14,7 +14,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\Query\QueryCachingDataProc
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 
 class QueryCachingDataProcessor implements DataProcessor {
@@ -117,7 +117,7 @@ class QueryCachingDataProcessor implements DataProcessor {
         $cacheKey = $instance->getKey()."_cache";
         $cacheTitle = $sourceQuery->getTitle() . " Cache";
         $cacheTableName = $tablePrefix . $cacheKey;
-        $cacheConfig = new ManagedTableSQLDatabaseDatasourceConfigConfig(
+        $cacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
             source: "table",
             tableName: $cacheTableName,
             columns: $columns,

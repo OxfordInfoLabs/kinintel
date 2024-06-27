@@ -37,7 +37,7 @@ use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
@@ -882,7 +882,7 @@ class DatasourceServiceTest extends TestBase {
         // Program expected return values
         $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(ManagedTableSQLDatabaseDatasourceConfigConfig::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(ManagedTableSQLDatabaseDatasourceConfig::class);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
         $dataSource->returnValue("getConfig", $dataSourceConfig);

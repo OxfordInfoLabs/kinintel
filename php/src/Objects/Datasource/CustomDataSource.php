@@ -6,7 +6,7 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinintel\Objects\Dataset\Tabular\CustomDatasourceDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfigConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 
 /**
  * Simple extension of the SQL data source to return a custom datasource dataset
@@ -22,7 +22,7 @@ class CustomDataSource extends SQLDatabaseDatasource {
      * @return string
      */
     public function getConfigClass() {
-        return ManagedTableSQLDatabaseDatasourceConfigConfig::class;
+        return ManagedTableSQLDatabaseDatasourceConfig::class;
     }
 
 
