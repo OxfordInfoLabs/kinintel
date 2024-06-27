@@ -14,7 +14,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
  * Class ManagedTableSQLDatabaseDatasourceConfig
  * @package Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase
  */
-class ManagedTableSQLDatabaseDatasourceConfigConfig extends SQLDatabaseDatasourceConfig implements IndexableDatasourceConfig {
+class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfig implements IndexableDatasourceConfig {
 
     /**
      * @var Index[]
