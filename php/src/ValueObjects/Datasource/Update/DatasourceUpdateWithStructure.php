@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Datasource\Update;
 
 
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+
 class DatasourceUpdateWithStructure extends DatasourceUpdate {
 
     /**
@@ -25,20 +27,28 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
 
 
     /**
+     * @var Index[]
+     */
+    private $indexes;
+
+
+    /**
      * DatasourceUpdate constructor.
      *
      * @param string $title
      * @param string $importKey
      * @param DatasourceUpdateField[] $fields
+     * @param Index[] $indexes
      * @param mixed[] $adds
      * @param mixed[] $updates
      * @param mixed[] $deletes
      */
-    public function __construct($title, $importKey = null, $fields = [], $adds = [], $updates = [], $deletes = []) {
+    public function __construct($title, $importKey = null, $fields = [], $indexes = [], $adds = [], $updates = [], $deletes = []) {
         parent::__construct($adds, $updates, $deletes);
         $this->title = $title;
         $this->fields = $fields;
         $this->importKey = $importKey;
+        $this->indexes = $indexes;
     }
 
 
@@ -83,6 +93,20 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
      */
     public function setFields($fields) {
         $this->fields = $fields;
+    }
+
+    /**
+     * @return Index[]
+     */
+    public function getIndexes() {
+        return $this->indexes;
+    }
+
+    /**
+     * @param Index[] $indexes
+     */
+    public function setIndexes($indexes) {
+        $this->indexes = $indexes;
     }
 
 

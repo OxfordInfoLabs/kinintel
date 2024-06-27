@@ -8,12 +8,12 @@
         </button>
     </div>
 
-    <div class="dialog-content pt-0 pr-0 pb-4 pl-0">
+    <div class="dialog-content p-0">
         <mat-horizontal-stepper #stepper>
 
             <mat-step label="Select your data source">
 
-                <ki-data-picker [admin]="admin" (selected)="select($event, stepper)"></ki-data-picker>
+                <ki-data-picker class="block" style="height: 620px" [admin]="admin" (selected)="select($event, stepper)"></ki-data-picker>
 
             </mat-step>
 

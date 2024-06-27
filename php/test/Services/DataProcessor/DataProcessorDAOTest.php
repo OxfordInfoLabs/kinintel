@@ -4,6 +4,7 @@
 namespace Kinintel\Services\DataProcessor;
 
 
+use Kiniauth\Objects\Account\PublicAccountSummary;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kiniauth\Test\TestBase;
 use Kinikit\Core\DependencyInjection\Container;
@@ -86,7 +87,7 @@ class DataProcessorDAOTest extends TestBase {
             "targetDatasources" => [[
                 "key" => "test-target"
             ]]
-        ], DataProcessorInstance::TRIGGER_ADHOC, null, null, null, null, 2);
+        ], DataProcessorInstance::TRIGGER_ADHOC, null, null, null, null, 2,  PublicAccountSummary::fetch(2));
         $instance1->save();
 
         $instance2 = new DataProcessorInstance("another-test", "Another Big One", "tabulardatasourceimport", [
@@ -94,7 +95,7 @@ class DataProcessorDAOTest extends TestBase {
             "targetDatasources" => [[
                 "key" => "test-target"
             ]]
-        ], DataProcessorInstance::TRIGGER_ADHOC, null, null, null, "BINGO", 1);
+        ], DataProcessorInstance::TRIGGER_ADHOC, null, null, null, "BINGO", 1,  PublicAccountSummary::fetch(1));
         $instance2->save();
 
         $instance3 = new DataProcessorInstance("specific-test", "Specific One", "tabulardatasourceimport", [
@@ -102,13 +103,14 @@ class DataProcessorDAOTest extends TestBase {
             "targetDatasources" => [[
                 "key" => "test-target"
             ]]
-        ], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 22, null, 1);
+        ], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 22, null, 1,
+        PublicAccountSummary::fetch(1));
         $instance3->save();
 
         $instance4 = new DataProcessorInstance("another-specific-test", "Specific One Again", "sqlquery", [
             "query" => "SELECT * from test",
             "authenticationCredentialsKey" => "test"
-        ], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 25, null, 1);
+        ], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 25, null, 1,  PublicAccountSummary::fetch(1));
         $instance4->save();
 
         // Check search ones

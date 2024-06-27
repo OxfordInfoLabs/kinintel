@@ -61,7 +61,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ]);
@@ -106,7 +106,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ]);
@@ -153,7 +153,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ]);

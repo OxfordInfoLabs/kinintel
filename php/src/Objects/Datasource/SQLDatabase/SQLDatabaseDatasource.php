@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
+use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
@@ -243,7 +244,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function materialiseDataset($parameterValues = []) {
 
-
         $query = $this->buildQuery($parameterValues);
 
         /**
@@ -372,8 +372,14 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
                     }
                 } catch (SQLException $e) {
+                    // There are multiple errors with code 23000 and they relate to integrity constraints
+                    // https://dev.mysql.com/doc/connector-j/en/connector-j-reference-error-sqlstates.html
                     if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
-                        throw new DuplicateEntriesException();
+                        if (str_contains(strtolower($e->getMessage()), "dup")){
+                            throw new DuplicateEntriesException();
+                        } else {
+                            throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
+                        }
                     } else {
                         Logger::log("SQL Error: " . $e->getMessage());
                         throw new DebugException(
@@ -522,7 +528,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          * @var $transformation SQLDatabaseTransformation
          */
         foreach ($this->transformations as $transformation) {
-
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
@@ -598,6 +603,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         } catch (\Exception $e) {
             $sql = $this->tableDDLGenerator->generateTableCreateSQL($newMetaData, $databaseConnection);
         }
+
 
         if (trim($sql ?? ""))
             $databaseConnection->executeScript($sql);

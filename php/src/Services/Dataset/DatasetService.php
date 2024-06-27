@@ -3,8 +3,11 @@
 namespace Kinintel\Services\Dataset;
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
@@ -14,11 +17,19 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
+use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\ValueObjects\Application\DataSearchItem;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Parameter\Parameter;
+use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
+/**
+ * @interceptor \Kinintel\Services\Dataset\DatasetServiceInterceptor
+ */
 class DatasetService {
 
     /**
@@ -31,16 +42,24 @@ class DatasetService {
      */
     private $metaDataService;
 
+    /**
+     * @var ActiveRecordInterceptor
+     */
+    private $activeRecordInterceptor;
+
 
     /**
      * DatasetService constructor.
      *
      * @param DatasourceService $datasourceService
      * @param MetaDataService $metaDataService
+     * @param ActiveRecordInterceptor $activeRecordInterceptor
      */
-    public function __construct($datasourceService, $metaDataService) {
+    public function __construct($datasourceService, $metaDataService, $activeRecordInterceptor) {
         $this->datasourceService = $datasourceService;
         $this->metaDataService = $metaDataService;
+        $this->activeRecordInterceptor = $activeRecordInterceptor;
+
     }
 
 
@@ -213,10 +232,38 @@ class DatasetService {
         // Return a summary array
         return array_map(function ($instance) {
             $summary = $instance->returnSummary();
-            return new DatasetInstanceSearchResult($instance->getId(), $summary->getTitle(), $summary->getSummary(), $summary->getDescription(),
-                $summary->getCategories());
+            return new DatasetInstanceSearchResult($instance->getId(), $summary->getTitle(), $summary->getSummary(),
+                $summary->getDescription(), $summary->getCategories());
         },
             DatasetInstance::filter($query, $params));
+
+    }
+
+
+    /**
+     * Filter dataset instances shared with account.
+     *
+     * @param string $filterString
+     * @param integer $offset
+     * @param integer $limit
+     * @param integer $accountId
+     * @return DatasetInstanceSearchResult[]
+     */
+    public function filterDatasetInstancesSharedWithAccount($filterString = "", $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $matches = DatasetInstance::filter("WHERE objectScopeAccesses.recipient_scope = ? AND objectScopeAccesses.recipient_primary_key = ? AND title LIKE ? LIMIT ? OFFSET ?",
+            Role::SCOPE_ACCOUNT, $accountId, "%$filterString%", $limit, $offset);
+
+
+        return array_map(function ($datasetInstance) {
+            return new DatasetInstanceSearchResult($datasetInstance->getId(),
+                $datasetInstance->getTitle(),
+                $datasetInstance->getSummary(),
+                $datasetInstance->getDescription(), [], null, null,
+                $datasetInstance->getAccountSummary()?->getName(),
+                $datasetInstance->getAccountSummary()?->getLogo());
+        }, $matches);
+
 
     }
 
@@ -253,6 +300,56 @@ class DatasetService {
         return $this->metaDataService->getMultipleCategoriesByKey($categoryKeys, $projectKey, $accountId);
 
     }
+
+    /**
+     * Get a dataset tree by instance id
+     *
+     * @param $instanceId
+     * @return DatasetTree
+     */
+    public function getDatasetTreeByInstanceId(int $instanceId) {
+        return $this->getDatasetTree($this->getFullDataSetInstance($instanceId));
+    }
+
+    /**
+     * Get a dataset tree for a dataset instance
+     *
+     * @param DatasetInstance $dataSetInstance
+     * @return DatasetTree
+     */
+    public function getDatasetTree(DatasetInstance $dataSetInstance) {
+
+        $searchItem = new DataSearchItem("datasetinstance", $dataSetInstance->getId(), $dataSetInstance->getTitle(), $dataSetInstance->getSummary(), $dataSetInstance?->getAccountSummary()?->getName(),
+            $dataSetInstance?->getAccountSummary()?->getLogo());
+
+        // Resolve hierarchy items
+        $parentTree = null;
+        if ($dataSetInstance->getDatasetInstanceId()) {
+            $parentTree = $this->getDatasetTreeByInstanceId($dataSetInstance->getDatasetInstanceId());
+        } else if ($dataSetInstance->getDatasourceInstanceKey()) {
+            $parentTree = $this->datasourceService->getDatasetTreeForDatasourceKey($dataSetInstance->getDatasourceInstanceKey());
+        }
+
+        // Resolve join items if required
+        $joinedTrees = [];
+        foreach ($dataSetInstance->getTransformationInstances() as $transformationInstance) {
+            if ($transformationInstance->getType() == "join") {
+                $transformation = $transformationInstance->returnTransformation();
+                $joinedTree = null;
+                if ($transformation->getJoinedDatasetInstanceId()) {
+                    $joinedTree = $this->getDatasetTreeByInstanceId($transformation->getJoinedDatasetInstanceId());
+                } else if ($transformation->getJoinedDatasourceInstanceKey()) {
+                    $joinedTree = $this->datasourceService->getDatasetTreeForDatasourceKey($transformation->getJoinedDatasourceInstanceKey());
+                }
+                if ($joinedTree) {
+                    $joinedTrees[] = $joinedTree;
+                }
+            }
+        }
+
+        return new DatasetTree($searchItem, $parentTree, $joinedTrees);
+    }
+
 
     /**
      * Save a data set instance
@@ -336,7 +433,6 @@ class DatasetService {
     }
 
 
-
     /**
      * Get evaluated parameters for the passed datasource by id - this includes parameters from both
      * the dataset and datasource concatenated.
@@ -345,17 +441,17 @@ class DatasetService {
      *
      * @return Parameter[]
      */
-    public function getEvaluatedParameters($datasetInstanceSummary) {
+    public function getEvaluatedParameters($dataSetInstance) {
 
         $params = [];
-        if ($datasetInstanceSummary->getDatasourceInstanceKey()) {
-            $params = $this->datasourceService->getEvaluatedParameters($datasetInstanceSummary->getDatasourceInstanceKey());
-        } else if ($datasetInstanceSummary->getDatasetInstanceId()) {
-            $parentDatasetInstanceSummary = $this->getDataSetInstance($datasetInstanceSummary->getDatasetInstanceId(), false);
+        if ($dataSetInstance->getDatasourceInstanceKey()) {
+            $params = $this->datasourceService->getEvaluatedParameters($dataSetInstance->getDatasourceInstanceKey());
+        } else if ($dataSetInstance->getDatasetInstanceId()) {
+            $parentDatasetInstanceSummary = $this->getDataSetInstance($dataSetInstance->getDatasetInstanceId(), false);
             $params = $this->getEvaluatedParameters($parentDatasetInstanceSummary);
         }
 
-        $params = array_merge($params, $datasetInstanceSummary->getParameters() ?? []);
+        $params = array_merge($params, $dataSetInstance->getParameters() ?? []);
         return $params;
     }
 
@@ -371,7 +467,7 @@ class DatasetService {
      */
     public function getEvaluatedDataSetForDataSetInstanceById($dataSetInstanceId, $parameterValues = [], $additionalTransformations = [], $offset = null, $limit = null) {
 
-        $dataSetInstance = $this->getDataSetInstance($dataSetInstanceId, false);
+        $dataSetInstance = $this->getFullDatasetInstance($dataSetInstanceId);
 
         return $this->getEvaluatedDataSetForDataSetInstance($dataSetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
     }
@@ -399,6 +495,8 @@ class DatasetService {
         } else if ($dataSetInstance->getDatasetInstanceId()) {
             return $this->getEvaluatedDataSetForDataSetInstanceById($dataSetInstance->getDatasetInstanceId(), $parameterValues, $transformations, $offset, $limit);
         }
+
+
     }
 
 
@@ -410,7 +508,6 @@ class DatasetService {
      * @param TransformationInstance[] $additionalTransformations
      */
     public function getTransformedDatasourceForDataSetInstance($dataSetInstance, $parameterValues = [], $additionalTransformations = []) {
-
 
         // Aggregate transformations and parameter values.
         $transformations = array_merge($dataSetInstance->getTransformationInstances() ?? [], $additionalTransformations ?? []);

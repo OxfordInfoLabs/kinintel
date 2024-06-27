@@ -30,7 +30,6 @@ export class SnapshotApiAccessComponent implements OnInit {
     }
 
     async ngOnInit() {
-        console.log(this.data);
         this.backendURL = this.data.backendUrl;
         this.datasetInstance = this.data.datasetInstanceSummary;
         this.showApiAccessDetails = !!this.datasetInstance.managementKey;
@@ -53,7 +52,7 @@ export class SnapshotApiAccessComponent implements OnInit {
                 params.push('"' + parameter.name + '": "' + parameter.type + '"');
             });
 
-            payload += ', "params": [' + params.join(", ") + ']';
+            payload += ', "parameterValues": {' + params.join(", ") + '}';
         }
 
         payload += "}";

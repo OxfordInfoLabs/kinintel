@@ -4,6 +4,7 @@
 namespace Kinintel\Services\DataProcessor;
 
 
+use Exception;
 use Kiniauth\Objects\Account\Account;
 use KiniCRM\Objects\CRM\Contact;
 use Kinikit\Core\Configuration\FileResolver;
@@ -159,6 +160,9 @@ class DataProcessorDAO {
             if (strpos($dataProcessor, ".json")) {
                 $splitFilename = explode(".", $dataProcessor);
                 $instance = $this->jsonToObjectConverter->convert(file_get_contents($directory . "/" . $dataProcessor), DataProcessorInstance::class);
+                if (!$instance){
+                    throw new Exception("Unable to parse the json for the data processor instance: " . $dataProcessor);
+                }
                 $instance->setKey($splitFilename[0]);
                 $this->fileSystemDataProcessors[$splitFilename[0]] = $instance;
             } else if (substr($dataProcessor, 0, 1) !== "." && is_dir($directory . "/" . $dataProcessor)) {

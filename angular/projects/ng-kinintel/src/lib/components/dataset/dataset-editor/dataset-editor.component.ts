@@ -32,6 +32,9 @@ import {
 import {
     SaveAsQueryComponent
 } from '../dataset-editor/save-as-query/save-as-query.component';
+import {
+    ShareQueryComponent
+} from '../dataset-editor/share-query/share-query.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -136,6 +139,18 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         if (this.evaluateSub) {
             this.evaluateSub.unsubscribe();
         }
+    }
+
+    public async shareQuery() {
+        this.dialog.open(ShareQueryComponent, {
+            width: '800px',
+            height: '950px',
+            data: {
+                datasetInstance: this.datasetInstanceSummary
+            }
+        }).afterClosed().subscribe(res => {
+
+        });
     }
 
     public async saveAsQuery() {

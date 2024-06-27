@@ -30,9 +30,12 @@ export * from './lib/components/project-settings/project-settings.component';
 export * from './lib/components/dataset/dataset-editor/upstream-changes-confirmation/upstream-changes-confirmation.component';
 // export * from './lib/components/datasource/create-datasource/api-access/api-access.component';
 export * from './lib/components/datasource/create-datasource/tabular-datasource/tabular-datasource.component';
+export * from './lib/components/marketplace/marketplace.component';
+export * from './lib/components/shared-with-me/shared-with-me.component';
 export * from './lib/components/data-explorer/snapshot-api-access/snapshot-api-access.component';
 export * from './lib/components/query-caching/query-caching.component';
 export * from './lib/components/vector-embedding/vector-embedding.component';
+export * from './lib/components/data-sharing-invite/data-sharing-invite.component';
 
 export * from './lib/guards/dashboard-changes.guard';
 
