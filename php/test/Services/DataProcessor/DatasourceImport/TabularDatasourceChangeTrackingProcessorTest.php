@@ -36,10 +36,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
      */
     private $datasetService;
 
-    /**
-     * @var TabularDatasourceChangeTrackingProcessor
-     */
-    private $processor;
+    private TabularDatasourceChangeTrackingProcessor $processor;
 
 
     public function setUp(): void {

@@ -52,9 +52,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
     public function process($instance) {
 
         // Initialise various variables
-        /**
-         * @var TabularDatasourceChangeTrackingProcessorConfiguration $config
-         */
+        /* @var TabularDatasourceChangeTrackingProcessorConfiguration $config */
         $config = $instance->returnConfig();
 
         $sourceReadChunkSize = $config->getSourceReadChunkSize() ?? PHP_INT_MAX;
