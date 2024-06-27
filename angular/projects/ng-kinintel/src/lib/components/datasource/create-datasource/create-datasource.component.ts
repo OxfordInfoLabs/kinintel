@@ -302,8 +302,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.columns = advancedSettings.columns;
                 this.datasourceUpdate.indexes = advancedSettings.datasourceUpdate.indexes;
                 this.showAutoIncrement = advancedSettings.showAutoIncrement;
-
-                console.log(this.showAutoIncrement);
                 localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
             }
         });
