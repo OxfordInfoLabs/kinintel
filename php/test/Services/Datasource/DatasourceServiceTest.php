@@ -36,6 +36,8 @@ use Kinintel\TestBase;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
@@ -655,7 +657,7 @@ class DatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", "hello-my-world", [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ], [
@@ -752,7 +754,7 @@ class DatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", "hello-my-world", [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ], [
@@ -849,7 +851,7 @@ class DatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("My Source", null, [
             new Field("id", "Id", null, Field::TYPE_ID),
             new Field("age")
-        ], [
+        ], [], [
             ["id" => "Joe Bloggs", "age" => 12],
             ["id" => "Mary Jane", "age" => 7]
         ]);
@@ -868,7 +870,58 @@ class DatasourceServiceTest extends TestBase {
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
         ]));
 
+
     }
+
+    public function testIndexesAreUpdatedCorrectlyOnDatasourceIfSuppliedInDataUpdateWithStructureForManagedTableDatasourceConfig() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(ManagedTableSQLDatabaseDatasourceConfig::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Indexed Source", null, [
+            new Field("id", "Id", null, Field::TYPE_INTEGER),
+            new Field("age")
+        ], [
+            new Index(["id"]),
+            new Index(["age"]),
+            new Index(["age", "id"])
+        ], [
+            ["id" => "Joe Bloggs", "age" => 12],
+            ["id" => "Mary Jane", "age" => 7]
+        ]);
+
+        $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
+
+        // Check column configuration was updated
+        $this->assertTrue($dataSourceConfig->methodWasCalled("setColumns", [
+            [
+                new Field("id", "Id", null, Field::TYPE_INTEGER),
+                new Field("age")
+            ]
+        ]));
+
+        $this->assertTrue($dataSourceConfig->methodWasCalled("setIndexes", [
+            [
+                new Index(["id"]),
+                new Index(["age"]),
+                new Index(["age", "id"])
+            ]
+        ]));
+
+    }
+
 
     public function testCanCheckIfImportKeyIsInUseByAnotherDatasourceInstance() {
 
