@@ -14,6 +14,7 @@ use Kinintel\Objects\Datasource\WebScraper\WebScraperDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\FieldWithXPathSelector;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\WebScraperDatasourceConfig;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
@@ -147,5 +148,61 @@ class WebScraperDatasourceTest extends TestCase {
         ]), $dataset);
     }
 
+    public function testIfPagingTransformationPassedAsTransformationItIsAppliedToReturnedResults(){
+
+        $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
+
+        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@id='grid']//div[@class='row']", 0, [
+            new FieldWithXPathSelector("name", "div[@class='name']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
+            new FieldWithXPathSelector("age", "div[@class='age']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
+            new FieldWithXPathSelector("category", "div[@class='category']", FieldWithXPathSelector::ATTRIBUTE_TEXT)
+        ]));
+
+        $webScraperDatasource->setHttpRequestDispatcher($this->httpDispatcher);
+
+        $webScraperDatasource->applyTransformation(new PagingTransformation(2, 0));
+
+        $dataset = $webScraperDatasource->materialiseDataset();
+        $this->assertEquals(new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age"),
+            new Field("category")
+        ], [
+            ["name" => "Mark", "age" => 33, "category" => "Tech"],
+            ["name" => "Dave", "age" => 44, "category" => "HR"]
+        ]), $dataset);
+
+
+
+        $expectedResponse = new Response(new ReadOnlyFileStream(__DIR__ . "/test.html"), 200, null, null);
+
+        $this->httpDispatcher->returnValue("dispatch", $expectedResponse,
+            new Request("https://mytest.com", Request::METHOD_GET, [], null, new Headers([Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"])));
+
+
+        $webScraperDatasource = new WebScraperDatasource(new WebScraperDatasourceConfig("https://mytest.com", "//div[@id='grid']//div[@class='row']", 0, [
+            new FieldWithXPathSelector("name", "div[@class='name']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
+            new FieldWithXPathSelector("age", "div[@class='age']", FieldWithXPathSelector::ATTRIBUTE_TEXT),
+            new FieldWithXPathSelector("category", "div[@class='category']", FieldWithXPathSelector::ATTRIBUTE_TEXT)
+        ]));
+
+        $webScraperDatasource->setHttpRequestDispatcher($this->httpDispatcher);
+
+        $webScraperDatasource->applyTransformation(new PagingTransformation(3, 1));
+
+        $dataset = $webScraperDatasource->materialiseDataset();
+        $this->assertEquals(new ArrayTabularDataset([
+            new Field("name"),
+            new Field("age"),
+            new Field("category")
+        ], [
+            ["name" => "Dave", "age" => 44, "category" => "HR"],
+            ["name" => "Emma", "age" => 22, "category" => "Admin"]
+        ]), $dataset);
+
+    }
 
 }

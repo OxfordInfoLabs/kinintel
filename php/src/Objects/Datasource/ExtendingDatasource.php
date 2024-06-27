@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 /**
  * Extending datasource - allows for configuration of a datasource
@@ -67,7 +68,7 @@ class ExtendingDatasource extends BaseDatasource {
      * @return string[]
      */
     public function getSupportedTransformationClasses() {
-        // TODO: Implement getSupportedTransformationClasses() method.
+        return [PagingTransformation::class];
     }
 
 
