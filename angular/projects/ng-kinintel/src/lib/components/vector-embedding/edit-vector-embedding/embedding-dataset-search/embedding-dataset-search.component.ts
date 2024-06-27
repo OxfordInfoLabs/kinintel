@@ -16,23 +16,15 @@ export class EmbeddingDatasetSearchComponent {
                 @Inject(MAT_DIALOG_DATA) public data: any) {
     }
 
-    public async select(event) {
-        const type = event.type;
-        const item = event.item;
-
+    public async select(action) {
         const datasetInstanceSummary = {
-            datasetInstanceId: type === 'dataset' ? item.id : null,
-            datasourceInstanceKey: type === 'datasource' ? item.key : null,
+            datasetInstanceId: action.datasetId || null,
+            datasourceInstanceKey: action.datasourceKey || null,
             transformationInstances: [],
             parameterValues: {},
             parameters: [],
-            title: item.title
+            title: action.itemTitle || ''
         };
-
-        if (type === 'snapshot') {
-            datasetInstanceSummary.datasourceInstanceKey = item;
-            datasetInstanceSummary.title = item;
-        }
 
         this.dialogRef.close(datasetInstanceSummary);
     }

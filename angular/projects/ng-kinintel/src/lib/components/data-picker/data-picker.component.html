@@ -83,7 +83,7 @@
                     </td>
                     <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
                         <ng-template ngFor let-action [ngForOf]="dataItem.actionItems">
-                            <button mat-button color="primary" (click)="select(action)">
+                            <button mat-button color="primary" (click)="select(action, dataItem.title || dataItem.fullTitle)">
                                 {{ action.title }}
                             </button>
                         </ng-template>

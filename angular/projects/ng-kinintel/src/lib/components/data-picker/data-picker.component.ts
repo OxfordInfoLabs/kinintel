@@ -53,7 +53,8 @@ export class DataPickerComponent implements OnInit {
         });
     }
 
-    public select(action) {
+    public select(action, itemTitle = '') {
+        action.itemTitle = itemTitle;
         this.selected.next(action);
     }
 
