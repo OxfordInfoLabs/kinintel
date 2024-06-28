@@ -27,6 +27,7 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\IndexableDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -161,7 +162,7 @@ class DatasourceService {
                 return new DatasetTree($dataItem, $datasetService->getDatasetTreeByInstanceId($dataProcessor->getRelatedObjectKey()));
 
             } else {
-                $dataItem = new DataSearchItem($datasource->getType(),$datasource->getKey(),$datasource->getTitle(),"",
+                $dataItem = new DataSearchItem($datasource->getType(), $datasource->getKey(), $datasource->getTitle(), "",
                     $datasource?->getAccountSummary()?->getName(),
                     $datasource?->getAccountSummary()?->getLogo());
                 return new DatasetTree($dataItem);
@@ -410,12 +411,20 @@ class DatasourceService {
             $datasourceInstance->setImportKey($datasourceUpdate->getImportKey());
 
             // If updatable and fields
-            if ($datasource instanceof UpdatableDatasource && $datasourceUpdate->getFields()) {
+            if ($datasource instanceof UpdatableDatasource) {
 
                 // Update configuration of data source.
                 $config = $datasource->getConfig();
-                $config->setColumns($datasourceUpdate->getFields());
-                $datasourceInstance->setConfig($config);
+
+                if ($datasourceUpdate->getFields()) {
+                    $config->setColumns($datasourceUpdate->getFields());
+                    $datasourceInstance->setConfig($config);
+                }
+
+                if ($config instanceof IndexableDatasourceConfig) {
+                    $config->setIndexes($datasourceUpdate->getIndexes());
+                    $datasourceInstance->setConfig($config);
+                }
 
             }
 
