@@ -2,9 +2,12 @@
 
 namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
+use Exception;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinikit\Core\Util\ArrayUtils;
 use Kinintel\Exception\InvalidDataProcessorConfigException;
+use Kinintel\Exception\NoKeyFieldsException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Services\DataProcessor\BaseDataProcessor;
@@ -71,7 +74,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             $sourceDatasetInstance = $config->getSourceDataset();
             $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDatasetInstance, [], null, 0, 1);
             $fieldKeys = $sourceDataset->getColumns();
-
+            $this->setCustomKeyFields($fieldKeys, $config->getCustomKeyFieldNames());
 
             $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
 
@@ -97,6 +100,8 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
         } elseif ($config->getSourceDatasourceKeys()) {
             // Assuming all datasources have the same keys - would be daft otherwise
             $fieldKeys = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($datasourceKeys[0], [], [], 0, 1)->getColumns();
+            $this->setCustomKeyFields($fieldKeys, $config->getCustomKeyFieldNames());
+
             // Iterate through each source datasource
             foreach ($datasourceKeys as $datasourceKey) {
                 $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
@@ -129,7 +134,10 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             $sourceDatasources = $config->getSourceDatasources();
 
             // Assuming all datasources have the same keys - would be daft otherwise
+
+            /** @var Field[] $fieldKeys */
             $fieldKeys = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($sourceDatasources[0]->getDatasourceKey(), $sourceDatasources[0]->getParameterSets()[0], [], $config->getInitialOffset(), 1)->getColumns();
+            $this->setCustomKeyFields($fieldKeys, $config->getCustomKeyFieldNames());
 
             $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey();
 
@@ -166,6 +174,25 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             $this->createSummary($targetLatestDatasourceKey, $targetSummaryDatasourceKey, $config->getSummaryFields(), $sourceReadChunkSize, $targetWriteChunkSize, $setDate);
         }
 
+    }
+
+    /**
+     * @param Field[] $fields
+     * @param string[] $fieldNamesToMakeKeyFields
+     * @return Field[]
+     * @throws Exception
+     */
+    private function setCustomKeyFields($fields, $fieldNamesToMakeKeyFields) {
+        if ($fieldNamesToMakeKeyFields) {
+            foreach ($fields as $field) {
+                $field->setKeyField(in_array($field->getName(), $fieldNamesToMakeKeyFields));
+            }
+        }
+        if (ArrayUtils::all(array_map(fn(Field $field) => ! $field->isKeyField(), $fields))) {
+            throw new NoKeyFieldsException("No key fields set in the TabularDatasourceChangeTrackingProcessor configuration for or in the source datasources");
+        }
+
+        return $fields;
     }
 
 

@@ -63,6 +63,9 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     private $initialOffset;
 
+    /** @var string[]|null */
+    private ?array $customKeyFieldNames;
+
     /**
      * @param string[] $sourceDatasourceKeys
      * @param SourceDatasource[] $sourceDatasources
@@ -75,8 +78,22 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $targetWriteChunkSize
      * @param string $offsetField
      * @param mixed $initialOffset
+     * @param string[]|null $customKeyFieldNames If the source datasource isn't a table, you need to set some key fields
      */
-    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0) {
+    public function __construct(
+        $sourceDatasourceKeys = [],
+        $sourceDatasources = [],
+        $sourceDataset = null,
+        $targetLatestDatasourceKey = null,
+        $targetChangeDatasourceKey = null,
+        $targetSummaryDatasourceKey = null,
+        $summaryFields = [],
+        $sourceReadChunkSize = null,
+        $targetWriteChunkSize = null,
+        $offsetField = null,
+        $initialOffset = 0,
+        $customKeyFieldNames = null
+    ) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -88,6 +105,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->sourceDatasources = $sourceDatasources;
         $this->offsetField = $offsetField;
         $this->initialOffset = $initialOffset;
+        $this->customKeyFieldNames = $customKeyFieldNames;
     }
 
     /**
@@ -242,6 +260,10 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     public function setInitialOffset($initialOffset) {
         $this->initialOffset = $initialOffset;
+    }
+
+    public function getCustomKeyFieldNames(): ?array {
+        return $this->customKeyFieldNames;
     }
 
 }

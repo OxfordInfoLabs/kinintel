@@ -4,6 +4,7 @@ namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinintel\Exception\NoKeyFieldsException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -48,11 +49,14 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testNewFileCreatedInDataDirectoryOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], [], null, null, null, null, [], PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            ["test1", "test2"],
+            sourceReadChunkSize: PHP_INT_MAX,
+            customKeyFieldNames: ["name","age"]
+        );
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
-
 
         $test1Dataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
             [
@@ -114,7 +118,11 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testNestedObjectsAndArraysAreSerialisedToBase64ForChangeTracking() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test3"], [], null, null, null, null, [], PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            ["test3"],
+            sourceReadChunkSize: PHP_INT_MAX,
+            customKeyFieldNames: ["name", "object", "array"]
+        );
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -194,7 +202,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testCanCopyToPreviousOnProcessOfSourceDatasources() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], [], null, null, null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            sourceDatasourceKeys: ["test1", "test2"],
+            customKeyFieldNames: ["name", "age"]
+            );
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -262,7 +273,10 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
     public function testCanDetectAdds() {
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], [], null, null, null, null);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            sourceDatasourceKeys: ["test1", "test2"],
+            customKeyFieldNames: ["name", "age"]
+            );
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -329,6 +343,94 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $this->assertStringContainsString("Iron Man#|!40", file_get_contents("Files/change_tracking_processors/test/test2/adds.txt"));
         $this->assertStringNotContainsString("James Bond#|!56", file_get_contents("Files/change_tracking_processors/test/test1/adds.txt"));
 
+    }
+
+    public function testCanDetectAddsIfOutOfOrder(){
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            sourceDatasourceKeys: ["test1"],
+            targetChangeDatasourceKey: "changes-key",
+            customKeyFieldNames: ["name", "age"]
+        );
+        $processorInstance = new DataProcessorInstance(
+            "test",
+            "Changetracker",
+            TabularDatasourceChangeTrackingProcessor::class,
+            $processorConfig
+        );
+
+        $test1Dataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ],
+            [
+                "name" => "James Bond",
+                "age" => 56
+            ]
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
+            "test1", [], [], 0, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
+            "test1", [], [], 0, PHP_INT_MAX
+        ]);
+
+        mkdir("Files/change_tracking_processors/test/test1", 0777, true);
+
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "James Bond#|!56\nJoe Bloggs#|!22");
+
+        // Actually process
+        $this->processor->process($processorInstance);
+
+        // Expect the new and previous files to exist
+        $this->assertTrue(file_exists("Files/change_tracking_processors/test/test1/adds.txt"));
+
+        $updates = $this->datasourceService->getMethodCallHistory("updateDatasourceInstanceByKey");
+        $this->assertEquals(0, count($updates));
+    }
+
+    public function testDontAllowNoKeyFields(){
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            sourceDatasourceKeys: ["test1"],
+            targetChangeDatasourceKey: "changes-key",
+        );
+        $processorInstance = new DataProcessorInstance(
+            "test",
+            "Changetracker",
+            TabularDatasourceChangeTrackingProcessor::class,
+            $processorConfig
+        );
+
+        $test1Dataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ]
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
+            "test1", [], [], 0, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $test1Dataset, [
+            "test1", [], [], 0, PHP_INT_MAX
+        ]);
+
+        mkdir("Files/change_tracking_processors/test/test1", 0777, true);
+
+        file_put_contents("Files/change_tracking_processors/test/test1/previous.txt", "James Bond#|!56\nJoe Bloggs#|!22");
+
+        // Actually process
+        try {
+            $this->processor->process($processorInstance);
+        } catch (NoKeyFieldsException $exception){
+            //Success
+        }
+
+        $updates = $this->datasourceService->getMethodCallHistory("updateDatasourceInstanceByKey");
+        $this->assertEquals(0, count($updates));
     }
 
     public function testCanDetectDeletes() {
@@ -978,7 +1080,11 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testDoesSkipDatasourceIfNewFileEmpty() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test1", "test2"], [], null, null, null, null, [], PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            sourceDatasourceKeys: ["test1", "test2"],
+            sourceReadChunkSize: PHP_INT_MAX,
+            customKeyFieldNames: ["name", "age"]
+        );
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -1035,7 +1141,12 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
     public function testRowsSkippedIfNextRowIsNull() {
 
-        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(["test"], [], null, "test", null, null, [], PHP_INT_MAX);
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
+            sourceDatasourceKeys: ["test"],
+            targetLatestDatasourceKey: "test",
+            sourceReadChunkSize: PHP_INT_MAX,
+            customKeyFieldNames: ["name", "age"]
+        );
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
         $processorInstance->returnValue("getKey", "test");
@@ -1083,7 +1194,8 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
         $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration([], [
             new SourceDatasource("test", [["param1" => "hello", "param2" => "dave"], ["param1" => "hello", "param2" => "steve"]]),
             new SourceDatasource("test", [["param1" => "goodbye", "param2" => "fred"]])
-        ], null, "testLatest", null, null, [], PHP_INT_MAX);
+        ], null, "testLatest", null, null, [],
+            PHP_INT_MAX, customKeyFieldNames: ["name", "age"]);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
 
@@ -1164,7 +1276,9 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
 
         $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration([], [
             new SourceDatasource("test", [["param1" => "hello", "param2" => "dave"]])
-        ], null, "testLatest", null, null, [], 1, null, "age", 55);
+        ], null, "testLatest", null,
+            null, [], 1, null, "age",
+            55, customKeyFieldNames: ["name", "age"]);
         $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
         $processorInstance->returnValue("returnConfig", $processorConfig);
 
