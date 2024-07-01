@@ -224,6 +224,7 @@ abstract class TabularDataset implements Dataset {
 
     /**
      * Return next raw data item for the dataset.
+     * @return array<string, mixed>
      */
     public abstract function nextRawDataItem();
 
