@@ -104,7 +104,6 @@ export class DatasetFilterComponent implements OnInit {
             if (!filter.rhsExpression[1]) {
                 filter.rhsExpression[1] = 'likewildcard';
             }
-            console.log(filter);
         }
     }
 

@@ -1,8 +1,31 @@
 <div class="border-b w-full flex items-center justify-between ">
-    <div class="leading-5 px-4 text-xs uppercase tracking-wider font-medium border-r-2 text-gray-600">
-        Operations
+    <div class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
+        Name
+        <input type="text" class="w-full py-1.5 ml-4" placeholder="Enter datasource name"
+               [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
+               [(ngModel)]="datasourceUpdate.title">
     </div>
     <div class="flex items-center flex-wrap w-full justify-end bg-white">
+        <ng-template [ngIf]="_.some(rows, '_selected')">
+            <button (click)="deleteSelectedColumns()"
+                    class="w-28 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                <mat-icon class="text-xl">delete_forever</mat-icon>
+                delete selected
+            </button>
+            <div class="divider"></div>
+        </ng-template>
+
+        <button (click)="showFilters = !showFilters" [ngStyle]="{'background-color': this.showFilters ? '#00000012' : ''}"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">filter_alt</mat-icon>
+            filter
+        </button>
+        <div class="divider"></div>
+        <button (click)="advancedSettings()" [disabled]="!datasourceInstanceKey"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">tune</mat-icon>
+            advanced
+        </button>
         <button (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">api</mat-icon>
@@ -13,11 +36,34 @@
             <mat-icon class="text-xl">upload_file</mat-icon>
             upload
         </button>
-        <button (click)="save()"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <div class="divider"></div>
+        <button (click)="save()" [disabled]="!adds.length && !updates.length && !deletes.length"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">save</mat-icon>
             save
         </button>
+    </div>
+</div>
+<div *ngIf="showFilters" class="dataset-filters">
+    <div class="dataset-filter border-b border-gray-200">
+
+        <ki-dataset-filters *ngIf="columns.length" [filterFields]="filterFields"
+                            [openSide]="openSide"
+                            [filterJunction]="filterJunction"></ki-dataset-filters>
+
+        <div class="flex items-center apply-filter">
+            <button mat-stroked-button class="mr-2 bg-white" color="warn"
+                    (click)="clearFilter()">
+                Clear Filter
+            </button>
+            <button mat-flat-button class="mr-2" color="primary"
+                    (click)="applyFilter()" [disabled]="!filterJunction.filters.length">
+                Apply Filter
+            </button>
+        </div>
+
+
+
     </div>
 </div>
 <div class="flex create-datasource-container">
@@ -25,83 +71,123 @@
 
         <div class="create-datasource">
             <div id="tableWrapper" class="flex-1 overflow-y-scroll relative">
-                <table class="datasource-table w-full">
+                <table class="datasource-table table-fixed w-full overflow-scroll">
                     <thead>
                     <tr>
-                        <th *ngFor="let column of columns; let colIndex = index"
-                            class="relative cursor-pointer bg-gray-100 p-2 sticky text-xs"
-                            [ngClass]="{'bg-indigo-50': selectedItem._index === colIndex, 'border-r-0': (colIndex + 1) === columns.length}">
-                            <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
-                                {{column.title}}&nbsp;
-                                <svg *ngIf="column.keyField || column.type ==='id'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-yellow-500">
-                                    <path fill-rule="evenodd" d="M8 7a5 5 0 113.61 4.804l-1.903 1.903A1 1 0 019 14H8v1a1 1 0 01-1 1H6v1a1 1 0 01-1 1H3a1 1 0 01-1-1v-2a1 1 0 01.293-.707L8.196 8.39A5.002 5.002 0 018 7zm5-3a.75.75 0 000 1.5A1.5 1.5 0 0114.5 7 .75.75 0 0016 7a3 3 0 00-3-3z" clip-rule="evenodd" />
-                                </svg>
+                        <th class="w-10 relative cursor-pointer bg-gray-100 p-0 sticky text-xs">
+                            <div class="flex items-center justify-center">
+                                <input type="checkbox" [(ngModel)]="selectAll" (ngModelChange)="updateSelectAll()">
                             </div>
-                            <button mat-icon-button [matMenuTriggerFor]="header"
-                                    class="absolute header-actions">
-                                <mat-icon>more_vert</mat-icon>
-                            </button>
-                            <mat-menu #header="matMenu">
-                                <ng-template [ngIf]="column.type !== 'id'">
-                                    <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
-                                        Insert column before
-                                    </button>
-                                </ng-template>
-                                <button mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
-                                <button mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
-                            </mat-menu>
                         </th>
+                        <ng-template ngFor let-column [ngForOf]="columns" let-colIndex=index>
+                            <th [id]="column.type + colIndex" *ngIf="column.type === 'id' ? showAutoIncrement : true"
+                                class="w-64 relative cursor-pointer bg-gray-100 p-2 sticky text-xs"
+                                [ngClass]="{'bg-indigo-50': selectedItem._index === colIndex, 'border-r-0': (colIndex + 1) === columns.length}">
+                                <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
+                                    {{ column.title }}&nbsp;
+                                    <svg *ngIf="column.keyField || column.type ==='id'"
+                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                         class="w-5 h-5 text-yellow-500">
+                                        <path fill-rule="evenodd"
+                                              d="M8 7a5 5 0 113.61 4.804l-1.903 1.903A1 1 0 019 14H8v1a1 1 0 01-1 1H6v1a1 1 0 01-1 1H3a1 1 0 01-1-1v-2a1 1 0 01.293-.707L8.196 8.39A5.002 5.002 0 018 7zm5-3a.75.75 0 000 1.5A1.5 1.5 0 0114.5 7 .75.75 0 0016 7a3 3 0 00-3-3z"
+                                              clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <button mat-icon-button [matMenuTriggerFor]="header"
+                                        class="absolute header-actions">
+                                    <mat-icon>more_vert</mat-icon>
+                                </button>
+                                <mat-menu #header="matMenu">
+                                    <button mat-menu-item (click)="sortColumn(column, 'asc')">
+                                        <div class="flex items-center justify-between w-full">
+                                            Sort Ascending
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                 class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                    <button mat-menu-item (click)="sortColumn(column, 'desc')">
+                                        <div class="flex items-center justify-between w-full">
+                                            Sort Descending
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                 class="h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                    <ng-template [ngIf]="column.type !== 'id'">
+                                        <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
+                                            Insert column before
+                                        </button>
+                                    </ng-template>
+                                    <button mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
+                                    <button mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
+                                </mat-menu>
+                            </th>
+                        </ng-template>
                     </tr>
                     </thead>
                     <tbody>
                     <tr class="table-rows" [ngClass]="{'bg-gray-200 opacity-30': this.deletes.indexOf(rowIndex) > -1,
                     'bg-green-50': this.adds.indexOf(rowIndex) > -1, 'bg-indigo-100': this.updates.indexOf(rowIndex) > -1}"
                         *ngFor="let row of rows; let rowIndex = index">
-                        <td *ngFor="let rowColumn of columns; let rowColIndex = index"
-                            [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex,
+                        <td class="p-0 row-cell text-center">
+                            <div class="flex items-center justify-center">
+                                <input type="checkbox" [(ngModel)]="row._selected" (ngModelChange)="updateSelected()">
+                            </div>
+                        </td>
+                        <ng-template ngFor let-rowColumn [ngForOf]="columns" let-rowColIndex=index>
+                            <td *ngIf="rowColumn.type === 'id' ? showAutoIncrement : true"
+                                [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex,
                             'w-24 bg-gray-100': columns[rowColIndex].type === 'id',
                             'bg-gray-100': columns[rowColIndex].keyField && this.adds.indexOf(rowIndex) === -1}"
-                            class="p-0 row-cell">
-                            <div
-                                class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
-                                <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
-                                       type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                       *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField"
-                                       (change)="updateField(field, rowIndex)"
-                                       (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                       (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                                class="p-0 row-cell">
+                                <div
+                                    class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
+                                    <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
+                                           type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
+                                           *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField"
+                                           (change)="updateField(field, rowIndex)"
+                                           (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                           (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
 
-                                <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
-                                    <div class="text-gray-500 text-xs">{{row[rowColumn.name] || '<\generated\>'}}</div>
-                                </ng-template>
-
-                                <ng-template [ngIf]="columns[rowColIndex].keyField">
-                                    <ng-template [ngIf]="this.adds.indexOf(rowIndex) > -1">
-                                        <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
-                                               type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                               (change)="updateField(field, rowIndex)"
-                                               (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                               (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-                                    </ng-template>
-                                    <ng-template [ngIf]="this.adds.indexOf(rowIndex) === -1">
-                                        <div class="text-gray-500 text-xs">{{row[rowColumn.name]}}</div>
+                                    <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
+                                        <div
+                                            class="text-gray-500 text-xs">{{ row[rowColumn.name] || '<\generated\>' }}
+                                        </div>
                                     </ng-template>
 
-                                </ng-template>
+                                    <ng-template [ngIf]="columns[rowColIndex].keyField">
+                                        <ng-template [ngIf]="this.adds.indexOf(rowIndex) > -1">
+                                            <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
+                                                   type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
+                                                   (change)="updateField(field, rowIndex)"
+                                                   (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                                   (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                                        </ng-template>
+                                        <ng-template [ngIf]="this.adds.indexOf(rowIndex) === -1">
+                                            <div class="text-gray-500 text-xs">{{ row[rowColumn.name] }}</div>
+                                        </ng-template>
 
-                                <button mat-icon-button [matMenuTriggerFor]="menu"
-                                        class="absolute cell-actions" tabindex="-1">
-                                    <mat-icon>more_vert</mat-icon>
-                                </button>
-                                <mat-menu #menu="matMenu">
-                                    <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
-                                    <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
-                                    <button *ngIf="columns[rowColIndex].type !== 'id'"
-                                        mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell</button>
-                                </mat-menu>
-                            </div>
+                                    </ng-template>
 
-                        </td>
+                                    <button mat-icon-button [matMenuTriggerFor]="menu"
+                                            class="absolute cell-actions" tabindex="-1">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+                                    <mat-menu #menu="matMenu">
+                                        <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
+                                        <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
+                                        <button *ngIf="columns[rowColIndex].type !== 'id'"
+                                                mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell
+                                        </button>
+                                    </mat-menu>
+                                </div>
+
+                            </td>
+                        </ng-template>
+
                     </tr>
                     </tbody>
                 </table>
@@ -109,10 +195,13 @@
 
 
             <div class="border-t bg-gray-50 py-2 flex align-center justify-between">
-                <button mat-icon-button color="primary" (click)="addRow()">
+                <button mat-icon-button color="primary" title="Add Row" (click)="addRow()">
                     <mat-icon>add_circle</mat-icon>
                 </button>
                 <div class="flex items-center">
+                    <div class="text-xs text-gray-400 mr-10">
+                        Showing {{offset + 1}}
+                        - {{(page * limit) - (limit - rows.length)}}</div>
                     <select [value]="limit" (change)="pageSizeChange($event.target.value)"
                             class="mr-8 p-2">
                         <option [value]="10">10</option>
@@ -134,44 +223,28 @@
     </div>
 
     <div class="border-l border-r bg-gray-50 -ml-2.5">
-        <button mat-icon-button color="primary" (click)="addColumn()"
+        <button mat-icon-button color="primary" title="Add Column" (click)="addColumn()"
                 class="-mt-0.5">
             <mat-icon>add_circle</mat-icon>
         </button>
     </div>
 
-    <div class="bg-gray-100 w-72 h-full p-3 flex justify-between flex-col">
+    <div *ngIf="Object.keys(selectedItem).length" class="bg-gray-100 w-72 h-full p-3 flex justify-between flex-col">
         <div>
             <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
                 Settings
             </div>
-            <label class="mb-4">
-                Datasource Name
-                <input type="text" class="w-full" placeholder="Enter datasource name"
-                       [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
-                       [(ngModel)]="datasourceUpdate.title">
-                <div class="text-xs text-red-500" *ngIf="!datasourceUpdate.title">
-                    Please enter a name for this datasource
-                </div>
-            </label>
-
-            <mat-checkbox class="mb-4" [checked]="_.find(columns, {type: 'id'})"
-                          (change)="updateAutoIncrementColumn($event.checked)">
-                Add ID Column
-            </mat-checkbox>
-
-            <div>
-                <button mat-button class="text-red-500" (click)="resetTable()">
-                    Reset Table
-                </button>
-            </div>
 
             <hr class="my-4">
 
-            <ng-template [ngIf]="selectedItem && selectedItem._tableType">
+            <ng-template [ngIf]="selectedItem._tableType">
                 <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
                     Column
                 </div>
+                <label *ngIf="datasourceUpdate.instanceImportKey" class="mb-4">
+                    Column Key
+                    <input type="text" [(ngModel)]="selectedItem.name" disabled>
+                </label>
                 <label class="mb-4">
                     Column Title
                     <input type="text" [(ngModel)]="selectedItem.title" placeholder="Enter column title"
@@ -185,10 +258,6 @@
                             <option [value]="'id'">ID</option>
                         </select>
                     </label>
-
-                    <mat-checkbox class="mb-4" [checked]="true" disabled>
-                        {{_.filter(columns, 'keyField').length > 1 ? 'Part of Unique Identifier' : 'Unique Identifier'}}
-                    </mat-checkbox>
                 </ng-template>
 
                 <ng-template [ngIf]="selectedItem.type !== 'id'">
@@ -197,19 +266,11 @@
                         <select [(ngModel)]="selectedItem.type" class="capitalize">
                             <option [value]="null">-- Select column type --</option>
                             <option *ngFor="let type of datasourceTypes" [value]="type">
-                                {{type}}
+                                {{ type }}
                             </option>
                         </select>
                     </label>
-
-                    <mat-checkbox class="mb-4" [(ngModel)]="selectedItem.keyField"
-                                  [disabled]="_.find(columns, {type:'id'})">
-                        {{_.filter(columns, 'keyField').length > 1 ? 'Part of Unique Identifier' : 'Unique Identifier'}}
-                    </mat-checkbox>
-
                 </ng-template>
-
-
 
 
                 <div>
@@ -218,24 +279,6 @@
 
                 <hr class="my-4">
             </ng-template>
-
-
-            <table class="datasource-table w-full">
-                <tbody>
-                <tr class="bg-indigo-100">
-                    <td class="pl-2">Updated</td>
-                    <td class="pl-2 text-right">{{updates.length || ''}}</td>
-                </tr>
-                <tr class="bg-gray-200 opacity-30">
-                    <td class="pl-2">Deleted</td>
-                    <td class="pl-2 text-right">{{deletes.length || ''}}</td>
-                </tr>
-                <tr class="bg-green-50">
-                    <td class="pl-2">Added</td>
-                    <td class="pl-2 text-right">{{adds.length || ''}}</td>
-                </tr>
-                </tbody>
-            </table>
         </div>
 
         <button mat-flat-button color="primary" (click)="save(true)">

@@ -24,7 +24,7 @@ export class DatasourceService {
                 private projectService: ProjectService) {
     }
 
-    public createCustomDatasource(datasourceUpdate: DatasourceUpdate) {
+    public createCustomDatasource(datasourceUpdate: DatasourceUpdate): Promise<any> {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         return this.http.post(this.config.backendURL + '/datasource/custom?projectKey=' + projectKey, datasourceUpdate)
             .toPromise();
@@ -51,6 +51,12 @@ export class DatasourceService {
 
     public deleteDatasource(key) {
         return this.http.delete(this.config.backendURL + '/datasource/' + key).toPromise();
+    }
+
+    public deleteFromDatasource(datasourceInstanceKey: string, filter: any = []) {
+        return this.http.delete(this.config.backendURL + '/datasource/custom/' + datasourceInstanceKey, {
+            body: filter
+        }).toPromise();
     }
 
     public getEvaluatedParameters(evaluatedDatasource) {

@@ -17,6 +17,7 @@ use Kinintel\ValueObjects\Datasource\EvaluatedDataSource;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceConfigUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 
 /**
  * Datasource trait for account level access to datasources
@@ -181,6 +182,19 @@ trait Datasource {
      */
     public function populateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
+    }
+
+    /**
+     * Delete from a custom datasource using the supplied import key and filter criteria
+     *
+     * @http DELETE /custom/$datasourceInstanceKey
+     *
+     * @param string $datasourceInstanceKey
+     * @param FilterJunction $filterJunction
+     * @return void
+     */
+    public function filteredDeleteFromDatasourceInstanceByKey($datasourceInstanceKey, $filterJunction) {
+        $this->datasourceService->filteredDeleteFromDatasourceInstanceByKey($datasourceInstanceKey, $filterJunction);
     }
 
 
