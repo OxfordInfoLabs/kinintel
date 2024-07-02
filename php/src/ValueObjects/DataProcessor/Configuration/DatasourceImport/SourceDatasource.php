@@ -5,22 +5,13 @@ namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport;
 class SourceDatasource {
 
     /**
-     * @var string
-     */
-    private $datasourceKey;
-
-    /**
-     * @var array
-     */
-    private $parameterSets;
-
-    /**
      * @param string $datasourceKey
      * @param array $parameterSets
      */
-    public function __construct($datasourceKey, $parameterSets = []) {
-        $this->datasourceKey = $datasourceKey;
-        $this->parameterSets = $parameterSets;
+    public function __construct(
+        private $datasourceKey,
+        private $parameterSets = []
+    ) {
     }
 
     /**

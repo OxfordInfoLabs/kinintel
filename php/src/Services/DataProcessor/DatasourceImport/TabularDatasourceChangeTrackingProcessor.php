@@ -114,7 +114,6 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                     "new.txt",
                     $sourceReadChunkSize
                 );
-                //TODO ^ check filename
             } else if ($source instanceof SourceDatasource){
                 $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $source->getDatasourceKey();
                 $newFile = $directory . "/new.txt";
@@ -135,6 +134,11 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                 }
             } else {
                 throw new InvalidDataProcessorConfigException([new FieldValidationError(errorMessage: "ChangeTracker can only track datasets and datasources, ".gettype($source)." passed in.")]);
+            }
+
+            // Skip diff if we've got nothing back from the datasource
+            if (!file_exists($directory . "/new.txt")) {
+                continue;
             }
 
             // Track changes between the new and previous
