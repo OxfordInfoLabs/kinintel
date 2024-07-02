@@ -270,6 +270,10 @@ class JSONResultFormatter implements ResultFormatter {
         }
     }
 
+    /**
+     * Apologies for this function, using recursion + mutability is pretty gross.
+     * Feel free to rewrite it.
+     */
     public function insertMappedResult(
         array &$arrayToInsert,
         ?string $mapping,
