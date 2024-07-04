@@ -14,9 +14,9 @@ class MultiTabularDataset extends TabularDataset {
     public function __construct(
         private array $tabularDatasets,
         $columns = [],
-        $cacheAllRows = true,
+        int $limit = PHP_INT_MAX,
         int $offset = 0,
-        private int $limit = PHP_INT_MAX
+        bool $cacheAllRows = true
     ) {
         // if offset, forward wind to that offset
         $this->rowsToRead = PHP_INT_MAX; // No limit when winding

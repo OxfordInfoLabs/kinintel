@@ -81,7 +81,7 @@ class MultiTabularDatasetTest extends TestBase {
             ])
         ], columns: [
             new Field("name"),
-        ], offset: 1, limit: 2
+        ], limit: 2, offset: 1
         );
 
         $this->assertEquals([
@@ -89,19 +89,23 @@ class MultiTabularDatasetTest extends TestBase {
             ["name" => "Alex"],
         ], $multiset->getAllData());
 
-        $multiset = new MultiTabularDataset(tabularDatasets: [
-            new ArrayTabularDataset($cols, [
-                ["name" => "Joe"],
-            ]),
-            new ArrayTabularDataset([
+        $multiset = new MultiTabularDataset(
+            tabularDatasets: [
+                new ArrayTabularDataset($cols, [
+                    ["name" => "Joe"],
+                ]),
+                new ArrayTabularDataset([
+                    new Field("name"),
+                ], [
+                    ["name" => "Bernie"],
+                    ["name" => "Alex"]
+                ])
+            ],
+            columns: [
                 new Field("name"),
-            ], [
-                ["name" => "Bernie"],
-                ["name" => "Alex"]
-            ])
-        ], columns: [
-            new Field("name"),
-        ], offset: 0, limit: 2
+            ],
+            limit: 2,
+            offset: 0
         );
 
         $this->assertEquals([
