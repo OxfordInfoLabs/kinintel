@@ -17,7 +17,6 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\SourceDatasource;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceChangeTrackingProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
@@ -69,7 +68,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
         $setDate = new \DateTime();
 
         // Get sources, key fields
-        /** @var (DatasetInstance|SourceDatasource)[] $sources */
+        /** @var (DatasetInstance|string)[] $sources */
         $sources = [];
         if ($config->getSourceDataset()) {
             $sourceDatasetInstance = $config->getSourceDataset();
@@ -79,21 +78,10 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                     $sourceDatasetInstance,
                     offset: $config->getInitialOffset(), limit: 1)
                 ->getColumns();
-        } else if ($config->getSourceDatasources()) {
-            $sourceDatasources = $config->getSourceDatasources();
-            $sources = $sourceDatasources;
-            $fieldKeys = $this->datasourceService
-                ->getEvaluatedDataSourceByInstanceKey(
-                    $sourceDatasources[0]->getDatasourceKey(),
-                    $sourceDatasources[0]->getParameterSets()[0],
-                    offset: $config->getInitialOffset(), limit: 1)
-                ->getColumns();
         } else if ($config->getSourceDatasourceKeys()) {
             // Turn into sourceDatasource wrapper objects
             $datasourceKeys = $config->getSourceDatasourceKeys();
-            $sources = array_map(
-                fn($dsKey) => new SourceDatasource($dsKey, [[]]), // Run the datasource with no parameters
-                $datasourceKeys);
+            $sources = $datasourceKeys;
             $fieldKeys = $this->datasourceService
                 ->getEvaluatedDataSourceByInstanceKey(
                     $datasourceKeys[0], offset: $config->getInitialOffset(), limit: 1)
@@ -114,24 +102,21 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                     "new.txt",
                     $sourceReadChunkSize
                 );
-            } else if ($source instanceof SourceDatasource){
-                $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $source->getDatasourceKey();
+            } else if (is_string($source)){
+                $datasourceKey = $source;
+                $directory = Configuration::readParameter("files.root") . "/change_tracking_processors/" . $instance->getKey() . "/" . $datasourceKey;
                 $newFile = $directory . "/new.txt";
                 $previousFile = $directory . "/previous.txt";
                 $this->initialiseFiles($directory);
-                print_r($directory);
-                echo "\n";
-                foreach ($source->getParameterSets() as $parameterValues){
-                    $this->writeDatasourcesToFile(
-                        $directory,
-                        "new.txt",
-                        $source->getDatasourceKey(),
-                        $sourceReadChunkSize,
-                        $config->getOffsetField(),
-                        $config->getInitialOffset(),
-                        $parameterValues
-                    );
-                }
+                $this->writeDatasourcesToFile(
+                    $directory,
+                    "new.txt",
+                    $datasourceKey,
+                    $sourceReadChunkSize,
+                    $config->getOffsetField(),
+                    $config->getInitialOffset(),
+                    []
+                );
             } else {
                 throw new InvalidDataProcessorConfigException([new FieldValidationError(errorMessage: "ChangeTracker can only track datasets and datasources, ".gettype($source)." passed in.")]);
             }
@@ -186,7 +171,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             }
         }
         if (ArrayUtils::all(array_map(fn(Field $field) => ! $field->isKeyField(), $fields))) {
-            throw new NoKeyFieldsException("No key fields set in the TabularDatasourceChangeTrackingProcessor configuration for or in the source datasources");
+            throw new NoKeyFieldsException("No key fields set in the TabularDatasourceChangeTrackingProcessor configuration or in the source datasources");
         }
 
         return $fields;
