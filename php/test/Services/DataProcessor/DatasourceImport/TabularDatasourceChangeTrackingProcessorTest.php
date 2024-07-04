@@ -50,7 +50,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     public function testNewFileCreatedInDataDirectoryOnProcessOfSourceDatasources() {
 
         $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration(
-            ["test1", "test2"],
+            sourceDatasourceKeys: ["test1", "test2"],
             sourceReadChunkSize: PHP_INT_MAX,
             customKeyFieldNames: ["name","age"]
         );
