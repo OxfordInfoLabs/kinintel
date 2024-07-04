@@ -60,4 +60,54 @@ class MultiTabularDatasetTest extends TestBase {
             ["name" => "Bernie","age" => 101],
         ], $multiset->getAllData());
     }
+
+    public function testWorksWithLimitOffset(){
+        $cols = [
+            new Field("name"),
+        ];
+        $multiset = new MultiTabularDataset(tabularDatasets: [
+            new ArrayTabularDataset($cols, [
+                ["name" => "Joe"]
+            ]),
+            new ArrayTabularDataset([], []),
+            new ArrayTabularDataset([
+                new Field("name"),
+                new Field("age", valueExpression: 101),
+            ], [
+                [
+                    "name" => "Alex",
+                    "age" => 93
+                ]
+            ])
+        ], columns: [
+            new Field("name"),
+        ], offset: 1, limit: 2
+        );
+
+        $this->assertEquals([
+//            ["name" => "Joe"],
+            ["name" => "Alex"],
+        ], $multiset->getAllData());
+
+        $multiset = new MultiTabularDataset(tabularDatasets: [
+            new ArrayTabularDataset($cols, [
+                ["name" => "Joe"],
+            ]),
+            new ArrayTabularDataset([
+                new Field("name"),
+            ], [
+                ["name" => "Bernie"],
+                ["name" => "Alex"]
+            ])
+        ], columns: [
+            new Field("name"),
+        ], offset: 0, limit: 2
+        );
+
+        $this->assertEquals([
+            ["name" => "Joe"],
+            ["name" => "Bernie"]
+//            ["name" => "Alex"],
+        ], $multiset->getAllData());
+    }
 }
