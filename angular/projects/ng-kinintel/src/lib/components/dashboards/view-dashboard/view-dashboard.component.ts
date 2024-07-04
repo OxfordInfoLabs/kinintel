@@ -50,6 +50,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     @Input() actionEvents: any = [];
     @Input() external = false;
     @Input() reload: Subject<any>;
+    @Input() cssGridSelector = 'view-grid-stack';
 
     public dashboard: any = {};
     public activeSidePanel: string = null;
@@ -126,6 +127,30 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         if (this.reload) {
             this.reloadSub = this.reload.subscribe(res => {
+                if (this.parameters) {
+                    _.forEach(this.parameters, (value, key) => {
+                        this.queryParams[key] = value;
+                    });
+
+                    Object.keys(this.queryParams).forEach(key => {
+                        if (Object.keys(this.dashboard.layoutSettings.parameters || {}).length) {
+                            if (this.dashboard.layoutSettings.parameters[key]) {
+                                if (this.dashboard.layoutSettings.parameters[key].type === 'date' ||
+                                    this.dashboard.layoutSettings.parameters[key].type === 'datetime') {
+                                    this.queryParams[key] = moment(this.queryParams[key]).format('YYYY-MM-DDTHH:mm');
+                                }
+                                this.dashboard.layoutSettings.parameters[key].value = this.queryParams[key];
+                            }
+                        }
+
+                        this.dashboard.datasetInstances.forEach(instance => {
+                            if (!_.values(instance.parameterValues).length) {
+                                instance.parameterValues = {};
+                            }
+                            instance.parameterValues[key] = this.queryParams[key];
+                        });
+                    });
+                }
                 this.reloadDashboard();
             });
         }
@@ -139,7 +164,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             minW: 768,
             disableOneColumnMode: false
         };
-        this.grid = GridStack.init(options);
+        this.grid = GridStack.init(options, '.' + this.cssGridSelector);
         this.grid.enableMove(false);
         this.grid.enableResize(false);
 
