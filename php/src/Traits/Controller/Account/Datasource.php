@@ -73,7 +73,7 @@ trait Datasource {
      *
      * @param $key
      * @param DatasourceConfigUpdate $documentDatasourceConfig
-     * @unsanitise
+     * @unsanitise documentDatasourceConfig
      *
      * @return string
      */
@@ -164,6 +164,8 @@ trait Datasource {
      *
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdateWithStructure $datasourceUpdate
+     *
+     * @unsanitise datasourceUpdate
      */
     public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
         $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
