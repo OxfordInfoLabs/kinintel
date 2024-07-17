@@ -1,0 +1,52 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>List Item on Marketplace</h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content px-8 py-4">
+
+        <div class="my-4">
+            <p><b>Select Stored Queries</b></p>
+            <button mat-stroked-button color="primary">Select Queries</button>
+            <div class="text-xs text-gray-400">The selected queries will make up the package that is being made available.</div>
+        </div>
+
+        <div class="my-4">
+            <p><b>Marketplace Description</b></p>
+            <textarea [(ngModel)]="marketplaceData.description" placeholder="Enter description" rows="3"
+                      class="w-full"></textarea>
+            <div class="text-xs text-gray-400">Describe the data you are offering.</div>
+        </div>
+
+        <div class="my-4">
+            <p><b>Upload Icon</b></p>
+            <input class="full" type="file" [(ngModel)]="marketplaceData.icon">
+            <div class="text-xs text-gray-400">Attach a small image to help identify your data.</div>
+        </div>
+
+        <div class="my-4">
+            <p><b>Price</b></p>
+            <input class="w-1/2" type="number" placeholder="Enter price" [(ngModel)]="marketplaceData.price">
+            <div class="text-xs text-gray-400">Set a price for accessing this dataset.</div>
+        </div>
+
+        <mat-checkbox
+            [(ngModel)]="marketplaceData.requireVerification">
+            Require Account Confirmation/Verification
+        </mat-checkbox>
+        <div class="text-xs text-gray-400">Perform additional validation on accounts requesting access
+            to this query.</div>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close>Close</button>
+        <button mat-flat-button color="primary" mat-dialog-close>Save Listing</button>
+    </div>
+
+</div>

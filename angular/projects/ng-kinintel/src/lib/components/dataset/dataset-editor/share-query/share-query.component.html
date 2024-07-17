@@ -142,48 +142,48 @@
 
                 </div>
             </mat-tab>
-<!--            <mat-tab label="Marketplace">-->
-<!--                <div class="px-6 py-4">-->
-<!--                    <mat-checkbox-->
-<!--                        [(ngModel)]="listOnMarketplace">-->
-<!--                        List Query on Marketplace-->
-<!--                    </mat-checkbox>-->
-<!--                    <div class="text-xs text-gray-400">-->
-<!--                        Advertise this query to other users via the DAP Marketplace.-->
-<!--                    </div>-->
+            <mat-tab label="Marketplace">
+                <div class="px-6 py-4">
+                    <mat-checkbox
+                        [(ngModel)]="listOnMarketplace">
+                        List Query on Marketplace
+                    </mat-checkbox>
+                    <div class="text-xs text-gray-400">
+                        Advertise this query to other users via the DAP Marketplace.
+                    </div>
 
-<!--                    <div class="border-l pl-8" *ngIf="listOnMarketplace">-->
+                    <div class="border-l pl-8" *ngIf="listOnMarketplace">
 
-<!--                        <div class="my-4">-->
-<!--                            <p><b>Marketplace Description</b></p>-->
-<!--                            <textarea [(ngModel)]="marketplaceData.description" placeholder="Enter description" rows="3"-->
-<!--                                      class="w-full"></textarea>-->
-<!--                            <div class="text-xs text-gray-400">Describe the data you are offering.</div>-->
-<!--                        </div>-->
+                        <div class="my-4">
+                            <p><b>Marketplace Description</b></p>
+                            <textarea [(ngModel)]="marketplaceData.description" placeholder="Enter description" rows="3"
+                                      class="w-full"></textarea>
+                            <div class="text-xs text-gray-400">Describe the data you are offering.</div>
+                        </div>
 
-<!--                        <div class="my-4">-->
-<!--                            <p><b>Upload Icon</b></p>-->
-<!--                            <input class="full" type="file" [(ngModel)]="marketplaceData.icon">-->
-<!--                            <div class="text-xs text-gray-400">Attach a small image to help identify your data.</div>-->
-<!--                        </div>-->
+                        <div class="my-4">
+                            <p><b>Upload Icon</b></p>
+                            <input class="full" type="file" [(ngModel)]="marketplaceData.icon">
+                            <div class="text-xs text-gray-400">Attach a small image to help identify your data.</div>
+                        </div>
 
-<!--                        <div class="my-4">-->
-<!--                            <p><b>Price</b></p>-->
-<!--                            <input class="w-1/2" type="number" placeholder="Enter price" [(ngModel)]="marketplaceData.price">-->
-<!--                            <div class="text-xs text-gray-400">Set a price for accessing this dataset.</div>-->
-<!--                        </div>-->
+                        <div class="my-4">
+                            <p><b>Price</b></p>
+                            <input class="w-1/2" type="number" placeholder="Enter price" [(ngModel)]="marketplaceData.price">
+                            <div class="text-xs text-gray-400">Set a price for accessing this dataset.</div>
+                        </div>
 
-<!--                        <mat-checkbox-->
-<!--                            [(ngModel)]="marketplaceData.requireVerification">-->
-<!--                            Require Account Confirmation/Verification-->
-<!--                        </mat-checkbox>-->
-<!--                        <div class="text-xs text-gray-400">Perform additional validation on accounts requesting access-->
-<!--                            to this query.</div>-->
+                        <mat-checkbox
+                            [(ngModel)]="marketplaceData.requireVerification">
+                            Require Account Confirmation/Verification
+                        </mat-checkbox>
+                        <div class="text-xs text-gray-400">Perform additional validation on accounts requesting access
+                            to this query.</div>
 
-<!--                    </div>-->
+                    </div>
 
-<!--                </div>-->
-<!--            </mat-tab>-->
+                </div>
+            </mat-tab>
         </mat-tab-group>
 
     </div>

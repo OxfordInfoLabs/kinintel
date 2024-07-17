@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {ListMarketplaceItemComponent} from './list-marketplace-item/list-marketplace-item.component';
 
 @Component({
     selector: 'ki-marketplace',
@@ -19,7 +21,7 @@ export class MarketplaceComponent implements OnInit {
 
     private reload = new Subject();
 
-    constructor() {
+    constructor(private dialog: MatDialog) {
     }
 
     ngOnInit() {
@@ -39,6 +41,14 @@ export class MarketplaceComponent implements OnInit {
         this.searchText.subscribe(() => {
             this.page = 1;
             this.offset = 0;
+        });
+    }
+
+    public listNewItem() {
+        const dialogRef = this.dialog.open(ListMarketplaceItemComponent, {
+            width: '1000px',
+            height: '800px',
+            disableClose: true,
         });
     }
 
