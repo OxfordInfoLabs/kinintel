@@ -1109,6 +1109,718 @@
 
                 </div>
             </mat-tab>
+            <mat-tab label="Network Graph" *ngIf="dashboardItemType.type === 'network'">
+                <div class="px-6 py-3 bg-white border-b border-gray-200">
+                    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-start flex-1">
+                            <div class="pt-1.5">
+                                <h1 class="text-xl font-bold text-gray-900 mb-0">Network Graph Settings</h1>
+                                <p class="text-xs font-medium text-gray-500">
+                                    Adjust the settings for the Network Graph.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="flex-1 w-1/2">
+                        <div class="p-4">
+
+                            <div class="w-full bg-white p-4 border rounded">
+                                <div class="font-medium mb-3 text-base">Node Data</div>
+                                <div class="mb-2 flex items-center justify-between">
+                                    <label class="flex-1 mb-2 mr-1">
+                                        ID Column
+                                        <select class="w-full" matNativeControl [(ngModel)]="networkData.nodeIds"
+                                            (ngModelChange)="setNetworkChartData(true)">
+                                            <option value="">-- Select Column --</option>
+                                            <ng-template [ngIf]="dataset">
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="column.name">
+                                                    {{column.title}}
+                                                </option>
+                                            </ng-template>
+                                        </select>
+                                        <div class="text-xs font-normal text-gray-500">IDs must be unique</div>
+                                    </label>
+                                    <label class="flex-1 mb-2 ml-1">
+                                        Label Column
+                                        <select class="w-full" matNativeControl [(ngModel)]="networkData.nodeLabels"
+                                                (ngModelChange)="setNetworkChartData(true)">
+                                            <option value="">-- Select Column --</option>
+                                            <ng-template [ngIf]="dataset">
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="column.name">
+                                                    {{column.title}}
+                                                </option>
+                                            </ng-template>
+                                        </select>
+                                        <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                    </label>
+                                    <label class="flex-1 mb-2 ml-1">
+                                        Group Column
+                                        <select class="w-full" matNativeControl [(ngModel)]="networkData.nodeGroups"
+                                                (ngModelChange)="setNetworkChartData(true)">
+                                            <option value="">-- Select Column --</option>
+                                            <ng-template [ngIf]="dataset">
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="column.name">
+                                                    {{column.title}}
+                                                </option>
+                                            </ng-template>
+                                        </select>
+                                        <div class="text-xs font-normal text-gray-500">Set which group nodes belong to.</div>
+                                    </label>
+                                </div>
+
+                                <hr class="py-2">
+
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="font-medium text-base">Global Node Options</div>
+                                        <div class="mb-3 text-xs text-gray-500">Options defined here will apply to all nodes.</div>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="addOption('nodeOptions')">
+                                        <div class="flex items-center">
+                                            Add Node Option
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <ng-template ngFor let-nodeOption [ngForOf]="networkData.nodeOptions" let-i=index>
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            Option
+                                            <select class="w-full" matNativeControl [(ngModel)]="networkData.nodeOptions[i].key">
+                                                <option value="">-- Select Option --</option>
+                                                <option *ngFor="let option of availableNodeOptions"
+                                                        [disabled]="_.find(networkData.nodeOptions, {key: option})"
+                                                        [value]="option">
+                                                    {{option}}
+                                                </option>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            Option Value
+                                            <ng-template [ngIf]="networkData.nodeOptions[i].key && visNetworkOptions.nodes[networkData.nodeOptions[i].key].type !== 'boolean'">
+                                                <input [type]="visNetworkOptions.nodes[networkData.nodeOptions[i].key].type" [(ngModel)]="nodeOption.value">
+                                            </ng-template>
+                                            <ng-template [ngIf]="networkData.nodeOptions[i].key && visNetworkOptions.nodes[networkData.nodeOptions[i].key].type === 'boolean'">
+                                                <select [(ngModel)]="nodeOption.value">
+                                                    <option [value]="true">True</option>
+                                                    <option [value]="false">False</option>
+                                                </select>
+                                            </ng-template>
+                                            <div class="text-xs font-normal text-gray-500">
+                                                <a href="https://visjs.github.io/vis-network/docs/network/nodes.html"
+                                                   target="_blank" class="text-secondary flex items-center hover:underline">
+                                                    node options documentation
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                         stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </label>
+                                        <button mat-icon-button color="warn" (click)="networkData.nodeOptions.splice(i, 1)">
+                                            <mat-icon>clear</mat-icon>
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 w-1/2">
+                        <div class="p-4">
+
+                            <div class="w-full bg-white p-4 border rounded">
+                                <div class="flex items-start justify-between">
+                                    <div class="font-medium mb-3 text-base">Edge Data</div>
+                                    <button mat-stroked-button color="primary" (click)="pickNetworkEdgeDataset()">
+                                        <div class="flex items-center">
+                                            Select Edge Dataset
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <ng-template [ngIf]="networkData.edgeDatasetTitle">
+                                    <div class="bg-blue-50 p-4 mb-2">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3 flex-1 md:flex md:justify-between">
+                                                <p class="mb-0 text-sm text-blue-700">
+                                                    You are currently using {{networkData.edgeDatasetTitle}} dataset
+                                                </p>
+                                                <p class="mb-0 mt-3 text-sm md:ml-6 md:mt-0">
+                                                    <a (click)="clearEdgeDataset()"
+                                                       class="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600 hover:underline">
+                                                        Clear Dataset
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            From Node ID Column
+                                            <select class="w-full" matNativeControl [(ngModel)]="networkData.fromIds">
+                                                <option value="">-- Select Column --</option>
+                                                <ng-template [ngIf]="edgeDataset">
+                                                    <option *ngFor="let column of edgeDataset.columns"
+                                                            [value]="column.name">
+                                                        {{column.title}}
+                                                    </option>
+                                                </ng-template>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            To Node ID Column
+                                            <select class="w-full" matNativeControl [(ngModel)]="networkData.toIds">
+                                                <option value="">-- Select Column --</option>
+                                                <ng-template [ngIf]="edgeDataset">
+                                                    <option *ngFor="let column of edgeDataset.columns"
+                                                            [value]="column.name">
+                                                        {{column.title}}
+                                                    </option>
+                                                </ng-template>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                    </div>
+                                </ng-template>
+
+                                <div *ngIf="!networkData.edgeDatasetTitle" class="flex items-center justify-between">
+                                    <label class="flex-1 mb-2 mr-1">
+                                        From ID
+                                        <select class="w-full" matNativeControl [(ngModel)]="networkData.fromIds">
+                                            <option value="">-- Select Column --</option>
+                                            <ng-template [ngIf]="dataset">
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="column.name">
+                                                    {{column.title}}
+                                                </option>
+                                            </ng-template>
+                                        </select>
+                                        <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                    </label>
+                                    <label class="flex-1 mb-2 ml-1">
+                                        To ID
+                                        <select class="w-full" matNativeControl [(ngModel)]="networkData.toIds">
+                                            <option value="">-- Select Column --</option>
+                                            <ng-template [ngIf]="dataset">
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="column.name">
+                                                    {{column.title}}
+                                                </option>
+                                            </ng-template>
+                                        </select>
+                                        <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                    </label>
+                                </div>
+
+                                <hr class="py-2">
+
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="font-medium text-base">Global Edge Options</div>
+                                        <div class="mb-3 text-xs text-gray-500">Options defined here will apply to all edges.</div>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="addOption('edgeOptions')">
+                                        <div class="flex items-center">
+                                            Add Edge Option
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <ng-template ngFor let-edgeOption [ngForOf]="networkData.edgeOptions" let-i=index>
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            Option
+                                            <select class="w-full" matNativeControl [(ngModel)]="networkData.edgeOptions[i].key">
+                                                <option value="">-- Select Option --</option>
+                                                <option *ngFor="let option of availableEdgeOptions"
+                                                        [disabled]="_.find(networkData.edgeOptions, {key: option})"
+                                                        [value]="option">
+                                                    {{option}}
+                                                </option>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            Option Value
+                                            <ng-template [ngIf]="networkData.edgeOptions[i].key && visNetworkOptions.edges[networkData.edgeOptions[i].key].type !== 'boolean'">
+                                                <input [type]="visNetworkOptions.edges[networkData.edgeOptions[i].key].type" [(ngModel)]="edgeOption.value">
+                                            </ng-template>
+                                            <ng-template [ngIf]="networkData.edgeOptions[i].key && visNetworkOptions.edges[networkData.edgeOptions[i].key].type === 'boolean'">
+                                                <select [(ngModel)]="edgeOption.value">
+                                                    <option [value]="true">True</option>
+                                                    <option [value]="false">False</option>
+                                                </select>
+                                            </ng-template>
+                                            <div class="text-xs font-normal text-gray-500">
+                                                <a href="https://visjs.github.io/vis-network/docs/network/edges.html"
+                                                   target="_blank" class="text-secondary flex items-center hover:underline">
+                                                    edge options documentation
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                         stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </label>
+                                        <button mat-icon-button color="warn" (click)="networkData.edgeOptions.splice(i, 1)">
+                                            <mat-icon>clear</mat-icon>
+                                        </button>
+                                    </div>
+                                </ng-template>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </mat-tab>
+            <mat-tab label="Groups" *ngIf="networkData.nodeGroups">
+                <div class="px-6 py-3 bg-white border-b border-gray-200">
+                    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-start flex-1">
+                            <div class="pt-1.5">
+                                <h1 class="text-xl font-bold text-gray-900 mb-0">Group Options</h1>
+                                <p class="text-xs font-medium text-gray-500">
+                                    Define the options for each group.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 w-1/2">
+                    <div class="p-4">
+                        <div class="w-full bg-white p-4 border rounded">
+                            <div class="font-medium mb-3 text-base">Group Data</div>
+                            <ng-template ngFor let-nodeGroup [ngForOf]="nodeGroups">
+
+
+                                <div class="mb-2 flex items-center justify-between">
+                                    <label class="flex-1 mb-2 ml-1">
+                                        Group Name
+                                        <input type="text" [value]="nodeGroup || ''" disabled>
+                                    </label>
+                                </div>
+
+
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="font-medium text-base">Group Options</div>
+                                        <div class="mb-3 text-xs text-gray-500">Set the options for this node.</div>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="addGroupOption(nodeGroup)">
+                                        <div class="flex items-center">
+                                            Add Group Option
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <ng-template [ngIf]="networkData.nodeGroupOptions && networkData.nodeGroupOptions[nodeGroup]">
+                                <ng-template ngFor let-groupOption [ngForOf]="networkData.nodeGroupOptions[nodeGroup]?.options" let-i=index>
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            Option
+                                            <select class="w-full" matNativeControl [(ngModel)]="groupOption.key">
+                                                <option value="">-- Select Option --</option>
+                                                <option *ngFor="let option of availableNodeOptions"
+                                                        [disabled]="_.find(networkData.nodeGroupOptions, {key: option})"
+                                                        [value]="option">
+                                                    {{option}}
+                                                </option>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            Option Value
+                                            <ng-template [ngIf]="groupOption.key && visNetworkOptions.nodes[groupOption.key].type !== 'boolean'">
+                                                <input [type]="visNetworkOptions.nodes[groupOption.key].type" [(ngModel)]="groupOption.value">
+                                            </ng-template>
+                                            <ng-template [ngIf]="groupOption.key && visNetworkOptions.nodes[groupOption.key].type === 'boolean'">
+                                                <select [(ngModel)]="groupOption.value">
+                                                    <option [value]="true">True</option>
+                                                    <option [value]="false">False</option>
+                                                </select>
+                                            </ng-template>
+                                            <div class="text-xs font-normal text-gray-500">
+                                                <a href="https://visjs.github.io/vis-network/docs/network/nodes.html"
+                                                   target="_blank" class="text-secondary flex items-center hover:underline">
+                                                    node options documentation
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                         stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </label>
+                                        <button mat-icon-button color="warn" (click)="networkData.nodeGroupOptions[nodeGroup]?.options.splice(i, 1)">
+                                            <mat-icon>clear</mat-icon>
+                                        </button>
+                                    </div>
+                                </ng-template>
+                                </ng-template>
+                                <hr class="py-2">
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+            <mat-tab label="Nodes" *ngIf="datasetNodes.length">
+                <div class="px-6 py-3 bg-white border-b border-gray-200">
+                    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-start flex-1">
+                            <div class="pt-1.5">
+                                <h1 class="text-xl font-bold text-gray-900 mb-0">Node Options</h1>
+                                <p class="text-xs font-medium text-gray-500">
+                                    Define the options for each node.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="flex-1 w-1/2">
+                        <div class="p-4">
+                            <div class="w-full bg-white p-4 border rounded">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="font-medium text-base">Node Options</div>
+                                    <div class="mb-3 text-xs text-gray-500">These options will be applied to all nodes
+                                        based on the column or custom value provided.</div>
+                                </div>
+                                <button mat-stroked-button color="primary" (click)="addOption('globalNodeOptions')">
+                                    <div class="flex items-center">
+                                        Add Node Option
+                                    </div>
+                                </button>
+                            </div>
+
+                            <ng-template ngFor let-nodeOption [ngForOf]="networkData.globalNodeOptions" let-i=index>
+                                <div class="mb-2 flex items-center justify-between">
+                                    <label class="flex-1 mb-2 mr-1">
+                                        Option
+                                        <select class="w-full" matNativeControl [(ngModel)]="nodeOption.key">
+                                            <option value="">-- Select Option --</option>
+                                            <option *ngFor="let option of availableNodeOptions"
+                                                    [disabled]="_.find(networkData.globalNodeOptions, {key: option})"
+                                                    [value]="option">
+                                                {{option}}
+                                            </option>
+                                        </select>
+                                        <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                    </label>
+                                    <div class="flex items-center">
+                                        <label class="flex-1 mb-2 ml-1">
+                                            Data Column
+                                            <select class="w-full" matNativeControl [(ngModel)]="nodeOption.column"
+                                                (ngModelChange)="updateOptions(nodeOption, 'datasetNodes')">
+                                                <option value="">-- Select Column --</option>
+                                                <option *ngFor="let column of dataset.columns"
+                                                        [value]="column.name">
+                                                    {{column.title}}
+                                                </option>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            Custom Value
+                                            <ng-template [ngIf]="nodeOption.key && visNetworkOptions.nodes[nodeOption.key].type !== 'boolean'">
+                                                <input [type]="visNetworkOptions.nodes[nodeOption.key].type" [(ngModel)]="nodeOption.value" (change)="updateOptions(nodeOption, 'datasetNodes')">
+                                            </ng-template>
+                                            <ng-template [ngIf]="nodeOption.key && visNetworkOptions.nodes[nodeOption.key].type === 'boolean'">
+                                                <select [(ngModel)]="nodeOption.value" (change)="updateOptions(nodeOption, 'datasetNodes')">
+                                                    <option [value]="true">True</option>
+                                                    <option [value]="false">False</option>
+                                                </select>
+                                            </ng-template>
+                                            <div class="text-xs font-normal text-gray-500">
+                                                <a href="https://visjs.github.io/vis-network/docs/network/nodes.html"
+                                                   target="_blank" class="text-secondary flex items-center hover:underline">
+                                                    node options documentation
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                         stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <button mat-icon-button color="warn" (click)="networkData.globalNodeOptions.splice(i, 1)">
+                                        <mat-icon>clear</mat-icon>
+                                    </button>
+                                </div>
+                            </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 w-1/2">
+                        <div class="p-4">
+                            <div class="w-full bg-white p-4 border rounded">
+                                <div class="font-medium mb-3 text-base">Node Data</div>
+                                <ng-template ngFor let-node [ngForOf]="datasetNodes">
+
+
+                                <div class="mb-2 flex items-center justify-between">
+                                    <label class="flex-1 mb-2 mr-1">
+                                        Node ID
+                                        <input type="text" [value]="node.id" disabled>
+                                    </label>
+                                    <label class="flex-1 mb-2 ml-1">
+                                        Node Label
+                                        <input type="text" [value]="node.label" disabled>
+                                    </label>
+                                    <label class="flex-1 mb-2 ml-1">
+                                        Node Group
+                                        <input type="text" [value]="node.group || ''" disabled>
+                                    </label>
+                                </div>
+
+
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="font-medium text-base">Node Options</div>
+                                        <div class="mb-3 text-xs text-gray-500">Set the options for this node.</div>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="node.options.unshift({})">
+                                        <div class="flex items-center">
+                                            Add Node Option
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <ng-template ngFor let-nodeOption [ngForOf]="node.options" let-i=index>
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            Option
+                                            <select class="w-full" matNativeControl [(ngModel)]="nodeOption.key">
+                                                <option [value]="undefined">-- Select Column --</option>
+                                                <option *ngFor="let option of availableNodeOptions"
+                                                        [disabled]="_.find(node.options, {key: option})"
+                                                        [value]="option">
+                                                    {{option}}
+                                                </option>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            Option Value
+                                            <ng-template [ngIf]="nodeOption.key && visNetworkOptions.nodes[nodeOption.key].type !== 'boolean'">
+                                                <input [type]="visNetworkOptions.nodes[nodeOption.key].type" [(ngModel)]="nodeOption.value">
+                                            </ng-template>
+                                            <ng-template [ngIf]="nodeOption.key && visNetworkOptions.nodes[nodeOption.key].type === 'boolean'">
+                                                <select [(ngModel)]="nodeOption.value">
+                                                    <option [value]="true">True</option>
+                                                    <option [value]="false">False</option>
+                                                </select>
+                                            </ng-template>
+                                            <div class="text-xs font-normal text-gray-500">
+                                                <a href="https://visjs.github.io/vis-network/docs/network/nodes.html"
+                                                   target="_blank" class="text-secondary flex items-center hover:underline">
+                                                    node options documentation
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                         stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </label>
+                                        <button mat-icon-button color="warn" (click)="node.options.splice(i, 1)">
+                                            <mat-icon>clear</mat-icon>
+                                        </button>
+                                    </div>
+                                </ng-template>
+                                    <hr class="py-2">
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+            <mat-tab label="Edges" *ngIf="datasetEdges.length">
+                <div class="px-6 py-3 bg-white border-b border-gray-200">
+                    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+                        <div class="flex items-start flex-1">
+                            <div class="pt-1.5">
+                                <h1 class="text-xl font-bold text-gray-900 mb-0">Edge Options</h1>
+                                <p class="text-xs font-medium text-gray-500">
+                                    Define the options for each node.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="flex-1 w-1/2">
+                        <div class="p-4">
+                            <div class="w-full bg-white p-4 border rounded">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="font-medium text-base">Edge Options</div>
+                                        <div class="mb-3 text-xs text-gray-500">These options will be applied to all edges
+                                            based on the column or custom value provided.</div>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="addOption('globalEdgeOptions')">
+                                        <div class="flex items-center">
+                                            Add Edge Option
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <ng-template ngFor let-edgeOption [ngForOf]="networkData.globalEdgeOptions" let-i=index>
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            Option
+                                            <select class="w-full" matNativeControl [(ngModel)]="edgeOption.key">
+                                                <option [value]="undefined">-- Select Option --</option>
+                                                <option *ngFor="let option of availableEdgeOptions"
+                                                        [disabled]="_.find(networkData.globalEdgeOptions, {key: option})"
+                                                        [value]="option">
+                                                    {{option}}
+                                                </option>
+                                            </select>
+                                            <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                        </label>
+                                        <div class="flex items-center">
+                                            <label class="flex-1 mb-2 ml-1">
+                                                Data Column
+                                                <select class="w-full" matNativeControl [(ngModel)]="edgeOption.column"
+                                                        (ngModelChange)="updateOptions(edgeOption, 'datasetEdges')">
+                                                    <option value="">-- Select Option --</option>
+                                                    <option *ngFor="let column of (edgeDataset && edgeDataset.columns) ? edgeDataset.columns : dataset.columns"
+                                                            [value]="column.name">
+                                                        {{column.title}}
+                                                    </option>
+                                                </select>
+                                                <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                            </label>
+                                            <label class="flex-1 mb-2 ml-1">
+                                                Custom Value
+                                                <ng-template [ngIf]="edgeOption.key && visNetworkOptions.edges[edgeOption.key].type !== 'boolean'">
+                                                    <input [type]="visNetworkOptions.edges[edgeOption.key].type" [(ngModel)]="edgeOption.value" (change)="updateOptions(edgeOption, 'datasetEdges')">
+                                                </ng-template>
+                                                <ng-template [ngIf]="edgeOption.key && visNetworkOptions.edges[edgeOption.key].type === 'boolean'">
+                                                    <select [(ngModel)]="edgeOption.value" (change)="updateOptions(edgeOption, 'datasetEdges')">
+                                                        <option [value]="true">True</option>
+                                                        <option [value]="false">False</option>
+                                                    </select>
+                                                </ng-template>
+                                                <div class="text-xs font-normal text-gray-500">
+                                                    <a href="https://visjs.github.io/vis-network/docs/network/nodes.html"
+                                                       target="_blank" class="text-secondary flex items-center hover:underline">
+                                                        node options documentation
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                             stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <button mat-icon-button color="warn" (click)="networkData.globalEdgeOptions.splice(i, 1)">
+                                            <mat-icon>clear</mat-icon>
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 w-1/2">
+                        <div class="p-4">
+                            <div class="w-full bg-white p-4 border rounded">
+                                <div class="font-medium mb-3 text-base">Edge Data</div>
+                                <ng-template ngFor let-edge [ngForOf]="datasetEdges">
+
+
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <label class="flex-1 mb-2 mr-1">
+                                            From Node
+                                            <input type="text" [value]="edge.from" disabled>
+                                        </label>
+                                        <label class="flex-1 mb-2 ml-1">
+                                            To Node
+                                            <input type="text" [value]="edge.to" disabled>
+                                        </label>
+                                    </div>
+
+
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="font-medium text-base">Edge Options</div>
+                                            <div class="mb-3 text-xs text-gray-500">Set the options for this edge.</div>
+                                        </div>
+                                        <button mat-stroked-button color="primary" (click)="edge.options.unshift({})">
+                                            <div class="flex items-center">
+                                                Add Edge Option
+                                            </div>
+                                        </button>
+                                    </div>
+
+                                    <ng-template ngFor let-edgeOption [ngForOf]="edge.options" let-i=index>
+                                        <div class="mb-2 flex items-center justify-between">
+                                            <label class="flex-1 mb-2 mr-1">
+                                                Option
+                                                <select class="w-full" matNativeControl [(ngModel)]="edgeOption.key">
+                                                    <option value="">-- Select Option --</option>
+                                                    <option *ngFor="let option of availableEdgeOptions"
+                                                            [disabled]="_.find(edge.options, {key: option})"
+                                                            [value]="option">
+                                                        {{option}}
+                                                    </option>
+                                                </select>
+                                                <div class="text-xs font-normal text-gray-500">&nbsp;</div>
+                                            </label>
+                                            <label class="flex-1 mb-2 ml-1">
+                                                Option Value
+                                                <ng-template [ngIf]="edgeOption.key && visNetworkOptions.edges[edgeOption.key].type !== 'boolean'">
+                                                    <input [type]="visNetworkOptions.edges[edgeOption.key].type" [(ngModel)]="edgeOption.value">
+                                                </ng-template>
+                                                <ng-template [ngIf]="edgeOption.key && visNetworkOptions.edges[edgeOption.key].type === 'boolean'">
+                                                    <select [(ngModel)]="edgeOption.value">
+                                                        <option [value]="true">True</option>
+                                                        <option [value]="false">False</option>
+                                                    </select>
+                                                </ng-template>
+                                                <input type="text" [(ngModel)]="edgeOption.value">
+                                                <div class="text-xs font-normal text-gray-500">
+                                                    <a href="https://visjs.github.io/vis-network/docs/network/edges.html"
+                                                       target="_blank" class="text-secondary flex items-center hover:underline">
+                                                        edge options documentation
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                             stroke-width="1.5" stroke="currentColor" class="h-3 w-3 ml-1">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            </label>
+                                            <button mat-icon-button color="warn" (click)="edge.options.splice(i, 1)">
+                                                <mat-icon>clear</mat-icon>
+                                            </button>
+                                        </div>
+                                    </ng-template>
+                                    <hr class="py-2">
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
             <mat-tab label="Alert">
                 <div class="relative">
                     <div *ngIf="!canSetAlerts" class="px-4 sm:px-6 lg:px-8 mt-0">
