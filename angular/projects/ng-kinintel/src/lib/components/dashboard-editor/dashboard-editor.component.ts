@@ -188,7 +188,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
     private itemComponents: ItemComponentComponent[] = [];
     private dashboardHash: string;
     private dashboardClone: any;
-    private unsavedChanges = false;
+    private unsavedChanges = true;
 
     public static myClone(event) {
         return event.target.cloneNode(true);

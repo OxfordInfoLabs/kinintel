@@ -213,10 +213,6 @@
                 Apply Parameters
             </button>
         </div>
-
-
-
-
     </div>
 </div>
 
@@ -444,7 +440,8 @@
                             </a>
                         </ng-template>
                         <ng-template [ngIf]="!element[column.name]">
-                            {{element[column.name]}}
+                            <span *ngIf="element[column.name] === null" class="font-mono text-gray-400">null</span>
+                            <span *ngIf="element[column.name] !== null">{{element[column.name]}}</span>
                         </ng-template>
                     </ng-template>
                     <ng-template [ngIf]="Array.isArray(element[column.name])">

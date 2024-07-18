@@ -190,8 +190,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             height: '275px'
         }).afterClosed().subscribe(res => {
             if (res === 'proceed') {
-                this.datasetInstanceSummary.transformationInstances[event.previousContainer.data.index] = event.container.data.item;
-                this.datasetInstanceSummary.transformationInstances[event.container.data.index] = event.previousContainer.data.item;
+                moveItemInArray(this.datasetInstanceSummary.transformationInstances, event.previousContainer.data.index, event.container.data.index);
                 this.evaluateDataset();
             }
         });
