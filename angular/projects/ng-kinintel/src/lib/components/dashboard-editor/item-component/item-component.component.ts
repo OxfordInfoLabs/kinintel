@@ -542,7 +542,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                 });
             });
         }
-console.log(options);
+
         const network = new Network(container, data, options);
     }
 
