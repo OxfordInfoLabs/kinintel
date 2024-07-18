@@ -223,7 +223,7 @@ class DatasourceService {
      *
      * @param string $datasourceInstanceKey
      * @param mixed[] $parameterValues
-     * @param TransformationInstance[] $additionalTransformations
+     * @param TransformationInstance[] $transformations
      *
      * @return Dataset
      */
