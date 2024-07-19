@@ -34,6 +34,8 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\PrimaryKeyTooLargeException;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\RowSizeTooLargeException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -788,7 +790,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("notes", TableColumn::SQL_LONGBLOB)
         ], [
             new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
-            new TableIndex(md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
+            new TableIndex(md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 200), new TableIndexColumn("notes", 200)])
         ]);
 
 
@@ -848,7 +850,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, false, "what"),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ], [
-            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
+            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 200)]),
         ]);
 
         $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
@@ -920,6 +922,100 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals([SQLiteAuthenticationCredentials::class, MySQLAuthenticationCredentials::class, PostgreSQLAuthenticationCredentials::class, FTPAuthenticationCredentials::class], $datasource->getSupportedCredentialClasses());
 
+    }
+
+    public function testDoesntAllowAboveMaxLengthRows() {
+        $result = false;
+        $columns = [
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 255, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 120, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE_TIME, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INT, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+        ];
+        try{
+            SQLDatabaseDatasource::validateRowSize($columns);
+            $this->fail();
+        }
+        catch(RowSizeTooLargeException $e){
+            // Success!
+            $result = true;
+        }
+        $this->assertTrue($result);
+
+        $columns = [
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 255, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 120, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE_TIME, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INT, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+        ];
+
+        $this->assertTrue(SQLDatabaseDatasource::validateRowSize($columns));
+    }
+
+    public function testDoesntAllowAboveMaxLengthPrimaryKeys() {
+        $result = false;
+        $columns = [
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 4, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INT, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE_TIME, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
+        ];
+        try{
+            SQLDatabaseDatasource::validatePrimaryKey($columns);
+            $this->fail();
+        }
+        catch(PrimaryKeyTooLargeException $e){
+            // Success!
+            $result = true;
+        }
+        $this->assertTrue($result);
+
+        $columns = [
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 740, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 20, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 4, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INT, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE, null, null, null, true),
+            new TableColumn("what", TableColumn::SQL_DATE_TIME, null, null, null, false),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
+        ];
+
+        $this->assertTrue(SQLDatabaseDatasource::validatePrimaryKey($columns));
     }
 
 

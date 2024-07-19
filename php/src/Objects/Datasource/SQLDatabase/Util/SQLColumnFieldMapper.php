@@ -3,10 +3,12 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
+use Exception;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\NonexistentColumnTypeException;
 
 /**
  * Utility class to provide mapping of SQL Columns to Fields and vice versa
@@ -32,10 +34,11 @@ class SQLColumnFieldMapper {
 
     /**
      * Map types which need qualifying with a max bytes for indexing purposes
+     * i.e. Only index based on the first 500 chars of a VARCHAR(2000)
      */
     const FIELD_TYPE_INDEX_MAX_BYTES_MAP = [
-        Field::TYPE_MEDIUM_STRING => 500,
-        Field::TYPE_LONG_STRING => 500
+        Field::TYPE_MEDIUM_STRING => 200,
+        Field::TYPE_LONG_STRING => 200
     ];
 
 
@@ -71,14 +74,14 @@ class SQLColumnFieldMapper {
 
 
     /**
-     * Map a field to a table column
+     * Map a field to a table column - DEFAULTS TO VARCHAR 255 IF NO TYPE GIVEN
      *
      * @param Field $field
      * @return TableColumn
      */
     public function mapFieldToTableColumn($field) {
 
-        // Derive the type
+        // Derive the type - DEFAULTS TO VARCHAR 255
         $fieldType = $field->getType() ?? Field::TYPE_STRING;
         $type = self::FIELD_TYPE_SQL_TYPE_MAP[$fieldType] ?? TableColumn::SQL_VARCHAR;
 
@@ -141,5 +144,24 @@ class SQLColumnFieldMapper {
         return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField);
     }
 
+    /**
+     * Returns the size of the memory taken up by the column in bytes.
+     * @param string $columnType
+     * @param int $columnLength
+     * @return int
+     * @throws Exception
+     */
+    public static function columnSize(string $columnType, ?int $columnLength = null) : int {
+        return match ($columnType) {
+            TableColumn::SQL_VARCHAR => 4*$columnLength+1,
+            TableColumn::SQL_INT => 4,
+            TableColumn::SQL_LONGBLOB => 25,
+            TableColumn::SQL_DATE_TIME => 5,
+            TableColumn::SQL_DATE => 3,
+            TableColumn::SQL_INTEGER => 4,
+            default => throw new NonexistentColumnTypeException(
+                "$columnType isn't a SQL column type.")
+        };
+    }
 
 }

@@ -14,9 +14,11 @@ use Kinikit\Core\Validation\Validator;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Exception\SQLException;
 use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
+use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
+use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Exception\DuplicateEntriesException;
@@ -35,9 +37,13 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\IndexKeyTooLargeException;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\PrimaryKeyTooLargeException;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\RowSizeTooLargeException;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
@@ -123,6 +129,41 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public static function addCredentialsClass($className) {
         self::$additionalCredentialClasses[] = $className;
+    }
+
+    public static function validateRowSize(array $columns)
+    {
+        // Adds up how much space each column type takes. Makes sure it is not bigger than 65KB
+        $byteLength = 0;
+        foreach ($columns as $column) {
+            $byteLength += SQLColumnFieldMapper::columnSize($column->getType(),$column->getLength());
+        }
+        // Max Row Length https://dev.mysql.com/doc/mysql-reslimits-excerpt/8.0/en/column-count-limit.html#:~:text=The%20MySQL%20maximum%20row%20size,capable%20of%20supporting%20larger%20rows.
+        if ($byteLength > 65535) {
+            throw new RowSizeTooLargeException("$byteLength bytes exceeds 65335 row size limit");
+        }
+        return true;
+    }
+
+    public static function validatePrimaryKey(array $columns)
+    {
+        // Adds up how much space each primary key column type takes. Makes sure it is not bigger than 3KB
+        $byteLength = 0;
+        foreach ($columns as $column) {
+            if ($column->isPrimaryKey()) {
+                if (($column->getType() == TableColumn::SQL_VARCHAR) and ($column->getLength() > 200)) {
+                    $byteLength += 200*4+1;
+                }
+                else {
+                    $byteLength += SQLColumnFieldMapper::columnSize($column->getType(), $column->getLength());
+                }
+            }
+        }
+        //   Max Primary Key Length https://dev.mysql.com/doc/refman/8.4/en/innodb-limits.html
+        if ($byteLength > 3072) {
+            throw new PrimaryKeyTooLargeException("$byteLength bytes exceeds 3072 primary key limit");
+        }
+        return true;
     }
 
 
@@ -556,8 +597,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     /**
      * Update fields (opportunity for datasource to perform any required modifications)
      *
+     * @param Field[] $fields
      */
     protected function updateFields($fields) {
+
 
         // Construct the column array we need
         $columns = [];
@@ -570,32 +613,55 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             }
         }
 
+        self::validateRowSize($columns);
+        self::validatePrimaryKey($columns);
+
+
         $indexes = [];
         // If we have a managed table structure, also check for indexes
         if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfig) {
             // Index all fields by name
+            /** @var array<string, Field> $indexedFields */
             $indexedFields = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $fields);
 
             // Loop through and map to table index objects
             foreach ($this->getConfig()->getIndexes() as $index) {
-                $indexFields = $index->getFieldNames();
+                /** @var string[] $indexFieldNames */
+                $indexFieldNames = $index->getFieldNames();
                 $indexColumns = [];
-                foreach ($indexFields as $indexField) {
+                // Check that a field used for an index hasn't been removed
+                foreach ($indexFieldNames as $indexField) {
                     $matchingField = $indexedFields[$indexField] ?? null;
-                    if ($matchingField)
+                    if ($matchingField) {
                         $indexColumns[] = $this->sqlColumnFieldMapper->mapFieldToIndexColumn($matchingField);
-                    else
+                    } else {
                         throw new DatasourceUpdateException("You attempted to remove a field which is referenced in an index");
-
+                    }
                 }
-                $indexes[] = new TableIndex(md5(join("", $indexFields)), $indexColumns);
+                // Now we know all the indexes are in the fields.
+
+                // Verifying Index length doesn't exceed max https://dev.mysql.com/doc/refman/8.4/en/innodb-limits.html
+                $byteLength = 0;
+                foreach ($indexColumns as $indexColumn) {
+                    if ($indexColumn->getMaxBytesToIndex() == -1 || !$indexColumn->getMaxBytesToIndex()) {
+                        // Get type, map it and then get the size
+                        $field = $indexedFields[$indexColumn->getName()];
+                        $indexTableColumn = $this->sqlColumnFieldMapper->mapFieldToTableColumn($field);
+                        $byteLength += SQLColumnFieldMapper::columnSize($indexTableColumn->getType(), $indexTableColumn->getLength());
+                    } else {
+                        $byteLength += $indexColumn->getMaxBytesToIndex()*4+1;
+                    };
+                }
+                if ($byteLength > 3072) {
+                    throw new IndexKeyTooLargeException("$byteLength bytes is greater than the maximum allowed size for index keys 3072");
+                }
+                $indexes[] = new TableIndex(md5(join("", $indexFieldNames)), $indexColumns);
             }
         }
 
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
         // Check to see whether the table already exists
-        $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
         try {
             $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());
