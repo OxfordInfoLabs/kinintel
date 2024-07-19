@@ -151,9 +151,9 @@ class SQLColumnFieldMapper {
      * @return int
      * @throws Exception
      */
-    public static function columnSize(string $columnType, ?int $columnLength = null) : int {
+    public static function columnSize(string $columnType, ?int $columnLength = null): int {
         return match ($columnType) {
-            TableColumn::SQL_VARCHAR => 4*$columnLength+1,
+            TableColumn::SQL_VARCHAR => 4 * $columnLength + 1,
             TableColumn::SQL_INT => 4,
             TableColumn::SQL_LONGBLOB => 25,
             TableColumn::SQL_DATE_TIME => 5,

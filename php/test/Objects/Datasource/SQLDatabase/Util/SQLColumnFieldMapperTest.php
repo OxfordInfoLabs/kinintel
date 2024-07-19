@@ -119,6 +119,7 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testCanMapFieldsToIndexColumns() {
+
         // ID Type
         $this->assertEquals(new TableIndexColumn("id"),
             $this->mapper->mapFieldToIndexColumn(new Field("id", null, null, Field::TYPE_ID)));
@@ -148,12 +149,13 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testCanGetColumnSizeFromColumnType() {
+
         $this->assertEquals(4,
             SQLColumnFieldMapper::columnSize(TableColumn::SQL_INT));
-        $this->assertEquals(255*4+1,
-            SQLColumnFieldMapper::columnSize(TableColumn::SQL_VARCHAR,255));
-        $this->assertEquals(2000*4+1,
-            SQLColumnFieldMapper::columnSize(TableColumn::SQL_VARCHAR,2000));
+        $this->assertEquals(255 * 4 + 1,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_VARCHAR, 255));
+        $this->assertEquals(2000 * 4 + 1,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_VARCHAR, 2000));
         $this->assertEquals(5,
             SQLColumnFieldMapper::columnSize(TableColumn::SQL_DATE_TIME));
         $this->assertEquals(3,

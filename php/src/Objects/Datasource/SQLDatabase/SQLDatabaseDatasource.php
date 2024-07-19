@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
@@ -18,7 +17,6 @@ use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
-use Kinikit\Persistence\TableMapper\Exception\WrongPrimaryKeyLengthException;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Exception\DuplicateEntriesException;
@@ -38,6 +36,7 @@ use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredenti
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
@@ -131,12 +130,12 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         self::$additionalCredentialClasses[] = $className;
     }
 
-    public static function validateRowSize(array $columns)
-    {
+    public static function validateRowSize(array $columns) {
+
         // Adds up how much space each column type takes. Makes sure it is not bigger than 65KB
         $byteLength = 0;
         foreach ($columns as $column) {
-            $byteLength += SQLColumnFieldMapper::columnSize($column->getType(),$column->getLength());
+            $byteLength += SQLColumnFieldMapper::columnSize($column->getType(), $column->getLength());
         }
         // Max Row Length https://dev.mysql.com/doc/mysql-reslimits-excerpt/8.0/en/column-count-limit.html#:~:text=The%20MySQL%20maximum%20row%20size,capable%20of%20supporting%20larger%20rows.
         if ($byteLength > 65535) {
@@ -145,16 +144,14 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         return true;
     }
 
-    public static function validatePrimaryKey(array $columns)
-    {
+    public static function validatePrimaryKey(array $columns) {
         // Adds up how much space each primary key column type takes. Makes sure it is not bigger than 3KB
         $byteLength = 0;
         foreach ($columns as $column) {
             if ($column->isPrimaryKey()) {
-                if (($column->getType() == TableColumn::SQL_VARCHAR) and ($column->getLength() > 200)) {
-                    $byteLength += 200*4+1;
-                }
-                else {
+                if (($column->getType() == TableColumn::SQL_VARCHAR) && ($column->getLength() > 200)) {
+                    $byteLength += 200 * 4 + 1;
+                } else {
                     $byteLength += SQLColumnFieldMapper::columnSize($column->getType(), $column->getLength());
                 }
             }
@@ -416,7 +413,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                     // There are multiple errors with code 23000 and they relate to integrity constraints
                     // https://dev.mysql.com/doc/connector-j/en/connector-j-reference-error-sqlstates.html
                     if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
-                        if (str_contains(strtolower($e->getMessage()), "dup")){
+                        if (str_contains(strtolower($e->getMessage()), "dup")) {
                             throw new DuplicateEntriesException();
                         } else {
                             throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
@@ -616,17 +613,18 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         self::validateRowSize($columns);
         self::validatePrimaryKey($columns);
 
-
         $indexes = [];
         // If we have a managed table structure, also check for indexes
         if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfig) {
+
             // Index all fields by name
             /** @var array<string, Field> $indexedFields */
             $indexedFields = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $fields);
 
             // Loop through and map to table index objects
+            /** @var $index Index */
             foreach ($this->getConfig()->getIndexes() as $index) {
-                /** @var string[] $indexFieldNames */
+
                 $indexFieldNames = $index->getFieldNames();
                 $indexColumns = [];
                 // Check that a field used for an index hasn't been removed
@@ -649,7 +647,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         $indexTableColumn = $this->sqlColumnFieldMapper->mapFieldToTableColumn($field);
                         $byteLength += SQLColumnFieldMapper::columnSize($indexTableColumn->getType(), $indexTableColumn->getLength());
                     } else {
-                        $byteLength += $indexColumn->getMaxBytesToIndex()*4+1;
+                        $byteLength += $indexColumn->getMaxBytesToIndex() * 4 + 1;
                     };
                 }
                 if ($byteLength > 3072) {

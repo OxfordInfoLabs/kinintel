@@ -613,7 +613,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data", []]));
 
 
-
     }
 
 
@@ -925,7 +924,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testDoesntAllowAboveMaxLengthRows() {
-        $result = false;
+
         $columns = [
             new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
             new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
@@ -946,15 +945,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
             new TableColumn("what", TableColumn::SQL_INTEGER, null, null, null, true),
         ];
-        try{
+
+        try {
             SQLDatabaseDatasource::validateRowSize($columns);
             $this->fail();
-        }
-        catch(RowSizeTooLargeException $e){
+        } catch (RowSizeTooLargeException $e) {
             // Success!
-            $result = true;
+            $this->assertEquals("", $e->getMessage());
         }
-        $this->assertTrue($result);
 
         $columns = [
             new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
@@ -979,7 +977,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function testDoesntAllowAboveMaxLengthPrimaryKeys() {
-        $result = false;
+
         $columns = [
             new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
             new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
@@ -994,15 +992,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("what", TableColumn::SQL_DATE_TIME, null, null, null, true),
             new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
         ];
-        try{
+
+        try {
             SQLDatabaseDatasource::validatePrimaryKey($columns);
             $this->fail();
-        }
-        catch(PrimaryKeyTooLargeException $e){
+        } catch (PrimaryKeyTooLargeException $e) {
             // Success!
-            $result = true;
+            $this->assertEquals("", $e->getMessage());
         }
-        $this->assertTrue($result);
 
         $columns = [
             new TableColumn("what", TableColumn::SQL_VARCHAR, 740, null, null, true),
