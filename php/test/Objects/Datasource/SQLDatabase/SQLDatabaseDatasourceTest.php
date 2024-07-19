@@ -951,7 +951,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             $this->fail();
         } catch (RowSizeTooLargeException $e) {
             // Success!
-            $this->assertEquals("", $e->getMessage());
+            $this->assertEquals("65542 bytes exceeds 65335 row size limit", $e->getMessage());
         }
 
         $columns = [
@@ -998,7 +998,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             $this->fail();
         } catch (PrimaryKeyTooLargeException $e) {
             // Success!
-            $this->assertEquals("", $e->getMessage());
+            $this->assertEquals("4839 bytes exceeds 3072 primary key limit", $e->getMessage());
         }
 
         $columns = [
