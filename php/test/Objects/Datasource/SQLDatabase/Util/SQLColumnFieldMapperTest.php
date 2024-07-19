@@ -4,10 +4,12 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 
+use Google\Service\Docs\Table;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\NonexistentColumnTypeException;
 
 include_once "autoloader.php";
 
@@ -143,6 +145,21 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableIndexColumn("longstring", 500),
             $this->mapper->mapFieldToIndexColumn(new Field("longstring", null, null, Field::TYPE_LONG_STRING)));
 
+    }
+
+    public function testCanGetColumnSizeFromColumnType() {
+        $this->assertEquals(4,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_INT));
+        $this->assertEquals(255*4+1,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_VARCHAR,255));
+        $this->assertEquals(2000*4+1,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_VARCHAR,2000));
+        $this->assertEquals(5,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_DATE_TIME));
+        $this->assertEquals(3,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_DATE));
+        $this->assertEquals(25,
+            SQLColumnFieldMapper::columnSize(TableColumn::SQL_LONGBLOB));
     }
 
 
