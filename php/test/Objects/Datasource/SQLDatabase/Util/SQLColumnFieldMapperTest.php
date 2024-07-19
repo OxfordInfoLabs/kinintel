@@ -140,9 +140,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         // String types
         $this->assertEquals(new TableIndexColumn("string"),
             $this->mapper->mapFieldToIndexColumn(new Field("string", null, null, Field::TYPE_STRING)));
-        $this->assertEquals(new TableIndexColumn("mediumstring", 500),
+        $this->assertEquals(new TableIndexColumn("mediumstring", 200),
             $this->mapper->mapFieldToIndexColumn(new Field("mediumstring", null, null, Field::TYPE_MEDIUM_STRING)));
-        $this->assertEquals(new TableIndexColumn("longstring", 500),
+        $this->assertEquals(new TableIndexColumn("longstring", 200),
             $this->mapper->mapFieldToIndexColumn(new Field("longstring", null, null, Field::TYPE_LONG_STRING)));
 
     }

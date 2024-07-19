@@ -151,8 +151,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $byteLength = 0;
         foreach ($columns as $column) {
             if ($column->isPrimaryKey()) {
-                if (($column->getType() == TableColumn::SQL_VARCHAR) and ($column->getLength() > 500)) {
-                    $byteLength += 500*4+1;
+                if (($column->getType() == TableColumn::SQL_VARCHAR) and ($column->getLength() > 200)) {
+                    $byteLength += 200*4+1;
                 }
                 else {
                     $byteLength += SQLColumnFieldMapper::columnSize($column->getType(), $column->getLength());
@@ -621,34 +621,41 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // If we have a managed table structure, also check for indexes
         if ($this->getConfig() instanceof ManagedTableSQLDatabaseDatasourceConfig) {
             // Index all fields by name
+            /** @var array<string, Field> $indexedFields */
             $indexedFields = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $fields);
 
             // Loop through and map to table index objects
             foreach ($this->getConfig()->getIndexes() as $index) {
-                $indexFields = $index->getFieldNames();
+                /** @var string[] $indexFieldNames */
+                $indexFieldNames = $index->getFieldNames();
                 $indexColumns = [];
-                foreach ($indexFields as $indexField) {
+                // Check that a field used for an index hasn't been removed
+                foreach ($indexFieldNames as $indexField) {
                     $matchingField = $indexedFields[$indexField] ?? null;
-                    if ($matchingField)
+                    if ($matchingField) {
                         $indexColumns[] = $this->sqlColumnFieldMapper->mapFieldToIndexColumn($matchingField);
-                    else
+                    } else {
                         throw new DatasourceUpdateException("You attempted to remove a field which is referenced in an index");
-
+                    }
                 }
+                // Now we know all the indexes are in the fields.
+
                 // Verifying Index length doesn't exceed max https://dev.mysql.com/doc/refman/8.4/en/innodb-limits.html
                 $byteLength = 0;
                 foreach ($indexColumns as $indexColumn) {
-                    if (($indexColumn->getType() == TableColumn::SQL_VARCHAR) and ($indexColumn->getLength() > 500)) {
-                        $byteLength += 500*4+1;
-                    }
-                    else {
-                        $byteLength += SQLColumnFieldMapper::columnSize($indexColumn->getType(), $indexColumn->getLength());
-                    }
+                    if ($indexColumn->getMaxBytesToIndex() == -1 || !$indexColumn->getMaxBytesToIndex()) {
+                        // Get type, map it and then get the size
+                        $field = $indexedFields[$indexColumn->getName()];
+                        $indexTableColumn = $this->sqlColumnFieldMapper->mapFieldToTableColumn($field);
+                        $byteLength += SQLColumnFieldMapper::columnSize($indexTableColumn->getType(), $indexTableColumn->getLength());
+                    } else {
+                        $byteLength += $indexColumn->getMaxBytesToIndex()*4+1;
+                    };
                 }
                 if ($byteLength > 3072) {
                     throw new IndexKeyTooLargeException("$byteLength bytes is greater than the maximum allowed size for index keys 3072");
                 }
-                $indexes[] = new TableIndex(md5(join("", $indexFields)), $indexColumns);
+                $indexes[] = new TableIndex(md5(join("", $indexFieldNames)), $indexColumns);
             }
         }
 

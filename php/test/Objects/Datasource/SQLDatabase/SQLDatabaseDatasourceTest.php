@@ -790,7 +790,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("notes", TableColumn::SQL_LONGBLOB)
         ], [
             new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
-            new TableIndex(md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
+            new TableIndex(md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 200), new TableIndexColumn("notes", 200)])
         ]);
 
 
@@ -850,7 +850,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, false, "what"),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ], [
-            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
+            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 200)]),
         ]);
 
         $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
@@ -981,6 +981,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testDoesntAllowAboveMaxLengthPrimaryKeys() {
         $result = false;
         $columns = [
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
             new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
             new TableColumn("what", TableColumn::SQL_VARCHAR, 500, null, null, true),
             new TableColumn("what", TableColumn::SQL_VARCHAR, 4, null, null, true),

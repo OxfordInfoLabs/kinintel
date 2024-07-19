@@ -37,8 +37,8 @@ class SQLColumnFieldMapper {
      * i.e. Only index based on the first 500 chars of a VARCHAR(2000)
      */
     const FIELD_TYPE_INDEX_MAX_BYTES_MAP = [
-        Field::TYPE_MEDIUM_STRING => 500,
-        Field::TYPE_LONG_STRING => 500
+        Field::TYPE_MEDIUM_STRING => 200,
+        Field::TYPE_LONG_STRING => 200
     ];
 
 
@@ -74,14 +74,14 @@ class SQLColumnFieldMapper {
 
 
     /**
-     * Map a field to a table column
+     * Map a field to a table column - DEFAULTS TO VARCHAR 255 IF NO TYPE GIVEN
      *
      * @param Field $field
      * @return TableColumn
      */
     public function mapFieldToTableColumn($field) {
 
-        // Derive the type
+        // Derive the type - DEFAULTS TO VARCHAR 255
         $fieldType = $field->getType() ?? Field::TYPE_STRING;
         $type = self::FIELD_TYPE_SQL_TYPE_MAP[$fieldType] ?? TableColumn::SQL_VARCHAR;
 
