@@ -19,30 +19,11 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 
 class QueryCachingDataProcessor implements DataProcessor {
 
-    /**
-     * @var AuthenticationCredentialsService
-     */
-    private $authenticationService;
-
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-    /**
-     * @param AuthenticationCredentialsService $authenticationService
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
-     */
-    public function __construct($authenticationService, $datasourceService, $datasetService) {
-        $this->authenticationService = $authenticationService;
-        $this->datasourceService = $datasourceService;
-        $this->datasetService = $datasetService;
+    public function __construct(
+        private AuthenticationCredentialsService $authenticationService,
+        private DatasourceService $datasourceService,
+        private DatasetService $datasetService
+    ) {
     }
 
 
