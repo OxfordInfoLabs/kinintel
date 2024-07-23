@@ -32,34 +32,10 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
  */
 class DatasetService {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @var MetaDataService
-     */
-    private $metaDataService;
-
-    /**
-     * @var ActiveRecordInterceptor
-     */
-    private $activeRecordInterceptor;
-
-
-    /**
-     * DatasetService constructor.
-     *
-     * @param DatasourceService $datasourceService
-     * @param MetaDataService $metaDataService
-     * @param ActiveRecordInterceptor $activeRecordInterceptor
-     */
-    public function __construct($datasourceService, $metaDataService, $activeRecordInterceptor) {
-        $this->datasourceService = $datasourceService;
-        $this->metaDataService = $metaDataService;
-        $this->activeRecordInterceptor = $activeRecordInterceptor;
-
+    public function __construct(
+        private DatasourceService $datasourceService,
+        private MetaDataService $metaDataService,
+        private ActiveRecordInterceptor $activeRecordInterceptor) {
     }
 
 
