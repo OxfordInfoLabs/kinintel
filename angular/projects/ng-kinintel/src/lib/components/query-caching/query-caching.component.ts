@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {BehaviorSubject, interval, merge, Subject} from 'rxjs';
+import {BehaviorSubject, interval, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {DataProcessorService, } from '../../services/data-processor.service';
+import {DataProcessorService,} from '../../services/data-processor.service';
 import * as lodash from 'lodash';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {Router} from '@angular/router';
@@ -10,6 +10,7 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {
     EditQueryCacheComponent
 } from '../query-caching/edit-query-cache/edit-query-cache.component';
+
 const _ = lodash.default;
 
 @Component({
@@ -33,7 +34,7 @@ export class QueryCachingComponent implements OnInit {
     public endOfResults = false;
     public loading = true;
     public _ = _;
-
+    private queryChanges: Subscription;
 
 
     constructor(private dataProcessorService: DataProcessorService,
@@ -63,6 +64,10 @@ export class QueryCachingComponent implements OnInit {
         });
 
         this.watchQueryChanges();
+    }
+
+    ngOnDestroy() {
+        this.queryChanges.unsubscribe();
     }
 
     public increaseOffset() {
@@ -159,7 +164,7 @@ export class QueryCachingComponent implements OnInit {
     }
 
     private watchQueryChanges() {
-        interval(3000)
+        this.queryChanges = interval(3000)
             .pipe(
                 switchMap(() =>
                     this.getQueries()
