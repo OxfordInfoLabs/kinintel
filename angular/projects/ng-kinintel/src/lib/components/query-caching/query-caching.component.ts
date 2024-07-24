@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {BehaviorSubject, merge, Subject} from 'rxjs';
+import {BehaviorSubject, interval, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DataProcessorService, } from '../../services/data-processor.service';
 import * as lodash from 'lodash';
@@ -61,6 +61,8 @@ export class QueryCachingComponent implements OnInit {
             this.page = 1;
             this.offset = 0;
         });
+
+        this.watchQueryChanges();
     }
 
     public increaseOffset() {
@@ -154,6 +156,17 @@ export class QueryCachingComponent implements OnInit {
             }
             this.reload.next(Date.now());
         });
+    }
+
+    private watchQueryChanges() {
+        interval(3000)
+            .pipe(
+                switchMap(() =>
+                    this.getQueries()
+                )
+            ).subscribe(queries => {
+                this.queries = queries;
+            });
     }
 
     private getQueries() {
