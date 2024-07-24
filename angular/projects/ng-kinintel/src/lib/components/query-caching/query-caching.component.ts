@@ -23,6 +23,7 @@ export class QueryCachingComponent implements OnInit {
     @Input() reload = new Subject();
     @Input() showPager = true;
     @Input() limit = 10;
+    @Input() datasetInstanceId: number = null;
 
     public queries: any = [];
     public searchText = new BehaviorSubject('');
@@ -156,15 +157,23 @@ export class QueryCachingComponent implements OnInit {
     }
 
     private getQueries() {
-        return this.dataProcessorService.filterProcessorsByType(
-            'querycaching',
-            this.searchText.getValue() || '',
-            this.limit.toString(),
-            this.offset.toString()
-        ).pipe(map((queries: any) => {
-                return queries;
-            })
-        );
+        if (!this.datasetInstanceId) {
+            return this.dataProcessorService.filterProcessorsByType(
+                'querycaching',
+                this.searchText.getValue() || '',
+                this.limit.toString(),
+                this.offset.toString()
+            ).pipe(map((queries: any) => {
+                    return queries;
+                })
+            );
+        } else {
+            return this.dataProcessorService.filterProcessorsByRelatedItem(
+                'querycaching',
+                'DatasetInstance',
+                this.datasetInstanceId
+            );
+        }
     }
 
 }
