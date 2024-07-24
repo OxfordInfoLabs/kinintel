@@ -222,6 +222,102 @@ class QueryCachingDataProcessorTest extends TestCase {
 
     }
 
+    public function testCanHandleSourceAutoIncrementFields() {
+
+        $processorConfig = new QueryCachingDataProcessorConfiguration(3, null, 12, ["col2"]);
+        $params = [new Parameter("param", "Param")];
+
+        $sourceDatasetSummary = new DatasetInstanceSummary(
+            title: "My Query",
+            datasourceInstanceKey: "some_source",
+            parameters: $params
+        );
+
+
+        $mockDataset = MockObjectProvider::instance()->getMockInstance(ArrayTabularDataset::class);
+        $mockDataset->returnValue("getColumns", [
+            new Field(name: "col1", type: Field::TYPE_ID),
+            new Field(name: "col2", type:Field::TYPE_STRING, keyField: true)
+        ]);
+
+        $this->datasetService->returnValue("getDataSetInstance", $sourceDatasetSummary, [3]);
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance", $mockDataset, [$sourceDatasetSummary]);
+
+
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+        $processorInstance->returnValue("getAccountId", 1);
+        $processorInstance->returnValue("getProjectKey", "my_project");
+        $processorInstance->returnValue("getKey", "querycache_12345");
+
+
+        $processor = new QueryCachingDataProcessor($this->authCreds, $this->datasourceService, $this->datasetService);
+        $processor->process($processorInstance);
+
+        $history = $this->datasourceService->getMethodCallHistory("saveDataSourceInstance");
+
+        $expectedCacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
+            source: "table",
+            tableName: "query_cache.querycache_12345_cache",
+            columns: [
+                new DatasourceUpdateField(
+                    name: "parameters",
+                    keyField: true
+                ),
+                new DatasourceUpdateField(
+                    name: "cached_time",
+                    type: Field::TYPE_DATE_TIME,
+                    keyField: true
+                ),
+                new DatasourceUpdateField(
+                    name: "col1",
+                    type: Field::TYPE_INTEGER
+                ),
+                new DatasourceUpdateField(
+                    name: "col2",
+                    type: Field::TYPE_STRING,
+                    keyField: true
+                )
+            ],
+            indexes: [
+                new Index(["parameters", "cached_time"])
+            ]
+        );
+
+
+        $expectedCacheDatasourceInstance = new DatasourceInstance(
+            key: "querycache_12345_cache",
+            title: "My Query Cache",
+            type: "querycache",
+            config: $expectedCacheConfig,
+            credentialsKey: "test"
+        );
+
+        $expectedCacheDatasourceInstance->setAccountId(1);
+        $expectedCacheDatasourceInstance->setProjectKey("my_project");
+        $this->assertEquals($expectedCacheDatasourceInstance, $history[0][0]);
+
+
+        $expectedCachingConfig = new CachingDatasourceConfig(
+            sourceDatasetId: 3,
+            cachingDatasourceKey: "querycache_12345_cache",
+            cacheExpiryDays: null,
+            cacheHours: 12
+        );
+
+        $expectedCachingDatasourceInstance = new DatasourceInstance(
+            key: "querycache_12345_caching",
+            title: "My Query Caching Datasource",
+            type: "caching",
+            config: $expectedCachingConfig,
+            parameters: $params
+        );
+        $expectedCachingDatasourceInstance->setAccountId(1);
+        $expectedCachingDatasourceInstance->setProjectKey("my_project");
+        $this->assertEquals($expectedCachingDatasourceInstance, $history[1][0]);
+
+    }
+
     public function testDoesCallCorrectDeleteMethodsWhenOnInstanceDelete() {
 
         $processorConfig = new QueryCachingDataProcessorConfiguration(25, 1, 12);

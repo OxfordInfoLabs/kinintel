@@ -81,7 +81,7 @@ class QueryCachingDataProcessor implements DataProcessor {
         // Create the columns for the cache table
         $columns = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceQuery)->getColumns();
         $columns = array_map(fn($col) => new DatasourceUpdateField(
-            $col->getName(), $col->getTitle(), $col->getValueExpression(), $col->getType()
+            $col->getName(), $col->getTitle(), $col->getValueExpression(), $col->getType() == Field::TYPE_ID ? Field::TYPE_INTEGER : $col->getType()        // Map the id type to an integer to remove auto increment.
         ), $columns);
 
         // Add primary key as specified
