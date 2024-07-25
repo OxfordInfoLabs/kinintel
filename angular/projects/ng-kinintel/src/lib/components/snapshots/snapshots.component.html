@@ -117,7 +117,7 @@
                             <td class="whitespace-nowrap border-b border-gray-200 py-0.5 px-2 text-sm text-gray-500">
                                 <div
                                     class="inline-flex text-sm lowercase flex items-center text-white px-3 rounded-full"
-                                    [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger': snapshot.taskStatus === 'FAILED'}">
+                                    [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger cursor-pointer': snapshot.taskStatus === 'FAILED'}">
                                     <ng-template [ngIf]="snapshot.taskStatus === 'PENDING'">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
@@ -287,7 +287,7 @@
                             <td class="whitespace-nowrap border-b border-gray-200 py-0.5 px-2 text-sm text-gray-500">
                                 <div
                                     class="inline-flex text-sm lowercase flex items-center text-white px-3 rounded-full"
-                                    [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger': snapshot.taskStatus === 'FAILED', 'bg-purple-500': snapshot.taskStatus === 'TIMED_OUT'}">
+                                    [ngClass]="{'py-0.5': snapshot.taskStatus !== 'RUNNING','py-1': snapshot.taskStatus === 'RUNNING', 'bg-gray-400': snapshot.taskStatus === 'PENDING', 'bg-secondary': snapshot.taskStatus === 'RUNNING', 'bg-success': snapshot.taskStatus === 'COMPLETED', 'bg-danger cursor-pointer': snapshot.taskStatus === 'FAILED', 'bg-purple-500': snapshot.taskStatus === 'TIMED_OUT'}">
                                     <ng-template [ngIf]="snapshot.taskStatus === 'PENDING'">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
