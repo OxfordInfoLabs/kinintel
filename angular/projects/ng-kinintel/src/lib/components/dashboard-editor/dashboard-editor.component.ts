@@ -479,6 +479,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                 });
             }
             if (!this.dashboard.id) {
+                this.unsavedChanges = false;
                 window.location.href = `/${this.routeURL}/${dashboardId}${this.admin ? '?a=true' : ''}`;
             }
             return this.dashboard;

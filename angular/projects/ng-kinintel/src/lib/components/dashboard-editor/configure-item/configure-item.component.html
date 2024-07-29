@@ -1408,7 +1408,7 @@
                 </div>
 
             </mat-tab>
-            <mat-tab label="Groups" *ngIf="networkData.nodeGroups">
+            <mat-tab label="Groups" *ngIf="dashboardItemType.type === 'network' && networkData.nodeGroups">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">
                     <div class="md:flex md:items-center md:justify-between md:space-x-5">
                         <div class="flex items-start flex-1">
@@ -1498,7 +1498,7 @@
                     </div>
                 </div>
             </mat-tab>
-            <mat-tab label="Nodes" *ngIf="datasetNodes.length">
+            <mat-tab label="Nodes" *ngIf="dashboardItemType.type === 'network' && datasetNodes.length">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">
                     <div class="md:flex md:items-center md:justify-between md:space-x-5">
                         <div class="flex items-start flex-1">
@@ -1671,7 +1671,7 @@
                     </div>
                 </div>
             </mat-tab>
-            <mat-tab label="Edges" *ngIf="datasetEdges.length">
+            <mat-tab label="Edges" *ngIf="dashboardItemType.type === 'network' && datasetEdges.length">
                 <div class="px-6 py-3 bg-white border-b border-gray-200">
                     <div class="md:flex md:items-center md:justify-between md:space-x-5">
                         <div class="flex items-start flex-1">
