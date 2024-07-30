@@ -291,8 +291,8 @@
                                 </mat-menu>
                             </ng-template>
 
-                            <button class="-ml-1" title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary"
-                                    (click)="removeTransformation(transformation, true)">
+                            <button class="-ml-1" title="Remove this transformation" mat-icon-button color="primary"
+                                    (click)="removeTransformation(transformation, true, null, transformation._active)">
                                 <mat-icon>cancel</mat-icon>
                             </button>
                         </div>
