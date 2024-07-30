@@ -191,16 +191,15 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public saveChanges() {
         if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
-                width: '475px',
-                height: '150px',
+                width: '700px',
+                height: '800px',
                 data: {
-                    title: this.newTitle,
-                    description: this.newDescription
+                    datasetInstanceSummary: this.datasetInstanceSummary
                 }
             });
-            dialogRef.afterClosed().subscribe(res => {
-                if (res) {
-                    this.datasetInstanceSummary.title = res;
+            dialogRef.afterClosed().subscribe(datasetInstanceSummary => {
+                if (datasetInstanceSummary) {
+                    this.datasetInstanceSummary = datasetInstanceSummary;
                     this.saveDataset();
                 }
             });
