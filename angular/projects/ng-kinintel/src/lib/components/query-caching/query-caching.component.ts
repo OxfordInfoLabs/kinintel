@@ -138,6 +138,10 @@ export class QueryCachingComponent implements OnInit {
         });
     }
 
+    public retryFailedBuild(query) {
+        this.dataProcessorService.triggerProcessor(query.key);
+    }
+
     private openDialogEditor(datasetInstanceSummary) {
         this.router.navigate(['/snapshots'], {fragment: _.kebabCase(datasetInstanceSummary.title || datasetInstanceSummary.datasourceInstanceKey)});
         const dialogRef = this.dialog.open(DataExplorerComponent, {
