@@ -23,20 +23,22 @@ class DataProcessorItem {
      * @param string|null $taskLastStartTime
      * @param string|null $taskLastEndTime
      * @param string|null $taskNextStartTime
+     * @param string|null $taskLastLogMessage
      * @param string|null $key
      */
     public function __construct(private ?string $title,
                                 private ?string $type,
-                                private mixed $config,
+                                private mixed   $config,
                                 private ?string $trigger = DataProcessorInstance::TRIGGER_ADHOC,
                                 private ?string $relatedObjectType = null,
                                 private ?string $relatedObjectPrimaryKey = null,
                                 private ?string $relatedObjectTitle = null,
-                                private $taskTimePeriods = [],
+                                private array   $taskTimePeriods = [],
                                 private ?string $taskStatus = null,
                                 private ?string $taskLastStartTime = null,
                                 private ?string $taskLastEndTime = null,
                                 private ?string $taskNextStartTime = null,
+                                private ?string $taskLastLogMessage = null,
                                 private ?string $key = null) {
     }
 
@@ -217,6 +219,20 @@ class DataProcessorItem {
         $this->taskNextStartTime = $taskNextStartTime;
     }
 
+    /**
+     * @return string
+     */
+    public function getTaskLastLogMessage() {
+        return $this->taskLastLogMessage;
+    }
+
+    /**
+     * @param string $taskLastLogMessage
+     */
+    public function setTaskLastLogMessage($taskLastLogMessage) {
+        $this->taskLastLogMessage = $taskLastLogMessage;
+    }
+
 
     /**
      * @param $projectKey
@@ -226,7 +242,7 @@ class DataProcessorItem {
     public function toDataProcessorInstance(
         $projectKey = null,
         $accountId = Account::LOGGED_IN_ACCOUNT
-    ) : DataProcessorInstance {
+    ): DataProcessorInstance {
 
         // Handle new and existing cases
         $key = $this->getKey() ?: $this->getType() . "_" . ($accountId ?? 0) . "_" . date("U");
@@ -254,7 +270,7 @@ class DataProcessorItem {
      * @param DataProcessorInstance $dataProcessorInstance
      * @return DataProcessorItem
      */
-    public static function fromDataProcessorInstance($dataProcessorInstance) : DataProcessorItem {
+    public static function fromDataProcessorInstance($dataProcessorInstance): DataProcessorItem {
         return new DataProcessorItem($dataProcessorInstance->getTitle(), $dataProcessorInstance->getType(), $dataProcessorInstance->getConfig(),
             $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(), $dataProcessorInstance->getRelatedObjectTitle(),
             $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),
@@ -262,6 +278,7 @@ class DataProcessorItem {
             $dataProcessorInstance->getScheduledTask()?->getLastStartTime()?->format("d/m/Y H:i:s"),
             $dataProcessorInstance->getScheduledTask()?->getLastEndTime()?->format("d/m/Y H:i:s"),
             $dataProcessorInstance->getScheduledTask()?->getNextStartTime()?->format("d/m/Y H:i:s"),
+            $dataProcessorInstance->getScheduledTask()?->getLatestLog()?->getLogOutput(),
             $dataProcessorInstance->getKey()
         );
     }

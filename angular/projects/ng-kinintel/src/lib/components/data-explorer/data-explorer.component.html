@@ -296,7 +296,7 @@
 
                 </div>
             </div>
-            <ki-query-caching [limit]="100" [showPager]="false" [reload]="reloadCache"></ki-query-caching>
+            <ki-query-caching [limit]="100" [showPager]="false" [reload]="reloadCache" [datasetInstanceId]="datasetInstanceSummary.id"></ki-query-caching>
             <div class="p-4" *ngIf="!queryCacheResults.length">
                 <button type="button" (click)="editQueryCache(null)"
                         class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">

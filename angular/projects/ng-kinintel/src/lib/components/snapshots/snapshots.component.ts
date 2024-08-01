@@ -257,7 +257,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
     }
 
     private watchSnapshotChanges() {
-        this.projectChanges = interval(3000)
+        this.projectChanges = interval(300000)
             .pipe(
                 switchMap(() =>
                     this.dataProcessorService.filterProcessorsByType(

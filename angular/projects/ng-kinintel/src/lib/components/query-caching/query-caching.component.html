@@ -2,14 +2,14 @@
     <div class="flex flex-col">
         <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle">
-                <div class="mt-3 sm:mt-0 flex-1">
+                <div class="mt-3 sm:mt-0 flex-1"  *ngIf="!datasetInstanceId">
                     <label for="mobile-search-candidate" class="sr-only">Search</label>
                     <div class="flex">
-                        <div class="relative flex-grow focus-within:z-10">
+                        <div class="relative flex-grow focus-within:z-10" >
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
                                      viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd"
+                                    <path fsnill-rule="evenodd"
                                           d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                                           clip-rule="evenodd"/>
                                 </svg>
@@ -30,6 +30,7 @@
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
                                 Cache
                             </th>
+                            <th scope="col"  class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">Status</th>
                             <th scope="col"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
                                 Cache Expiry
@@ -46,6 +47,46 @@
                             <td class="boder-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">
                                 {{query.title}}
                             </td>
+                            <td class="whitespace-nowrap border-b border-gray-200 py-0.5 px-2 text-sm text-gray-500">
+                                <div [matTooltip]="query.taskLastLogMessage" [matTooltipDisabled]="query.taskStatus !== 'FAILED'"
+                                     matTooltipClass="text-sm"
+                                    class="inline-flex text-sm lowercase flex items-center text-white px-3 rounded-full"
+                                    [ngClass]="{'py-0.5': query.taskStatus !== 'RUNNING','py-1': query.taskStatus === 'RUNNING', 'bg-gray-400': query.taskStatus === 'PENDING', 'bg-secondary': query.taskStatus === 'RUNNING', 'bg-success': query.taskStatus === 'COMPLETED', 'bg-danger cursor-pointer': query.taskStatus === 'FAILED'}">
+                                    <ng-template [ngIf]="query.taskStatus === 'PENDING' || query.taskStatus === 'RUNNING'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        building cache
+                                    </ng-template>
+                                    <ng-template [ngIf]="query.taskStatus === 'COMPLETED'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        ready
+                                    </ng-template>
+                                    <ng-template [ngIf]="query.taskStatus === 'FAILED'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="-ml-1 w-6 h-6 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                                        </svg>
+                                        failed to build cache
+                                    </ng-template>
+                                </div>
+                                <div *ngIf="query.taskStatus === 'FAILED'">
+                                    <a class="ml-3 cursor-pointer text-secondary hover:underline flex items-center text-xs"
+                                        (click)="retryFailedBuild(query)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-3 w-3 mr-0.5">
+                                            <path fill-rule="evenodd" d="M13.836 2.477a.75.75 0 0 1 .75.75v3.182a.75.75 0 0 1-.75.75h-3.182a.75.75 0 0 1 0-1.5h1.37l-.84-.841a4.5 4.5 0 0 0-7.08.932.75.75 0 0 1-1.3-.75 6 6 0 0 1 9.44-1.242l.842.84V3.227a.75.75 0 0 1 .75-.75Zm-.911 7.5A.75.75 0 0 1 13.199 11a6 6 0 0 1-9.44 1.241l-.84-.84v1.371a.75.75 0 0 1-1.5 0V9.591a.75.75 0 0 1 .75-.75H5.35a.75.75 0 0 1 0 1.5H3.98l.841.841a4.5 4.5 0 0 0 7.08-.932.75.75 0 0 1 1.025-.273Z" clip-rule="evenodd" />
+                                        </svg>
+                                        Retry failed build
+                                    </a>
+                                </div>
+                            </td>
                             <td class="border-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 <span class="mr-2" *ngIf="query.config.cacheExpiryDays"><b>{{query.config.cacheExpiryDays}}</b> Day(s)</span>
                                 <span *ngIf="query.config.cacheExpiryHours"><b>{{query.config.cacheExpiryHours}}</b> Hour(s)</span>
@@ -53,12 +94,12 @@
                             <td class="border-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 <div class="flex items-center justify-end">
                                     <button mat-button color="primary"
-                                            [disabled]="query.taskStatus === 'PENDING'"
+                                            [disabled]="query.taskStatus !== 'COMPLETED'"
                                             (click)="view(query.key + '_cache')">
                                         View Cache
                                     </button>
                                     <button mat-button color="primary"
-                                            [disabled]="query.taskStatus === 'PENDING'"
+                                            [disabled]="query.taskStatus !== 'COMPLETED'"
                                             (click)="view(query.key + '_caching')">
                                         Query Latest
                                     </button>
