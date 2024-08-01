@@ -1231,4 +1231,75 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
     }
 
 
+    public function testIfOffsetParameterNameSuppliedTheSuppliedParameterIsPopulatedWithOffsetValuesToMakeRepeatedCalls() {
+
+        $processorConfig = new TabularDatasourceChangeTrackingProcessorConfiguration([], [
+            new SourceDatasource("test", [["param1" => "hello", "param2" => "dave"]])
+        ], null, "testLatest", null, null, [], 1, null, "age", 55, "myOffset");
+        $processorInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
+        $processorInstance->returnValue("returnConfig", $processorConfig);
+
+        $firstDataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ]
+        ]);
+
+        $secondDataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            [
+                "name" => "Iron Man",
+                "age" => 40
+            ]
+        ]);
+
+        $thirdDataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+            [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ]
+        ]);
+
+        $fourthDataset = new ArrayTabularDataset([new Field("name"), new Field("age")], [
+        ]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $firstDataset, [
+            "test", ["param1" => "hello", "param2" => "dave", "myOffset" => 55], [], 55, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $secondDataset, [
+            "test", ["param1" => "hello", "param2" => "dave", "myOffset" => 15], [], 15, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $thirdDataset, [
+            "test", ["param1" => "hello", "param2" => "dave", "myOffset" => 40], [], 40, 1
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $fourthDataset, [
+            "test", ["param1" => "hello", "param2" => "dave", "myOffset" => 22], [], 22, 1
+        ]);
+
+        $this->processor->process($processorInstance);
+
+
+        $expectedUpdate = new DatasourceUpdate([], [], [], [
+            [
+                "name" => "Peter Storm",
+                "age" => 15
+            ], [
+                "name" => "Iron Man",
+                "age" => 40
+            ], [
+                "name" => "Joe Bloggs",
+                "age" => 22
+            ]
+        ]);
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", ["testLatest", $expectedUpdate, true]));
+
+
+    }
+
+
 }

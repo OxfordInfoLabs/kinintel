@@ -16,7 +16,9 @@
         <div>
             <div class="space-y-6 sm:space-y-5">
                 <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Name </label>
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Name <span class="text-red-500">*</span>
+                    </label>
                     <div class="mt-1 sm:mt-0 sm:col-span-2">
                         <input type="text" name="title" [(ngModel)]="alertGroup.title"
                                class="max-w-lg block w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
@@ -24,14 +26,18 @@
                 </div>
 
                 <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Time Periods </label>
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Time Periods <span class="text-red-500">*</span>
+                    </label>
                     <div class="mt-1 sm:mt-0 sm:col-span-2">
                         <ki-task-time-periods [showTitle]="false" [(taskTimePeriods)]="alertGroup.taskTimePeriods"></ki-task-time-periods>
                     </div>
                 </div>
 
                 <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Groups </label>
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Notification Groups <span class="text-red-500">*</span>
+                    </label>
                     <div class="mt-1 sm:mt-0 sm:col-span-2">
                         <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple [compareWith]="notificationGroupDisplay">
                             <mat-option [value]="group" *ngFor="let group of notificationGroups">{{group.name}}</mat-option>
@@ -78,7 +84,7 @@
             <button type="button" [routerLink]="['/alert-groups']"
                     class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">Cancel</button>
             <button type="button" (click)="save()" [disabled]="!alertGroup.title || (!alertGroup.taskTimePeriods || !alertGroup.taskTimePeriods.length) || (!alertGroup.notificationGroups || !alertGroup.notificationGroups.length)"
-                    class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary focus:outline-none">
+                    class="disabled:opacity-50 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary focus:outline-none">
                 Save Changes</button>
         </div>
     </div>
