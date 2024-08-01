@@ -367,6 +367,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     public async editColumnSettings(existingTransformation?: any, existingIndex?: number, insertIndex?: number) {
         const clonedColumns = existingTransformation ? _.clone(existingTransformation.config.columns) : null;
+        const resetColumnNames = existingTransformation ? existingTransformation.config.resetColumnNames : true;
+        const namingConvention = existingTransformation ? existingTransformation.config.namingConvention : "CAMEL";
+
 
         const columnSettings = [];
 
@@ -390,11 +393,14 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             data: {
                 columns: columnSettings,
                 reset: !!_.find(this.datasetInstanceSummary.transformationInstances, {type: 'columns'}),
-                resetFields: _.clone(this.filterFields)
+                resetFields: _.clone(this.filterFields),
+                resetColumnNames,
+                namingConvention
             }
         });
 
-        dialogRef.afterClosed().subscribe(columns => {
+        dialogRef.afterClosed().subscribe(result => {
+            const columns = result.columns;
             if (columns) {
                 const fields = _.map(columns, column => {
                     return {title: column.title, name: column.name};
@@ -403,7 +409,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 const columnTransformation = {
                     type: 'columns',
                     config: {
-                        columns: fields
+                        columns: fields,
+                        resetColumnNames: result.resetColumnNames,
+                        namingConvention: result.namingConvention
                     }
                 };
 
