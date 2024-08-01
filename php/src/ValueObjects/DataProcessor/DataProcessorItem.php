@@ -33,7 +33,7 @@ class DataProcessorItem {
                                 private ?string $relatedObjectType = null,
                                 private ?string $relatedObjectPrimaryKey = null,
                                 private ?string $relatedObjectTitle = null,
-                                private         $taskTimePeriods = [],
+                                private array   $taskTimePeriods = [],
                                 private ?string $taskStatus = null,
                                 private ?string $taskLastStartTime = null,
                                 private ?string $taskLastEndTime = null,
