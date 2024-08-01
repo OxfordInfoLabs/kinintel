@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {BehaviorSubject, interval, merge, Subject, Subscription} from 'rxjs';
+import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {DataProcessorService,} from '../../services/data-processor.service';
+import {DataProcessorService, } from '../../services/data-processor.service';
 import * as lodash from 'lodash';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {Router} from '@angular/router';
@@ -10,7 +10,6 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {
     EditQueryCacheComponent
 } from '../query-caching/edit-query-cache/edit-query-cache.component';
-
 const _ = lodash.default;
 
 @Component({
@@ -24,7 +23,6 @@ export class QueryCachingComponent implements OnInit {
     @Input() reload = new Subject();
     @Input() showPager = true;
     @Input() limit = 10;
-    @Input() datasetInstanceId: number = null;
 
     public queries: any = [];
     public searchText = new BehaviorSubject('');
@@ -34,7 +32,7 @@ export class QueryCachingComponent implements OnInit {
     public endOfResults = false;
     public loading = true;
     public _ = _;
-    private queryChanges: Subscription;
+
 
 
     constructor(private dataProcessorService: DataProcessorService,
@@ -62,12 +60,6 @@ export class QueryCachingComponent implements OnInit {
             this.page = 1;
             this.offset = 0;
         });
-
-        this.watchQueryChanges();
-    }
-
-    ngOnDestroy() {
-        this.queryChanges.unsubscribe();
     }
 
     public increaseOffset() {
@@ -138,10 +130,6 @@ export class QueryCachingComponent implements OnInit {
         });
     }
 
-    public retryFailedBuild(query) {
-        this.dataProcessorService.triggerProcessor(query.key);
-    }
-
     private openDialogEditor(datasetInstanceSummary) {
         this.router.navigate(['/snapshots'], {fragment: _.kebabCase(datasetInstanceSummary.title || datasetInstanceSummary.datasourceInstanceKey)});
         const dialogRef = this.dialog.open(DataExplorerComponent, {
@@ -167,35 +155,16 @@ export class QueryCachingComponent implements OnInit {
         });
     }
 
-    private watchQueryChanges() {
-        this.queryChanges = interval(3000)
-            .pipe(
-                switchMap(() =>
-                    this.getQueries()
-                )
-            ).subscribe(queries => {
-                this.queries = queries;
-            });
-    }
-
     private getQueries() {
-        if (!this.datasetInstanceId) {
-            return this.dataProcessorService.filterProcessorsByType(
-                'querycaching',
-                this.searchText.getValue() || '',
-                this.limit.toString(),
-                this.offset.toString()
-            ).pipe(map((queries: any) => {
-                    return queries;
-                })
-            );
-        } else {
-            return this.dataProcessorService.filterProcessorsByRelatedItem(
-                'querycaching',
-                'DatasetInstance',
-                this.datasetInstanceId
-            );
-        }
+        return this.dataProcessorService.filterProcessorsByType(
+            'querycaching',
+            this.searchText.getValue() || '',
+            this.limit.toString(),
+            this.offset.toString()
+        ).pipe(map((queries: any) => {
+                return queries;
+            })
+        );
     }
 
 }

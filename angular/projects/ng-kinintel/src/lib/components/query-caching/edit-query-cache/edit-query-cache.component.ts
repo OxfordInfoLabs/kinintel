@@ -34,9 +34,7 @@ export class EditQueryCacheComponent implements OnInit {
                 cacheExpiryDays: null,
                 cacheExpiryHours: null,
                 primaryKeyColumnNames: [],
-            },
-            "relatedObjectType": "DatasetInstance",
-            "relatedObjectPrimaryKey": this.data.datasetInstanceId
+            }
         };
     }
 
