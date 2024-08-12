@@ -1,18 +1,18 @@
-<div class="p-4">
+<div class="p-0">
 
-    <div class="column-toolbar">
+    <div class="column-toolbar py-3 px-6 bg-gray-50 border-b border-gray-200">
         <div class="align-center">
             <div class="show-hide">
                 <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
             </div>
-            <div class="column-name" *ngIf="!titleOnly">Name</div>
-            <div class="column-name">New column title</div>
+            <div class="column-name uppercase tracking-wider text-xs font-semibold" *ngIf="!titleOnly">Name</div>
+            <div class="column-name uppercase tracking-wider text-xs font-semibold">New column title</div>
         </div>
 
-        <div class="reorder">Reorder</div>
+        <div class="reorder uppercase tracking-wider text-xs font-semibold">Reorder</div>
     </div>
 
-    <div cdkDropList class="column-editor" (cdkDropListDropped)="drop($event)">
+    <div cdkDropList class="column-editor px-4" (cdkDropListDropped)="drop($event)">
         <div class="align-center column-item" cdkDrag *ngFor="let column of columns">
             <div class="align-center">
                 <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
