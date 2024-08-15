@@ -203,7 +203,10 @@ class DatasetService {
             $params = array_merge($params, $categories);
         }
 
-        $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
+        $params[] = $limit;
+        $params[] = $offset;
+
+        $query .= " ORDER BY title LIMIT ? OFFSET ?";
 
         // Return a summary array
         return array_map(function ($instance) {
