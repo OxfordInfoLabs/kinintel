@@ -130,7 +130,7 @@ class SQLClauseSanitiser {
         "ROW_COUNT" => ["params" => [], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the number of rows in the current data set"],
         "ROW_NUMBER" => ["params" => ["X", "Y"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
-            "description" => "Returns the sequential index of the current row in the current data set.  The arguments X and Y define criteria for sorting the rows with an optional direction e.g. [[mycolumn]] DESC or [[othercolumn]] ASC"],
+            "description" => "Returns the sequential index of the current row in the current data set.  The arguments X and Y define criteria for sorting the rows with an optional direction e.g. ROW_NUMBER([[mycolumn]] DESC) or ROW_NUMBER([[othercolumn]] ASC)"],
         "RTRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Remove whitespace from end of the supplied string"],
         "SQRT" => ["params" => ["X"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
