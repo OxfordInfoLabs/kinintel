@@ -23,18 +23,11 @@ include_once "autoloader.php";
 
 class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
-    /**
-     * @var TabularDatasourceAggregatingProcessor
-     */
-    private $processor;
-
-    /**
-     * @var MockObject
-     */
-    private $datasourceService;
+    private TabularDatasourceAggregatingProcessor $processor;
+    private DatasourceService|MockObject $datasourceService;
 
     public function setUp(): void {
-        $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+        $this->datasourceService = MockObjectProvider::mock(DatasourceService::class);
         $this->processor = new TabularDatasourceAggregatingProcessor($this->datasourceService);
     }
 
