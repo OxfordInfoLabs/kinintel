@@ -140,8 +140,10 @@ export class ConfigureItemComponent implements OnInit {
     public datasetNodes: any = [];
     public datasetEdges: any = [];
     public nodeGroups: any;
+    public widgetParameters: any = {};
 
     protected readonly Array = Array;
+    protected readonly Object = Object;
 
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -185,11 +187,24 @@ export class ConfigureItemComponent implements OnInit {
             if (this.dashboard.layoutSettings) {
                 this.mapLayoutSettingsToComponentData();
 
+                if (!this.general.parameterBar) {
+                    this.general.parameterBar = {};
+                }
+
                 if (this.dashboard.layoutSettings.parameters) {
                     this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
                         .filter('value')
                         .map('value')
                         .valueOf();
+                }
+
+                this.widgetParameters = _.cloneDeep(this.dashboard.layoutSettings.parameters);
+                if (this.general.widgetParameters && Object.keys(this.general.widgetParameters).length) {
+                    _.forEach(this.general.widgetParameters, widgetParam => {
+                        if (widgetParam.value) {
+                            this.widgetParameters[widgetParam.name].value = widgetParam.value;
+                        }
+                    });
                 }
 
                 const matchDependencies = _.filter(this.dependencies, (dep, key) => {

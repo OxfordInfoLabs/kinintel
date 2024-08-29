@@ -171,6 +171,22 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             this.dashboard.displaySettings.heading[this.itemInstanceKey]) {
             this.dashboardItemType.headingValue = this.dashboard.displaySettings.heading[this.itemInstanceKey];
         }
+
+        if (this.general.parameterBar && Object.keys(this.general.parameterBar).length) {
+            if (!this.general.widgetParameters || Array.isArray(this.general.widgetParameters)) {
+                this.general.widgetParameters = {};
+            }
+
+            Object.keys(this.general.parameterBar).forEach(paramKey => {
+                if (this.general.parameterBar[paramKey] && !this.general.widgetParameters[paramKey]) {
+                    this.general.widgetParameters[paramKey] = _.cloneDeep(this.dashboard.layoutSettings.parameters[paramKey]);
+                }
+                if (!this.general.parameterBar[paramKey]) {
+                    delete this.general.widgetParameters[paramKey];
+                }
+            });
+        }
+
         this.configureClass = true;
         if (this.dependencies.instanceKeys && this.dependencies.instanceKeys.length) {
             this.loadingItem = true;
@@ -869,6 +885,32 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         this.evaluate(true);
     }
 
+    public changeDateType(event, parameter, value) {
+        event.stopPropagation();
+        event.preventDefault();
+        parameter._dateType = value;
+        this.reloadWidget();
+    }
+
+    public updatePeriodValue(value, period, parameter) {
+        parameter.value = `${value}_${period}_AGO`;
+        this.reloadWidget();
+    }
+
+    public booleanUpdate(event, parameter) {
+        parameter.value = event.checked;
+        this.reloadWidget();
+    }
+
+    public reloadWidget() {
+        const parameterValues: any = {};
+        _.forEach(this.general.widgetParameters, param => {
+            parameterValues[param.name] = param.value;
+        });
+
+        this.evaluate();
+    }
+
     private mapColumnToValue(searchString, data) {
         if (searchString) {
             const matches = searchString.match(/\[\[(.*?)\]\]/g) || [];
@@ -1319,6 +1361,15 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         value = moment(value).format('YYYY-MM-DD HH:mm:ss');
                     }
                 }
+
+                // Add in the widget specific parameter values if there are any
+                if (this.general.widgetParameters && Object.keys(this.general.widgetParameters).length) {
+                    const widgetParam = _.find(this.general.widgetParameters, {name});
+                    if (widgetParam && widgetParam.value) {
+                        value = widgetParam.value;
+                    }
+                }
+
                 datasetInstanceSummary.parameterValues[name] = value;
             });
         }
