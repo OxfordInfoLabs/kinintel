@@ -989,7 +989,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     private _removeTransformation(transformation, index?) {
-        if (index >= 0) {
+        if (!_.isNil(index) && index >= 0) {
             // If a current index has been supplied, reset all the pre transformation hidden fields prior to eval.
             for (let i = 0; i < index; i++) {
                 if (this.datasetInstanceSummary.transformationInstances[i].type !== 'filter') {
