@@ -26,10 +26,7 @@ class ExtendingDatasource extends BaseDatasource {
         $this->datasourceService = $datasourceService ?? Container::instance()->get(DatasourceService::class);
     }
 
-    /**
-     * @param DatasourceService $datasourceService
-     */
-    public function setDatasourceService($datasourceService) {
+    public function setDatasourceService(DatasourceService $datasourceService) {
         $this->datasourceService = $datasourceService;
     }
 
