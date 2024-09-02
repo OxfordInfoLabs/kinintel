@@ -16,7 +16,7 @@ namespace Kinintel\ValueObjects\Transformation;
  * @implementation columns \Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation
  * @implementation formula \Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation
  * @implementation combine \Kinintel\ValueObjects\Transformation\Combine\CombineTransformation
- *
+ * @implementation pivot \Kinintel\ValueObjects\Transformation\Pivot\PivotTransformation
  */
 interface Transformation {
 

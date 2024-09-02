@@ -20,7 +20,7 @@ class Expression {
      * @var string
      * @required
      */
-    private $expression;
+    protected $expression;
 
     /**
      * Expression constructor.
