@@ -25,6 +25,7 @@ import {BaseChartDirective} from 'ng2-charts';
 import regression from 'regression';
 import {ProjectService} from '../../../services/project.service';
 import {scales} from 'chart.js';
+import visNetworkOptions from './vis-network-options.json';
 
 @Component({
     selector: 'ki-configure-item',
@@ -40,6 +41,7 @@ export class ConfigureItemComponent implements OnInit {
     public chartData: any;
     public metric: any = {};
     public textData: any = {};
+    public networkData: any = {};
     public wordCloud: any = {};
     public imageData: any = {};
     public tabular: any = {};
@@ -123,16 +125,25 @@ export class ConfigureItemComponent implements OnInit {
     ];
     public showAlertWarning = false;
     public dapFeeds: any = [];
-
     public sideOpen = false;
     public openSide = new BehaviorSubject(false);
     public dataset: any;
+    public edgeDataset: any;
+    public fullEdgeDataset: any;
     public _ = _;
     public docColumns = new Subject();
     public canSetAlerts = false;
     public colourPalettes: any = [];
+    public visNetworkOptions = visNetworkOptions;
+    public availableNodeOptions: string[] = [];
+    public availableEdgeOptions: string[] = [];
+    public datasetNodes: any = [];
+    public datasetEdges: any = [];
+    public nodeGroups: any;
+    public widgetParameters: any = {};
 
     protected readonly Array = Array;
+    protected readonly Object = Object;
 
     constructor(public dialogRef: MatDialogRef<ConfigureItemComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -145,6 +156,9 @@ export class ConfigureItemComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<any> {
+        this.availableNodeOptions = Object.keys(this.visNetworkOptions.nodes);
+        this.availableEdgeOptions = Object.keys(this.visNetworkOptions.edges);
+
         this.grid = this.data.grid;
         this.dashboard = this.data.dashboard;
         this.dashboardDatasetInstance = this.data.dashboardDatasetInstance;
@@ -173,11 +187,24 @@ export class ConfigureItemComponent implements OnInit {
             if (this.dashboard.layoutSettings) {
                 this.mapLayoutSettingsToComponentData();
 
+                if (!this.general.parameterBar) {
+                    this.general.parameterBar = {};
+                }
+
                 if (this.dashboard.layoutSettings.parameters) {
                     this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
                         .filter('value')
                         .map('value')
                         .valueOf();
+                }
+
+                this.widgetParameters = _.cloneDeep(this.dashboard.layoutSettings.parameters);
+                if (this.general.widgetParameters && Object.keys(this.general.widgetParameters).length) {
+                    _.forEach(this.general.widgetParameters, widgetParam => {
+                        if (widgetParam.value) {
+                            this.widgetParameters[widgetParam.name].value = widgetParam.value;
+                        }
+                    });
                 }
 
                 const matchDependencies = _.filter(this.dependencies, (dep, key) => {
@@ -281,6 +308,105 @@ export class ConfigureItemComponent implements OnInit {
         });
     }
 
+    public pickNetworkEdgeDataset() {
+        const dialogRef = this.dialog.open(SourceSelectorDialogComponent, {
+            width: '1200px',
+            height: '800px',
+            data: {
+                dashboard: this.dashboard,
+                dashboardItemInstanceKey: this.data.itemInstanceKey,
+                dashboardDatasetInstance: this.dashboardDatasetInstance || {
+                    dashboardId: this.dashboard.id,
+                    instanceKey: this.data.itemInstanceKey,
+                    transformationInstances: [],
+                    parameterValues: {},
+                    parameters: []
+                },
+                admin: this.admin
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(async dashboardDatasetInstance => {
+            this.networkData.edgeDatasetId = dashboardDatasetInstance.datasetInstanceId;
+            this.networkData.edgeDatasourceKey = dashboardDatasetInstance.datasourceInstanceKey;
+
+            await this.loadEdgeDataset();
+
+            this.networkData.edgeDatasetTitle = dashboardDatasetInstance.title || this.edgeDataset.instanceTitle;
+        });
+    }
+
+    public async loadEdgeDataset() {
+        const datasetInstanceSummary = {
+            datasetInstanceId: this.networkData.edgeDatasetId,
+            datasourceInstanceKey: this.networkData.edgeDatasourceKey,
+            transformationInstances: [],
+            parameterValues: {},
+            parameters: {}
+        };
+
+        this.edgeDataset = await this.datasetService.evaluateDataset(
+            datasetInstanceSummary,
+            '0',
+            '1'
+        );
+    }
+
+    public clearEdgeDataset() {
+        delete this.networkData.edgeDatasetTitle;
+        delete this.networkData.edgeDatasetId;
+        delete this.networkData.edgeDatasourceKey;
+
+        this.edgeDataset = null;
+    }
+
+    public addGroupOption(nodeGroup: string) {
+        if (!this.networkData.nodeGroupOptions) {
+            this.networkData.nodeGroupOptions = {};
+        }
+
+        if (!this.networkData.nodeGroupOptions[nodeGroup]) {
+            this.networkData.nodeGroupOptions[nodeGroup] = {options: []};
+        }
+
+        this.networkData.nodeGroupOptions[nodeGroup].options.unshift({});
+    }
+
+    public addOption(typeOptions: string) {
+        if (!this.networkData[typeOptions] || !Array.isArray(this.networkData[typeOptions])) {
+            this.networkData[typeOptions] = [];
+        }
+
+        this.networkData[typeOptions].unshift({});
+    }
+
+    public updateOptions(nodeOption: any, datasetType: string) {
+        const option = nodeOption.key;
+        const column = nodeOption.column;
+        let value = nodeOption.value;
+        let allData = this.dataset.allData;
+
+        if (datasetType === 'datasetEdges') {
+            allData = this.fullEdgeDataset ? this.fullEdgeDataset.allData : this.dataset.allData;
+        }
+
+        this[datasetType].forEach(item => {
+            if (column) {
+                const dataset = _.find(allData, {id: item.id});
+                if (dataset) {
+                    value = dataset[column];
+                }
+            }
+
+            const existing = _.find(item.options, {key: option});
+            if (existing) {
+                existing.value = value;
+            } else {
+                item.options.unshift({key: option, value});
+            }
+        });
+    }
+
     public dataLoaded(dataset) {
         this.dataset = dataset;
         this.filterFields = _.map(dataset.columns, column => {
@@ -291,6 +417,7 @@ export class ConfigureItemComponent implements OnInit {
         });
         this.updateMetricDataValues();
         this.setChartData();
+        this.setNetworkChartData();
     }
 
     public async ctaUpdate(cta) {
@@ -495,6 +622,26 @@ export class ConfigureItemComponent implements OnInit {
 
         this.mapComponentDataToDashboardInstance();
 
+        if (!this.networkData.nodeLevelOptions) {
+            this.networkData.nodeLevelOptions = {};
+        }
+
+        this.datasetNodes.forEach(node => {
+            if (node.options && node.options.length) {
+                this.networkData.nodeLevelOptions[node.id] = node.options;
+            }
+        });
+
+        if (!this.networkData.edgeLevelOptions || !Array.isArray(this.networkData.edgeLevelOptions)) {
+            this.networkData.edgeLevelOptions = [];
+        }
+
+        this.datasetEdges.forEach(edge => {
+            if (edge.options && edge.options.length) {
+                this.networkData.edgeLevelOptions.push(edge);
+            }
+        });
+
         // If there is an old instance remove it, and then add the new/updated one.
         _.remove(this.dashboard.datasetInstances, {instanceKey: this.dashboardDatasetInstance.instanceKey});
         _.remove(this.dashboardDatasetInstance.transformationInstances, {type: 'paging'});
@@ -669,7 +816,7 @@ export class ConfigureItemComponent implements OnInit {
     }
 
     private mapComponentDataToDashboardInstance() {
-        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction', 'wordCloud', 'actionItem'];
+        const layoutSettings = ['metric', 'dependencies', 'tabular', 'tableCells', 'general', 'imageData', 'textData', 'callToAction', 'wordCloud', 'actionItem', 'networkData'];
         layoutSettings.forEach(setting => {
             if (!this.dashboard.layoutSettings[setting]) {
                 this.dashboard.layoutSettings[setting] = {};
@@ -699,5 +846,75 @@ export class ConfigureItemComponent implements OnInit {
                 }
             }
         }
+    }
+
+    public async setNetworkChartData(reload = false) {
+        if (!reload && this.networkData.edgeDatasetTitle) {
+            await this.loadEdgeDataset();
+        }
+
+        const nodeData = this.dataset.allData;
+
+        this.datasetNodes = [];
+        this.datasetEdges = [];
+
+        nodeData.forEach(item => {
+            let nodeOptions: any = [];
+            if (this.networkData.nodeLevelOptions && Object.keys(this.networkData.nodeLevelOptions).length &&
+                this.networkData.nodeLevelOptions[item[this.networkData.nodeIds]]) {
+                nodeOptions = this.networkData.nodeLevelOptions[item[this.networkData.nodeIds]];
+            }
+
+            this.datasetNodes.push({
+                id: item[this.networkData.nodeIds],
+                label: item[this.networkData.nodeLabels],
+                group: item[this.networkData.nodeGroups],
+                options: nodeOptions
+            });
+            if (!this.networkData.edgeDatasetTitle) {
+                this.datasetEdges.push({
+                    from: item[this.networkData.fromIds],
+                    to: item[this.networkData.toIds],
+                    options: []
+                });
+            }
+        });
+
+        if (this.networkData.edgeDatasetTitle) {
+            const datasetInstanceSummary = {
+                datasetInstanceId: this.networkData.edgeDatasetId,
+                datasourceInstanceKey: this.networkData.edgeDatasourceKey,
+                transformationInstances: [],
+                parameterValues: {},
+                parameters: {}
+            };
+
+            this.fullEdgeDataset = await this.datasetService.evaluateDataset(
+                datasetInstanceSummary,
+                '0',
+                '10000000'
+            );
+
+            this.fullEdgeDataset.allData.forEach(item => {
+                this.datasetEdges.push({
+                    from: item[this.networkData.fromIds],
+                    to: item[this.networkData.toIds],
+                    options: []
+                });
+            });
+        }
+
+        this.nodeGroups = _(this.datasetNodes)
+            .filter('group')
+            .map('group')
+            .uniq()
+            .valueOf();
+
+        this.datasetEdges.forEach(edge => {
+            const edgeOptions = _.find(this.networkData.edgeLevelOptions, {from: edge.from, to: edge.to});
+            if (edgeOptions) {
+                edge.options = edgeOptions.options;
+            }
+        });
     }
 }

@@ -35,6 +35,9 @@ import {
 import {
     ShareQueryComponent
 } from '../dataset-editor/share-query/share-query.component';
+import {
+    RemoveTransformationWarningComponent
+} from '../dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -190,8 +193,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             height: '275px'
         }).afterClosed().subscribe(res => {
             if (res === 'proceed') {
-                this.datasetInstanceSummary.transformationInstances[event.previousContainer.data.index] = event.container.data.item;
-                this.datasetInstanceSummary.transformationInstances[event.container.data.index] = event.previousContainer.data.item;
+                moveItemInArray(this.datasetInstanceSummary.transformationInstances, event.previousContainer.data.index, event.container.data.index);
                 this.evaluateDataset();
             }
         });
@@ -279,7 +281,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         this.evaluateDataset();
     }
 
-    public removeTransformation(transformation, confirm = false, index?) {
+    public removeTransformation(transformation: any, confirm = false, index?: number, active?: boolean) {
         if (index === undefined) {
             index = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
                 type: transformation.type,
@@ -287,14 +289,28 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             });
         }
 
-        if (confirm) {
-            const message = 'Are you sure you would like to remove this transformation?';
-            if (window.confirm(message)) {
+
+        if (!active) {
+            const dialogRef = this.dialog.open(RemoveTransformationWarningComponent, {
+                width: '700px',
+                height: '275px'
+            });
+            dialogRef.afterClosed().subscribe(proceed => {
+                if (proceed) {
+                    this._removeTransformation(transformation, index);
+                }
+            });
+        } else {
+            if (confirm) {
+                const message = 'Are you sure you would like to remove this transformation?';
+                if (window.confirm(message)) {
+                    this._removeTransformation(transformation, index);
+                }
+            } else {
                 this._removeTransformation(transformation, index);
             }
-        } else {
-            this._removeTransformation(transformation, index);
         }
+
     }
 
     public enableAllTransformation() {
@@ -746,17 +762,16 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public save() {
         if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
-                width: '475px',
-                height: '150px',
+                width: '700px',
+                height: '800px',
                 disableClose: true,
                 data: {
-                    title: this.newTitle,
-                    description: this.newDescription
+                    datasetInstanceSummary: this.datasetInstanceSummary
                 }
             });
-            dialogRef.afterClosed().subscribe(res => {
-                if (res) {
-                    this.datasetInstanceSummary.title = res;
+            dialogRef.afterClosed().subscribe(datasetInstanceSummary => {
+                if (datasetInstanceSummary) {
+                    this.datasetInstanceSummary = datasetInstanceSummary;
                     this.saveDataset();
                 }
             });
@@ -888,6 +903,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public async evaluateDataset(resetPager?) {
+        // If we have any pre-existing long-running tasks cancel these before setting off another evaluate.
+        this.cancelEvaluate();
+
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
                 this.resetPager();
@@ -971,7 +989,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     private _removeTransformation(transformation, index?) {
-        if (index >= 0) {
+        if (!_.isNil(index) && index >= 0) {
             // If a current index has been supplied, reset all the pre transformation hidden fields prior to eval.
             for (let i = 0; i < index; i++) {
                 if (this.datasetInstanceSummary.transformationInstances[i].type !== 'filter') {

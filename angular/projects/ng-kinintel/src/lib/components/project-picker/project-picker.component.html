@@ -6,7 +6,7 @@
             <mat-icon>add</mat-icon>
             New Project
         </button>
-        <button mat-icon-button mat-dialog-close>
+        <button mat-icon-button mat-dialog-close *ngIf="activeProject">
             <mat-icon>clear</mat-icon>
         </button>
     </div>
@@ -154,7 +154,7 @@
     </div>
 
     <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button" *ngIf="!addNew">Close</button>
+        <button mat-button mat-dialog-close mat-stroked-button type="button" *ngIf="!addNew && activeProject">Close</button>
         <button mat-button mat-stroked-button type="button" (click)="addNew = false;" *ngIf="addNew">Cancel</button>
 
         <button mat-button mat-flat-button color="primary" type="button" *ngIf="addNew"

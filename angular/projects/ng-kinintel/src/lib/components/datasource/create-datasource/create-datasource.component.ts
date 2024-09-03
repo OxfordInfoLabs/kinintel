@@ -443,7 +443,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
         setTimeout(() => {
             rowElement = document.querySelectorAll('.table-rows').item(rowElementIndex);
-            const rowCell: any = rowElement.querySelectorAll('.row-cell').item(rowColIndex);
+            const rowCell: any = rowElement.querySelectorAll('.row-cell').item(this.showAutoIncrement ? rowColIndex + 1 : rowColIndex);
             rowCell.querySelectorAll('.cell-input').item(0).focus();
         }, 0);
     }

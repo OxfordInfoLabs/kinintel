@@ -1,0 +1,135 @@
+{
+    "nodes": {
+        "borderWidth": {
+            "type": "number"
+        },
+        "borderWidthSelected": {
+            "type": "number"
+        },
+        "brokenImage": {
+            "type": "text"
+        },
+        "chosen": {
+            "type": "boolean"
+        },
+        "color": {
+            "type": "text"
+        },
+        "opacity": {
+            "type": "number"
+        },
+        "fixed": {
+            "type": "boolean"
+        },
+        "font": {
+            "type": "text"
+        },
+        "group": {
+            "type": "text"
+        },
+        "heightConstraint": {
+            "type": "boolean"
+        },
+        "hidden": {
+            "type": "boolean"
+        },
+        "labelHighlightBold": {
+            "type": "boolean"
+        },
+        "level": {
+            "type": "number"
+        },
+        "mass": {
+            "type": "number"
+        },
+        "physics": {
+            "type": "boolean"
+        },
+        "shadow": {
+            "type": "boolean"
+        },
+        "shape": {
+            "type": "text"
+        },
+        "size": {
+            "type": "number"
+        },
+        "title": {
+            "type": "text"
+        },
+        "value": {
+            "type": "number"
+        },
+        "widthConstraint": {
+            "type": "boolean"
+        },
+        "x": {
+            "type": "number"
+        },
+        "y": {
+            "type": "number"
+        }
+    },
+    "edges": {
+        "arrows": {
+            "type": "text"
+        },
+        "arrowStrikethrough": {
+            "type": "boolean"
+        },
+        "chosen": {
+            "type": "boolean"
+        },
+        "color": {
+            "type": "text"
+        },
+        "dashes": {
+            "type": "boolean"
+        },
+        "font": {
+            "type": "text"
+        },
+        "hidden": {
+            "type": "boolean"
+        },
+        "hoverWidth": {
+            "type": "number"
+        },
+        "label": {
+            "type": "text"
+        },
+        "labelHighlightBold": {
+            "type": "boolean"
+        },
+        "length": {
+            "type": "number"
+        },
+        "physics": {
+            "type": "boolean"
+        },
+        "selectionWidth": {
+            "type": "number"
+        },
+        "selfReferenceSize": {
+            "type": "number"
+        },
+        "shadow": {
+            "type": "boolean"
+        },
+        "smooth": {
+            "type": "boolean"
+        },
+        "title": {
+            "type": "text"
+        },
+        "value": {
+            "type": "number"
+        },
+        "width": {
+            "type": "number"
+        },
+        "widthConstraint": {
+            "type": "boolean"
+        }
+    }
+}

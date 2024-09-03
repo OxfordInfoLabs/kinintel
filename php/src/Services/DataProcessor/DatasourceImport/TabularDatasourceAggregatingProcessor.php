@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
+use Kinikit\Core\Configuration\MissingConfigurationParameterException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\DataProcessor\BaseDataProcessor;
@@ -17,24 +18,12 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @param DatasourceService $datasourceService
-     */
-    public function __construct($datasourceService) {
-        $this->datasourceService = $datasourceService;
+    public function __construct(
+        private DatasourceService $datasourceService
+    ) {
     }
 
-    /**
-     * Return the configuration class for the import processor
-     *
-     * @return string
-     */
-    public function getConfigClass() {
+    public function getConfigClass() : string {
         return TabularDatasourceAggregatingProcessorConfiguration::class;
     }
 
@@ -80,6 +69,10 @@ class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
 
         $sourceDatasources = $config->getSourceDatasources();
 
+        if (!$sourceDatasources) {
+            throw new MissingConfigurationParameterException("sourceDatasources");
+        }
+
         // Get the first datasource
         $dataset = $this->getLatestData($sourceDatasources[0], $fromDate, $config);
 
@@ -108,6 +101,8 @@ class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
 
         }
 
+        if (!$dataset) return;
+
         // Reset the keys
         $dataset = array_values($dataset);
 
@@ -117,7 +112,6 @@ class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
             $fields = array_merge($fields, array_values($source->getColumnMappings()));
             $fields[] = $source->getSourceIndicatorColumn();
         }
-
 
         $first = $dataset[0];
         foreach ($fields as $field) {

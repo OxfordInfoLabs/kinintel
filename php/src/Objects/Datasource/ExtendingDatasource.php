@@ -3,6 +3,7 @@
 namespace Kinintel\Objects\Datasource;
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
 
@@ -12,20 +13,9 @@ use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
  */
 class ExtendingDatasource extends BaseDatasource {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @var Datasource
-     */
-    private $workingDatasource = null;
-
-    /**
-     * @var boolean
-     */
-    private $transformationsProcessed = false;
+    private DatasourceService $datasourceService;
+    private ?Datasource $workingDatasource = null;
+    private bool $transformationsProcessed = false;
 
     /**
      * @param ExtendingDatasourceConfig $config
@@ -100,7 +90,8 @@ class ExtendingDatasource extends BaseDatasource {
     /**
      * Process the transformations if required
      *
-     * @return
+     * @return void
+     * @throws InvalidTransformationConfigException
      */
     private function processTransformations($parameterValues) {
 

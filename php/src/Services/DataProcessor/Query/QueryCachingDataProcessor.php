@@ -76,12 +76,12 @@ class QueryCachingDataProcessor implements DataProcessor {
         $queryId = $config->getSourceQueryId();
         $sourceQuery = $this->datasetService->getDataSetInstance($queryId);
 
-        $params = $sourceQuery->getParameters();
+        $params = $this->datasetService->getEvaluatedParameters($sourceQuery);
 
         // Create the columns for the cache table
         $columns = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceQuery)->getColumns();
         $columns = array_map(fn($col) => new DatasourceUpdateField(
-            $col->getName(), $col->getTitle(), $col->getValueExpression(), $col->getType()
+            $col->getName(), $col->getTitle(), $col->getValueExpression(), $col->getType() == Field::TYPE_ID ? Field::TYPE_INTEGER : $col->getType()        // Map the id type to an integer to remove auto increment.
         ), $columns);
 
         // Add primary key as specified
@@ -114,7 +114,7 @@ class QueryCachingDataProcessor implements DataProcessor {
         ];
 
         // Create the cache datasource
-        $cacheKey = $instance->getKey()."_cache";
+        $cacheKey = $instance->getKey() . "_cache";
         $cacheTitle = $sourceQuery->getTitle() . " Cache";
         $cacheTableName = $tablePrefix . $cacheKey;
         $cacheConfig = new ManagedTableSQLDatabaseDatasourceConfig(
@@ -136,7 +136,7 @@ class QueryCachingDataProcessor implements DataProcessor {
         $this->datasourceService->saveDataSourceInstance($cacheDatasourceInstance);
 
         // Create the wrapper caching datasource
-        $cachingKey = $instance->getKey()."_caching";
+        $cachingKey = $instance->getKey() . "_caching";
         $cachingTitle = $sourceQuery->getTitle() . " Caching Datasource";
         $cachingConfig = new CachingDatasourceConfig(
             sourceDatasetId: $queryId,

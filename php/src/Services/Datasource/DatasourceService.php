@@ -41,42 +41,12 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 class DatasourceService {
 
 
-    /**
-     * @var DatasourceDAO
-     */
-    private $datasourceDAO;
-
-    /**
-     * @var SecurityService
-     */
-    private $securityService;
-
-
-    /**
-     * @var ValueFunctionEvaluator
-     */
-    private $valueFunctionEvaluator;
-
-
-    /**
-     * @var DataProcessorService
-     */
-    private $dataProcessorService;
-
-
-    /**
-     * DatasourceService constructor.
-     *
-     * @param DatasourceDAO $datasourceDAO
-     * @param SecurityService $securityService
-     * @param ValueFunctionEvaluator $valueFunctionEvaluator
-     * @param DataProcessorService $dataProcessorService
-     */
-    public function __construct($datasourceDAO, $securityService, $valueFunctionEvaluator, DataProcessorService $dataProcessorService) {
-        $this->datasourceDAO = $datasourceDAO;
-        $this->securityService = $securityService;
-        $this->valueFunctionEvaluator = $valueFunctionEvaluator;
-        $this->dataProcessorService = $dataProcessorService;
+    public function __construct(
+        private DatasourceDAO $datasourceDAO,
+        private SecurityService $securityService,
+        private ValueFunctionEvaluator $valueFunctionEvaluator,
+        private DataProcessorService $dataProcessorService
+    ) {
     }
 
 
@@ -223,7 +193,7 @@ class DatasourceService {
      *
      * @param string $datasourceInstanceKey
      * @param mixed[] $parameterValues
-     * @param TransformationInstance[] $additionalTransformations
+     * @param TransformationInstance[] $transformations
      *
      * @return Dataset
      */

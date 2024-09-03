@@ -106,6 +106,7 @@ import { DataSearchComponent } from './components/data-search/data-search.compon
 import { ImportWizardComponent } from './components/datasource/create-datasource/import-data/import-wizard/import-wizard.component';
 import { AdvancedSettingsComponent } from './components/datasource/create-datasource/advanced-settings/advanced-settings.component';
 import {MatChipsModule} from '@angular/material/chips';
+import { RemoveTransformationWarningComponent } from './components/dataset/dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
 
 
 @NgModule({
@@ -178,7 +179,8 @@ import {MatChipsModule} from '@angular/material/chips';
         DataSharingInviteComponent,
         DataSearchComponent,
         ImportWizardComponent,
-        AdvancedSettingsComponent
+        AdvancedSettingsComponent,
+        RemoveTransformationWarningComponent
     ],
     imports: [
         BrowserModule,

@@ -34,29 +34,9 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 class JoinTransformationProcessor extends SQLTransformationProcessor {
 
-    /**
-     * Table index
-     *
-     * @var int
-     */
-    private $tableIndex = 0;
-
-
-    /**
-     * Subquery index
-     *
-     * @var int
-     */
-    private $subQueryIndex = 0;
-
-
-    /**
-     * Alias index
-     *
-     * @var int
-     */
-    private $aliasIndex = 0;
-
+    private int $tableIndex = 0;
+    private int $subQueryIndex = 0;
+    private int $aliasIndex = 0;
 
     public function __construct(
         private DatasourceService $datasourceService,
@@ -70,7 +50,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @param JoinTransformation $transformation
      * @param Datasource $datasource
      * @param mixed[] $parameterValues
-     * @param null $pagingTransformation
+     * @param null $pagingTransformation //todo type??
      *
      * @return \Kinintel\Objects\Datasource\Datasource|DefaultDatasource|mixed
      * @throws \Kinikit\Core\Validation\ValidationException

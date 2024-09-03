@@ -32,6 +32,8 @@ import {ActionEvent} from '../../../objects/action-event';
 import {ExternalService} from '../../../services/external.service';
 import {ProjectService} from '../../../services/project.service';
 import chroma from 'chroma-js';
+import { DataSet, Network } from 'vis-network/standalone';
+import visNetworkOptions from '../configure-item/vis-network-options.json';
 
 declare var window: any;
 
@@ -74,6 +76,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     public dependencies: any = {};
     public metric: any = {};
     public textData: any = {};
+    public networkData: any = {};
     public wordCloud: any = {};
     public imageData: any = {};
     public tabular: any = {};
@@ -115,6 +118,8 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     public externalError = false;
     public quotaExceeded: string = null;
     public existingGridItem = false;
+    public itemNoMove = true;
+    public visNetworkOptions = visNetworkOptions;
 
     private itemLoadedSub: Subscription;
     private optimiseSub: Subscription;
@@ -166,6 +171,22 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             this.dashboard.displaySettings.heading[this.itemInstanceKey]) {
             this.dashboardItemType.headingValue = this.dashboard.displaySettings.heading[this.itemInstanceKey];
         }
+
+        if (this.general.parameterBar && Object.keys(this.general.parameterBar).length) {
+            if (!this.general.widgetParameters || Array.isArray(this.general.widgetParameters)) {
+                this.general.widgetParameters = {};
+            }
+
+            Object.keys(this.general.parameterBar).forEach(paramKey => {
+                if (this.general.parameterBar[paramKey] && !this.general.widgetParameters[paramKey]) {
+                    this.general.widgetParameters[paramKey] = _.cloneDeep(this.dashboard.layoutSettings.parameters[paramKey]);
+                }
+                if (!this.general.parameterBar[paramKey]) {
+                    delete this.general.widgetParameters[paramKey];
+                }
+            });
+        }
+
         this.configureClass = true;
         if (this.dependencies.instanceKeys && this.dependencies.instanceKeys.length) {
             this.loadingItem = true;
@@ -241,6 +262,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         this.existingGridItem = !!_.find(this.dashboard.layoutSettings.grid, item => {
             return item.content.includes(this.itemInstanceKey);
         });
+
+        const instanceElement = document.getElementById(this.itemInstanceKey);
+        const widget = instanceElement.closest('.grid-stack-item');
+        this.itemNoMove = widget.getAttribute('gs-no-move') === 'true';
     }
 
     ngOnDestroy() {
@@ -250,6 +275,13 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         if (this.itemLoadedSub) {
             this.itemLoadedSub.unsubscribe();
         }
+    }
+
+    public lockItem() {
+        const itemElement = document.getElementById(this.itemInstanceKey);
+        const widget = itemElement.closest('.grid-stack-item');
+        this.itemNoMove = widget.getAttribute('gs-no-move') !== 'true';
+        this.grid.update(widget, {noMove: this.itemNoMove});
     }
 
     public duplicate() {
@@ -405,6 +437,129 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
         this.dashboard.displaySettings.heading[this.itemInstanceKey] = this.dashboardItemType.headingValue;
         this.dashboardItemType._editing = false;
+    }
+
+    public async setupNetworkChart() {
+        const nodeData = this.dataset.allData;
+
+        const datasetNodes: any = [];
+        const datasetEdges: any = [];
+
+        nodeData.forEach(item => {
+            const nodeLevelItem: any = {};
+            const nodeItem: any = {
+                id: item[this.networkData.nodeIds],
+                label: item[this.networkData.nodeLabels],
+                group: item[this.networkData.nodeGroups]
+            };
+
+            if (this.networkData.nodeLevelOptions && Object.keys(this.networkData.nodeLevelOptions).length &&
+                this.networkData.nodeLevelOptions[item[this.networkData.nodeIds]]) {
+                this.networkData.nodeLevelOptions[item[this.networkData.nodeIds]].forEach(option => {
+                    nodeLevelItem[option.key] = option.value;
+                });
+            }
+            datasetNodes.push(Object.assign(nodeLevelItem, nodeItem));
+            if (!this.networkData.edgeDatasetTitle) {
+                datasetEdges.push({
+                    from: item[this.networkData.fromIds],
+                    to: item[this.networkData.toIds]
+                });
+            }
+        });
+
+        if (this.networkData.edgeDatasetTitle) {
+            const datasetInstanceSummary = {
+                datasetInstanceId: this.networkData.edgeDatasetId,
+                datasourceInstanceKey: this.networkData.edgeDatasourceKey,
+                transformationInstances: [],
+                parameterValues: {},
+                parameters: {}
+            };
+
+            const edgeDataset: any = await this.datasetService.evaluateDataset(
+                datasetInstanceSummary,
+                '0',
+                '10000000'
+            );
+            edgeDataset.allData.forEach(item => {
+                datasetEdges.push({
+                    from: item[this.networkData.fromIds],
+                    to: item[this.networkData.toIds]
+                });
+            });
+        }
+
+        datasetEdges.forEach(edge => {
+            const edgeOptions = _.find(this.networkData.edgeLevelOptions, {from: edge.from, to: edge.to});
+            if (edgeOptions && edgeOptions.options.length) {
+                edgeOptions.options.forEach(option => {
+                    edge[option.key] = option.value;
+                });
+            }
+        });
+
+        // create an array with nodes
+        const nodes = new DataSet(datasetNodes);
+
+        // create an array with edges
+        const edges = new DataSet(datasetEdges);
+
+        // create a network
+        const container = document.getElementById(this.itemInstanceKey + 'VIS');
+        const data = {
+            nodes,
+            edges
+        };
+        const options = {
+            nodes: {
+                font: {
+                    multi: 'html'
+                }
+            },
+            edges: {},
+            groups: {}
+        };
+
+        const mapOptionValue = (option: any, networkType: string) => {
+            if (option && Object.keys(option).length) {
+                const type = visNetworkOptions[networkType][option.key].type;
+                let value = option.value;
+                if (type === 'number') {
+                    value = Number(value);
+                } else if (type === 'boolean') {
+                    value = value === 'true';
+                }
+                options[networkType][option.key] = value;
+            }
+        };
+
+        if (this.networkData.nodeOptions) {
+            this.networkData.nodeOptions.forEach(option => {
+                mapOptionValue(option, 'nodes');
+            });
+        }
+
+        if (this.networkData.edgeOptions) {
+            this.networkData.edgeOptions.forEach(option => {
+                mapOptionValue(option, 'edges');
+            });
+        }
+
+        if (this.networkData.nodeGroupOptions && Object.keys(this.networkData.nodeGroupOptions).length) {
+            Object.keys(this.networkData.nodeGroupOptions).forEach(groupKey => {
+                this.networkData.nodeGroupOptions[groupKey].options.forEach(option => {
+                    if (!options.groups[groupKey]) {
+                        options.groups[groupKey] = {};
+                    }
+                    if (option && Object.keys(option).length) {
+                        options.groups[groupKey][option.key] = option.value;
+                    }
+                });
+            });
+        }
+
+        const network = new Network(container, data, options);
     }
 
     public evaluateTextData(textData) {
@@ -730,6 +885,32 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         this.evaluate(true);
     }
 
+    public changeDateType(event, parameter, value) {
+        event.stopPropagation();
+        event.preventDefault();
+        parameter._dateType = value;
+        this.reloadWidget();
+    }
+
+    public updatePeriodValue(value, period, parameter) {
+        parameter.value = `${value}_${period}_AGO`;
+        this.reloadWidget();
+    }
+
+    public booleanUpdate(event, parameter) {
+        parameter.value = event.checked;
+        this.reloadWidget();
+    }
+
+    public reloadWidget() {
+        const parameterValues: any = {};
+        _.forEach(this.general.widgetParameters, param => {
+            parameterValues[param.name] = param.value;
+        });
+
+        this.evaluate();
+    }
+
     private mapColumnToValue(searchString, data) {
         if (searchString) {
             const matches = searchString.match(/\[\[(.*?)\]\]/g) || [];
@@ -979,6 +1160,10 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             }
 
             setTimeout(() => {
+                if (this.dashboardItemType.type === 'network') {
+                    this.setupNetworkChart();
+                }
+
                 const element = document.getElementById(this.itemInstanceKey);
                 for (const child of Array.from(element ? element.children : []) as any[]) {
                     if (child.classList.contains('item-container')) {
@@ -1176,6 +1361,15 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                         value = moment(value).format('YYYY-MM-DD HH:mm:ss');
                     }
                 }
+
+                // Add in the widget specific parameter values if there are any
+                if (this.general.widgetParameters && Object.keys(this.general.widgetParameters).length) {
+                    const widgetParam = _.find(this.general.widgetParameters, {name});
+                    if (widgetParam && widgetParam.value) {
+                        value = widgetParam.value;
+                    }
+                }
+
                 datasetInstanceSummary.parameterValues[name] = value;
             });
         }
