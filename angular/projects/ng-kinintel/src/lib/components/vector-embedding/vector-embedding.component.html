@@ -58,11 +58,7 @@
                             </th>
                             <th scope="col"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                Datasource Identifier
-                            </th>
-                            <th scope="col"
-                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                                Content Column
+                                Last Run Time
                             </th>
                             <th scope="col"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
@@ -134,10 +130,7 @@
                                 </div>
                             </td>
                             <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
-                                {{embedding.config.vectorDatasourceIdentifier}}
-                            </td>
-                            <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
-                                {{embedding.config.contentColumnName}}
+                                {{embedding.taskLastEndTime}}
                             </td>
                             <td class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 <div class="flex items-center justify-end">

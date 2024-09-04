@@ -130,10 +130,10 @@ class VectorDatasetProcessorTest extends TestCase {
         $mockItemsToEmbed2 = ["Item 11", "Item 12", "Item 13"];
         $this->embeddingService->returnValue("embedStrings", $mockEmbeddings2, [$mockItemsToEmbed2]);
 
-        $config = new VectorDatasetProcessorConfiguration(25, null, "mytestvectorembedding",
+        $config = new VectorDatasetProcessorConfiguration(25, null,
             ["document", "page"], "phrase", 10);
 
-        $instance = new DataProcessorInstance("no", "need", "vectorembedding", $config);
+        $instance = new DataProcessorInstance("mytestvectorembedding", "need", "vectorembedding", $config);
         $this->processor->process($instance);
 
         // Check config updated with correct set of fields
@@ -174,6 +174,126 @@ class VectorDatasetProcessorTest extends TestCase {
         ]));
 
     }
+
+
+
+    public function testIfIdentifierAndContentColumnTheSameOnlySingleFieldCreatedInTargetDatasource(){
+
+        $datasetInstance = new DatasetInstance(null, 1, null);
+
+        $firstDataset = [];
+        for ($i = 0; $i < 10; $i++) {
+            $firstDataset[] = ["document" => "doc", "phrase" => ($i + 1)];
+        }
+
+        $firstDatasetExpected = array_map(function ($datum) {
+            $datum["embedding"] = "[0,0,{$datum['phrase']}]";
+            return $datum;
+        }, $firstDataset);
+
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance",
+            new ArrayTabularDataset([
+                new Field("document", "Document", null, Field::TYPE_STRING, true),
+                new Field("page", "Page", null, Field::TYPE_INTEGER, true),
+                new Field("phrase", "Phrase", null, Field::TYPE_LONG_STRING, true)
+            ], $firstDataset), [
+                $datasetInstance, [], [], 0, 10
+            ]);
+
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstance",
+            new ArrayTabularDataset([
+                new Field("document", "Document", null, Field::TYPE_STRING, true),
+                new Field("page", "Page", null, Field::TYPE_INTEGER, true),
+                new Field("phrase", "Phrase", null, Field::TYPE_LONG_STRING, true),
+            ], [
+                ["document" => "doc", "page" => 11, "phrase" => "11"],
+                ["document" => "doc", "page" => 12, "phrase" => "12"],
+                ["document" => "doc", "page" => 13, "phrase" => "13"]
+            ]), [
+                $datasetInstance, [], [], 10, 10
+            ]);
+
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [25]);
+
+        // Get a mock data source instance
+        $mockDataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockDataSourceInstance, [
+            "mytestvectorembedding"
+        ]);
+
+
+        // Program a mock data source on return
+        $mockDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDataSource->returnValue("getConfig", new ManagedTableSQLDatabaseDatasourceConfig("table", "test"));
+        $mockDataSourceInstance->returnValue("returnDataSource", $mockDataSource);
+        $mockDataSourceInstance->returnValue("getConfig", [
+            "tableName" => "test"
+        ]);
+
+        $mockAuthCredentials = MockObjectProvider::instance()->getMockInstance(SQLDatabaseCredentials::class);
+        $mockDatabaseConnection = MockObjectProvider::instance()->getMockInstance(DatabaseConnection::class);
+        $mockAuthCredentials->returnValue("returnDatabaseConnection", $mockDatabaseConnection);
+        $mockDataSource->returnValue("getAuthenticationCredentials", $mockAuthCredentials);
+
+        // Mock embeddings
+        for ($i = 0; $i < 10; $i++) {
+            $mockEmbeddings[] = [0, 0, $i + 1];
+        }
+        $mockItemsToEmbed = array_map(function ($mockDatum) {
+            return $mockDatum["phrase"];
+        }, $firstDataset);
+        $this->embeddingService->returnValue("embedStrings", $mockEmbeddings, [$mockItemsToEmbed]);
+
+        // Second call
+        $mockEmbeddings2 = [[0, 0, 11], [0, 0, 12], [0, 0, 13]];
+        $mockItemsToEmbed2 = ["11", "12", "13"];
+        $this->embeddingService->returnValue("embedStrings", $mockEmbeddings2, [$mockItemsToEmbed2]);
+
+        $config = new VectorDatasetProcessorConfiguration(25, null,
+            ["document", "phrase"], "phrase", 10);
+
+        $instance = new DataProcessorInstance("mytestvectorembedding", "need", "vectorembedding", $config);
+        $this->processor->process($instance);
+
+
+        // Check config updated with correct set of fields
+        $this->assertTrue($mockDataSourceInstance->methodWasCalled("setConfig", [new ManagedTableSQLDatabaseDatasourceConfig("table", "test", "", [
+            new Field("document", "Document", null, Field::TYPE_STRING, true),
+            new Field("phrase", "Phrase", null, Field::TYPE_LONG_STRING, true),
+            new Field("embedding", "Embedding", null, Field::TYPE_VECTOR)
+        ], false)]));
+
+        // Check that the table was created with simple snapshot_date based PK.
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $mockDataSourceInstance
+        ]));
+
+
+        // Check all data was updated as expected
+        $this->assertTrue($mockDataSource->methodWasCalled("update", [
+            new ArrayTabularDataset([
+                new Field("document", "Document", null, Field::TYPE_STRING, true),
+                new Field("phrase", "Phrase", null, Field::TYPE_LONG_STRING, true),
+                new Field("embedding", "Embedding", null, Field::TYPE_VECTOR)
+            ], $firstDatasetExpected), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+        // Check second page was correctly updated
+        $this->assertTrue($mockDataSource->methodWasCalled("update", [
+            new ArrayTabularDataset([
+                new Field("document", "Document", null, Field::TYPE_STRING, true),
+                new Field("phrase", "Phrase", null, Field::TYPE_LONG_STRING, true),
+                new Field("embedding", "Embedding", null, Field::TYPE_VECTOR)
+            ], [
+                ["document" => "doc",  "phrase" => "11", "embedding" => "[0,0,11]"],
+                ["document" => "doc",  "phrase" => "12", "embedding" => "[0,0,12]"],
+                ["document" => "doc",  "phrase" => "13", "embedding" => "[0,0,13]"]
+            ]), UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]));
+
+    }
+
 
     // ToDo: Test when using source datasource
 
@@ -233,11 +353,9 @@ class VectorDatasetProcessorTest extends TestCase {
 
     public function testVectorDatasourceInstanceDeletedOnCallToDeleteMethod() {
 
-        $mockInstanceConfig = MockObjectProvider::instance()->getMockInstance(VectorDatasetProcessorConfiguration::class);
-        $mockInstanceConfig->returnValue("getVectorDatasourceIdentifier", "mytestkey");
 
         $mockInstance = MockObjectProvider::instance()->getMockInstance(DataProcessorInstance::class);
-        $mockInstance->returnValue("returnConfig", $mockInstanceConfig);
+        $mockInstance->returnValue("getKey", "mytestkey");
 
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockInstance, "mytestkey");
 

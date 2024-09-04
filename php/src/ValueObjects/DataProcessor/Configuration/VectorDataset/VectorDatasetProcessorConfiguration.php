@@ -14,11 +14,6 @@ class VectorDatasetProcessorConfiguration {
      */
     private ?string $datasourceInstanceKey;
 
-    /**
-     * @var string
-     * @required
-     */
-    private string $vectorDatasourceIdentifier;
 
     /**
      * @var string[]
@@ -39,15 +34,13 @@ class VectorDatasetProcessorConfiguration {
     /**
      * @param ?int $datasetInstanceId
      * @param ?string $datasourceInstanceKey
-     * @param string $vectorDatasourceIdentifier
      * @param string[] $identifierColumnNames
      * @param ?string $contentColumnName
      * @param int|null $readChunkSize
      */
-    public function __construct(int $datasetInstanceId = null, string $datasourceInstanceKey = null, string $vectorDatasourceIdentifier = "", array $identifierColumnNames = [], string $contentColumnName = null, ?int $readChunkSize = null) {
+    public function __construct(int $datasetInstanceId = null, string $datasourceInstanceKey = null, array $identifierColumnNames = [], string $contentColumnName = null, ?int $readChunkSize = null) {
         $this->datasetInstanceId = $datasetInstanceId;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
-        $this->vectorDatasourceIdentifier = $vectorDatasourceIdentifier;
         $this->identifierColumnNames = $identifierColumnNames;
         $this->contentColumnName = $contentColumnName;
         $this->readChunkSize = $readChunkSize;
@@ -70,13 +63,7 @@ class VectorDatasetProcessorConfiguration {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
 
-    public function getVectorDatasourceIdentifier(): string {
-        return $this->vectorDatasourceIdentifier;
-    }
 
-    public function setVectorDatasourceIdentifier(string $vectorDatasourceIdentifier): void {
-        $this->vectorDatasourceIdentifier = $vectorDatasourceIdentifier;
-    }
 
     public function getIdentifierColumnNames(): array {
         return $this->identifierColumnNames;

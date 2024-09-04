@@ -135,7 +135,7 @@ class VectorDatasetProcessor implements DataProcessor {
     private function getTargetDatasourceInstance(DataProcessorInstance $dataProcessorInstance, int $accountId,
                                                  ?string               $projectKey, VectorDatasetProcessorConfiguration $config): DatasourceInstance {
 
-        $instanceKey = $config->getVectorDatasourceIdentifier();
+        $instanceKey = $dataProcessorInstance->getKey();
         $credentialsKey = Configuration::readParameter("vector.datasource.credentials.key");
 
         // Get it, and create if it doesn't exist
@@ -168,7 +168,7 @@ class VectorDatasetProcessor implements DataProcessor {
      */
     private function updateDatasourceTableStructure(array $identifierColumnNames, string $contentColumnName, DatasourceInstance $dataSourceInstance, Datasource $dataSource, TabularDataset $sourceDataset): array {
 
-        $columnNames = array_merge($identifierColumnNames, [$contentColumnName]);
+        $columnNames = array_unique(array_merge($identifierColumnNames, [$contentColumnName]));
         foreach ($columnNames as $columnName) {
             $column = $sourceDataset->getColumnByName($columnName);
             $column->setKeyField(true);
@@ -250,8 +250,7 @@ class VectorDatasetProcessor implements DataProcessor {
         /**
          * @var VectorDatasetProcessorConfiguration $config
          */
-        $config = $instance->returnConfig();
-        $instanceKey = $config->getVectorDatasourceIdentifier();
+        $instanceKey = $instance->getKey();
         $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($instanceKey);
 
         $datasourceInstance->remove();

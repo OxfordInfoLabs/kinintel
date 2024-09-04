@@ -34,7 +34,7 @@ export class EditVectorEmbeddingComponent implements OnInit {
     async ngOnInit() {
         this.embedding = this.data.embedding || {
             type: 'vectorembedding',
-            config: { }
+            config: {readChunkSize: 1000 }
         };
 
         if (this.embedding.config.datasetInstanceId || this.embedding.config.datasourceInstanceKey) {
