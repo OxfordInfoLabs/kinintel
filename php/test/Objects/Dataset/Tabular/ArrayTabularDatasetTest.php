@@ -160,7 +160,7 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testTwoBooleans(){
+    public function testDataWithBooleansCanBeAccessedByAValueFunction(){
         $data = [[
             "registered" => true,
             "dnsSec" => false
@@ -173,7 +173,7 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
         $dataset = new ArrayTabularDataset($fields, $data);
         $this->assertEquals($fields, $dataset->getColumns());
-        $this->assertEquals([["dnssec" => "0", "registeredness" => "1"]], $dataset->getAllData());
+        $this->assertSame([["dnssec" => false, "registeredness" => true]], $dataset->getAllData());
     }
 
     public function testIfErrorThrownOnIncorrectRowStructure(){

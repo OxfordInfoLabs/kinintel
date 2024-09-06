@@ -244,7 +244,7 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testMultipleBools(){
+    public function testCanFormatObjectWithBoolsAsValues(){
         $json = <<<EOF
 {
   "registered": true,
@@ -259,7 +259,7 @@ EOF;
                 new Field("registeredness", "registeredness", "[[registered]]"),
             ]
         );
-        $this->assertEquals([["dnssec" => false, "registeredness" => true]], $result->getAllData());
+        $this->assertSame([["dnssec" => false, "registeredness" => true]], $result->getAllData());
     }
 
     public function testCanFlattenArrayKeysFromJSONObject() {
