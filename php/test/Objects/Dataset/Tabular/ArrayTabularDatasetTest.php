@@ -160,6 +160,22 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testTwoBooleans(){
+        $data = [[
+            "registered" => true,
+            "dnsSec" => false
+        ]];
+
+        $fields = [
+            new Field("dnssec", "DNSSEC", "[[dnsSec]]"),
+            new Field("registeredness", "registeredness", "[[registered]]"),
+        ];
+
+        $dataset = new ArrayTabularDataset($fields, $data);
+        $this->assertEquals($fields, $dataset->getColumns());
+        $this->assertEquals([["dnssec" => "0", "registeredness" => "1"]], $dataset->getAllData());
+    }
+
     public function testIfErrorThrownOnIncorrectRowStructure(){
         try {
             $x = new ArrayTabularDataset([

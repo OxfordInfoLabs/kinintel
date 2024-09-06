@@ -244,6 +244,24 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testMultipleBools(){
+        $json = <<<EOF
+{
+  "registered": true,
+  "dnsSec": false
+}
+EOF;
+        $formatter = new JSONResultFormatter(singleResult: true);
+        $result = $formatter->format(
+            new ReadOnlyStringStream($json),
+            passedColumns: [
+                new Field("dnssec", "DNSSEC", "[[dnsSec]]"),
+                new Field("registeredness", "registeredness", "[[registered]]"),
+            ]
+        );
+        $this->assertEquals([["dnssec" => false, "registeredness" => true]], $result->getAllData());
+    }
+
     public function testCanFlattenArrayKeysFromJSONObject() {
 
         $formatter = new JSONResultFormatter();
