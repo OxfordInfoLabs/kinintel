@@ -81,16 +81,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     private $dbConnection = null;
 
 
-    /**
-     * @var TableDDLGenerator
-     */
-    protected $tableDDLGenerator;
-
-
-    /**
-     * @var SQLColumnFieldMapper
-     */
-    private $sqlColumnFieldMapper;
+    protected TableDDLGenerator $tableDDLGenerator;
+    private SQLColumnFieldMapper $sqlColumnFieldMapper;
 
 
     /**
@@ -496,9 +488,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $tableName = $parameterisedStringEvaluator->evaluateString($config->getTableName(), [], $parameterValues);
             $query = new SQLQuery("*", $tableName);
         } else {
-            /**
-             * @var TemplateParser $templateParser
-             */
             $templateParser = Container::instance()->get(TemplateParser::class);
 
             if ($config->isPagingViaParameters()) {
@@ -595,7 +584,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
         // Check to see whether the table already exists
-        $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
         try {
             $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());

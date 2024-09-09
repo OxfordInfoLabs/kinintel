@@ -25,6 +25,8 @@ class SQLQueryDataProcessor extends BaseDataProcessor {
     }
 
     /**
+     * Be careful using this class with user inputted data, as it is a potential SQL injection point!
+     *
      * @param DataProcessorInstance $instance
      * @return void
      * @throws InvalidDataProcessorConfigException

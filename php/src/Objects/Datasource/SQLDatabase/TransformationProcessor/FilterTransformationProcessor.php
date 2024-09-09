@@ -17,24 +17,16 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 class FilterTransformationProcessor extends SQLTransformationProcessor {
 
 
-    /**
-     * @var TemplateParser
-     */
-    private $templateParser;
-
-
-    /**
-     * @var integer
-     */
-    private $aliasIndex = 0;
+    private int $aliasIndex = 0;
 
     /**
      * FilterTransformationProcessor constructor.
      *
      * @param TemplateParser $templateParser
      */
-    public function __construct($templateParser) {
-        $this->templateParser = $templateParser;
+    public function __construct(
+        private TemplateParser $templateParser
+    ) {
     }
 
     /**

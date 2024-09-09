@@ -11,17 +11,8 @@ use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class SQLValueEvaluator {
 
-    /**
-     * @var SQLClauseSanitiser
-     */
-    private $sqlClauseSanitiser;
-
-
-    /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
+    private SQLClauseSanitiser $sqlClauseSanitiser;
+    private DatabaseConnection $databaseConnection;
 
     /**
      * SQLFilterValueEvaluator constructor.

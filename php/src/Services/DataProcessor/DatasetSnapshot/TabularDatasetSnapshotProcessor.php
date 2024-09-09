@@ -26,28 +26,7 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
 
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-
-    /**
-     * @var TableMapper
-     */
-    private $tableMapper;
-
-
-    /**
-     * @var integer
-     */
-    private $idCounter = 0;
+    private int $idCounter = 0;
 
     // Data limit
     const DEFAULT_DATA_LIMIT = 50000;
@@ -60,10 +39,11 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
      * @param DatasourceService $datasourceService
      * @param TableMapper $tableMapper
      */
-    public function __construct($datasetService, $datasourceService, $tableMapper) {
-        $this->datasetService = $datasetService;
-        $this->datasourceService = $datasourceService;
-        $this->tableMapper = $tableMapper;
+    public function __construct(
+        private DatasetService $datasetService,
+        private DatasourceService $datasourceService,
+        private TableMapper $tableMapper
+    ) {
     }
 
 

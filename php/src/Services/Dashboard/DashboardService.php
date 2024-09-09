@@ -23,33 +23,17 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 class DashboardService {
 
     /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var MetaDataService
-     */
-    private $metaDataService;
-
-
-    /**
-     * @var SecurityService
-     */
-    private $securityService;
-
-    /**
      * DashboardService constructor.
      *
      * @param DatasetService $datasetService
      * @param MetaDataService $metaDataService
      * @param SecurityService $securityService
      */
-    public function __construct($datasetService, $metaDataService, $securityService) {
-        $this->datasetService = $datasetService;
-        $this->metaDataService = $metaDataService;
-        $this->securityService = $securityService;
+    public function __construct(
+        private DatasetService $datasetService,
+        private MetaDataService $metaDataService,
+        private SecurityService $securityService
+    ) {
     }
 
 
