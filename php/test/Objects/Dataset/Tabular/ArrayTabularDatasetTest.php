@@ -160,6 +160,22 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testDataWithBooleansCanBeAccessedByAValueFunction(){
+        $data = [[
+            "registered" => true,
+            "dnsSec" => false
+        ]];
+
+        $fields = [
+            new Field("dnssec", "DNSSEC", "[[dnsSec]]"),
+            new Field("registeredness", "registeredness", "[[registered]]"),
+        ];
+
+        $dataset = new ArrayTabularDataset($fields, $data);
+        $this->assertEquals($fields, $dataset->getColumns());
+        $this->assertSame([["dnssec" => false, "registeredness" => true]], $dataset->getAllData());
+    }
+
     public function testIfErrorThrownOnIncorrectRowStructure(){
         try {
             $x = new ArrayTabularDataset([
