@@ -478,9 +478,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $config = $this->getConfig();
 
-        /**
-         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
-         */
         $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
 
         // If a tabular based source, create base clause
