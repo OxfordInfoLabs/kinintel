@@ -1054,6 +1054,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
         _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
 
+        const excludedTransformations = _.find(this.datasetInstanceSummary.transformationInstances, {exclude: true});
+        if (excludedTransformations) {
+            _.remove(clonedDatasetInstance.transformationInstances, {type: 'multisort'});
+        }
+
         this.parameterValues.forEach(param => {
             if (param.type === 'date' || param.type === 'datetime') {
                 if (!param._dateType && param.value) {

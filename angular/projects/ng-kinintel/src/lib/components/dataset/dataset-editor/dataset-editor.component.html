@@ -401,6 +401,7 @@
         </div>
         <div class="flex flex-wrap">
             <div class="badge-item outline"
+                 [ngClass]="{'exclude bg-orange-50 border-orange-200': _.find(datasetInstanceSummary.transformationInstances, {exclude: true})}"
                  *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
                 <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
                 <button mat-icon-button (click)="removeFilter(i)">
