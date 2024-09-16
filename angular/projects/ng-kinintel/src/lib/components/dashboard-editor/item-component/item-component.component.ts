@@ -1051,10 +1051,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                                             linkValue = this.bindParametersInString(linkValue, dataItem);
                                             // Check if we have any column eg. [[ ]] values needing mapping
                                             linkValue = this.mapColumnToValue(linkValue, dataItem);
-                                            anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                                    </svg></span></a>`;
+                                            anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}</a>`;
                                         } else if (cellData.linkType === 'dashboard') {
                                             const params = {};
                                             const dashboardLink = cellData.dashboardLink;
@@ -1070,20 +1067,14 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                                             });
                                             const urlParams = new URLSearchParams(params).toString();
                                             linkValue = `${this.router.url.split('/')[0]}/dashboards/view/${dashboardLink.value}${this.admin ? '?a=true&' : '?'}${urlParams}`;
-                                            anchor = `<a href="${linkValue}" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                                    </svg></span></a>`;
+                                            anchor = `<a href="${linkValue}" class="text-cta hover:underline flex items-center">${item[tableCell]}</a>`;
                                         } else {
                                             linkValue = linkValue.includes('http') ? linkValue : `http://${linkValue}`;
-                                            anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}<span class="ml-0.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                                    </svg></span></a>`;
+                                            anchor = `<a href="${linkValue}" target="_blank" class="text-cta hover:underline flex items-center">${item[tableCell]}</a>`;
                                         }
 
                                         item[tableCell] = {
-                                            cellValue: this.sanitizer.bypassSecurityTrustHtml(anchor),
+                                            cellValue: anchor,
                                             initialValue: linkValue
                                         };
                                         break;
