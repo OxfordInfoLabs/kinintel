@@ -351,6 +351,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
+        this.reloadDashboard();
     }
 
     public togglePerformance() {

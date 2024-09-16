@@ -279,6 +279,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
+        this.reloadDashboard();
     }
 
     public changeDateType(event, parameter, value) {
