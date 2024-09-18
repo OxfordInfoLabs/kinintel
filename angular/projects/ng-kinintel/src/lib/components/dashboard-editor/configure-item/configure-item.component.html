@@ -822,6 +822,7 @@
                                 <option value="bar">Bar</option>
                                 <option value="pie">Pie</option>
                                 <option value="doughnut">Doughnut</option>
+                                <option value="scatter">Scatter</option>
                             </select>
                         </label>
 
@@ -996,7 +997,7 @@
 <!--                        </button>-->
 
 
-                        <ng-template [ngIf]="dashboardItemType.type === 'line'">
+                        <ng-template [ngIf]="dashboardItemType.type === 'line' || dashboardItemType.type === 'scatter'">
                             <div *ngFor="let dataItem of chartData; let i = index" class="mt-4 align-center justify-between">
                                 <label class="flex-1">
                                     {{_.startCase(dataItem.label)}} Colour

@@ -1082,6 +1082,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 // If no value has been set default to the dashboard param value
                 if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
                     clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[param.name].value;
+                } else {
+                    // Unless there isn't a dashboard param that matches
+                    clonedDatasetInstance.parameterValues[param.name] = param.value;
                 }
             } else {
                 clonedDatasetInstance.parameterValues[param.name] = param.value;

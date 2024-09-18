@@ -321,7 +321,7 @@
             </canvas>
         </ng-template>
 
-        <ng-template [ngIf]="dashboardItemType.type === 'line' || dashboardItemType.type === 'bar'">
+        <ng-template [ngIf]="dashboardItemType.type === 'line' || dashboardItemType.type === 'bar' || dashboardItemType.type === 'scatter'">
             <canvas baseChart *ngIf="chartData" style="height: 200px"
                     [datasets]="chartData"
                     [labels]="dashboardItemType.labels"

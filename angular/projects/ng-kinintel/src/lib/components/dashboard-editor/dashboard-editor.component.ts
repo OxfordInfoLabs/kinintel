@@ -74,7 +74,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         {
             type: 'bar',
             label: 'Bar Chart',
-            icon: 'stacked_bar_chart',
+            icon: 'bar_chart',
             width: 4,
             height: 16,
             group: 'Charts'
@@ -83,6 +83,14 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             type: 'pie',
             label: 'Pie Chart',
             icon: 'pie_chart',
+            width: 4,
+            height: 16,
+            group: 'Charts'
+        },
+        {
+            type: 'scatter',
+            label: 'Scatter Chart',
+            icon: 'scatter_plot',
             width: 4,
             height: 16,
             group: 'Charts'
