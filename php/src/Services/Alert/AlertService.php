@@ -14,6 +14,7 @@ use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Configuration\FileResolver;
+use Kinikit\Core\Template\KinibindTemplateParser;
 use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Alert\Alert;
 use Kinintel\Objects\Alert\AlertGroup;
@@ -70,21 +71,32 @@ class AlertService {
      *
      * @param DashboardService $dashboardService
      * @param NotificationService $notificationService
-     * @param TemplateParser $templateParser
      * @param AccountService $accountService
      * @param SecurityService $securityService
      * @param ActiveRecordInterceptor $activeRecordInterceptor
      * @param FileResolver $fileResolver
      */
-    public function __construct($dashboardService, $notificationService, $templateParser, $accountService, $securityService, $activeRecordInterceptor, $fileResolver) {
+    public function __construct($dashboardService, $notificationService, $accountService, $securityService, $activeRecordInterceptor, $fileResolver) {
         $this->dashboardService = $dashboardService;
         $this->notificationService = $notificationService;
-        $this->templateParser = $templateParser;
         $this->accountService = $accountService;
         $this->securityService = $securityService;
         $this->activeRecordInterceptor = $activeRecordInterceptor;
         $this->fileResolver = $fileResolver;
+
+        $this->templateParser = new KinibindTemplateParser("d", ["[[", "]]"]);
     }
+
+    /**
+     * Set the template parser - usually testing purposes only
+     *
+     * @param TemplateParser $templateParser
+     */
+    public function setTemplateParser(TemplateParser $templateParser): void {
+        $this->templateParser = $templateParser;
+    }
+
+
 
     /**
      * List the alert groups for a specified project and account
@@ -317,7 +329,7 @@ class AlertService {
 
             $templateData = [
                 "rowCount" => sizeof($dataSetData),
-                "data" => $dataSetData
+                "dataSet" => $dataSetData
             ];
 
             // Generate messages
