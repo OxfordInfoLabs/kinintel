@@ -29,13 +29,10 @@ include_once "autoloader.php";
 
 class WebServiceDatasourceTest extends TestCase {
 
-    /**
-     * @var MockObject
-     */
-    private $httpDispatcher;
+    private HttpRequestDispatcher|MockObject $httpDispatcher;
 
     public function setUp(): void {
-        $this->httpDispatcher = MockObjectProvider::instance()->getMockInstance(HttpRequestDispatcher::class);
+        $this->httpDispatcher = MockObjectProvider::mock(HttpRequestDispatcher::class);
     }
 
 
