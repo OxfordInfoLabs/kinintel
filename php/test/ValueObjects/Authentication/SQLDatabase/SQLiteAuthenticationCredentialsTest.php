@@ -42,16 +42,26 @@ class SQLiteAuthenticationCredentialsTest extends TestCase {
         $this->assertEquals("100 * SUM(test) / SUM(SUM(test)) OVER ()", $authCreds->parseSQL($sql));
 
         $sql = "ROW_NUMBER()";
-        $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1,1=1)", $authCreds->parseSQL($sql));
+        $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1)", $authCreds->parseSQL($sql));
 
         $sql = "TOTAL(test)";
-        $this->assertEquals("SUM(test) OVER ()", $authCreds->parseSQL($sql));
+        $this->assertEquals("SUM(test) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
 
-        $sql = "ROW_COUNT()";
-        $this->assertEquals("COUNT(*) OVER ()", $authCreds->parseSQL($sql));
+        $sql = "TOTAL(test, test2, test3)";
+        $this->assertEquals("SUM(test) OVER (PARTITION BY test2, test3)", $authCreds->parseSQL($sql));
 
         $sql = "PERCENT(test)";
-        $this->assertEquals("100 * test / SUM(test) OVER ()", $authCreds->parseSQL($sql));
+        $this->assertEquals("100 * test / SUM(test) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
+
+        $sql = "PERCENT(test, test2, test3)";
+        $this->assertEquals("100 * test / SUM(test) OVER (PARTITION BY test2, test3)", $authCreds->parseSQL($sql));
+
+        $sql = "ROW_COUNT()";
+        $this->assertEquals("COUNT(*) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
+
+        $sql = "ROW_COUNT(test, test2)";
+        $this->assertEquals("COUNT(*) OVER (PARTITION BY test, test2)", $authCreds->parseSQL($sql));
+
 
         $sql = "a RLIKE b";
         $this->assertEquals("a REGEXP b", $authCreds->parseSQL($sql));
