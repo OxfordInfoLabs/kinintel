@@ -16,11 +16,13 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 class ColumnsTransformationProcessor extends SQLTransformationProcessor {
 
     /**
-     * Alias index
+     * The table's alias number e.g. for use in `C1.tableColumnName as table_column_name`.
+     * We need to keep incrementing this between transformations so we aren't using the same
+     * table name in two different columns transformations in the same query.
      *
      * @var int
      */
-    private $aliasIndex = 0;
+    private int $aliasIndex = 0;
 
 
     /**
