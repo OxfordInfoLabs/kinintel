@@ -64,7 +64,7 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
             $statusCode == Response::RESPONSE_SERVICE_UNAVAILABLE) {
 
             if ($statusCode == Response::RESPONSE_RATE_LIMITED){
-                Logger::log("OpenAI api was rate limited");
+                Logger::log("OpenAI api was rate limited", 5);
             }
 
             // Retry for a maximum of 2 minutes
