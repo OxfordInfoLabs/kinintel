@@ -3,7 +3,6 @@
 
 namespace Kinintel\Controllers\API;
 
-use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\DatasourceUpdateException;
