@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
