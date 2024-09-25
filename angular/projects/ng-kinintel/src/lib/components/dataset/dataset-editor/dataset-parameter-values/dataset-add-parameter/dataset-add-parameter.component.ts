@@ -15,6 +15,7 @@ import {DatasetService} from '../../../../../services/dataset.service';
 export class DatasetAddParameterComponent implements OnInit {
 
     public parameter: any = {type: 'text', multiple: false, defaultValue: null};
+    public sourceColumns: string[];
 
     private updateName = true;
 
