@@ -76,15 +76,6 @@
                     </div>
                 </div>
 
-                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Should the parameter be locked for editing in 'view' mode
-                    </label>
-                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                        <mat-slide-toggle [(ngModel)]="parameter.locked">Locked</mat-slide-toggle>
-                    </div>
-                </div>
-
                 <ng-template [ngIf]="parameter.type === 'list'">
 
                     <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
@@ -138,6 +129,15 @@
                     </ng-template>
 
                 </ng-template>
+
+                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                        Should the parameter be locked for editing in 'view' mode
+                    </label>
+                    <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <mat-slide-toggle [(ngModel)]="parameter.locked">Locked</mat-slide-toggle>
+                    </div>
+                </div>
 
                 <ng-template [ngIf]="parameter.type !== 'list'">
 
