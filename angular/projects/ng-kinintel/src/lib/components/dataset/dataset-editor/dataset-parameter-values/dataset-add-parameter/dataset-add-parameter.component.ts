@@ -14,8 +14,10 @@ import {DatasetService} from '../../../../../services/dataset.service';
 })
 export class DatasetAddParameterComponent implements OnInit {
 
-    public parameter: any = {type: 'text', multiple: false, defaultValue: null};
-    public sourceColumns: string[];
+    public parameter: any = {type: 'text', multiple: false, defaultValue: null, settings: {}};
+    public sourceColumns: string[] = [];
+
+    public readonly _ = _;
 
     private updateName = true;
 
@@ -29,6 +31,10 @@ export class DatasetAddParameterComponent implements OnInit {
         if (this.data && this.data.parameter) {
             this.parameter = this.data.parameter;
             this.updateName = !this.parameter.name;
+
+            if (this.parameter.settings && this.parameter.settings.datasetInstance) {
+                this.evaluateDataset(this.parameter.settings.datasetInstance);
+            }
         }
     }
 
@@ -39,6 +45,10 @@ export class DatasetAddParameterComponent implements OnInit {
     }
 
     public selectDatasource() {
+        if (!this.parameter.settings || Array.isArray(this.parameter.settings)) {
+            this.parameter.settings = {};
+        }
+
         const dialogRef = this.dialog.open(CreateDatasetComponent, {
             width: '1200px',
             height: '800px',
@@ -46,10 +56,15 @@ export class DatasetAddParameterComponent implements OnInit {
         });
         dialogRef.afterClosed().subscribe(async res => {
             if (res) {
-                const data = await this.datasetService.evaluateDataset(res, '0', '1');
-                console.log(data);
+                this.evaluateDataset(res);
             }
         });
+    }
+
+    private async evaluateDataset(datasetInstance: any) {
+        const data: any = await this.datasetService.evaluateDataset(datasetInstance, '0', '1');
+        this.parameter.settings.datasetInstance = datasetInstance;
+        this.sourceColumns = _.map(data.columns, 'name');
     }
 
 }

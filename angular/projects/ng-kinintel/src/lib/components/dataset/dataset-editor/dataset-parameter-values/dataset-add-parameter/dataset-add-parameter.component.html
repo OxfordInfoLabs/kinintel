@@ -91,12 +91,51 @@
                         <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                             Select Datasource
                         </label>
-                        <div class="mt-1 sm:col-span-2 sm:mt-0">
+                        <div class="mt-1 sm:col-span-2 sm:mt-0 flex items-center">
                             <button mat-flat-button color="primary" (click)="selectDatasource()">
                                 Select Datasource
                             </button>
+                            <div *ngIf="parameter.settings && parameter.settings.datasetInstance"
+                                class="text-gray-500 ml-4">
+                                {{parameter.settings.datasetInstance.title}}
+                            </div>
                         </div>
                     </div>
+
+                    <ng-template [ngIf]="sourceColumns.length">
+
+                        <div class="flex items-center justify-between">
+                            <div class="mr-2 flex-1">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Label column
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <select [(ngModel)]="parameter.settings.labelColumn"
+                                            class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                                        <option *ngFor="let column of sourceColumns" [value]="column">
+                                            {{_.startCase(column)}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="ml-2 flex-1">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    Value column
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <select [(ngModel)]="parameter.settings.valueColumn"
+                                            class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                                        <option *ngFor="let column of sourceColumns" [value]="column">
+                                            {{_.startCase(column)}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </ng-template>
 
                 </ng-template>
 

@@ -99,7 +99,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 private snackBar: MatSnackBar) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit() {
         let limit = null;
         limit = localStorage.getItem('datasetInstanceLimit' + this.datasetInstanceSummary.id);
 
@@ -711,13 +711,27 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     if (!clonedParameter.value) {
                         parameter.value = parameter.defaultValue || '';
                     }
-                    const diParamIndex = _.findIndex(this.datasetInstanceSummary.parameters, existingParameter);
                     this.parameterValues[parameterValueIndex] = parameter;
-                    this.datasetInstanceSummary.parameters[diParamIndex] = parameter;
+                    this.datasetInstanceSummary.parameters[parameterValueIndex] = parameter;
                 }
 
+                if (parameter.type === 'list') {
+                    this.loadListParameters(parameter);
+                }
             }
         });
+    }
+
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
+        }
     }
 
     public getOrdinal(n) {
@@ -1070,6 +1084,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                         param._period = periodValues[1];
                     }
                 }
+            }
+            if (param.type === 'list' && !param.list?.length) {
+                this.loadListParameters(param);
             }
             if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
                 if (_.isString(param.value) && param.value.includes('{{')) {

@@ -134,6 +134,12 @@
                                    [(ngModel)]="parameter.value"
                                    (keyup.enter)="evaluateDataset(true)" required autofocus>
                         </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'list'">
+                            <select class="pr-8 py-1 pl-1" [(ngModel)]="parameter.value"
+                                    (change)="evaluateDataset(true)" required autofocus>
+                                <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                            </select>
+                        </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                             <ng-template [ngIf]="!parameter._dateType">
                                 <div class="flex items-center mr-8">

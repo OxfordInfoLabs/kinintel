@@ -39,6 +39,7 @@ import {
 } from './dashboard-settings/dashboard-settings.component';
 import {ComponentCanDeactivate} from '../../../lib/guards/dashboard-changes.guard';
 import * as sha512 from 'js-sha512' ;
+import {DatasetService} from '../../services/dataset.service';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -218,7 +219,8 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                 private dialog: MatDialog,
                 private snackBar: MatSnackBar,
                 private router: Router,
-                private alertService: AlertService) {
+                private alertService: AlertService,
+                private datasetService: DatasetService) {
     }
 
     ngOnInit(): void {
@@ -305,6 +307,14 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         if (!this.dashboard.title) {
             this.dashboard.title = 'New Dashboard';
             this.editDashboardTitle = true;
+        }
+
+        if (this.dashboard.layoutSettings?.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+            _.forEach(this.dashboard.layoutSettings.parameters, param => {
+                if (param.type === 'list') {
+                    this.loadListParameters(param);
+                }
+            });
         }
 
         // If we have any query params, check if they match any set out in the dashboard
@@ -432,8 +442,8 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             clonedParameter = _.clone(existingParameter);
         }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
-            width: '650px',
-            height: '650px',
+            width: '750px',
+            height: '850px',
             data: {
                 parameter: clonedParameter
             }
@@ -454,6 +464,10 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                     }
                 }
 
+                if (parameter.type === 'list') {
+                    this.loadListParameters(parameter);
+                }
+
                 this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
         });
@@ -464,6 +478,18 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             'to fail.';
         if (window.confirm(message)) {
             delete this.dashboard.layoutSettings.parameters[parameter.name];
+        }
+    }
+
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
         }
     }
 
