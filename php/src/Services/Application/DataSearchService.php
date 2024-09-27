@@ -4,7 +4,6 @@ namespace Kinintel\Services\Application;
 
 use Kiniauth\Objects\Account\Account;
 use Kinikit\Core\Util\ArrayUtils;
-use Kinikit\Persistence\ORM\Query\Filter\EqualsFilter;
 use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
 use Kinikit\Persistence\ORM\Query\Query;
 use Kinikit\Persistence\ORM\Query\SummarisedValue;

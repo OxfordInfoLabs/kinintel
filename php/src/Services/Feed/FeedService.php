@@ -6,7 +6,6 @@ namespace Kinintel\Services\Feed;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
-use Kiniauth\Services\Security\Captcha\CaptchaProvider;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Exception\AccessDeniedException;

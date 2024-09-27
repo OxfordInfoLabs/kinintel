@@ -5,7 +5,6 @@ namespace Kinintel\Services\Dataset;
 use Kiniauth\Services\Application\ActivityLogger;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\DependencyInjection\ContainerInterceptor;
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 

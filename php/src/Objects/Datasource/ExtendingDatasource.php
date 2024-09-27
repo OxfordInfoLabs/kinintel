@@ -8,7 +8,6 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\TransformationApplication;
 use Kinintel\ValueObjects\Transformation\Transformation;
-use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
  * Extending datasource - allows for configuration of a datasource

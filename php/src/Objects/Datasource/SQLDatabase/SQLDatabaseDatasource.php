@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
@@ -243,8 +242,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $dbConnection = $this->returnDatabaseConnection();
 
-        Logger::log($query->getParameters());
-        Logger::log($query->getSQL());
+        Logger::log($query->getParameters(), 6);
+        Logger::log($query->getSQL(), 6);
 
         $authenticationCredentials = $this->getAuthenticationCredentials();
         $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
@@ -373,10 +372,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                             throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
                         }
                     } else {
-                        Logger::log("SQL Error: " . $e->getMessage());
+                        Logger::log("SQL Error: " . $e->getMessage(), 4);
                         throw new DebugException(
                             message: "An unexpected error occurred updating the datasource",
-                            debugMessage: "SQL Error " . $e->getMessage()
+                            debugMessage: "SQL Error: " . $e->getMessage()
                         );
                     }
                 }

@@ -13,7 +13,6 @@ use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
 use Kiniauth\ValueObjects\Security\ScopeAccessGroup;
 use Kiniauth\ValueObjects\Security\ScopeAccessItem;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
