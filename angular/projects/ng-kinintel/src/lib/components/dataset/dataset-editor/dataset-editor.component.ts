@@ -651,6 +651,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                         type: 'summarise',
                         config: summariseTransformation
                     });
+                    this.evaluateDataset(true);
                 } else {
                     this.datasetInstanceSummary.transformationInstances.push({
                         type: 'summarise',

@@ -94,7 +94,7 @@
                                (keyup.enter)="reloadDashboard()" required autofocus>
                     </ng-template>
                     <ng-template [ngIf]="parameter.type === 'list'">
-                        <select class="pr-8 py-1 pl-1" [(ngModel)]="parameter.value"
+                        <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
                                 (change)="reloadDashboard()" required autofocus>
                             <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
                         </select>
