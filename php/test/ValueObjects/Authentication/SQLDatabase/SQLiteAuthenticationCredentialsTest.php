@@ -62,6 +62,14 @@ class SQLiteAuthenticationCredentialsTest extends TestCase {
         $sql = "ROW_COUNT(test, test2)";
         $this->assertEquals("COUNT(*) OVER (PARTITION BY test, test2)", $authCreds->parseSQL($sql));
 
+        $sql = "MAXIMUM(test, col1, col2)";
+        $this->assertEquals("MAX(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "MINIMUM(test, col1, col2)";
+        $this->assertEquals("MIN(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "AVERAGE(test, col1, col2)";
+        $this->assertEquals("AVG(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
 
         $sql = "a RLIKE b";
         $this->assertEquals("a REGEXP b", $authCreds->parseSQL($sql));
