@@ -200,9 +200,18 @@ class CachingDatasource extends BaseDatasource {
             // Set update mode according to cache mode
             $updateMode = $config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_UPDATE ? UpdatableDatasource::UPDATE_MODE_REPLACE : UpdatableDatasource::UPDATE_MODE_REPLACE;
 
+
+            Logger::log("Starting second cache check");
+
+
             // Perform a final cache check before insert to ensure that an item hasn't been inserted while we
             // have been processing
             $checkDataItem = $this->getCacheCheckDataItem($cacheDatasourceInstance, $config, $encodedParameters);
+
+
+            Logger::log("Ended second cache check");
+
+
 
             // Only proceed with the insert if nothing changed in the meanwhile.
             if (!$checkDataItem || ($checkDataItem[$config->getCacheDatasourceCachedTimeField()] < $cacheThreshold)) {
@@ -220,7 +229,14 @@ class CachingDatasource extends BaseDatasource {
                     }
                 }
                 if (sizeof($batch)) {
+
+                    Logger::log("Starting cache update");
+
                     $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
+
+
+                    Logger::log("Ending cache update");
+
                 }
 
             }
