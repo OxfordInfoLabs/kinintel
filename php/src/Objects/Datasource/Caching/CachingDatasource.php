@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource\Caching;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
 use Kinintel\Exception\UnsupportedDatasetException;
@@ -43,7 +44,7 @@ class CachingDatasource extends BaseDatasource {
         $this->datasetService = Container::instance()->get(DatasetService::class);
     }
 
-    public function getConfigClass() : string {
+    public function getConfigClass(): string {
         return CachingDatasourceConfig::class;
     }
 
@@ -138,8 +139,13 @@ class CachingDatasource extends BaseDatasource {
         }
 
 
+        Logger::log("Starting first cache check");
+
         // Get a cache check data item
         $checkDataItem = $this->getCacheCheckDataItem($cacheDatasourceInstance, $config, $encodedParameters);
+
+        Logger::log("Ended first cache check");
+
 
         // Grab a new data source for return results
         $cacheDatasource = $cacheDatasourceInstance->returnDataSource();
@@ -147,6 +153,8 @@ class CachingDatasource extends BaseDatasource {
         // If no previously cached results or we need new ones, go get them
         $noSourceResults = false;
         if (!$checkDataItem || ($checkDataItem[$config->getCacheDatasourceCachedTimeField()] < $cacheThreshold)) {
+
+            Logger::log("Getting new Object");
 
             $sourceParams = $parameterValues ?? [];
 
@@ -174,6 +182,8 @@ class CachingDatasource extends BaseDatasource {
                 $sourceDatasource = $sourceDatasourceInstance->returnDataSource();
                 $sourceDataset = $sourceDatasource->materialise($sourceParams);
             }
+
+            Logger::log("Got new Object");
 
             // Create merged fields ready for insert
             $targetFields = [
@@ -243,8 +253,13 @@ class CachingDatasource extends BaseDatasource {
             $cacheDatasource = $cacheDatasource->applyTransformation($appliedTransformation, $parameterValues);
         }
 
-        return $cacheDatasource->materialise($parameterValues);
+        Logger::log("Starting cache materialise");
 
+        $result = $cacheDatasource->materialise($parameterValues);
+
+        Logger::log("Ended cache materialise");
+
+        return $result;
     }
 
     /**
