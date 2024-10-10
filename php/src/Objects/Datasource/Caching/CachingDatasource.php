@@ -212,7 +212,6 @@ class CachingDatasource extends BaseDatasource {
             Logger::log("Ended second cache check");
 
 
-
             // Only proceed with the insert if nothing changed in the meanwhile.
             if (!$checkDataItem || ($checkDataItem[$config->getCacheDatasourceCachedTimeField()] < $cacheThreshold)) {
 
@@ -243,6 +242,8 @@ class CachingDatasource extends BaseDatasource {
         }
 
 
+        Logger::log("Starting materialise configuration");
+
         // if no source results and we have a fallback to older rule in place, move the cache threshold back to the
         // previous timeframe to allow previous results to flow through if they exist
         if ($noSourceResults && $config->isFallbackToOlder()) {
@@ -262,11 +263,18 @@ class CachingDatasource extends BaseDatasource {
             $filters[] = new Filter("[[" . $config->getCacheDatasourceCachedTimeField() . "]]", $cacheThreshold, Filter::FILTER_TYPE_GREATER_THAN);
         }
 
+        Logger::log("Starting applying transformations");
+
+
         $cacheDatasource = $cacheDatasource->applyTransformation(new FilterTransformation($filters));
+
+        Logger::log("Applied filters");
+
 
         // Apply additional transformations before materialisation
         foreach ($this->appliedTransformations as $appliedTransformation) {
             $cacheDatasource = $cacheDatasource->applyTransformation($appliedTransformation, $parameterValues);
+            Logger::log("Applied " . get_class($appliedTransformation));
         }
 
         Logger::log("Starting cache materialise");
