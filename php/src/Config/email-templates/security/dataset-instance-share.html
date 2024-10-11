@@ -1,0 +1,20 @@
+Subject: Invitation to share a dataset
+---
+{{> header }}
+<p>Hi There</p>
+
+<p>Another user of the platform ({{loggedInUser.name}}) is inviting you to share the following dataset from their account ({{loggedInAccount.name}}):</p>
+
+<p><b>{{sharable.sharableTitle}}</b></p>
+
+<p>To your account - {{account.name}}</p>
+
+<p>To accept this request please follow <a href="{{settings.accountSharingInvitationURL}}?invitationCode={{invitationCode}}">this link</a></p>
+
+<p>If you were not expecting this request, please ignore this email.</p>
+
+<p>Kind regards</p>
+
+<p>The {{settings.brandName}} team</p>
+
+{{> footer }}

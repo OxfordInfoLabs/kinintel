@@ -53,6 +53,7 @@ class DatasetEvaluatorLongRunningTask extends LongRunningTask {
      */
     public function run() {
 
+
         $dataSet = $this->datasetService->getEvaluatedDataSetForDataSetInstance($this->datasetInstanceSummary, [], [],
             $this->offset, $this->limit);
 

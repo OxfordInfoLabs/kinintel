@@ -1,5 +1,8 @@
 import {Component, Inject, Input, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {
+    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+    MatLegacyDialogRef as MatDialogRef
+} from '@angular/material/legacy-dialog';
 import {DatasourceService} from '../../../../services/datasource.service';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {HttpClient} from '@angular/common/http';
@@ -18,8 +21,10 @@ export class ApiAccessComponent implements OnInit {
     public datasourceUpdate: any;
     public datasourceInstanceKey: any;
     public columns: any;
+    public listQueryString: string = '';
     public createExample: string;
     public updateExample: string;
+    public deleteFilteredExample: string;
     public showExample = false;
 
     constructor(public dialogRef: MatDialogRef<ApiAccessComponent>,
@@ -38,6 +43,7 @@ export class ApiAccessComponent implements OnInit {
         this.showExample = !!this.datasourceUpdate.instanceImportKey;
 
         const example = ['[{'];
+
         this.columns.forEach((column, index) => {
             if (column.type !== 'id') {
                 example.push('<span class="text-secondary">"' + column.name + '":</span> "' + column.type + '"');
@@ -45,6 +51,9 @@ export class ApiAccessComponent implements OnInit {
                     example.push(', ');
                 }
             }
+            this.listQueryString += 'filter_' + column.name + '=VALUE&';
+            if (index == this.columns.length - 1)
+                this.listQueryString += 'sort=' + column.name + '|desc';
         });
         example.push('}]');
         this.createExample = example.join('');
@@ -58,6 +67,13 @@ export class ApiAccessComponent implements OnInit {
         });
         update.push('}]');
         this.updateExample = update.join('');
+
+        const deleteFiltered: string[] = ['[{'];
+        if (this.columns.length > 0) {
+            deleteFiltered.push('<span class="text-secondary">"column":</span> "' + this.columns[0].name + '", <span class="text-secondary">"value:</span> "25", <span class="text-secondary">"matchType:</span> "eq"');
+        }
+        deleteFiltered.push('}]');
+        this.deleteFilteredExample = deleteFiltered.join('');
 
         this.apiKeys = await this.http.get('/account/apikey/first/customdatasourceupdate').toPromise();
     }

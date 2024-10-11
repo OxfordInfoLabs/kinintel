@@ -2,9 +2,10 @@
 
 namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
+use Kinikit\Core\Configuration\MissingConfigurationParameterException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceAggregatingProcessorConfiguration;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceAggregatingSource;
@@ -15,26 +16,14 @@ use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-class TabularDatasourceAggregatingProcessor implements DataProcessor {
+class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @param DatasourceService $datasourceService
-     */
-    public function __construct($datasourceService) {
-        $this->datasourceService = $datasourceService;
+    public function __construct(
+        private DatasourceService $datasourceService
+    ) {
     }
 
-    /**
-     * Return the configuration class for the import processor
-     *
-     * @return string
-     */
-    public function getConfigClass() {
+    public function getConfigClass() : string {
         return TabularDatasourceAggregatingProcessorConfiguration::class;
     }
 
@@ -80,6 +69,10 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
 
         $sourceDatasources = $config->getSourceDatasources();
 
+        if (!$sourceDatasources) {
+            throw new MissingConfigurationParameterException("sourceDatasources");
+        }
+
         // Get the first datasource
         $dataset = $this->getLatestData($sourceDatasources[0], $fromDate, $config);
 
@@ -93,6 +86,13 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
                 if (isset($dataset[$key])) {
                     $dataset[$key] = $dataset[$key] + $value; // Array union
                     unset($newData[$key]);
+
+                    if (($value["latest_discover_time"] ?? null) > ($dataset[$key]["latest_discover_time"] ?? null)) {
+                        $dataset[$key]["latest_discover_time"] = $value["latest_discover_time"];
+                    }
+
+                    // Increment sources with results
+                    $dataset[$key]["sources_with_results"]++;
                 }
             }
 
@@ -100,6 +100,8 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
             $dataset = array_merge($dataset, $newData);
 
         }
+
+        if (!$dataset) return;
 
         // Reset the keys
         $dataset = array_values($dataset);
@@ -110,7 +112,6 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
             $fields = array_merge($fields, array_values($source->getColumnMappings()));
             $fields[] = $source->getSourceIndicatorColumn();
         }
-
 
         $first = $dataset[0];
         foreach ($fields as $field) {
@@ -156,8 +157,9 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
         $columnMappings = $aggSource->getColumnMappings();
         foreach ($data as &$dataItem) {
             $key = "";
+            $discoverTime = $dataItem[$aggSource->getDateColumn()] ?? null;
 
-            // Do the mappings
+            // Do the field mappings
             foreach ($dataItem as $field => $item) {
 
                 // Map across the fields
@@ -170,21 +172,28 @@ class TabularDatasourceAggregatingProcessor implements DataProcessor {
                 if (in_array($field, $keyFields)) {
                     $key .= $item . "|";
                 }
-
-                // Add source flag
-                $dataItem[$aggSource->getSourceIndicatorColumn()] = true;
-
-                // Add import time
-                $dataItem["window_time"] = $fromDate;
-                $dataItem["discover_month"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("F");
-                $dataItem["discover_month_index"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("n");
-                $dataItem["discover_year"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("Y");
-
             }
+
+
+            // Add source flag
+            $dataItem[$aggSource->getSourceIndicatorColumn()] = true;
+
+            // Set date and time fields
+            $dataItem["window_time"] = $fromDate;
+            $dataItem["latest_discover_time"] = $discoverTime;
+            $dataItem["discover_month"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("F");
+            $dataItem["discover_month_index"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("n");
+            $dataItem["discover_year"] = date_create_from_format("Y-m-d H:i:s", $fromDate)->format("Y");
+            $dataItem["sources_with_results"] = 1;
 
             $latestData[$key] = $dataItem;
         }
 
         return $latestData;
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

@@ -3,11 +3,11 @@
 namespace Kinintel\Services\DataProcessor\Multi;
 
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Multi\MultiDataProcessorConfiguration;
 
-class MultiDataProcessor implements DataProcessor {
+class MultiDataProcessor extends BaseDataProcessor {
 
 
     /**
@@ -57,4 +57,9 @@ class MultiDataProcessor implements DataProcessor {
             }
         }
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

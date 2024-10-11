@@ -244,6 +244,24 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanFormatObjectWithBoolsAsValues(){
+        $json = <<<EOF
+{
+  "registered": true,
+  "dnsSec": false
+}
+EOF;
+        $formatter = new JSONResultFormatter(singleResult: true);
+        $result = $formatter->format(
+            new ReadOnlyStringStream($json),
+            passedColumns: [
+                new Field("dnssec", "DNSSEC", "[[dnsSec]]"),
+                new Field("registeredness", "registeredness", "[[registered]]"),
+            ]
+        );
+        $this->assertSame([["dnssec" => false, "registeredness" => true]], $result->getAllData());
+    }
+
     public function testCanFlattenArrayKeysFromJSONObject() {
 
         $formatter = new JSONResultFormatter();
@@ -258,6 +276,185 @@ class JSONResultFormatterTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals([new Field("a"), new Field("b"), new Field("c")], $result->getColumns());
 
         $this->assertEquals([["a" => 1, "b" => 2, "c" => 3], ["a" => 4, "b" => 5, "c" => 6]], $result->getAllData());
+    }
+
+    public function testFlattenArraysWithDrillDown(){
+        $formatter = new JSONResultFormatter();
+
+        $object = ["results" =>
+            [
+                [
+                    "records" => [
+                        ["name" => "sam"],
+                        ["name" => "emmy"]
+                    ]
+                ],
+                [
+                    "records" => [
+                        ["name" => "oscar"],
+                    ]
+                ]
+            ]
+        ];
+
+        $expectedResult = [["name" => "sam"], ["name" => "emmy"], ["name"=>"oscar"]];
+
+        $result = $formatter->drillDown("results.records", $object);
+
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testParentPropertyMappings(){
+        $formatter = new JSONResultFormatter("results.records", parentPropertyMappings: ["results.parent_prop" => "prop"]);
+
+        $object = ["results" =>
+            [
+                "parent_prop" => "old and wise",
+                "records" => [
+                    ["name" => "sam"],
+                    ["name" => "emmy"]
+                ]
+            ]
+        ];
+
+
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode($object)),
+            [new Field("name"), new Field("prop")]
+        );
+
+        $expectedColumns = [new Field("name"), new Field("prop")];
+        $this->assertEquals($expectedColumns, $result->getColumns());
+        $this->assertEquals([
+            ["name"=>"sam", "prop" => "old and wise"],
+            ["name"=>"emmy", "prop" => "old and wise"]
+        ],
+            $result->getAllData());
+
+
+        $formatter = new JSONResultFormatter("outer.results.records", parentPropertyMappings: ["outer.results.parent_prop" => "prop"]);
+
+        $object = ["outer" => ["results" =>
+            [
+                "parent_prop" => 1,
+                "records" => [
+                    ["name" => "sam", "x"=>2],
+                    ["name" => "emmy", "x"=>3]
+                ]
+            ]
+        ]];
+
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode($object)),
+            [new Field("name"), new Field("prop"), new Field("x")]
+        );
+
+        $this->assertEquals([
+            ["name"=>"sam", "prop" => 1, "x" => 2],
+            ["name"=>"emmy", "prop" => 1, "x" => 3]
+        ],
+            $result->getAllData());
+
+        $formatter = new JSONResultFormatter("records", parentPropertyMappings: ["qname" => "qname"]);
+
+        $object = [[
+            "qname" => 1,
+            "records" => [
+                ["name" => "sam"],
+                ["name" => "emmy"]
+            ]
+        ]];
+
+        $result = $formatter->format(new ReadOnlyStringStream(json_encode($object)),
+            [new Field("name"), new Field("qname")]
+        );
+
+        $this->assertEquals([
+            ["name"=>"sam", "qname" => 1],
+            ["name"=>"emmy", "qname" => 1]
+        ],
+            $result->getAllData());
+
+    }
+
+    public function testInsertMappedResult(){
+        $formatter = new JSONResultFormatter();
+
+
+        $data = ["a" => ["b" => "c"], "parent" => "toMove"];
+        $expectedResult = ["a" => ["b" => "c", "test_name" => "toMove"], "parent" => "toMove"];
+
+        $formatter->insertMappedResult($data, "parent", "test_name", "a");
+
+        $this->assertEquals($expectedResult, $data);
+
+        $data = ["a" => "c"];
+        $expectedResult = ["a" => "c", "test" => null];
+
+        $formatter->insertMappedResult($data, null, "test", null);
+        $this->assertEquals($expectedResult, $data);
+
+
+        $data = ["results" => [
+            "type" => 1,
+            "records" => [
+                ["a" => "b"],
+                ["a" => "c"]
+            ]
+        ]];
+
+        $expectedResult = ["results" => [
+            "type" => 1,
+            "records" => [
+                ["a" => "b", "newtype" => 1],
+                ["a" => "c", "newtype" => 1]
+            ]
+            ]
+        ];
+
+        $formatter->insertMappedResult($data, "results.type", "newtype", "results.records");
+
+        $this->assertEquals($expectedResult, $data);
+
+
+        $data = ["results" =>
+            [
+                [
+                    "type" => 1,
+                    "records" => [
+                        ["a" => "b"],
+                        ["a" => "c"]
+                    ]
+                ],
+                [
+                    "type" => 2,
+                    "records" => [
+                        ["a" => "d"],
+                        ["a" => "e"]
+                    ]
+                ],
+        ]];
+
+        $expectedResult = ["results" =>
+            [
+                [
+                    "type" => 1,
+                    "records" => [
+                        ["a" => "b", "newtype" => 1],
+                        ["a" => "c", "newtype" => 1]
+                    ],
+                ],
+                [
+                    "type" => 2,
+                    "records" => [
+                        ["a" => "d", "newtype" => 2],
+                        ["a" => "e", "newtype" => 2]
+                    ],
+                ]
+            ]
+        ];
+
+        $formatter->insertMappedResult($data, "results.type", "newtype", "results.records");
+
+        $this->assertEquals($expectedResult, $data);
     }
 
 }

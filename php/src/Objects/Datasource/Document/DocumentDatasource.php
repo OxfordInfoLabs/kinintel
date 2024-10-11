@@ -8,7 +8,6 @@ use Kiniauth\Services\Attachment\AttachmentService;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\DependencyInjection\MissingInterfaceImplementationException;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -19,7 +18,6 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Datasource\Document\CustomDocumentParser;
 use Kinintel\Services\Util\Analysis\TextAnalysis\DocumentTextExtractor;
 use Kinintel\Services\Util\Analysis\TextAnalysis\PhraseExtractor;
-use Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\OpenAIEmbeddingService;
 use Kinintel\Services\Util\Analysis\TextAnalysis\VectorEmbedding\TextEmbeddingService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Document\DocumentDatasourceConfig;
@@ -127,9 +125,6 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("chunks");
         }
 
-        /**
-         * @var SettingsService $settingsService
-         */
         $settingsService = Container::instance()->get(SettingsService::class);
         $settings = $settingsService->getParentAccountSettingValues();
 
@@ -161,16 +156,12 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
             if ($newRow) {
                 $fileType = $newRow["file_type"];
-                $text = '';
 
                 // If storing original, call the attachment service
                 if ($config->isStoreOriginal()) {
 
                     $instanceInfo = $this->getInstanceInfo();
 
-                    /**
-                     * @var AttachmentService $attachmentService
-                     */
                     $attachmentService = Container::instance()->get(AttachmentService::class);
 
                     // Create an attachment summary
@@ -359,7 +350,6 @@ class DocumentDatasource extends SQLDatabaseDatasource {
      */
     public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 50000, $maxChunkLength = 8191): array {
         if (!$chunks) return [];
-        /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);
 
         // Reset so the chunks are ordered from 0

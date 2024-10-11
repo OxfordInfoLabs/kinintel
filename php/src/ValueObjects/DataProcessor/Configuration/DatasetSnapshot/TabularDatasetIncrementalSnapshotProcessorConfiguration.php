@@ -2,20 +2,21 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorActions;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 
 class TabularDatasetIncrementalSnapshotProcessorConfiguration {
 
-    /**
-     * @var integer
-     * @required
-     */
-    private $datasetInstanceId;
+    use DataProcessorActions;
 
     /**
-     * @var string
+     * Parameter Values for the data set instance if required
+     *
+     * @var mixed[]
      */
-    private $snapshotIdentifier;
+    private $parameterValues;
+
 
     /**
      * Key fields which form the primary key for the data set.
@@ -63,52 +64,37 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     /**
      * Construct
      *
-     * @param integer $datasetInstanceId
-     * @param string $snapshotIdentifier
+     * @param mixed[] $parameterValues
      * @param string $newerValuesFieldName
      * @param string $newerValuesRule
      * @param string[] $keyFieldNames
      * @param array $indexes
      * @param int $readChunkSize
      */
-    public function __construct($datasetInstanceId, $snapshotIdentifier, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
-        $this->datasetInstanceId = $datasetInstanceId;
-        $this->snapshotIdentifier = $snapshotIdentifier;
+    public function __construct($parameterValues, $newerValuesFieldName, $newerValuesRule = self::LATEST_VALUE_GREATER, $keyFieldNames = [], $indexes = [], $readChunkSize = null) {
         $this->newerValuesFieldName = $newerValuesFieldName;
         $this->newerValuesRule = $newerValuesRule;
         $this->keyFieldNames = $keyFieldNames;
         $this->readChunkSize = $readChunkSize;
         $this->indexes = $indexes;
+        $this->parameterValues = $parameterValues;
     }
 
 
     /**
-     * @return int
+     * @return mixed[]
      */
-    public function getDatasetInstanceId() {
-        return $this->datasetInstanceId;
+    public function getParameterValues() {
+        return $this->parameterValues;
     }
 
     /**
-     * @param int $datasetInstanceId
+     * @param mixed[] $parameterValues
      */
-    public function setDatasetInstanceId($datasetInstanceId) {
-        $this->datasetInstanceId = $datasetInstanceId;
+    public function setParameterValues($parameterValues) {
+        $this->parameterValues = $parameterValues;
     }
 
-    /**
-     * @return string
-     */
-    public function getSnapshotIdentifier() {
-        return $this->snapshotIdentifier;
-    }
-
-    /**
-     * @param string $snapshotIdentifier
-     */
-    public function setSnapshotIdentifier($snapshotIdentifier) {
-        $this->snapshotIdentifier = $snapshotIdentifier;
-    }
 
     /**
      * @return string[]
@@ -182,4 +168,15 @@ class TabularDatasetIncrementalSnapshotProcessorConfiguration {
     }
 
 
+    /**
+     * Return applicable processor actions for this one.
+     *
+     * @param $dataProcessorInstanceKey
+     * @return DataProcessorAction[]
+     */
+    public function getProcessorActions($dataProcessorInstanceKey) {
+        return [
+            new DataProcessorAction("Select", $dataProcessorInstanceKey)
+        ];
+    }
 }

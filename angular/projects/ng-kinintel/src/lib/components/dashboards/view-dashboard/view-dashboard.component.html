@@ -45,7 +45,7 @@
     </div>
 
     <ng-template [ngIf]="!hideParameters">
-        <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200"
+        <div class="dashboard-parameters flex-wrap bg-gray-50 px-4 py-0.5 border-b border-gray-200"
              *ngIf="dashboard.layoutSettings && _.values(dashboard.layoutSettings.parameters).length">
             <div *ngIf="!external" class="list-title">
                 Parameters
@@ -61,6 +61,12 @@
                         <ng-template [ngIf]="parameter.type === 'numeric'">
                             <input type="number" placeholder="{{parameter.title}}" [(ngModel)]="parameter.value"
                                    (keyup.enter)="reloadDashboard()" required autofocus>
+                        </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'list'">
+                            <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
+                                    (change)="reloadDashboard()" required autofocus>
+                                <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                            </select>
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                             <ng-template [ngIf]="!parameter._dateType">
@@ -129,4 +135,4 @@
     </ng-template>
 
 </ng-template>
-<div class="grid-stack"></div>
+<div class="grid-stack" [ngClass]="cssGridSelector"></div>

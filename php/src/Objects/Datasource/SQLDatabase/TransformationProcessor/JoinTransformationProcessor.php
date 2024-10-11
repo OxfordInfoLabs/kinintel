@@ -4,11 +4,11 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
-use Kiniauth\Services\Util\Asynchronous\HttpLoopbackAsynchronousProcessor;
+use Kiniauth\Services\Util\Asynchronous\AMPAsyncAsynchronousProcessor;
+use Kiniauth\Services\Util\Asynchronous\AMPParallelTask;
 use Kinikit\Core\Asynchronous\Asynchronous;
 use Kinikit\Core\Asynchronous\AsynchronousClassMethod;
 use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
-use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Util\ObjectArrayUtils;
@@ -32,73 +32,23 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 class JoinTransformationProcessor extends SQLTransformationProcessor {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
+    private int $tableIndex = 0;
+    private int $subQueryIndex = 0;
+    private int $aliasIndex = 0;
 
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var SynchronousProcessor
-     */
-    private $synchronousProcessor;
-
-
-    /**
-     * @var HttpLoopbackAsynchronousProcessor
-     */
-    private $loopbackAsynchronousProcessor;
-
-
-    /**
-     * Table index
-     *
-     * @var int
-     */
-    private $tableIndex = 0;
-
-
-    /**
-     * Subquery index
-     *
-     * @var int
-     */
-    private $subQueryIndex = 0;
-
-
-    /**
-     * Alias index
-     *
-     * @var int
-     */
-    private $aliasIndex = 0;
-
-
-    /**
-     * JoinTransformationProcessor constructor.
-     *
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
-     * @param SynchronousProcessor $synchronousProcessor
-     * @param HttpLoopbackAsynchronousProcessor $loopbackAsynchronousProcessor
-     */
-    public function __construct($datasourceService, $datasetService, $synchronousProcessor, $loopbackAsynchronousProcessor) {
-        $this->datasourceService = $datasourceService;
-        $this->datasetService = $datasetService;
-        $this->synchronousProcessor = $synchronousProcessor;
-        $this->loopbackAsynchronousProcessor = $loopbackAsynchronousProcessor;
+    public function __construct(
+        private DatasourceService $datasourceService,
+        private DatasetService $datasetService,
+        private AsynchronousProcessor $synchronousProcessor,
+        private AsynchronousProcessor $parallelProcessor,
+    ) {
     }
 
     /**
      * @param JoinTransformation $transformation
      * @param Datasource $datasource
      * @param mixed[] $parameterValues
-     * @param null $pagingTransformation
+     * @param null $pagingTransformation //todo type??
      *
      * @return \Kinintel\Objects\Datasource\Datasource|DefaultDatasource|mixed
      * @throws \Kinikit\Core\Validation\ValidationException
@@ -108,7 +58,6 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      * @throws \Kinintel\Exception\UnsupportedDatasourceTransformationException
      */
     public function applyTransformation($transformation, $datasource, $parameterValues = [], $pagingTransformation = null) {
-
 
         $joinDataParameters = [];
 
@@ -201,14 +150,20 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
                 $transformation->setJoinFilters($joinFilterJunction);
 
 
-                // Now materialise the join data set using column values from parent dataset
+                // - Run single threaded if joinConcurrency is set to max in config
+                // - Check a static global to see if we're in a thread to prevent nested threads.
                 $joinConcurrency = Configuration::readParameter("sqldatabase.datasource.join.default.concurrency") ?? PHP_INT_MAX;
 
-                /**
-                 * @var AsynchronousProcessor $processor
-                 */
-                $processor = $joinConcurrency == PHP_INT_MAX ? $this->synchronousProcessor : $this->loopbackAsynchronousProcessor;
+                /** @var AsynchronousProcessor $processor */
+                if ($joinConcurrency == PHP_INT_MAX) {
+                    $processor = $this->synchronousProcessor;
+                } else if (!AMPParallelTask::$inParallel) {
+                    $processor = $this->parallelProcessor;
+                } else {
+                    $processor = Container::instance()->get(AMPAsyncAsynchronousProcessor::class);
+                }
 
+                // Now materialise the join data set using column values from parent dataset
                 $newJoinData = [];
                 $asyncInstances = [];
                 $parentValues = [];
@@ -247,13 +202,10 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
 
                 }
 
-
                 // Process the remaining instances
                 if (sizeof($asyncInstances)) {
                     $joinColumns = $this->processAsyncInstances($processor, $asyncInstances, $parentValues, $newJoinData) ?? $joinColumns;
                 }
-
-
 
                 // Derive new columns for join dataset or skip entirely if no join columns to create
                 $newColumns = [];
@@ -355,6 +307,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             // Evaluate join criteria if supplied
             $joinCriteria = "1 = 1";
             $joinParameters = [];
+
+
             if ($transformation->getJoinFilters() && (sizeof($transformation->getJoinFilters()->getFilters()) || sizeof($transformation->getJoinFilters()->getFilterJunctions()))) {
 
                 $evaluator = new SQLFilterJunctionEvaluator($mainTableAlias, $childTableAlias, $dataSource->returnDatabaseConnection());
@@ -475,10 +429,8 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
      */
     private function processAsyncInstances($processor, $asyncInstances, $parentValues, &$newJoinData) {
 
-
         $asyncInstances = $processor->executeAndWait($asyncInstances);
-
-
+        if (!$asyncInstances) throw new \Exception("Failed to process async instances");
 
         $joinColumns = [];
 
@@ -507,5 +459,7 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
         return $joinColumns;
     }
 
-
+    public function setParallelProcessor(AsynchronousProcessor $parallelProcessor): void {
+        $this->parallelProcessor = $parallelProcessor;
+    }
 }

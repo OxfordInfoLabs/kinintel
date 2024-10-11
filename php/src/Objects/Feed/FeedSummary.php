@@ -90,7 +90,7 @@ class FeedSummary extends ActiveRecord {
      * @param string $exporterKey
      * @param mixed $exporterConfiguration
      * @param int $cacheTimeSeconds
-     * @param null $websiteConfig
+     * @param FeedWebsiteConfig $websiteConfig
      */
     public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $cacheTimeSeconds = 0, $websiteConfig = null, $id = null) {
         $this->path = $path;
@@ -213,7 +213,7 @@ class FeedSummary extends ActiveRecord {
      * @return FeedWebsiteConfig
      */
     public function getWebsiteConfig() {
-        return $this->websiteConfig;
+        return $this->websiteConfig ?? new FeedWebsiteConfig();
     }
 
     /**

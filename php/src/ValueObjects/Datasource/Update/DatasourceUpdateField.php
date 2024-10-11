@@ -11,7 +11,7 @@ class DatasourceUpdateField extends Field {
     /**
      * @var string
      */
-    private $originalName;
+    private $previousName;
 
 
     /**
@@ -22,26 +22,26 @@ class DatasourceUpdateField extends Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
-     * @param string $originalName
+     * @param string $previousName
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $originalName = "") {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $previousName = "") {
         parent::__construct($name, $title, $valueExpression, $type, $keyField);
-        $this->originalName = $originalName;
+        $this->previousName = $previousName;
     }
 
 
     /**
      * @return string
      */
-    public function getOriginalName() {
-        return $this->originalName;
+    public function getPreviousName() {
+        return $this->previousName;
     }
 
     /**
-     * @param string $originalName
+     * @param string $previousName
      */
-    public function setOriginalName($originalName) {
-        $this->originalName = $originalName;
+    public function setPreviousName($previousName) {
+        $this->previousName = $previousName;
     }
 
 

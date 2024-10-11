@@ -11,17 +11,8 @@ use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class SQLValueEvaluator {
 
-    /**
-     * @var SQLClauseSanitiser
-     */
-    private $sqlClauseSanitiser;
-
-
-    /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
+    private SQLClauseSanitiser $sqlClauseSanitiser;
+    private DatabaseConnection $databaseConnection;
 
     /**
      * SQLFilterValueEvaluator constructor.
@@ -42,7 +33,9 @@ class SQLValueEvaluator {
      */
     public function evaluateFilterValue($value, $templateParameters = [], $tableAlias = null, &$outputParameters = []) {
 
+
         $valueArray = is_array($value) ? $value : [$value];
+
 
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
@@ -60,7 +53,7 @@ class SQLValueEvaluator {
                         $literals[] = $matchingParamValueElement;
                 }
                 return join(",", $literals);
-            }, $valueEntry);
+            }, $valueEntry ?? "");
 
 
 
@@ -140,6 +133,8 @@ class SQLValueEvaluator {
             $valueStrings[] = $value;
 
         }
+
+
 
         return join(",", $valueStrings);
 

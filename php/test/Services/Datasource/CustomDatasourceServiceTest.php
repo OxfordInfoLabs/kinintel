@@ -5,9 +5,9 @@ namespace Kinintel\Test\Services\Datasource;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
@@ -62,7 +62,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ]);
@@ -83,7 +83,8 @@ class CustomDatasourceServiceTest extends TestBase {
             "columns" => [
                 new Field("name"),
                 new Field("age", null, null, Field::TYPE_INTEGER)
-            ]
+            ],
+            "manageTableStructure" => true
         ], "test");
         $expectedDatasourceInstance->setAccountId(1);
         $expectedDatasourceInstance->setProjectKey("myproject");
@@ -107,7 +108,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ]);
@@ -130,7 +131,8 @@ class CustomDatasourceServiceTest extends TestBase {
             "columns" => [
                 new Field("name"),
                 new Field("age", null, null, Field::TYPE_INTEGER)
-            ]
+            ],
+            "manageTableStructure" => true
         ], "test");
         $expectedDatasourceInstance->setAccountId(1);
         $expectedDatasourceInstance->setProjectKey("myproject");
@@ -154,7 +156,7 @@ class CustomDatasourceServiceTest extends TestBase {
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("name"),
             new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [
+        ], [], [
             ["name" => "Joe Bloggs", "age" => 12],
             ["name" => "Mary Jane", "age" => 7]
         ]);
@@ -262,7 +264,7 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
-    public function testCanUploadDocumentsToCustomDatasourceByUrl(){
+    public function testCanUploadDocumentsToCustomDatasourceByUrl() {
         $links = [
             "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
             "https://freetestdata.com/wp-content/uploads/2023/03/Sample_HTML_for_testing.html",

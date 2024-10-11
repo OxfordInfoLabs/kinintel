@@ -13,7 +13,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
@@ -24,30 +24,9 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-class TabularDatasetSnapshotProcessor implements DataProcessor {
+class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
 
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-
-    /**
-     * @var TableMapper
-     */
-    private $tableMapper;
-
-
-    /**
-     * @var integer
-     */
-    private $idCounter = 0;
+    private int $idCounter = 0;
 
     // Data limit
     const DEFAULT_DATA_LIMIT = 50000;
@@ -60,10 +39,11 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
      * @param DatasourceService $datasourceService
      * @param TableMapper $tableMapper
      */
-    public function __construct($datasetService, $datasourceService, $tableMapper) {
-        $this->datasetService = $datasetService;
-        $this->datasourceService = $datasourceService;
-        $this->tableMapper = $tableMapper;
+    public function __construct(
+        private DatasetService $datasetService,
+        private DatasourceService $datasourceService,
+        private TableMapper $tableMapper
+    ) {
     }
 
 
@@ -90,10 +70,10 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         $config = $instance->returnConfig();
 
         // Read the source dataset instance
-        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
+        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($instance->getRelatedObjectKey());
 
         // Get the datasource instance, creating if necessary
-        $instanceKey = $config->getSnapshotIdentifier();
+        $instanceKey = $instance->getKey();
 
 
         list($dataSourceInstance, $dataSourceInstanceLatest, $dataSourceInstancePending) = $this->getDatasourceInstances(
@@ -120,7 +100,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         $offset = 0;
         $now = date("Y-m-d H:i:s");
         do {
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, [], [], $offset, $readChunkSize);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstance($sourceDataSetInstance, $config->getParameterValues() ?? [], [], $offset, $readChunkSize);
 
             // If first time round, update the table structure
             if ($offset == 0 && $dataset->getColumns()) {
@@ -200,7 +180,7 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
     private function getDatasourceInstances($dataProcessorInstance, $accountId, $projectKey, $config) {
 
         //TODO be refactored
-        $instanceKey = $config->getSnapshotIdentifier();
+        $instanceKey = $dataProcessorInstance->getKey();
 
         $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
         $tablePrefix = Configuration::readParameter("snapshot.datasource.table.prefix");
@@ -431,5 +411,31 @@ class TabularDatasetSnapshotProcessor implements DataProcessor {
         return [$columnTimeLapses, $distinctTimeLapses];
     }
 
+    /**
+     * On instance delete
+     *
+     * @param $instance
+     * @return void
+     */
+    public function onInstanceDelete($instance) {
+
+        // Now delete the 3 potential datasources
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey());
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey() . "_latest");
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey() . "_pending");
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
+
+    }
 
 }

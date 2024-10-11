@@ -285,9 +285,6 @@ class DatasourceInstance extends DatasourceInstanceSummary {
 
 
         if ($this->getCredentialsKey()) {
-            /**
-             * @var AuthenticationCredentialsService $credentialsService
-             */
             $credentialsService = Container::instance()->get(AuthenticationCredentialsService::class);
             $credentialsInstance = $credentialsService->getCredentialsInstanceByKey($this->getCredentialsKey());
             $credentialsType = $credentialsInstance->getType();
@@ -329,6 +326,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
                     $config = $this->config;
                 else
                     $config = $objectBinder->bindFromArray($this->config ?? [], $dataSource->getConfigClass());
+
                 $dataSource->setConfig($config);
             }
 

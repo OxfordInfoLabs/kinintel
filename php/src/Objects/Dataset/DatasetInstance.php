@@ -7,6 +7,7 @@ use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Traits\Account\AccountProject;
+use Kiniauth\Traits\Security\Sharable;
 use Kinikit\Core\DependencyInjection\Container;
 
 
@@ -19,6 +20,7 @@ class DatasetInstance extends DatasetInstanceSummary {
 
     // use account project trait
     use AccountProject;
+    use Sharable;
 
     /**
      * @var ObjectTag[]
@@ -35,13 +37,6 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     protected $categories = [];
 
-
-    /**
-     * @var DatasetInstanceSnapshotProfile[]
-     * @oneToMany
-     * @childJoinColumns dataset_instance_id
-     */
-    protected $snapshotProfiles;
 
 
     /**
@@ -63,7 +58,8 @@ class DatasetInstance extends DatasetInstanceSummary {
                 $datasetInstanceSummary->getDescription(),
                 $datasetInstanceSummary->getCategories(),
                 $datasetInstanceSummary->getId(),
-                $datasetInstanceSummary->sourceDataset);
+                $datasetInstanceSummary->sourceDataset,
+                $datasetInstanceSummary->getManagementKey());
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
     }
@@ -82,20 +78,6 @@ class DatasetInstance extends DatasetInstanceSummary {
         $this->tags = $tags;
     }
 
-    /**
-     * @return DatasetInstanceSnapshotProfile[]
-     */
-    public function getSnapshotProfiles() {
-        return $this->snapshotProfiles;
-    }
-
-    /**
-     * @param DatasetInstanceSnapshotProfile[] $snapshotProfiles
-     */
-    public function setSnapshotProfiles($snapshotProfiles) {
-        $this->snapshotProfiles = $snapshotProfiles;
-    }
-
 
     /**
      * @return ObjectCategory[]
@@ -109,6 +91,15 @@ class DatasetInstance extends DatasetInstanceSummary {
      */
     public function setCategories($categories) {
         $this->categories = $categories;
+    }
+
+
+    public function getSharableTypeLabel(): string {
+        return "Data set";
+    }
+
+    public function getSharableTitle(): string {
+        return $this->title;
     }
 
 
@@ -154,7 +145,8 @@ class DatasetInstance extends DatasetInstanceSummary {
             $this->description,
             $newCategories,
             $readOnly ? null : $this->id,
-            $this->sourceDataset);
+            $this->sourceDataset,
+            $this->managementKey);
     }
 
 

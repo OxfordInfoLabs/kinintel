@@ -110,8 +110,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [new Index(["name", "phone"])]));
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [new Index(["name", "phone"])]),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -229,8 +229,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [], 3));
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER, [], [], 3),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -357,8 +357,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL));
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -457,8 +457,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER));
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -497,6 +497,107 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
                 "phone" => "01223 333333"
             ]
         ]), UpdatableDatasource::UPDATE_MODE_REPLACE]));
+
+
+    }
+
+
+    public function testWhenParameterValuesConfiguredTheseArePassedThroughToDataset(){
+
+        $datasetInstance = new DatasetInstance(null, 1, "testProject");
+        $this->datasetService->returnValue("getFullDataSetInstance", $datasetInstance, [99]);
+
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([
+            new Field("snapshotLastValue")
+        ], [["snapshotLastValue" => 25]]), [
+            "incrementalsnap", [], [
+                new TransformationInstance("summarise", new SummariseTransformation([], [new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MIN, "id", null, "snapshotLastValue")]))
+            ]
+        ]);
+
+        $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $datasource = MockObjectProvider::instance()->getMockInstance(TabularSnapshotDataSource::class);
+        $instanceConfig = [];
+        $datasourceInstance->returnValue("returnDataSource", $datasource);
+        $datasourceInstance->returnValue("getConfig", $instanceConfig);
+
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasourceInstance, [
+            "incrementalsnap"
+        ]);
+
+
+        $fields = [
+            new Field("id", "Id", null, Field::TYPE_INTEGER),
+            new Field("name"),
+            new Field("phone")
+        ];
+
+        $this->datasetService->returnValue("getEvaluatedDataSetForDataSetInstanceById",
+            new ArrayTabularDataset($fields, [
+                [
+                    "id" => 1,
+                    "name" => "Mr Blobby",
+                    "phone" => "012865 787879"
+                ],
+                [
+                    "id" => 2,
+                    "name" => "Simon",
+                    "phone" => "07676 123456"
+                ],
+                [
+                    "id" => 3,
+                    "name" => "James",
+                    "phone" => "01223 333333"
+                ]
+            ]), [
+                99, ["test" => "Hello", "test2" => 44], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", Filter::FILTER_TYPE_LESS_THAN)]))], 0, 50000
+            ]);
+
+
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration(["test" => "Hello", "test2" => 44], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER)
+            ,null,null,"DatasetInstance",99);
+
+
+        $snapshotFields = array_merge([
+            new Field("snapshot_item_id", null, null, Field::TYPE_STRING, true)
+        ], $fields);
+
+
+        $this->datasourceService->returnValue("saveDataSourceInstance", $datasourceInstance, [$datasourceInstance]);
+
+
+        // Process the instance
+        $this->snapshotProcessor->process($dataProcessorInstance);
+
+
+        // Check datasource instance was saved
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", $datasourceInstance));
+
+        // Check data was inserted into datasource with all fields hashed together.
+        $this->assertTrue($datasource->methodWasCalled("update", [new ArrayTabularDataset($snapshotFields, [
+            [
+                "snapshot_item_id" => hash("sha512", "1Mr Blobby012865 787879"),
+                "id" => 1,
+                "name" => "Mr Blobby",
+                "phone" => "012865 787879"
+            ],
+            [
+                "snapshot_item_id" => hash("sha512", "2Simon07676 123456"),
+                "id" => 2,
+                "name" => "Simon",
+                "phone" => "07676 123456"
+            ],
+            [
+                "snapshot_item_id" => hash("sha512", "3James01223 333333"),
+                "id" => 3,
+                "name" => "James",
+                "phone" => "01223 333333"
+            ]
+        ]), UpdatableDatasource::UPDATE_MODE_REPLACE]));
+
 
 
     }
@@ -555,10 +656,10 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL, [
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id", TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL, [
                 "id", "name"
-            ]));
+            ]),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -656,8 +757,8 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
             ]);
 
 
-        $dataProcessorInstance = new DataProcessorInstance("simpleincremental", "Simple Incremental", "tabulardatasetincrementalsnapshot",
-            new TabularDatasetIncrementalSnapshotProcessorConfiguration(99, "incrementalsnap", "id"));
+        $dataProcessorInstance = new DataProcessorInstance("incrementalsnap", "Simple Incremental", "tabulardatasetincrementalsnapshot",
+            new TabularDatasetIncrementalSnapshotProcessorConfiguration([], "id"),null,null,"DatasetInstance",99);
 
 
         $snapshotFields = array_merge([
@@ -715,5 +816,22 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
 
     }
 
+    public function testGeneratedDatasourceIsRemovedOnInstanceDelete() {
+
+        $instance = new DataProcessorInstance("onetogo", "One to Go", "test");
+
+        $this->snapshotProcessor->onInstanceDelete($instance);
+
+        // Check all three deletes are attempted
+        $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", ["onetogo"]));
+
+        // Handle exceptions as well
+        $this->datasourceService->throwException("removeDatasourceInstance",new ObjectNotFoundException("TEST",1),["onetogo"]);
+
+        // Check for silent failures
+        $this->snapshotProcessor->onInstanceDelete($instance);
+
+
+    }
 
 }

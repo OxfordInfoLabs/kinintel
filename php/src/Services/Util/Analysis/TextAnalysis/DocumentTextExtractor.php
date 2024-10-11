@@ -1,7 +1,6 @@
 <?php
 
 namespace Kinintel\Services\Util\Analysis\TextAnalysis;
-use JetBrains\PhpStorm\ArrayShape;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\TextChunk;
 
 /**

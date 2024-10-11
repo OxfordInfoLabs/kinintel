@@ -30,61 +30,39 @@ class PhraseExtractor {
      *
      * @return Phrase[]
      */
-    public function extractPhrases($text, $maxPhraseLength = 1, $minPhraseLength = 1, $stopWords = [], $language = 'EN') {
+    public function extractPhrases($text, $maxPhraseLength = 1, $minPhraseLength = 1, $stopWords = [], $language = 'EN'){
+
         foreach ($stopWords as $index => $stopWord) {
             $stopWord = $this->stopwordManager->expandStopwords($stopWord, $language);
             array_splice($stopWords, $index, 1, [$stopWord]);
         }
 
+        $allWords = $this->getWords(strtolower($text  ?? ""));
 
-        $allWords = $this->getWords($text);
 
-        $phrases = [];
-
-        for ($i = 0; $i < sizeof($allWords); $i++) {
-            $word = strtolower($allWords[$i]);
-            $phrase = [];
-            if ($safeWord = $this->isSafeWord($word, $stopWords, 0)) {
-                $phrase[] = $safeWord;
-                $phrases[] = implode(" ", $phrase);
-                for ($j = 1; $j < $maxPhraseLength; $j++) {
-                    $nextWord = isset($allWords[$i + $j]) ? strtolower($allWords[$i + $j]) : null;
-                    if ($nextWord) {
-                        if ($nextSafeWord = $this->isSafeWord($nextWord, $stopWords, sizeof($phrase))) {
-                            $phrase[] = $nextSafeWord;
-                            $phrases[] = implode(" ", $phrase);
-                        }
-                    } else {
-                        break;
-                    }
-                }
-            }
-
+        $phraseCounts = [];
+        for ($k = 1; $k <= $maxPhraseLength; $k++) {
+            $phraseCounts[$k] = [];
         }
 
-//        for ($i = 0; $i < sizeof($allWords); $i++) {
-//            $word = strtolower($allWords[$i]);
-//            $phrase = [];
-//            if (!in_array($word, $stopwords)) {
-//                $phrase[] = $word;
-//                $phrases[] = implode(" ", $phrase);
-//                for ($j = 1; $j < $maxPhraseLength; $j++) {
-//                    $nextWord = isset($allWords[$i + $j]) ? strtolower($allWords[$i + $j]) : null;
-//                    if ($nextWord) {
-//                        $phrase[] = $nextWord;
-//                        $phrases[] = implode(" ", $phrase);
-//                    } else {
-//                        break;
-//                    }
-//                }
-//            }
-//        }
+        $numWords = sizeof($allWords);
+        for ($i = 0; $i < $numWords; $i++) {
+            $phrase = "";
+            for ($j = 0; $j < $maxPhraseLength && ($i + $j < $numWords); $j++) {
+                $nextWord = $allWords[$i + $j];
+                if ($nextSafeWord = $this->isSafeWord($nextWord, $stopWords, $j)) {
+                    $phrase .= ($j == 0) ? $nextSafeWord : " $nextSafeWord";
+                    $phraseCounts[$j + 1][$phrase] = 1 + ($phraseCounts[$j + 1][$phrase] ?? 0);
+                } else if ($j == 0){
+                    break;
+                }
+            }
+        }
 
         $finalPhrases = [];
-        $phraseCounts = array_count_values($phrases);
-        foreach ($phraseCounts as $phrase => $count) {
-            if (sizeof(explode(" ", $phrase)) >= $minPhraseLength) {
-                $finalPhrases[] = new Phrase($phrase, $count, sizeof($this->getWords($phrase)));
+        for ($l = $minPhraseLength; $l <= $maxPhraseLength; $l++) {
+            foreach ($phraseCounts[$l] as $phrase => $count) {
+                $finalPhrases[] = new Phrase($phrase, $count, $l);
             }
         }
 

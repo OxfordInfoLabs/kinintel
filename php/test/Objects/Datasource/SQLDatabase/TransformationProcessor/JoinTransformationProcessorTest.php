@@ -8,10 +8,12 @@ use Kinikit\Core\Asynchronous\AsynchronousClassMethod;
 use Kinikit\Core\Asynchronous\Processor\AsynchronousProcessor;
 use Kinikit\Core\Asynchronous\Processor\SynchronousProcessor;
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Reflection\ClassInspector;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\Validator;
+use Kinikit\Persistence\Database\Generator\TableDDLGenerator;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Controllers\Internal\ProcessedDataset;
 use Kinintel\Exception\DatasourceTransformationException;
@@ -110,8 +112,13 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $joinDatasource->returnValue("getAuthenticationCredentials", $this->authCredentials);
 
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService);
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(
+            new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials,
+            new DatasourceUpdateConfig(),
+            $this->validator,
+            Container::instance()->get(TableDDLGenerator::class)
+        );
 
 
         $transformedDatasource = $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
@@ -293,8 +300,12 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $differentCreds = MockObjectProvider::instance()->getMockInstance(AuthenticationCredentials::class);
         $joinDatasource->returnValue("getAuthenticationCredentials", $differentCreds);
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
-            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator, $this->dataSourceService, $this->dataSetService);
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(
+            new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials,
+            new DatasourceUpdateConfig(),
+            $this->validator,
+        );
 
         try {
             $this->processor->applyTransformation($transformation, $sqlDatabaseDatasource, []);
@@ -609,7 +620,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $outputAsync2 = [$outputAsynchronous3];
 
 
-        // Programme aysynchronous processor
+        // Programme asynchronous processor
         $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync1, [$inputAsync1]);
         $this->asynchronousProcessor->returnValue("executeAndWait", $outputAsync2, [$inputAsync2]);
 
@@ -647,6 +658,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             ]
         ]), [[]]);
 
+        $this->processor = new JoinTransformationProcessor($this->dataSourceService,$this->dataSetService,MockObjectProvider::instance()->getMockInstance(SynchronousProcessor::class),$this->asynchronousProcessor);
 
         $this->processor->applyTransformation($transformation, $mainDatasource, []);
 

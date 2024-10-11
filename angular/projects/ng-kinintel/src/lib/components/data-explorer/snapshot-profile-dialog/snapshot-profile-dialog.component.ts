@@ -6,6 +6,7 @@ import {MatLegacySelect as MatSelect} from '@angular/material/legacy-select';
 import { MatLegacyOption as MatOption } from '@angular/material/legacy-core';
 import {TaskTimePeriodsComponent} from '../../task-time-periods/task-time-periods.component';
 import {NgForm, NgModel} from '@angular/forms';
+import {DataProcessorService} from '../../../services/data-processor.service';
 const _ = lodash.default;
 
 @Component({
@@ -44,36 +45,55 @@ export class SnapshotProfileDialogComponent implements OnInit {
         }
     ];
     public allSelected = false;
+    public parameters: any = [];
 
     private datasetInstanceId;
 
     constructor(public dialogRef: MatDialogRef<SnapshotProfileDialogComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
-                private datasetService: DatasetService) {
+                private datasetService: DatasetService,
+                private dataProcessorService: DataProcessorService) {
     }
 
     async ngOnInit() {
         this.columns = this.data.columns || [];
 
         this.snapshot = this.data.snapshot || {
-            processorType: 'tabulardatasetsnapshot',
+            type: 'tabulardatasetsnapshot',
             taskTimePeriods: [],
             trigger: 'scheduled',
-            processorConfig: {
+            config: {
                 keyFieldNames: [],
                 timeLapsedFields: [],
                 createHistory: true,
                 createLatest: true,
-                indexes: [{fieldNames: []}]
-            },
-
+                indexes: [],
+                parameterValues: {}
+            }
         };
 
-        if (!this.snapshot.processorConfig.indexes || !this.snapshot.processorConfig.indexes.length) {
-            this.snapshot.processorConfig.indexes = [{fieldNames: []}];
+        if (!this.snapshot.config.indexes) {
+            this.snapshot.config.indexes = [];
+        }
+
+        if (!this.snapshot.config.parameterValues || Array.isArray(this.snapshot.config.parameterValues)) {
+            this.snapshot.config.parameterValues = {};
         }
 
         this.datasetInstanceId = this.data.datasetInstanceId || null;
+
+        this.snapshot.relatedObjectType = 'DatasetInstance';
+        this.snapshot.relatedObjectPrimaryKey = this.datasetInstanceId;
+
+        if (this.data.datasetInstance) {
+            this.parameters = await this.datasetService.getEvaluatedParameters(this.data.datasetInstance);
+            _.forEach(this.parameters, parameter => {
+                if (parameter.type === 'list') {
+                    this.loadListParameters(parameter);
+                }
+                this.snapshot.config.parameterValues[parameter.name] = (this.snapshot.config.parameterValues[parameter.name] || parameter.defaultValue) || '';
+            });
+        }
 
         if (!this.columns.length && this.datasetInstanceId) {
             const dataset = await this.datasetService.getDataset(this.datasetInstanceId);
@@ -82,10 +102,22 @@ export class SnapshotProfileDialogComponent implements OnInit {
         }
     }
 
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
+        }
+    }
+
     public removeIndex(index: number) {
         const message = 'Are you sure you would like to remove this Index?';
         if (window.confirm(message)) {
-            this.snapshot.processorConfig.indexes.splice(index, 1);
+            this.snapshot.config.indexes.splice(index, 1);
         }
     }
 
@@ -115,14 +147,14 @@ export class SnapshotProfileDialogComponent implements OnInit {
 
     public updateCreateHistory(value) {
         if (value) {
-            this.snapshot.processorConfig.createLatest = true;
+            this.snapshot.config.createLatest = true;
         }
     }
 
     public removeTimeLapsedField(index) {
         const message = 'Are you sure you would like to remove this snapshot profile?';
         if (window.confirm(message)) {
-            this.snapshot.processorConfig.timeLapsedFields.splice(index, 1);
+            this.snapshot.config.timeLapsedFields.splice(index, 1);
         }
     }
 
@@ -140,7 +172,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
             delete cloned.customDayOffsets;
         }
 
-        this.snapshot.processorConfig.timeLapsedFields.push(cloned);
+        this.snapshot.config.timeLapsedFields.push(cloned);
     }
 
     public async saveSnapshot() {
@@ -154,10 +186,11 @@ export class SnapshotProfileDialogComponent implements OnInit {
 
         setTimeout(async () => {
             if (this.selectModel.valid) {
-                await this.datasetService.saveSnapshotProfile(this.snapshot, this.datasetInstanceId);
+                await this.dataProcessorService.saveProcessor(this.snapshot);
                 this.dialogRef.close(true);
             }
         }, 0);
     }
 
+    protected readonly Object = Object;
 }

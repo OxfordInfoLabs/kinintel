@@ -5,7 +5,6 @@ namespace Kinintel\Services\Util;
 use Exception;
 use Google\Client;
 use Google\Service\Drive;
-use GuzzleHttp\Psr7\Response;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Logging\Logger;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
@@ -20,7 +19,7 @@ class GoogleDriveService {
     private function initiateCredentialsFromConfig(){
         $credentialsKey = Configuration::readParameter("google.drive.credentials.key");
         if (!$credentialsKey) {
-            Logger::log("No credentials found for Google Drive");
+            Logger::log("No credentials found for Google Drive", 5);
         } else {
             /**
              * @var GoogleCloudCredentials $credentials

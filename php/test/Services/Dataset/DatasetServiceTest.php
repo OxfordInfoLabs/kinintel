@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\Dataset;
 
+use Google\Service\Analytics\Resource\Data;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Account\Project;
 use Kiniauth\Objects\MetaData\Category;
@@ -10,11 +11,12 @@ use Kiniauth\Objects\MetaData\ObjectCategory;
 use Kiniauth\Objects\MetaData\ObjectTag;
 use Kiniauth\Objects\MetaData\Tag;
 use Kiniauth\Objects\MetaData\TagSummary;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTask;
-use Kiniauth\Objects\Workflow\Task\Scheduled\ScheduledTaskTimePeriod;
+use Kiniauth\Objects\Security\ObjectScopeAccess;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Exception\ItemNotFoundException;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Core\Serialisation\JSON\ObjectToJSONConverter;
 use Kinikit\Core\Testing\MockObject;
@@ -25,6 +27,8 @@ use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Controllers\Account\DataProcessor;
+use Kinintel\Controllers\Admin\Dataset;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
@@ -33,18 +37,28 @@ use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\TestDatasource;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Test\Services\Dataset\Exporter\TestExporterConfig;
 use Kinintel\TestBase;
+use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 
 include_once "autoloader.php";
 
@@ -70,7 +84,7 @@ class DatasetServiceTest extends TestBase {
 
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
         $this->metaDataService = MockObjectProvider::instance()->getMockInstance(MetaDataService::class);
-        $this->datasetService = new DatasetService($this->datasourceService, $this->metaDataService);
+        $this->datasetService = new DatasetService($this->datasourceService, $this->metaDataService, Container::instance()->get(ActiveRecordInterceptor::class));
 
     }
 
@@ -364,342 +378,81 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testCanCreateListUpdateAndRemoveSnapshotProfiles() {
+    public function testCanGetFilteredDatasetInstancesSharedWithAccount() {
 
         // Log in as a person with projects and tags
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
-        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
+        $accountDataSet = new DatasetInstanceSummary("Shared Dataset 1", "test-json");
+        $datasetId = $this->datasetService->saveDataSetInstance($accountDataSet, null, 1);
+        (new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 2, "SHAREDDS1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $datasetId))->save();
+        (new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "SHAREDDS2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $datasetId))->save();
 
-        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ]);
+        $accountDataSet = new DatasetInstanceSummary("Shared Dataset 2", "test-json");
+        $datasetId2 = $this->datasetService->saveDataSetInstance($accountDataSet, null, 1);
+        (new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "SHAREDDS3", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $datasetId2))->save();
 
-        $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
-        $this->assertNotNull($profileId);
+        // Grab datasets
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 2);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 10, 3);
+        $this->assertEquals([new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1", null, null, [], null, null, "Sam Davis Design"),
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
-        /**
-         * @var DatasetInstanceSnapshotProfile $snapshotProfile
-         */
-        $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($profileId);
-        $this->assertEquals("Daily Snapshot", $snapshotProfile->getTitle());
-        $this->assertEquals($instanceId, $snapshotProfile->getDatasetInstanceId());
-
-        $this->assertNotNull($snapshotProfile->getScheduledTask());
-        $this->assertEquals(1, sizeof($snapshotProfile->getScheduledTask()->getTimePeriods()));
-
-
-        $this->assertNotNull($snapshotProfile->getDataProcessorInstance());
-        $processorInstance = $snapshotProfile->getDataProcessorInstance();
-        $this->assertEquals("Daily Snapshot", $processorInstance->getTitle());
-
-        // Check we can list correctly
-        $profiles = $this->datasetService->listSnapshotProfilesForDataSetInstance($instanceId);
-        $this->assertEquals(1, sizeof($profiles));
-        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profileId)->returnSummary(), $profiles[0]);
-
-
-        // Create a couple more
-        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Older Daily Snapshot", "tabulardatasourceimport", [
-            "sourceDatasourceKey" => "source",
-            "targetDatasources" => [
-                [
-                    "key" => "target"
-                ]
-            ]
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ]);
-
-        $profile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
-
-        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Another Daily Snapshot", "tabulardatasourceimport", [
-            "sourceDatasourceKey" => "source",
-            "targetDatasources" => [
-                [
-                    "key" => "target"
-                ]
-            ]
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ]);
-
-        $profile3Id = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
-
-        // Check we can list correctly
-        $profiles = $this->datasetService->listSnapshotProfilesForDataSetInstance($instanceId);
-        $this->assertEquals(3, sizeof($profiles));
-        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profile3Id)->returnSummary(), $profiles[0]);
-        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profileId)->returnSummary(), $profiles[1]);
-        $this->assertEquals(DatasetInstanceSnapshotProfile::fetch($profile2Id)->returnSummary(), $profiles[2]);
-
-
-        // Update a profile
-        $updateProfile = $profiles[1];
-        $updateProfile->setTitle("Updated title");
-        $updateProfile->setTaskTimePeriods([
-            new ScheduledTaskTimePeriod(null, 3, 15, 22)
-        ]);
-        $updateProfile->setProcessorConfig([
-            "sourceDatasourceKey" => "source",
-            "targetDatasources" => [
-                [
-                    "key" => "target"
-                ]
-            ]
-        ]);
-
-        $this->datasetService->saveSnapshotProfile($updateProfile, $instanceId);
-
-        $updated = DatasetInstanceSnapshotProfile::fetch($updateProfile->getId());
-
-        $this->assertEquals("Updated title", $updated->getTitle());
-        $this->assertEquals(1, sizeof($updated->getScheduledTask()->getTimePeriods()));
-        $this->assertEquals(new ScheduledTaskTimePeriod(null, 3, 15, 22, $updated->getScheduledTask()->getTimePeriods()[0]->getId()),
-            $updated->getScheduledTask()->getTimePeriods()[0]);
+        // Filtered on title
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("2", 0, 10, 3);
         $this->assertEquals([
-            "sourceDatasourceKey" => "source",
-            "targetDatasources" => [
-                [
-                    "key" => "target"
-                ]
-            ],
-            "datasetInstanceId" => $instanceId,
-            "snapshotIdentifier" => $updated->getDataProcessorInstance()->getKey()
-        ], $updated->getDataProcessorInstance()->getConfig());
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
+        // Offset
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 1, 10, 3);
+        $this->assertEquals([
+            new DatasetInstanceSearchResult($datasetId2, "Shared Dataset 2", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
-        // Remove a snapshot profile
-        $this->datasetService->removeSnapshotProfile($instanceId, $profileId);
-
-        try {
-            DatasetInstanceSnapshotProfile::fetch($profileId);
-            $this->fail("Should have thrown here");
-        } catch (ObjectNotFoundException $e) {
-
-        }
+        // Limit
+        $datasets = $this->datasetService->filterDatasetInstancesSharedWithAccount("", 0, 1, 3);
+        $this->assertEquals([
+            new DatasetInstanceSearchResult($datasetId, "Shared Dataset 1", null, null, [], null, null, "Sam Davis Design")], $datasets);
 
     }
 
 
-    public function testTriggerCanControlScheduledTasks() {
+    public function testCanGetDatasetInstanceByManagementKey() {
 
         // Log in as a person with projects and tags
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
-        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
+        $dataSetInstanceSummary1 = new DatasetInstanceSummary("Test dataset 1", "test-json");
+        $dataSetInstanceSummary1->setManagementKey("bingo");
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary1, null, 1);
+        $dataSetInstanceSummary1 = $this->datasetService->getDataSetInstance($id);
+        $fullDatasetInstance1 = $this->datasetService->getFullDataSetInstance($id);
 
-        $snapshotProfileSummary = new DatasetInstanceSnapshotProfileSummary("Summary Adhoc", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC);
-
-        $now = (new \DateTime())->format("Y-m-d H:i:s");
-        $id = $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $instanceId);
-        $snapshotProfileSummary->setId($id);
-
-        /**
-         * @var DatasetInstanceSnapshotProfile $snapshotProfile
-         */
-        $snapshotProfile = DatasetInstanceSnapshotProfile::fetch($id);
+        $dataSetInstanceSummary2 = new DatasetInstanceSummary("Test dataset 2", "test-json");
+        $dataSetInstanceSummary2->setManagementKey("bongo");
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary2, null, 1);
+        $dataSetInstanceSummary2 = $this->datasetService->getDataSetInstance($id);
+        $fullDatasetInstance2 = $this->datasetService->getFullDataSetInstance($id);
 
 
-        $this->assertEquals(DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC, $snapshotProfile->getTrigger());
+        $dataSetInstanceSummary3 = new DatasetInstanceSummary("Test dataset 3", "test-json");
+        $dataSetInstanceSummary3->setManagementKey("bingo");
+        $id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary3, null, 2);
+        $dataSetInstanceSummary3 = $this->datasetService->getDataSetInstance($id);
+        $fullDatasetInstance3 = $this->datasetService->getFullDataSetInstance($id);
 
 
-        $this->assertEquals(DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC, $snapshotProfile->getTrigger());
-        $this->assertEquals([], $snapshotProfile->getScheduledTask()->getTimePeriods());
+        $this->assertEquals($dataSetInstanceSummary1, $this->datasetService->getDatasetInstanceByManagementKey("bingo", 1));
+        $this->assertEquals($dataSetInstanceSummary2, $this->datasetService->getDatasetInstanceByManagementKey("bongo", 1));
+        $this->assertEquals($dataSetInstanceSummary3, $this->datasetService->getDatasetInstanceByManagementKey("bingo", 2));
 
 
-        // Check we can change snapshot to scheduled
-        $snapshotProfileSummary->setTrigger(DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE);
-        $snapshotProfileSummary->setTaskTimePeriods([new ScheduledTaskTimePeriod(null, 5, 20, 33)]);
-        $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $instanceId);
+        $this->assertEquals($fullDatasetInstance1, $this->datasetService->getFullDataSetInstanceByManagementKey("bingo", 1));
+        $this->assertEquals($fullDatasetInstance2, $this->datasetService->getFullDataSetInstanceByManagementKey("bongo", 1));
+        $this->assertEquals($fullDatasetInstance3, $this->datasetService->getFullDataSetInstanceByManagementKey("bingo", 2));
 
 
-        /**
-         * @var DatasetInstanceSnapshotProfile $snapshotProfile
-         */
-        $scheduledSnapshotProfile = DatasetInstanceSnapshotProfile::fetch($id);
-        /**
-         * @var ScheduledTask $task
-         */
-        $task = $scheduledSnapshotProfile->getScheduledTask();
-        $this->assertEquals("dataprocessor", $task->getTaskIdentifier());
-        $this->assertEquals(DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, $scheduledSnapshotProfile->getTrigger());
-        $this->assertEquals(new ScheduledTaskTimePeriod(null, 5, 20, 33, $scheduledSnapshotProfile->getScheduledTask()->getTimePeriods()[0]->getId()),
-            $scheduledSnapshotProfile->getScheduledTask()->getTimePeriods()[0]);
-
-
-        // Alter this scheduled snapshot
-        $snapshotProfileSummary->setTitle("New Title");
-        $snapshotProfileSummary->setTaskTimePeriods([new ScheduledTaskTimePeriod(3, null, 4, 1)]);
-        $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $instanceId);
-
-        /**
-         * @var DatasetInstanceSnapshotProfile $snapshotProfile
-         */
-        $newScheduledSnapshotProfile = DatasetInstanceSnapshotProfile::fetch($id);
-
-        $this->assertEquals(DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, $newScheduledSnapshotProfile->getTrigger());
-        $this->assertEquals(new ScheduledTaskTimePeriod(3, null, 4, 1, $newScheduledSnapshotProfile->getScheduledTask()->getTimePeriods()[0]->getId()),
-            $newScheduledSnapshotProfile->getScheduledTask()->getTimePeriods()[0]);
-
-        // Check we can revert to adhoc
-        $snapshotProfileSummary->setTrigger(DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC);
-        $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $instanceId);
-
-        /**
-         * @var DatasetInstanceSnapshotProfile $snapshotProfile
-         */
-        $adhocSnapshotProfile = DatasetInstanceSnapshotProfile::fetch($id);
-
-        $this->assertEquals(DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC, $adhocSnapshotProfile->getTrigger());
-        $this->assertEquals([], $adhocSnapshotProfile->getScheduledTask()->getTimePeriods());
-    }
-
-
-    public function testCanGetFilteredDatasetSnapshotProfiles() {
-
-        // Log in as a person with projects and tags
-        AuthenticationHelper::login("admin@kinicart.com", "password");
-
-
-        $this->metaDataService->returnValue("getObjectTagsFromSummaries", [
-            new ObjectTag(new Tag(new TagSummary("Project", "My Project", "project"), 2, "soapSuds")),
-            new ObjectTag(new Tag(new TagSummary("Account2", "My Account", "account2"), 2, "soapSuds"))
-        ], [
-            [
-                new TagSummary("Project", "My Project", "project"),
-                new TagSummary("Account2", "My Account", "account2")
-            ], 2, "soapSuds"
-        ]);
-
-
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
-        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 2);
-
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Another dataset", "test-json", null, [], [], []);
-        $instance2Id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, "soapSuds", 2);
-
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Yet Another dataset", "test-json", null, [], [], []);
-        $dataSetInstanceSummary->setTags(
-            [new TagSummary("Project", "My Project", "project"),
-                new TagSummary("Account2", "My Account", "account2")]
-        );
-        $instance3Id = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, "soapSuds", 2);
-
-
-        $snapshotProfile1 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(null, null, 0, 0)
-        ]);
-
-        $snapshotProfile1Id = $this->datasetService->saveSnapshotProfile($snapshotProfile1, $instanceId);
-
-
-        $snapshotProfile2 = new DatasetInstanceSnapshotProfileSummary("Weekly Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(null, 1, 0, 0)
-        ]);
-
-
-        $snapshotProfile2Id = $this->datasetService->saveSnapshotProfile($snapshotProfile2, $instanceId);
-
-
-        $snapshotProfile3 = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(null, null, 0, 0)
-        ]);
-
-        $snapshotProfile3Id = $this->datasetService->saveSnapshotProfile($snapshotProfile3, $instance2Id);
-
-
-        $snapshotProfile4 = new DatasetInstanceSnapshotProfileSummary("Weekly Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(null, 1, 0, 0)
-        ]);
-
-
-        $snapshotProfile4Id = $this->datasetService->saveSnapshotProfile($snapshotProfile4, $instance2Id);
-
-
-        $snapshotProfile5 = new DatasetInstanceSnapshotProfileSummary("Tagged Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(null, 1, 0, 0)
-        ]);
-
-
-        $snapshotProfile5Id = $this->datasetService->saveSnapshotProfile($snapshotProfile5, $instance3Id);
-
-
-        $snapshotProfile1 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile1Id);
-        $snapshotProfile2 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile2Id);
-        $snapshotProfile3 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile3Id);
-        $snapshotProfile4 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile4Id);
-        $snapshotProfile5 = DatasetInstanceSnapshotProfile::fetch($snapshotProfile5Id);
-
-
-        // Now check we get back what we are expecting in alphabetical order for an account only query
-        $matches = $this->datasetService->filterSnapshotProfiles("", [], null, 0, 10, 2);
-        $this->assertEquals(5, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[2]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile2), $matches[3]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[4]);
-
-
-        // Limit to project
-        $matches = $this->datasetService->filterSnapshotProfiles("", [], "soapSuds", 0, 10, 2);
-        $this->assertEquals(3, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[2]);
-
-
-        // Limit to project and tags
-        $matches = $this->datasetService->filterSnapshotProfiles("", ["project"], "soapSuds", 0, 10, 2);
-        $this->assertEquals(1, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[0]);
-
-        // Check special NONE tag
-        $matches = $this->datasetService->filterSnapshotProfiles("", ["NONE"], null, 0, 10, 2);
-        $this->assertEquals(4, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[2]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile2), $matches[3]);
-
-
-        // Limit to filter string
-        $matches = $this->datasetService->filterSnapshotProfiles("another", [], null, 0, 10, 2);
-        $this->assertEquals(3, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile5), $matches[2]);
-
-        $matches = $this->datasetService->filterSnapshotProfiles("daily", [], null, 0, 10, 2);
-        $this->assertEquals(2, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[1]);
-
-
-        // Offset and limit
-        $matches = $this->datasetService->filterSnapshotProfiles("", [], null, 0, 3, 2);
-        $this->assertEquals(3, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile3), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[1]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[2]);
-
-
-        $matches = $this->datasetService->filterSnapshotProfiles("", [], null, 1, 3, 2);
-        $this->assertEquals(3, sizeof($matches));
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile4), $matches[0]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile1), $matches[1]);
-        $this->assertEquals(new DatasetInstanceSnapshotProfileSearchResult($snapshotProfile2), $matches[2]);
     }
 
 
@@ -919,58 +672,6 @@ class DatasetServiceTest extends TestBase {
     }
 
 
-    public function testSavingDatasetPreservesExistingSnapshots() {
-
-        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
-
-        $dataSetInstance = new DatasetInstanceSummary("New Dataset For Snapshot", "test-json", null, [
-            new TransformationInstance("filter", new FilterTransformation([
-                new Filter("property", "foobar")
-            ])),
-        ], [new Parameter("customParam", "Custom Parameter"),
-            new Parameter("customOtherParam", "Custom Other Param", Parameter::TYPE_NUMERIC)], [
-            "param1" => "Test",
-            "param2" => 44,
-            "param3" => true
-        ]);
-
-        $instanceId = $this->datasetService->saveDataSetInstance($dataSetInstance, 5, 1);
-
-
-        // Create and save a snapshot for the new instance.
-        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ]);
-
-
-        $profileId = $this->datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
-
-
-        /**
-         * Sanity check profile saved
-         *
-         * @var DatasetInstance $reInstance
-         */
-        $reInstance = DatasetInstance::fetch($instanceId);
-        $this->assertEquals(1, sizeof($reInstance->getSnapshotProfiles()));
-        $this->assertEquals($profileId, $reInstance->getSnapshotProfiles()[0]->getId());
-
-
-        // Now resave the dataset
-        $reSummary = DatasetInstance::fetch($instanceId)->returnSummary();
-        $this->datasetService->saveDataSetInstance($reSummary, null, 1);
-
-        /**
-         * @var DatasetInstance $reInstance
-         */
-        $reInstance = DatasetInstance::fetch($instanceId);
-        $this->assertEquals(1, sizeof($reInstance->getSnapshotProfiles()));
-        $this->assertEquals($profileId, $reInstance->getSnapshotProfiles()[0]->getId());
-
-    }
-
-
     public function testCanUpdateMetaDataForADatasetInstance() {
 
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
@@ -1084,124 +785,6 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals($this->datasetService->getDataSetInstance($account2Id), $this->datasetService->getDataSetInstanceByTitle("Account Dataset 2", null, 2));
         $this->assertEquals($this->datasetService->getDataSetInstance($project1Id), $this->datasetService->getDataSetInstanceByTitle("Project Dataset 1", "soapSuds", 2));
         $this->assertEquals($this->datasetService->getDataSetInstance($project2Id), $this->datasetService->getDataSetInstanceByTitle("Project Dataset 2", "wiperBlades", 2));
-
-
-    }
-
-    public function testCanTriggerSnapshotOnDemand() {
-
-        // Log in as a person with projects and tags
-        AuthenticationHelper::login("admin@kinicart.com", "password");
-
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
-        $datasetInstanceId = $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
-
-        $snapshotProfileSummary = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_ADHOC);
-
-        $snapshotProfileId = $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId);
-
-        /**
-         * @var DatasetInstanceSnapshotProfile $reSnapshot
-         */
-        $reSnapshot = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
-        $this->assertNull($reSnapshot->getScheduledTask()->getNextStartTime());
-
-        // Set scheduled task to completed so we see the status change at the end
-        $reSnapshot->getScheduledTask()->setStatus(ScheduledTask::STATUS_COMPLETED);
-        $reSnapshot->getScheduledTask()->save();
-
-        $this->datasetService->triggerSnapshot($datasetInstanceId, $snapshotProfileId);
-
-        /**
-         * @var DatasetInstanceSnapshotProfile $triggeredProfile
-         */
-        $triggeredProfile = DatasetInstanceSnapshotProfile::fetch($snapshotProfileId);
-
-        $nextStartTime = $triggeredProfile->getScheduledTask()->getNextStartTime();
-        $this->assertTrue(date("U") - $nextStartTime->format("U") >= 0);
-        $this->assertEquals(ScheduledTask::STATUS_PENDING, $triggeredProfile->getScheduledTask()->getStatus());
-
-
-    }
-
-    public function testDeletingASnapshotProfileAlsoRemovesAllGeneratedDatasources() {
-
-        // Log in as a person with projects and tags
-        AuthenticationHelper::login("admin@kinicart.com", "password");
-
-        /**
-         * @var DatasetService $datasetService
-         */
-        $datasetService = Container::instance()->get(DatasetService::class);
-
-        $dataSetInstanceSummary = new DatasetInstanceSummary("Test dataset", "test-json", null, [], [], []);
-        $instanceId = $datasetService->saveDataSetInstance($dataSetInstanceSummary, null, 1);
-
-        $snapshotProfile = new DatasetInstanceSnapshotProfileSummary("Daily Snapshot", "tabulardatasetsnapshot", [
-            "createHistory" => true,
-            "createLatest" => true
-        ], DatasetInstanceSnapshotProfileSummary::TRIGGER_SCHEDULE, [
-            new ScheduledTaskTimePeriod(1, null, 0, 0)
-        ]);
-
-        $profileId = $datasetService->saveSnapshotProfile($snapshotProfile, $instanceId);
-        $this->assertNotNull($profileId);
-
-        /**
-         * @var DatasetInstanceSnapshotProfile $reSnapshot
-         */
-        $reSnapshot = DatasetInstanceSnapshotProfile::fetch($profileId);
-
-        /**
-         * @var TabularDatasetSnapshotProcessorConfiguration $snapshotConfig
-         */
-        $snapshotConfig = $reSnapshot->getDataProcessorInstance()->returnConfig();
-        $identifier = $snapshotConfig->getSnapshotIdentifier();
-
-        // Remove a snapshot profile
-        $datasetService->removeSnapshotProfile($instanceId, $profileId);
-
-        // Check that all assets cleared up
-        try {
-            DatasetInstanceSnapshotProfile::fetch($profileId);
-            $this->fail("Should not exist");
-        } catch (ObjectNotFoundException $e) {
-        }
-
-        // Check scheduled task removed
-        try {
-            ScheduledTask::fetch($reSnapshot->getScheduledTask()->getId());
-            $this->fail("Should not exist");
-        } catch (ObjectNotFoundException $e) {
-        }
-
-        // Check data processor removed
-        try {
-            DataProcessorInstance::fetch($reSnapshot->getDataProcessorInstance()->getKey());
-            $this->fail("Should not exist");
-        } catch (ObjectNotFoundException $e) {
-        }
-
-
-        try {
-            DatasourceInstance::fetch($identifier);
-            $this->fail("Should have gone");
-        } catch (ObjectNotFoundException $e){
-        }
-
-        try {
-            DatasourceInstance::fetch($identifier."_latest");
-            $this->fail("Should have gone");
-        } catch (ObjectNotFoundException $e){
-        }
-
-        try {
-            DatasourceInstance::fetch($identifier."_pending");
-            $this->fail("Should have gone");
-        } catch (ObjectNotFoundException $e){
-        }
-
 
 
     }
@@ -1355,5 +938,405 @@ class DatasetServiceTest extends TestBase {
 
 
     }
+
+
+    public function testCanCheckWhetherManagementKeyIsAvailableForDatasetInstance() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        // Create one from scratch - should be fine
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $datasetInstance->setAccountId(1);
+        $datasetInstance->setManagementKey("existing-key");
+        $datasetInstance->save();
+
+
+        // Now check for account duplicate
+        $newInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $newInstance->setAccountId(1);
+        $this->assertFalse($this->datasetService->managementKeyAvailableForDatasetInstance($newInstance, "existing-key"));
+
+        // Now create a project one from scratch
+        $datasourceInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $datasourceInstance->setAccountId(1);
+        $datasourceInstance->setProjectKey("project1");
+        $datasourceInstance->setManagementKey("project-key");
+        $datasourceInstance->save();
+
+        // Now create an overlapping one
+        $newInstance = new DatasetInstance(new DatasetInstanceSummary("Test", "test-json"));
+        $newInstance->setAccountId(1);
+        $newInstance->setProjectKey("project1");
+        $this->assertFalse($this->datasetService->managementKeyAvailableForDatasetInstance($newInstance, "project-key"));
+
+
+    }
+
+
+    public function testInterceptorCorrectlyInterceptsCrossAccountAccessAndWhitelistsWhereAppropriate() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("Test1", "test"));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+
+        // Non shared data set other account
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Test2", "test"));
+        $dataset2->setAccountId(2);
+        $dataset2->save();
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Test3", "test"));
+        $dataset3->setAccountId(3);
+        $dataset3->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+        // Implicit access to dataset in same account as shared dataset
+        $dataset4 = new DatasetInstance(new DatasetInstanceSummary("Test4", null, $dataset2->getId()));
+        $dataset4->setAccountId(2);
+        $dataset4->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset4->getId());
+        $objectScopeAccess->save();
+
+        // Shared with other account for transitive testing
+        $dataset5 = new DatasetInstance(new DatasetInstanceSummary("Test5", "test"));
+        $dataset5->setAccountId(4);
+        $dataset5->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 3, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset5->getId());
+        $objectScopeAccess->save();
+
+        // Shared with main account for transitive testing
+        $dataset6 = new DatasetInstance(new DatasetInstanceSummary("Test5", null, $dataset5->getId()));
+        $dataset6->setAccountId(3);
+        $dataset6->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST2", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset6->getId());
+        $objectScopeAccess->save();
+
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        // Check can return dataset 1
+        $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset1->getId());
+        $this->assertEquals(10, sizeof($result->getAllData()));
+
+
+        // Check can't return dataset 2
+        try {
+            $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset2->getId());
+            $this->fail("Should have thrown here");
+        } catch (ItemNotFoundException $e) {
+        }
+
+
+        // Check can return dataset 3 as shared
+        $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset3->getId());
+        $this->assertEquals(10, sizeof($result->getAllData()));
+
+
+        // Check can return dataset 4 as shared
+        $result = $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset4->getId());
+        $this->assertEquals(10, sizeof($result->getAllData()));
+
+
+        // Transitive example should fail
+        try {
+            $datasetService->getEvaluatedDataSetForDataSetInstanceById($dataset6->getId());
+            $this->fail("Should have thrown here");
+        } catch (ItemNotFoundException $e) {
+        }
+    }
+
+
+    public function testInterceptorCorrectlyInterceptsJoinedDatasetsForDirectlySharedDatasetsAndWhitelistsAccess() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("My Dataset", "test"));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+
+        // Non shared data set other account
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset Parent", "test"));
+        $dataset2->setAccountId(2);
+        $dataset2->save();
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset", null, $dataset2->getId()));
+        $dataset3->setAccountId(2);
+        $dataset3->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $queryInstance = new DatasetInstance(new DatasetInstanceSummary("Test Query", null, $dataset1->getId(), [
+            new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId(), [],
+                new FilterJunction([new Filter("[[value]]", "[[value]]", Filter::FILTER_TYPE_EQUALS)])
+            ))
+        ]));
+
+        $evaluated = $datasetService->getEvaluatedDataSetForDataSetInstance($queryInstance);
+
+        // Check data as expected
+        $this->assertEquals(2, sizeof($evaluated->getColumns()));
+        $this->assertEquals(10, sizeof($evaluated->getAllData()));
+
+        $this->assertEquals(["value" => "Value 1", "value_2" => "Value 1"], $evaluated->getAllData()[0]);
+
+    }
+
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testExceptionRaisedIfAttemptToJoinDataWithTransitiveDependency() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("My Dataset", "test"));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+
+        // Data set shared with account 2
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Transitive Shared Dataset", "test"));
+        $dataset2->setAccountId(3);
+        $dataset2->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 2, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset2->getId());
+        $objectScopeAccess->save();
+
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset", null, $dataset2->getId()));
+        $dataset3->setAccountId(2);
+        $dataset3->save();
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $queryInstance = new DatasetInstance(new DatasetInstanceSummary("Test Query", null, $dataset1->getId(), [
+            new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId(), [],
+                new FilterJunction([new Filter("[[value]]", "[[value]]", Filter::FILTER_TYPE_EQUALS)])
+            ))
+        ]));
+
+        try {
+            $datasetService->getEvaluatedDataSetForDataSetInstance($queryInstance);
+            $this->fail("Should have thrown here");
+        } catch (ItemNotFoundException $e) {
+        }
+
+    }
+
+    public function testCanGetDatasetTreeForSimpleTerminatingDatasetInstance() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey",
+            new DatasourceInstance("test", "Test", "test"), ["test"]);
+
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Simple Dataset", "test", null, [], [], [], "Simple Dataset Summary"), 1);
+        $datasetInstance->save();
+        $datasetInstance = $this->datasetService->getFullDataSetInstance($datasetInstance->getId());
+
+        $treeById = $this->datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $treeByInstance = $this->datasetService->getDatasetTree($datasetInstance);
+        $this->assertEquals($treeById, $treeByInstance);
+        $this->assertEquals(new DatasetTree(new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Simple Dataset", "Simple Dataset Summary", "Sam Davis Design", null)),
+            $treeByInstance);
+    }
+
+
+    public function testCanGetDatasetTreeWithParentTreesIntact() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey",
+            new DatasourceInstance("test", "Test", "test"), ["test"]);
+
+        $grandparentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Grandparent Dataset", "test", null, [], [], [], "Grandparent Dataset Summary"), 1);
+        $grandparentDatasetInstance->save();
+        $grandparentItem = new DataSearchItem("datasetinstance", $grandparentDatasetInstance->getId(), "Grandparent Dataset", "Grandparent Dataset Summary", "Sam Davis Design");
+
+        $parentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Parent Dataset", null, $grandparentDatasetInstance->getId(), [], [], [], "Parent Dataset Summary"), 1);
+        $parentDatasetInstance->save();
+        $parentItem = new DataSearchItem("datasetinstance", $parentDatasetInstance->getId(), "Parent Dataset", "Parent Dataset Summary", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Child Dataset", null, $parentDatasetInstance->getId(), [], [], [], "Child Dataset Summary"), 1);
+        $datasetInstance->save();
+        $item = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Child Dataset", "Child Dataset Summary", "Sam Davis Design");
+
+        $tree = $this->datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($item, new DatasetTree($parentItem, new DatasetTree($grandparentItem))), $tree);
+
+
+    }
+
+    public function testCanGetDatasetTreeWithJoinedTreesIntact() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey",
+            new DatasourceInstance("test", "Test", "test"), ["test"]);
+
+
+        $grandparentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Grandparent Dataset", "test", null, [], [], [], "Grandparent Dataset Summary"), 1);
+        $grandparentDatasetInstance->save();
+        $grandparentItem = new DataSearchItem("datasetinstance", $grandparentDatasetInstance->getId(), "Grandparent Dataset", "Grandparent Dataset Summary", "Sam Davis Design");
+
+        $parentDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Parent Dataset", null, $grandparentDatasetInstance->getId(), [], [], [], "Parent Dataset Summary"), 1);
+        $parentDatasetInstance->save();
+        $parentItem = new DataSearchItem("datasetinstance", $parentDatasetInstance->getId(), "Parent Dataset", "Parent Dataset Summary", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Child Dataset", "test", null, [
+            new TransformationInstance("join", new JoinTransformation(null, $parentDatasetInstance->getId()))
+        ], [], [], "Child Dataset Summary"), 1);
+        $datasetInstance->save();
+        $item = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Child Dataset", "Child Dataset Summary", "Sam Davis Design");
+
+        $tree = $this->datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($item, null, [new DatasetTree($parentItem, new DatasetTree($grandparentItem))]), $tree);
+
+    }
+
+    public function testAccountOwnedDatasourcesAreIncludedInTreeWhenInHierarchy() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+
+        $config = new SQLDatabaseDatasourceConfig("table", "test_custom", "", [new Field("value", null, null, Field::TYPE_STRING, true)]);
+        $accountDatasource = new DatasourceInstance("test-ds", "Test Datasource", "custom", $config, "sql");
+        $accountDatasource->setAccountId(1);
+        $accountDatasource->save();
+
+        $accountDSItem = new DataSearchItem("custom", "test-ds", "Test Datasource", "", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Dataset",
+            $accountDatasource->getKey(), null, [
+                new TransformationInstance("join", new JoinTransformation($accountDatasource->getKey()))
+            ]), 1);
+        $datasetInstance->save();
+        $datasetItem = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Dataset", null, "Sam Davis Design");
+
+        $tree = $datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($datasetItem,
+            new DatasetTree($accountDSItem),
+            [new DatasetTree($accountDSItem)]), $tree);
+
+
+    }
+
+    public function testSnapshotsAreTraversedCorrectlyWithBuildingDatasetsIncludedInTree() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+        $derivedDatasetInstance = new DatasetInstance(new DatasetInstanceSummary("Derived Dataset", "test"), 1);
+        $derivedDatasetInstance->save();
+        $derivedDatasetItem = new DataSearchItem("datasetinstance", $derivedDatasetInstance->getId(), "Derived Dataset", null, "Sam Davis Design");
+
+        $snapshot = new DataProcessorInstance("test-snap", "Test Snapshot", "tabulardatasetsnapshot", [], null, null, "DatasetInstance", $derivedDatasetInstance->getId());
+        $snapshot->setAccountId(1);
+        $snapshot->save();
+
+        $config = new SQLDatabaseDatasourceConfig("table", "test_snap_latest", "", [new Field("value", null, null, Field::TYPE_STRING, true)]);
+        $snapshotDatasource = new DatasourceInstance("test-snap_latest", "Latest Snapshot", "snapshot", $config, "sql");
+        $snapshotDatasource->setAccountId(1);
+        $snapshotDatasource->save();
+
+        $snapshotItem = new DataSearchItem("snapshot", "test-snap", "Test Snapshot", "", "Sam Davis Design");
+
+        $datasetInstance = new DatasetInstance(new DatasetInstanceSummary("Dataset",
+            $snapshotDatasource->getKey(), null, [
+                new TransformationInstance("join", new JoinTransformation($snapshotDatasource->getKey()))
+            ]), 1);
+        $datasetInstance->save();
+        $datasetItem = new DataSearchItem("datasetinstance", $datasetInstance->getId(), "Dataset", null, "Sam Davis Design");
+
+        $tree = $datasetService->getDatasetTreeByInstanceId($datasetInstance->getId());
+        $this->assertEquals(new DatasetTree($datasetItem,
+            new DatasetTree($snapshotItem, new DatasetTree($derivedDatasetItem)),
+            [new DatasetTree($snapshotItem, new DatasetTree($derivedDatasetItem))]), $tree);
+
+    }
+
+    public function testSharedDatasetsIncludedInTreeHierarchy() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        /**
+         * @var DatasetService $datasetService
+         */
+        $datasetService = Container::instance()->get(DatasetService::class);
+
+
+        // Non shared data set other account
+        $dataset2 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset Parent", "test"));
+        $dataset2->setAccountId(2);
+        $dataset2->save();
+        $dataset2Item = new DataSearchItem("datasetinstance", $dataset2->getId(), "Shared Dataset Parent", "", "Peter Jones Car Washing");
+
+
+        // Directly shared dataset other account
+        $dataset3 = new DatasetInstance(new DatasetInstanceSummary("Shared Dataset", null, $dataset2->getId()));
+        $dataset3->setAccountId(2);
+        $dataset3->save();
+        $dataset3Item = new DataSearchItem("datasetinstance", $dataset3->getId(), "Shared Dataset", "", "Peter Jones Car Washing");
+
+
+        $objectScopeAccess = new ObjectScopeAccess(Role::SCOPE_ACCOUNT, 1, "TEST1", false, false, null, str_replace("\\", "\\\\", DatasetInstance::class), $dataset3->getId());
+        $objectScopeAccess->save();
+
+
+        // Self owned data set
+        $dataset1 = new DatasetInstance(new DatasetInstanceSummary("My Dataset", null, $dataset3->getId(),
+            [
+                new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId()))
+            ]));
+        $dataset1->setAccountId(1);
+        $dataset1->save();
+        $dataset1Item = new DataSearchItem("datasetinstance", $dataset1->getId(), "My Dataset", "", "Sam Davis Design");
+
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+
+        // Grab the tree for dataset1
+        $tree = $datasetService->getDatasetTreeByInstanceId($dataset1->getId());
+
+        $this->assertEquals(new DatasetTree($dataset1Item, new DatasetTree($dataset3Item, new DatasetTree($dataset2Item)), [
+            new DatasetTree($dataset3Item, new DatasetTree($dataset2Item))
+        ]), $tree);
+
+    }
+
 
 }

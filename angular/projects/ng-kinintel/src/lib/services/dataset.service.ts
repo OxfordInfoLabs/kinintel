@@ -4,6 +4,7 @@ import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
 import {KinintelModuleConfig} from '../ng-kinintel.module';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {map, switchMap} from 'rxjs/operators';
 import {interval} from 'rxjs';
@@ -29,6 +30,24 @@ export class DatasetService {
             }
         });
     }
+
+
+    /**
+     * Get account shared datasets
+     *
+     * @param filterString
+     * @param limit
+     * @param offset
+     */
+    public getAccountSharedDatasets(filterString = '', limit = 10, offset = 0) {
+
+        return this.http.get(this.config.backendURL + '/dataset/shared', {
+            params: {
+                filterString, limit, offset
+            }
+        });
+    }
+
 
     public getDataset(id) {
         return this.http.get(`${this.config.backendURL}/dataset/${id}`).toPromise()
@@ -65,12 +84,14 @@ export class DatasetService {
     }
 
     public evaluateDataset(datasetInstanceSummary, offset = '0', limit = '25') {
-        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}`,
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&projectKey=${projectKey}`,
             datasetInstanceSummary).toPromise();
     }
 
     public evaluateDatasetWithTracking(datasetInstanceSummary, offset = '0', limit = '25', trackingKey = '') {
-        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&trackingKey=${trackingKey}`,
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+        return this.http.post(this.config.backendURL + `/dataset/evaluate?limit=${limit}&offset=${offset}&trackingKey=${trackingKey}&projectKey=${projectKey}`,
             datasetInstanceSummary);
     }
 
@@ -91,6 +112,63 @@ export class DatasetService {
             {responseType: 'blob'})
             .toPromise();
     }
+
+
+    /**
+     * Set shared access for a dataset instance for the logged in account
+     *
+     * @param datasetInstanceId
+     * @param shared
+     */
+    public async setSharedAccessForDatasetInstanceForLoggedInAccount(datasetInstanceId, shared) {
+        return this.http.post(this.config.backendURL + `/dataset/shareWithCurrentAccount/${datasetInstanceId}/${shared}`, {}).toPromise();
+    }
+
+
+    public async getSharedAccessGroupsForDatasetInstance(datasetInstanceId) {
+        return this.http.get(this.config.backendURL + `/dataset/sharedAccessGroups/${datasetInstanceId}`).toPromise();
+    }
+
+    public async revokeAccessToGroupForDatasetInstance(datasetInstanceId, accessGroup) {
+        return this.http.delete(this.config.backendURL + `/dataset/sharedAccessGroups/${datasetInstanceId}`,
+            {body: JSON.stringify(accessGroup)}).toPromise();
+    }
+
+
+    public async getInvitedAccessGroupsForDatasetInstance(datasetInstanceId) {
+        return this.http.get(this.config.backendURL + `/dataset/invitedAccessGroups/${datasetInstanceId}`).toPromise();
+    }
+
+
+    public async inviteAccountToShareDatasetInstance(datasetInstanceId, accountExternalIdentifier, expiryDate = null) {
+        let path = `/dataset/invitedAccessGroups/${datasetInstanceId}/${accountExternalIdentifier}`;
+        if (expiryDate) path += '?expiryDate=' + expiryDate;
+        return this.http.get(this.config.backendURL + path).toPromise();
+    }
+
+
+    public async cancelInvitationForAccessGroupForDatasetInstance(datasetInstanceId, accessGroup) {
+        return this.http.delete(this.config.backendURL + `/dataset/invitedAccessGroups/${datasetInstanceId}`,
+            {body: JSON.stringify(accessGroup)}).toPromise();
+    }
+
+
+    // Get a sharable item for an invitation
+    public async getSharableItemForInvitation(invitationCode) {
+        return this.http.get(this.config.guestURL + `/sharing/${invitationCode}`).toPromise();
+    }
+
+
+    // Accept a sharing invitation using an invitation code.
+    public async acceptSharingInvitation(invitationCode) {
+        this.http.post(this.config.guestURL + `/sharing/${invitationCode}`, {}).toPromise();
+    }
+
+    // Accept a sharing invitation using an invitation code.
+    public async cancelSharingInvitation(invitationCode) {
+        this.http.delete(this.config.guestURL + `/sharing/${invitationCode}`).toPromise();
+    }
+
 
     public listSnapshotProfiles(filterString = '', limit = '10', offset = '0', tags?) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';

@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\ValueObjects\Dataset\Field;
 
 include_once "autoloader.php";
@@ -159,5 +160,55 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testDataWithBooleansCanBeAccessedByAValueFunction(){
+        $data = [[
+            "registered" => true,
+            "dnsSec" => false
+        ]];
+
+        $fields = [
+            new Field("dnssec", "DNSSEC", "[[dnsSec]]"),
+            new Field("registeredness", "registeredness", "[[registered]]"),
+        ];
+
+        $dataset = new ArrayTabularDataset($fields, $data);
+        $this->assertEquals($fields, $dataset->getColumns());
+        $this->assertSame([["dnssec" => false, "registeredness" => true]], $dataset->getAllData());
+    }
+
+    public function testIfErrorThrownOnIncorrectRowStructure(){
+        try {
+            $x = new ArrayTabularDataset([
+                new Field("name", "Name"),
+                new Field("age", "Age"),
+            ],[
+                "name" => "Sam Davis",
+                "age" => 1000
+            ]);
+            $this->fail();
+        } catch (UnsupportedDatasetException $exception){
+            // Success
+        }
+
+        try {
+            $x = new ArrayTabularDataset([
+                new Field("0", "Zero"),
+                new Field("age", "Age"),
+            ],[
+                0 => "Sam Davis",
+                "age" => 1000
+            ]);
+            $this->fail();
+        } catch (UnsupportedDatasetException $exception){
+            // Success
+        }
+        $x = new ArrayTabularDataset([new Field("name", "Name")],
+        [
+            null,
+            ["name" => "Sam Davis"],
+        ]);
+
+        $this->assertTrue(true);
+    }
 
 }

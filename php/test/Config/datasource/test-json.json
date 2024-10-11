@@ -4,7 +4,7 @@
   "description": "My first test JSON Datasource",
   "type": "webservice",
   "config": {
-    "url": "https://test-json.com/feed"
+    "url": "https://jsonplaceholder.typicode.com/users"
   },
   "credentialsKey": "http-basic"
 }

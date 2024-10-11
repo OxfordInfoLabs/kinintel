@@ -23,18 +23,11 @@ include_once "autoloader.php";
 
 class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
-    /**
-     * @var TabularDatasourceAggregatingProcessor
-     */
-    private $processor;
-
-    /**
-     * @var MockObject
-     */
-    private $datasourceService;
+    private TabularDatasourceAggregatingProcessor $processor;
+    private DatasourceService|MockObject $datasourceService;
 
     public function setUp(): void {
-        $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
+        $this->datasourceService = MockObjectProvider::mock(DatasourceService::class);
         $this->processor = new TabularDatasourceAggregatingProcessor($this->datasourceService);
     }
 
@@ -95,27 +88,33 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "number1" => true,
                 "number2" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 14:32:51",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 2
             ], [
                 "date" => "2023-01-14 14:31:45",
                 "match" => "pong",
                 "other" => "test",
                 "number1" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 14:31:45",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 1
             ], [
                 "date" => "2023-01-14 13:34:01",
                 "match" => "pang",
                 "stuff" => "bingo",
                 "number2" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 13:34:01",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 1
             ]
         ]);
 
@@ -194,9 +193,11 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "first_col2" => "sometimes",
                 "first" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 14:32:51",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
                 "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 1,
                 "second" => null,
                 "second_col1" => null,
                 "second_col2" => null
@@ -210,9 +211,11 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "first" => true,
                 "second" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 14:31:45",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 2
             ], [
                 "date" => "2023-01-13 07:23:12",
                 "match" => "James",
@@ -220,9 +223,11 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "second_col2" => "yes",
                 "second" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-13 07:23:12",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 1
             ]
         ]);
 
@@ -249,7 +254,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "match" => "eins",
                 "other" => "nonsense"
             ], [
-                "date" => "2023-01-14 14:31:45",
+                "date" => "2023-01-14 06:00:00",
                 "match" => "zwei",
                 "other" => "test"
             ]
@@ -301,14 +306,16 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "other" => "nonsense",
                 "number1" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 14:32:51",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
                 "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 1,
                 "number2" => null,
                 "number3" => null,
                 "stuff" => null
             ], [
-                "date" => "2023-01-14 14:31:45",
+                "date" => "2023-01-14 06:00:00",
                 "match" => "zwei",
                 "other" => "test",
                 "stuff" => "bingo",
@@ -316,18 +323,22 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
                 "number2" => true,
                 "number3" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 13:34:01",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 3
             ], [
                 "date" => "2023-01-14 13:34:01",
                 "match" => "drei",
                 "stuff" => "bong",
                 "number3" => true,
                 "window_time" => $today,
+                "latest_discover_time" => "2023-01-14 13:34:01",
                 "discover_month" => date_create_from_format("Y-m-d H:i:s", $today)->format("F"),
                 "discover_month_index" => date_create_from_format("Y-m-d H:i:s", $today)->format("n"),
-                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y")
+                "discover_year" => date_create_from_format("Y-m-d H:i:s", $today)->format("Y"),
+                "sources_with_results" => 1
             ]
         ]);
 

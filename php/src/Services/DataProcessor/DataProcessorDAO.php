@@ -4,9 +4,15 @@
 namespace Kinintel\Services\DataProcessor;
 
 
+use Exception;
+use Kiniauth\Objects\Account\Account;
+use KiniCRM\Objects\CRM\Contact;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
+use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
+use Kinikit\Persistence\ORM\Query\Query;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 
 class DataProcessorDAO {
@@ -30,6 +36,14 @@ class DataProcessorDAO {
     private $fileSystemDataProcessors = null;
 
 
+    const FILTER_MAP = [
+        "type" => "type",
+        "relatedObjectType" => "relatedObjectType",
+        "relatedObjectKey" => "relatedObjectKey",
+        "search" => "search"
+    ];
+
+
     /**
      * Datasource DAO constructor.
      *
@@ -40,6 +54,7 @@ class DataProcessorDAO {
         $this->fileResolver = $fileResolver;
         $this->jsonToObjectConverter = $jsonToObjectConverter;
     }
+
 
     /**
      * Get a processor instance by key - this will check
@@ -65,6 +80,38 @@ class DataProcessorDAO {
             }
         }
 
+    }
+
+
+    /**
+     * Filter data processor instances.  This is designed initially for filtering
+     * database driven entries only but could be extended to file ones as well.
+     *
+     * @param $filterString
+     * @param $relatedObjectType
+     * @param $relatedObjectPrimaryKey
+     * @param $projectKey
+     * @param $offset
+     * @param $limit
+     * @param $accountId
+     * @return array
+     */
+    public function filterDataProcessorInstances($filters = [], $projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $query = new Query(DataProcessorInstance::class);
+
+        // Process filters
+        $filters = $this->processQueryFilters($filters);
+
+        if (is_numeric($accountId)) {
+            $filters["account_id"] = $accountId;
+        }
+        if ($projectKey) {
+            $filters["project_key"] = $projectKey;
+        }
+
+
+        return $query->query($filters, "title ASC", $limit, $offset);
     }
 
 
@@ -113,6 +160,9 @@ class DataProcessorDAO {
             if (strpos($dataProcessor, ".json")) {
                 $splitFilename = explode(".", $dataProcessor);
                 $instance = $this->jsonToObjectConverter->convert(file_get_contents($directory . "/" . $dataProcessor), DataProcessorInstance::class);
+                if (!$instance){
+                    throw new Exception("Unable to parse the json for the data processor instance: " . $dataProcessor);
+                }
                 $instance->setKey($splitFilename[0]);
                 $this->fileSystemDataProcessors[$splitFilename[0]] = $instance;
             } else if (substr($dataProcessor, 0, 1) !== "." && is_dir($directory . "/" . $dataProcessor)) {
@@ -120,5 +170,19 @@ class DataProcessorDAO {
             }
         }
     }
+
+    /**
+     * @param array $filters
+     * @return array
+     */
+    private function processQueryFilters(array $filters): array {
+        $filters = ArrayUtils::mapArrayKeys($filters, self::FILTER_MAP);
+
+        if (isset($filters["search"])) {
+            $filters["search"] = new LikeFilter(["title"], "%" . $filters["search"] . "%");
+        }
+        return $filters;
+    }
+
 
 }

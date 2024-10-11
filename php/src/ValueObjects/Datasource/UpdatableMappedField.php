@@ -36,6 +36,15 @@ class UpdatableMappedField {
 
 
     /**
+     * This property is used where the input values for the mapping are literal values
+     * rather than objects so we need to create a wrapper object with a single property
+     * named using the target field name.
+     *
+     * @var string
+     */
+    private $targetFieldName;
+
+    /**
      * The update mode to use for update - defaults to the same as the parent operation
      *
      * @var string
@@ -46,15 +55,24 @@ class UpdatableMappedField {
      * UpdatableMappedField constructor.
      *
      * @param string $fieldName
+     * The name of the field being mapped to the other datasource
      * @param string $datasourceInstanceKey
+     * The key of the datasource to map to
      * @param string[] $parentFieldMappings
+     * An array of mapped fields to synchronise from the parent dataset to the child datasource.
      * @param string $updateMode
+     * The update mode to use for update - defaults to the same as the parent operation
+     * @param string $targetFieldName
+     *  This property is used where the input values for the mapping are literal values
+     *  rather than objects so we need to create a wrapper object with a single property
+     *  named using the target field name.
      */
-    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null) {
+    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null, $targetFieldName = null) {
         $this->fieldName = $fieldName;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->parentFieldMappings = $parentFieldMappings;
         $this->updateMode = $updateMode;
+        $this->targetFieldName = $targetFieldName;
     }
 
 
@@ -98,6 +116,20 @@ class UpdatableMappedField {
      */
     public function setParentFieldMappings($parentFieldMappings) {
         $this->parentFieldMappings = $parentFieldMappings;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetFieldName() {
+        return $this->targetFieldName;
+    }
+
+    /**
+     * @param string $targetFieldName
+     */
+    public function setTargetFieldName($targetFieldName) {
+        $this->targetFieldName = $targetFieldName;
     }
 
     /**

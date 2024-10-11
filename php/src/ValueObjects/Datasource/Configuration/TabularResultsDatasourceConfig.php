@@ -11,7 +11,7 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
     /**
      * @var Field[]
      */
-    private $columns;
+    protected $columns;
 
     /**
      * TabularResultsDatasourceConfig constructor.

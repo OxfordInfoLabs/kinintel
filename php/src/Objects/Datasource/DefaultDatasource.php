@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource;
 
 
 use Kinintel\Objects\Dataset\Dataset;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Authentication\DefaultDatasourceCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
@@ -36,6 +37,11 @@ class DefaultDatasource extends SQLDatabaseDatasource {
      * @var boolean
      */
     private $populated = false;
+
+    /**
+     * @var boolean
+     */
+    private $empty = false;
 
     /**
      * Table index
@@ -81,7 +87,7 @@ class DefaultDatasource extends SQLDatabaseDatasource {
      */
     public function populate($parameterValues = []) {
 
-        if ($this->populated)
+        if ($this->populated || $this->empty)
             return;
 
         if ($this->sourceDataobject instanceof Datasource) {
@@ -90,6 +96,10 @@ class DefaultDatasource extends SQLDatabaseDatasource {
         } else
             $sourceDataset = $this->sourceDataobject;
 
+        if (!$sourceDataset->getColumns()) {
+            $this->empty = true;
+            return;
+        }
 
         // Convert columns to plain fields to avoid double evaluations
         $columns = Field::toPlainFields($sourceDataset->getColumns(), true);
@@ -118,6 +128,10 @@ class DefaultDatasource extends SQLDatabaseDatasource {
 
         // Ensure population has occurred.x
         $this->populate($parameterValues);
+
+        if ($this->empty) {
+            return new ArrayTabularDataset([], []);
+        }
 
         // Materialise this dataset
         return parent::materialise($parameterValues);

@@ -2,6 +2,7 @@
 
 namespace Kinintel\Test\Services\Alert;
 
+use Kiniauth\Objects\Account\PublicAccountSummary;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupMember;
 use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
@@ -16,6 +17,7 @@ use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Configuration\FileResolver;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\KinibindTemplateParser;
 use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
@@ -79,12 +81,13 @@ class AlertServiceTest extends TestBase {
     public function setUp(): void {
         $this->dashboardService = MockObjectProvider::instance()->getMockInstance(DashboardService::class);
         $this->notificationService = MockObjectProvider::instance()->getMockInstance(NotificationService::class);
-        $this->templateParser = MockObjectProvider::instance()->getMockInstance(TemplateParser::class);
+        $this->templateParser = MockObjectProvider::instance()->getMockInstance(KinibindTemplateParser::class);
         $this->accountService = MockObjectProvider::instance()->getMockInstance(AccountService::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
 
-        $this->alertService = new AlertService($this->dashboardService, $this->notificationService, $this->templateParser, $this->accountService, $this->securityService,
+        $this->alertService = new AlertService($this->dashboardService, $this->notificationService, $this->accountService, $this->securityService,
             Container::instance()->get(ActiveRecordInterceptor::class), Container::instance()->get(FileResolver::class));
+        $this->alertService->setTemplateParser($this->templateParser);
     }
 
 
@@ -135,7 +138,8 @@ class AlertServiceTest extends TestBase {
         $this->assertEquals([
             new NotificationGroup(new NotificationGroupSummary("Bobby Brown", [
                 new NotificationGroupMember(null, "test@oxil.uk", $notificationGroup->getMembers()[0]->getId())
-            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $notificationGroup->getId()), null, 1)
+            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $notificationGroup->getId()), null, 1,
+                PublicAccountSummary::fetch(1))
         ], $alertGroup->getNotificationGroups());
 
 
@@ -192,7 +196,8 @@ class AlertServiceTest extends TestBase {
         $this->assertEquals([
             new NotificationGroup(new NotificationGroupSummary("All Friends", [
                 new NotificationGroupMember(null, "another@oxil.uk", $newGroup->getMembers()[0]->getId())
-            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $newGroup->getId()), null, 1)
+            ], NotificationGroup::COMMUNICATION_METHOD_INTERNAL_ONLY, $newGroup->getId()), null, 1,
+                PublicAccountSummary::fetch(1))
         ], $alertGroup->getNotificationGroups());
 
 
@@ -287,7 +292,9 @@ class AlertServiceTest extends TestBase {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
 
-        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1,
+            PublicAccountSummary::fetch(1)
+        );
         $notificationGroup->save();
 
         $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
@@ -329,19 +336,19 @@ class AlertServiceTest extends TestBase {
             ]);
 
         $this->templateParser->returnValue("parseTemplateText", "No rows match", [
-            "No rows match", ["rowCount" => 0, "data" => []]
+            "No rows match", ["rowCount" => 0, "dataSet" => []]
         ]);
 
         $this->templateParser->returnValue("parseTemplateText", "No other rows match", [
-            "No other rows match", ["rowCount" => 0, "data" => []]
+            "No other rows match", ["rowCount" => 0, "dataSet" => []]
         ]);
 
         $this->templateParser->returnValue("parseTemplateText", "Has matching rows", [
-            "Has matching rows", ["rowCount" => 1, "data" => [["data" => "Pingu"]]]
+            "Has matching rows", ["rowCount" => 1, "dataSet" => [["data" => "Pingu"]]]
         ]);
 
         $this->templateParser->returnValue("parseTemplateText", "Has other matching rows", [
-            "Has other matching rows", ["rowCount" => 1, "data" => [["data" => "Bing"]]]
+            "Has other matching rows", ["rowCount" => 1, "dataSet" => [["data" => "Bing"]]]
         ]);
 
         $this->templateParser->returnValue("parseTemplateText", "EVALUATED ALERT CONTENT", [
@@ -434,7 +441,8 @@ class AlertServiceTest extends TestBase {
 
     public function testTemplatedAlertMessagesAreEvaluatedUsingDatasetCountAndDataParams() {
 
-        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1,
+            PublicAccountSummary::fetch(1));
         $notificationGroup->save();
 
         $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
@@ -468,7 +476,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
             "UNPARSED TEMPLATE", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -478,7 +486,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED CTA", [
             "UNPARSED CTA", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -518,7 +526,8 @@ class AlertServiceTest extends TestBase {
 
     public function testAlertsWithAdditionalFilterTransformationAreEvaluatedAsExpected() {
 
-        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1);
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test Notification Group"), null, 1,
+            PublicAccountSummary::fetch(1));
         $notificationGroup->save();
 
         $alertGroup = new AlertGroupSummary("Test Alert Group", [], [
@@ -556,7 +565,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
             "UNPARSED TEMPLATE", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -611,7 +620,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
             "UNPARSED TEMPLATE", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -621,7 +630,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE 2", [
             "UNPARSED TEMPLATE 2", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -631,7 +640,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE", [
             "UNPARSED SUMMARY TEMPLATE", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -641,7 +650,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE 2", [
             "UNPARSED SUMMARY TEMPLATE 2", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -651,7 +660,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED CTA", [
             "UNPARSED CTA", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -661,7 +670,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED CTA 2", [
             "UNPARSED CTA 2", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -710,7 +719,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE", [
             "UNPARSED TEMPLATE", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -720,7 +729,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED TEMPLATE 2", [
             "UNPARSED TEMPLATE 2", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -730,7 +739,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE", [
             "UNPARSED SUMMARY TEMPLATE", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -740,7 +749,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED SUMMARY TEMPLATE 2", [
             "UNPARSED SUMMARY TEMPLATE 2", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -750,7 +759,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED CTA", [
             "UNPARSED CTA", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]
@@ -760,7 +769,7 @@ class AlertServiceTest extends TestBase {
         $this->templateParser->returnValue("parseTemplateText", "PARSED CTA 2", [
             "UNPARSED CTA 2", [
                 "rowCount" => 2,
-                "data" => [[
+                "dataSet" => [[
                     "data" => "My item"
                 ],
                     ["data" => "Your item"]]

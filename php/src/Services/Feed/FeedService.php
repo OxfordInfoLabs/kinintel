@@ -6,10 +6,8 @@ namespace Kinintel\Services\Feed;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
-use Kiniauth\Services\Security\Captcha\CaptchaProvider;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
-use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
@@ -20,34 +18,15 @@ use Kinintel\Services\Dataset\DatasetService;
 class FeedService {
 
     /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var SecurityService
-     */
-    private $securityService;
-
-
-    /**
-     * @var GoogleRecaptchaProvider
-     */
-    private $captchaProvider;
-
-
-    /**
-     * FeedService constructor.
-     *
      * @param DatasetService $datasetService
      * @param SecurityService $securityService
      * @param GoogleRecaptchaProvider $captchaProvider
      */
-    public function __construct($datasetService, $securityService, $captchaProvider) {
-        $this->datasetService = $datasetService;
-        $this->securityService = $securityService;
-        $this->captchaProvider = $captchaProvider;
+    public function __construct(
+        private DatasetService $datasetService,
+        private SecurityService $securityService,
+        private GoogleRecaptchaProvider $captchaProvider
+    ) {
     }
 
 

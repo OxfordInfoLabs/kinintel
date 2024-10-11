@@ -44,29 +44,17 @@ export class SourceSelectorDialogComponent implements OnInit {
         });
     }
 
-    public async select(event, stepper?) {
-        const item = event.item;
-        const type = event.type;
-
-        if (type === 'datasource') {
-            const datasource: any = await this.datasourceService.getDatasource(item.key);
+    public async select(action, stepper?) {
+        if (action.datasourceKey) {
             this.dashboardDatasetInstance = {
                 datasetInstanceId: null,
-                datasourceInstanceKey: datasource.key,
+                datasourceInstanceKey: action.datasourceKey,
                 transformationInstances: [],
                 parameterValues: {},
                 parameters: []
             };
-        } else if (type === 'snapshot') {
-            this.dashboardDatasetInstance = {
-                datasetInstanceId: null,
-                datasourceInstanceKey: item,
-                transformationInstances: [],
-                parameterValues: {},
-                parameters: []
-            };
-        } else {
-            this.dashboardDatasetInstance = await this.datasetService.getExtendedDataset(item.id);
+        } else if (action.datasetId) {
+            this.dashboardDatasetInstance = await this.datasetService.getExtendedDataset(action.datasetId);
         }
 
         if (this.data.dashboardItemInstanceKey) {

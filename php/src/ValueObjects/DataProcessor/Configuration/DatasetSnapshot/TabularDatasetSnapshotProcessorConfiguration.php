@@ -3,8 +3,9 @@
 
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot;
 
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
+use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorActions;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
-use phpDocumentor\Reflection\Types\Integer;
 
 /**
  * Configuration for the snapshot processor
@@ -14,19 +15,14 @@ use phpDocumentor\Reflection\Types\Integer;
  */
 class TabularDatasetSnapshotProcessorConfiguration {
 
+    use DataProcessorActions;
+
     /**
-     * The dataset instance for which this snapshot is being made.
+     * Parameter Values for the data set instance if required
      *
-     * @var integer
-     * @required
+     * @var mixed[]
      */
-    private $datasetInstanceId;
-
-
-    /**
-     * @var string
-     */
-    private $snapshotIdentifier;
+    private $parameterValues;
 
     /**
      * @var bool
@@ -62,48 +58,37 @@ class TabularDatasetSnapshotProcessorConfiguration {
 
     /**
      * TabularDatasetSnapshotProcessorConfiguration constructor.
-     * @param bool $createHistory
-     * @param bool $createLatest
      * @param string[] $keyFieldNames
      * @param TimeLapseFieldSet[] $timeLapsedFields
+     * @param mixed[] $parameterValues
+     * @param bool $createLatest
+     * @param bool $createHistory
+     * @param int $readChunkSize
+     * @param Index[] $indexes
      */
-    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $datasetInstanceId = null, $snapshotIdentifier = null, $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
+    public function __construct($keyFieldNames = [], $timeLapsedFields = [], $parameterValues = [], $createLatest = true, $createHistory = true, $readChunkSize = null, $indexes = []) {
         $this->keyFieldNames = $keyFieldNames;
         $this->timeLapsedFields = $timeLapsedFields;
-        $this->datasetInstanceId = $datasetInstanceId;
-        $this->snapshotIdentifier = $snapshotIdentifier;
         $this->createLatest = $createLatest;
         $this->createHistory = $createHistory;
         $this->readChunkSize = $readChunkSize;
         $this->indexes = $indexes;
+        $this->parameterValues = $parameterValues;
+    }
+
+
+    /**
+     * @return mixed[]
+     */
+    public function getParameterValues() {
+        return $this->parameterValues;
     }
 
     /**
-     * @return integer
+     * @param mixed[] $parameterValues
      */
-    public function getDatasetInstanceId() {
-        return $this->datasetInstanceId;
-    }
-
-    /**
-     * @param integer $datasetInstanceId
-     */
-    public function setDatasetInstanceId($datasetInstanceId) {
-        $this->datasetInstanceId = $datasetInstanceId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSnapshotIdentifier() {
-        return $this->snapshotIdentifier;
-    }
-
-    /**
-     * @param string $snapshotIdentifier
-     */
-    public function setSnapshotIdentifier($snapshotIdentifier) {
-        $this->snapshotIdentifier = $snapshotIdentifier;
+    public function setParameterValues($parameterValues) {
+        $this->parameterValues = $parameterValues;
     }
 
 
@@ -193,4 +178,15 @@ class TabularDatasetSnapshotProcessorConfiguration {
     }
 
 
+    public function getProcessorActions($dataProcessorInstanceKey) {
+       $actions = [];
+       if ($this->createLatest){
+           $actions[] = new DataProcessorAction("Latest", $dataProcessorInstanceKey."_latest");
+       }
+       if ($this->createHistory){
+           $actions[] = new DataProcessorAction("Historical Entries", $dataProcessorInstanceKey);
+       }
+
+       return $actions;
+    }
 }

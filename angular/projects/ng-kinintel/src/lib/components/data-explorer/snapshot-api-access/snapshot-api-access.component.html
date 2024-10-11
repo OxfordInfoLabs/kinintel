@@ -1,0 +1,195 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title" cdkDragHandle>
+        <h2 mat-dialog-title>
+            API Access
+        </h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <div class="text-lg font-semibold mb-4">
+            Management Key
+        </div>
+
+        <div class="mb-4">
+            <input class="mt-2 w-full" type="text" [(ngModel)]="datasetInstance.managementKey">
+            <small class="font-normal">This will be used as part of API requests</small>
+        </div>
+
+        <ng-template [ngIf]="showApiAccessDetails">
+            <div class="text-lg font-semibold mb-4">
+                Example API Usage
+            </div>
+
+            <div class="relative w-full">
+                <div class="text-base font-semibold">List Snapshots</div>
+                <div class="text-sm mb-2">
+                    List all snapshots associated with this query using the management key.
+                </div>
+                <div #listSnapshots class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="listSnapshots.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+            <div class="font-semibold text-sm my-1">Example Response</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+                <pre class="whitespace-normal">
+                    {{'[{"key":"snapshot_1","title":"Snapshot 1","type":"STANDARD","config":{"parameterValues":[],"keyFieldNames":[],"indexes":[],"timeLapsedFields":[],"createHistory":false,"createLatest":true,"readChunkSize":null},"trigger":"adhoc","datasetManagementKey":"managementkey","datasetTitle":"Test Query","status":"COMPLETED","lastRunTime":"22\\/03\\/2024 14:50:20","nextRunTime":null}]'}}
+                </pre>
+            </div>
+
+
+            <div class="relative w-full">
+                <div class="text-base font-semibold">Get Single Snapshot</div>
+                <div class="text-sm mb-2">
+                    Get a single snapshot associated with this query using the management key and snapshot key as returned from a list or create operation.
+                </div>
+                <div #getSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}/SNAPSHOT_KEY</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="getSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+            <div class="font-semibold text-sm my-1">Example Response</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+                <pre class="whitespace-normal">
+                    {{'{"key":"snapshot_1","title":"Snapshot 1","type":"STANDARD","config":{"parameterValues":[],"keyFieldNames":[],"indexes":[],"timeLapsedFields":[],"createHistory":false,"createLatest":true,"readChunkSize":null},"trigger":"adhoc","datasetManagementKey":"managementkey","datasetTitle":"Test Query","status":"COMPLETED","lastRunTime":"22\\/03\\/2024 14:50:20","nextRunTime":null}'}}
+                </pre>
+            </div>
+
+
+
+            <div class="relative w-full">
+                <div class="text-base font-semibold">Get data for snapshot</div>
+                <div class="text-sm mb-2">
+                    Return data for a snapshot for this query identified by management key and snapshot key.  Optionally supply an offset and limit for paging the data.
+                </div>
+                <div #getSnapshotData class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">"{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}/SNAPSHOT_KEY/data?limit=25&offset=0"</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="getSnapshotData.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+            <div class="font-semibold text-sm my-1">Example Response</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+                <pre class="whitespace-normal">
+                    {{exampleResults()}}
+                </pre>
+            </div>
+
+
+            <div class="relative w-full mb-8">
+                <div class="text-base font-semibold">Run a snapshot</div>
+                <div class="text-sm mb-2">
+                    Run a snapshot immediately - the results can be checked by calling the methods above.
+                </div>
+                <div #runSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-secondary">"{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}/SNAPSHOT_KEY"</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="runSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+
+            <div class="relative w-full">
+                <div class="text-base font-semibold">Create New Snapshot</div>
+                <div class="text-sm mb-2">
+                    Create a new snapshot for this query using the passed management key.
+                </div>
+                <div #createSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="createSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+            <div class="font-semibold text-sm my-1">Example Payload</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                <pre class="whitespace-normal">
+                    {{examplePayload()}}
+                </pre>
+            </div>
+            <div class="font-semibold text-sm my-1">Example Response</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+                <pre class="whitespace-normal">
+                    {{'{"snapshotKey": "NEW_SNAPSHOT_KEY"}'}}
+                </pre>
+            </div>
+
+            <div class="relative w-full">
+                <div class="text-base font-semibold">Update Existing Snapshot</div>
+                <div class="text-sm mb-2">
+                    Update an existing snapshot for this query using the passed management key and snapshot key.
+                </div>
+                <div #updateSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PUT</b> <span class="text-secondary">{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}/SNAPSHOT_KEY</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="updateSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+            <div class="font-semibold text-sm my-1">Example Payload</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                <pre class="whitespace-normal">
+                    {{examplePayload()}}
+                </pre>
+            </div>
+            <div class="font-semibold text-sm my-1">Example Response</div>
+            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+                <pre class="whitespace-normal">
+                    {{'{"snapshotKey": "NEW_SNAPSHOT_KEY"}'}}
+                </pre>
+            </div>
+
+            <div class="relative w-full mb-8">
+                <div class="text-base font-semibold">Remove snapshot</div>
+                <div class="text-sm mb-2">
+                    Delete a snapshot for a management key and snapshot key.
+                </div>
+                <div #removeSnapshot class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-secondary">"{{backendURL}}/api/snapshot/{{datasetInstance.managementKey}}/SNAPSHOT_KEY"</span></pre>
+                </div>
+                <button mat-icon-button [cdkCopyToClipboard]="removeSnapshot.textContent" (cdkCopyToClipboardCopied)="copied()"
+                        class="text-white absolute bottom-0 right-0">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+
+
+
+
+
+        </ng-template>
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+        <button mat-flat-button color="primary" (click)="saveDataset()">
+            Save
+        </button>
+    </div>
+
+</div>
+
+

@@ -97,5 +97,20 @@ class DefaultDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testCanHandleAnEmptyDatasourceBeingReturnedOnMaterialiseOfSourceDataObject() {
+
+        $mockDataObject = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $emptyDataset = new ArrayTabularDataset([],[]);
+
+        $mockDataObject->returnValue("materialise", $emptyDataset, [[]]);
+
+        $defaultDatasource = new DefaultDatasource($mockDataObject);
+
+        $dataset = $defaultDatasource->materialise();
+
+        $this->assertEquals([], $dataset->getAllData());
+
+    }
+
 
 }

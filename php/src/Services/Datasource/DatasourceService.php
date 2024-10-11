@@ -6,6 +6,7 @@ namespace Kinintel\Services\Datasource;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Validation\FieldValidationError;
@@ -20,7 +21,12 @@ use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\DataProcessor\DataProcessorService;
+use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\ValueObjects\Application\DataSearchItem;
+use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\IndexableDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -29,36 +35,18 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingMarkerTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
+/**
+ * @interceptor \Kinintel\Services\Datasource\DatasourceServiceInterceptor
+ */
 class DatasourceService {
 
 
-    /**
-     * @var DatasourceDAO
-     */
-    private $datasourceDAO;
-
-    /**
-     * @var SecurityService
-     */
-    private $securityService;
-
-
-    /**
-     * @var ValueFunctionEvaluator
-     */
-    private $valueFunctionEvaluator;
-
-    /**
-     * DatasourceService constructor.
-     *
-     * @param DatasourceDAO $datasourceDAO
-     * @param SecurityService $securityService
-     * @param ValueFunctionEvaluator $valueFunctionEvaluator
-     */
-    public function __construct($datasourceDAO, $securityService, $valueFunctionEvaluator) {
-        $this->datasourceDAO = $datasourceDAO;
-        $this->securityService = $securityService;
-        $this->valueFunctionEvaluator = $valueFunctionEvaluator;
+    public function __construct(
+        private DatasourceDAO $datasourceDAO,
+        private SecurityService $securityService,
+        private ValueFunctionEvaluator $valueFunctionEvaluator,
+        private DataProcessorService $dataProcessorService
+    ) {
     }
 
 
@@ -69,10 +57,11 @@ class DatasourceService {
      * @param string $filterString
      * @param int $limit
      * @param int $offset
-     * @param false $includeSnapshots
+     * @param array $includedTypes
+     * @param string $projectKey
      */
-    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includeSnapshots = false, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
-        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includeSnapshots, $projectKey, $accountId);
+    public function filterDatasourceInstances($filterString = "", $limit = 10, $offset = 0, $includedTypes = [], $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        return $this->datasourceDAO->filterDatasourceInstances($filterString, $limit, $offset, $includedTypes, $projectKey, $accountId);
     }
 
 
@@ -110,6 +99,47 @@ class DatasourceService {
      */
     public function getDatasourceInstanceByTitle($title, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         return $this->datasourceDAO->getDatasourceInstanceByTitle($title, $projectKey, $accountId);
+    }
+
+    /**
+     * Get a dataset tree for a datasource key.   This will only
+     * return a value if the datasource has an account id to ignore built in
+     * datasources.
+     *
+     * @param $datasourceKey
+     * @return DatasetTree|null
+     */
+    public function getDatasetTreeForDatasourceKey($datasourceKey) {
+        $datasource = $this->getDataSourceInstanceByKey($datasourceKey);
+
+        // Only record as datasets datasources which are owned by the user.
+        if ($datasource->getAccountId()) {
+            if ($datasource->getType() == "snapshot") {
+                if (str_ends_with($datasourceKey, "_latest"))
+                    $datasourceKey = substr($datasourceKey, 0, strlen($datasourceKey) - 7);
+                if (str_ends_with($datasourceKey, "_pending"))
+                    $datasourceKey = substr($datasourceKey, 0, strlen($datasourceKey) - 8);
+
+                // Grab the matching processor
+                $dataProcessor = $this->dataProcessorService->getDataProcessorInstance($datasourceKey);
+
+                $dataItem = new DataSearchItem("snapshot", $dataProcessor->getKey(), $dataProcessor->getTitle(), "",
+                    $dataProcessor?->getAccountSummary()?->getName(),
+                    $dataProcessor?->getAccountSummary()?->getLogo());
+
+                $datasetService = Container::instance()->get(DatasetService::class);
+                return new DatasetTree($dataItem, $datasetService->getDatasetTreeByInstanceId($dataProcessor->getRelatedObjectKey()));
+
+            } else {
+                $dataItem = new DataSearchItem($datasource->getType(), $datasource->getKey(), $datasource->getTitle(), "",
+                    $datasource?->getAccountSummary()?->getName(),
+                    $datasource?->getAccountSummary()?->getLogo());
+                return new DatasetTree($dataItem);
+            }
+        }
+
+        return null;
+
     }
 
 
@@ -163,7 +193,7 @@ class DatasourceService {
      *
      * @param string $datasourceInstanceKey
      * @param mixed[] $parameterValues
-     * @param TransformationInstance[] $additionalTransformations
+     * @param TransformationInstance[] $transformations
      *
      * @return Dataset
      */
@@ -338,6 +368,7 @@ class DatasourceService {
 
         list($hasManagePrivilege, $datasource) = $this->getDatasourceFromInstance($datasourceInstance, $allowInsecure);
 
+
         // If a structural update also apply structural stuff
         if ($datasourceUpdate instanceof DatasourceUpdateWithStructure) {
 
@@ -349,15 +380,22 @@ class DatasourceService {
             $datasourceInstance->setImportKey($datasourceUpdate->getImportKey());
 
             // If updatable and fields
-            if ($datasource instanceof UpdatableDatasource && $datasourceUpdate->getFields()) {
+            if ($datasource instanceof UpdatableDatasource) {
 
                 // Update configuration of data source.
                 $config = $datasource->getConfig();
-                $config->setColumns($datasourceUpdate->getFields());
-                $datasourceInstance->setConfig($config);
+
+                if ($datasourceUpdate->getFields()) {
+                    $config->setColumns($datasourceUpdate->getFields());
+                    $datasourceInstance->setConfig($config);
+                }
+
+                if ($config instanceof IndexableDatasourceConfig) {
+                    $config->setIndexes($datasourceUpdate->getIndexes());
+                    $datasourceInstance->setConfig($config);
+                }
 
             }
-
 
             $this->saveDataSourceInstance($datasourceInstance);
 
@@ -421,7 +459,7 @@ class DatasourceService {
             throw new ObjectNotFoundException(DatasourceInstance::class, $datasourceInstance->getKey());
         }
 
-        // Chek privileges if a project key
+        // Check privileges if a project key
         $hasManagePrivilege = false;
         if ($datasourceInstance->getProjectKey()) {
             $hasUpdatePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourceupdate", $datasourceInstance->getProjectKey());

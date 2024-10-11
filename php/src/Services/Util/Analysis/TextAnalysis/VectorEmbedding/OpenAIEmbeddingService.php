@@ -10,13 +10,8 @@ use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\MathsUtils;
 use Kinikit\MVC\Response\Response;
-use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Authentication\AuthenticationCredentialsService;
-use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\Authentication\Generic\SingleKeyAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
-use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 
 
 class OpenAIEmbeddingService implements TextEmbeddingService {
@@ -69,7 +64,7 @@ class OpenAIEmbeddingService implements TextEmbeddingService {
             $statusCode == Response::RESPONSE_SERVICE_UNAVAILABLE) {
 
             if ($statusCode == Response::RESPONSE_RATE_LIMITED){
-                Logger::log("OpenAI api was rate limited");
+                Logger::log("OpenAI api was rate limited", 5);
             }
 
             // Retry for a maximum of 2 minutes

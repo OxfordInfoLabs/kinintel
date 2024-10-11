@@ -1,5 +1,6 @@
 import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
@@ -10,6 +11,13 @@ import {Location} from '@angular/common';
 import {
     ApiAccessComponent
 } from '../create-datasource/api-access/api-access.component';
+import {
+    AdvancedSettingsComponent
+} from '../create-datasource/advanced-settings/advanced-settings.component';
+import {
+    ImportWizardComponent
+} from '../create-datasource/import-data/import-wizard/import-wizard.component';
+import {BehaviorSubject} from 'rxjs';
 
 declare var window: any;
 
@@ -59,11 +67,27 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         updates: [],
         deletes: []
     };
+    public offset = 0;
     public limit = 25;
     public page = 1;
     public endOfResults = false;
+    public showAutoIncrement = false;
+    public selectAll = false;
+    public showFilters = false;
+    public filterFields = [];
+    public filterJunction = {
+        logic: 'AND',
+        filters: [{
+            lhsExpression: '',
+            rhsExpression: [],
+            filterType: ''
+        }],
+        filterJunctions: []
+    };
+    public openSide = new BehaviorSubject(false);
+    public Object = Object;
 
-    private offset = 0;
+
     private isMouseDown = false;
     private startRowIndex = null;
     private startCellIndex = null;
@@ -83,7 +107,25 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     ngOnInit(): void {
         this.datasourceInstanceKey = this.route.snapshot.params.key;
 
-        this.loadDatasource();
+        if (this.datasourceInstanceKey) {
+            this.showAutoIncrement = localStorage.getItem(this.datasourceInstanceKey + '_show_id') === 'true';
+            this.loadDatasource();
+        } else {
+            const dialogRef = this.dialog.open(ImportWizardComponent, {
+                width: '800px',
+                height: '900px',
+                disableClose: true,
+                data: {
+                    columns: this.columns,
+                    datasourceUpdate: this.datasourceUpdate,
+                    rows: this.rows,
+                    datasourceInstanceKey: this.datasourceInstanceKey,
+                    reloadURL: this.reloadURL
+                }
+            });
+        }
+
+
     }
 
     ngAfterViewInit() {
@@ -96,54 +138,55 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         document.addEventListener('mouseup', () => {
             this.isMouseDown = false;
         });
-
-        document.querySelector('.datasource-table')
-            .addEventListener('copy', (event: ClipboardEvent) => {
-                const data = _.clone(this.rows);
-                const rows = data.splice(this.startRowIndex, this.endRowIndex + 1);
-                const copyData = _.map(rows, (value) => {
-                    const cols = Object.keys(value).splice(this.startCellIndex, this.endCellIndex + 1);
-                    const row = {};
-                    cols.forEach(col => {
-                        row[col] = value[col];
-                    });
-
-                    return row;
-                });
-
-                event.clipboardData.setData('text', JSON.stringify(copyData));
-
-                event.preventDefault();
-            });
-
-        window.addEventListener('paste', (event: any) => {
-            if (this.selectedCell) {
-                const clipboardData = (event.clipboardData || window.clipboardData);
-                let data = [];
-
-                const text = clipboardData.getData('text');
-
-                try {
-                    data = JSON.parse(text);
-
-                    this.insertCellData(data);
-                } catch (error) {
-                    data = text.split('\n');
-                    data = data.map(rows => {
-                        return rows.split('\t');
-                    });
-
-                    this.insertCellData(data);
-                }
-            }
-            event.preventDefault();
-        });
     }
 
     ngOnDestroy() {
         if (this.sidenavService) {
             this.sidenavService.open();
         }
+    }
+
+    public clearFilter() {
+        this.filterJunction = {
+            logic: 'AND',
+            filters: [{
+                lhsExpression: '',
+                rhsExpression: [],
+                filterType: ''
+            }],
+            filterJunctions: []
+        };
+        this.loadDatasource();
+    }
+
+    public applyFilter() {
+        this.loadDatasource([{type: 'filter', config: this.filterJunction}]);
+    }
+
+    public sortColumn(column: any, direction: string) {
+        const transformations = [];
+        if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
+            transformations.push({type: 'filter', config: this.filterJunction});
+        }
+
+        transformations.push({
+            type: 'multisort',
+            config: {
+                sorts: [{fieldName: column.name, direction}]
+            }
+        });
+
+        this.loadDatasource(transformations);
+    }
+
+    public updateSelectAll() {
+        this.rows.map(row => {
+            row._selected = this.selectAll;
+        });
+    }
+
+    public updateSelected() {
+        this.selectAll = _.every(this.rows, '_selected');
     }
 
     public updateAutoIncrementColumn(value) {
@@ -176,14 +219,22 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.columns.push(this.selectedItem);
             this.selectedItem._index = this.columns.length - 1;
         }
+
+        setTimeout(() => {
+            document.getElementById(this.selectedItem.type + this.selectedItem._index).scrollIntoView();
+        });
     }
 
     public import() {
         const dialogRef = this.dialog.open(ImportDataComponent, {
-            width: '600px',
-            height: '600px',
+            width: '800px',
+            height: '900px',
             data: {
-                columns: this.columns
+                columns: this.columns,
+                datasourceUpdate: this.datasourceUpdate,
+                rows: this.rows,
+                datasourceInstanceKey: this.datasourceInstanceKey,
+                reloadURL: this.reloadURL
             }
         });
         dialogRef.afterClosed().subscribe(res => {
@@ -209,6 +260,49 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 } else {
                     this.insertCellData(res.data);
                 }
+            }
+        });
+    }
+
+    public async deleteSelectedColumns() {
+        const message = 'Are you sure you would like to remove all of the selected entries? This action cannot be reversed.';
+        if (window.confirm(message)) {
+            const selected = _.filter(this.rows, '_selected');
+            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, {
+                title: this.datasourceUpdate.title,
+                instanceImportKey: this.datasourceUpdate.instanceImportKey || '',
+                fields: this.datasourceUpdate.fields,
+                adds: [],
+                updates: [],
+                deletes: selected
+            });
+            window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
+        }
+    }
+
+    public addFilter() {
+
+    }
+
+    public advancedSettings() {
+        const dialogRef = this.dialog.open(AdvancedSettingsComponent, {
+            width: '800px',
+            height: '900px',
+            data: {
+                datasourceUpdate: this.datasourceUpdate,
+                datasourceInstanceKey: this.datasourceInstanceKey,
+                backendURL: this.backendURL,
+                columns: this.columns,
+                showAutoIncrement: this.showAutoIncrement
+            }
+        });
+        dialogRef.afterClosed().subscribe(advancedSettings => {
+            console.log(advancedSettings);
+            if (advancedSettings) {
+                this.columns = advancedSettings.columns;
+                this.datasourceUpdate.indexes = advancedSettings.datasourceUpdate.indexes;
+                this.showAutoIncrement = advancedSettings.showAutoIncrement;
+                localStorage.setItem(this.datasourceInstanceKey + '_show_id', String(this.showAutoIncrement));
             }
         });
     }
@@ -251,9 +345,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.removeCellFocusBorder();
             }
         }
-    }
-
-    public clearColumnContents(columnName) {
     }
 
     public deleteColumn(index) {
@@ -317,7 +408,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public updateField(field, rowIndex) {
         if (this.adds.indexOf(rowIndex) === -1) {
-            this.updates.push(rowIndex);
+            if (this.updates.indexOf(rowIndex) === -1) {
+                this.updates.push(rowIndex);
+            }
         }
     }
 
@@ -350,34 +443,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
         setTimeout(() => {
             rowElement = document.querySelectorAll('.table-rows').item(rowElementIndex);
-            const rowCell: any = rowElement.querySelectorAll('.row-cell').item(rowColIndex);
+            const rowCell: any = rowElement.querySelectorAll('.row-cell').item(this.showAutoIncrement ? rowColIndex + 1 : rowColIndex);
             rowCell.querySelectorAll('.cell-input').item(0).focus();
         }, 0);
-    }
-
-    public deleteCell(value, rowIndex, rowColIndex) {
-        if (!value.length) {
-
-            if (rowColIndex > 0) {
-                setTimeout(() => {
-                    const rowElement = document.querySelectorAll('.table-rows').item(rowIndex);
-                    const rowCell: any = rowElement.querySelectorAll('.row-cell').item(rowColIndex - 1);
-                    rowCell.querySelectorAll('.cell-input').item(0).focus();
-                }, 0);
-                return;
-            }
-
-            if (_.filter(this.rows[rowIndex]).length === 0 &&
-                rowColIndex === 0 && rowIndex > 0) {
-
-                const rowElement = document.querySelectorAll('.table-rows').item(rowIndex - 1);
-                const rowCell: any = rowElement.querySelectorAll('.row-cell').item(0);
-                rowCell.querySelectorAll('.cell-input').item(0).focus();
-
-                this.deleteRow(rowIndex);
-            }
-        }
-
     }
 
     public async save(exit = false) {
@@ -423,7 +491,14 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     this.adds = [];
                     this.updates = [];
                     this.deletes = [];
-                    await this.loadDatasource();
+
+                    // If we have a filter in use, apply it to the next load...
+                    const transformations = [];
+                    if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
+                        transformations.push({type: 'filter', config: this.filterJunction});
+                    }
+
+                    await this.loadDatasource(transformations);
                     return true;
                 })
                 .catch(err => {
@@ -440,53 +515,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public deleteSelectedColumn() {
         this.columns.splice(this.selectedItem._index, 1);
-    }
-
-    public mousedownSelection(event, rowIndex, cellIndex) {
-        this.isMouseDown = true;
-
-        document.querySelectorAll('.datasource-table .bg-indigo-50').forEach(element => {
-            element.classList.remove('bg-indigo-50');
-        });
-
-        this.startRowIndex = rowIndex;
-        this.startCellIndex = cellIndex;
-        this.endRowIndex = rowIndex;
-        this.endCellIndex = cellIndex;
-    }
-
-    public mouseoverSelection(event, rowIndex, cellIndex) {
-        if (!this.isMouseDown) {
-            return;
-        }
-
-        document.querySelectorAll('.row-cell.bg-indigo-50').forEach(element => {
-            element.classList.remove('bg-indigo-50');
-        });
-
-        this.selectCell(rowIndex, cellIndex);
-        this.endRowIndex = rowIndex;
-        this.endCellIndex = cellIndex;
-    }
-
-    public resetTable() {
-        const message = 'Are you sure you would like to reset the entire table? This will remove all data and columns. This action cannot be undone.';
-        if (window.confirm(message)) {
-            this.selectedCell = null;
-            this.rows = [];
-            this.columns = [
-                {
-                    title: 'Column 1',
-                    name: 'column_1',
-                    type: 'string'
-                },
-                {
-                    title: 'Column 2',
-                    name: 'column_2',
-                    type: 'string'
-                }
-            ];
-        }
     }
 
     public pageSizeChange(value) {
@@ -506,19 +534,26 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         this.loadDatasource();
     }
 
-    private loadDatasource() {
+    private loadDatasource(transformationInstances: any[] = []) {
         if (this.datasourceInstanceKey) {
             const evaluatedDatasource = {
                 key: this.datasourceInstanceKey,
-                transformationInstances: [],
+                transformationInstances,
                 parameterValues: {},
                 offset: this.offset,
                 limit: this.limit
             };
+
             this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
                 this.columns = res.columns.map(column => {
                     column.previousName = column.name;
                     return column;
+                });
+                this.filterFields = _.map(this.columns, column => {
+                    return {
+                        title: column.title,
+                        name: column.name
+                    };
                 });
                 this.rows = res.allData;
 
@@ -526,8 +561,14 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
                 this.datasourceUpdate.title = res.instanceTitle;
                 this.datasourceUpdate.instanceImportKey = res.instanceImportKey;
+                this.datasourceUpdate.indexes = res.indexes;
+                this.datasourceUpdate.adds = [];
+                this.datasourceUpdate.updates = [];
+                this.datasourceUpdate.deletes = [];
 
                 this.autoIncrementColumn = _.some(this.columns, {type: 'id'});
+
+                this.selectAll = false;
             });
         }
     }

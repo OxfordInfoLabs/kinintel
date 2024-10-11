@@ -4,6 +4,9 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 
 
+use Kinintel\ValueObjects\Datasource\Configuration\IndexableDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+
 /**
  * Fixed extension of the sql database datasource config which prescribes managed table
  * functionality.  Used by the snapshot and custom datasources.
@@ -11,7 +14,13 @@ namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
  * Class ManagedTableSQLDatabaseDatasourceConfig
  * @package Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase
  */
-class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfig {
+class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfig implements IndexableDatasourceConfig {
+
+    /**
+     * @var Index[]
+     */
+    private $indexes = [];
+
 
     /**
      * Construct a managed table datasource
@@ -19,7 +28,7 @@ class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfi
      * @param string $source
      * @param string $tableName
      * @param string $query
-     * @param Field[] $columns
+     * @param DatasourceUpdateField[] $columns
      * @param boolean $pagingViaParameters
      * @param Index[] $indexes
      */
@@ -28,10 +37,6 @@ class ManagedTableSQLDatabaseDatasourceConfig extends SQLDatabaseDatasourceConfi
         $this->indexes = $indexes;
     }
 
-    /**
-     * @var Index[]
-     */
-    private $indexes = [];
 
     /**
      * @return Index[]

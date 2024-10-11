@@ -5,14 +5,14 @@ namespace Kinintel\Services\DataProcessor\Analysis\StatisticalAnalysis;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\HierarchicalCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Cluster\KMeansCluster;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricCalculator;
 use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\MetricProcessor;
 use Kinintel\ValueObjects\DataProcessor\Configuration\Analysis\StatisticalAnalysis\DistanceAndClusteringProcessorConfiguration;
 
-class DistanceAndClusteringProcessor implements DataProcessor {
+class DistanceAndClusteringProcessor extends BaseDataProcessor {
 
     /**
      * @var HierarchicalCluster
@@ -62,4 +62,9 @@ class DistanceAndClusteringProcessor implements DataProcessor {
 
         return [$resultsHierarchical, $resultsKMeans];
     }
+
+    public function onInstanceDelete($instance) {
+
+    }
+
 }

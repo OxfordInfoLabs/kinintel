@@ -55,9 +55,6 @@ class TransformationInstance {
      * @return mixed
      */
     public function getConfig() {
-        /**
-         * @var ObjectBinder $objectBinder
-         */
         $objectBinder = Container::instance()->get(ObjectBinder::class);
 
         try {
@@ -91,10 +88,6 @@ class TransformationInstance {
      * @return Transformation
      */
     public function returnTransformation() {
-
-        /**
-         * @var Validator $validator
-         */
         $validator = Container::instance()->get(Validator::class);
 
         $transformation = $this->getConfig();

@@ -3,9 +3,16 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\MetaData\CategorySummary;
+use Kiniauth\Objects\Security\Role;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
+use Kiniauth\Services\Account\AccountService;
+use Kiniauth\Services\Security\ObjectScopeAccessService;
+use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
+use Kiniauth\ValueObjects\Security\ScopeAccessGroup;
+use Kiniauth\ValueObjects\Security\ScopeAccessItem;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
@@ -41,16 +48,38 @@ trait Dataset {
     private $sqlClauseSanitiser;
 
     /**
+     * @var ObjectScopeAccessService
+     */
+    private $objectScopeAccessService;
+
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    /**
+     * @var SecurityService
+     */
+    private $securityService;
+
+
+    /**
      * Dataset constructor.
      *
      * @param DatasetService $datasetService
      * @param LongRunningTaskService $longRunningTaskService
      * @param SQLClauseSanitiser $sqlClauseSanitiser
+     * @param ObjectScopeAccessService $objectScopeAccessService
+     * @param AccountService $accountService
+     * @param SecurityService $securityService
      */
-    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser) {
+    public function __construct($datasetService, $longRunningTaskService, $sqlClauseSanitiser, $objectScopeAccessService, $accountService, $securityService) {
         $this->datasetService = $datasetService;
         $this->longRunningTaskService = $longRunningTaskService;
         $this->sqlClauseSanitiser = $sqlClauseSanitiser;
+        $this->objectScopeAccessService = $objectScopeAccessService;
+        $this->accountService = $accountService;
+        $this->securityService = $securityService;
     }
 
 
@@ -102,6 +131,21 @@ trait Dataset {
 
 
     /**
+     * Filter dataset instances shared with my account
+     *
+     * @http GET /shared
+     *
+     * @param string $filterString
+     * @param int $offset
+     * @param int $limit
+     * @return DatasetInstanceSearchResult[]
+     */
+    public function filterDatasetInstancesSharedWithAccount($filterString = "", $offset = 0, $limit = 10) {
+        return $this->datasetService->filterDatasetInstancesSharedWithAccount($filterString, $offset, $limit);
+    }
+
+
+    /**
      * Filter in use dataset categories optionally for a project and tags
      *
      * @http GET /inUseCategories
@@ -114,6 +158,110 @@ trait Dataset {
     public function getInUseDatasetInstanceCategories($projectKey = null, $tags = "") {
         return $this->datasetService->getInUseDatasetInstanceCategories($tags, $projectKey);
     }
+
+
+    /**
+     * Set shared access for a dataset instance for the logged in account
+     *
+     * @http POST /shareWithCurrentAccount/$datasetInstanceId/$shared
+     *
+     * @param string $datasetInstanceId
+     * @param boolean $shared
+     *
+     * @return boolean
+     */
+    public function setSharedAccessForDatasetInstanceForLoggedInAccount($datasetInstanceId, $shared) {
+        list ($loggedInUser, $loggedInAccount) = $this->securityService->getLoggedInSecurableAndAccount();
+        $scopeAccessGroup = new ScopeAccessGroup([
+            new ScopeAccessItem(Role::SCOPE_ACCOUNT, $loggedInAccount->getAccountId())]);
+        if ($shared) {
+            $this->objectScopeAccessService->assignScopeAccessGroupsToObject(DatasetInstance::class, $datasetInstanceId, [$scopeAccessGroup]);
+        } else {
+            $this->objectScopeAccessService->removeScopeAccessGroupsFromObject(DatasetInstance::class, $datasetInstanceId, [$scopeAccessGroup->getGroupName()]);
+        }
+    }
+
+
+    /**
+     * Get shared access groups for dataset instance
+     *
+     * @http GET /sharedAccessGroups/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @return ScopeAccessGroup[]
+     */
+    public function getSharedAccessGroupsForDatasetInstance($datasetInstanceId) {
+        return $this->objectScopeAccessService->getScopeAccessGroupsForObject(DatasetInstance::class, $datasetInstanceId);
+    }
+
+
+    /**
+     * Revoke access to a group for a shared dataset instance
+     *
+     * @http DELETE /sharedAccessGroups/$datasetInstanceId
+     *
+     * @param string $datasetInstanceId
+     * @param string $accessGroup
+     * @return void
+     */
+    public function revokeAccessToGroupForDatasetInstance($datasetInstanceId, $accessGroup) {
+        $this->objectScopeAccessService->removeScopeAccessGroupsFromObject(DatasetInstance::class, $datasetInstanceId, [$accessGroup]);
+    }
+
+
+    /**
+     * Get the invited access groups for a dataset instance
+     *
+     * @http GET /invitedAccessGroups/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @return ScopeAccessGroup[]
+     */
+    public function getInvitedAccessGroupsForDatasetInstance($datasetInstanceId) {
+        return $this->objectScopeAccessService->listInvitationsForSharedObject(DatasetInstance::class, $datasetInstanceId);
+    }
+
+
+    /**
+     * Invite an account to share a dataset instance
+     *
+     * @http GET /invitedAccessGroups/$datasetInstanceId/$accountExternalIdentifier
+     *
+     * @param int $datasetInstanceId
+     * @param string $accountExternalIdentifier
+     * @param string $expiryDate
+     *
+     * @objectInterceptorDisabled
+     *
+     */
+    public function inviteAccountToShareDatasetInstance($datasetInstanceId, $accountExternalIdentifier, $expiryDate = null) {
+
+        // Grab account
+        $account = $this->accountService->getAccountByExternalIdentifier($accountExternalIdentifier);
+
+        // Invite account using scope access service
+        $this->objectScopeAccessService->inviteAccountAccessGroupsToShareObject(DatasetInstance::class, $datasetInstanceId, [
+            new ScopeAccessGroup([new ScopeAccessItem(Role::SCOPE_ACCOUNT, $account->getAccountId())], false, false, $expiryDate ? new \DateTime($expiryDate) : null)
+        ], "security/dataset-instance-share");
+    }
+
+
+    /**
+     * Cancel an invitation for access group
+     *
+     * @http DELETE /invitedAccessGroups/$datasetInstanceId
+     *
+     * @param $datasetInstanceId
+     * @param $accessGroup
+     *
+     * @return
+     */
+    public function cancelInvitationForAccessGroupForDatasetInstance($datasetInstanceId, $accessGroup) {
+        $this->objectScopeAccessService->cancelAccountInvitationsForAccessGroups(DatasetInstance::class, $datasetInstanceId, [
+            $accessGroup
+        ]);
+    }
+
 
     /**
      * Save a data set instance object
@@ -184,6 +332,18 @@ trait Dataset {
      */
     public function evaluateDataset($datasetInstanceSummary, $offset = 0, $limit = 25, $trackingKey = null, $projectKey = null) {
 
+        // Set the account id and project key as parameter values
+        $parameterValues = $datasetInstanceSummary->getParameterValues();
+
+        /**
+         * @var Account $account
+         */
+        $account = $this->securityService->getLoggedInSecurableAndAccount()[1];
+        $parameterValues["ACCOUNT_ID"] = $account->getAccountId();
+        $parameterValues["PROJECT_KEY"] = $projectKey;
+
+        $datasetInstanceSummary->setParameterValues($parameterValues);
+
         if (!$trackingKey) {
             $trackingKey = date("U") . StringUtils::generateRandomString(5);
         }
@@ -225,101 +385,6 @@ trait Dataset {
             $exportDataset->getExporterKey(), $exportDataset->getExporterConfiguration(),
             $exportDataset->getParameterValues(), $exportDataset->getTransformationInstances(),
             $exportDataset->getOffset(), $exportDataset->getLimit());
-    }
-
-
-    /**
-     * Filter snapshot profiles optionally by a string, project and tags
-     *
-     * @http GET /snapshotprofile
-     *
-     * @param string $filterString
-     * @param string $projectKey
-     * @param string $tags
-     * @param int $offset
-     * @param int $limit
-     *
-     * @hasPrivilege PROJECT:snapshotaccess($projectKey)
-     *
-     * @return \Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult[]
-     */
-    public function filterSnapshotProfiles($filterString = "", $projectKey = null, $tags = "", $offset = 0, $limit = 10) {
-        $tags = $tags ? explode(",", $tags) : [];
-        return $this->datasetService->filterSnapshotProfiles($filterString, $tags, $projectKey, $offset, $limit);
-    }
-
-    /**
-     * Get a snapshot profile by ID
-     *
-     * @http GET /snapshotprofile/$profileId
-     *
-     * @param $profileId
-     * @return mixed
-     */
-    public function getSnapshotProfile($profileId) {
-        return $this->datasetService->getSnapshotProfile($profileId);
-    }
-
-    /**
-     * List snapshot profiles for dataset instance by instance id
-     *
-     * @http GET /snapshotprofile/dataset/$datasetInstanceId
-     *
-     * @param $datasetInstanceId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     */
-    public function listSnapshotProfilesForDataSetInstance($datasetInstanceId) {
-        return $this->datasetService->listSnapshotProfilesForDataSetInstance($datasetInstanceId);
-    }
-
-
-    /**
-     * Save a snapshot profile for an instance
-     *
-     * @http POST /snapshotprofile/$datasetInstanceId
-     *
-     * @param DatasetInstanceSnapshotProfileSummary $snapshotProfileSummary
-     * @param $datasetInstanceId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     */
-    public function saveSnapshotProfile($datasetInstanceId, $snapshotProfileSummary) {
-        $this->datasetService->saveSnapshotProfile($snapshotProfileSummary, $datasetInstanceId);
-    }
-
-
-    /**
-     * Remove a snapshot profile for an instance
-     *
-     * @http DELETE /snapshotprofile/$datasetInstanceId
-     *
-     * @param $datasetInstanceId
-     * @param $snapshotProfileId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     */
-    public function removeSnapshotProfile($snapshotProfileId, $datasetInstanceId) {
-        $this->datasetService->removeSnapshotProfile($datasetInstanceId, $snapshotProfileId);
-    }
-
-    /**
-     * Trigger an adhoc snapshot
-     *
-     * @http PATCH /snapshotprofile/$datasetInstanceId
-     *
-     * @param $datasetInstanceId
-     * @param $snapshotProfileId
-     *
-     * @referenceParameter $datasetInstance DatasetInstance($datasetInstanceId)
-     * @hasPrivilege PROJECT:snapshotaccess($datasetInstance.projectKey)
-     *
-     */
-    public function triggerSnapshot($datasetInstanceId, $snapshotProfileId) {
-        $this->datasetService->triggerSnapshot($datasetInstanceId, $snapshotProfileId);
     }
 
 

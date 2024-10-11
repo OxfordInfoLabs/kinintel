@@ -64,13 +64,4 @@ class Sort {
         $this->direction = $direction;
     }
 
-
-    /**
-     * Get the sort string
-     *
-     * @return string
-     */
-    public function getSortString() {
-        return $this->fieldName . " " . $this->direction;
-    }
 }

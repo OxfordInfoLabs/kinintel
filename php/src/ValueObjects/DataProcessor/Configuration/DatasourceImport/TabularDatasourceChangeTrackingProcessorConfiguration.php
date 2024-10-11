@@ -24,6 +24,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @var string
+     * @requiredEither targetChangeDatasourceKey,targetSummaryDatasourceKey
      */
     private $targetLatestDatasourceKey;
 
@@ -62,6 +63,12 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      */
     private $initialOffset;
 
+
+    /**
+     * @var string
+     */
+    private $offsetParameterName;
+
     /**
      * @param string[] $sourceDatasourceKeys
      * @param SourceDatasource[] $sourceDatasources
@@ -74,8 +81,10 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param int $targetWriteChunkSize
      * @param string $offsetField
      * @param mixed $initialOffset
+     * @param string $offsetParameterName
      */
-    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0) {
+    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0,
+                                $offsetParameterName = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -87,6 +96,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->sourceDatasources = $sourceDatasources;
         $this->offsetField = $offsetField;
         $this->initialOffset = $initialOffset;
+        $this->offsetParameterName = $offsetParameterName;
     }
 
     /**
@@ -242,5 +252,20 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     public function setInitialOffset($initialOffset) {
         $this->initialOffset = $initialOffset;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getOffsetParameterName(): ?string {
+        return $this->offsetParameterName;
+    }
+
+    /**
+     * @param string|null $offsetParameterName
+     */
+    public function setOffsetParameterName(?string $offsetParameterName): void {
+        $this->offsetParameterName = $offsetParameterName;
+    }
+
 
 }

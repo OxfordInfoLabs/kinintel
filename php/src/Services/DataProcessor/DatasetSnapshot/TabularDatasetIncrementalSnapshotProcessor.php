@@ -11,7 +11,7 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetIncrementalSnapshotProcessorConfiguration;
@@ -24,7 +24,7 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
-class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
+class TabularDatasetIncrementalSnapshotProcessor extends BaseDataProcessor {
 
 
     /**
@@ -92,7 +92,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         $config = $instance->returnConfig();
 
         // Read the source dataset instance
-        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($config->getDatasetInstanceId());
+        $sourceDataSetInstance = $this->datasetService->getFullDataSetInstance($instance->getRelatedObjectKey());
 
         // Grab the newer values field
         $newerValuesField = $config->getNewerValuesFieldName();
@@ -105,7 +105,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         // Lookup any previous reference value using configured rule
         $referenceValue = null;
         try {
-            $referenceMatches = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($config->getSnapshotIdentifier(), [], [
+            $referenceMatches = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($instance->getKey(), [], [
                 new TransformationInstance("summarise", new SummariseTransformation([], [
                     new SummariseExpression($referenceCondition, $newerValuesField, null, "snapshotLastValue")
                 ]))
@@ -135,7 +135,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         do {
 
             // Evaluate the data set
-            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getDatasetInstanceId(), [], $filterTransformations, $offset, $limit);
+            $dataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($instance->getRelatedObjectKey(), $config->getParameterValues() ?? [], $filterTransformations, $offset, $limit);
             $results = $dataset->getAllData();
 
 
@@ -158,7 +158,7 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
                 // Grab indexes
                 $indexes = $config->getIndexes() ?: [];
 
-                $datasource = $this->ensureDatasource($config->getSnapshotIdentifier(), $instance->getTitle(),
+                $datasource = $this->ensureDatasource($instance->getKey(), $instance->getTitle(),
                     $config,
                     $fields, $indexes, $sourceDataSetInstance->getAccountId(), $sourceDataSetInstance->getProjectKey());
             }
@@ -224,6 +224,23 @@ class TabularDatasetIncrementalSnapshotProcessor implements DataProcessor {
         // Save and return the datasource instance
         $datasourceInstance = $this->datasourceService->saveDataSourceInstance($datasourceInstance);
         return $datasourceInstance->returnDataSource();
+    }
+
+    /**
+     * Clean up on delete
+     *
+     * @param DataProcessorInstance $instance
+     * @return void
+     */
+    public function onInstanceDelete($instance) {
+
+        // Now attempt delete of the datasource
+        try {
+            $this->datasourceService->removeDatasourceInstance($instance->getKey());
+        } catch (ObjectNotFoundException $e) {
+            // No probs
+        }
+
     }
 
 }

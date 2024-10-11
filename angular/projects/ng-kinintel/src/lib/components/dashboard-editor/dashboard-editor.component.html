@@ -76,7 +76,7 @@
     </div>
 
 
-    <div class="dashboard-parameters bg-gray-50 px-4 py-0.5 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
+    <div class="dashboard-parameters flex-wrap bg-gray-50 px-4 py-0.5 border-b border-gray-200" *ngIf="dashboard.layoutSettings">
 
         <div class="list-title">
             Parameters
@@ -92,6 +92,12 @@
                     <ng-template [ngIf]="parameter.type === 'numeric'">
                         <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                (keyup.enter)="reloadDashboard()" required autofocus>
+                    </ng-template>
+                    <ng-template [ngIf]="parameter.type === 'list'">
+                        <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
+                                (change)="reloadDashboard()" required autofocus>
+                            <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                        </select>
                     </ng-template>
                     <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                         <ng-template [ngIf]="!parameter._dateType">
@@ -172,23 +178,28 @@
 </ng-template>
 <div class="grid-container flex justify-between">
     <div class="grid-stack flex-1 h-full"></div>
-    <div class="right-panel" [ngClass]="{show: showEditPanel}">
-        <div class="flex items-center justify-between">
-            <div></div>
+    <div class="right-panel bg-transparent" [ngClass]="{show: showEditPanel}">
+        <div class="flex items-center justify-between border-b mb-4">
+            <div class="pl-4 available-widgets">Available Widgets</div>
             <button mat-icon-button color="primary" (click)="editDashboardItems()">
                 <mat-icon>close</mat-icon>
             </button>
         </div>
-        <div class="draggable-toolbar">
-            <ng-template ngFor let-item [ngForOf]="itemTypes" let-i=index>
-                <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
-                     [attr.gs-h]="item.height" [attr.data-index]="i">
-                    <div class="grid-stack-item-content " draggable="true">
-                        <ki-item-component class="p-0 justify-center text-sm" [dragItem]="true" [dashboardItemType]="item"></ki-item-component>
+        <ng-template ngFor let-group [ngForOf]="itemTypeGroups" let-j=index>
+            <div class="pl-4 uppercase text-xs text-gray-600 tracking-wider">{{group}}</div>
+            <div class="draggable-toolbar">
+                <ng-template ngFor let-item [ngForOf]="itemTypesByGroup[group]" let-i=index>
+                    <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
+                         [attr.gs-h]="item.height" [attr.data-index]="i" [attr.data-group]="group">
+                        <div class="grid-stack-item-content shadow" draggable="true">
+                            <ki-item-component class="p-0 justify-center text-sm" [dragItem]="true"
+                                               [dashboardItemType]="item"></ki-item-component>
+                        </div>
                     </div>
-                </div>
-            </ng-template>
-        </div>
+                </ng-template>
+            </div>
+        </ng-template>
+
     </div>
 </div>
 

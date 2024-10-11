@@ -1,78 +1,127 @@
-<div class="mb-8 mt-4">
-    <input class="full" type="text" placeholder="Search for available data items"
-           (keyup)="searchText.next($event.target.value)">
+<div class="flex flex-col h-full">
+
+    <div class="relative bg-white flex items-center  focus-within:z-10">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd"
+                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                      clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <input type="text" class="block w-full rounded-none pl-10 border-r-0 border-l-0"
+               placeholder="Search for available data items"
+               (keyup)="searchText.next($event.target.value)">
+
+    </div>
+
+    <div class="flex w-full overflow-hidden flex-grow">
+        <div class="w-64 border-r">
+            <div class="menu-items">
+                <a (click)="selectedType.next(null)" class="menu-item"
+                   [ngClass]="{active: selectedType.getValue() === null}">
+                    <mat-icon>clear_all</mat-icon>
+                    <span>Show All</span>
+                </a>
+
+                <ng-template ngFor let-mapping [ngForOf]="typeMapping">
+                    <ng-template ngFor let-type [ngForOf]="types">
+                        <a *ngIf="mapping.key === type.memberValue" (click)="selectedType.next(type.memberValue)"
+                           class="menu-item"
+                           [ngClass]="{active: selectedType.getValue() === type.memberValue}">
+                            <div class="flex items-center justify-between w-full pr-2">
+                                <div class="flex items-center">
+                                    <mat-icon class="{{mapping.class}}">{{ mapping.icon }}</mat-icon>
+                                    <span>{{ mapping.label }}</span>
+                                </div>
+                                <div class="bg-primary rounded-full px-1.5 py-0 text-white text-xs">
+                                    {{type.expressionValue}}
+                                </div>
+                            </div>
+
+                        </a>
+                    </ng-template>
+
+                </ng-template>
+
+            </div>
+        </div>
+        <div class="flex flex-col justify-between w-full overflow-y-scroll">
+            <table class="w-full border-collapse table-fixed">
+                <thead class="bg-gray-100">
+                <tr>
+                    <th scope="col"
+                        class="sticky top-0 z-10 w-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+
+                    </th>
+                    <th scope="col"
+                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                        Name
+                    </th>
+                    <th scope="col"
+                        class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
+                        <span class="sr-only">Edit</span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="bg-white">
+                <tr *ngFor="let dataItem of data">
+                    <td class="whitespace-normal border-b border-gray-200 py-2 pl-4 text-sm font-medium text-gray-900">
+                        <ng-template [ngIf]="_.find(typeMapping, {key: dataItem.type})">
+                            <mat-icon class="text-gray-300 {{_.find(typeMapping, {key: dataItem.type}).class}}">{{_.find(typeMapping, {key: dataItem.type}).icon}}</mat-icon>
+                        </ng-template>
+                    </td>
+                    <td class="whitespace-normal border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
+                        <div class="flex h-10 justify-center flex-col">
+                            <div>{{ dataItem.title || dataItem.fullTitle }}</div>
+                            <div *ngIf="dataItem.description"
+                                 class="text-gray-400 font-thin w-2/3 overflow-ellipsis overflow-hidden whitespace-nowrap">
+                                {{ dataItem.description }}
+                            </div>
+                        </div>
+
+                    </td>
+                    <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
+                        <ng-template ngFor let-action [ngForOf]="dataItem.actionItems">
+                            <button mat-button color="primary" (click)="select(action)">
+                                {{ action.title }}
+                            </button>
+                        </ng-template>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+    <div class="bg-gray-100 py-2 px-4 flex align-center justify-between">
+        <div class="text-xs text-gray-400">
+            Showing {{ data.length ? (offset + 1) : 0 }}
+            - {{ (page * limit) - (limit - data.length) }}
+        </div>
+        <div class="flex items-center justify-center">
+            <select [value]="limit"
+                    (change)="pageSizeChange($event.target.value)"
+                    class="mr-8 p-2">
+                <option [value]="1">1</option>
+                <option [value]="5">5</option>
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+                <option [value]="250">250</option>
+                <option [value]="1000">1000</option>
+            </select>
+            <button mat-icon-button class="mr-4" (click)="decreaseOffset()"
+                    [disabled]="page <= 1">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button (click)="increaseOffset()"
+                    [disabled]="endOfResults">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+        </div>
+    </div>
+
 </div>
-
-<table class="min-w-full border-separate" style="border-spacing: 0">
-    <ng-template ngFor let-tableKey [ngForOf]="Object.keys(tableData)">
-        <thead class="bg-gray-100">
-        <tr>
-            <th scope="col"
-                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                {{tableData[tableKey].title}}
-            </th>
-            <th scope="col"
-                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 px-4 backdrop-blur backdrop-filter">
-                <span class="sr-only">Edit</span>
-            </th>
-        </tr>
-        </thead>
-        <tbody class="bg-white">
-        <tr *ngFor="let dataItem of tableData[tableKey].data">
-            <td class="whitespace-normal border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
-                <div class="flex flex-col">
-                    <div>{{dataItem.title || dataItem.fullTitle}}</div>
-                    <div *ngIf="dataItem.summary"
-                         class="text-gray-400 font-thin w-2/3 overflow-ellipsis overflow-hidden whitespace-nowrap">
-                        {{dataItem.summary}}
-                    </div>
-                </div>
-
-            </td>
-            <td class="relative whitespace-nowrap border-b border-gray-200 py-2 px-4 text-right text-sm">
-                <ng-template [ngIf]="tableData[tableKey].type !== 'snapshot'">
-                    <button mat-button color="primary" (click)="select(dataItem, tableData[tableKey].type)">
-                        Select
-                    </button>
-                </ng-template>
-                <ng-template [ngIf]="tableData[tableKey].type === 'snapshot'">
-                    <button mat-button color="primary" (click)="select(dataItem.snapshotProfileHistoricalDatasourceInstanceKey, tableData[tableKey].type)">
-                        Select Historical
-                    </button>
-                    <button mat-button color="primary" (click)="select(dataItem.snapshotProfileLatestDatasourceInstanceKey, tableData[tableKey].type)">
-                        Select Latest
-                    </button>
-                </ng-template>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="5"
-                class="bg-gray-50 whitespace-nowrap border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">
-                <div class="paging-toolbar flex align-center justify-between">
-                    <div class="text-xs text-gray-400">
-                        Showing {{tableData[tableKey].data.length ? (tableData[tableKey].offset + 1) : 0}} - {{(tableData[tableKey].page * tableData[tableKey].limit) - (tableData[tableKey].limit - tableData[tableKey].data.length)}}</div>
-                    <div class="flex items-center justify-center">
-                        <select [value]="tableData[tableKey].limit" (change)="pageSizeChange($event.target.value, tableData[tableKey])"
-                                class="mr-8 p-2">
-                            <option [value]="1">1</option>
-                            <option [value]="5">5</option>
-                            <option [value]="10">10</option>
-                            <option [value]="25">25</option>
-                            <option [value]="50">50</option>
-                            <option [value]="100">100</option>
-                            <option [value]="250">250</option>
-                            <option [value]="1000">1000</option>
-                        </select>
-                        <button mat-icon-button class="mr-4" (click)="decreaseOffset(tableData[tableKey])" [disabled]="tableData[tableKey].page <= 1">
-                            <mat-icon>chevron_left</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="increaseOffset(tableData[tableKey])" [disabled]="tableData[tableKey].endOfResults">
-                            <mat-icon>chevron_right</mat-icon>
-                        </button>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </ng-template>
-</table>

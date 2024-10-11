@@ -50,12 +50,21 @@ class Parameter {
      */
     private $defaultValue;
 
+    /**
+     * Settings
+     *
+     * @var mixed
+     * @json
+     * @sqlType LONGTEXT
+     */
+    private $settings;
 
     const TYPE_TEXT = "text";
     const TYPE_NUMERIC = "numeric";
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
     const TYPE_BOOLEAN = "boolean";
+    const TYPE_LIST = "list";
 
     /**
      * Parameter constructor.
@@ -63,13 +72,15 @@ class Parameter {
      * @param string $title
      * @param string $type
      * @param bool $multiple
+     * @param mixed $settings
      */
-    public function __construct($name, $title, $type = self::TYPE_TEXT, $multiple = false, $defaultValue = null) {
+    public function __construct($name, $title, $type = self::TYPE_TEXT, $multiple = false, $defaultValue = null, $settings = null) {
         $this->name = $name;
         $this->title = $title;
         $this->type = $type;
         $this->multiple = $multiple;
         $this->defaultValue = $defaultValue;
+        $this->settings = $settings;
     }
 
 
@@ -143,6 +154,20 @@ class Parameter {
         $this->defaultValue = $defaultValue;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getSettings(): mixed {
+        return $this->settings;
+    }
+
+    /**
+     * @param mixed $settings
+     * @return void
+     */
+    public function setSettings(mixed $settings): void {
+        $this->settings = $settings;
+    }
 
     /**
      * Validate a parameter value according to the type specified here.

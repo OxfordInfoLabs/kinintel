@@ -39,6 +39,7 @@ import {
 } from './dashboard-settings/dashboard-settings.component';
 import {ComponentCanDeactivate} from '../../../lib/guards/dashboard-changes.guard';
 import * as sha512 from 'js-sha512' ;
+import {DatasetService} from '../../services/dataset.service';
 
 @Component({
     selector: 'ki-dashboard-editor',
@@ -68,72 +69,100 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             label: 'Line Chart',
             icon: 'show_chart',
             width: 4,
-            height: 16
+            height: 16,
+            group: 'Charts'
         },
         {
             type: 'bar',
             label: 'Bar Chart',
-            icon: 'stacked_bar_chart',
+            icon: 'bar_chart',
             width: 4,
-            height: 16
+            height: 16,
+            group: 'Charts'
         },
         {
             type: 'pie',
             label: 'Pie Chart',
             icon: 'pie_chart',
             width: 4,
-            height: 16
+            height: 16,
+            group: 'Charts'
+        },
+        {
+            type: 'scatter',
+            label: 'Scatter Chart',
+            icon: 'scatter_plot',
+            width: 4,
+            height: 16,
+            group: 'Charts'
         },
         {
             type: 'table',
             label: 'Table',
             icon: 'table_chart',
             width: 4,
-            height: 20
+            height: 20,
+            group: 'Data'
         },
         {
             type: 'doughnut',
             label: 'Doughnut',
             icon: 'donut_large',
             width: 4,
-            height: 16
+            height: 16,
+            group: 'Charts'
         },
         {
             type: 'metric',
             label: 'Metric',
             icon: 'trending_up',
             width: 3,
-            height: 10
+            height: 10,
+            group: 'Text'
         },
         {
             type: 'heading',
             label: 'Heading',
             icon: 'title',
             width: 4,
-            height: 8
+            height: 8,
+            group: 'Text'
         },
         {
             type: 'text',
             label: 'Template',
             icon: 'wysiwyg',
             width: 4,
-            height: 16
+            height: 16,
+            group: 'Text'
         },
         {
             type: 'image',
             label: 'Image',
             icon: 'image',
             width: 3,
-            height: 20
+            height: 20,
+            group: 'Images'
         },
         {
             type: 'words',
             label: 'Word Cloud',
             icon: 'language',
             width: 3,
-            height: 20
+            height: 20,
+            group: 'Data'
+        },
+        {
+            type: 'network',
+            label: 'Network',
+            icon: 'hub',
+            width: 6,
+            height: 20,
+            group: 'Charts'
         }
     ];
+    public itemTypeGroups: string[] = [];
+    public itemTypesByGroup: any = {};
     public dashboard: any = {};
     public activeSidePanel: string = null;
     public _ = _;
@@ -168,6 +197,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
     private itemComponents: ItemComponentComponent[] = [];
     private dashboardHash: string;
     private dashboardClone: any;
+    private unsavedChanges = true;
 
     public static myClone(event) {
         return event.target.cloneNode(true);
@@ -178,7 +208,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         // insert logic to check if there are pending changes here;
         // returning true will navigate without confirmation
         // returning false will show a confirm dialog before navigating away
-        return true;
+        return !this.unsavedChanges;
     }
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
@@ -189,7 +219,8 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                 private dialog: MatDialog,
                 private snackBar: MatSnackBar,
                 private router: Router,
-                private alertService: AlertService) {
+                private alertService: AlertService,
+                private datasetService: DatasetService) {
     }
 
     ngOnInit(): void {
@@ -199,6 +230,16 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             this.admin = !!cloned.a;
             delete cloned.a;
             this.queryParams = cloned;
+        });
+
+        this.itemTypeGroups = _(this.itemTypes)
+            .map('group')
+            .uniq()
+            .sortBy()
+            .valueOf();
+
+        this.itemTypeGroups.forEach(group => {
+            this.itemTypesByGroup[group] = _.filter(this.itemTypes, {group});
         });
     }
 
@@ -242,7 +283,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                 }
 
                 await this.addComponentToGridItem(item.el.firstChild, instanceId,
-                    dashboardItemType || _.clone(this.itemTypes[item.el.dataset.index]), !!dashboardItemType);
+                    dashboardItemType || _.clone(this.itemTypesByGroup[item.el.dataset.group][item.el.dataset.index]), !!dashboardItemType);
             }
 
             if (this.dashboard.displaySettings.inset) {
@@ -266,6 +307,14 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         if (!this.dashboard.title) {
             this.dashboard.title = 'New Dashboard';
             this.editDashboardTitle = true;
+        }
+
+        if (this.dashboard.layoutSettings?.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+            _.forEach(this.dashboard.layoutSettings.parameters, param => {
+                if (param.type === 'list') {
+                    this.loadListParameters(param);
+                }
+            });
         }
 
         // If we have any query params, check if they match any set out in the dashboard
@@ -320,6 +369,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
+        this.reloadDashboard();
     }
 
     public togglePerformance() {
@@ -392,8 +442,8 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             clonedParameter = _.clone(existingParameter);
         }
         const dialogRef = this.dialog.open(DatasetAddParameterComponent, {
-            width: '650px',
-            height: '650px',
+            width: '750px',
+            height: '850px',
             data: {
                 parameter: clonedParameter
             }
@@ -414,6 +464,10 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                     }
                 }
 
+                if (parameter.type === 'list') {
+                    this.loadListParameters(parameter);
+                }
+
                 this.dashboard.layoutSettings.parameters[parameter.name] = parameter;
             }
         });
@@ -424,6 +478,18 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
             'to fail.';
         if (window.confirm(message)) {
             delete this.dashboard.layoutSettings.parameters[parameter.name];
+        }
+    }
+
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
         }
     }
 
@@ -448,6 +514,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
                 });
             }
             if (!this.dashboard.id) {
+                this.unsavedChanges = false;
                 window.location.href = `/${this.routeURL}/${dashboardId}${this.admin ? '?a=true' : ''}`;
             }
             return this.dashboard;
@@ -516,6 +583,33 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         this.itemComponents.push(componentRef.instance);
 
         componentRef.instance.duplicateItem.subscribe(instanceKey => {
+            const newInstanceKey = 'i' + Date.now().toString();
+            const existingGrid = _.find(this.dashboard.layoutSettings.grid, item => {
+                return item.content.includes(instanceKey);
+            });
+            if (existingGrid) {
+                const existingDatasourceInstance = _.find(this.dashboard.datasetInstances, {instanceKey});
+                const newDatasourceInstance = _.cloneDeep(existingDatasourceInstance);
+                newDatasourceInstance.instanceKey = newInstanceKey;
+                this.dashboard.datasetInstances.push(newDatasourceInstance);
+
+                _.forEach(this.dashboard.layoutSettings, (item: any, key: string) => {
+                    if (key !== 'grid' && item[instanceKey]) {
+                        item[newInstanceKey] = _.cloneDeep(item[instanceKey]);
+                    }
+                });
+
+                const newElement = document.createElement('ki-item-component');
+                newElement.id = newInstanceKey;
+                newElement.dataset.dashboardItemType = JSON.stringify(dashboardItemType || {});
+                this.grid.addWidget({
+                    w: existingGrid ? existingGrid.w : 3,
+                    h: existingGrid ? existingGrid.h : 3,
+                    x: existingGrid ? existingGrid.x : 0,
+                    y: existingGrid ? existingGrid.y : 0,
+                    content: newElement.outerHTML
+                });
+            }
 
         });
 

@@ -10,7 +10,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
-use Kinintel\Services\DataProcessor\DataProcessor;
+use Kinintel\Services\DataProcessor\BaseDataProcessor;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDatasourceImportProcessorConfiguration;
@@ -23,29 +23,12 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 
-class TabularDatasourceImportProcessor implements DataProcessor {
+class TabularDatasourceImportProcessor extends BaseDataProcessor {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * DatasourceImportProcessor constructor.
-     *
-     * @param DatasourceService $datasourceService
-     * @param DatasetService $datasetService
-     */
-    public function __construct($datasourceService, $datasetService) {
-        $this->datasourceService = $datasourceService;
-        $this->datasetService = $datasetService;
+    public function __construct(
+        private DatasourceService $datasourceService,
+        private DatasetService $datasetService
+    ) {
     }
 
 
@@ -119,6 +102,7 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
                     $offset = $sourceReadChunkSize ? 0 : null;
                     do {
+
 
                         $paramSet = $this->addTargetSourceParametersIfRequired($config, $paramSet);
                         $sourceDataset = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($sourceDatasourceKey, $paramSet, null, $offset, $sourceReadChunkSize);
@@ -245,7 +229,6 @@ class TabularDatasourceImportProcessor implements DataProcessor {
 
     /**
      * @param TabularDatasourceImportProcessorConfiguration $config
-     *
      */
     private function addTargetSourceParametersIfRequired($config, $parameters = []) {
 
@@ -277,6 +260,10 @@ class TabularDatasourceImportProcessor implements DataProcessor {
         }
 
         return $parameters;
+    }
+
+    public function onInstanceDelete($instance) {
+
     }
 
 }

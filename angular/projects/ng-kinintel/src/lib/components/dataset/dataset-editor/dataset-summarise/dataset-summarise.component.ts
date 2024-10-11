@@ -32,7 +32,8 @@ export class DatasetSummariseComponent implements OnInit {
         {label: 'Sum of Values as Percentage', value: 'SUM_PERCENT'},
         {label: 'Minimum Value', value: 'MIN'},
         {label: 'Maximum Value', value: 'MAX'},
-        {label: 'Average Value', value: 'AVG'}
+        {label: 'Average Value', value: 'AVG'},
+        {label: 'Join values together with comma', value: 'GROUP_CONCAT'}
     ];
 
     constructor(public dialogRef: MatDialogRef<DatasetSummariseComponent>,

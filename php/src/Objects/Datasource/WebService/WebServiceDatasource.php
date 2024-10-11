@@ -8,6 +8,7 @@ use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
@@ -138,7 +139,7 @@ class WebServiceDatasource extends BaseDatasource {
      * Return materialised result set
      *
      * @param array $parameterValues
-     * @return \Kinintel\ValueObjects\Dataset\Dataset
+     * @return Dataset
      */
     public function materialiseDataset($parameterValues = []) {
 
@@ -206,6 +207,7 @@ class WebServiceDatasource extends BaseDatasource {
 
             // Evaluate params
             $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
+
 
 
             if ($config->isEncodeURLParameters()) {
@@ -276,8 +278,12 @@ class WebServiceDatasource extends BaseDatasource {
         }
 
         // Materialise the web service result and return the result
-        return $config->returnFormatter()->format($responseStream, $config->returnEvaluatedColumns($parameterValues), $config->isPagingViaParameters() ? PHP_INT_MAX : $limit,
-            $config->isPagingViaParameters() ? 0 : $offset);
+        return $config->returnFormatter()->format(
+            $responseStream,
+            $config->returnEvaluatedColumns($parameterValues),
+            $config->isPagingViaParameters() ? PHP_INT_MAX : $limit,
+            $config->isPagingViaParameters() ? 0 : $offset
+        );
 
     }
 

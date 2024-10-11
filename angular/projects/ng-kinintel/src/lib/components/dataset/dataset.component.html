@@ -76,9 +76,6 @@
                             </th>
                             <th scope="colgroup"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 pl-4 text-left text-xs font-semibold text-gray-900">
-                                <div class="w-full flex items-center justify-between">
-                                    Involved Sources
-                                </div>
                             </th>
                             <th scope="colgroup"
                                 class="sticky top-0 z-10 border-b border-gray-300 bg-gray-100 pl-4 text-right text-xs font-semibold text-gray-900">
@@ -130,11 +127,6 @@
                                          class="text-gray-400 font-thin cursor-pointer hover:underline">
                                         {{element.summary}}
                                     </div>
-                                    <div class="inline-category" *ngIf="element.categories.length">
-                                        <a *ngFor="let category of element.categories">
-                                            {{category.category}}
-                                        </a>
-                                    </div>
                                     <div *ngIf="element.viewDescription && element.description" class="mt-4"
                                          [innerHTML]="element.description"></div>
                                 </div>
@@ -142,22 +134,10 @@
                             <td class="border-gray-200 py-2 px-4 text-sm  text-gray-900"
                                 [ngClass]="{'border-b-0': i === datasets.length - 1, 'border-b': i !== datasets.length - 1,'opacity-50': (element.enabled === undefined ? false : !element.enabled) && !admin}">
 
-                                <div class="flex items-center flex-wrap">
-                                    <div *ngFor="let feed of element.involvedDatasources"
-                                         [matTooltip]="feed.description || ''"
-                                         matTooltipClass="text-sm bg-gray-800 bg-opacity-95"
-                                         [ngClass]="{'bg-primary': ['custom', 'snapshot'].indexOf(feed.type) === -1, 'bg-secondary': ['custom', 'snapshot'].indexOf(feed.type) >= 0}"
-                                         class="flex items-center my-1 mr-2 text-xs py-1 px-2 inline text-white rounded-xl">
-                                        <img *ngIf="['custom', 'snapshot'].indexOf(feed.type) === -1"
-                                             src="/assets/favicon-rev.png" class="w-2.5 mr-1.5">
-                                        <mat-icon *ngIf="feed.type === 'custom'"
-                                                  class="h-4 w-4 text-lg leading-4 mr-1.5">upload_file
-                                        </mat-icon>
-                                        <mat-icon *ngIf="feed.type === 'snapshot'"
-                                                  class="h-4 w-4 text-lg leading-4 mr-1.5">history
-                                        </mat-icon>
-                                        {{feed.title}}
-                                    </div>
+                                <div class="inline-category" *ngIf="element.categories.length">
+                                    <a *ngFor="let category of element.categories">
+                                        {{category.category}}
+                                    </a>
                                 </div>
 
                             </td>
@@ -228,7 +208,7 @@
                     </tbody>
                 </table>
 
-                <ng-template [ngIf]="listStyle === 'GRID'">
+                <ng-template [ngIf]="datasets.length && listStyle === 'GRID'">
 
                     <div class="my-4">
                         <div class="px-3">

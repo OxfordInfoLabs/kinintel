@@ -23,6 +23,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     @Input() headingLabel: string;
     @Input() headingDescription: string;
+    @Input() backendUrl:string;
     @Input() newTitle: string;
     @Input() newDescription: string;
     @Input() hideCreate: boolean;
@@ -176,6 +177,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public updateListStyle() {
         if (!this.admin) {
+            this.datasets = [];
             const listKey = this.getCurrentPathListKey();
             this.projectSettings[listKey] = this.listStyle;
             this.projectService.updateProjectSettings(this.activeProject.projectKey, this.projectSettings);
@@ -266,6 +268,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             closeOnNavigation: true,
             data: {
                 datasetInstanceSummary,
+                backendUrl: this.backendUrl,
                 showChart: false,
                 admin: this.admin,
                 newTitle: this.newTitle ? this.newTitle + ' Name' : null,
