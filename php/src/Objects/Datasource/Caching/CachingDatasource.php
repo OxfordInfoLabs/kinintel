@@ -233,7 +233,6 @@ class CachingDatasource extends BaseDatasource {
 
                     $cacheDatasource->update(new ArrayTabularDataset($targetFields, $batch), $updateMode);
 
-
                     Logger::log("Ending cache update");
 
                 }
