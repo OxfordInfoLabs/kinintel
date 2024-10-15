@@ -45,6 +45,9 @@ class CommandDatasourceTest extends TestBase {
         $this->assertFalse(file_exists("/tmp/$date.txt"));
     }
 
+    /**
+     * @group nontravis
+     */
     public function testWasModifiedRecently() {
         passthru("touch -c ~/.bashrc");
 
