@@ -13,9 +13,9 @@ include_once "autoloader.php";
 class CommandDatasourceTest extends TestBase {
 
     public function testCommandDatasourceDoesntRunIfFileIsFresh(){
-        $outDir = "/tmp/command";
-        passthru("rm $outDir/*");
+        $outDir = "/tmp/test_command";
         passthru("mkdir -p $outDir");
+        passthru("rm $outDir/*");
         passthru("echo bob > $outDir/out.csv");
         $date = date_create()->format("Y-m-d-H-i-s");
         $config = new CommandDatasourceConfig([
@@ -30,7 +30,7 @@ class CommandDatasourceTest extends TestBase {
     }
 
     public function testCommandDatasourceRunsIfFileIsNotFresh(){
-        $outDir = "/tmp/command2";
+        $outDir = "/tmp/test_command2";
         passthru("mkdir -p $outDir");
         passthru("rm $outDir/*");
         $date = date_create()->format("Y-m-d-H-i-s");
