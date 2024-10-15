@@ -44,4 +44,27 @@ class CommandDatasourceTest extends TestBase {
         $this->assertEquals([["name" => "pete", "clout" => 100]], $data);
         $this->assertFalse(file_exists("/tmp/$date.txt"));
     }
+
+    public function testWasModifiedRecently() {
+        passthru("touch -c ~/.bashrc");
+
+        passthru("mkdir -p ~/tmp");
+        passthru("touch ~/tmp/example.txt");
+
+        $out = CommandDatasource::wasUpdatedInTheLast(
+            \DateInterval::createFromDateString("+1 hour"),
+            "~/.bashrc"
+        );
+
+        $this->assertFalse($out);
+
+
+        // PHP is in a different timezone from Linux so we need 2 hours
+        $out = CommandDatasource::wasUpdatedInTheLast(
+            \DateInterval::createFromDateString("+2 hour"),
+            "~/tmp/example.txt"
+        );
+
+        $this->assertTrue($out);
+    }
 }

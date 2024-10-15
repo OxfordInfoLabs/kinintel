@@ -18,10 +18,12 @@ class CommandDatasource extends BaseDatasource {
         return CommandDatasourceConfig::class;
     }
 
-    public static function wasEditedInTheLast(DateInterval $dateInterval, string $file) : bool {
+    public static function wasUpdatedInTheLast(DateInterval $dateInterval, string $file) : bool {
+        $file = str_replace("~", getenv("HOME"), $file);
         $commandProcessor = Container::instance()->get(ExternalCommandProcessor::class);
-        if (!file_exists($file)) return true;
-        $lastModifiedDateString = $commandProcessor->process("date -r $file -u +\"%Y-%m-%d %H:%M:%S\"");
+        if (!file_exists($file)) return false;
+        $command = "date -r $file -u \"+%Y-%m-%d %H:%M:%S\"";
+        $lastModifiedDateString = $commandProcessor->processToOutput($command);
         $lastModifiedDate = date_create_from_format("Y-m-d H:i:s", $lastModifiedDateString);
         return $lastModifiedDate > date_create()->sub($dateInterval);
     }
@@ -37,8 +39,11 @@ class CommandDatasource extends BaseDatasource {
         // Create outDir if not exists
         $commandProcessor->process("mkdir -p $config->outDir");
 
-        // Hit the file to see if it was updated recently
-        if (self::wasEditedInTheLast(DateInterval::createFromDateString("+".$config->cacheResultFileDateInterval), "$config->outDir/out.csv")) {
+        // Only process if the file wasn't updated recently
+        if (!self::wasUpdatedInTheLast(
+            DateInterval::createFromDateString("+".$config->cacheResultFileDateInterval),
+            "$config->outDir/out.csv")
+        ) {
             foreach ($config->commands as $command) {
                 $commandProcessor->process($command);
             }
