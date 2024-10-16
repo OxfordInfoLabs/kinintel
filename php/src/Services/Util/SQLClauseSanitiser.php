@@ -3,6 +3,8 @@
 
 namespace Kinintel\Services\Util;
 
+use Kinikit\Core\Logging\Logger;
+
 /**
  * Class SQLClauseSanitiser
  * @package Kinintel\Services\Util
@@ -184,6 +186,7 @@ class SQLClauseSanitiser {
      * @return string
      */
     public function sanitiseSQL($sqlString, &$parameterValues = [], &$hasUnresolvedStrings = false) {
+
 
         // Copy params
         $existingParams = $parameterValues;

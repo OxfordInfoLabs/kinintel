@@ -143,6 +143,21 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("?", $value);
         $this->assertSame(["Hello"], $parameters);
 
+        // Apostrophe words
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("{{test}}", ["test" => "Who's outside it's cold"], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertSame(["Who's outside it's cold"], $parameters);
+
+        // Complex strings with injection risks are correctly encoded
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("{{test}}", ["test" => "9999999999' or '1'='"], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertSame(["9999999999' or '1'='"], $parameters);
+
+
 
     }
 
