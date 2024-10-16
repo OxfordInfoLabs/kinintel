@@ -7,6 +7,8 @@ namespace Kinintel\Test\ValueObjects\Datasource\Configuration\WebService;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 
+include_once "autoloader.php";
+
 /**
  * Test cases for the web service data source config
  *
