@@ -29,6 +29,7 @@ class XMLResultFormatter implements ResultFormatter {
         string $itemXPath,
         private array $namespaces = [],
         private ?array $xpathTargets = null, // If this is null, we target all child elements of a row
+        private $html = false
     ) {
         $this->itemXPath = $itemXPath;
     }
@@ -50,7 +51,15 @@ class XMLResultFormatter implements ResultFormatter {
 
         // Convert to DOM document
         $xml = new \DOMDocument();
-        $xml->loadXML($xmlString,LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING);
+        if ($this->html){
+            $xml->loadHTML($xmlString,LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+                | LIBXML_NOERROR | LIBXML_NOWARNING
+            );
+        } else {
+            $xml->loadXML($xmlString,LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+//                | LIBXML_NOERROR | LIBXML_NOWARNING
+            );
+        }
         $xpath = new \DOMXPath($xml);
 
         // Register namespaces - XML may parse jankily if you forget to do this!

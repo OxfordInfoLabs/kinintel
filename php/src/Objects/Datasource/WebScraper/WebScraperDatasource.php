@@ -9,10 +9,12 @@ use Kinikit\Core\HTTP\Request\Request;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
+use Kinintel\Objects\ResultFormatter\XMLResultFormatter;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\FieldWithXPathSelector;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\WebScraperDatasourceConfig;
+use Kinintel\ValueObjects\ResultFormatter\XPathTarget;
 
 /**
  * Web scraper datasource - used for obtaining structured data
@@ -103,6 +105,21 @@ class WebScraperDatasource extends BaseDatasource {
         $response = $this->httpRequestDispatcher->dispatch(new Request($url, Request::METHOD_GET, [], null, new Headers([
             Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
         ])));
+
+        $targets = array_map(
+            fn($xCol) => new XPathTarget(
+                $xCol->getName(),
+                $xCol->getXpath(),
+                $xCol->getAttribute()
+            ), $config->getColumns()
+        );
+        $formatter = new XMLResultFormatter($config->getRowsXPath(), [], $targets, html: true);
+
+        return $formatter->format(
+            $response->getStream(),
+            array_map(fn($xCol) => $xCol->asField(), $config->getColumns()),
+            offset: $config->getFirstRowOffset()
+        );
 
 
         // Generate HTML document

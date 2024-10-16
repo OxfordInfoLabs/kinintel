@@ -11,6 +11,7 @@ use Kinintel\ValueObjects\ResultFormatter\XPathTarget;
 
 include_once "autoloader.php";
 
+
 class XMLResultFormatterTest extends \PHPUnit\Framework\TestCase {
 
     public function testCanFormatAnXMLDocumentUsingASimpleItemXPath() {
@@ -124,22 +125,60 @@ XML;
                 new XPathTarget("id", ".", "id"),
                 new XPathTarget("name", "test:name"),
                 new XPathTarget("dob_raw", "test:dob"),
-                new XPathTarget("notes", "test:notes"),
-            ]
+                new XPathTarget("notes", "test:div[@class='notes']"),
+            ],
         );
         $xml = <<<XML
 <data xmlns='https://test.com'>
     <contact id="1">
        <name>Bobby</name>
        <dob>1999-01-01</dob>
-       <notes>Loves Gardening</notes>
+       <div class="notes">Loves Gardening</div>
     </contact>
     <contact id="2">
        <name>Mark</name>
        <dob>2024-12-25</dob>
-       <notes>Piano Player</notes>
+       <div class="notes">Piano Player</div>
     </contact>
 </data>
+XML;
+        $columns = [
+            new Field("id"),
+            new Field("name"),
+            new Field("date_of_birth", valueExpression: "[[ dob_raw | date 'd-MM-YYYY' ]]"),
+            new Field("notes"),
+        ];
+        $result = $formatter->format(new ReadOnlyStringStream($xml), $columns);
+
+        $expectedData = [
+            ["id" => 1, "name" => "Bobby", "date_of_birth" => "01-01-1999", "notes" => "Loves Gardening"],
+            ["id" => 2, "name" => "Mark", "date_of_birth" => "25-12-2024", "notes" => "Piano Player"],
+        ];
+        $this->assertEquals($columns, $result->getColumns());
+        $this->assertEquals($expectedData, $result->getAllData());
+    }
+    public function testCanParseHTML(){
+        $formatter = new XMLResultFormatter("//div[@class='contact']", [],
+            [
+                new XPathTarget("id", ".", "id"),
+                new XPathTarget("name", "span"),
+                new XPathTarget("dob_raw", "p"),
+                new XPathTarget("notes", "div[@class='notes']"),
+            ], true
+        );
+        $xml = <<<XML
+<html><body>
+    <div class="contact" id="1">
+       <span>Bobby</span>
+       <p>1999-01-01</p>
+       <div class="notes">Loves Gardening</div>
+    </div>
+    <div class="contact" id="2">
+       <span>Mark</span>
+       <p>2024-12-25</p>
+       <div class="notes">Piano Player</div>
+    </div>
+</body></html>
 XML;
         $columns = [
             new Field("id"),
