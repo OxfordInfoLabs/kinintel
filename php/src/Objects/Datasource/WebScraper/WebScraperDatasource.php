@@ -94,9 +94,7 @@ class WebScraperDatasource extends BaseDatasource {
     public function materialiseDataset($parameterValues = []) {
 
 
-        /**
-         * @var WebScraperDatasourceConfig $config
-         */
+        /** @var WebScraperDatasourceConfig $config */
         $config = $this->getConfig();
 
         $url = $this->parameterisedStringEvaluator->evaluateString($config->getUrl(), [], $parameterValues);
@@ -130,9 +128,7 @@ class WebScraperDatasource extends BaseDatasource {
                     $columnElements = $xPath->query($column->getXpath(), $row);
                     if ($columnElements->length > 0) {
 
-                        /**
-                         * @var \DOMElement $columnElement
-                         */
+                        /** @var \DOMElement $columnElement */
                         $columnElement = $columnElements[0];
 
                         $value = null;
