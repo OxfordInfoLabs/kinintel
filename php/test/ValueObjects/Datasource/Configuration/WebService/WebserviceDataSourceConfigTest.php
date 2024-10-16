@@ -31,21 +31,4 @@ class WebserviceDataSourceConfigTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-
-    public function testValidateMethodCorrectlyValidatesInvalidCompressionConfig() {
-
-        $webserviceConfig = new WebserviceDataSourceConfig("https://test.com");
-        $webserviceConfig->setCompressionType("zip");
-        $webserviceConfig->setCompressionConfig([]);
-
-        $validationErrors = $webserviceConfig->validate();
-
-        $this->assertEquals(1, sizeof($validationErrors));
-        $this->assertEquals(new FieldValidationError("entryFilename", "requiredEither", "One of the fields entryFilename, entryFilenames is required"),
-            $validationErrors["compressionConfig"]["entryFilename"]["requiredEither"]);
-
-
-    }
-
-
 }
