@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\Transformation\Transformation;
  * @implementation webscraper \Kinintel\Objects\Datasource\WebScraper\WebScraperDatasource
  * @implementation extending \Kinintel\Objects\Datasource\ExtendingDatasource
  * @implementation querycache \Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource
+ * @implementation command \Kinintel\Objects\Datasource\Command\CommandDatasource
  */
 interface Datasource {
 

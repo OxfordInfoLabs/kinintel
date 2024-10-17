@@ -141,9 +141,9 @@ class WebScraperDatasourceTest extends TestCase {
             new Field("logged_at"),
             new Field("not_before")
         ], [
-            ["id" => "12312038140", "logged_at" => "2024-03-08"],
-            ["id" => "12312067716", "logged_at" => "2024-03-08"],
-            ["id" => "12188526615", "logged_at" => "2024-02-25"]
+            ["id" => "12312038140", "logged_at" => "2024-03-08", "not_before" => null],
+            ["id" => "12312067716", "logged_at" => "2024-03-08", "not_before" => null],
+            ["id" => "12188526615", "logged_at" => "2024-02-25", "not_before" => null]
         ]), $dataset);
     }
 
