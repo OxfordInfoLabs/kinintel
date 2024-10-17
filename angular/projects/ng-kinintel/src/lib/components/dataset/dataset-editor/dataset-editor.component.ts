@@ -918,9 +918,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public async evaluateDataset(resetPager?) {
-        // If we have any pre-existing long-running tasks cancel these before setting off another evaluate.
-        this.cancelEvaluate();
-
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
                 this.resetPager();
@@ -969,8 +966,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
             setTimeout(() => {
                 if (!finished) {
+                    // If we have any pre-existing long-running tasks cancel these before setting off another evaluate.
+                    this.cancelEvaluate();
+
                     this.longRunning = true;
                     this.evaluateSub.unsubscribe();
+
                     this.resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
                         .subscribe((results: any) => {
                             if (results.status === 'COMPLETED') {
