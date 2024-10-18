@@ -20,7 +20,7 @@
             <div class="menu-items">
                 <a (click)="selectedType.next(null)" class="menu-item"
                    [ngClass]="{active: selectedType.getValue() === null}">
-                    <mat-icon>clear_all</mat-icon>
+                    <span class="material-symbols-outlined">clear_all</span>
                     <span>Show All</span>
                 </a>
 
@@ -31,7 +31,7 @@
                            [ngClass]="{active: selectedType.getValue() === type.memberValue}">
                             <div class="flex items-center justify-between w-full pr-2">
                                 <div class="flex items-center">
-                                    <mat-icon class="{{mapping.class}}">{{ mapping.icon }}</mat-icon>
+                                    <span class="material-symbols-outlined {{mapping.class}}">{{ mapping.icon }}</span>
                                     <span>{{ mapping.label }}</span>
                                 </div>
                                 <div class="bg-primary rounded-full px-1.5 py-0 text-white text-xs">
@@ -68,7 +68,7 @@
                 <tr *ngFor="let dataItem of data">
                     <td class="whitespace-normal border-b border-gray-200 py-2 pl-4 text-sm font-medium text-gray-900">
                         <ng-template [ngIf]="_.find(typeMapping, {key: dataItem.type})">
-                            <mat-icon class="text-gray-300 {{_.find(typeMapping, {key: dataItem.type}).class}}">{{_.find(typeMapping, {key: dataItem.type}).icon}}</mat-icon>
+                            <span class="material-symbols-outlined text-gray-300 {{_.find(typeMapping, {key: dataItem.type}).class}}">{{_.find(typeMapping, {key: dataItem.type}).icon}}</span>
                         </ng-template>
                     </td>
                     <td class="whitespace-normal border-b border-gray-200 py-2 px-4 text-sm font-medium text-gray-900">

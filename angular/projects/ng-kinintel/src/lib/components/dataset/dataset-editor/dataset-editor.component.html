@@ -314,7 +314,7 @@
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'formula'">
                                     <div class="text-sm text-gray-700 mb-0">
-                                        <b>EXPRESSION</b>&nbsp;{{transformation.config.expressions[0].expression}}
+                                        <b>EXPRESSION</b>&nbsp;{{decodeURIComponent(transformation.config.expressions[0].expression)}}
                                     </div>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'columns'">

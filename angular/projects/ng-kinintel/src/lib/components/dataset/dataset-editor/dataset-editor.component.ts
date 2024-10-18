@@ -88,6 +88,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public limit = 25;
     public offset = 0;
 
+    public readonly decodeURIComponent = decodeURIComponent;
+
     private evaluateSub: Subscription;
     private resultsSub: Subscription;
     private datasetTitle: string;
@@ -1135,6 +1137,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         return clonedDatasetInstance;
     }
 
+    protected readonly decodeURI = decodeURI;
 }
 
 @Component({
