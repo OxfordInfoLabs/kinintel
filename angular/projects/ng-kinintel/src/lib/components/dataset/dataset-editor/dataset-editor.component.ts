@@ -1092,18 +1092,18 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             if (param.type === 'list' && !param.list?.length) {
                 this.loadListParameters(param);
             }
+
             if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
                 if (_.isString(param.value) && param.value.includes('{{')) {
                     const paramKey = param.value.replace('{{', '').replace('}}', '');
+
                     if (this.dashboardParameters[paramKey]) {
                         clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[paramKey].value;
                     }
-                }
-
-                // If no value has been set default to the dashboard param value
-                if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
+                } else if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
+                    // If no value has been set default to the dashboard param value
                     clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[param.name].value;
-                } else {
+                } else if (!clonedDatasetInstance.parameterValues[param.name]) {
                     // Unless there isn't a dashboard param that matches
                     clonedDatasetInstance.parameterValues[param.name] = param.value;
                 }

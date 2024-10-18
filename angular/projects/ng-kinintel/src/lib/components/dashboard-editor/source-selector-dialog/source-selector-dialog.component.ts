@@ -39,6 +39,9 @@ export class SourceSelectorDialogComponent implements OnInit {
 
     public setEvaluatedParameters(parameterValues, evaluate?) {
         this.requiredParameters = parameterValues;
+        if (!this.dashboardDatasetInstance.parameterValues || Array.isArray(this.dashboardDatasetInstance.parameterValues)) {
+            this.dashboardDatasetInstance.parameterValues = {};
+        }
         parameterValues.forEach(param => {
             this.dashboardDatasetInstance.parameterValues[param.name] = param.value;
         });

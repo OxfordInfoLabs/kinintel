@@ -123,7 +123,24 @@
 
                 <label class="pl-4">
                     {{parameter.title}}
-                    <div class="parameter-input">
+                    <div *ngIf="(parameter.value || '').includes('}}')">
+                        <mat-chip class="bg-white ml-2" title="Using parameter value from {{parameter.value}}">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined text-xl mr-1">reply_all</span>
+                                <span *ngIf="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
+                                    [innerHTML]="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')].value"></span>
+                                <span *ngIf="!dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
+                                    class="font-medium text-orange-600">
+                                    Parameter Not Found !
+                                </span>
+                            </div>
+
+                            <button matChipRemove>
+                                <mat-icon>cancel</mat-icon>
+                            </button>
+                        </mat-chip>
+                    </div>
+                    <div *ngIf="!(parameter.value || '').includes('}}')" class="parameter-input">
                         <ng-template [ngIf]="parameter.type === 'text'">
                             <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
                                    [(ngModel)]="parameter.value"
