@@ -7,6 +7,8 @@ use Kiniauth\Objects\Security\ObjectScopeAccess;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Testing\MockObject;
+use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Query\SummarisedValue;
 use Kinintel\Objects\Application\DataSearch;
@@ -14,7 +16,9 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 use Kinintel\Services\Application\DataSearchService;
+use Kinintel\Services\Datasource\DatasourceDAO;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
@@ -25,13 +29,10 @@ include_once "autoloader.php";
 
 class DataSearchServiceTest extends TestBase {
 
-    /**
-     * @var DataSearchService
-     */
-    private $service;
+    private DataSearchService $service;
+    private DatasourceDAO|MockObject $mockDatasourceDAO;
 
     public function setUp(): void {
-        $this->service = Container::instance()->get(DataSearchService::class);
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
@@ -112,7 +113,10 @@ class DataSearchServiceTest extends TestBase {
         $this->processor2->setProjectKey("testProj");
         $this->processor2->save();
 
+        // We need a datasourceDAO for Config-derived Datasource
+        $this->mockDatasourceDAO = MockObjectProvider::mock(DatasourceDAO::class);
 
+        $this->service = new DataSearchService($this->mockDatasourceDAO);
     }
 
 
@@ -224,6 +228,28 @@ class DataSearchServiceTest extends TestBase {
         $datasetsInAcc1 = $this->service->searchForAccountDataItems(["search" => "", "type" => "dataset"], 100, 0, "testProj", 6);
         $snapshotsReturned = array_filter($datasetsInAcc1, fn($row) => $row->getType() == "snapshot");
         $this->assertEquals(0, sizeof($snapshotsReturned));
+    }
+
+    public function testCanGetConfigDatasourcesOnAdmin(){
+        $datasourceInstance = new DatasourceInstanceSearchResult("hello_latest", "Hello", "datasource", "A nice high quality datasource");
+        $this->mockDatasourceDAO->returnValue(
+            "filterDatasourceInstances",
+            [$datasourceInstance],
+            ["hi", 10, 0, [], null, 0]
+        );
+        $results = $this->service->searchForAccountDataItems(["search" => "hi"], 10, 0, "", 0);
+        $expectedSearchResults = [
+            new DataSearchItem(
+                "datasource",
+                "hello_latest",
+                "Hello",
+                "A nice high quality datasource",
+                0,
+                null,
+                [new DataProcessorAction("Select", "hello_latest")]
+            )
+        ];
+        $this->assertEquals($expectedSearchResults, $results);
     }
 
 

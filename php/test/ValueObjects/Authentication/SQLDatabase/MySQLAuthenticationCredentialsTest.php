@@ -106,7 +106,15 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
         $sql = "IP_NUMBER_TO_ADDRESS(test)";
         $this->assertEquals("CASE WHEN test LIKE '%:%' THEN NULL ELSE INET_NTOA(test) END", $authCreds->parseSQL($sql));
-        
+
+        $sql = "MAXIMUM(test, col1, col2)";
+        $this->assertEquals("MAX(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "MINIMUM(test, col1, col2)";
+        $this->assertEquals("MIN(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "AVERAGE(test, col1, col2)";
+        $this->assertEquals("AVG(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
     }
 
 }

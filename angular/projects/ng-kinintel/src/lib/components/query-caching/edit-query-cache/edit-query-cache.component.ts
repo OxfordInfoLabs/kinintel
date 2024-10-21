@@ -36,6 +36,9 @@ export class EditQueryCacheComponent implements OnInit {
                 primaryKeyColumnNames: [],
             }
         };
+
+        this.cache.relatedObjectType = 'DatasetInstance';
+        this.cache.relatedObjectPrimaryKey = this.data.datasetInstanceId;
     }
 
     public async saveQueryCache() {
