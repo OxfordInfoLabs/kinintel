@@ -43,7 +43,7 @@ class DataSearchService {
 
         if ($accountId === 0) {
             // Add the data sources generated from the Config/datasource directory.
-            $configDatasources = $this->datasourceDAO->filterDatasourceInstances($filters["search"] ?? null, 100, accountId: 0);
+            $configDatasources = $this->datasourceDAO->filterDatasourceInstances($filters["search"] ?? null, $limit, $offset, accountId: 0);
             $configDatasourceDatasearchItems = array_map(
                 fn($datasource) => new DataSearchItem(
                     $datasource->getType(),
@@ -157,5 +157,7 @@ class DataSearchService {
         return $filters;
     }
 
-
+    public function setDatasourceDAO(DatasourceDAO $datasourceDAO): void {
+        $this->datasourceDAO = $datasourceDAO;
+    }
 }
