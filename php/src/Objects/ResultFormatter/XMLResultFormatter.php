@@ -22,7 +22,7 @@ class XMLResultFormatter implements ResultFormatter {
 
     /**
      * @param string $itemXPath
-     * @param array<string,string> $namespaces
+     * @param array $namespaces
      * @param XPathTarget[]|null $xpathTargets
      */
     public function __construct(
@@ -105,33 +105,29 @@ class XMLResultFormatter implements ResultFormatter {
                 /** @var \DOMElement $node */
                 foreach ($this->xpathTargets as $xpathTarget) {
                     $valueNodeList = $xpath->query($xpathTarget->xpath, $node);
-                    switch ($valueNodeList->length) {
-                        case 0:
-                            $value = null;
-                            break;
-                        case 1:
-                            /** @var \DOMElement $value */
-                            $valueNode = $valueNodeList->item(0);
-                            $value = match($xpathTarget->attribute) {
-                                null => $valueNode?->nodeValue,
-                                FieldWithXPathSelector::ATTRIBUTE_TEXT => $valueNode?->textContent,
-                                FieldWithXPathSelector::ATTRIBUTE_HTML => $xml->saveHTML($valueNode),
-                                default => $valueNode?->getAttribute($xpathTarget->attribute),
+                    if ($valueNodeList->length === 0) {
+                        $value = null;
+                    } else if (!$xpathTarget->multiple){
+                        /** @var \DOMElement $value */
+                        $valueNode = $valueNodeList->item(0);
+                        $value = match($xpathTarget->attribute) {
+                            null => $valueNode?->nodeValue,
+                            FieldWithXPathSelector::ATTRIBUTE_TEXT => $valueNode?->textContent,
+                            FieldWithXPathSelector::ATTRIBUTE_HTML => $xml->saveHTML($valueNode),
+                            default => $valueNode?->getAttribute($xpathTarget->attribute),
+                        };
+                    } else {
+                        $values = [];
+                        foreach ($valueNodeList as $subValueNode) {
+                            /** @var \DOMElement $subValueNode */
+                            $values[] = match($xpathTarget->attribute) {
+                                null => $subValueNode?->nodeValue,
+                                FieldWithXPathSelector::ATTRIBUTE_TEXT => $subValueNode?->textContent,
+                                FieldWithXPathSelector::ATTRIBUTE_HTML => $xml->saveHTML($subValueNode),
+                                default => $subValueNode?->getAttribute($xpathTarget->attribute),
                             };
-                            break;
-                        default:
-                            $values = [];
-                            foreach ($valueNodeList as $subValueNode) {
-                                /** @var \DOMElement $subValueNode */
-                                $values[] = match($xpathTarget->attribute) {
-                                    null => $subValueNode?->nodeValue,
-                                    FieldWithXPathSelector::ATTRIBUTE_TEXT => $subValueNode?->textContent,
-                                    FieldWithXPathSelector::ATTRIBUTE_HTML => $xml->saveHTML($subValueNode),
-                                    default => $subValueNode?->getAttribute($xpathTarget->attribute),
-                                };
-                            }
-                            $value = $values;
-                            break;
+                        }
+                        $value = $values;
                     }
                     $dataItem[$xpathTarget->name] = $value;
                 }

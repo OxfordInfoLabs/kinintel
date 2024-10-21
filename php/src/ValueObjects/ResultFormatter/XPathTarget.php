@@ -7,6 +7,7 @@ class XPathTarget {
         public string $name,
         public string $xpath,
         public ?string $attribute = null,
+        public bool $multiple = false,
     ) {
     }
 }
