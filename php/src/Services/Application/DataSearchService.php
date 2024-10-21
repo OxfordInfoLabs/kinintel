@@ -9,6 +9,7 @@ use Kinikit\Persistence\ORM\Query\Query;
 use Kinikit\Persistence\ORM\Query\SummarisedValue;
 use Kinintel\Objects\Application\DataSearch;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
+use Kinintel\Services\Datasource\DatasourceDAO;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorAction;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DataProcessorActions;
@@ -22,6 +23,10 @@ class DataSearchService {
     // Permitted filters
     private const FILTER_MAP = ["type" => "type", "search" => "search"];
 
+    public function __construct(
+        private DatasourceDAO $datasourceDAO,
+    ) {
+    }
 
     /**
      * Search for account data items.
@@ -36,11 +41,28 @@ class DataSearchService {
      */
     public function searchForAccountDataItems(array $filters = [], int $limit = 10, int $offset = 0, ?string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
+        if ($accountId === 0) {
+            // Add the data sources generated from the Config/datasource directory.
+            $configDatasources = $this->datasourceDAO->filterDatasourceInstances($filters["search"] ?? null, 100, accountId: 0);
+            $configDatasourceDatasearchItems = array_map(
+                fn($datasource) => new DataSearchItem(
+                    $datasource->getType(),
+                    $datasource->getKey(),
+                    $datasource->getTitle(),
+                    $datasource->getDescription(),
+                    0,
+                    actionItems: [new DataProcessorAction("Select", $datasource->getKey(), null)]
+                ),
+                $configDatasources
+            );
+        }
+
         $filters = $this->mapFilters($filters);
         $filters["account_id"] = [$accountId, null];
-
-        $projectKeys = $projectKey ? [$projectKey, null] : [null];
-        $filters["project_key"] = $projectKeys;
+        if ($accountId !== 0) {
+            $projectKeys = $projectKey ? [$projectKey, null] : [null];
+            $filters["project_key"] = $projectKeys;
+        }
 
         $query = new Query(DataSearch::class);
         $results = $query->query($filters, "title", $limit, $offset);
@@ -71,10 +93,11 @@ class DataSearchService {
                 $result->getDescription(),
                 $result->getOwningAccountName(),
                 $result->getOwningAccountLogo(),
-                $actionItems);
+                $actionItems
+            );
         };
 
-        return array_map($convertToDataSearchItem, $results);
+        return array_map($convertToDataSearchItem, $results) + ($configDatasourceDatasearchItems ?? []);
 
     }
 
@@ -91,9 +114,10 @@ class DataSearchService {
 
         $filters = $this->mapFilters(["search" => $searchTerm]);
         $filters["account_id"] = [$accountId, null];
-
-        $projectKeys = $projectKey ? [$projectKey, null] : [null];
-        $filters["project_key"] = $projectKeys;
+        if ($accountId !== 0) {
+            $projectKeys = $projectKey ? [$projectKey, null] : [null];
+            $filters["project_key"] = $projectKeys;
+        }
 
         $query = new Query(DataSearch::class);
         $summarised = $query->summariseByMember("type", $filters, "COUNT(*)");
