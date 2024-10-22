@@ -83,6 +83,17 @@ class ZipCompressorTest extends TestBase {
 
     }
 
+    public function testCanInferFilenameOfZip() {
+        $zipStream = new ReadOnlyFileStream(__DIR__ . "/test-compressed.zip");
+
+        // Call uncompress
+        $stream = $this->compressor->uncompress($zipStream, new ZipCompressorConfiguration());
+
+        $this->assertEquals(["Name", "Age", "Shoe Size"], $stream->readCSVLine(","));
+        $this->assertEquals(["Mark", 50, 10], $stream->readCSVLine(","));
+        $this->assertEquals(["Bob", 20, 9], $stream->readCSVLine(","));
+        $this->assertEquals(["Mary", 30, 7], $stream->readCSVLine(","));
+    }
 
     public function testCanUncompressInputStreamAndReturnJoinedPlainStreamForMultipleEntryFiles() {
 

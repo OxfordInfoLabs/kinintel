@@ -28,6 +28,17 @@ class FieldWithXPathSelector extends Field {
         $this->attribute = $attribute;
     }
 
+    public function asField() {
+        return new Field(
+            $this->getName(),
+            $this->getTitle(),
+            $this->getValueExpression(),
+            $this->getType(),
+            $this->isKeyField(),
+            $this->isFlattenArray(),
+        );
+    }
+
 
     /**
      * @return string
