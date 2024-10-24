@@ -34,6 +34,7 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
@@ -50,6 +51,7 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
+use function Kinikit\Core\Util\println;
 
 class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
@@ -193,7 +195,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
 
-            // Negate original columns if a none filter / sort transformation encountered.
+            // Negate original columns if a non filter / sort transformation encountered.
             if (!($transformation instanceof FilterTransformation || $transformation instanceof MultiSortTransformation || $transformation instanceof PagingTransformation))
                 $this->hasOriginalColumns = false;
 
@@ -253,22 +255,39 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
     }
 
-    public function returnFields($parameterValues) {
+    public function returnFields($parameterValues, $deriveFromTransformations = false) {
         $dbConnection = $this->returnDatabaseConnection();
 
         // Grab columns
         $fields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
-
         // If no explicit columns and table based query with no column changing transformations
         // Generate explicit columns to allow for dataset update.
-        if ($this->getConfig()->getSource() == "table" && !$fields && $this->hasOriginalColumns) {
+        if ($this->getConfig()->getSource() == "table" && !$fields) {
 
             $fields = [];
             $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
 
             foreach ($tableMetaData->getColumns() as $column) {
                 $fields[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
+            }
+
+            if (!$deriveFromTransformations || $this->hasOriginalColumns) return $fields;
+
+            foreach ($this->transformations as $transformation) {
+                if ($transformation instanceof ColumnsTransformation) {
+                    $fields = $transformation->getColumns();
+                } else if ($transformation instanceof SummariseTransformation) {
+                    foreach ($transformation->getExpressions() as $expression){
+                        $fields[] = $expression->toField();
+                    }
+                } else if ($transformation instanceof FormulaTransformation) {
+                    foreach ($transformation->getExpressions() as $expression) {
+                        $fields[] = new Field($expression->returnFieldName());
+                    }
+                } else if ($transformation instanceof JoinTransformation) {
+                    $fields = $transformation->getJoinColumns();
+                }
             }
         }
 
@@ -475,9 +494,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     // Build SQL statement using configured settings
     public function buildQuery($parameterValues = []) {
 
-        /**
-         * @var SQLDatabaseDatasourceConfig $config
-         */
+        /** @var SQLDatabaseDatasourceConfig $config */
         $config = $this->getConfig();
 
         $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
@@ -510,15 +527,18 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
-        /**
-         * Process each transformation
-         *
-         * @var $transformation SQLDatabaseTransformation
-         */
+        // Process each transformation
         foreach ($this->transformations as $transformation) {
+            /* @var $transformation SQLDatabaseTransformation */
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
+            print_r("BEFORE:\n");
+            print_r($query->getSQL());
+            echo "\n";
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
+            print_r("AFTER:\n");
+            print_r($query->getSQL());
+            echo "\n";
         }
 
 

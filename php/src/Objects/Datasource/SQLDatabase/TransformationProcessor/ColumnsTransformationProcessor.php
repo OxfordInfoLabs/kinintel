@@ -8,6 +8,7 @@ use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnNamingConvention;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
@@ -50,12 +51,23 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
+        /** @var SQLDatabaseDatasourceConfig $dataSourceConfig */
         $dataSourceConfig = $dataSource->getConfig();
         $resetColumnNames = $transformation->isResetColumnNames();
 
         $newColumns = [];
         if (is_array($dataSourceConfig->getColumns())) {
-            $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $dataSourceConfig->getColumns());
+
+            print_r("GOT HERE COLUMNS:\n");
+            print_r($transformation->getColumns());
+            echo "\n\n";
+
+            $existingColumns = $dataSource->returnFields($parameterValues, true);
+            $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $existingColumns);
+
+            print_r("EXISTING COLUMNS:\n");
+            print_r($dataSourceConfig->getColumns());
+            echo "\n\n";
 
             // Handle alias logic if resetting columns
             $aliasStrings = [];
@@ -98,6 +110,7 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
 
         // Reset the query if required
         if ($resetColumnNames) {
+//            if (!($aliasStrings ?? null)) throw new \Exception("NO ALIAS STRINGS");
             $query = new SQLQuery(join(", ", $aliasStrings), "(" . $query->getSQL() . ") C" . $this->aliasIndex);
         }
 

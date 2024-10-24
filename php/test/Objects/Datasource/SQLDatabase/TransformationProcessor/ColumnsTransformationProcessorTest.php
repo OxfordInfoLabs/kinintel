@@ -2,12 +2,19 @@
 
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kiniauth\Services\Security\AuthenticationService;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\ColumnsTransformationProcessor;
+use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
+use Kinintel\Services\Authentication\AuthenticationCredentialsService;
+use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnNamingConvention;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
@@ -18,10 +25,8 @@ include_once "autoloader.php";
 class ColumnsTransformationProcessorTest extends TestCase {
 
 
-    /**
-     * @var ColumnsTransformationProcessor
-     */
-    private $processor;
+
+    private ColumnsTransformationProcessor $processor;
 
 
     public function setUp(): void {
@@ -193,6 +198,46 @@ class ColumnsTransformationProcessorTest extends TestCase {
             new Field("updated_column_2", "Updated Column"),
             new Field("updated_column_3", "Updated Column")], $datasourceConfig->getColumns());
 
+    }
+
+    public function testCanPerformColumnsTransformationOnDatasourceWithoutExplicitColumns() {
+        /** @var SQLDatabaseCredentials $creds */
+        $creds = Container::instance()
+            ->get(AuthenticationCredentialsService::class)
+            ->getCredentialsInstanceByKey("test")
+            ->returnCredentials();
+        $dbConnection = $creds->returnDatabaseConnection();
+        $dbConnection->executeScript("
+        DROP TABLE IF EXISTS __columnsTransformationTest;
+        CREATE TABLE __columnsTransformationTest (
+            name VARCHAR(255) NOT NULL,
+            age INTEGER NOT NULL,
+            PRIMARY KEY (name)
+        );
+        INSERT INTO __columnsTransformationTest (name, age) VALUES 
+        ('Maurice', 22);
+        ");
+
+        $datasourceConfig = new SQLDatabaseDatasourceConfig(
+            SQLDatabaseDatasourceConfig::SOURCE_TABLE ,
+            "__columnsTransformationTest"
+        );
+
+        $datasource = new SQLDatabaseDatasource($datasourceConfig, $creds, new DatasourceUpdateConfig(["name", "age"]), instanceKey: "columns-transformation-test");
+        $transformation = new ColumnsTransformation(
+            [new Field("name", "Name")],
+            true
+        );
+        $fields = $datasource->returnFields([]);
+        $this->assertEquals($fields, [new Field("name", keyField: true), new Field("age", type: Field::TYPE_INTEGER)]);
+        $out = $datasource->applyTransformation($transformation);
+        $this->assertEquals($out, $datasource);
+        $fields = $datasource->returnFields([]);
+        $this->assertEquals([new Field("name")], $fields);
+        $actualDataset = $out->materialise();
+        $actual = $actualDataset->getAllData();
+
+        $this->assertEquals([["name" => "Maurice"]], $actual);
     }
 
 }
