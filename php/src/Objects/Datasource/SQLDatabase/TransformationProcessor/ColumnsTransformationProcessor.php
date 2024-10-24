@@ -5,13 +5,25 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
 use Kinikit\Core\Util\ObjectArrayUtils;
+use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnNamingConvention;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
 class ColumnsTransformationProcessor extends SQLTransformationProcessor {
+
+    /**
+     * The table's alias number e.g. for use in `C1.tableColumnName as table_column_name`.
+     * We need to keep incrementing this between transformations so we aren't using the same
+     * table name in two different columns transformations in the same query.
+     *
+     * @var int
+     */
+    private int $aliasIndex = 0;
 
 
     /**
@@ -31,7 +43,7 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
     /**
      * Leave query intact
      *
-     * @param Transformation $transformation
+     * @param ColumnsTransformation $transformation
      * @param SQLQuery $query
      * @param mixed[] $parameterValues
      * @param SQLDatabaseDatasource $dataSource
@@ -39,15 +51,51 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
+        /** @var SQLDatabaseDatasourceConfig $dataSourceConfig */
         $dataSourceConfig = $dataSource->getConfig();
+        $resetColumnNames = $transformation->isResetColumnNames();
 
         $newColumns = [];
         if (is_array($dataSourceConfig->getColumns())) {
-            $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $dataSourceConfig->getColumns());
+
+            print_r("GOT HERE COLUMNS:\n");
+            print_r($transformation->getColumns());
+            echo "\n\n";
+
+            $existingColumns = $dataSource->returnFields($parameterValues, true);
+            $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $existingColumns);
+
+            print_r("EXISTING COLUMNS:\n");
+            print_r($dataSourceConfig->getColumns());
+            echo "\n\n";
+
+            // Handle alias logic if resetting columns
+            $aliasStrings = [];
+            $newColumnTitles = [];
+            if ($resetColumnNames) $this->aliasIndex++;
+
             foreach ($transformation->getColumns() as $newColumn) {
                 $existingColumn = $existingColumns[$newColumn->getName()] ?? null;
                 if ($existingColumn) {
-                    $newColumns[] = new Field($existingColumn->getName(), $newColumn->getTitle(), null,
+
+                    // If resetting column names, create alias strings
+                    if ($resetColumnNames) {
+
+                        // Track number of occurrences of titles for suffix management
+                        $suffix = "";
+                        if (!isset($newColumnTitles[$newColumn->getTitle()]))
+                            $newColumnTitles[$newColumn->getTitle()] = 1;
+                        else
+                            $suffix = " " . ++$newColumnTitles[$newColumn->getTitle()];
+
+                        $newColumnName = $transformation->getNamingConvention() == ColumnNamingConvention::UNDERSCORE ?
+                            StringUtils::convertToSnakeCase($newColumn->getTitle() . $suffix, true) : StringUtils::convertToCamelCase($newColumn->getTitle() . $suffix, true);
+                        $aliasStrings[] = "C" . $this->aliasIndex . "." . $newColumn->getName() . " AS " . $newColumnName;
+                    } else {
+                        $newColumnName = $newColumn->getName();
+                    }
+
+                    $newColumns[] = new Field($newColumnName, $newColumn->getTitle(), null,
                         $existingColumn->getType(), $existingColumn->isKeyField());
                 } else {
                     $newColumns[] = $newColumn;
@@ -58,8 +106,14 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
         }
 
 
-
         $dataSourceConfig->setColumns($newColumns);
+
+        // Reset the query if required
+        if ($resetColumnNames) {
+//            if (!($aliasStrings ?? null)) throw new \Exception("NO ALIAS STRINGS");
+            $query = new SQLQuery(join(", ", $aliasStrings), "(" . $query->getSQL() . ") C" . $this->aliasIndex);
+        }
+
         return $query;
     }
 }
