@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
@@ -81,16 +80,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     private $dbConnection = null;
 
 
-    /**
-     * @var TableDDLGenerator
-     */
-    protected $tableDDLGenerator;
-
-
-    /**
-     * @var SQLColumnFieldMapper
-     */
-    private $sqlColumnFieldMapper;
+    protected TableDDLGenerator $tableDDLGenerator;
+    private SQLColumnFieldMapper $sqlColumnFieldMapper;
 
 
     /**
@@ -246,39 +237,42 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $query = $this->buildQuery($parameterValues);
 
-        /**
-         * @var DatabaseConnection $dbConnection
-         */
-        $dbConnection = $this->returnDatabaseConnection();
 
-        Logger::log($query->getParameters());
-        Logger::log($query->getSQL());
+        Logger::log($query->getParameters(), 6);
+        Logger::log($query->getSQL(), 6);
 
         $authenticationCredentials = $this->getAuthenticationCredentials();
         $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
 
+        $fields = $this->returnFields($parameterValues);
+
+        // Return a tabular dataset
+        $result = new SQLResultSetTabularDataset($resultSet, $fields);
+
+        return $result;
+
+    }
+
+    public function returnFields($parameterValues) {
+        $dbConnection = $this->returnDatabaseConnection();
+
         // Grab columns
-        $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
+        $fields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
 
         // If no explicit columns and table based query with no column changing transformations
         // Generate explicit columns to allow for dataset update.
-        if ($this->getConfig()->getSource() == "table" && !$columns && $this->hasOriginalColumns) {
+        if ($this->getConfig()->getSource() == "table" && !$fields && $this->hasOriginalColumns) {
 
-            $columns = [];
+            $fields = [];
             $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
 
             foreach ($tableMetaData->getColumns() as $column) {
-                $columns[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
+                $fields[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
             }
         }
 
-
-        // Return a tabular dataset
-        $result = new SQLResultSetTabularDataset($resultSet, $columns);
-
-        return $result;
-
+        return $fields;
     }
 
 
