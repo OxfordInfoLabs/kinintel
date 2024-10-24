@@ -81,23 +81,40 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
         $this->assertEquals("100 * SUM(test) / SUM(SUM(test)) OVER ()", $authCreds->parseSQL($sql));
 
         $sql = "ROW_NUMBER()";
-        $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1,1=1)", $authCreds->parseSQL($sql));
+        $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1)", $authCreds->parseSQL($sql));
         
         $sql = "TOTAL(test)";
-        $this->assertEquals("SUM(test) OVER ()", $authCreds->parseSQL($sql));
+        $this->assertEquals("SUM(test) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
+
+        $sql = "TOTAL(test, test2, test3)";
+        $this->assertEquals("SUM(test) OVER (PARTITION BY test2, test3)", $authCreds->parseSQL($sql));
 
         $sql = "PERCENT(test)";
-        $this->assertEquals("100 * test / SUM(test) OVER ()", $authCreds->parseSQL($sql));
+        $this->assertEquals("100 * test / SUM(test) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
+
+        $sql = "PERCENT(test, test2, test3)";
+        $this->assertEquals("100 * test / SUM(test) OVER (PARTITION BY test2, test3)", $authCreds->parseSQL($sql));
 
         $sql = "ROW_COUNT()";
-        $this->assertEquals("COUNT(*) OVER ()", $authCreds->parseSQL($sql));
+        $this->assertEquals("COUNT(*) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
+
+        $sql = "ROW_COUNT(test, test2)";
+        $this->assertEquals("COUNT(*) OVER (PARTITION BY test, test2)", $authCreds->parseSQL($sql));
         
         $sql = "IP_ADDRESS_TO_NUMBER(test)";
         $this->assertEquals("CASE WHEN test LIKE '%:%' THEN (CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 17, 16), 16, 10) as DECIMAL(65))) ELSE INET_ATON(test) END", $authCreds->parseSQL($sql));
 
         $sql = "IP_NUMBER_TO_ADDRESS(test)";
         $this->assertEquals("CASE WHEN test LIKE '%:%' THEN NULL ELSE INET_NTOA(test) END", $authCreds->parseSQL($sql));
-        
+
+        $sql = "MAXIMUM(test, col1, col2)";
+        $this->assertEquals("MAX(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "MINIMUM(test, col1, col2)";
+        $this->assertEquals("MIN(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "AVERAGE(test, col1, col2)";
+        $this->assertEquals("AVG(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
     }
 
 }

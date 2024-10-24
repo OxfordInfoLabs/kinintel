@@ -7,7 +7,6 @@ use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\MVC\Response\Download;
 use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
@@ -17,14 +16,11 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
-use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Parameter\Parameter;
-use Kinintel\ValueObjects\Transformation\Transformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 /**
@@ -203,7 +199,10 @@ class DatasetService {
             $params = array_merge($params, $categories);
         }
 
-        $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
+        $params[] = $limit;
+        $params[] = $offset;
+
+        $query .= " ORDER BY title LIMIT ? OFFSET ?";
 
         // Return a summary array
         return array_map(function ($instance) {

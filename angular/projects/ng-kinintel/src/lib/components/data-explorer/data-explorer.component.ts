@@ -42,7 +42,6 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public showSnapshots = false;
     public snapshotProfiles: any = [];
     public showQueryCache = false;
-    public queryCacheResults: any = [];
     public editTitle = false;
     public accountId: any;
     public newTitle: string;
@@ -66,7 +65,6 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-
         this.chartData = !!this.data.showChart;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
@@ -165,9 +163,6 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public async viewQueryCaching() {
         this.showSnapshots = false;
         this.showQueryCache = !this.showQueryCache;
-        if (this.showQueryCache) {
-            this.queryCacheResults = await this.dataProcessorService.filterProcessorsByType('querycaching', '', '1', '0').toPromise();
-        }
     }
 
     public editQueryCache(cache: any) {

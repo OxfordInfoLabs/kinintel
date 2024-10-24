@@ -177,6 +177,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     public updateListStyle() {
         if (!this.admin) {
+            this.datasets = [];
             const listKey = this.getCurrentPathListKey();
             this.projectSettings[listKey] = this.listStyle;
             this.projectService.updateProjectSettings(this.activeProject.projectKey, this.projectSettings);

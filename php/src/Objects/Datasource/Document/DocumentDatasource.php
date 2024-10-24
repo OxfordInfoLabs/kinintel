@@ -125,9 +125,6 @@ class DocumentDatasource extends SQLDatabaseDatasource {
             $fields[] = new Field("chunks");
         }
 
-        /**
-         * @var SettingsService $settingsService
-         */
         $settingsService = Container::instance()->get(SettingsService::class);
         $settings = $settingsService->getParentAccountSettingValues();
 
@@ -159,16 +156,12 @@ class DocumentDatasource extends SQLDatabaseDatasource {
 
             if ($newRow) {
                 $fileType = $newRow["file_type"];
-                $text = '';
 
                 // If storing original, call the attachment service
                 if ($config->isStoreOriginal()) {
 
                     $instanceInfo = $this->getInstanceInfo();
 
-                    /**
-                     * @var AttachmentService $attachmentService
-                     */
                     $attachmentService = Container::instance()->get(AttachmentService::class);
 
                     // Create an attachment summary
@@ -357,7 +350,6 @@ class DocumentDatasource extends SQLDatabaseDatasource {
      */
     public static function turnChunksToEmbeddings(?array $chunks, int $maxRequestCharacters = 50000, $maxChunkLength = 8191): array {
         if (!$chunks) return [];
-        /** @var TextEmbeddingService $embeddingService */
         $embeddingService = Container::instance()->get(TextEmbeddingService::class);
 
         // Reset so the chunks are ordered from 0

@@ -18,34 +18,15 @@ use Kinintel\Services\Dataset\DatasetService;
 class FeedService {
 
     /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var SecurityService
-     */
-    private $securityService;
-
-
-    /**
-     * @var GoogleRecaptchaProvider
-     */
-    private $captchaProvider;
-
-
-    /**
-     * FeedService constructor.
-     *
      * @param DatasetService $datasetService
      * @param SecurityService $securityService
      * @param GoogleRecaptchaProvider $captchaProvider
      */
-    public function __construct($datasetService, $securityService, $captchaProvider) {
-        $this->datasetService = $datasetService;
-        $this->securityService = $securityService;
-        $this->captchaProvider = $captchaProvider;
+    public function __construct(
+        private DatasetService $datasetService,
+        private SecurityService $securityService,
+        private GoogleRecaptchaProvider $captchaProvider
+    ) {
     }
 
 
@@ -221,6 +202,11 @@ class FeedService {
         $exportParameters = [];
         foreach ($feed->getExposedParameterNames() as $exposedParameterName) {
             $exportParameters[$exposedParameterName] = $parameterValues[$exposedParameterName] ?? "";
+        }
+
+        // Limit the limit
+        if ($limit > 10000) {
+            $limit = 10000;
         }
 
         // Export and return result directly

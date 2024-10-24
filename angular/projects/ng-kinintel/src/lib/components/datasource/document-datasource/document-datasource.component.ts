@@ -288,6 +288,10 @@ export class DocumentDatasourceComponent implements OnInit {
                     {
                         title: 'IETF Internet Drafts',
                         value: 'ietfinternetdrafts'
+                    },
+                    {
+                        title: 'WTSA',
+                        value: 'wtsa'
                     }
                 ];
             })

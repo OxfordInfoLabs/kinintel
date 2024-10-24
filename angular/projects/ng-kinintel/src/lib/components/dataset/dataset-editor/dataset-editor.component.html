@@ -134,6 +134,12 @@
                                    [(ngModel)]="parameter.value"
                                    (keyup.enter)="evaluateDataset(true)" required autofocus>
                         </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'list'">
+                            <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
+                                    (change)="evaluateDataset(true)" required autofocus>
+                                <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                            </select>
+                        </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                             <ng-template [ngIf]="!parameter._dateType">
                                 <div class="flex items-center mr-8">
@@ -308,7 +314,7 @@
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'formula'">
                                     <div class="text-sm text-gray-700 mb-0">
-                                        <b>EXPRESSION</b>&nbsp;{{transformation.config.expressions[0].expression}}
+                                        <b>EXPRESSION</b>&nbsp;{{decodeURIComponent(transformation.config.expressions[0].expression)}}
                                     </div>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'columns'">
@@ -401,6 +407,7 @@
         </div>
         <div class="flex flex-wrap">
             <div class="badge-item outline"
+                 [ngClass]="{'exclude bg-orange-50 border-orange-200': _.find(datasetInstanceSummary.transformationInstances, {exclude: true})}"
                  *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
                 <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
                 <button mat-icon-button (click)="removeFilter(i)">

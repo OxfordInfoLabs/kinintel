@@ -23,33 +23,17 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 class DashboardService {
 
     /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var MetaDataService
-     */
-    private $metaDataService;
-
-
-    /**
-     * @var SecurityService
-     */
-    private $securityService;
-
-    /**
      * DashboardService constructor.
      *
      * @param DatasetService $datasetService
      * @param MetaDataService $metaDataService
      * @param SecurityService $securityService
      */
-    public function __construct($datasetService, $metaDataService, $securityService) {
-        $this->datasetService = $datasetService;
-        $this->metaDataService = $metaDataService;
-        $this->securityService = $securityService;
+    public function __construct(
+        private DatasetService $datasetService,
+        private MetaDataService $metaDataService,
+        private SecurityService $securityService
+    ) {
     }
 
 
@@ -213,8 +197,10 @@ class DashboardService {
             $query .= " AND (hiddenFromListings IS NULL OR hiddenFromListings <> 1)";
         }
 
+        $params[] = $limit;
+        $params[] = $offset;
 
-        $query .= " ORDER BY title LIMIT $limit OFFSET $offset";
+        $query .= " ORDER BY title LIMIT ? OFFSET ?";
 
         // Return a summary array
         return array_map(function ($instance) {

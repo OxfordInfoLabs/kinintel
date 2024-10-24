@@ -11,19 +11,6 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 
 class DatasourceDAO {
-
-    /**
-     * @var FileResolver
-     */
-    private $fileResolver;
-
-
-    /**
-     * @var JSONToObjectConverter
-     */
-    private $jsonToObjectConverter;
-
-
     /**
      * Cached file system data sources
      *
@@ -37,9 +24,10 @@ class DatasourceDAO {
      * @param FileResolver $fileResolver
      * @param JSONToObjectConverter $jsonToObjectConverter
      */
-    public function __construct($fileResolver, $jsonToObjectConverter) {
-        $this->fileResolver = $fileResolver;
-        $this->jsonToObjectConverter = $jsonToObjectConverter;
+    public function __construct(
+        private FileResolver $fileResolver,
+        private JSONToObjectConverter $jsonToObjectConverter
+    ) {
     }
 
 
@@ -110,8 +98,9 @@ class DatasourceDAO {
      * Get datasource instance by import key - qualified optionally by a project key and account id
      *
      * @param $importKey
-     * @param string $projectKey
-     * @param integer $accountId
+     * @param $accountId
+     * @return DatasourceInstance
+     * @throws ObjectNotFoundException
      */
     public function getDatasourceInstanceByImportKey($importKey, $accountId = null) {
 
@@ -277,11 +266,12 @@ class DatasourceDAO {
     private function loadDatasourcesFromDirectory($directory) {
         $dataSources = scandir($directory);
         foreach ($dataSources as $dataSource) {
+            //todo Only import files that *end* with .json?
             if (strpos($dataSource, ".json")) {
                 $instance = $this->jsonToObjectConverter->convert(file_get_contents($directory . "/" . $dataSource), DataSourceInstance::class);
                 $instance->setKey($instance->getKey());
                 $this->fileSystemDataSources[$instance->getKey()] = $instance;
-            } else if (substr($dataSource, 0, 1) !== "." && is_dir($directory . "/" . $dataSource)) {
+            } else if (!str_starts_with($dataSource, ".") && is_dir($directory . "/" . $dataSource)) {
                 $this->loadDatasourcesFromDirectory($directory . "/" . $dataSource);
             }
         }

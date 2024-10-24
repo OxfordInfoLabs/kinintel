@@ -215,10 +215,13 @@ class MySQLAuthenticationCredentials implements SQLDatabaseCredentials {
         }
 
         $sql = FunctionStringRewriter::rewrite($sql, "EPOCH_SECONDS", "UNIX_TIMESTAMP($1)", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "ROW_NUMBER", "ROW_NUMBER() OVER (ORDER BY $1,$2)", ["1=1", "1=1"], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "ROW_COUNT", "COUNT(*) OVER ()", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "TOTAL", "SUM($1) OVER ()", [0], $parameterValues);
-        $sql = FunctionStringRewriter::rewrite($sql, "PERCENT", "100 * $1 / SUM($1) OVER ()", [0], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "ROW_NUMBER", "ROW_NUMBER() OVER (ORDER BY $1...)", ["1=1"], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "ROW_COUNT", "COUNT(*) OVER (PARTITION BY $1...)", ["null"], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "TOTAL", "SUM($1) OVER (PARTITION BY $2...)", [1, "null"], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "MAXIMUM", "MAX($1) OVER (PARTITION BY $2...)", [1, "null"], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "MINIMUM", "MIN($1) OVER (PARTITION BY $2...)", [1, "null"], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "AVERAGE", "AVG($1) OVER (PARTITION BY $2...)", [1, "null"], $parameterValues);
+        $sql = FunctionStringRewriter::rewrite($sql, "PERCENT", "100 * $1 / SUM($1) OVER (PARTITION BY $2...)", [1,"null"], $parameterValues);
 
         // Handle custom aggregate functions
         $sql = FunctionStringRewriter::rewrite($sql, "COUNT_PERCENT", "100 * COUNT($1) / COUNT_TOTAL($1)", [0], $parameterValues);

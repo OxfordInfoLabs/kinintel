@@ -181,9 +181,6 @@ class Field {
     public function evaluateValueExpression($dataItem) {
         $expression = $this->valueExpression;
 
-        /**
-         * @var ValueFunctionEvaluator $valueFunctionEvaluator
-         */
         $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
         return $valueFunctionEvaluator->evaluateString($expression, $dataItem, ["[[", "]]"]);
     }

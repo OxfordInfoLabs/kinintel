@@ -88,6 +88,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public limit = 25;
     public offset = 0;
 
+    public readonly decodeURIComponent = decodeURIComponent;
+
     private evaluateSub: Subscription;
     private resultsSub: Subscription;
     private datasetTitle: string;
@@ -99,7 +101,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 private snackBar: MatSnackBar) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit() {
         let limit = null;
         limit = localStorage.getItem('datasetInstanceLimit' + this.datasetInstanceSummary.id);
 
@@ -659,6 +661,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                         type: 'summarise',
                         config: summariseTransformation
                     });
+                    this.evaluateDataset(true);
                 } else {
                     this.datasetInstanceSummary.transformationInstances.push({
                         type: 'summarise',
@@ -719,13 +722,27 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     if (!clonedParameter.value) {
                         parameter.value = parameter.defaultValue || '';
                     }
-                    const diParamIndex = _.findIndex(this.datasetInstanceSummary.parameters, existingParameter);
                     this.parameterValues[parameterValueIndex] = parameter;
-                    this.datasetInstanceSummary.parameters[diParamIndex] = parameter;
+                    this.datasetInstanceSummary.parameters[parameterValueIndex] = parameter;
                 }
 
+                if (parameter.type === 'list') {
+                    this.loadListParameters(parameter);
+                }
             }
         });
+    }
+
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
+        }
     }
 
     public getOrdinal(n) {
@@ -911,9 +928,6 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     public async evaluateDataset(resetPager?) {
-        // If we have any pre-existing long-running tasks cancel these before setting off another evaluate.
-        this.cancelEvaluate();
-
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
                 this.resetPager();
@@ -962,8 +976,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
             setTimeout(() => {
                 if (!finished) {
+                    // If we have any pre-existing long-running tasks cancel these before setting off another evaluate.
+                    this.cancelEvaluate();
+
                     this.longRunning = true;
                     this.evaluateSub.unsubscribe();
+
                     this.resultsSub = this.datasetService.getDataTrackingResults(trackingKey)
                         .subscribe((results: any) => {
                             if (results.status === 'COMPLETED') {
@@ -997,7 +1015,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     private _removeTransformation(transformation, index?) {
-        if (index >= 0) {
+        if (!_.isNil(index) && index >= 0) {
             // If a current index has been supplied, reset all the pre transformation hidden fields prior to eval.
             for (let i = 0; i < index; i++) {
                 if (this.datasetInstanceSummary.transformationInstances[i].type !== 'filter') {
@@ -1062,6 +1080,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const clonedDatasetInstance = _.merge({}, this.datasetInstanceSummary);
         _.remove(clonedDatasetInstance.transformationInstances, {exclude: true});
 
+        const excludedTransformations = _.find(this.datasetInstanceSummary.transformationInstances, {exclude: true});
+        if (excludedTransformations) {
+            _.remove(clonedDatasetInstance.transformationInstances, {type: 'multisort'});
+        }
+
         this.parameterValues.forEach(param => {
             if (param.type === 'date' || param.type === 'datetime') {
                 if (!param._dateType && param.value) {
@@ -1074,6 +1097,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+            if (param.type === 'list' && !param.list?.length) {
+                this.loadListParameters(param);
+            }
             if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
                 if (_.isString(param.value) && param.value.includes('{{')) {
                     const paramKey = param.value.replace('{{', '').replace('}}', '');
@@ -1085,6 +1111,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 // If no value has been set default to the dashboard param value
                 if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
                     clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[param.name].value;
+                } else {
+                    // Unless there isn't a dashboard param that matches
+                    clonedDatasetInstance.parameterValues[param.name] = param.value;
                 }
             } else {
                 clonedDatasetInstance.parameterValues[param.name] = param.value;
@@ -1116,6 +1145,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         return clonedDatasetInstance;
     }
 
+    protected readonly decodeURI = decodeURI;
 }
 
 @Component({

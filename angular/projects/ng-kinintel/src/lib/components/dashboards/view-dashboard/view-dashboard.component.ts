@@ -21,6 +21,7 @@ import moment from 'moment';
 import {Location} from '@angular/common';
 import {ExternalService} from '../../../services/external.service';
 import {Subject, Subscription} from 'rxjs';
+import {DatasetService} from '../../../services/dataset.service';
 
 @Component({
     selector: 'ki-view-dashboard',
@@ -91,7 +92,8 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
                 private router: Router,
                 private kiAlertService: AlertService,
                 private location: Location,
-                private externalService: ExternalService) {
+                private externalService: ExternalService,
+                private kiDatasetService: DatasetService) {
     }
 
     ngOnInit(): void {
@@ -108,6 +110,10 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
         if (!this.alertService) {
             this.alertService = this.kiAlertService;
+        }
+
+        if (!this.datasetService) {
+            this.datasetService = this.kiDatasetService;
         }
 
         this.route.queryParams.subscribe(params => {
@@ -207,6 +213,16 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
             this.dashboard = await this.dashboardService.getDashboard(dashboardId);
         }
 
+        if (this.dashboard.layoutSettings?.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
+            _.forEach(this.dashboard.layoutSettings.parameters, param => {
+                if (param.type === 'list') {
+                    param.list = [];
+                    this.loadListParameters(param);
+                }
+            });
+        }
+
+
         if (this.refreshInterval) {
             let count = 0;
             setInterval(() => {
@@ -279,6 +295,7 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public booleanUpdate(event, parameter) {
         parameter.value = event.checked;
+        this.reloadDashboard();
     }
 
     public changeDateType(event, parameter, value) {
@@ -329,6 +346,18 @@ export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     public setParameterValue(parameter, value) {
         parameter.value = value;
+    }
+
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
+        }
     }
 
     public async reloadDashboard() {

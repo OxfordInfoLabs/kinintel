@@ -6,6 +6,8 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
+use Kinintel\ValueObjects\Datasource\TransformationApplication;
+use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
  * Extending datasource - allows for configuration of a datasource
@@ -14,25 +16,99 @@ use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
 class ExtendingDatasource extends BaseDatasource {
 
     private DatasourceService $datasourceService;
-    private ?Datasource $workingDatasource = null;
-    private bool $transformationsProcessed = false;
 
-    /**
-     * @param ExtendingDatasourceConfig $config
-     * @param DatasourceService $datasourceService
-     */
-    public function __construct($config = null, $datasourceService = null) {
+    /** @var Transformation[]|null */
+    private ?array $transformations = null;
+
+    public function __construct(
+        ?ExtendingDatasourceConfig $config = null,
+        ?DatasourceService $datasourceService = null
+    ) {
         parent::__construct($config);
         $this->datasourceService = $datasourceService ?? Container::instance()->get(DatasourceService::class);
     }
 
-    /**
-     * @param DatasourceService $datasourceService
-     */
-    public function setDatasourceService($datasourceService) {
+    public function setDatasourceService(DatasourceService $datasourceService) {
         $this->datasourceService = $datasourceService;
     }
 
+    /**
+     * @param $baseDatasourceKey
+     * @param Transformation[] $transformations
+     * @param DatasourceService|null $datasourceService
+     * @return ExtendingDatasource
+     */
+    public static function create($baseDatasourceKey, $transformations, ?DatasourceService $datasourceService) {
+        $datasource = new ExtendingDatasource(new ExtendingDatasourceConfig($baseDatasourceKey, []), $datasourceService);
+        $datasource->transformations = $transformations;
+        return $datasource;
+    }
+
+    /**
+     * We don't actually apply the transformations here, we just add them to a list
+     *
+     * NOTE: As a consequence, we ignore parameter values in this function!
+     *
+     * @param Transformation $transformation
+     * @param $parameterValues
+     * @param $pagingTransformation
+     * @return ExtendingDatasource
+     * @throws InvalidTransformationConfigException
+     */
+    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null): ExtendingDatasource {
+        // Return base datasource with a list of transformations
+
+        /** @var ExtendingDatasourceConfig $config */
+        $config = $this->getConfig();
+
+        if (!$this->transformations){
+            // Get transformations from config
+            $transformations = array_map(
+                fn($transformationInstance) => $transformationInstance->returnTransformation(),
+                $config->getTransformationInstances()
+            );
+        } else {
+            $transformations = $this->transformations;
+        }
+
+        // Add the new one
+        $transformations[] = $transformation;
+
+        return ExtendingDatasource::create($config->getBaseDatasourceKey(), $transformations, $this->datasourceService);
+
+    }
+
+    public function materialiseDataset($parameterValues = []) {
+        /** @var ExtendingDatasourceConfig $config */
+        $config = $this->getConfig();
+
+        // Grab the base datasource
+        $baseDatasource = $this->datasourceService
+            ->getDataSourceInstanceByKey($config->getBaseDatasourceKey())
+            ->returnDataSource();
+
+        $workingDatasource = $baseDatasource;
+
+        // Either we have already applied a transformation and $this->transformations is populated
+        // or we have a new Extending datasource and we need get the transformations from config.
+        if (!$this->transformations) {
+            $this->transformations = array_map(
+                fn($transformationInstance) => $transformationInstance->returnTransformation(),
+                $config->getTransformationInstances()
+            );
+        }
+
+        foreach ($this->transformations as $transformation) {
+            $workingDatasource = $workingDatasource->applyTransformation(
+                $transformation,
+                $parameterValues
+            );
+        }
+
+        // Return materialised working datasource
+        return $workingDatasource->materialise($parameterValues);
+
+    }
 
     /**
      * Get the config class
@@ -59,77 +135,5 @@ class ExtendingDatasource extends BaseDatasource {
     public function getSupportedTransformationClasses() {
         // TODO: Implement getSupportedTransformationClasses() method.
     }
-
-
-    /**
-     * Apply transformations
-     *
-     * @param $transformation
-     * @param $parameterValues
-     * @param $pagingTransformation
-     * @return Datasource
-     */
-    public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
-
-        $this->processTransformations($parameterValues);
-        $this->workingDatasource = $this->workingDatasource->applyTransformation($transformation, $parameterValues);
-        return $this->workingDatasource;
-    }
-
-    public function materialiseDataset($parameterValues = []) {
-
-
-        // Process any transformations
-        $this->processTransformations($parameterValues);
-
-        // Return materialised working datasource
-        return $this->workingDatasource->materialise($parameterValues);
-
-    }
-
-    /**
-     * Process the transformations if required
-     *
-     * @return void
-     * @throws InvalidTransformationConfigException
-     */
-    private function processTransformations($parameterValues) {
-
-        if (!$this->transformationsProcessed) {
-            /**
-             * @var ExtendingDatasourceConfig $config
-             */
-            $config = $this->getConfig();
-
-            // Grab the datasource
-            $this->getWorkingDatasource();
-
-            foreach ($config->getTransformationInstances() ?? [] as $transformationInstance) {
-                $this->workingDatasource = $this->workingDatasource->applyTransformation($transformationInstance->returnTransformation(), $parameterValues);
-            }
-        }
-        $this->transformationsProcessed = true;
-
-    }
-
-
-    private function getWorkingDatasource() {
-        if (!$this->workingDatasource) {
-
-            /**
-             * @var ExtendingDatasourceConfig $config
-             */
-            $config = $this->getConfig();
-
-            // Grab the base datasource instance
-            $baseDatasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($config->getBaseDatasourceKey());
-
-            // Pull out the base datasource
-            $this->workingDatasource = $baseDatasourceInstance->returnDataSource();
-
-        }
-        return $this->workingDatasource;
-    }
-
 
 }

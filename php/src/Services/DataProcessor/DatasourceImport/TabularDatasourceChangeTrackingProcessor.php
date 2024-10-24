@@ -4,7 +4,6 @@ namespace Kinintel\Services\DataProcessor\DatasourceImport;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
-use Kinintel\Exception\InvalidDataProcessorConfigException;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Services\DataProcessor\BaseDataProcessor;

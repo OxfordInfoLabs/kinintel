@@ -126,7 +126,7 @@
 
             <ki-dataset-editor *ngIf="dashboardDatasetInstance" [(datasetInstanceSummary)]="dashboardDatasetInstance"
                                (dataLoaded)="dataLoaded($event)" [admin]="admin" [dashboardLayoutSettings]="general"
-                               [dashboardParameters]="dashboard.layoutSettings.parameters"></ki-dataset-editor>
+                               [dashboardParameters]="widgetParameters"></ki-dataset-editor>
         </div>
     </rsz-layout>
 
@@ -183,6 +183,29 @@
                             </div>
                             <small class="mb-4 block font-normal">Make this dashboard items background transparent -
                                 requires page refesh to take affect</small>
+
+                            <ng-template [ngIf]="dashboard.layoutSettings && dashboard.layoutSettings.parameters && Object.keys(dashboard.layoutSettings.parameters).length">
+                                <div class="flex items-center">
+                                    <mat-checkbox class="mr-2" [(ngModel)]="general.showParameterBar"></mat-checkbox>
+                                    <p class="mb-0 mt-1">Show Parameter Bar</p>
+                                </div>
+                                <small class="mb-4 block font-normal">
+                                    Enable which parameters to show in this widget. Values entered here will only reload
+                                    this widget.
+                                </small>
+
+                                <ng-template [ngIf]="general.showParameterBar">
+                                    <div class="border-l-2 pl-4">
+                                        <div *ngFor="let parameterKey of Object.keys(dashboard.layoutSettings.parameters)"
+                                             class="flex items-center">
+                                            <mat-checkbox class="mr-2" [(ngModel)]="general.parameterBar[parameterKey]"></mat-checkbox>
+                                            <p class="mb-0 mt-1">{{dashboard.layoutSettings.parameters[parameterKey].title}}</p>
+                                        </div>
+                                    </div>
+
+                                </ng-template>
+
+                            </ng-template>
                         </div>
                     </div>
                 </div>
@@ -799,6 +822,7 @@
                                 <option value="bar">Bar</option>
                                 <option value="pie">Pie</option>
                                 <option value="doughnut">Doughnut</option>
+                                <option value="scatter">Scatter</option>
                             </select>
                         </label>
 
@@ -973,7 +997,7 @@
 <!--                        </button>-->
 
 
-                        <ng-template [ngIf]="dashboardItemType.type === 'line'">
+                        <ng-template [ngIf]="dashboardItemType.type === 'line' || dashboardItemType.type === 'scatter'">
                             <div *ngFor="let dataItem of chartData; let i = index" class="mt-4 align-center justify-between">
                                 <label class="flex-1">
                                     {{_.startCase(dataItem.label)}} Colour

@@ -58,7 +58,8 @@ class CustomDatasourceService {
             $datasourceInstance = new DatasourceInstance($newDatasourceKey, $datasourceUpdate->getTitle(), $type, [
                 "source" => "table",
                 "tableName" => $tableName,
-                "columns" => $datasourceUpdate->getFields()
+                "columns" => $datasourceUpdate->getFields(),
+                "manageTableStructure" => true
             ], $credentialsKey);
 
             // Set account id and project key

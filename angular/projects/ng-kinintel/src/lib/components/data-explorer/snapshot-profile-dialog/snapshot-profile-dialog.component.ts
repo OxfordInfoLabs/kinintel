@@ -45,6 +45,7 @@ export class SnapshotProfileDialogComponent implements OnInit {
         }
     ];
     public allSelected = false;
+    public parameters: any = [];
 
     private datasetInstanceId;
 
@@ -85,8 +86,11 @@ export class SnapshotProfileDialogComponent implements OnInit {
         this.snapshot.relatedObjectPrimaryKey = this.datasetInstanceId;
 
         if (this.data.datasetInstance) {
-            const values: any = await this.datasetService.getEvaluatedParameters(this.data.datasetInstance);
-            _.forEach(values, parameter => {
+            this.parameters = await this.datasetService.getEvaluatedParameters(this.data.datasetInstance);
+            _.forEach(this.parameters, parameter => {
+                if (parameter.type === 'list') {
+                    this.loadListParameters(parameter);
+                }
                 this.snapshot.config.parameterValues[parameter.name] = (this.snapshot.config.parameterValues[parameter.name] || parameter.defaultValue) || '';
             });
         }
@@ -95,6 +99,18 @@ export class SnapshotProfileDialogComponent implements OnInit {
             const dataset = await this.datasetService.getDataset(this.datasetInstanceId);
             const res: any = await this.datasetService.evaluateDataset(dataset);
             this.columns = res.columns;
+        }
+    }
+
+    public async loadListParameters(parameter: any) {
+        if (parameter.settings && parameter.settings.datasetInstance) {
+            return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
+                .then((data: any) => {
+                    const list = _.map(data.allData, item => {
+                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                    });
+                    parameter.list = _.uniqWith(list, _.isEqual);
+                });
         }
     }
 
