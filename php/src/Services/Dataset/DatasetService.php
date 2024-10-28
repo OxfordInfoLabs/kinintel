@@ -16,11 +16,11 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
-use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
+use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -526,15 +526,15 @@ class DatasetService {
         $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
 
         // Grab the dataset, via the cache
-        $lookupFunc = function ($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit): Dataset {
+        $lookupFunc = function ($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit) {
             $result =  $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
-            return new ArrayTabularDataset($result->getColumns(), $result->getAllData());
+            return new ProcessedTabularDataSet($result->getColumns(), $result->getAllData());
         };
 
         $lookupFuncParams = [$datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit];
         $cacheKey = "datasetExport-" . md5(print_r($lookupFuncParams, true));
 
-        $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams, ArrayTabularDataset::class);
+        $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams, ProcessedTabularDataSet::class);
 
         // Export the dataset using exporter
         $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);

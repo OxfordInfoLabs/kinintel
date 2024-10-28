@@ -49,6 +49,7 @@ use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -840,7 +841,7 @@ class DatasetServiceTest extends TestBase {
         $mockExporter->returnValue("getDownloadFileExtension", "test", [$exportConfig]);
         $mockExporter->returnValue("validateConfig", $exportConfig, [$exportConfig]);
 
-        $dataset = new ArrayTabularDataset([
+        $processedDataset = new ProcessedTabularDataSet([
             new Field("name"),
             new Field("age")
         ], [
@@ -848,7 +849,7 @@ class DatasetServiceTest extends TestBase {
             ["name" => "Mary", "age" => 32],
             ["name" => "Jane", "age" => 45]
         ]);
-        $mockExporter->returnValue("exportDataset", new StringContentSource("HELLO WORLD"), [$dataset, $exportConfig]);
+        $mockExporter->returnValue("exportDataset", new StringContentSource("HELLO WORLD"), [$processedDataset, $exportConfig]);
 
 
         $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
