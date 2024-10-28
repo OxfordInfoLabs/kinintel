@@ -69,6 +69,14 @@
                     <mat-icon>title</mat-icon>
                     <span>Text</span>
                 </button>
+                <button mat-menu-item [matMenuTriggerFor]="columnMenu">
+                    <mat-icon>table_chart</mat-icon>
+                    <span>Columns</span>
+                </button>
+                <button mat-menu-item [matMenuTriggerFor]="parameterValuesMenu">
+                    <mat-icon>text_fields</mat-icon>
+                    <span>Parameters</span>
+                </button>
                 <button mat-menu-item (click)="updateExpressionType(filter, 'date-picker', [])">
                     <mat-icon>calendar_month</mat-icon>
                     <span>Date Picker</span>
@@ -76,6 +84,18 @@
                 <button mat-menu-item (click)="updateExpressionType(filter, 'period')">
                     <mat-icon>restore</mat-icon>
                     <span>Time Period</span>
+                </button>
+            </mat-menu>
+            <mat-menu #columnMenu="matMenu">
+                <button mat-menu-item *ngFor="let column of filterFields"
+                        (click)="updateExpressionType(filter, null, '[[' + column.name + ']]')">
+                    <span>{{column.title}}</span>
+                </button>
+            </mat-menu>
+            <mat-menu #parameterValuesMenu="matMenu">
+                <button mat-menu-item *ngFor="let param of parameterValues"
+                        (click)="updateExpressionType(filter, null, '{{' + param.name + '}}')">
+                    <span>{{param.title}}</span>
                 </button>
             </mat-menu>
         </div>

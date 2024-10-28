@@ -87,6 +87,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public openSide = new BehaviorSubject(false);
     public limit = 25;
     public offset = 0;
+    public filterParameterValues: any;
 
     public readonly decodeURIComponent = decodeURIComponent;
 
@@ -776,6 +777,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         this.longRunning = false;
     }
 
+    public setDashboardParameter(parameter: any, parameterName: string) {
+        parameter.value = '{{' + parameterName + '}}';
+        this.evaluateDataset(true);
+    }
+
     public save() {
         if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
@@ -926,6 +932,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
 
             const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
+            const filterParameterValues = _.map(_.concat(_.values(this.dashboardParameters), _.values(this.parameterValues)), param => {
+                return {name: param.name, title: param.title};
+            });
+            this.filterParameterValues = _.uniqBy(filterParameterValues, 'name');
 
             const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
             let finished = false;

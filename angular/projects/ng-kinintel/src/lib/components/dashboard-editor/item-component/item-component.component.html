@@ -17,7 +17,7 @@
 </div>
 
 <ng-template [ngIf]="dragItem">
-    <mat-icon>{{dashboardItemType.icon}}</mat-icon>
+    <span class="material-symbols-outlined">{{dashboardItemType.icon}}</span>
     <span [innerHTML]="dashboardItemType.label"></span>
 </ng-template>
 <div class="alert-widget" *ngIf="alert" (click)="showAlertData = true;">

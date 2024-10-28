@@ -835,7 +835,6 @@ export class ConfigureItemComponent implements OnInit {
                     }
                 });
             }
-            console.log('WIDGET PARAMS', this.widgetParameters);
 
             const matchDependencies = _.filter(this.dependencies, (dep, key) => {
                 if (dep.type === 'MATCH') {
