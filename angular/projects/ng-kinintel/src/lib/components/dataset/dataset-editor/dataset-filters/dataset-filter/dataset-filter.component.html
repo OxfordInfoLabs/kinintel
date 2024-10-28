@@ -73,7 +73,7 @@
                     <mat-icon>table_chart</mat-icon>
                     <span>Columns</span>
                 </button>
-                <button mat-menu-item [matMenuTriggerFor]="parameterValuesMenu">
+                <button *ngIf="parameterValues && parameterValues.length" mat-menu-item [matMenuTriggerFor]="parameterValuesMenu">
                     <mat-icon>text_fields</mat-icon>
                     <span>Parameters</span>
                 </button>
