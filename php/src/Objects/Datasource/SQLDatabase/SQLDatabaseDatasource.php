@@ -255,11 +255,17 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
     }
 
-    public function returnFields($parameterValues, $deriveFromTransformations = false) {
+    /**
+     * @param $parameterValues
+     * @param bool|Transformation $deriveUpToTransformation If false, we don't derive columns. If true, we derive based on all transformations. If given a transformation, we derive up to the transformation before.
+     * @return array
+     */
+    public function returnFields($parameterValues, bool|Transformation $deriveUpToTransformation = false) : array {
         $dbConnection = $this->returnDatabaseConnection();
 
         // Grab columns
         $fields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
+        if ($deriveUpToTransformation === false && !$this->hasOriginalColumns) return [];
 
         // If no explicit columns and table based query with no column changing transformations
         // Generate explicit columns to allow for dataset update.
@@ -268,26 +274,19 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $fields = [];
             $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
 
-            foreach ($tableMetaData->getColumns() as $column) {
+            foreach ($tableMetaData->getColumns() as $column) { // Get original columns
                 $fields[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
             }
 
-            if (!$deriveFromTransformations || $this->hasOriginalColumns) return $fields;
+            if ($deriveUpToTransformation === false || $this->hasOriginalColumns) return $fields;
 
             foreach ($this->transformations as $transformation) {
-                if ($transformation instanceof ColumnsTransformation) {
-                    $fields = $transformation->getColumns();
-                } else if ($transformation instanceof SummariseTransformation) {
-                    foreach ($transformation->getExpressions() as $expression){
-                        $fields[] = $expression->toField();
-                    }
-                } else if ($transformation instanceof FormulaTransformation) {
-                    foreach ($transformation->getExpressions() as $expression) {
-                        $fields[] = new Field($expression->returnFieldName());
-                    }
-                } else if ($transformation instanceof JoinTransformation) {
-                    $fields = $transformation->getJoinColumns();
-                }
+                /** @var SQLDatabaseTransformation $transformation */
+
+                // Only derive until we get to the target transformation
+                if ($transformation === $deriveUpToTransformation) break;
+
+                $fields = $transformation->returnAlteredColumns($fields);
             }
         }
 
@@ -532,13 +531,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             /* @var $transformation SQLDatabaseTransformation */
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
-            print_r("BEFORE:\n");
-            print_r($query->getSQL());
-            echo "\n";
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);
-            print_r("AFTER:\n");
-            print_r($query->getSQL());
-            echo "\n";
         }
 
 

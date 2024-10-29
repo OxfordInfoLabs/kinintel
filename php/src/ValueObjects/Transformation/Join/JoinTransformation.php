@@ -222,4 +222,8 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
     public function getSQLTransformationProcessorKey() {
         return "join";
     }
+
+    public function returnAlteredColumns(array $columns): array {
+        return $this->getJoinColumns();
+    }
 }

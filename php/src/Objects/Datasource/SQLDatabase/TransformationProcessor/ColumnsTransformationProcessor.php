@@ -55,62 +55,33 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
         $dataSourceConfig = $dataSource->getConfig();
         $resetColumnNames = $transformation->isResetColumnNames();
 
-        $newColumns = [];
         if (is_array($dataSourceConfig->getColumns())) {
 
-            print_r("GOT HERE COLUMNS:\n");
-            print_r($transformation->getColumns());
-            echo "\n\n";
-
-            $existingColumns = $dataSource->returnFields($parameterValues, true);
+            // It's possible that deriving up to transformation could cause a bug if we have an identical transformation twice.
+            $existingColumns = $dataSource->returnFields($parameterValues, $transformation);
             $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $existingColumns);
 
-            print_r("EXISTING COLUMNS:\n");
-            print_r($dataSourceConfig->getColumns());
-            echo "\n\n";
-
             // Handle alias logic if resetting columns
-            $aliasStrings = [];
-            $newColumnTitles = [];
             if ($resetColumnNames) $this->aliasIndex++;
-
-            foreach ($transformation->getColumns() as $newColumn) {
-                $existingColumn = $existingColumns[$newColumn->getName()] ?? null;
-                if ($existingColumn) {
-
-                    // If resetting column names, create alias strings
-                    if ($resetColumnNames) {
-
-                        // Track number of occurrences of titles for suffix management
-                        $suffix = "";
-                        if (!isset($newColumnTitles[$newColumn->getTitle()]))
-                            $newColumnTitles[$newColumn->getTitle()] = 1;
-                        else
-                            $suffix = " " . ++$newColumnTitles[$newColumn->getTitle()];
-
-                        $newColumnName = $transformation->getNamingConvention() == ColumnNamingConvention::UNDERSCORE ?
-                            StringUtils::convertToSnakeCase($newColumn->getTitle() . $suffix, true) : StringUtils::convertToCamelCase($newColumn->getTitle() . $suffix, true);
-                        $aliasStrings[] = "C" . $this->aliasIndex . "." . $newColumn->getName() . " AS " . $newColumnName;
-                    } else {
-                        $newColumnName = $newColumn->getName();
-                    }
-
-                    $newColumns[] = new Field($newColumnName, $newColumn->getTitle(), null,
-                        $existingColumn->getType(), $existingColumn->isKeyField());
-                } else {
-                    $newColumns[] = $newColumn;
-                }
-            }
-        } else {
-            $newColumns = $transformation->getColumns();
         }
 
+        // Returns the altered transformations
+        $newColumns = $transformation->returnAlteredColumns($existingColumns);
+
+        $aliasStrings = [];
+        if (array_keys($newColumns) != array_keys($transformation->getColumns())) {
+            throw new \Exception("Assertion Failed! Altered Columns should have the same keys as transformation columns");
+        }
+
+        for ($i = 0; $i < count($newColumns); $i++) { // I wish there were zip
+            $aliasStrings[] = "C" . $this->aliasIndex . "." . $transformation->getColumns()[$i]->getName() . " AS " . $newColumns[$i]->getName();
+        }
 
         $dataSourceConfig->setColumns($newColumns);
 
         // Reset the query if required
         if ($resetColumnNames) {
-//            if (!($aliasStrings ?? null)) throw new \Exception("NO ALIAS STRINGS");
+            if (!isset($aliasStrings) || !$aliasStrings) throw new \Exception("NO ALIAS STRINGS");
             $query = new SQLQuery(join(", ", $aliasStrings), "(" . $query->getSQL() . ") C" . $this->aliasIndex);
         }
 

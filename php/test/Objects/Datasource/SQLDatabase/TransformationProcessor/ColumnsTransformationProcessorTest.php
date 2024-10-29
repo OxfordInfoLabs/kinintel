@@ -42,14 +42,16 @@ class ColumnsTransformationProcessorTest extends TestCase {
         ]);
 
         $query = new SQLQuery("*", "test");
-        $datasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", [
+        $datasource = MockObjectProvider::mock(SQLDatabaseDatasource::class);
+        $fields = [
             new Field("column1", "Column 1"),
             new Field("column2", "Column 2"),
             new Field("column3", "Column 3"),
             new Field("column4", "Column 4")
-        ]);
+        ];
+        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", $fields);
         $datasource->returnValue("getConfig", $datasourceConfig);
+        $datasource->returnValue("returnFields", $fields);
 
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
@@ -70,14 +72,16 @@ class ColumnsTransformationProcessorTest extends TestCase {
         ], true, ColumnNamingConvention::CAMEL);
 
         $query = new SQLQuery("*", "test");
-        $datasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", [
+        $originalFields = [
             new Field("column1", "Column 1"),
             new Field("column2", "Column 2"),
             new Field("column3", "Column 3"),
             new Field("column4", "Column 4")
-        ]);
+        ];
+        $datasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "");
         $datasource->returnValue("getConfig", $datasourceConfig);
+        $datasource->returnValue("returnFields", $originalFields);
 
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
@@ -103,14 +107,16 @@ class ColumnsTransformationProcessorTest extends TestCase {
         ], true, ColumnNamingConvention::UNDERSCORE);
 
         $query = new SQLQuery("*", "test");
-        $datasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", [
+        $datasource = MockObjectProvider::mock(SQLDatabaseDatasource::class);
+        $originalFields = [
             new Field("column1", "Column 1"),
             new Field("column2", "Column 2"),
             new Field("column3", "Column 3"),
             new Field("column4", "Column 4")
-        ]);
+        ];
+        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "");
         $datasource->returnValue("getConfig", $datasourceConfig);
+        $datasource->returnValue("returnFields", $originalFields);
 
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
@@ -128,28 +134,43 @@ class ColumnsTransformationProcessorTest extends TestCase {
 
     public function testIfMultipleColumnTransformationsAreChainedTheyCorrectlyAlias() {
 
-
-        $transformation = new ColumnsTransformation([
-            new Field("column1", "Updated Column 1"),
-            new Field("column3", "Updated Column 3")
-        ], true, ColumnNamingConvention::UNDERSCORE);
-
-        $query = new SQLQuery("*", "test");
-        $datasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", [
+        $originalFields = [
             new Field("column1", "Column 1"),
             new Field("column2", "Column 2"),
             new Field("column3", "Column 3"),
             new Field("column4", "Column 4")
-        ]);
+        ];
+
+        $updatedFields1 = [
+            new Field("column1", "Updated Column 1"),
+            new Field("column3", "Updated Column 3")
+        ];
+
+        $updatedNameChangedFields = [
+            new Field("updated_column_1", "Updated Column 1"),
+            new Field("updated_column_3", "Updated Column 3")
+        ];
+
+        $transformation = new ColumnsTransformation($updatedFields1, true, ColumnNamingConvention::UNDERSCORE);
+
+        $query = new SQLQuery("*", "test");
+        $datasource = MockObjectProvider::mock(SQLDatabaseDatasource::class);
+        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "");
         $datasource->returnValue("getConfig", $datasourceConfig);
+        $datasource->returnValue("returnFields", $originalFields);
 
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
+        $expectedUpdatedQuerySQL = "SELECT C1.column1 AS updated_column_1, C1.column3 AS updated_column_3 FROM (SELECT * FROM test) C1";
+        $this->assertSame($expectedUpdatedQuerySQL, $updatedQuery->getSQL());
+
 
         $transformation2 = new ColumnsTransformation([
             new Field("updated_column_1", "Reset Column 1"),
             new Field("updated_column_3", "Other Reset Column 2"),
         ], true, ColumnNamingConvention::CAMEL);
+
+        // Act as if we've applied the first transformation
+        $datasource->returnValue("returnFields", $updatedNameChangedFields, [[], $transformation2]);
 
         $updatedQuery = $this->processor->updateQuery($transformation2, $updatedQuery, [], $datasource);
 
@@ -169,6 +190,13 @@ class ColumnsTransformationProcessorTest extends TestCase {
 
     public function testIfDuplicateColumnTitlesSuppliedNumberAutoAppendedToColumnName() {
 
+        $originalColumns = [
+            new Field("column1", "Column 1"),
+            new Field("column2", "Column 2"),
+            new Field("column3", "Column 3"),
+            new Field("column4", "Column 4")
+        ];
+
         $transformation = new ColumnsTransformation([
             new Field("column1", "Updated Column"),
             new Field("column3", "Updated Column"),
@@ -176,14 +204,10 @@ class ColumnsTransformationProcessorTest extends TestCase {
         ], true, ColumnNamingConvention::UNDERSCORE);
 
         $query = new SQLQuery("*", "test");
-        $datasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
-        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", [
-            new Field("column1", "Column 1"),
-            new Field("column2", "Column 2"),
-            new Field("column3", "Column 3"),
-            new Field("column4", "Column 4")
-        ]);
+        $datasource = MockObjectProvider::mock(SQLDatabaseDatasource::class);
+        $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "", $originalColumns);
         $datasource->returnValue("getConfig", $datasourceConfig);
+        $datasource->returnValue("returnFields", $originalColumns, [[], $transformation]);
 
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
@@ -223,21 +247,26 @@ class ColumnsTransformationProcessorTest extends TestCase {
             "__columnsTransformationTest"
         );
 
-        $datasource = new SQLDatabaseDatasource($datasourceConfig, $creds, new DatasourceUpdateConfig(["name", "age"]), instanceKey: "columns-transformation-test");
+        $datasource = new SQLDatabaseDatasource(
+            $datasourceConfig,
+            $creds,
+            new DatasourceUpdateConfig(["name", "age"]),
+            instanceKey: "columns-transformation-test"
+        );
         $transformation = new ColumnsTransformation(
-            [new Field("name", "Name")],
+            [new Field("name", "Birth name")],
             true
         );
         $fields = $datasource->returnFields([]);
         $this->assertEquals($fields, [new Field("name", keyField: true), new Field("age", type: Field::TYPE_INTEGER)]);
         $out = $datasource->applyTransformation($transformation);
         $this->assertEquals($out, $datasource);
-        $fields = $datasource->returnFields([]);
-        $this->assertEquals([new Field("name")], $fields);
+        $fields = $datasource->returnFields([], deriveUpToTransformation: true);
+        $this->assertEquals([new Field("birthName", "Birth name", keyField: true)], $fields);
         $actualDataset = $out->materialise();
         $actual = $actualDataset->getAllData();
 
-        $this->assertEquals([["name" => "Maurice"]], $actual);
+        $this->assertEquals([["birthName" => "Maurice"]], $actual);
     }
 
 }
