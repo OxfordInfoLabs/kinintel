@@ -534,7 +534,7 @@ class DatasetService {
         $lookupFuncParams = [$datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit];
         $cacheKey = "datasetExport-" . md5(print_r($lookupFuncParams, true));
 
-        $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams, ProcessedTabularDataSet::class);
+        $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams);
 
         // Export the dataset using exporter
         $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);
