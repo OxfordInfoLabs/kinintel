@@ -140,7 +140,7 @@
                             </button>
                         </mat-chip>
                     </div>
-                    <div *ngIf="!(parameter.value || '').includes('}}')" class="parameter-input">
+                    <div *ngIf="!(parameter.value || '').toString().includes('}}')" class="parameter-input">
                         <ng-template [ngIf]="parameter.type === 'text'">
                             <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
                                    [(ngModel)]="parameter.value"
