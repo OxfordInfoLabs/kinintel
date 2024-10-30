@@ -37,6 +37,7 @@ export class DatasetFilterComponent implements OnInit {
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
     @Input() openSide: Subject<boolean>;
+    @Input() parameterValues: any;
 
     @Output() filtersRemoved = new EventEmitter();
 
@@ -134,4 +135,5 @@ export class DatasetFilterComponent implements OnInit {
     }
 
 
+    protected readonly Object = Object;
 }

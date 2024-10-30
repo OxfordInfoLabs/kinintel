@@ -2,7 +2,9 @@
 
 namespace Kinintel\ValueObjects\Dataset;
 
-class ProcessedTabularDataSet {
+use Kinintel\Objects\Dataset\Dataset;
+
+class ProcessedTabularDataSet implements Dataset {
 
     /**
      * @var Field[]
@@ -37,8 +39,7 @@ class ProcessedTabularDataSet {
         return $this->data;
     }
 
-
-
-
-
+    public function getAllData() {
+        return $this->getData();
+    }
 }
