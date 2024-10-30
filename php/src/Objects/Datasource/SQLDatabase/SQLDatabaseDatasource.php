@@ -258,36 +258,36 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     /**
      * @param $parameterValues
      * @param bool|Transformation $deriveUpToTransformation If false, we don't derive columns. If true, we derive based on all transformations. If given a transformation, we derive up to the transformation before.
-     * @return array
+     * @return Field[]
      */
     public function returnFields($parameterValues, bool|Transformation $deriveUpToTransformation = false) : array {
         $dbConnection = $this->returnDatabaseConnection();
 
-        // Grab columns
-        $fields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
-        if ($deriveUpToTransformation === false && !$this->hasOriginalColumns) return [];
+        // Get columns from the datasource config if we are using original columns
+        $originalFields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
-        // If no explicit columns and table based query with no column changing transformations
+        // If there aren't explicit columns and it's a table based datasource with no column changing transformations
         // Generate explicit columns to allow for dataset update.
-        if ($this->getConfig()->getSource() == "table" && !$fields) {
+        if ($this->getConfig()->getSource() == "table" && !$originalFields && ($this->hasOriginalColumns || $deriveUpToTransformation)) {
 
-            $fields = [];
             $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
 
-            foreach ($tableMetaData->getColumns() as $column) { // Get original columns
-                $fields[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
-            }
+            $originalFields = array_values(array_map(
+                fn($resultSetColumn) => $this->sqlColumnFieldMapper->mapResultSetColumnToField($resultSetColumn),
+                $tableMetaData->getColumns()
+            ));
+        }
 
-            if ($deriveUpToTransformation === false || $this->hasOriginalColumns) return $fields;
+        if ($this->hasOriginalColumns || $deriveUpToTransformation === false) return $originalFields;
 
-            foreach ($this->transformations as $transformation) {
-                /** @var SQLDatabaseTransformation $transformation */
+        $fields = $originalFields;
+        foreach ($this->transformations as $transformation) {
+            /** @var SQLDatabaseTransformation $transformation */
 
-                // Only derive until we get to the target transformation
-                if ($transformation === $deriveUpToTransformation) break;
+            // Only derive until we get to the target transformation
+            if ($transformation === $deriveUpToTransformation) break;
 
-                $fields = $transformation->returnAlteredColumns($fields);
-            }
+            $fields = $transformation->returnAlteredColumns($fields);
         }
 
         return $fields;
