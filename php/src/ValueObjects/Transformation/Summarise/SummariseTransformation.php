@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Transformation\Summarise;
 
 
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
@@ -66,5 +67,11 @@ class SummariseTransformation implements Transformation, SQLDatabaseTransformati
 
     public function getSQLTransformationProcessorKey() {
         return "summarise";
+    }
+
+    public function returnAlteredColumns(array $columns): array {
+        $summariseOverFields = array_map(fn($fieldName) => new Field($fieldName), $this->summariseFieldNames);
+        $expressionFields = array_map(fn($expression) => $expression->toField(), $this->expressions);
+        return array_merge($summariseOverFields, $expressionFields);
     }
 }

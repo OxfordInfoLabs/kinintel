@@ -70,7 +70,7 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
                 $expressionParams = [];
                 $evaluatedExpressions[] = $expression->getFunctionString($expressionParams, $parameterValues, $databaseConnection);
                 $clauseParameters = array_merge($clauseParameters, $expressionParams);
-                $columns[] = new Field($expression->getCustomFieldName($databaseConnection));
+                $columns[] = $expression->toField();
             }
 
 

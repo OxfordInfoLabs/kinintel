@@ -165,10 +165,9 @@ class SummariseExpression {
 
     }
 
-    public function toField() : Field {
+    public function toField() : Field { // We generate the title!
         return new Field(
             $this->getCustomFieldName(),
-            $this->customLabel
         );
     }
 
