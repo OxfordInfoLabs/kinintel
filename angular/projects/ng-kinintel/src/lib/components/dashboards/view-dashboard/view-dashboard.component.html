@@ -62,6 +62,12 @@
                             <input type="number" placeholder="{{parameter.title}}" [(ngModel)]="parameter.value"
                                    (keyup.enter)="reloadDashboard()" required autofocus>
                         </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'list'">
+                            <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
+                                    (change)="reloadDashboard()" required autofocus>
+                                <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                            </select>
+                        </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                             <ng-template [ngIf]="!parameter._dateType">
                                 <div class="flex items-center">
@@ -129,4 +135,4 @@
     </ng-template>
 
 </ng-template>
-<div class="grid-stack"></div>
+<div class="grid-stack" [ngClass]="cssGridSelector"></div>

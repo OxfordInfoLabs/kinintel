@@ -153,9 +153,6 @@ class SummariseExpression {
             $function = $this->expressionType . "([[" . $this->fieldName . "]])";
         }
 
-        /**
-         * @var SQLValueEvaluator $sqlValueEvaluator
-         */
         $sqlValueEvaluator = new SQLValueEvaluator($databaseConnection);
         $function = $sqlValueEvaluator->evaluateFilterValue($function, $parameterValues, null, $clauseParameters);
 

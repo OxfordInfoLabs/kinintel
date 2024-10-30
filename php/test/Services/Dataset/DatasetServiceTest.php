@@ -49,6 +49,7 @@ use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -840,11 +841,15 @@ class DatasetServiceTest extends TestBase {
         $mockExporter->returnValue("getDownloadFileExtension", "test", [$exportConfig]);
         $mockExporter->returnValue("validateConfig", $exportConfig, [$exportConfig]);
 
-        $mockExporter->returnValue("exportDataset",
-            new StringContentSource("HELLO WORLD"),
-            [
-                $dataset, $exportConfig
-            ]);
+        $processedDataset = new ProcessedTabularDataSet([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Bob", "age" => 22],
+            ["name" => "Mary", "age" => 32],
+            ["name" => "Jane", "age" => 45]
+        ]);
+        $mockExporter->returnValue("exportDataset", new StringContentSource("HELLO WORLD"), [$processedDataset, $exportConfig]);
 
 
         $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
@@ -854,15 +859,14 @@ class DatasetServiceTest extends TestBase {
                 "param1" => "Test",
                 "param2" => 44,
                 "param3" => true
-            ], [new TransformationInstance("filter", new FilterTransformation([
-                new Filter("property", "pickle")]))], 10, 30);
+            ], [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("property", "pickle")
+                ]))
+            ], 10, 30
+        );
 
-        $headers = [
-            Headers::HEADER_CACHE_CONTROL => "public, max-age=0"
-        ];
-
-
-        $this->assertEquals(new Download(new StringContentSource("HELLO WORLD"), "test_dataset-" . date("U") . ".test", 200, $headers), $response);
+        $this->assertEquals(new Download(new StringContentSource("HELLO WORLD"), "test_dataset-" . date("U") . ".test", 200), $response);
 
 
         // Check none download one.
@@ -877,7 +881,7 @@ class DatasetServiceTest extends TestBase {
                 new Filter("property", "pickle")]))], 10, 30, false);
 
 
-        $this->assertEquals(new SimpleResponse(new StringContentSource("HELLO WORLD"), 200, $headers), $response);
+        $this->assertEquals(new SimpleResponse(new StringContentSource("HELLO WORLD"), 200), $response);
 
         // Check different caching time
         $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
@@ -891,10 +895,7 @@ class DatasetServiceTest extends TestBase {
                 new Filter("property", "pickle")]))], 10, 30, true, 200);
 
 
-        $expected = new Download(new StringContentSource("HELLO WORLD"), "test_dataset-" . date("U") . ".test", 200,
-            [
-                Headers::HEADER_CACHE_CONTROL => "public, max-age=200"
-            ]);
+        $expected = new Download(new StringContentSource("HELLO WORLD"), "test_dataset-" . date("U") . ".test", 200);
         $this->assertEquals($expected, $response);
 
         $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
@@ -908,9 +909,7 @@ class DatasetServiceTest extends TestBase {
                 new Filter("property", "pickle")]))], 10, 30, false, 120);
 
 
-        $expected = new SimpleResponse(new StringContentSource("HELLO WORLD"), 200, [
-            Headers::HEADER_CACHE_CONTROL => "public, max-age=120"
-        ]);
+        $expected = new SimpleResponse(new StringContentSource("HELLO WORLD"), 200);
 
         $this->assertEquals($expected, $response);
 

@@ -3,7 +3,6 @@
 namespace Kinintel\Services\Datasource;
 
 use Kinikit\Core\DependencyInjection\ContainerInterceptor;
-use Kinikit\Core\Logging\Logger;
 
 class DatasourceServiceInterceptor extends ContainerInterceptor {
 

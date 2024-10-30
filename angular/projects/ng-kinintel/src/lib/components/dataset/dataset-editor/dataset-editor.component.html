@@ -50,39 +50,39 @@
         <button (click)="addParameter()"
                 title="Add a parameter to use in filters, expressions etc."
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">text_fields</mat-icon>
+            <span class="material-symbols-outlined text-xl">text_fields</span>
             parameters
         </button>
         <div class="divider"></div>
         <button (click)="editColumnSettings()"
                 title="Switch on and off columns for display"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">table_chart</mat-icon>
+            <span class="material-symbols-outlined text-xl">table_chart</span>
             columns
         </button>
         <button (click)="createFormula()"
                 title="Create a formula column using an expression based on other columns"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">functions</mat-icon>
+            <span class="material-symbols-outlined text-xl">functions</span>
             formula
         </button>
         <div class="divider"></div>
         <button (click)="addFilter()"
                 title="Filter the set using column based restrictions"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">filter_alt</mat-icon>
+            <span class="material-symbols-outlined text-xl">filter_alt</span>
             filter
         </button>
         <button (click)="joinData()"
                 title="Join another data set to the current dataset"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">merge_type</mat-icon>
+            <span class="material-symbols-outlined text-xl">merge_type</span>
             join
         </button>
         <button (click)="summariseData()"
                 title="Summarise this data to produce aggregated totals, sums and other derivations"
             class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">pivot_table_chart</mat-icon>
+            <span class="material-symbols-outlined text-xl">pivot_table_chart</span>
             summarise
         </button>
 
@@ -90,24 +90,24 @@
         <button (click)="evaluateDataset()"
                 title="Reload this query based upon changes you may have made"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">sync</mat-icon>
+            <span class="material-symbols-outlined text-xl">sync</span>
             reload
         </button>
         <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
                 title="Share this query with other account holders"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">share</mat-icon>
+            <span class="material-symbols-outlined text-xl">share</span>
             share
         </button>
         <button (click)="saveAsQuery()"
                 title="Make a copy of this query"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">file_copy</mat-icon>
+            <span class="material-symbols-outlined text-xl">file_copy</span>
             copy query
         </button>
         <button *ngIf="!dashboardLayoutSettings && datasetInstanceSummary.id" (click)="save()"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">save</mat-icon>
+            <span class="material-symbols-outlined text-xl">save</span>
             save
         </button>
     </div>
@@ -118,12 +118,29 @@
         <div class="list-title">
             Parameters
         </div>
-        <div class="flex items-center overflow-x-scroll">
+        <div class="flex items-center flex-wrap">
             <ng-template ngFor let-parameter [ngForOf]="parameterValues" let-i=index>
 
                 <label class="pl-4">
                     {{parameter.title}}
-                    <div class="parameter-input">
+                    <div *ngIf="(parameter.value || '').toString().includes('}}')">
+                        <mat-chip class="bg-gray-50 ml-2" title="Using parameter value from {{parameter.value}}">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined text-xl mr-1 text-gray-500">layers</span>
+                                <span *ngIf="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
+                                    [innerHTML]="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')].value"></span>
+                                <span *ngIf="!dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
+                                    class="font-medium text-orange-600">
+                                    Parameter Not Found !
+                                </span>
+                            </div>
+
+                            <button matChipRemove (click)="parameter.value = ''" title="">
+                                <mat-icon>cancel</mat-icon>
+                            </button>
+                        </mat-chip>
+                    </div>
+                    <div *ngIf="!(parameter.value || '').toString().includes('}}')" class="parameter-input">
                         <ng-template [ngIf]="parameter.type === 'text'">
                             <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
                                    [(ngModel)]="parameter.value"
@@ -133,6 +150,12 @@
                             <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
                                    [(ngModel)]="parameter.value"
                                    (keyup.enter)="evaluateDataset(true)" required autofocus>
+                        </ng-template>
+                        <ng-template [ngIf]="parameter.type === 'list'">
+                            <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
+                                    (change)="evaluateDataset(true)" required autofocus>
+                                <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                            </select>
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                             <ng-template [ngIf]="!parameter._dateType">
@@ -198,6 +221,15 @@
                                 <button mat-menu-item (click)="removeParameter(parameter)">Remove Parameter</button>
                             </mat-menu>
                         </ng-template>
+                        <ng-template [ngIf]="Object.keys(dashboardParameters || {}).length">
+                            <button mat-icon-button [matMenuTriggerFor]="dashParamMenu" title="Bind this parameter value to another">
+                                <mat-icon>text_fields</mat-icon>
+                            </button>
+                            <mat-menu #dashParamMenu="matMenu">
+                                <button mat-menu-item *ngFor="let dashParamKey of Object.keys(dashboardParameters)"
+                                        (click)="setDashboardParameter(parameter, dashboardParameters[dashParamKey].name)">{{dashboardParameters[dashParamKey].title}}</button>
+                            </mat-menu>
+                        </ng-template>
                     </div>
 
                 </label>
@@ -213,10 +245,6 @@
                 Apply Parameters
             </button>
         </div>
-
-
-
-
     </div>
 </div>
 
@@ -258,11 +286,11 @@
 
                             <button class="-mt-0.5" title="Show transformation details"  mat-icon-button
                                     (click)="showTransformationDetail(transformation)">
-                                <mat-icon class="ml-1" *ngIf="transformation.type === 'columns'">table_chart</mat-icon>
-                                <mat-icon *ngIf="transformation.type === 'formula'">functions</mat-icon>
-                                <mat-icon *ngIf="transformation.type === 'join'">merge_type</mat-icon>
-                                <mat-icon class="ml-1" *ngIf="transformation.type === 'summarise'">pivot_table_chart</mat-icon>
-                                <mat-icon *ngIf="transformation.type === 'filter'">filter_alt</mat-icon>
+                                <span class="material-symbols-outlined ml-1 text-xl" *ngIf="transformation.type === 'columns'">table_chart</span>
+                                <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'formula'">functions</span>
+                                <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'join'">merge_type</span>
+                                <span class="material-symbols-outlined ml-1 text-xl" *ngIf="transformation.type === 'summarise'">pivot_table_chart</span>
+                                <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'filter'">filter_alt</span>
                             </button>
 
                             <span class="whitespace-nowrap cursor-pointer"
@@ -295,8 +323,8 @@
                                 </mat-menu>
                             </ng-template>
 
-                            <button class="-ml-1" title="Remove this transformation" *ngIf="transformation._active" mat-icon-button color="primary"
-                                    (click)="removeTransformation(transformation, true)">
+                            <button class="-ml-1" title="Remove this transformation" mat-icon-button color="primary"
+                                    (click)="removeTransformation(transformation, true, null, transformation._active)">
                                 <mat-icon>cancel</mat-icon>
                             </button>
                         </div>
@@ -312,7 +340,7 @@
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'formula'">
                                     <div class="text-sm text-gray-700 mb-0">
-                                        <b>EXPRESSION</b>&nbsp;{{transformation.config.expressions[0].expression}}
+                                        <b>EXPRESSION</b>&nbsp;{{decodeURIComponent(transformation.config.expressions[0].expression)}}
                                     </div>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'columns'">
@@ -382,7 +410,7 @@
                 </button>
 
                 <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
-                                    [openSide]="openSide"
+                                    [openSide]="openSide" [parameterValues]="filterParameterValues"
                                     [filterJunction]="transformation.config"></ki-dataset-filters>
                 <button
                     *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
@@ -405,6 +433,7 @@
         </div>
         <div class="flex flex-wrap">
             <div class="badge-item outline"
+                 [ngClass]="{'exclude bg-orange-50 border-orange-200': _.find(datasetInstanceSummary.transformationInstances, {exclude: true})}"
                  *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
                 <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
                 <button mat-icon-button (click)="removeFilter(i)">
@@ -444,7 +473,8 @@
                             </a>
                         </ng-template>
                         <ng-template [ngIf]="!element[column.name]">
-                            {{element[column.name]}}
+                            <span *ngIf="element[column.name] === null" class="font-mono text-gray-400">null</span>
+                            <span *ngIf="element[column.name] !== null">{{element[column.name]}}</span>
                         </ng-template>
                     </ng-template>
                     <ng-template [ngIf]="Array.isArray(element[column.name])">

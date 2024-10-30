@@ -116,14 +116,19 @@ mat-drawer-container
     height: calc(100%  - 93px)
     .right-panel
         width: 250px
-        background-color: white
         display: none
         &.show
             display: block
+        .available-widgets
+            text-transform: uppercase
+            font-size: .75rem
+            color: #4c4c4c
+            font-weight: 500
+            letter-spacing: 1px
         .draggable-toolbar
             width: 100%
             display: flex
-            padding: 1rem
+            padding: 1rem 1rem 0 1rem
             cursor: default
             flex-wrap: wrap
             justify-content: space-between
@@ -136,7 +141,7 @@ mat-drawer-container
                     width: 100px
                     height: 78px
                     flex-direction: column
-                    background-color: whitesmoke
+                    background-color: white
                     box-shadow: none
                     .item-disabled
                         display: none

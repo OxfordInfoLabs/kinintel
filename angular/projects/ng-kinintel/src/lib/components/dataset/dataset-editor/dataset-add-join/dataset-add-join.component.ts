@@ -176,14 +176,13 @@ export class DatasetAddJoinComponent implements OnInit {
 
         if (this.data.joinTransformation) {
             this.joinTransformation = this.data.joinTransformation;
-            const item = {
-                key: this.joinTransformation.config.joinedDataSourceInstanceKey,
-                id: this.joinTransformation.config.joinedDataSetInstanceId
+            const action = {
+                datasourceKey: this.joinTransformation.config.joinedDataSourceInstanceKey,
+                datasetId: this.joinTransformation.config.joinedDataSetInstanceId
             };
-            const type = item.key ? 'datasource' : 'dataset';
 
             setTimeout(() => {
-                this.select({item, type}, this.matStepper, false);
+                this.select(action, this.matStepper, false);
             }, 200);
         }
     }

@@ -5,6 +5,9 @@ namespace Kinintel\Objects\Datasource\Caching;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Validation\ValidationException;
+use Kinintel\Exception\MissingDatasourceAuthenticationCredentialsException;
+use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -25,15 +28,8 @@ use Kinintel\ValueObjects\Transformation\Transformation;
 
 class CachingDatasource extends BaseDatasource {
 
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
+    private DatasourceService $datasourceService;
+    private DatasetService $datasetService;
 
     /**
      * @var Transformation[]
@@ -47,21 +43,14 @@ class CachingDatasource extends BaseDatasource {
         $this->datasetService = Container::instance()->get(DatasetService::class);
     }
 
-
-    /**
-     * Get caching data source config class
-     *
-     * @return string
-     */
-    public function getConfigClass() {
+    public function getConfigClass() : string {
         return CachingDatasourceConfig::class;
     }
-
 
     /**
      * No directly supported transformations here
      *
-     * @return array
+     * @return class-string[]
      */
     public function getSupportedTransformationClasses() {
         return [
@@ -89,7 +78,7 @@ class CachingDatasource extends BaseDatasource {
      *
      * @param \Kinintel\ValueObjects\Transformation\Transformation $transformation
      * @param array $parameterValues
-     * @param null $pagingTransformation
+     * @param null $pagingTransformation //todo Type??
      * @return BaseDatasource|void
      */
     public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
@@ -112,6 +101,9 @@ class CachingDatasource extends BaseDatasource {
     /**
      * @param array $parameterValues
      * @return Dataset
+     * @throws ValidationException
+     * @throws MissingDatasourceAuthenticationCredentialsException
+     * @throws UnsupportedDatasetException
      */
     public function materialiseDataset($parameterValues = []) {
 
@@ -121,9 +113,6 @@ class CachingDatasource extends BaseDatasource {
          */
         $config = $this->getConfig();
 
-        /**
-         * @var DatasourceInstance $cacheDatasourceInstance
-         */
         $cacheDatasourceInstance = $config->getCacheDatasource() ?? $this->datasourceService->getDataSourceInstanceByKey($config->getCacheDatasourceKey());
 
         // Check the cache by doing a very limited query based upon
@@ -180,9 +169,6 @@ class CachingDatasource extends BaseDatasource {
             if ($config->getSourceDatasetId()) {
                 $sourceDataset = $this->datasetService->getEvaluatedDataSetForDataSetInstanceById($config->getSourceDatasetId(), $sourceParams);
             } else {
-                /**
-                 * @var DatasourceInstance $sourceDatasourceInstance
-                 */
                 $sourceDatasourceInstance = $config->getSourceDatasource() ?? $this->datasourceService->getDataSourceInstanceByKey($config->getSourceDatasourceKey());
 
                 $sourceDatasource = $sourceDatasourceInstance->returnDataSource();

@@ -29,10 +29,9 @@ export class DataProcessorService {
             .toPromise();
     }
 
-    public filterProcessorsByRelatedItem(type: string = '', relatedType = '', itemId: number) {
-
-        return this.http.get(this.config.backendURL + '/dataprocessor/relatedobject/' + type + '/' + relatedType + '/' + itemId)
-            .toPromise();
+    public filterProcessorsByRelatedItem(type: string = '', relatedType = '', itemId: number, promise = true): any {
+        const request = this.http.get(this.config.backendURL + '/dataprocessor/relatedobject/' + type + '/' + relatedType + '/' + itemId);
+        return promise ? request.toPromise() : request;
     }
 
     public saveProcessor(processorSummary, autoStart = false) {

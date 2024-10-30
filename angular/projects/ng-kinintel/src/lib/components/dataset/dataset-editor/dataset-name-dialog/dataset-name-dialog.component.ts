@@ -1,5 +1,10 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {
+    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+    MatLegacyDialogRef as MatDialogRef
+} from '@angular/material/legacy-dialog';
+import {HttpClient} from '@angular/common/http';
+import {ProjectService} from '../../../../services/project.service';
 
 @Component({
     selector: 'ki-dataset-name-dialog',
@@ -9,16 +14,26 @@ import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDial
 })
 export class DatasetNameDialogComponent implements OnInit {
 
-    public title: string;
-    public description: string;
+    public datasetInstanceSummary: any;
+    public categories: any = [];
 
     constructor(public dialogRef: MatDialogRef<DatasetNameDialogComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any) {
+                @Inject(MAT_DIALOG_DATA) public data: any,
+                private http: HttpClient,
+                private projectService: ProjectService) {
     }
 
-    ngOnInit(): void {
-        this.title = this.data.title;
-        this.description = this.data.description;
+    async ngOnInit() {
+        this.datasetInstanceSummary = this.data.datasetInstanceSummary;
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+
+        this.categories = await this.http.get('/account/metadata/category?projectKey=' + projectKey, {
+            params: {limit: '100'}
+        }).toPromise();
+    }
+
+    public showSelected(o1: any, o2: any) {
+        return o1 && o2 && o1.key === o2.key;
     }
 
 }

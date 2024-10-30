@@ -142,7 +142,7 @@ class JSONResultFormatter implements ResultFormatter {
      * Map the result from the webservice to JSON using configured rules
      *
      * @param ReadableStream $stream
-     * @param array $passedColumns
+     * @param Field[] $passedColumns
      * @param int $limit
      * @param int $offset
      * @return Dataset
@@ -177,6 +177,7 @@ class JSONResultFormatter implements ResultFormatter {
         } else {
             $decodedResult = array_values($decodedResult);
         }
+
 
         // Deal with any offset and limit up front
         $decodedResult = array_slice($decodedResult, $offset, $limit);
@@ -215,6 +216,7 @@ class JSONResultFormatter implements ResultFormatter {
 
 
         }
+
 
         // If we are capturing raw result for other processing, supply here
         if ($this->rawResultFieldName) {
@@ -270,6 +272,10 @@ class JSONResultFormatter implements ResultFormatter {
         }
     }
 
+    /**
+     * Apologies for this function, using recursion + mutability is pretty gross.
+     * Feel free to rewrite it.
+     */
     public function insertMappedResult(
         array &$arrayToInsert,
         ?string $mapping,

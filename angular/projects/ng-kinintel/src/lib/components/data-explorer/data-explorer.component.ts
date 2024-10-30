@@ -42,7 +42,6 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public showSnapshots = false;
     public snapshotProfiles: any = [];
     public showQueryCache = false;
-    public queryCacheResults: any = [];
     public editTitle = false;
     public accountId: any;
     public newTitle: string;
@@ -66,7 +65,6 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-
         this.chartData = !!this.data.showChart;
         this.datasetInstanceSummary = this.data.datasetInstanceSummary;
         this.admin = !!this.data.admin;
@@ -165,9 +163,6 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public async viewQueryCaching() {
         this.showSnapshots = false;
         this.showQueryCache = !this.showQueryCache;
-        if (this.showQueryCache) {
-            this.queryCacheResults = await this.dataProcessorService.filterProcessorsByType('querycaching', '', '1', '0').toPromise();
-        }
     }
 
     public editQueryCache(cache: any) {
@@ -191,16 +186,15 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     public saveChanges() {
         if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
-                width: '475px',
-                height: '150px',
+                width: '700px',
+                height: '800px',
                 data: {
-                    title: this.newTitle,
-                    description: this.newDescription
+                    datasetInstanceSummary: this.datasetInstanceSummary
                 }
             });
-            dialogRef.afterClosed().subscribe(res => {
-                if (res) {
-                    this.datasetInstanceSummary.title = res;
+            dialogRef.afterClosed().subscribe(datasetInstanceSummary => {
+                if (datasetInstanceSummary) {
+                    this.datasetInstanceSummary = datasetInstanceSummary;
                     this.saveDataset();
                 }
             });

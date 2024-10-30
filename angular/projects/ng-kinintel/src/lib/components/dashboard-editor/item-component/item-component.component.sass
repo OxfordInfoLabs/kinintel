@@ -1,6 +1,6 @@
 :host
     &:hover
-        .edit-widget
+        .edit-widget, .item-unlocked
             display: block
 
 .alert-panel
@@ -73,6 +73,10 @@
 .edit-widget
     display: none
 
+.item-unlocked
+    display: none
+
+
 table
     width: 100%
     border-collapse: collapse
@@ -96,3 +100,38 @@ table
                 font-size: 13px
                 //color: #3c4043
                 //white-space: nowrap
+
+label.widget-parameter
+    flex-direction: row
+    align-items: center
+    margin-left: 1rem
+    .parameter-input
+        //background-color: #eaeaea
+        border-radius: 4px
+        padding-left: .5rem
+        height: 36px
+        display: flex
+        align-items: center
+        .param-period-picker
+            padding: 5px
+        button
+            color: #8e8e8e
+            &.edit-parameter
+                visibility: hidden
+            &.mat-icon-button
+                width: 30px
+                height: 30px
+                line-height: 30px
+                align-self: center
+                mat-icon
+                    font-size: 20px
+                    width: 20px
+                    height: 20px
+                    line-height: 20px
+        input
+            font-size: .9rem
+            padding: .25rem .45rem
+            width: 175px
+        &:hover
+            .edit-parameter
+                visibility: visible

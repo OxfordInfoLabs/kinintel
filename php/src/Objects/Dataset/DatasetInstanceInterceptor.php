@@ -15,30 +15,6 @@ use Kinintel\Services\Dataset\DatasetService;
 
 class DatasetInstanceInterceptor extends DefaultORMInterceptor {
 
-
-    /**
-     * @var DatabaseConnection
-     */
-    private $databaseConnection;
-
-
-    /**
-     * @var MetaDataService
-     */
-    private $metaDataService;
-
-
-    /**
-     * @var DatasetService
-     */
-    private $datasetService;
-
-
-    /**
-     * @var DataProcessorService
-     */
-    private $dataProcessorService;
-
     /**
      * DatasourceInstanceInterceptor constructor.
      *
@@ -47,11 +23,12 @@ class DatasetInstanceInterceptor extends DefaultORMInterceptor {
      * @param DatasetService $datasetService
      * @param DataProcessorService $dataProcessorService
      */
-    public function __construct($databaseConnection, $metaDataService, $datasetService, $dataProcessorService) {
-        $this->databaseConnection = $databaseConnection;
-        $this->metaDataService = $metaDataService;
-        $this->datasetService = $datasetService;
-        $this->dataProcessorService = $dataProcessorService;
+    public function __construct(
+        private DatabaseConnection $databaseConnection,
+        private MetaDataService $metaDataService,
+        private DatasetService $datasetService,
+        private DataProcessorService $dataProcessorService
+    ) {
     }
 
 

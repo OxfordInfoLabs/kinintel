@@ -19,7 +19,7 @@ class GoogleDriveService {
     private function initiateCredentialsFromConfig(){
         $credentialsKey = Configuration::readParameter("google.drive.credentials.key");
         if (!$credentialsKey) {
-            Logger::log("No credentials found for Google Drive");
+            Logger::log("No credentials found for Google Drive", 5);
         } else {
             /**
              * @var GoogleCloudCredentials $credentials

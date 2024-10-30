@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
-use Exception;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\ValueObjects\Dataset\Field;
 

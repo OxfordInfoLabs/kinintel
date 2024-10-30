@@ -9,7 +9,7 @@
         <div *ngIf="!editDashboardTitle" class="align-center ml-2">
             <h2 class="dashboard-title">{{dashboard.title}}</h2>&nbsp;
             <button mat-icon-button (click)="editDashboardTitle = true;">
-                <mat-icon>edit</mat-icon>
+                <span class="material-symbols-outlined">edit</span>
             </button>
         </div>
 
@@ -22,28 +22,28 @@
             <div class="divider" *ngIf="admin"></div>
             <button matTooltip="Toggle setting to enable/remove results limit" (click)="togglePerformance()"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl" *ngIf="optimise">check_circle</mat-icon>
-                <mat-icon class="text-xl" *ngIf="!optimise">unpublished</mat-icon>
+                <span class="text-xl material-symbols-outlined" *ngIf="optimise">check_circle</span>
+                <span class="text-xl material-symbols-outlined" *ngIf="!optimise">unpublished</span>
                 optimise
             </button>
             <button matTooltip="Edit dashboard settings" (click)="openSettings()"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">tune</mat-icon>
+                <span class="material-symbols-outlined text-xl">tune</span>
                 settings
             </button>
             <button (click)="toggleNotifications()" matTooltip="Edit default notification group"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl" *ngIf="!dashboard.alertsEnabled"
+                <span class="material-symbols-outlined text-xl" *ngIf="!dashboard.alertsEnabled"
                           title="Notifications for this dashboard are now off. Press to toggle on.">notifications_off
-                </mat-icon>
-                <mat-icon class="text-xl" *ngIf="dashboard.alertsEnabled"
+                </span>
+                <span class="material-symbols-outlined text-xl" *ngIf="dashboard.alertsEnabled"
                           title="Notifications for this dashboard are on. Press to toggle off.">notifications_active
-                </mat-icon>
+                </span>
                 notifications
             </button>
             <button [matMenuTriggerFor]="spacingMenu" matTooltip="Set dashboard item spacing"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">grid_view</mat-icon>
+                <span class="material-symbols-outlined text-xl">grid_view</span>
                 spacing
             </button>
             <mat-menu #spacingMenu="matMenu">
@@ -53,23 +53,23 @@
             </mat-menu>
             <button (click)="openFullScreen()" matTooltip="View full screen"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">fullscreen</mat-icon>
+                <span class="material-symbols-outlined text-xl">fullscreen</span>
                 full screen
             </button>
             <button (click)="editDashboardItems()" matTooltip="Show/hide dashboard widget panel"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">widgets</mat-icon>
+                <span class="material-symbols-outlined text-xl">widgets</span>
                 widgets
             </button>
             <div class="divider"></div>
             <button (click)="reloadDashboard()"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">sync</mat-icon>
+                <span class="material-symbols-outlined text-xl">sync</span>
                 reload
             </button>
             <button (click)="save()"
                     class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">save</mat-icon>
+                <span class="material-symbols-outlined text-xl">save</span>
                 save
             </button>
         </div>
@@ -93,17 +93,23 @@
                         <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                (keyup.enter)="reloadDashboard()" required autofocus>
                     </ng-template>
+                    <ng-template [ngIf]="parameter.type === 'list'">
+                        <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
+                                (change)="reloadDashboard()" required autofocus>
+                            <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                        </select>
+                    </ng-template>
                     <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
                         <ng-template [ngIf]="!parameter._dateType">
                             <div class="flex items-center">
                                 <button (click)="changeDateType($event, parameter, 'picker')"
                                         class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
-                                    <mat-icon class="text-base">calendar_month</mat-icon>
+                                    <span class="material-symbols-outlined text-base mx-1">calendar_month</span>
                                     Date Picker
                                 </button>
                                 <button (click)="changeDateType($event, parameter, 'period')"
                                         class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded bg-white flex items-center">
-                                    <mat-icon class="text-base">restore</mat-icon>
+                                    <span class="material-symbols-outlined text-base mx-1">restore</span>
                                     Time Period
                                 </button>
                             </div>
@@ -115,7 +121,7 @@
                             <a (click)="changeDateType($event, parameter, 'period')"
                                matTooltip="Time Period"
                                class="text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
-                                <mat-icon class="text-base">restore</mat-icon>
+                                <span class="material-symbols-outlined text-base ml-1.5 mr-1">restore</span>
                             </a>
                         </ng-template>
                         <ng-template [ngIf]="parameter._dateType === 'period'">
@@ -136,7 +142,7 @@
                             <a (click)="changeDateType($event, parameter, 'picker')"
                                matTooltip="Date Picker"
                                class="text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
-                                <mat-icon class="text-base">calendar_month</mat-icon>
+                                <span class="material-symbols-outlined text-base">calendar_month</span>
                             </a>
                         </ng-template>
 
@@ -148,7 +154,7 @@
                     </ng-template>
                     <ng-template [ngIf]="!parameter._locked">
                         <button mat-icon-button [matMenuTriggerFor]="paramMenu">
-                            <mat-icon>settings</mat-icon>
+                            <span class="material-symbols-outlined">settings</span>
                         </button>
                         <mat-menu #paramMenu="matMenu">
                             <button mat-menu-item (click)="addParameter(parameter, i)">Edit Parameter</button>
@@ -161,7 +167,7 @@
             <div class="divider ml-2" *ngIf="_.values(dashboard.layoutSettings.parameters).length"></div>
         </ng-template>
         <button mat-icon-button color="primary" class="mx-2" (click)="addParameter()">
-            <mat-icon>add_circle</mat-icon>
+            <span class="material-symbols-outlined">add_circle</span>
         </button>
         <button mat-flat-button color="primary" class="mr-2 leading-8" *ngIf="_.values(dashboard.layoutSettings.parameters).length"
                 (click)="reloadDashboard()">
@@ -172,23 +178,28 @@
 </ng-template>
 <div class="grid-container flex justify-between">
     <div class="grid-stack flex-1 h-full"></div>
-    <div class="right-panel" [ngClass]="{show: showEditPanel}">
-        <div class="flex items-center justify-between">
-            <div></div>
+    <div class="right-panel bg-transparent" [ngClass]="{show: showEditPanel}">
+        <div class="flex items-center justify-between border-b mb-4">
+            <div class="pl-4 available-widgets">Available Widgets</div>
             <button mat-icon-button color="primary" (click)="editDashboardItems()">
-                <mat-icon>close</mat-icon>
+                <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        <div class="draggable-toolbar">
-            <ng-template ngFor let-item [ngForOf]="itemTypes" let-i=index>
-                <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
-                     [attr.gs-h]="item.height" [attr.data-index]="i">
-                    <div class="grid-stack-item-content " draggable="true">
-                        <ki-item-component class="p-0 justify-center text-sm" [dragItem]="true" [dashboardItemType]="item"></ki-item-component>
+        <ng-template ngFor let-group [ngForOf]="itemTypeGroups" let-j=index>
+            <div class="pl-4 uppercase text-xs text-gray-600 tracking-wider">{{group}}</div>
+            <div class="draggable-toolbar">
+                <ng-template ngFor let-item [ngForOf]="itemTypesByGroup[group]" let-i=index>
+                    <div class="grid-stack-item ui-draggable" [attr.gs-w]="item.width"
+                         [attr.gs-h]="item.height" [attr.data-index]="i" [attr.data-group]="group">
+                        <div class="grid-stack-item-content shadow" draggable="true">
+                            <ki-item-component class="p-0 justify-center text-sm" [dragItem]="true"
+                                               [dashboardItemType]="item"></ki-item-component>
+                        </div>
                     </div>
-                </div>
-            </ng-template>
-        </div>
+                </ng-template>
+            </div>
+        </ng-template>
+
     </div>
 </div>
 

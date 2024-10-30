@@ -102,9 +102,7 @@ export class AdvancedSettingsComponent implements OnInit {
             _.remove(this.allColumns, {type: 'id'});
 
             this.allColumns.map(column => {
-                if (_.find(this.advancedSettings.primaryKeys, {name: column.name})) {
-                    column.keyField = true;
-                }
+                column.keyField = !!_.find(this.advancedSettings.primaryKeys, {name: column.name});
                 return column;
             });
 

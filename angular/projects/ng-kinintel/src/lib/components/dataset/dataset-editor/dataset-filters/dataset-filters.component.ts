@@ -13,6 +13,7 @@ export class DatasetFiltersComponent implements OnInit {
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
     @Input() openSide: Subject<boolean>;
+    @Input() parameterValues: any;
 
     constructor() {
     }

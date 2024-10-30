@@ -4,7 +4,6 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase;
 
 
-use Exception;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Exception\DebugException;
 use Kinikit\Core\Logging\Logger;
@@ -81,16 +80,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     private $dbConnection = null;
 
 
-    /**
-     * @var TableDDLGenerator
-     */
-    protected $tableDDLGenerator;
-
-
-    /**
-     * @var SQLColumnFieldMapper
-     */
-    private $sqlColumnFieldMapper;
+    protected TableDDLGenerator $tableDDLGenerator;
+    private SQLColumnFieldMapper $sqlColumnFieldMapper;
 
 
     /**
@@ -251,8 +242,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $dbConnection = $this->returnDatabaseConnection();
 
-        Logger::log($query->getParameters());
-        Logger::log($query->getSQL());
+        Logger::log($query->getParameters(), 6);
+        Logger::log($query->getSQL(), 6);
 
         $authenticationCredentials = $this->getAuthenticationCredentials();
         $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
@@ -381,10 +372,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                             throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
                         }
                     } else {
-                        Logger::log("SQL Error: " . $e->getMessage());
+                        Logger::log("SQL Error: " . $e->getMessage(), 4);
                         throw new DebugException(
                             message: "An unexpected error occurred updating the datasource",
-                            debugMessage: "SQL Error " . $e->getMessage()
+                            debugMessage: "SQL Error: " . $e->getMessage()
                         );
                     }
                 }
@@ -486,9 +477,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
          */
         $config = $this->getConfig();
 
-        /**
-         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
-         */
         $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
 
         // If a tabular based source, create base clause
@@ -496,9 +484,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $tableName = $parameterisedStringEvaluator->evaluateString($config->getTableName(), [], $parameterValues);
             $query = new SQLQuery("*", $tableName);
         } else {
-            /**
-             * @var TemplateParser $templateParser
-             */
             $templateParser = Container::instance()->get(TemplateParser::class);
 
             if ($config->isPagingViaParameters()) {
@@ -595,7 +580,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $newMetaData = new TableMetaData($this->getConfig()->getTableName(), $columns, $indexes);
 
         // Check to see whether the table already exists
-        $sql = "";
         $databaseConnection = $this->returnDatabaseConnection();
         try {
             $previousMetaData = $this->dbConnection->getTableMetaData($this->getConfig()->getTableName());
