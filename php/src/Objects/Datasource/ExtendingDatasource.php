@@ -7,6 +7,7 @@ use Kinintel\Exception\InvalidTransformationConfigException;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Configuration\ExtendingDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\TransformationApplication;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
 /**
@@ -133,7 +134,7 @@ class ExtendingDatasource extends BaseDatasource {
      * @return string[]
      */
     public function getSupportedTransformationClasses() {
-        // TODO: Implement getSupportedTransformationClasses() method.
+        return [PagingTransformation::class];
     }
 
 }
