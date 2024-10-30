@@ -4,6 +4,7 @@ namespace Kinintel\Test\Objects\Dataset;
 
 use Kiniauth\Objects\MetaData\ObjectStructuredData;
 use Kiniauth\Services\MetaData\MetaDataService;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
@@ -37,6 +38,8 @@ class DatasetInstanceInterceptorTest extends TestCase {
     private $dataProcessorService;
 
     public function setUp(): void {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
 
         $this->dataProcessorService = MockObjectProvider::instance()->getMockInstance(DataProcessorService::class);
 
