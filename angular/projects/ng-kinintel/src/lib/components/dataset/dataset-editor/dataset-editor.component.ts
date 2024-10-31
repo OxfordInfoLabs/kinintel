@@ -811,7 +811,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async excludeUpstreamTransformations(transformation) {
+    public async excludeUpstreamTransformations(transformation, resetPager = false) {
         const clonedTransformation = _.clone(transformation);
         // Grab the index of the current transformation - so we know which upstream transformations to exclude
         const existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
@@ -826,7 +826,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
         });
 
-        await this.evaluateDataset();
+        await this.evaluateDataset(resetPager);
         return [clonedTransformation, existingIndex];
     }
 
@@ -925,7 +925,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async evaluateDataset(resetPager?) {
+    public async evaluateDataset(resetPager?: boolean) {
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
                 this.resetPager();
