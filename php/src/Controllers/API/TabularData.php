@@ -109,7 +109,7 @@ class TabularData {
 
 
     /**
-     * Insert a set of rows to the data source indentified by the passed import key
+     * Insert a set of rows to the data source identified by the passed import key
      *
      * @http POST /$importKey
      *

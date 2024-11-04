@@ -35,7 +35,6 @@ export * from './lib/components/shared-with-me/shared-with-me.component';
 export * from './lib/components/data-explorer/snapshot-api-access/snapshot-api-access.component';
 export * from './lib/components/query-caching/query-caching.component';
 export * from './lib/components/data-sharing-invite/data-sharing-invite.component';
-export * from './lib/components/export-project/export-project.component';
 
 export * from './lib/guards/dashboard-changes.guard';
 
