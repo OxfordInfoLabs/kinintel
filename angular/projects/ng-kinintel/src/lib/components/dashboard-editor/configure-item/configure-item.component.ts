@@ -26,6 +26,11 @@ import regression from 'regression';
 import {ProjectService} from '../../../services/project.service';
 import {scales} from 'chart.js';
 import visNetworkOptions from './vis-network-options.json';
+import {CreateDatasetComponent} from '../../dataset/create-dataset/create-dataset.component';
+import {
+    ChangeSourceWarningComponent
+} from '../../data-explorer/change-source-warning/change-source-warning.component';
+import {DatasetEditorComponent} from '../../dataset/dataset-editor/dataset-editor.component';
 
 @Component({
     selector: 'ki-configure-item',
@@ -36,6 +41,7 @@ import visNetworkOptions from './vis-network-options.json';
 export class ConfigureItemComponent implements OnInit {
 
     @ViewChild(BaseChartDirective) chart: BaseChartDirective;
+    @ViewChild('datasetEditorComponent') datasetEditorComponent: DatasetEditorComponent;
 
     public grid;
     public chartData: any;
@@ -184,44 +190,7 @@ export class ConfigureItemComponent implements OnInit {
         if (!this.dashboardDatasetInstance) {
             this.selectedDatasource();
         } else {
-            if (this.dashboard.layoutSettings) {
-                this.mapLayoutSettingsToComponentData();
-
-                if (!this.general.parameterBar) {
-                    this.general.parameterBar = {};
-                }
-
-                if (this.dashboard.layoutSettings.parameters) {
-                    this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
-                        .filter('value')
-                        .map('value')
-                        .valueOf();
-                }
-
-                this.widgetParameters = _.cloneDeep(this.dashboard.layoutSettings.parameters);
-                if (this.general.widgetParameters && Object.keys(this.general.widgetParameters).length) {
-                    _.forEach(this.general.widgetParameters, widgetParam => {
-                        if (widgetParam.value) {
-                            this.widgetParameters[widgetParam.name].value = widgetParam.value;
-                        }
-                    });
-                }
-
-                const matchDependencies = _.filter(this.dependencies, (dep, key) => {
-                    if (dep.type === 'MATCH') {
-                        dep.key = key;
-                        return true;
-                    }
-                    return false;
-                });
-                matchDependencies.forEach(dep => {
-                    this.updateInstanceFilterFields(dep, dep.key);
-                });
-
-                if (this.tabular.cta) {
-                    this.ctaUpdate(this.tabular.cta);
-                }
-            }
+            this.loadDashboardItems();
         }
 
         this.dashboardService.getDashboards(
@@ -285,6 +254,42 @@ export class ConfigureItemComponent implements OnInit {
         }, 50);
     }
 
+    public changeSource() {
+        const dialogRef = this.dialog.open(CreateDatasetComponent, {
+            width: '1200px',
+            height: '800px',
+            data: {
+                admin: this.admin
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                const dialogRef2 = this.dialog.open(ChangeSourceWarningComponent, {
+                    width: '700px',
+                    height: '275px'
+                });
+                dialogRef2.afterClosed().subscribe(proceed => {
+                    if (proceed) {
+                        this.dashboardDatasetInstance.datasetInstanceId = res.datasetInstanceId;
+                        this.dashboardDatasetInstance.datasourceInstanceKey = res.datasourceInstanceKey;
+                        this.dashboardDatasetInstance.source = {
+                            title: res.title,
+                            datasetInstanceId: res.datasetInstanceId,
+                            datasourceInstanceKey: res.datasourceInstanceKey,
+                            type: null
+                        };
+                        const transformation = this.dashboardDatasetInstance.transformationInstances[0];
+                        if (transformation) {
+                            this.datasetEditorComponent.excludeUpstreamTransformations(transformation, true);
+                        } else {
+                            this.datasetEditorComponent.evaluateDataset(true);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     public selectedDatasource() {
         const dialogRef = this.dialog.open(SourceSelectorDialogComponent, {
             width: '1200px',
@@ -305,6 +310,7 @@ export class ConfigureItemComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(dashboardDatasetInstance => {
             this.dashboardDatasetInstance = dashboardDatasetInstance;
+            this.loadDashboardItems();
         });
     }
 
@@ -844,6 +850,47 @@ export class ConfigureItemComponent implements OnInit {
                 if (this.dashboardItemType.borderColor.length === dataLength) {
                     break;
                 }
+            }
+        }
+    }
+
+    private loadDashboardItems() {
+        if (this.dashboard.layoutSettings) {
+            this.mapLayoutSettingsToComponentData();
+
+            if (!this.general.parameterBar) {
+                this.general.parameterBar = {};
+            }
+
+            if (this.dashboard.layoutSettings.parameters) {
+                this.dashboardParamValues = _(this.dashboard.layoutSettings.parameters)
+                    .filter('value')
+                    .map('value')
+                    .valueOf();
+            }
+
+            this.widgetParameters = _.cloneDeep(this.dashboard.layoutSettings.parameters);
+            if (this.general.widgetParameters && Object.keys(this.general.widgetParameters).length) {
+                _.forEach(this.general.widgetParameters, widgetParam => {
+                    if (widgetParam.value) {
+                        this.widgetParameters[widgetParam.name].value = widgetParam.value;
+                    }
+                });
+            }
+
+            const matchDependencies = _.filter(this.dependencies, (dep, key) => {
+                if (dep.type === 'MATCH') {
+                    dep.key = key;
+                    return true;
+                }
+                return false;
+            });
+            matchDependencies.forEach(dep => {
+                this.updateInstanceFilterFields(dep, dep.key);
+            });
+
+            if (this.tabular.cta) {
+                this.ctaUpdate(this.tabular.cta);
             }
         }
     }

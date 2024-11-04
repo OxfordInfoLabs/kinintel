@@ -1,0 +1,35 @@
+<div class="flex flex-col h-full justify-between p-8">
+    <div>
+        <div class="mx-auto flex h-12 w-12 items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                 class="w-12 h-12 text-orange-500">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+
+        </div>
+        <div class="mt-3 text-center sm:mt-5">
+            <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">Change Source Query?</h3>
+            <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                    You are about to change the underlying dataset which may have different column mappings to the
+                    dataset you are currently working with. Any upstream transformations that are not compatible will
+                    cause the evaluation to fail. For convenience, we will disable all transformations after this point
+                    so they can be reviewed manually one by one.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5 flex align-center justify-between">
+        <button type="button" mat-dialog-close
+                class="mr-2 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm">
+            Cancel
+        </button>
+        <button type="button" [matDialogClose]="true"
+                class="mx-2 inline-flex w-full justify-center rounded-md border border-primary text-primary bg-white px-4 py-2 text-sm font-medium shadow-sm">
+            Proceed With Change
+        </button>
+
+
+    </div>
+</div>
+

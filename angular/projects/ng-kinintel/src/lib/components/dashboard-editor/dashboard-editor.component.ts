@@ -123,7 +123,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         {
             type: 'heading',
             label: 'Heading',
-            icon: 'title',
+            icon: 'text_format',
             width: 4,
             height: 8,
             group: 'Text'
@@ -131,7 +131,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         {
             type: 'text',
             label: 'Template',
-            icon: 'wysiwyg',
+            icon: 'code',
             width: 4,
             height: 16,
             group: 'Text'
@@ -147,7 +147,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         {
             type: 'words',
             label: 'Word Cloud',
-            icon: 'language',
+            icon: 'crossword',
             width: 3,
             height: 20,
             group: 'Data'
@@ -312,6 +312,7 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
         if (this.dashboard.layoutSettings?.parameters && Object.keys(this.dashboard.layoutSettings.parameters).length) {
             _.forEach(this.dashboard.layoutSettings.parameters, param => {
                 if (param.type === 'list') {
+                    param.list = [];
                     this.loadListParameters(param);
                 }
             });

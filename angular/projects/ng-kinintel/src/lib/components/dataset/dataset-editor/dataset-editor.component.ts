@@ -87,6 +87,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     public openSide = new BehaviorSubject(false);
     public limit = 25;
     public offset = 0;
+    public filterParameterValues: any;
 
     public readonly decodeURIComponent = decodeURIComponent;
 
@@ -776,6 +777,11 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         this.longRunning = false;
     }
 
+    public setDashboardParameter(parameter: any, parameterName: string) {
+        parameter.value = '{{' + parameterName + '}}';
+        this.evaluateDataset(true);
+    }
+
     public save() {
         if (!this.datasetInstanceSummary.id && (this.datasetInstanceSummary.title === this.datasetTitle)) {
             const dialogRef = this.dialog.open(DatasetNameDialogComponent, {
@@ -805,7 +811,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async excludeUpstreamTransformations(transformation) {
+    public async excludeUpstreamTransformations(transformation, resetPager = false) {
         const clonedTransformation = _.clone(transformation);
         // Grab the index of the current transformation - so we know which upstream transformations to exclude
         const existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
@@ -820,7 +826,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
         });
 
-        await this.evaluateDataset();
+        await this.evaluateDataset(resetPager);
         return [clonedTransformation, existingIndex];
     }
 
@@ -919,13 +925,17 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async evaluateDataset(resetPager?) {
+    public async evaluateDataset(resetPager?: boolean) {
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
                 this.resetPager();
             }
 
             const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
+            const filterParameterValues = _.map(_.concat(_.values(this.dashboardParameters), _.values(this.parameterValues)), param => {
+                return {name: param.name, title: param.title};
+            });
+            this.filterParameterValues = _.uniqBy(filterParameterValues, 'name');
 
             const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
             let finished = false;
@@ -1092,18 +1102,18 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             if (param.type === 'list' && !param.list?.length) {
                 this.loadListParameters(param);
             }
+
             if (this.dashboardParameters && Object.keys(this.dashboardParameters).length) {
                 if (_.isString(param.value) && param.value.includes('{{')) {
                     const paramKey = param.value.replace('{{', '').replace('}}', '');
+
                     if (this.dashboardParameters[paramKey]) {
                         clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[paramKey].value;
                     }
-                }
-
-                // If no value has been set default to the dashboard param value
-                if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
+                } else if (!clonedDatasetInstance.parameterValues[param.name] && this.dashboardParameters[param.name]) {
+                    // If no value has been set default to the dashboard param value
                     clonedDatasetInstance.parameterValues[param.name] = this.dashboardParameters[param.name].value;
-                } else {
+                } else if (!clonedDatasetInstance.parameterValues[param.name]) {
                     // Unless there isn't a dashboard param that matches
                     clonedDatasetInstance.parameterValues[param.name] = param.value;
                 }

@@ -23,6 +23,7 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceUpdater;
 use Kinintel\Objects\Datasource\DefaultDatasource;
@@ -944,6 +945,9 @@ class DatasourceServiceTest extends TestBase {
      * @doesNotPerformAssertions
      */
     public function testAccessToDatasourceUpdateCheckedAgainstProjectPrivileges() {
+
+        $testDs = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        Container::instance()->addInterfaceImplementation(Datasource::class, "test", get_class($testDs));
 
         $newOne = new DatasourceInstance("mynewone", "My New One", "test");
         $newOne->setAccountId(1);

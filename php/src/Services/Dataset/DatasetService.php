@@ -6,9 +6,9 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\MetaData\MetaDataService;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
+use Kinikit\Core\Caching\AppCache;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\MVC\Response\Download;
-use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\Response;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
@@ -20,6 +20,7 @@ use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
+use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -29,8 +30,8 @@ use Kinintel\ValueObjects\Transformation\TransformationInstance;
 class DatasetService {
 
     public function __construct(
-        private DatasourceService $datasourceService,
-        private MetaDataService $metaDataService,
+        private DatasourceService       $datasourceService,
+        private MetaDataService         $metaDataService,
         private ActiveRecordInterceptor $activeRecordInterceptor) {
     }
 
@@ -524,25 +525,30 @@ class DatasetService {
         // Validate configuration
         $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
 
+        // Grab the dataset, via the cache
+        if ($cacheTime > 0) {
+            $lookupFunc = function ($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit) {
+                $result = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+                return new ProcessedTabularDataSet($result->getColumns(), $result->getAllData());
+            };
 
-        // Grab the dataset.
-        $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+            $lookupFuncParams = [$datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit];
+            $cacheKey = "datasetExport-" . md5(print_r($lookupFuncParams, true));
 
+            $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams);
+        } else {
+            $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+        }
 
         // Export the dataset using exporter
         $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);
 
-        // Add headers to the party
-        $headers = [
-            Headers::HEADER_CACHE_CONTROL => "public, max-age=" . $cacheTime
-        ];
-
         // Return a new download or regular response depending upon then
         if ($streamAsDownload) {
             $filename = str_replace(" ", "_", strtolower($datasetInstance->getTitle())) . "-" . date("U") . "." . $exporter->getDownloadFileExtension($exporterConfiguration);
-            return new Download($contentSource, $filename, 200, $headers);
+            return new Download($contentSource, $filename, 200);
         } else {
-            return new SimpleResponse($contentSource, 200, $headers);
+            return new SimpleResponse($contentSource, 200);
         }
     }
 

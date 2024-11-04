@@ -189,7 +189,7 @@ class SQLValueEvaluator {
     }
 
     private function isSimpleExpression($string) {
-        preg_match("/^[0-9A-Z_]+$/", $string, $matches);
+        preg_match("/^[0-9A-Z_]+$/", $string ?? "", $matches);
         return sizeof($matches) > 0;
     }
 

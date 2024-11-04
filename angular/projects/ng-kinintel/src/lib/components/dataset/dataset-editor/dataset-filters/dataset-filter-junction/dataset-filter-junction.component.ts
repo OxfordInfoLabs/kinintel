@@ -15,6 +15,7 @@ export class DatasetFilterJunctionComponent implements OnInit {
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
     @Input() openSide: Subject<boolean>;
+    @Input() parameterValues: any;
 
     @Output() filterJunctionChange = new EventEmitter<any>();
 

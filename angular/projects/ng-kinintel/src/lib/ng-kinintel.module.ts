@@ -104,6 +104,7 @@ import { ImportWizardComponent } from './components/datasource/create-datasource
 import { AdvancedSettingsComponent } from './components/datasource/create-datasource/advanced-settings/advanced-settings.component';
 import {MatChipsModule} from '@angular/material/chips';
 import { RemoveTransformationWarningComponent } from './components/dataset/dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
+import { ChangeSourceWarningComponent } from './components/data-explorer/change-source-warning/change-source-warning.component';
 
 @NgModule({
     declarations: [
@@ -173,7 +174,8 @@ import { RemoveTransformationWarningComponent } from './components/dataset/datas
         DataSearchComponent,
         ImportWizardComponent,
         AdvancedSettingsComponent,
-        RemoveTransformationWarningComponent
+        RemoveTransformationWarningComponent,
+        ChangeSourceWarningComponent
     ],
     imports: [
         BrowserModule,

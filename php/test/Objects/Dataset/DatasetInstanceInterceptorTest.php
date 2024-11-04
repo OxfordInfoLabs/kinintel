@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Kinintel\Test\Objects\Dataset;
-
 
 use Kiniauth\Objects\MetaData\ObjectStructuredData;
 use Kiniauth\Services\MetaData\MetaDataService;
@@ -23,10 +21,11 @@ use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
+use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class DatasetInstanceInterceptorTest extends \PHPUnit\Framework\TestCase {
+class DatasetInstanceInterceptorTest extends TestCase {
 
     /**
      * @var DatasetInstanceInterceptor

@@ -1,4 +1,4 @@
-import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {
     MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
     MatLegacyDialog as MatDialog,
@@ -21,6 +21,10 @@ import {
     EditQueryCacheComponent
 } from '../query-caching/edit-query-cache/edit-query-cache.component';
 import {Subject} from 'rxjs';
+import {CreateDatasetComponent} from '../dataset/create-dataset/create-dataset.component';
+import {DatasetEditorComponent} from '../dataset/dataset-editor/dataset-editor.component';
+import {ChangeSourceWarningComponent} from './change-source-warning/change-source-warning.component';
+
 
 const _ = lodash.default;
 
@@ -31,6 +35,8 @@ const _ = lodash.default;
     host: {class: 'configure-dialog'}
 })
 export class DataExplorerComponent implements OnInit, OnDestroy {
+
+    @ViewChild('datasetEditorComponent') datasetEditorComponent: DatasetEditorComponent;
 
     public _ = _;
     public backendUrl: string;
@@ -91,6 +97,43 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         if (this.timer) {
             clearInterval(this.timer);
         }
+    }
+
+    public changeSource() {
+        const dialogRef = this.dialog.open(CreateDatasetComponent, {
+            width: '1200px',
+            height: '800px',
+            data: {
+                admin: this.admin,
+                accountId: this.accountId
+            }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                const dialogRef2 = this.dialog.open(ChangeSourceWarningComponent, {
+                    width: '700px',
+                    height: '275px'
+                });
+                dialogRef2.afterClosed().subscribe(proceed => {
+                    if (proceed) {
+                        this.datasetInstanceSummary.datasetInstanceId = res.datasetInstanceId;
+                        this.datasetInstanceSummary.datasourceInstanceKey = res.datasourceInstanceKey;
+                        this.datasetInstanceSummary.source = {
+                            title: res.title,
+                            datasetInstanceId: res.datasetInstanceId,
+                            datasourceInstanceKey: res.datasourceInstanceKey,
+                            type: null
+                        };
+                        const transformation = this.datasetInstanceSummary.transformationInstances[0];
+                        if (transformation) {
+                            this.datasetEditorComponent.excludeUpstreamTransformations(transformation, true);
+                        } else {
+                            this.datasetEditorComponent.evaluateDataset(true);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     public dataLoaded(data) {
