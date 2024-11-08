@@ -13,6 +13,7 @@ use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
 use Kinintel\Services\Util\SQLiteFunctions\DotProduct;
 use Kinintel\Services\Util\SQLiteFunctions\Levenshtein;
 use Kinintel\Services\Util\SQLiteFunctions\Regexp;
+use Kinintel\Services\Util\SQLiteFunctions\Reverse;
 
 class Bootstrap implements ApplicationBootstrap {
 
@@ -21,6 +22,7 @@ class Bootstrap implements ApplicationBootstrap {
         SQLite3DatabaseConnection::addCustomFunction(new DotProduct());
         SQLite3DatabaseConnection::addCustomFunction(new Levenshtein());
         SQLite3DatabaseConnection::addCustomFunction(new Regexp());
+        SQLite3DatabaseConnection::addCustomFunction(new Reverse());
 
         // Inject task implementations specific to kinintel
         Container::instance()->addInterfaceImplementation(Task::class, "alertgroup", AlertGroupTask::class);

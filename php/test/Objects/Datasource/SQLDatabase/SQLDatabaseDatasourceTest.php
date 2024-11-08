@@ -787,8 +787,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false),
             new TableColumn("notes", TableColumn::SQL_LONGBLOB)
         ], [
-            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
-            new TableIndex(md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
+            new TableIndex("idx_".md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
+            new TableIndex("idx_".md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
         ]);
 
 
@@ -834,6 +834,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
         ], [
+            // Try using just the hash to test backwards compatibility
             new TableIndex(md5("whichwhat"), [new TableIndexColumn("which"), new TableIndexColumn("what", 500)]),
         ]);
 
@@ -848,7 +849,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, false, "what"),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ], [
-            new TableIndex(md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
+            new TableIndex("idx_".md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
         ]);
 
         $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [

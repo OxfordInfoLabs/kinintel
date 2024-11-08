@@ -143,6 +143,8 @@ class SQLClauseSanitiser {
             "description" => "Returns the average of values of X in the dataset. Later arguments are columns to be partitioned over."],
         "RTRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Remove whitespace from end of the supplied string"],
+        "REVERSE" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
+            "description" => "Reverse the string X, e.g. REVERSE('hello') = 'olleh'"],
         "SQRT" => ["params" => ["X"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the square root of X"],
         "SUBSTR" => ["params" => ["X", "Y", "Z"], "category" => self::STRING_WHITELISTED_FUNCTION,
