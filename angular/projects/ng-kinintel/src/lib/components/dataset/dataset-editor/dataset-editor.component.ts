@@ -129,12 +129,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         this.openSide.subscribe((open: boolean) => {
             if (open) {
-                document.getElementById('sidebarWrapper').classList.add('z-20');
-                document.getElementById('sidebarWrapper').classList.remove('-z-10');
+                document.getElementById('sidebarWrapper')?.classList.add('z-20');
+                document.getElementById('sidebarWrapper')?.classList.remove('-z-10');
             } else {
                 setTimeout(() => {
-                    document.getElementById('sidebarWrapper').classList.add('-z-10');
-                    document.getElementById('sidebarWrapper').classList.remove('z-20');
+                    document.getElementById('sidebarWrapper')?.classList.add('-z-10');
+                    document.getElementById('sidebarWrapper')?.classList.remove('z-20');
                 }, 700);
             }
             this.sideOpen = open;

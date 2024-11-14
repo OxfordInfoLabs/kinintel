@@ -229,13 +229,13 @@ export class ConfigureItemComponent implements OnInit {
 
         this.openSide.subscribe((open: boolean) => {
             if (open) {
-                document.getElementById('sidebarWrapper2').classList.add('z-20');
-                document.getElementById('sidebarWrapper2').classList.remove('-z-10');
+                document.getElementById('sidebarWrapper2')?.classList.add('z-20');
+                document.getElementById('sidebarWrapper2')?.classList.remove('-z-10');
                 this.docColumns.next(this.filterFields);
             } else {
                 setTimeout(() => {
-                    document.getElementById('sidebarWrapper2').classList.add('-z-10');
-                    document.getElementById('sidebarWrapper2').classList.remove('z-20');
+                    document.getElementById('sidebarWrapper2')?.classList.add('-z-10');
+                    document.getElementById('sidebarWrapper2')?.classList.remove('z-20');
                 }, 700);
             }
             this.sideOpen = open;
