@@ -213,7 +213,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "file_size" => 10,
                 "file_type" => "application/text"
             ]
-        ], ["filename", "imported_date", "file_size", "file_type"]]));
+        ], ["filename", "imported_date", "file_size", "file_type"], true]));
 
     }
 
@@ -232,7 +232,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "file_size" => 12,
                 "file_type" => "text/plain"
             ]
-        ], ["filename", "imported_date", "file_size", "file_type"]]));
+        ], ["filename", "imported_date", "file_size", "file_type"], true]));
 
     }
 
@@ -256,7 +256,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "file_type" => "text/plain",
                 "original_text" => "Hello World"
             ]
-        ], ["filename", "imported_date", "file_size", "file_type", "original_text"]]));
+        ], ["filename", "imported_date", "file_size", "file_type", "original_text"], true]));
 
 
         // Now do a string test
@@ -277,7 +277,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "file_type" => "text/plain",
                 "original_text" => "Hello World"
             ]
-        ], ["filename", "imported_date", "file_size", "file_type", "original_text"]]));
+        ], ["filename", "imported_date", "file_size", "file_type", "original_text"], true]));
     }
 
 
@@ -312,7 +312,7 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "original_text" => "Hello World",
                 "original_link" => "http://kinicart.test/attachment/25"
             ]
-        ], ["filename", "imported_date", "file_size", "file_type", "original_text", "original_link"]]));
+        ], ["filename", "imported_date", "file_size", "file_type", "original_text", "original_link"], true]));
 
         // Check attachment service was called with original text
         $this->assertTrue($mockAttachmentService->methodWasCalled("saveAttachment", [
