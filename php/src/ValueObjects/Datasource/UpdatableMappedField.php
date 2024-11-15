@@ -44,6 +44,17 @@ class UpdatableMappedField {
      */
     private $targetFieldName;
 
+
+    /**
+     * If target field is being used (i.e. the input values are single value string literals)
+     * if this is set to true, the field will also be retained in the parent
+     * datasource.
+     *
+     * @var bool
+     */
+    private $retainTargetFieldInParent = false;
+
+
     /**
      * The update mode to use for update - defaults to the same as the parent operation
      *
@@ -67,12 +78,13 @@ class UpdatableMappedField {
      *  rather than objects so we need to create a wrapper object with a single property
      *  named using the target field name.
      */
-    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null, $targetFieldName = null) {
+    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null, $targetFieldName = null, $retainTargetFieldInParent = false) {
         $this->fieldName = $fieldName;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->parentFieldMappings = $parentFieldMappings;
         $this->updateMode = $updateMode;
         $this->targetFieldName = $targetFieldName;
+        $this->retainTargetFieldInParent = $retainTargetFieldInParent;
     }
 
 
@@ -130,6 +142,20 @@ class UpdatableMappedField {
      */
     public function setTargetFieldName($targetFieldName) {
         $this->targetFieldName = $targetFieldName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRetainTargetFieldInParent(): bool {
+        return $this->retainTargetFieldInParent;
+    }
+
+    /**
+     * @param bool $retainTargetFieldInParent
+     */
+    public function setRetainTargetFieldInParent(bool $retainTargetFieldInParent): void {
+        $this->retainTargetFieldInParent = $retainTargetFieldInParent;
     }
 
     /**

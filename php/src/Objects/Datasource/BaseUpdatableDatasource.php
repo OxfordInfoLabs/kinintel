@@ -133,7 +133,9 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                 }
 
                 // Update core data
-                unset($data[$mappedField->getFieldName()]);
+                if (!$mappedField->isRetainTargetFieldInParent())
+                    unset($data[$mappedField->getFieldName()]);
+
                 $data[$index] = $dataItem;
 
             }
@@ -176,7 +178,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
             // Remove column from array
             foreach ($columns as $index => $column) {
-                if ($column->getName() == $mappedField->getFieldName()) {
+                if (!$mappedField->isRetainTargetFieldInParent() && ($column->getName() == $mappedField->getFieldName())) {
                     array_splice($columns, $index, 1);
                     break;
                 }
