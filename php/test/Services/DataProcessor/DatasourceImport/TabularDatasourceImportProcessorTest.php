@@ -169,6 +169,56 @@ class TabularDatasourceImportProcessorTest extends TestBase {
     }
 
 
+    public function testIfUpdateModeSetOnTargetItIsUsedInsteadOfReplace(){
+
+        $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
+        $mockSourceInstance->returnValue("returnDataSource", $mockSource);
+
+        $dataSet = new ArrayTabularDataset([new Field("bong")], [
+            [
+                "bong" => "bing"
+            ],
+            [
+                "bong" => "bong"
+            ]
+        ]);
+
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataSet, [
+            "source", null, null, null, null
+        ]);
+
+
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "target"
+        ]);
+
+        $config = new TabularDatasourceImportProcessorConfiguration("source", [
+            new TargetDatasource("target",null, UpdatableDatasource::UPDATE_MODE_ADD)
+        ]);
+
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
+        $this->processor->process($instance);
+
+
+        // Check add call was made not replace
+        $this->assertTrue($mockTarget->methodWasCalled("update", [
+            new ArrayTabularDataset([new Field("bong")], [
+                [
+                    "bong" => "bing"
+                ],
+                [
+                    "bong" => "bong"
+                ]
+            ]), UpdatableDatasource::UPDATE_MODE_ADD
+        ]));
+
+    }
+
+
     public function testMultipleSourceAndTargetImportResultsInAReplaceUpdateOnTargetDatasetForAllSources() {
 
         $mockFirstSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);

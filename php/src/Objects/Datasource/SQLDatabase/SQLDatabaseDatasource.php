@@ -349,7 +349,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 try {
                     switch ($updateMode) {
                         case UpdatableDatasource::UPDATE_MODE_ADD:
-                            $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
+                            $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns, true);
                             break;
                         case UpdatableDatasource::UPDATE_MODE_DELETE:
                             $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);

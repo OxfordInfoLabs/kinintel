@@ -469,7 +469,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
-            "test_data", $data, null
+            "test_data", $data, null, true
         ]));
 
     }
@@ -505,7 +505,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         $this->bulkDataManager->throwException("insert", new SQLException("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry", 23000), [
-            "test_data", $data, null
+            "test_data", $data, null, true
         ]);
 
 
