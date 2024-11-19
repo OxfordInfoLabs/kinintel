@@ -97,7 +97,7 @@ class DataSearchService {
             );
         };
 
-        return array_map($convertToDataSearchItem, $results) + ($configDatasourceDatasearchItems ?? []);
+        return array_merge(array_map($convertToDataSearchItem, $results), $configDatasourceDatasearchItems ?? []);
 
     }
 
