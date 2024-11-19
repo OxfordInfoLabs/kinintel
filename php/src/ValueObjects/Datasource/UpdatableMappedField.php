@@ -31,7 +31,7 @@ class UpdatableMappedField {
      * An optional array of filters to apply to the parent dataset before using a given
      * parent row for this mapping - useful if only some rows are required to be child mapped.
      *
-     * @var string[string]
+     * @var array<string, string>
      */
     private $parentFilters;
     
@@ -39,7 +39,7 @@ class UpdatableMappedField {
     /**
      * An array of mapped fields to synchronise from the parent dataset to the child datasource.
      *
-     * @var string[string]
+     * @var array<string, string>
      */
     private $parentFieldMappings;
 
@@ -47,7 +47,7 @@ class UpdatableMappedField {
     /**
      * An array of constant field values to be simply merged into the child datasource.
      *
-     * @var string[string]
+     * @var array<string, string>
      */
     private $constantFieldValues;
 
@@ -140,42 +140,42 @@ class UpdatableMappedField {
     }
 
     /**
-     * @return array|string
+     * @return array<string, string>
      */
     public function getParentFilters() {
         return $this->parentFilters;
     }
 
     /**
-     * @param array|string $parentFilters
+     * @param array $parentFilters
      */
     public function setParentFilters($parentFilters) {
         $this->parentFilters = $parentFilters;
     }
 
     /**
-     * @return string
+     * @return array<string, string>
      */
     public function getParentFieldMappings() {
         return $this->parentFieldMappings;
     }
 
     /**
-     * @param string[] $parentFieldMappings
+     * @param array<string, string> $parentFieldMappings
      */
     public function setParentFieldMappings($parentFieldMappings) {
         $this->parentFieldMappings = $parentFieldMappings;
     }
 
     /**
-     * @return array|string
+     * @return array
      */
     public function getConstantFieldValues() {
         return $this->constantFieldValues;
     }
 
     /**
-     * @param array|string $constantFieldValues
+     * @param array $constantFieldValues
      */
     public function setConstantFieldValues($constantFieldValues) {
         $this->constantFieldValues = $constantFieldValues;
