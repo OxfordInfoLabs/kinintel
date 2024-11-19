@@ -22,17 +22,8 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
      */
     private $updateConfig;
 
-
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
-
-
-    /**
-     * @var ValueFunctionEvaluator
-     */
-    private $valueFunctionEvaluator;
+    private DatasourceService $datasourceService;
+    private ValueFunctionEvaluator $valueFunctionEvaluator;
 
     /**
      * BaseUpdatableDatasource constructor.
