@@ -17,6 +17,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use PHPUnit\Framework\MockObject\MockObject;
+use function Kinikit\Core\Util\println;
 
 include_once "autoloader.php";
 
@@ -43,6 +44,8 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
      */
     private $notesDatasource;
 
+    private ValueFunctionEvaluator $valueFunctionEvaluator;
+
 
     public function setUp(): void {
         $this->datasource = ConcreteClassGenerator::instance()->generateInstance(BaseUpdatableDatasource::class);
@@ -53,9 +56,9 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
             $datasourceInstance);
         $this->notesDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
         $datasourceInstance->returnValue("returnDataSource", $this->notesDatasource);
-        $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
+        $this->valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
         $this->datasource->setDatasourceService($this->datasourceService);
-        $this->datasource->setValueFunctionEvaluator($valueFunctionEvaluator);
+        $this->datasource->setValueFunctionEvaluator($this->valueFunctionEvaluator);
 
     }
 
@@ -841,5 +844,99 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testFlattenChildFields(){
+        $mappedField = new UpdatableMappedField(
+            "notes",
+            "notes",
+            parentFieldMappings:["id" => "parentId"],
+            updateMode: BaseUpdatableDatasource::UPDATE_MODE_REPLACE,
+            flattenFieldMappings: ["tags" => "tag"],
+        );
+
+        $expectedData = [
+            ["parentId" => 7, "id" => 8, "tag" => "Fruits"],
+            ["parentId" => 7, "id" => 8, "tag" => "Vegetables"],
+            ["parentId" => 7, "id" => 9, "tag" => "Fruits"],
+        ];
+
+        $inputData = [
+            [
+                "id" => 7,
+                "notes" => [
+                    [
+                        "id" => 8,
+                        "tags" => ["Fruits", "Vegetables"]
+                    ],
+                    [
+                        "id" => 9,
+                        "tags" => ["Fruits"]
+                    ]
+                ]
+            ]
+        ];
+
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+
+        $this->assertEquals($expectedData, $mappedData);
+
+        $inputData = [
+            "id" => 7,
+            "notes" => []
+        ];
+
+        $expectedData = [];
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+        $this->assertEquals($expectedData, $mappedData);
+    }
+
+    public function testFlattenFieldsWorksWithImplicitIndexArgument(){
+        $mappedField = new UpdatableMappedField(
+            "notes",
+            "notes",
+            parentFieldMappings:[
+                "id" => "parentId",
+                "_index" => "notes_idx"
+            ],
+            updateMode: BaseUpdatableDatasource::UPDATE_MODE_REPLACE,
+            flattenFieldMappings: ["tags" => "tag"],
+        );
+        $inputData = [
+            [
+                "id" => 7,
+                "notes" => []
+            ]
+        ];
+        $expectedData = [];
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+        $this->assertEquals($expectedData, $mappedData);
+
+        $inputData = [
+            [
+                "id" => 7,
+                "notes" => [
+                    [
+                        "id" => 1,
+                        "tags" => ["Fruits", "Vegetables"]
+                    ]
+                ]
+            ]
+        ];
+        $expectedData = [
+            [
+                "parentId" => 7,
+                "id" => 1,
+                "tag" => "Fruits",
+                "notes_idx" => 0
+            ],
+            [
+                "parentId" => 7,
+                "id" => 1,
+                "tag" => "Vegetables",
+                "notes_idx" => 0
+            ]
+        ];
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+        $this->assertEquals($expectedData, $mappedData);
+    }
 
 }
