@@ -172,12 +172,14 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
 
     public async editSnapshot(snapshotKey: string, project: any) {
         const snapshot: any = await this.dataProcessorService.getProcessor(snapshotKey);
+        const datasetInstance = await this.datasetService.getDataset(snapshot.relatedObjectPrimaryKey);
         const dialogRef = this.dialog.open(SnapshotProfileDialogComponent, {
             width: '900px',
             height: '900px',
             data: {
                 snapshot,
-                datasetInstanceId: snapshot.relatedObjectPrimaryKey
+                datasetInstanceId: snapshot.relatedObjectPrimaryKey,
+                datasetInstance
             }
         });
         dialogRef.afterClosed().subscribe(res => {

@@ -357,7 +357,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 try {
                     switch ($updateMode) {
                         case UpdatableDatasource::UPDATE_MODE_ADD:
-                            $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns);
+                            $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns, true);
                             break;
                         case UpdatableDatasource::UPDATE_MODE_DELETE:
                             $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
@@ -586,7 +586,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         throw new DatasourceUpdateException("You attempted to remove a field which is referenced in an index");
 
                 }
-                $indexes[] = new TableIndex(md5(join("", $indexFields)), $indexColumns);
+                $indexes[] = new TableIndex("idx_".md5(join("", $indexFields)), $indexColumns);
             }
         }
 

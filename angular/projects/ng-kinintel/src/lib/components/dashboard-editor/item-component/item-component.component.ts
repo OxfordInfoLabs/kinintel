@@ -118,7 +118,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     public externalError = false;
     public quotaExceeded: string = null;
     public existingGridItem = false;
-    public itemNoMove = true;
+    public itemNoMove = false;
     public visNetworkOptions = visNetworkOptions;
 
     private itemLoadedSub: Subscription;
@@ -139,6 +139,12 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
     ngAfterViewInit() {
         setTimeout(() => {
             this.canExportData = this.projectService.doesActiveProjectHavePrivilege('exportdata');
+
+            const instanceElement = document.getElementById(this.itemInstanceKey);
+            if (instanceElement) {
+                const widget = instanceElement.closest('.grid-stack-item');
+                this.itemNoMove = widget.getAttribute('gs-no-move') === 'true';
+            }
         }, 50);
     }
 
@@ -262,10 +268,6 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         this.existingGridItem = !!_.find(this.dashboard.layoutSettings.grid, item => {
             return item.content.includes(this.itemInstanceKey);
         });
-
-        const instanceElement = document.getElementById(this.itemInstanceKey);
-        const widget = instanceElement.closest('.grid-stack-item');
-        this.itemNoMove = widget.getAttribute('gs-no-move') === 'true';
     }
 
     ngOnDestroy() {

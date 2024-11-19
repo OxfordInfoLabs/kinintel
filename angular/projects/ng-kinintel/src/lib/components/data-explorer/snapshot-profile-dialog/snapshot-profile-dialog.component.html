@@ -44,33 +44,33 @@
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
                                     <ng-template ngFor let-parameterKey [ngForOf]="Object.keys(snapshot.config.parameterValues)">
                                         <div class="text-gray-600 text-xs">{{_.startCase(parameterKey)}}</div>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey}).type === 'text'">
+                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'text'">
                                             <input type="text" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
                                                    placeholder="Enter a value for {{_.startCase(parameterKey)}}"
                                                    class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
                                         </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey}).type === 'numeric'">
+                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'numeric'">
                                             <input type="number" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
                                                    placeholder="Enter a value for {{_.startCase(parameterKey)}}"
                                                    class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
                                         </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey}).type === 'list'">
+                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'list'">
                                             <select class="pr-8" [(ngModel)]="snapshot.config.parameterValues[parameterKey]">
                                                 <option *ngFor="let item of _.find(parameters, {name: parameterKey}).list" [value]="item.value">
                                                     {{item.label}}</option>
                                             </select>
                                         </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey}).type === 'date'">
+                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'date'">
                                             <input type="date" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
                                                    placeholder="Enter a value for {{_.startCase(parameterKey)}}"
                                                    class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
                                         </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey}).type === 'datetime'">
+                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'datetime'">
                                             <input type="datetime-local" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
                                                    placeholder="Enter a value for {{_.startCase(parameterKey)}}"
                                                    class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
                                         </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey}).type === 'boolean'">
+                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'boolean'">
                                             <mat-slide-toggle class="pr-8" color="primary"
                                                               [(ngModel)]="snapshot.config.parameterValues[parameterKey]">
                                             </mat-slide-toggle>

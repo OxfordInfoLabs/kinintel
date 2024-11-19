@@ -27,7 +27,7 @@ class TabularDatasourceImportProcessor extends BaseDataProcessor {
 
     public function __construct(
         private DatasourceService $datasourceService,
-        private DatasetService $datasetService
+        private DatasetService    $datasetService
     ) {
     }
 
@@ -221,7 +221,7 @@ class TabularDatasourceImportProcessor extends BaseDataProcessor {
             $dataset = new ArrayTabularDataset($fields, $chunkedResults);
 
             // Replace results
-            $targetDatasource->update($dataset, UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $targetDatasource->update($dataset, $targetObject->getUpdateMode());
         }
 
     }
