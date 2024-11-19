@@ -48,14 +48,14 @@ class DocumentDatasource extends SQLDatabaseDatasource {
         if ($config->isIndexContent() || $config->getCustomDocumentParser()){
             $updatableMappedFields[] = new UpdatableMappedField(
                 "phrases",
-                "index_" . $this->getInstanceInfo()->getKey(), [
+                "index_" . $this->getInstanceInfo()->getKey(), [], [
                 "filename" => "document_file_name"
             ]);
         }
         if ($config->isChunkContent()){
             $updatableMappedFields[] = new UpdatableMappedField(
                 "chunks",
-                "chunks_" . $this->getInstanceInfo()->getKey(), [
+                "chunks_" . $this->getInstanceInfo()->getKey(), [], [
                 "filename" => "document_file_name"
             ]);
         }
