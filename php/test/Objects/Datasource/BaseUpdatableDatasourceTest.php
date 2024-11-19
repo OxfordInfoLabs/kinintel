@@ -3,6 +3,8 @@
 
 namespace Kinintel\ValueObjects\Datasource;
 
+use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Testing\ConcreteClassGenerator;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
@@ -51,7 +53,10 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
             $datasourceInstance);
         $this->notesDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
         $datasourceInstance->returnValue("returnDataSource", $this->notesDatasource);
+        $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
         $this->datasource->setDatasourceService($this->datasourceService);
+        $this->datasource->setValueFunctionEvaluator($valueFunctionEvaluator);
+
     }
 
     public function testCanUpdateSimpleMappedFieldDataIfDefinedInConfig() {
@@ -128,10 +133,90 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testIfParentFiltersSuppliedInConfigTheItemsAreFilteredUsingAdditiveFilteringOnSuppliedValues(){
+
+        $config = new DatasourceUpdateConfig([], [
+            new UpdatableMappedField("notes", "notes", [
+                "id" => 2
+            ])
+        ]);
+
+        $this->datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $dataSet = $this->datasource->updateMappedFieldData(new ArrayTabularDataset([new Field("id"),
+            new Field("title"),
+            new Field("notes")], [
+            [
+                "id" => 1,
+                "title" => "Test",
+                "notes" => [
+                    [
+                        "id" => 1,
+                        "title" => "Item 1"
+                    ],
+                    [
+                        "id" => 2,
+                        "title" => "Item 2"
+                    ]
+                ]
+            ],
+            [
+                "id" => 2,
+                "title" => "Pick",
+                "notes" => [
+                    [
+                        "id" => 3,
+                        "title" => "Item 3"
+                    ],
+                    [
+                        "id" => 4,
+                        "title" => "Item 4"
+                    ]
+                ]
+            ]
+
+        ]));
+
+        // Check columns and data pruned
+        $this->assertEquals([new Field("id"), new Field("title")], $dataSet->getColumns());
+        $this->assertEquals([["id" => 1, "title" => "Test"], ["id" => 2, "title" => "Pick"]], $dataSet->getAllData());
+
+        $this->assertTrue($this->notesDatasource->methodWasCalled("update",
+            [
+                new ArrayTabularDataset([
+                    new Field("id"),
+                    new Field("title")
+                ],
+                    [
+                        [
+                            "id" => 3,
+                            "title" => "Item 3"
+                        ],
+                        [
+                            "id" => 4,
+                            "title" => "Item 4"
+                        ]
+                    ]),
+                BaseUpdatableDatasource::UPDATE_MODE_ADD
+            ]
+
+        ));
+
+
+
+
+
+
+
+    }
+
+
     public function testIfArrayOfValuesPassedTheyAreMappedToObjectUsingTargetFieldNameProperty() {
 
         $config = new DatasourceUpdateConfig([], [
-            new UpdatableMappedField("notes", "notes", [], null, "noteText")
+            new UpdatableMappedField("notes", "notes", [], [], [], null, "noteText")
         ]);
 
         $this->datasource->setUpdateConfig($config);
@@ -189,7 +274,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testIfSingleValuePassedWithRetainTargetFieldSetTrueTheyAreMappedToObjectUsingTargetFieldNamePropertyAndRetainedInParent() {
 
         $config = new DatasourceUpdateConfig([], [
-            new UpdatableMappedField("notes", "notes", [], null, "noteText",true)
+            new UpdatableMappedField("notes", "notes", [], [], [], null, "noteText", true)
         ]);
 
         $this->datasource->setUpdateConfig($config);
@@ -235,7 +320,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testParentFieldDataMergedInToMappedDataIfDefinedInConfig() {
 
         $config = new DatasourceUpdateConfig([], [
-            new UpdatableMappedField("notes", "notes",
+            new UpdatableMappedField("notes", "notes", [],
                 [
                     "id" => "parentId",
                     "description" => "description"
@@ -329,9 +414,219 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+
+    public function testParentFieldMappingsCanBeValueExpressionsIfEnclosedInSquareBrackets() {
+
+        $config = new DatasourceUpdateConfig([], [
+            new UpdatableMappedField("notes", "notes", [],
+                [
+                    "[[id | add 20]]" => "parentId",
+                    "[[description | lowercase]]" => "description"
+                ])
+        ]);
+
+        $this->datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $dataSet = $this->datasource->updateMappedFieldData(new ArrayTabularDataset([new Field("id"), new Field("description"), new Field("notes")], [
+            [
+                "id" => 55,
+                "description" => "Hey Bob",
+                "notes" => [
+                    [
+                        "id" => 1,
+                        "title" => "Item 1"
+                    ],
+                    [
+                        "id" => 2,
+                        "title" => "Item 2"
+                    ]
+                ]
+            ],
+            [
+                "id" => 77,
+                "description" => "Hey Mary",
+                "notes" => [
+                    [
+                        "id" => 3,
+                        "title" => "Item 3"
+                    ],
+                    [
+                        "id" => 4,
+                        "title" => "Item 4"
+                    ]
+                ]
+            ]
+
+        ]), BaseUpdatableDatasource::UPDATE_MODE_UPDATE);
+
+
+        // Check data pruned
+        $this->assertEquals([new Field("id"), new Field("description")], $dataSet->getColumns());
+
+        $this->assertEquals([["id" => 55,
+            "description" => "Hey Bob"], ["id" => 77,
+            "description" => "Hey Mary"]], $dataSet->getAllData());
+
+
+        $this->assertTrue($this->notesDatasource->methodWasCalled("update",
+            [
+                new ArrayTabularDataset([
+                    new Field("id"),
+                    new Field("title"),
+                    new Field("parentId"),
+                    new Field("description"),
+
+                ],
+                    [
+                        [
+                            "id" => 1,
+                            "title" => "Item 1",
+                            "parentId" => 75,
+                            "description" => "hey bob"
+                        ],
+                        [
+                            "id" => 2,
+                            "title" => "Item 2",
+                            "parentId" => 75,
+                            "description" => "hey bob"
+                        ],
+                        [
+                            "id" => 3,
+                            "title" => "Item 3",
+                            "parentId" => 97,
+                            "description" => "hey mary"
+                        ],
+                        [
+                            "id" => 4,
+                            "title" => "Item 4",
+                            "parentId" => 97,
+                            "description" => "hey mary"
+                        ]
+                    ]),
+                BaseUpdatableDatasource::UPDATE_MODE_UPDATE
+            ]
+
+        ));
+
+
+    }
+
+
+    public function testIfConstantFieldValuesSuppliedAsPartOfConfigTheseAreMergedIntoMappedData() {
+
+        $config = new DatasourceUpdateConfig([], [
+            new UpdatableMappedField("notes", "notes", [],
+                [
+                    "id" => "parentId",
+                    "description" => "description"
+                ], [
+                    "category" => "STAFF",
+                    "public" => 1
+                ])
+        ]);
+
+        $this->datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $dataSet = $this->datasource->updateMappedFieldData(new ArrayTabularDataset([new Field("id"), new Field("description"), new Field("notes")], [
+            [
+                "id" => 55,
+                "description" => "Hey Bob",
+                "notes" => [
+                    [
+                        "id" => 1,
+                        "title" => "Item 1"
+                    ],
+                    [
+                        "id" => 2,
+                        "title" => "Item 2"
+                    ]
+                ]
+            ],
+            [
+                "id" => 77,
+                "description" => "Hey Mary",
+                "notes" => [
+                    [
+                        "id" => 3,
+                        "title" => "Item 3"
+                    ],
+                    [
+                        "id" => 4,
+                        "title" => "Item 4"
+                    ]
+                ]
+            ]
+
+        ]), BaseUpdatableDatasource::UPDATE_MODE_UPDATE);
+
+
+        // Check data pruned
+        $this->assertEquals([new Field("id"), new Field("description")], $dataSet->getColumns());
+
+        $this->assertEquals([["id" => 55,
+            "description" => "Hey Bob"], ["id" => 77,
+            "description" => "Hey Mary"]], $dataSet->getAllData());
+
+
+        $this->assertTrue($this->notesDatasource->methodWasCalled("update",
+            [
+                new ArrayTabularDataset([
+                    new Field("id"),
+                    new Field("title"),
+                    new Field("parentId"),
+                    new Field("description"),
+                    new Field("category"),
+                    new Field("public")
+
+                ],
+                    [
+                        [
+                            "id" => 1,
+                            "title" => "Item 1",
+                            "parentId" => 55,
+                            "description" => "Hey Bob",
+                            "category" => "STAFF",
+                            "public" => 1
+                        ],
+                        [
+                            "id" => 2,
+                            "title" => "Item 2",
+                            "parentId" => 55,
+                            "description" => "Hey Bob",
+                            "category" => "STAFF",
+                            "public" => 1
+                        ],
+                        [
+                            "id" => 3,
+                            "title" => "Item 3",
+                            "parentId" => 77,
+                            "description" => "Hey Mary",
+                            "category" => "STAFF",
+                            "public" => 1
+                        ],
+                        [
+                            "id" => 4,
+                            "title" => "Item 4",
+                            "parentId" => 77,
+                            "description" => "Hey Mary",
+                            "category" => "STAFF",
+                            "public" => 1
+                        ]
+                    ]),
+                BaseUpdatableDatasource::UPDATE_MODE_UPDATE
+            ]
+
+        ));
+
+
+    }
+
+
     public function testIfUpdateModeSuppliedInUpdateConfigThisOverridesPassedMode() {
         $config = new DatasourceUpdateConfig([], [
-            new UpdatableMappedField("notes", "notes", [], BaseUpdatableDatasource::UPDATE_MODE_REPLACE)
+            new UpdatableMappedField("notes", "notes", [], [], [], BaseUpdatableDatasource::UPDATE_MODE_ADD)
         ]);
 
         $this->datasource->setUpdateConfig($config);
@@ -390,7 +685,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
                             "title" => "Item 4"
                         ]
                     ]),
-                BaseUpdatableDatasource::UPDATE_MODE_REPLACE
+                BaseUpdatableDatasource::UPDATE_MODE_ADD
             ]
 
         ));
@@ -400,7 +695,7 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testIfReplaceModeSuppliedWithParentFieldMappingsPreviousEntriesAreFirstSelectedAndDeletedForParentField() {
 
         $config = new DatasourceUpdateConfig([], [
-            new UpdatableMappedField("notes", "notes", ["id" => "parentId"], BaseUpdatableDatasource::UPDATE_MODE_REPLACE)
+            new UpdatableMappedField("notes", "notes", [], ["id" => "parentId"], [], BaseUpdatableDatasource::UPDATE_MODE_REPLACE)
         ]);
 
         // Get filtered datasource

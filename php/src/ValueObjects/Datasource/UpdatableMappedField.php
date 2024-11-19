@@ -28,11 +28,28 @@ class UpdatableMappedField {
 
 
     /**
+     * An optional array of filters to apply to the parent dataset before using a given
+     * parent row for this mapping - useful if only some rows are required to be child mapped.
+     *
+     * @var string[string]
+     */
+    private $parentFilters;
+    
+
+    /**
      * An array of mapped fields to synchronise from the parent dataset to the child datasource.
      *
      * @var string[string]
      */
     private $parentFieldMappings;
+
+
+    /**
+     * An array of constant field values to be simply merged into the child datasource.
+     *
+     * @var string[string]
+     */
+    private $constantFieldValues;
 
 
     /**
@@ -68,9 +85,13 @@ class UpdatableMappedField {
      * @param string $fieldName
      * The name of the field being mapped to the other datasource
      * @param string $datasourceInstanceKey
+     * An array of filters to apply to the parent row if required before applying this mapping.
+     * @param array $parentFilters
      * The key of the datasource to map to
      * @param string[] $parentFieldMappings
      * An array of mapped fields to synchronise from the parent dataset to the child datasource.
+     * @param array $constantFieldValues
+     * An array of fixed values to merge into the child datasource.
      * @param string $updateMode
      * The update mode to use for update - defaults to the same as the parent operation
      * @param string $targetFieldName
@@ -78,13 +99,15 @@ class UpdatableMappedField {
      *  rather than objects so we need to create a wrapper object with a single property
      *  named using the target field name.
      */
-    public function __construct($fieldName, $datasourceInstanceKey, $parentFieldMappings = [], $updateMode = null, $targetFieldName = null, $retainTargetFieldInParent = false) {
+    public function __construct($fieldName, $datasourceInstanceKey, $parentFilters = [], $parentFieldMappings = [], $constantFieldValues = [], $updateMode = null, $targetFieldName = null, $retainTargetFieldInParent = false) {
         $this->fieldName = $fieldName;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->parentFieldMappings = $parentFieldMappings;
         $this->updateMode = $updateMode;
         $this->targetFieldName = $targetFieldName;
         $this->retainTargetFieldInParent = $retainTargetFieldInParent;
+        $this->constantFieldValues = $constantFieldValues;
+        $this->parentFilters = $parentFilters;
     }
 
 
@@ -117,6 +140,20 @@ class UpdatableMappedField {
     }
 
     /**
+     * @return array|string
+     */
+    public function getParentFilters() {
+        return $this->parentFilters;
+    }
+
+    /**
+     * @param array|string $parentFilters
+     */
+    public function setParentFilters($parentFilters) {
+        $this->parentFilters = $parentFilters;
+    }
+
+    /**
      * @return string
      */
     public function getParentFieldMappings() {
@@ -129,6 +166,21 @@ class UpdatableMappedField {
     public function setParentFieldMappings($parentFieldMappings) {
         $this->parentFieldMappings = $parentFieldMappings;
     }
+
+    /**
+     * @return array|string
+     */
+    public function getConstantFieldValues() {
+        return $this->constantFieldValues;
+    }
+
+    /**
+     * @param array|string $constantFieldValues
+     */
+    public function setConstantFieldValues($constantFieldValues) {
+        $this->constantFieldValues = $constantFieldValues;
+    }
+
 
     /**
      * @return string
