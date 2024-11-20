@@ -21,8 +21,10 @@ use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -45,7 +47,8 @@ class DatasourceService {
         private DatasourceDAO $datasourceDAO,
         private SecurityService $securityService,
         private ValueFunctionEvaluator $valueFunctionEvaluator,
-        private DataProcessorService $dataProcessorService
+        private DataProcessorService $dataProcessorService,
+        private DatasourceHookService $datasourceHookService
     ) {
     }
 
@@ -416,6 +419,7 @@ class DatasourceService {
                 }, array_keys($datasourceUpdate->getAdds()[0]));
             }
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_ADD);
         }
 
         if ($datasourceUpdate->getUpdates()) {
@@ -423,6 +427,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getUpdates()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
+            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_UPDATE);
         }
 
 
@@ -431,6 +436,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getDeletes()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
+            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_DELETE);
         }
 
         if ($datasourceUpdate->getReplaces()) {
@@ -438,6 +444,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getReplaces()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getReplaces()), UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_REPLACE);
         }
 
     }
