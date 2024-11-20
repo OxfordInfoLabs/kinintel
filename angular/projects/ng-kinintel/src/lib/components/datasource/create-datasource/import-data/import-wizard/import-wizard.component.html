@@ -16,51 +16,102 @@
                 [ngClass]="{'border-red-500': !name}">
         </label>
 
-        <div class="font-medium">Enter the columns for this custom datasource.</div>
+        <div class="my-4 font-medium">Select method of data import</div>
 
-        <mat-form-field class="w-full" appearance="fill">
-            <mat-label>Dataset Columns</mat-label>
-            <mat-chip-grid #chipGrid aria-label="Enter column name">
-                <mat-chip-row class="bg-white" *ngFor="let column of columns"
-                              (removed)="removeColumn(column)">
-                    {{column.title}}
-                    <button matChipRemove [attr.aria-label]="'remove ' + column.title">
-                        <mat-icon>cancel</mat-icon>
-                    </button>
-                </mat-chip-row>
-                <input placeholder="Enter column name and press enter..."
-                       [matChipInputFor]="chipGrid"
-                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                       [matChipInputAddOnBlur]="addOnBlur"
-                       (matChipInputTokenEnd)="addColumn($event)"/>
-            </mat-chip-grid>
-        </mat-form-field>
-        <div *ngIf="!columns.length" class="text-sm text-red-500">Please enter at least 1 column</div>
-
-        <div class="my-8 flex items-center justify-between">
-            <div class="border-b w-full"></div>
-            <div class="mx-4 italic">or</div>
-            <div class="border-b w-full"></div>
-        </div>
-
-        <div class="p-4">
-            <button type="button" (click)="importData()"
+        <div class="flex items-center mb-4">
+            <button type="button" (click)="importChoice = 'MANUAL'"
+                    [ngClass]="{'bg-gray-50 border-gray-400': importChoice === 'MANUAL'}"
                     class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
 
                 <div class="relative inline-block">
-                    <mat-icon
-                        class="mx-auto text-6xl h-14 w-20 text-gray-300">upload_file
-                    </mat-icon>
-<!--                    <svg xmlns="http://www.w3.org/2000/svg"-->
-<!--                         class="right-0 bottom-0 absolute h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24"-->
-<!--                         stroke="currentColor" stroke-width="4">-->
-<!--                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>-->
-<!--                    </svg>-->
+                    <span
+                        class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">edit_note
+                    </span>
+                </div>
+
+                <span class="mt-2 block text-sm font-medium text-gray-900">Manual Data Entry</span>
+            </button>
+            <button type="button" (click)="importData()"
+                    class="mx-2 relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+
+                <div class="relative inline-block">
+                    <span
+                        class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">upload_file
+                    </span>
                 </div>
 
                 <span class="mt-2 block text-sm font-medium text-gray-900">Upload CSV Data</span>
             </button>
+            <button type="button" (click)="importChoice = 'API'"
+                    [ngClass]="{'bg-gray-50 border-gray-400': importChoice === 'API'}"
+                    class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
+
+                <div class="relative inline-block">
+                    <span
+                        class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">database_upload
+                    </span>
+                </div>
+
+                <span class="mt-2 block text-sm font-medium text-gray-900">Connect to API</span>
+            </button>
         </div>
+
+        <ng-template [ngIf]="importChoice === 'MANUAL' || importChoice === 'API'">
+
+            <div class="mt-6 font-medium">Enter the columns for this custom datasource.</div>
+
+            <mat-form-field class="w-full" appearance="fill">
+                <mat-label>Dataset Columns</mat-label>
+                <mat-chip-grid #chipGrid aria-label="Enter column name">
+                    <mat-chip-row class="bg-white" *ngFor="let column of columns"
+                                  (removed)="removeColumn(column)">
+                        {{column.title}}
+                        <button matChipRemove [attr.aria-label]="'remove ' + column.title">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                    <input placeholder="Enter column name and press enter..."
+                           [matChipInputFor]="chipGrid"
+                           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                           [matChipInputAddOnBlur]="addOnBlur"
+                           (matChipInputTokenEnd)="addColumn($event)"/>
+                </mat-chip-grid>
+            </mat-form-field>
+            <div *ngIf="!columns.length" class="text-xs text-red-500 -mt-4">Please enter at least 1 column</div>
+
+        </ng-template>
+
+        <ng-template [ngIf]="importChoice === 'API'">
+            <label class="mt-2 mb-4">
+                API Import Key
+                <input class="w-full" type="text" [(ngModel)]="importKey" placeholder="Enter import key">
+                <div class="font-normal text-gray-500 text-xs">
+                    This will be used as part of the API request when
+                </div>
+            </label>
+
+            <ng-template [ngIf]="importKey">
+                <div class="relative w-full">
+                    <div class="text-base font-semibold">Example</div>
+                    <div class="text-sm mb-2">
+                        Insert a set of new rows to the data source identified by the passed import key
+                    </div>
+                    <div #create class="text-xs bg-gray-800 border-2 border-gray-900 text-white rounded-md p-3">
+                        <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>[[apiKey]]</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>[[apiSecret]]</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{importKey}}</span></pre>
+                    </div>
+                    <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
+                            class="text-white absolute bottom-0 right-0">
+                        <mat-icon>content_copy</mat-icon>
+                    </button>
+                </div>
+
+                <div class="font-semibold text-sm my-1">Example Payload</div>
+                <div class="text-xs relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-3">
+                    <pre class="whitespace-normal" [innerHTML]="createExample()"></pre>
+                </div>
+            </ng-template>
+
+        </ng-template>
 
 
     </div>
@@ -68,7 +119,7 @@
     <div class="dialog-footer">
         <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
         <button mat-button mat-flat-button color="primary" type="button" [disabled]="!name || !columns.length"
-                (click)="createStructure()">Create Structure</button>
+                (click)="createStructure()">Save Changes</button>
     </div>
 
 </div>
