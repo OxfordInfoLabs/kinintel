@@ -21,11 +21,11 @@ class DatasourceHookService {
     }
 
     public function getDatasourceInstanceHooksForDatasource($datasourceInstanceKey) {
-        return DatasourceHookInstance::filter("datasourceInstanceKey = '$datasourceInstanceKey'");
+        return DatasourceHookInstance::filter("datasourceInstanceKey = ?", [$datasourceInstanceKey]);
     }
 
     public function getDatasourceHookInstancesForDatasourceInstanceAndMode($key, $mode) {
-        return DatasourceHookInstance::filter("datasourceInstanceKey = '$key' AND hookMode = '$mode'");
+        return DatasourceHookInstance::filter("datasourceInstanceKey = ? AND hookMode = ?'", [$key, $mode]);
     }
 
     /**
