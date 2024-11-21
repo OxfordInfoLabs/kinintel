@@ -120,6 +120,12 @@ class SQLFilterJunctionEvaluator {
             case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
                 $clause = "$lhsExpression <= $rhsExpression";
                 break;
+            case Filter::FILTER_TYPE_BITWISE_OR:
+                $clause = "$lhsExpression | $rhsExpression";
+                break;
+            case Filter::FILTER_TYPE_BITWISE_AND:
+                $clause = "$lhsExpression & $rhsExpression";
+                break;
             case Filter::FILTER_TYPE_STARTS_WITH:
                 $clause = "$lhsExpression LIKE CONCAT($rhsExpression,'%')";
                 break;

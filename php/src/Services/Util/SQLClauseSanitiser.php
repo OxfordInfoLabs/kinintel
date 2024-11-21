@@ -35,7 +35,8 @@ class SQLClauseSanitiser {
         ")",
         "?",
         "$",
-        ","
+        ",",
+        "&"
     ];
 
     private $whitelistedKeywords = [
@@ -68,6 +69,12 @@ class SQLClauseSanitiser {
         "AVG" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,
             "description" => "Return the average value of all non-null values of X within the group"],
+        "BIT_AND" => ["params" => ["X"],
+            "category" => self::AGGREGATE_FUNCTION,
+            "description" => "Return the bitwise and of all values of X within the group"],
+        "BIT_OR" => ["params" => ["X"],
+            "category" => self::AGGREGATE_FUNCTION,
+            "description" => "Return the bitwise or of all values of X within the group"],
         "CEILING" => ["params" => ["X"],
             "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Return the closest integer above the supplied numeric argument X"],
