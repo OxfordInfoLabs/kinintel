@@ -22,9 +22,11 @@ use Kinintel\Exception\DuplicateEntriesException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
@@ -68,6 +70,12 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     private $bulkDataManager;
 
 
+    /**
+     * @var MockObject
+     */
+    private $datasourceHookService;
+
+
     // Setup
     public function setUp(): void {
 
@@ -80,6 +88,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->authCredentials->returnValue("returnDatabaseConnection", $this->databaseConnection);
 
         $this->validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
+        $this->datasourceHookService = MockObjectProvider::mock(DatasourceHookService::class);
 
     }
 
@@ -446,6 +455,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
+        $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("addinstance", "Add Instance", "sqldatabase"));
+
         $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
 
 
@@ -471,6 +483,12 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
             "test_data", $data, null, true
         ]));
+
+        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
+            [
+                "addinstance",
+                UpdatableDatasource::UPDATE_MODE_ADD
+            ]));
 
     }
 
@@ -522,6 +540,11 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
             $this->authCredentials, new DatasourceUpdateConfig(["name"]), $this->validator);
 
+
+        $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("removeinstance", "Remove Instance", "sqldatabase"));
+
+
         $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
 
 
@@ -548,12 +571,23 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             "test_data", $data, null
         ]));
 
+        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
+            [
+                "removeinstance",
+                UpdatableDatasource::UPDATE_MODE_DELETE
+            ]));
+
     }
 
     public function testAllDataReplacedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuch() {
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+
+        $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("replaceinstance", "Replace Instance", "sqldatabase"));
+
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
 
@@ -580,6 +614,12 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->bulkDataManager->methodWasCalled("replace", [
             "test_data", $data, null
         ]));
+
+        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
+            [
+                "replaceinstance",
+                UpdatableDatasource::UPDATE_MODE_REPLACE
+            ]));
     }
 
 
@@ -609,7 +649,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         // Confirm that the expected query was executed
         $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data", []]));
-
 
 
     }
@@ -787,8 +826,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false),
             new TableColumn("notes", TableColumn::SQL_LONGBLOB)
         ], [
-            new TableIndex("idx_".md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
-            new TableIndex("idx_".md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
+            new TableIndex("idx_" . md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why")]),
+            new TableIndex("idx_" . md5("whywhatnotes"), [new TableIndexColumn("why"), new TableIndexColumn("what", 500), new TableIndexColumn("notes", 500)])
         ]);
 
 
@@ -849,7 +888,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, false, "what"),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ], [
-            new TableIndex("idx_".md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
+            new TableIndex("idx_" . md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
         ]);
 
         $ddlGenerator->returnValue("generateTableModifySQL", "NEW TABLE MODIFY", [
