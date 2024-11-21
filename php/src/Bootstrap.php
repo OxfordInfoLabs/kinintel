@@ -3,12 +3,16 @@
 namespace Kinintel;
 
 use Kiniauth\Services\Attachment\AttachmentStorage;
+use Kiniauth\Services\ImportExport\ProjectExporter;
+use Kiniauth\Services\ImportExport\ProjectImporter;
 use Kiniauth\Services\Workflow\Task\Task;
 use Kinikit\Core\ApplicationBootstrap;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Services\Alert\AlertGroupTask;
 use Kinintel\Services\DataProcessor\DataProcessorTask;
+use Kinintel\Services\ImportExport\KinintelProjectExporter;
+use Kinintel\Services\ImportExport\KinintelProjectImporter;
 use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
 use Kinintel\Services\Util\SQLiteFunctions\DotProduct;
 use Kinintel\Services\Util\SQLiteFunctions\Levenshtein;
@@ -29,5 +33,8 @@ class Bootstrap implements ApplicationBootstrap {
         // Add attachment storage for google
         Container::instance()->addInterfaceImplementation(AttachmentStorage::class, "google-cloud", GoogleCloudAttachmentStorage::class);
 
+        // Set project exporter and importer
+        Container::instance()->set(ProjectExporter::class, Container::instance()->get(KinintelProjectExporter::class));
+        Container::instance()->set(ProjectImporter::class, Container::instance()->get(KinintelProjectImporter::class));
     }
 }

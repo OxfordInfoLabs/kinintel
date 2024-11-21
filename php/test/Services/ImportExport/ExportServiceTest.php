@@ -24,9 +24,9 @@ use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\ImportExport\ExportService;
 use Kinintel\TestBase;
-use Kinintel\ValueObjects\ImportExport\Export;
-use Kinintel\ValueObjects\ImportExport\ExportableResources;
-use Kinintel\ValueObjects\ImportExport\ResourceExportDescriptor;
+use Kinintel\ValueObjects\ImportExport\OLD\Export;
+use Kinintel\ValueObjects\ImportExport\OLD\ExportableResources;
+use Kinintel\ValueObjects\ImportExport\OLD\ResourceExportDescriptor;
 
 include_once "autoloader.php";
 

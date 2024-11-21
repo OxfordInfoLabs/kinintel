@@ -104,6 +104,7 @@ import { ImportWizardComponent } from './components/datasource/create-datasource
 import { AdvancedSettingsComponent } from './components/datasource/create-datasource/advanced-settings/advanced-settings.component';
 import {MatChipsModule} from '@angular/material/chips';
 import { RemoveTransformationWarningComponent } from './components/dataset/dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
+import { ExportProjectComponent } from './components/export-project/export-project.component';
 
 @NgModule({
     declarations: [
@@ -173,7 +174,8 @@ import { RemoveTransformationWarningComponent } from './components/dataset/datas
         DataSearchComponent,
         ImportWizardComponent,
         AdvancedSettingsComponent,
-        RemoveTransformationWarningComponent
+        RemoveTransformationWarningComponent,
+        ExportProjectComponent
     ],
     imports: [
         BrowserModule,
@@ -237,7 +239,8 @@ import { RemoveTransformationWarningComponent } from './components/dataset/datas
         SharedWithMeComponent,
         SnapshotApiAccessComponent,
         QueryCachingComponent,
-        DataSharingInviteComponent
+        DataSharingInviteComponent,
+        ExportProjectComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

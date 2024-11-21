@@ -10,9 +10,9 @@ use Kinintel\Services\Alert\AlertService;
 use Kinintel\Services\Dashboard\DashboardService;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
-use Kinintel\ValueObjects\ImportExport\Export;
-use Kinintel\ValueObjects\ImportExport\ExportableResources;
-use Kinintel\ValueObjects\ImportExport\ResourceExportDescriptor;
+use Kinintel\ValueObjects\ImportExport\OLD\Export;
+use Kinintel\ValueObjects\ImportExport\OLD\ExportableResources;
+use Kinintel\ValueObjects\ImportExport\OLD\ResourceExportDescriptor;
 
 /**
  * General export service for exporting resources.

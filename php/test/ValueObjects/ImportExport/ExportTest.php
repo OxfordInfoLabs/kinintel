@@ -9,7 +9,7 @@ use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\ValueObjects\ImportExport\Export;
+use Kinintel\ValueObjects\ImportExport\OLD\Export;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;

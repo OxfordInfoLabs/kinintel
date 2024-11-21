@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Kinintel\ValueObjects\ImportExport;
+namespace Kinintel\ValueObjects\ImportExport\OLD;
 
 
 use Kiniauth\Objects\MetaData\CategorySummary;

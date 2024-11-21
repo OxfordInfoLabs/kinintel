@@ -6,7 +6,7 @@ namespace Kinintel\Test\ValueObjects\ImportExport;
 use Kinintel\Objects\Dashboard\DashboardSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
-use Kinintel\ValueObjects\ImportExport\ExportableResources;
+use Kinintel\ValueObjects\ImportExport\OLD\ExportableResources;
 
 include_once "autoloader.php";
 
