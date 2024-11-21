@@ -134,6 +134,10 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                         $this->valueFunctionEvaluator, $parentFieldMapping, $dataItem
                     );
                 }
+                // We count the constant values as part of the primary key when replacing
+                foreach ($mappedField->getConstantFieldValues() ?? [] as $column => $value){
+                    $mappedKeyValues[$column] = $value;
+                }
                 $mappedKeys[] = $mappedKeyValues;
             }
 

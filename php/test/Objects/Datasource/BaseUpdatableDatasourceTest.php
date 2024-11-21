@@ -3,16 +3,23 @@
 
 namespace Kinintel\ValueObjects\Datasource;
 
+use Google\Service\Analytics\Resource\Data;
+use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Testing\ConcreteClassGenerator;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Services\Authentication\AuthenticationCredentialsService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\TestBase;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -27,7 +34,7 @@ include_once "autoloader.php";
  * Class BaseUpdatableDatasourceTest
  * @package Kinintel\ValueObjects\Datasource
  */
-class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
+class BaseUpdatableDatasourceTest extends TestBase {
 
     /**
      * @var BaseUpdatableDatasource
@@ -50,11 +57,11 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function setUp(): void {
         $this->datasource = ConcreteClassGenerator::instance()->generateInstance(BaseUpdatableDatasource::class);
 
-        $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-        $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $this->datasourceService = MockObjectProvider::mock(DatasourceService::class);
+        $datasourceInstance = MockObjectProvider::mock(DatasourceInstance::class);
         $this->datasourceService->returnValue("getDataSourceInstanceByKey",
             $datasourceInstance);
-        $this->notesDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
+        $this->notesDatasource = MockObjectProvider::mock(BaseUpdatableDatasource::class);
         $datasourceInstance->returnValue("returnDataSource", $this->notesDatasource);
         $this->valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
         $this->datasource->setDatasourceService($this->datasourceService);
@@ -624,6 +631,154 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
         ));
 
 
+    }
+
+
+    public function testIfConstantFieldValuesSuppliedAsPartOfConfigUsingReplaceMode() {
+
+        $authService = Container::instance()->get(AuthenticationCredentialsService::class);
+        /** @var SQLDatabaseCredentials $authCreds */
+        $authCreds = $authService->getCredentialsInstanceByKey("test")->returnCredentials();
+        Container::instance()->get(SecurityService::class)->becomeSuperUser();
+        $dbConnection = $authCreds->returnDatabaseConnection();
+        $dbConnection->executeScript(<<<SQL
+DROP TABLE IF EXISTS _test_mapped_fields_parent;
+CREATE TABLE _test_mapped_fields_parent (
+    id INT,
+    description VARCHAR(255),
+    PRIMARY KEY (id, description)
+);
+
+DROP TABLE IF EXISTS _test_mapped_fields_child;
+CREATE TABLE _test_mapped_fields_child (
+    parentId INT,
+    id INT,
+    category VARCHAR(255),
+    title VARCHAR(255),
+    PRIMARY KEY (parentId, id)
+);
+INSERT INTO _test_mapped_fields_child (id, parentId, category, title) VALUES
+(100, 55, 'STAFF', 'Old Item to delete'),
+(200, 100, 'STAFF', 'Old Item to keep'),
+(300, 55, 'STUDENTS', 'Old Item to keep');
+SQL
+        );
+
+        /** @var BaseUpdatableDatasource $datasource */
+        $datasource = ConcreteClassGenerator::instance()->generateInstance(BaseUpdatableDatasource::class);
+        $datasourceService = Container::instance()->get(DatasourceService::class);
+        $childTableDSI = new DatasourceInstance(
+            "notes",
+            "Notes",
+            "sqldatabase",
+            new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "_test_mapped_fields_child"),
+            "test",
+        );
+        $datasourceService->saveDataSourceInstance($childTableDSI);
+        $datasource->setDatasourceService($datasourceService);
+        $datasource->setValueFunctionEvaluator(Container::instance()->get(ValueFunctionEvaluator::class));
+
+        $config = new DatasourceUpdateConfig(
+            mappedFields: [
+                new UpdatableMappedField("notes", "notes",
+                    parentFieldMappings: [
+                        "id" => "parentId",
+//                        "[['STAFF']]" => "category"
+                    ],
+                    constantFieldValues: ["category" => "STAFF"],
+                    updateMode: BaseUpdatableDatasource::UPDATE_MODE_REPLACE
+                )
+            ]
+        );
+        $datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $dataSet = $datasource->updateMappedFieldData(
+            new ArrayTabularDataset(
+                [
+                    new Field("id"),
+                    new Field("description"),
+                    new Field("notes")
+                ],
+                [
+                    [
+                        "id" => 55,
+                        "description" => "Hey Bob",
+                        "notes" => [
+                            [
+                                "id" => 1,
+                                "title" => "Item 1"
+                            ],
+                            [
+                                "id" => 2,
+                                "title" => "Item 2"
+                            ]
+                        ]
+                    ],
+                    [
+                        "id" => 77,
+                        "description" => "Hey Mary",
+                        "notes" => [
+                            [
+                                "id" => 3,
+                                "title" => "Item 3"
+                            ],
+                        ]
+                    ]
+                ]
+            ), BaseUpdatableDatasource::UPDATE_MODE_REPLACE
+        );
+
+        $parentData = $dbConnection->query(<<<SQL
+SELECT * FROM _test_mapped_fields_parent;
+SQL
+        )->fetchAll();
+
+        // Check data pruned
+        $this->assertEquals([new Field("id"), new Field("description")], $dataSet->getColumns());
+
+        // Check existing entries in the child table are replaced
+        $expectedChildData = [
+            [
+                "id" => 1,
+                "title" => "Item 1",
+                "parentId" => 55,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 2,
+                "title" => "Item 2",
+                "parentId" => 55,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 3,
+                "title" => "Item 3",
+                "parentId" => 77,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 200,
+                "title" => "Old Item to keep",
+                "parentId" => 100,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 300,
+                "title" => "Old Item to keep",
+                "parentId" => 55,
+                "category" => "STUDENTS",
+            ]
+        ];
+
+        $childData = $dbConnection->query(<<<SQL
+SELECT * FROM _test_mapped_fields_child;
+SQL
+)->fetchAll();
+
+        usort($expectedChildData, fn($x, $y) => $x["id"] <=> $y["id"]);
+        usort($childData, fn($x, $y) => $x["id"] <=> $y["id"]);
+        $this->assertEquals($expectedChildData, $childData);
     }
 
 
