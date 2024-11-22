@@ -1,21 +1,19 @@
-<p>{{prefixText}}</p>
+<p>[[prefixText]]</p>
 
 <table role="presentation"
        style="width:100%;border-collapse:collapse;border-spacing: 0">
 
-    {{#alerts}}
-    <tr>
+
+    <tr d-each-alert="alerts">
         <th style="border-bottom: 1px solid #cccccc;padding-top: 8px;padding-bottom:8px;">
-<!--            <span style="font-size: small;background-color: red;border-radius: 5px;display: inline-block;color: white;padding: 3px;font-weight: normal">Critical </span> New blockchain domains-->
-            {{title}}
+            [[alert.title]]
         </th>
         <td style="border-bottom: 1px solid #cccccc;padding-top: 8px;padding-bottom:8px;">
-            <a href="{{#notificationCta}}{{.}}{{/notificationCta}}">{{notificationMessage}}</a>
+            <a d-href="notificationCta">[[alert.notificationMessage]]</a>
         </td>
     </tr>
-    {{/alerts}}
 
 
 </table>
 
-<p>{{suffixText}}</p>
+<p>[[suffixText]]</p>
