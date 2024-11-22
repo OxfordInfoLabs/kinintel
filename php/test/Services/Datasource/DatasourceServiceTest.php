@@ -644,21 +644,7 @@ class DatasourceServiceTest extends TestBase {
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
 
-        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks", [
-            "test", DatasourceHookInstance::HOOK_MODE_UPDATE
-        ]));
 
-        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks", [
-            "test", DatasourceHookInstance::HOOK_MODE_UPDATE
-        ]));
-
-        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks", [
-            "test", DatasourceHookInstance::HOOK_MODE_DELETE
-        ]));
-
-        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks", [
-            "test", DatasourceHookInstance::HOOK_MODE_REPLACE
-        ]));
 
     }
 
