@@ -2,13 +2,15 @@
 
 namespace Kinintel\Services\Hook;
 
+use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 
 class DatasourceHookService {
 
     public function __construct(
-        private DataProcessorService $dataProcessorService
+        private DataProcessorService $dataProcessorService,
+        private ScheduledTaskService $scheduledTaskService
     ) {
     }
 
@@ -21,11 +23,11 @@ class DatasourceHookService {
     }
 
     public function getDatasourceInstanceHooksForDatasource($datasourceInstanceKey) {
-        return DatasourceHookInstance::filter("datasourceInstanceKey = ?", [$datasourceInstanceKey]);
+        return DatasourceHookInstance::filter("WHERE datasourceInstanceKey = ?", $datasourceInstanceKey);
     }
 
     public function getDatasourceHookInstancesForDatasourceInstanceAndMode($key, $mode) {
-        return DatasourceHookInstance::filter("datasourceInstanceKey = ? AND hookMode = ?'", [$key, $mode]);
+        return DatasourceHookInstance::filter("WHERE datasourceInstanceKey = ? AND hookMode = ?", $key, $mode);
     }
 
     /**
@@ -41,9 +43,18 @@ class DatasourceHookService {
         /** @var DatasourceHookInstance[] $hooks */
         $hooks = $this->getDatasourceHookInstancesForDatasourceInstanceAndMode($datasourceKey, $updateMode);
 
+
+        // Process all applicable hooks
         foreach ($hooks as $hook) {
-            $processorKey = $hook->getDataProcessorInstanceKey();
-            $this->dataProcessorService->triggerDataProcessorInstance($processorKey);
+
+            // Check for processor based hooks
+            if ($processorKey = $hook->getDataProcessorInstanceKey()) {
+                $this->dataProcessorService->triggerDataProcessorInstance($processorKey);
+            }
+            // Check for scheduled task based hooks
+            else if ($scheduledTaskId = $hook->getScheduledTaskId()) {
+                $this->scheduledTaskService->triggerScheduledTask($scheduledTaskId);
+            }
         }
 
     }
