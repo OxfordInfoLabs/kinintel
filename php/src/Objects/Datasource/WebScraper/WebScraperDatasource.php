@@ -6,6 +6,7 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\HTTP\Request\Request;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
@@ -13,6 +14,7 @@ use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\FieldWithXPathSelector;
 use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\WebScraperDatasourceConfig;
+use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 
 /**
  * Web scraper datasource - used for obtaining structured data
@@ -29,6 +31,12 @@ class WebScraperDatasource extends BaseDatasource {
      * @var ParameterisedStringEvaluator
      */
     private $parameterisedStringEvaluator;
+
+
+    /**
+     * @var PagingTransformation
+     */
+    private $pagingTransformation;
 
     /**
      * @param WebScraperDatasourceConfig $config
@@ -69,7 +77,7 @@ class WebScraperDatasource extends BaseDatasource {
      * @return string[]
      */
     public function getSupportedTransformationClasses() {
-        return [];
+        return [PagingTransformation::class];
     }
 
     /**
@@ -81,6 +89,11 @@ class WebScraperDatasource extends BaseDatasource {
      * @return $this|BaseDatasource
      */
     public function applyTransformation($transformation, $parameterValues = [], $pagingTransformation = null) {
+
+        if ($transformation instanceof PagingTransformation) {
+            $this->pagingTransformation = $transformation;
+        }
+
         return $this;
     }
 
@@ -156,6 +169,11 @@ class WebScraperDatasource extends BaseDatasource {
             }
 
             $data[] = $dataRow;
+        }
+
+        // If a paging transformation, slice and dice.
+        if ($this->pagingTransformation) {
+            $data = array_slice($data, $this->pagingTransformation->getOffset(), $this->pagingTransformation->getLimit());
         }
 
         // Simplify Fields
