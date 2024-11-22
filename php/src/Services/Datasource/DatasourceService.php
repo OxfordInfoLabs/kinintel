@@ -419,7 +419,6 @@ class DatasourceService {
                 }, array_keys($datasourceUpdate->getAdds()[0]));
             }
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
-            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_ADD);
         }
 
         if ($datasourceUpdate->getUpdates()) {
@@ -427,8 +426,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getUpdates()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
-            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_UPDATE);
-        }
+         }
 
 
         if ($datasourceUpdate->getDeletes()) {
@@ -436,15 +434,13 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getDeletes()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
-            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_DELETE);
-        }
+       }
 
         if ($datasourceUpdate->getReplaces()) {
             $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getReplaces()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getReplaces()), UpdatableDatasource::UPDATE_MODE_REPLACE);
-            $this->datasourceHookService->processHooks($datasourceInstance->getKey(), DatasourceHookInstance::HOOK_MODE_REPLACE);
         }
 
     }

@@ -21,30 +21,26 @@ class DatasourceHookInstance extends ActiveRecord {
 
     protected ?int $id = null;
 
-    protected string $dataProcessorInstanceKey;
+    protected ?string $datasourceInstanceKey;
 
-    protected string $datasourceInstanceKey;
+    protected ?string $dataProcessorInstanceKey;
 
-    protected string $hookMode;
+    protected ?int $scheduledTaskId;
 
-    /**
-     * @var mixed
-     * @sqlType LONGTEXT
-     * @json
-     */
-    protected $config;
+    protected ?string $hookMode;
+
 
     /**
      * @param string $datasourceInstanceKey
      * @param string $dataProcessorInstanceKey
+     * @param int $scheduledTaskId
      * @param string $hookMode
-     * @param mixed $config
      */
-    public function __construct(string $datasourceInstanceKey, string $dataProcessorInstanceKey, string $hookMode, mixed $config = []) {
+    public function __construct(?string $datasourceInstanceKey, ?string $dataProcessorInstanceKey, ?string $scheduledTaskId, ?string $hookMode) {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
+        $this->scheduledTaskId = $scheduledTaskId;
         $this->hookMode = $hookMode;
-        $this->config = $config;
     }
 
     public function getId(): ?int {
@@ -59,12 +55,26 @@ class DatasourceHookInstance extends ActiveRecord {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
 
-    public function getDataProcessorInstanceKey(): string {
+    public function getDataProcessorInstanceKey(): ?string {
         return $this->dataProcessorInstanceKey;
     }
 
-    public function setDataProcessorInstanceKey(string $dataProcessorInstanceKey): void {
+    public function setDataProcessorInstanceKey(?string $dataProcessorInstanceKey): void {
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getScheduledTaskId(): ?int {
+        return $this->scheduledTaskId;
+    }
+
+    /**
+     * @param int|null $scheduledTaskId
+     */
+    public function setScheduledTaskId(?int $scheduledTaskId): void {
+        $this->scheduledTaskId = $scheduledTaskId;
     }
 
     public function isHookMode(): string {
@@ -75,12 +85,5 @@ class DatasourceHookInstance extends ActiveRecord {
         $this->hookMode = $hookMode;
     }
 
-    public function getConfig(): array {
-        return $this->config;
-    }
-
-    public function setConfig(array $config): void {
-        $this->config = $config;
-    }
 
 }
