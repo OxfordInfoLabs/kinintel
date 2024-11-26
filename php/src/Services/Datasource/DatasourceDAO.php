@@ -274,6 +274,9 @@ class DatasourceDAO {
                 $jsonString = file_get_contents($directory . "/" . $dataSource);
                 try {
                     $instance = $this->jsonToObjectConverter->convert($jsonString, DataSourceInstance::class, throwOnExtraFields: true);
+                    if ($instance === null) {
+                        throw new \Exception();
+                    }
                 } catch (\Exception $e) {
                     $message = "Failed to parse json of hardcoded datasource. See logs.\n".$e->getMessage();
                     Logger::log("Failed to parse $dataSource | Error message: ".$message);
