@@ -29,6 +29,7 @@ use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransform
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
@@ -52,6 +53,7 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 use PDOException;
 
+
 class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
     /**
@@ -71,6 +73,12 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @var SQLTransformationProcessor[]
      */
     private $transformationProcessorInstances = [];
+
+
+    /**
+     * @var DatasourceHookService
+     */
+    private $datasourceHookService;
 
 
     /**
@@ -105,6 +113,16 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         parent::__construct($config, $authenticationCredentials, $updateConfig, $validator, $instanceKey, $instanceTitle);
         $this->tableDDLGenerator = $tableDDLGenerator ?? new TableDDLGenerator();
         $this->sqlColumnFieldMapper = new SQLColumnFieldMapper();
+        $this->datasourceHookService = Container::instance()->get(DatasourceHookService::class);
+    }
+
+    /**
+     * Testing set method
+     *
+     * @param DatasourceHookService|object $datasourceHookService
+     */
+    public function setDatasourceHookService(DatasourceHookService $datasourceHookService): void {
+        $this->datasourceHookService = $datasourceHookService;
     }
 
 
@@ -370,11 +388,17 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                             break;
 
                     }
+
+                    // Run any hooks using hook service if instance info has been proviced
+                    if ($this->getInstanceInfo())
+                        $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode);
+
+
                 } catch (SQLException $e) {
                     // There are multiple errors with code 23000 and they relate to integrity constraints
                     // https://dev.mysql.com/doc/connector-j/en/connector-j-reference-error-sqlstates.html
                     if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
-                        if (str_contains(strtolower($e->getMessage()), "dup")){
+                        if (str_contains(strtolower($e->getMessage()), "dup")) {
                             throw new DuplicateEntriesException();
                         } else {
                             Logger::log("SQL Error writing to table (uniqueness violation). Table name: ".$config->getTableName()." DATA:");
@@ -586,7 +610,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         throw new DatasourceUpdateException("You attempted to remove a field which is referenced in an index");
 
                 }
-                $indexes[] = new TableIndex("idx_".md5(join("", $indexFields)), $indexColumns);
+                $indexes[] = new TableIndex("idx_" . md5(join("", $indexFields)), $indexColumns);
             }
         }
 
