@@ -409,7 +409,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                     } else {
                         $debugMessage = "SQL Error: " . $e->getMessage() . "\n with tableName ".$config->getTableName();
                         Logger::log($debugMessage, 4);
-//                        Logger::log($e->getTraceAsString());
                         throw new DebugException(
                             message: "An unexpected error occurred updating the datasource",
                             debugMessage: $debugMessage
