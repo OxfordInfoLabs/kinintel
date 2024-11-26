@@ -3,7 +3,6 @@
 
 namespace Kinintel\ValueObjects\Datasource;
 
-use Google\Service\Analytics\Resource\Data;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
@@ -25,7 +24,6 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use PHPUnit\Framework\MockObject\MockObject;
-use function Kinikit\Core\Util\println;
 
 include_once "autoloader.php";
 
