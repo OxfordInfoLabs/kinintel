@@ -25,7 +25,7 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
         $authCreds = new MySQLAuthenticationCredentials("localhost", null, "kininteltest",
             null, "utf8", "kininteltest", "kininteltest");
-        
+
 //        $authCreds->execute("DROP TABLE IF EXISTS test_create");
 //
 //        $script = "
@@ -58,7 +58,7 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
         $sql = "SELECT group_concat(field,';') FROM test";
         $this->assertEquals("SELECT GROUP_CONCAT(field SEPARATOR ';') FROM test", $authCreds->parseSQL($sql));
-        
+
         $sql = "EPOCH_SECONDS(test)";
         $this->assertEquals("UNIX_TIMESTAMP(test)", $authCreds->parseSQL($sql));
 
@@ -70,7 +70,7 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
         // Check aggregate totals and percentages
         $sql = "COUNT_TOTAL(test)";
         $this->assertEquals("SUM(COUNT(test)) OVER ()", $authCreds->parseSQL($sql));
-        
+
         $sql = "SUM_TOTAL(test)";
         $this->assertEquals("SUM(SUM(test)) OVER ()", $authCreds->parseSQL($sql));
 
@@ -82,7 +82,7 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
         $sql = "ROW_NUMBER()";
         $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1)", $authCreds->parseSQL($sql));
-        
+
         $sql = "TOTAL(test)";
         $this->assertEquals("SUM(test) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));
 
@@ -100,7 +100,7 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
         $sql = "ROW_COUNT(test, test2)";
         $this->assertEquals("COUNT(*) OVER (PARTITION BY test, test2)", $authCreds->parseSQL($sql));
-        
+
         $sql = "IP_ADDRESS_TO_NUMBER(test)";
         $this->assertEquals("CASE WHEN test LIKE '%:%' THEN (CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 1, 16), 16, 10) as DECIMAL(65))*18446744073709551616 + CAST(CONV(SUBSTR(HEX(INET6_ATON(test)), 17, 16), 16, 10) as DECIMAL(65))) ELSE INET_ATON(test) END", $authCreds->parseSQL($sql));
 
@@ -115,6 +115,10 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
         $sql = "AVERAGE(test, col1, col2)";
         $this->assertEquals("AVG(test) OVER (PARTITION BY col1, col2)", $authCreds->parseSQL($sql));
+
+        $sql = "IIF([[a]] > 0, 'Yes', 'No')";
+        $this->assertEquals("IF([[a]] > 0, 'Yes', 'No')", $authCreds->parseSQL($sql));
+
     }
 
 }

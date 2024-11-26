@@ -108,6 +108,8 @@ class SQLClauseSanitiser {
             "description" => "Join together the values of the expression identified as X with commas"],
         "IFNULL" => ["params" => ["X", "Y"], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first argument if not null or second argument if not null or null if both are null"],
+        "IIF" => ["params" => ["X", "Y", "Z"], "category" => self::ANY_WHITELISTED_FUNCTION,
+            "description" => "Return the value of Y if the first argument X evaluates to true or the value of Z if X evaluates to false"],
         "INSTR" => ["params" => ["X", "Y"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Return the position of the string supplied as Y within the string supplied as X. If the Y isn't found in X, return 0"],
         "LEAST" => ["params" => ["X", "Y", "..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
