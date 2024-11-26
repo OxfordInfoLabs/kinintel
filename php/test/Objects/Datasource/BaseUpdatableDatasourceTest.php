@@ -5,6 +5,7 @@ namespace Kinintel\ValueObjects\Datasource;
 
 use Google\Service\Analytics\Resource\Data;
 use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Testing\ConcreteClassGenerator;
@@ -1092,6 +1093,71 @@ SQL
         ];
         $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
         $this->assertEquals($expectedData, $mappedData);
+    }
+
+    public function testCVEExample(){
+        $data = [
+            [
+                'vendor' => 'Apple',
+                'product' => 'macOS',
+                'versions' =>
+                    [
+                        'version' => 'unspecified',
+                        'status' => 'affected',
+                        'lessThan' => '12.7',
+                        'versionType' => 'custom',
+                    ],
+                'cve_id' => 'CVE-2024-40781',
+                'provider_type' => 'cna',
+                'org_id' => '286789f9-fbc2-4510-9f9a-43facdede74c',
+            ],
+
+            [
+            "vendor" => "apple",
+            "product" => "macos",
+            "cpes" => [
+                ["cpe" => "cpe:2.3:o:apple:macos:12.0:*:*:*:*:*:*:*"],
+                ["cpe" => "cpe:2.3:o:apple:macos:13.0:*:*:*:*:*:*:*"],
+            ],
+            "defaultStatus" => "unknown",
+            "versions" => [
+                ["version" => "12.0"],
+                ["version" => "13.0"]
+            ],
+            "has_cpes" => true,
+            "cve_id" => "CVE-2024-40781",
+            "provider_type" => "adp",
+            "org_id" => "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+        ]];
+
+        $binder = Container::instance()->get(ObjectBinder::class);
+        $mappedFieldRaw = <<<JSON
+{
+    "fieldName": "cpes",
+    "datasourceInstanceKey": "cve-affected-product-cpes",
+    "parentFieldMappings": {
+      "cve_id": "cve_id",
+      "org_id": "org_id",
+      "provider_type": "provider_type",
+      "product": "product",
+      "vendor": "vendor",
+      "_index": "cpe_idx"
+    }
+}
+JSON;
+
+        $mappedField = $binder->bindFromArray(
+            json_decode($mappedFieldRaw, true), UpdatableMappedField::class
+        );
+
+        $mappedData = BaseUpdatableDatasource::getMappedData(
+            $data,
+            $mappedField,
+            Container::instance()->get(ValueFunctionEvaluator::class)
+        );
+
+        $this->assertCount(2, $mappedData);
+        $this->assertSame("cpe:2.3:o:apple:macos:12.0:*:*:*:*:*:*:*", $mappedData[0]["cpe"]);
     }
 
 }

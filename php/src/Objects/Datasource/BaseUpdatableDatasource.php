@@ -10,6 +10,7 @@ use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
@@ -17,6 +18,7 @@ use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use function Kinikit\Core\Util\println;
 
 abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableDatasource {
 
@@ -130,6 +132,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                 // table where a = 1, because "a" is a key field
                 $mappedKeyValues = [];
                 foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
+                    if ($parentFieldMapping === "_index") continue;
                     $mappedKeyValues[$childFieldMapping] = self::evaluateParentFieldMapping(
                         $this->valueFunctionEvaluator, $parentFieldMapping, $dataItem
                     );
@@ -144,10 +147,12 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
             $mappedData = self::getMappedData($filteredData, $mappedField, $this->valueFunctionEvaluator);
 
 
-            if (sizeof($mappedData)) {
+            if (sizeof($mappedData)) { // Infer the columns from all the keys of the data
+                $mergedKeys = array_merge(...array_map(fn($row) => array_keys($row), $mappedData));
+                $uniqueKeys = array_unique($mergedKeys);
                 $mappedColumns = array_map(
                     fn($item) => new Field($item),
-                    array_keys($mappedData[0])
+                    $uniqueKeys
                 );
             }
 
@@ -155,7 +160,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
             $updateRule = $mappedField->getUpdateMode() ?? $parentUpdateRule;
 
             // If a replace operation, delete old items.
-            if ($updateRule == self::UPDATE_MODE_REPLACE && !empty($mappedKeys)) {
+            if (($updateRule == self::UPDATE_MODE_REPLACE) && !empty($mappedKeys)) {
 
                 $filterJunctions = [];
                 foreach ($mappedKeys as $keySet) {
@@ -186,14 +191,9 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
             $datasource->update(new ArrayTabularDataset($mappedColumns, $mappedData), $updateRule);
 
             // Remove column from array
-            foreach ($columns as $index => $column) {
-                if (!$mappedField->isRetainTargetFieldInParent() && ($column->getName() == $mappedField->getFieldName())) {
-                    array_splice($columns, $index, 1);
-                    break;
-                }
+            if (!$mappedField->isRetainTargetFieldInParent()) {
+                $columns = array_filter($columns, fn(Field $col) => $col->getName() != $mappedField->getFieldName());
             }
-
-
         }
 
         // Return data
