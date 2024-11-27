@@ -5,6 +5,7 @@ namespace Kinintel\Objects\Datasource;
 
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;
@@ -21,11 +22,8 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
      */
     private $updateConfig;
 
-
-    /**
-     * @var DatasourceService
-     */
-    private $datasourceService;
+    private DatasourceService $datasourceService;
+    private ValueFunctionEvaluator $valueFunctionEvaluator;
 
     /**
      * BaseUpdatableDatasource constructor.
@@ -35,7 +33,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
         parent::__construct($config, $authenticationCredentials, $validator, $instanceKey, $instanceTitle);
         $this->updateConfig = $updateConfig;
         $this->datasourceService = Container::instance()->get(DatasourceService::class);
-
+        $this->valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
     }
 
     /**
@@ -43,6 +41,13 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
      */
     public function setDatasourceService($datasourceService) {
         $this->datasourceService = $datasourceService;
+    }
+
+    /**
+     * @param ValueFunctionEvaluator $valueFunctionEvaluator
+     */
+    public function setValueFunctionEvaluator($valueFunctionEvaluator) {
+        $this->valueFunctionEvaluator = $valueFunctionEvaluator;
     }
 
 
@@ -79,7 +84,6 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
      */
     public function updateMappedFieldData($dataSet, $parentUpdateRule = self::UPDATE_MODE_ADD) {
 
-
         $mappedFields = $this->getUpdateConfig()->getMappedFields();
         // If no mapped fields, return immediately
         if (!$mappedFields || sizeof($mappedFields) == 0) {
@@ -101,9 +105,22 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
             $mappedKeys = [];
             foreach ($data as $index => $dataItem) {
 
+                // If we have parent filters ensure they are satisfied.
+                if (sizeof($mappedField->getParentFilters())) {
+                    $matched = true;
+                    foreach ($mappedField->getParentFilters() as $filterField => $filterValue) {
+                        if (!is_array($filterValue)) $filterValue = [$filterValue];
+                        if (!in_array($dataItem[$filterField] ?? null, $filterValue)) {
+                            $matched = false;
+                            break;
+                        }
+                    }
+                    if (!$matched) continue;
+                }
+
                 $mappedKeyValues = [];
                 foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
-                    $mappedKeyValues[$childFieldMapping] = $dataItem[$parentFieldMapping] ?? null;
+                    $mappedKeyValues[$childFieldMapping] = $this->evaluateParentFieldMapping($parentFieldMapping, $dataItem);
                 }
                 $mappedKeys[] = $mappedKeyValues;
 
@@ -118,30 +135,40 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                         $mappedDataItem = [$mappedField->getTargetFieldName() => $mappedDataItem];
                     }
 
+                    // Evaluate child mappings for the item
                     foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
-                        $mappedDataItem[$childFieldMapping] = $dataItem[$parentFieldMapping] ?? null;
-
+                        $mappedDataItem[$childFieldMapping] = $this->evaluateParentFieldMapping($parentFieldMapping, $dataItem);
                     }
+
+                    // Add constant field values
+                    $mappedDataItem = array_merge($mappedDataItem, $mappedField->getConstantFieldValues() ?? []);
+
                     $mappedData[] = $mappedDataItem;
+
                 }
 
 
+                // Add mapped columns if required
                 if (sizeof($mappedData)) {
                     $mappedColumns = array_map(function ($item) {
                         return new Field($item);
                     }, array_keys($mappedData[0]));
                 }
 
+
                 // Update core data
-                unset($data[$mappedField->getFieldName()]);
+                if (!$mappedField->isRetainTargetFieldInParent())
+                    unset($data[$mappedField->getFieldName()]);
+
                 $data[$index] = $dataItem;
 
             }
 
+
             $updateRule = $mappedField->getUpdateMode() ?? $parentUpdateRule;
 
             // If a replace operation, delete old items.
-            if ($parentUpdateRule == self::UPDATE_MODE_REPLACE) {
+            if ($updateRule == self::UPDATE_MODE_REPLACE) {
 
                 $filterJunctions = [];
                 foreach ($mappedKeys as $keySet) {
@@ -165,9 +192,6 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                 // Delete previous items
                 $datasource->update($existingItems, UpdatableDatasource::UPDATE_MODE_DELETE);
 
-                // Change update rule to an add
-//                $updateRule = BaseUpdatableDatasource::UPDATE_MODE_ADD;
-
             }
 
 
@@ -176,7 +200,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
             // Remove column from array
             foreach ($columns as $index => $column) {
-                if ($column->getName() == $mappedField->getFieldName()) {
+                if (!$mappedField->isRetainTargetFieldInParent() && ($column->getName() == $mappedField->getFieldName())) {
                     array_splice($columns, $index, 1);
                     break;
                 }
@@ -188,6 +212,18 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
         // Return data
         return new ArrayTabularDataset($columns, $data);
 
+
+    }
+
+
+    // Evaluate a parent field mapping
+    private function evaluateParentFieldMapping($parentFieldMapping, $dataItem) {
+
+        // Ensure we wrap strings for value function evaluation.
+        $wrappedParentFieldMapping = str_starts_with($parentFieldMapping, "[[") ? $parentFieldMapping :
+            "[[" . $parentFieldMapping . "]]";
+
+        return $this->valueFunctionEvaluator->evaluateString($wrappedParentFieldMapping, $dataItem, ["[[", "]]"]);
 
     }
 

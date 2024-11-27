@@ -161,7 +161,7 @@ class DataProcessorServiceTest extends TestBase {
     }
 
 
-    public function testCanTriggerDataProcessorInstance() {
+    public function testCanTriggerDataProcessorInstanceWhenProcessorAttachedInDatabase() {
 
         $existingItem = new DataProcessorInstance("onetotrigger", "Previous Valid",
             "sqlquery", ["query" => "SELECT * FROM previous_test", "authenticationCredentialsKey" => "test"],

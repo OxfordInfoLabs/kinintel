@@ -6,6 +6,8 @@ use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\Authentication\AuthenticationCredentialsInstance;
 use Kinintel\TestBase;
 
+include_once "autoloader.php";
+
 /**
  * Test cases for the authentication credentials service.
  *

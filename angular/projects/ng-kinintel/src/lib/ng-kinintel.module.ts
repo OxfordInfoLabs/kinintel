@@ -105,6 +105,8 @@ import { AdvancedSettingsComponent } from './components/datasource/create-dataso
 import {MatChipsModule} from '@angular/material/chips';
 import { RemoveTransformationWarningComponent } from './components/dataset/dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
 import { ExportProjectComponent } from './components/export-project/export-project.component';
+import { ChangeSourceWarningComponent } from './components/data-explorer/change-source-warning/change-source-warning.component';
+
 
 @NgModule({
     declarations: [
@@ -175,7 +177,8 @@ import { ExportProjectComponent } from './components/export-project/export-proje
         ImportWizardComponent,
         AdvancedSettingsComponent,
         RemoveTransformationWarningComponent,
-        ExportProjectComponent
+        ExportProjectComponent,
+        ChangeSourceWarningComponent
     ],
     imports: [
         BrowserModule,

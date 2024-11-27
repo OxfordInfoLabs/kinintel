@@ -23,14 +23,17 @@ use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceUpdater;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
+use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Application\DataSearchItem;
@@ -81,14 +84,20 @@ class DatasourceServiceTest extends TestBase {
     private $valueFunctionEvaluator;
 
     /**
+     * @var MockObject
+     */
+    private $datasourceHookService;
+
+    /**
      * Set up
      */
     public function setUp(): void {
         $this->datasourceDAO = MockObjectProvider::instance()->getMockInstance(DatasourceDAO::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->valueFunctionEvaluator = MockObjectProvider::instance()->getMockInstance(ValueFunctionEvaluator::class);
+        $this->datasourceHookService = MockObjectProvider::instance()->getMockInstance(DatasourceHookService::class);
         $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService, $this->valueFunctionEvaluator,
-            \Kinikit\Core\DependencyInjection\Container::instance()->get(DataProcessorService::class));
+            Container::instance()->get(DataProcessorService::class), $this->datasourceHookService);
 
     }
 
@@ -565,6 +574,7 @@ class DatasourceServiceTest extends TestBase {
         $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSourceInstance->returnValue("getKey", "test");
         $dataSource->returnValue("getConfig", $dataSourceConfig);
         $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
             "test"
@@ -633,6 +643,8 @@ class DatasourceServiceTest extends TestBase {
         $this->assertTrue($dataSource->methodWasCalled("update", [
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
+
+
 
     }
 
@@ -944,6 +956,9 @@ class DatasourceServiceTest extends TestBase {
      * @doesNotPerformAssertions
      */
     public function testAccessToDatasourceUpdateCheckedAgainstProjectPrivileges() {
+
+        $testDs = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        Container::instance()->addInterfaceImplementation(Datasource::class, "test", get_class($testDs));
 
         $newOne = new DatasourceInstance("mynewone", "My New One", "test");
         $newOne->setAccountId(1);

@@ -204,6 +204,11 @@ class FeedService {
             $exportParameters[$exposedParameterName] = $parameterValues[$exposedParameterName] ?? "";
         }
 
+        // Limit the limit
+        if ($limit > 10000) {
+            $limit = 10000;
+        }
+
         // Export and return result directly
         return $this->datasetService->exportDatasetInstance($datasetInstanceSummary, $feed->getExporterKey(), $feed->getExporterConfiguration(), $exportParameters, [], $offset, $limit, false, $feed->getCacheTimeSeconds());
 

@@ -9,6 +9,9 @@ import {
 } from '@angular/material/legacy-dialog';
 import * as lodash from 'lodash';
 import {DatasourceService} from '../../../../../services/datasource.service';
+import {HttpClient} from '@angular/common/http';
+import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {KinintelModuleConfig} from '../../../../../../lib/ng-kinintel.module';
 
 const _ = lodash.default;
 
@@ -22,20 +25,50 @@ export class ImportWizardComponent implements OnInit {
 
     public columns: any = [];
     public addOnBlur = true;
-    public readonly separatorKeysCodes = [ENTER, COMMA] as const;
     public name: string;
     public reloadURL: string;
     public datasourceUpdate: any;
+    public importChoice: string = null;
+    public importKey: string = null;
+    public backendURL: string = null;
+
+    public readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
     constructor(private dialog: MatDialog,
                 public dialogRef: MatDialogRef<ImportWizardComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
-                private datasourceService: DatasourceService) {
+                private datasourceService: DatasourceService,
+                private snackBar: MatSnackBar,
+                private config: KinintelModuleConfig) {
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.reloadURL = this.data.reloadURL;
         this.datasourceUpdate = this.data.datasourceUpdate;
+        this.backendURL = this.config.backendURL;
+
+    }
+
+    public copied() {
+        this.snackBar.open('Copied to Clipboard', null, {
+            duration: 2000,
+            verticalPosition: 'top'
+        });
+    }
+
+    public createExample() {
+        const example = ['[{'];
+
+        this.columns.forEach((column, index) => {
+            if (column.type !== 'id') {
+                example.push('<span class="text-secondary">"' + column.name + '":</span> "' + column.type + '"');
+                if (index !== this.columns.length - 1) {
+                    example.push(', ');
+                }
+            }
+        });
+        example.push('}]');
+        return example.join('');
     }
 
     public addColumn(event: MatChipInputEvent) {
@@ -111,6 +144,19 @@ export class ImportWizardComponent implements OnInit {
         });
 
         const key = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
+
+        if (this.importKey) {
+            await this.datasourceService.updateCustomDatasource(key, {
+                title: this.datasourceUpdate.title,
+                importKey: this.importKey,
+                fields: this.datasourceUpdate.fields,
+                adds: [],
+                updates: [],
+                deletes: [],
+                replaces: []
+            });
+        }
+
         window.location.href = this.reloadURL + '/' + key;
     }
 

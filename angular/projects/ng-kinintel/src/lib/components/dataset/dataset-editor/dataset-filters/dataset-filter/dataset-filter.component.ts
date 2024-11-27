@@ -27,7 +27,9 @@ export class DatasetFilterComponent implements OnInit {
         {label: 'Is Null', value: 'null', string: 'is null'},
         {label: 'Not Null', value: 'notnull', string: 'not null'},
         {label: 'Like', value: 'like', string: 'like'},
-        {label: 'Not Like', value: 'notlike', string: 'not like'}
+        {label: 'Not Like', value: 'notlike', string: 'not like'},
+        {label: 'Bitwise AND', value: 'bitwiseand', string: 'bitwise and'},
+        {label: 'Bitwise OR', value: 'bitwiseor', string: 'bitwise or'}
     ];
 
     @Input() filter: any;
@@ -37,6 +39,7 @@ export class DatasetFilterComponent implements OnInit {
     @Input() joinFilterFields: any;
     @Input() joinFieldsName: string;
     @Input() openSide: Subject<boolean>;
+    @Input() parameterValues: any;
 
     @Output() filtersRemoved = new EventEmitter();
 
@@ -134,4 +137,5 @@ export class DatasetFilterComponent implements OnInit {
     }
 
 
+    protected readonly Object = Object;
 }

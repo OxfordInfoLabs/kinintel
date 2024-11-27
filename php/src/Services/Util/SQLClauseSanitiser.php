@@ -3,6 +3,8 @@
 
 namespace Kinintel\Services\Util;
 
+use Kinikit\Core\Logging\Logger;
+
 /**
  * Class SQLClauseSanitiser
  * @package Kinintel\Services\Util
@@ -33,7 +35,8 @@ class SQLClauseSanitiser {
         ")",
         "?",
         "$",
-        ","
+        ",",
+        "&"
     ];
 
     private $whitelistedKeywords = [
@@ -66,6 +69,12 @@ class SQLClauseSanitiser {
         "AVG" => ["params" => ["X"],
             "category" => self::AGGREGATE_FUNCTION,
             "description" => "Return the average value of all non-null values of X within the group"],
+        "BIT_AND" => ["params" => ["X"],
+            "category" => self::AGGREGATE_FUNCTION,
+            "description" => "Return the bitwise and of all values of X within the group"],
+        "BIT_OR" => ["params" => ["X"],
+            "category" => self::AGGREGATE_FUNCTION,
+            "description" => "Return the bitwise or of all values of X within the group"],
         "CEILING" => ["params" => ["X"],
             "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Return the closest integer above the supplied numeric argument X"],
@@ -99,6 +108,8 @@ class SQLClauseSanitiser {
             "description" => "Join together the values of the expression identified as X with commas"],
         "IFNULL" => ["params" => ["X", "Y"], "category" => self::ANY_WHITELISTED_FUNCTION,
             "description" => "Return the first argument if not null or second argument if not null or null if both are null"],
+        "IIF" => ["params" => ["X", "Y", "Z"], "category" => self::ANY_WHITELISTED_FUNCTION,
+            "description" => "Return the value of Y if the first argument X evaluates to true or the value of Z if X evaluates to false"],
         "INSTR" => ["params" => ["X", "Y"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Return the position of the string supplied as Y within the string supplied as X. If the Y isn't found in X, return 0"],
         "LEAST" => ["params" => ["X", "Y", "..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
@@ -141,6 +152,8 @@ class SQLClauseSanitiser {
             "description" => "Returns the average of values of X in the dataset. Later arguments are columns to be partitioned over."],
         "RTRIM" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
             "description" => "Remove whitespace from end of the supplied string"],
+        "REVERSE" => ["params" => ["X"], "category" => self::STRING_WHITELISTED_FUNCTION,
+            "description" => "Reverse the string X, e.g. REVERSE('hello') = 'olleh'"],
         "SQRT" => ["params" => ["X"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the square root of X"],
         "SUBSTR" => ["params" => ["X", "Y", "Z"], "category" => self::STRING_WHITELISTED_FUNCTION,
@@ -184,6 +197,7 @@ class SQLClauseSanitiser {
      * @return string
      */
     public function sanitiseSQL($sqlString, &$parameterValues = [], &$hasUnresolvedStrings = false) {
+
 
         // Copy params
         $existingParams = $parameterValues;

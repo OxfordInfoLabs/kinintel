@@ -46,6 +46,9 @@ class Filter {
     const FILTER_TYPE_CONTAINS = "contains";
     const FILTER_TYPE_LIKE = "like";
     const FILTER_TYPE_NOT_LIKE = "notlike";
+    const FILTER_TYPE_BITWISE_AND = "bitwiseand";
+    const FILTER_TYPE_BITWISE_OR = "bitwiseor";
+
 
     // Filter type constants (multi valued)
     const FILTER_TYPE_SIMILAR_TO = "similarto";
