@@ -6,11 +6,14 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
+use Kinikit\Core\Logging\Logger;
+use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -100,14 +103,14 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
             $datasourceInstance = $this->datasourceService->getDataSourceInstanceByKey($mappedField->getDatasourceInstanceKey());
             $datasource = $datasourceInstance->returnDataSource();
 
-            $mappedData = [];
             $mappedColumns = [];
             $mappedKeys = [];
-            foreach ($data as $index => $dataItem) {
 
+            $filteredData = [];
+            foreach ($data as $index => $dataItem) {
                 // If we have parent filters ensure they are satisfied.
+                $matched = true;
                 if (sizeof($mappedField->getParentFilters())) {
-                    $matched = true;
                     foreach ($mappedField->getParentFilters() as $filterField => $filterValue) {
                         if (!is_array($filterValue)) $filterValue = [$filterValue];
                         if (!in_array($dataItem[$filterField] ?? null, $filterValue)) {
@@ -115,60 +118,47 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                             break;
                         }
                     }
-                    if (!$matched) continue;
                 }
+                if ($matched) $filteredData[$index] = $dataItem;
+            }
 
+
+            foreach ($filteredData as $dataItem) {
+                // When replacing, we need to know the key fields which we are going to replace over
+                // The parent fields are used for this, e.g.
+                // {a: 1, b: [2, 3]} with parentFieldMappings ["a": "a"] will delete all entries in the child
+                // table where a = 1, because "a" is a key field
                 $mappedKeyValues = [];
                 foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
-                    $mappedKeyValues[$childFieldMapping] = $this->evaluateParentFieldMapping($parentFieldMapping, $dataItem);
+                    if ($parentFieldMapping === "_index") continue;
+                    $mappedKeyValues[$childFieldMapping] = self::evaluateParentFieldMapping(
+                        $this->valueFunctionEvaluator, $parentFieldMapping, $dataItem
+                    );
+                }
+                // We count the constant values as part of the primary key when replacing
+                foreach ($mappedField->getConstantFieldValues() ?? [] as $column => $value){
+                    $mappedKeyValues[$column] = $value;
                 }
                 $mappedKeys[] = $mappedKeyValues;
+            }
 
-                // Get and ensure data items are an array
-                $mappedDataItems = $dataItem[$mappedField->getFieldName()] ?? [];
-                if (!is_array($mappedDataItems)) $mappedDataItems = [$mappedDataItems];
-
-                foreach ($mappedDataItems as $mappedDataItem) {
-
-                    // If a target field name, remap it.
-                    if ($mappedField->getTargetFieldName()) {
-                        $mappedDataItem = [$mappedField->getTargetFieldName() => $mappedDataItem];
-                    }
-
-                    // Evaluate child mappings for the item
-                    foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
-                        $mappedDataItem[$childFieldMapping] = $this->evaluateParentFieldMapping($parentFieldMapping, $dataItem);
-                    }
-
-                    // Add constant field values
-                    $mappedDataItem = array_merge($mappedDataItem, $mappedField->getConstantFieldValues() ?? []);
-
-                    $mappedData[] = $mappedDataItem;
-
-                }
+            $mappedData = self::getMappedData($filteredData, $mappedField, $this->valueFunctionEvaluator);
 
 
-                // Add mapped columns if required
-                if (sizeof($mappedData)) {
-                    $mappedColumns = array_map(function ($item) {
-                        return new Field($item);
-                    }, array_keys($mappedData[0]));
-                }
-
-
-                // Update core data
-                if (!$mappedField->isRetainTargetFieldInParent())
-                    unset($data[$mappedField->getFieldName()]);
-
-                $data[$index] = $dataItem;
-
+            if (sizeof($mappedData)) { // Infer the columns from all the keys of the data
+                $mergedKeys = array_merge(...array_map(fn($row) => array_keys($row), $mappedData));
+                $uniqueKeys = array_unique($mergedKeys);
+                $mappedColumns = array_map(
+                    fn($item) => new Field($item),
+                    $uniqueKeys
+                );
             }
 
 
             $updateRule = $mappedField->getUpdateMode() ?? $parentUpdateRule;
 
             // If a replace operation, delete old items.
-            if ($updateRule == self::UPDATE_MODE_REPLACE) {
+            if (($updateRule == self::UPDATE_MODE_REPLACE) && !empty($mappedKeys)) {
 
                 $filterJunctions = [];
                 foreach ($mappedKeys as $keySet) {
@@ -199,14 +189,9 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
             $datasource->update(new ArrayTabularDataset($mappedColumns, $mappedData), $updateRule);
 
             // Remove column from array
-            foreach ($columns as $index => $column) {
-                if (!$mappedField->isRetainTargetFieldInParent() && ($column->getName() == $mappedField->getFieldName())) {
-                    array_splice($columns, $index, 1);
-                    break;
-                }
+            if (!$mappedField->isRetainTargetFieldInParent()) {
+                $columns = array_filter($columns, fn(Field $col) => $col->getName() != $mappedField->getFieldName());
             }
-
-
         }
 
         // Return data
@@ -217,14 +202,100 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
 
 
     // Evaluate a parent field mapping
-    private function evaluateParentFieldMapping($parentFieldMapping, $dataItem) {
+    private static function evaluateParentFieldMapping(
+        ValueFunctionEvaluator $valueFunctionEvaluator,
+        string $parentFieldMapping,
+        array $dataItem
+    ) {
 
         // Ensure we wrap strings for value function evaluation.
-        $wrappedParentFieldMapping = str_starts_with($parentFieldMapping, "[[") ? $parentFieldMapping :
-            "[[" . $parentFieldMapping . "]]";
+        $wrappedParentFieldMapping = str_starts_with($parentFieldMapping, "[[")
+            ? $parentFieldMapping
+            : "[[" . $parentFieldMapping . "]]";
 
-        return $this->valueFunctionEvaluator->evaluateString($wrappedParentFieldMapping, $dataItem, ["[[", "]]"]);
+        return $valueFunctionEvaluator->evaluateString($wrappedParentFieldMapping, $dataItem, ["[[", "]]"]);
+    }
 
+    public static function getMappedData(
+        array $data,
+        UpdatableMappedField $mappedField,
+        ValueFunctionEvaluator $valueFunctionEvaluator
+    ) : array {
+        $mappedData = [];
+
+        foreach ($data as $dataItem) {
+
+            if (!isset($dataItem[$mappedField->getFieldName()])) continue;
+
+            // Get and ensure data items are an array
+            $mappedDataItems = $dataItem[$mappedField->getFieldName()] ?? [];
+
+            // If we just have a string, we want to wrap it in an array, so we can pass it to mapped fields
+            if (!is_array($mappedDataItems)) {
+                $mappedDataItems = [$mappedDataItems];
+            }
+
+            foreach ($mappedDataItems as $elementIndex => $mappedDataItem) {
+                if ($mappedDataItem === null) continue;
+
+                // If a target field name, remap it.
+                if ($mappedField->getTargetFieldName()) {
+                    $mappedDataItem = [$mappedField->getTargetFieldName() => $mappedDataItem];
+                }
+
+                foreach ($mappedField->getParentFieldMappings() ?? [] as $parentFieldMapping => $childFieldMapping) {
+                    if (!is_array($dataItem) || !is_array($mappedDataItem)) {
+                        Logger::log("Parent field mapping $parentFieldMapping, Child field mapping $childFieldMapping");
+                        Logger::log($dataItem);
+                        Logger::log("\n\nMappedDataItem:");
+                        Logger::log($mappedDataItem);
+                        throw new DatasourceUpdateException("Tried to access a non-array in a mapped fields. See logs.");
+                    }
+                    $mappedDataItem[$childFieldMapping] = $parentFieldMapping === "_index"
+                        ? $elementIndex
+                        : self::evaluateParentFieldMapping($valueFunctionEvaluator, $parentFieldMapping, $dataItem);
+                }
+
+                // Take in a data item and expand its fields, returning an array of items
+                // e.g.
+                // {name:x, tags:[a,b]}, tags, tag => [{name:x, tag:a}, {name:x,tag:b}]
+                $mapChildFields = function (array $dataItem, string $many, string $one): array {
+                    $out = [];
+                    if (isset($dataItem[$many]) && is_array($dataItem[$many]) && $dataItem[$many]) {
+                        $baseItem = $dataItem; // Make a copy
+                        unset($baseItem[$many]); // without "tags"
+                        foreach ($dataItem[$many] as $value) {
+                            $finalItem = $baseItem; // Make a copy of base
+                            $finalItem[$one] = $value; // and add the value
+                            $out[] = $finalItem;
+                        }
+                    } else {
+                        // Data has an invalid entry in the $many field
+                        $dataItem[$one] = null;
+                        unset($dataItem[$many]);
+                        $out[] = $dataItem; // so set the $one field to null
+                    }
+                    return $out;
+                };
+
+                // Add constant field values
+                $mappedDataItem = array_merge($mappedDataItem, $mappedField->getConstantFieldValues() ?? []);
+
+                $mappedDataItems = [$mappedDataItem];
+
+                // If we have fields to flatten
+                foreach ($mappedField->getFlattenFieldMappings() as $many => $one) {
+                    $newMappedDataItems = [];
+                    foreach ($mappedDataItems as $item) {
+                        $flattened = $mapChildFields($item, $many, $one);
+                        $newMappedDataItems = array_merge($newMappedDataItems, $flattened);
+                    }
+                    $mappedDataItems = $newMappedDataItems;
+                }
+                $mappedData = array_merge($mappedData, $mappedDataItems);
+            }
+        }
+        return $mappedData;
     }
 
 

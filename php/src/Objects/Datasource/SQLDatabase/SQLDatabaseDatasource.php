@@ -51,6 +51,7 @@ use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
+use PDOException;
 
 
 class SQLDatabaseDatasource extends BaseUpdatableDatasource {
@@ -264,7 +265,14 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         Logger::log($query->getSQL(), 6);
 
         $authenticationCredentials = $this->getAuthenticationCredentials();
-        $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
+        try {
+            $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
+        } catch (PDOException $e) {
+            $time = microtime(true);
+            Logger::log("SQL Database Datasource Error: ".$time);
+            Logger::log($e);
+            throw new DebugException("Database Error occured when running query, see logs ".$time, debugMessage: $e->getMessage());
+        }
 
         // Grab columns
         $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
@@ -393,13 +401,17 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         if (str_contains(strtolower($e->getMessage()), "dup")) {
                             throw new DuplicateEntriesException();
                         } else {
+                            Logger::log("SQL Error writing to table (uniqueness violation). Table name: ".$config->getTableName()." DATA:");
+                            Logger::log($allData, 6);
+                            Logger::log($e, 6);
                             throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
                         }
                     } else {
-                        Logger::log("SQL Error: " . $e->getMessage(), 4);
+                        $debugMessage = "SQL Error: " . $e->getMessage() . "\n with tableName ".$config->getTableName();
+                        Logger::log($debugMessage, 4);
                         throw new DebugException(
                             message: "An unexpected error occurred updating the datasource",
-                            debugMessage: "SQL Error: " . $e->getMessage()
+                            debugMessage: $debugMessage
                         );
                     }
                 }

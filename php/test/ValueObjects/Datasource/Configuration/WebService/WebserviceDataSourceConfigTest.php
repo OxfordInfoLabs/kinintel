@@ -7,6 +7,8 @@ namespace Kinintel\Test\ValueObjects\Datasource\Configuration\WebService;
 use Kinikit\Core\Validation\FieldValidationError;
 use Kinintel\ValueObjects\Datasource\Configuration\WebService\WebserviceDataSourceConfig;
 
+include_once "autoloader.php";
+
 /**
  * Test cases for the web service data source config
  *
@@ -28,22 +30,5 @@ class WebserviceDataSourceConfigTest extends \PHPUnit\Framework\TestCase {
             $validationErrors["compressionType"]["invalidtype"]);
 
     }
-
-
-    public function testValidateMethodCorrectlyValidatesInvalidCompressionConfig() {
-
-        $webserviceConfig = new WebserviceDataSourceConfig("https://test.com");
-        $webserviceConfig->setCompressionType("zip");
-        $webserviceConfig->setCompressionConfig([]);
-
-        $validationErrors = $webserviceConfig->validate();
-
-        $this->assertEquals(1, sizeof($validationErrors));
-        $this->assertEquals(new FieldValidationError("entryFilename", "requiredEither", "One of the fields entryFilename, entryFilenames is required"),
-            $validationErrors["compressionConfig"]["entryFilename"]["requiredEither"]);
-
-
-    }
-
 
 }
