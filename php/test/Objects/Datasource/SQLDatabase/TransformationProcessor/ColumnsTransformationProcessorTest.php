@@ -18,6 +18,8 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnNamingConvention;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
+use Kinintel\ValueObjects\Transformation\Formula\Expression;
+use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
@@ -269,4 +271,72 @@ class ColumnsTransformationProcessorTest extends TestCase {
         $this->assertEquals([["birthName" => "Maurice"]], $actual);
     }
 
+    public function testCanPerformColumnsTransformationAfterFormula(){
+        /** @var SQLDatabaseCredentials $creds */
+        $creds = Container::instance()
+            ->get(AuthenticationCredentialsService::class)
+            ->getCredentialsInstanceByKey("test")
+            ->returnCredentials();
+        $dbConnection = $creds->returnDatabaseConnection();
+        $dbConnection->executeScript("
+        DROP TABLE IF EXISTS __columnsTransformationTest;
+        CREATE TABLE __columnsTransformationTest (
+            name VARCHAR(255) NOT NULL,
+            age INTEGER NOT NULL,
+            PRIMARY KEY (name)
+        );
+        INSERT INTO __columnsTransformationTest (name, age) VALUES 
+        ('Maurice', 22);
+        ");
+
+        $datasourceConfig = new SQLDatabaseDatasourceConfig(
+            SQLDatabaseDatasourceConfig::SOURCE_TABLE ,
+            "__columnsTransformationTest"
+        );
+
+        $datasource = new SQLDatabaseDatasource(
+            $datasourceConfig,
+            $creds,
+            new DatasourceUpdateConfig(["name", "age"]),
+            instanceKey: "columns-transformation-test"
+        );
+        $formulaTransformation = new FormulaTransformation([
+            new Expression("Length of name", "LENGTH([[name]])")
+        ]);
+
+        $columnsTransformation = new ColumnsTransformation(
+            [new Field("name", "Birth name"), new Field("lengthOfName")],
+            true
+        );
+
+//        $fields = $datasource->returnFields([]);
+//        $this->assertEquals($fields, [new Field("name", keyField: true), new Field("age", type: Field::TYPE_INTEGER)]);
+        $out = $datasource->applyTransformation($formulaTransformation);
+        $out = $out->applyTransformation($columnsTransformation);
+//        $fields = $out->returnFields([], deriveUpToTransformation: true);
+//        $this->assertEquals([new Field("birthName", "Birth name", keyField: true), new Field("lengthOfName", keyField: false)], $fields);
+        $actualDataset = $out->materialise();
+        $actual = $actualDataset->getAllData();
+        $this->assertEquals([["birthName" => "Maurice", "lengthOfName" => 7]], $actual);
+
+        $columnsTransformation2 = new ColumnsTransformation(
+            [new Field("birthName", "Birth name new")],
+            true,
+            ColumnNamingConvention::UNDERSCORE
+        );
+
+        $out = $out->applyTransformation($columnsTransformation2);
+        $fields = $out->returnFields([], deriveUpToTransformation: true);
+        $this->assertEquals($fields, [new Field("birth_name_new", "Birth name new")]);
+
+        $data = $out->materialise()->getAllData();
+        $this->assertEquals([["birth_name_new" => "Maurice"]], $data);
+    }
+
+    public function testReturnAlteredColumns(){
+        $transformation = new ColumnsTransformation([new Field("birthName", "Birth name new")], true, ColumnNamingConvention::UNDERSCORE);
+
+        $altered = $transformation->returnAlteredColumns([new Field("birthName", "Birth Name")]);
+        $this->assertEquals([new Field("birth_name_new", "Birth name new")], $altered);
+    }
 }

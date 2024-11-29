@@ -77,6 +77,7 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
             $aliasStrings[] = "C" . $this->aliasIndex . "." . $transformation->getColumns()[$i]->getName() . " AS " . $newColumns[$i]->getName();
         }
 
+        //TODO Why do we do this??? Shouldn't the config stay the same?
         $dataSourceConfig->setColumns($newColumns);
 
         // Reset the query if required
