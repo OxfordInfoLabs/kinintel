@@ -161,6 +161,7 @@ abstract class BaseDatasource implements Datasource {
      * @param AuthenticationCredentials $authenticationCredentials
      */
     public function setAuthenticationCredentials($authenticationCredentials) {
+
         // If credentials supplied check for validity
         if ($authenticationCredentials) {
             if (!$this->authenticationClassMatchesSupported($authenticationCredentials)) {

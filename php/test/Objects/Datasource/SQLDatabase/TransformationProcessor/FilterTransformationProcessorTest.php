@@ -246,6 +246,33 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testBitwiseAndFilterAppliedCorrectly(){
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[age]]", 25, Filter::FILTER_TYPE_BITWISE_AND)
+        ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE \"age\" & ?", $query->getSQL());
+        $this->assertEquals([
+            25
+        ], $query->getParameters());
+
+    }
+
+    public function testBitwiseOrFilterAppliedCorrectly(){
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[age]]", 25, Filter::FILTER_TYPE_BITWISE_OR)
+        ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE \"age\" | ?", $query->getSQL());
+        $this->assertEquals([
+            25
+        ], $query->getParameters());
+
+    }
 
     public function testMultipleFiltersAppliedWithLogicCorrectly() {
 

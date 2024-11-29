@@ -5,6 +5,8 @@ namespace Kinintel\Objects\ResultFormatter;
 use Kinikit\Core\Stream\ReadableStream;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\WebScraper\FieldWithXPathSelector;
+use Kinintel\ValueObjects\ResultFormatter\XPathTarget;
 
 class XMLResultFormatter implements ResultFormatter {
 
@@ -20,26 +22,17 @@ class XMLResultFormatter implements ResultFormatter {
 
     /**
      * @param string $itemXPath
+     * @param array $namespaces
+     * @param XPathTarget[]|null $xpathTargets
      */
-    public function __construct($itemXPath) {
+    public function __construct(
+        string $itemXPath,
+        private array $namespaces = [],
+        private ?array $xpathTargets = null, // If this is null, we target all child elements of a row
+        private $html = false
+    ) {
         $this->itemXPath = $itemXPath;
     }
-
-
-    /**
-     * @return string
-     */
-    public function getItemXPath() {
-        return $this->itemXPath;
-    }
-
-    /**
-     * @param string $itemXPath
-     */
-    public function setItemXPath($itemXPath) {
-        $this->itemXPath = $itemXPath;
-    }
-
 
     /**
      * Format the supplied stream, return a data set
@@ -58,41 +51,91 @@ class XMLResultFormatter implements ResultFormatter {
 
         // Convert to DOM document
         $xml = new \DOMDocument();
-        $xml->loadXML($xmlString,LIBXML_NOERROR | LIBXML_NOWARNING);
+        if ($this->html){
+            $xml->loadHTML($xmlString,LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+                | LIBXML_NOERROR | LIBXML_NOWARNING
+            );
+        } else {
+            $xml->loadXML($xmlString,LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+//                | LIBXML_NOERROR | LIBXML_NOWARNING
+            );
+        }
+        $xpath = new \DOMXPath($xml);
+
+        // Register namespaces - XML may parse jankily if you forget to do this!
+        foreach ($this->namespaces as $prefix => $namespace) {
+            $xpath->registerNamespace($prefix, $namespace);
+        }
 
         // Find the rows
-        $xpath = new \DOMXPath($xml);
         $itemNodes = $xpath->query($this->itemXPath);
+        $itemNodes = array_slice([...$itemNodes], $offset); // Turn into an array
 
         // Loop through each item node, extract fields and values
         $fields = [];
         $data = [];
-        foreach ($itemNodes as $node) {
+        if ($this->xpathTargets === null) {
+            foreach ($itemNodes as $node) {
+                if (count($data) >= $limit) {break;}
+                $dataItem = [];
+                foreach ($node->childNodes as $valueNodeList) {
+                    if ($valueNodeList->nodeType != XML_TEXT_NODE) {
 
-            $dataItem = [];
-            foreach ($node->childNodes as $valueNode) {
-                if ($valueNode->nodeType != XML_TEXT_NODE) {
+                        $fieldName = $valueNodeList->localName;
+                        $valueNodeList = $valueNodeList->nodeValue;
 
-                    $fieldName = $valueNode->localName;
-                    $value = $valueNode->nodeValue;
+                        // Create field if required
+                        if (!sizeof($data)) {
+                            $fields[] = new Field($fieldName);
+                        }
 
-                    // Create field if required
-                    if (!sizeof($data)) {
-                        $fields[] = new Field($fieldName);
+                        // Add the data item
+                        $dataItem[$fieldName] = $valueNodeList;
                     }
 
-                    // Add the data item
-                    $dataItem[$fieldName] = $value;
                 }
 
+                // Add the data to the item
+                $data[] = $dataItem;
             }
-
-            // Add the data to the item
-            $data[] = $dataItem;
+        } else { // Using XPath targets
+            foreach ($itemNodes as $node) {
+                if (count($data) >= $limit) {break;}
+                $dataItem = [];
+                /** @var \DOMElement $node */
+                foreach ($this->xpathTargets as $xpathTarget) {
+                    $valueNodeList = $xpath->query($xpathTarget->xpath, $node);
+                    if ($valueNodeList->length === 0) {
+                        $value = null;
+                    } else if (!$xpathTarget->multiple){
+                        /** @var \DOMElement $value */
+                        $valueNode = $valueNodeList->item(0);
+                        $value = match($xpathTarget->attribute) {
+                            null => $valueNode?->nodeValue,
+                            FieldWithXPathSelector::ATTRIBUTE_TEXT => $valueNode?->textContent,
+                            FieldWithXPathSelector::ATTRIBUTE_HTML => $xml->saveHTML($valueNode),
+                            default => $valueNode?->getAttribute($xpathTarget->attribute),
+                        };
+                    } else {
+                        $values = [];
+                        foreach ($valueNodeList as $subValueNode) {
+                            /** @var \DOMElement $subValueNode */
+                            $values[] = match($xpathTarget->attribute) {
+                                null => $subValueNode?->nodeValue,
+                                FieldWithXPathSelector::ATTRIBUTE_TEXT => $subValueNode?->textContent,
+                                FieldWithXPathSelector::ATTRIBUTE_HTML => $xml->saveHTML($subValueNode),
+                                default => $subValueNode?->getAttribute($xpathTarget->attribute),
+                            };
+                        }
+                        $value = $values;
+                    }
+                    $dataItem[$xpathTarget->name] = $value;
+                }
+                $data[] = $dataItem;
+            }
+            $fields = array_map(fn($target) => new Field($target->name), $this->xpathTargets);
         }
 
-
         return new ArrayTabularDataset($columns ?: $fields, $data);
-
     }
 }

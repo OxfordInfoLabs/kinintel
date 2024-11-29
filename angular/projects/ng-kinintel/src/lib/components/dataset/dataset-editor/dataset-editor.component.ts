@@ -129,12 +129,12 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         this.openSide.subscribe((open: boolean) => {
             if (open) {
-                document.getElementById('sidebarWrapper').classList.add('z-20');
-                document.getElementById('sidebarWrapper').classList.remove('-z-10');
+                document.getElementById('sidebarWrapper')?.classList.add('z-20');
+                document.getElementById('sidebarWrapper')?.classList.remove('-z-10');
             } else {
                 setTimeout(() => {
-                    document.getElementById('sidebarWrapper').classList.add('-z-10');
-                    document.getElementById('sidebarWrapper').classList.remove('z-20');
+                    document.getElementById('sidebarWrapper')?.classList.add('-z-10');
+                    document.getElementById('sidebarWrapper')?.classList.remove('z-20');
                 }, 700);
             }
             this.sideOpen = open;
@@ -819,7 +819,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async excludeUpstreamTransformations(transformation) {
+    public async excludeUpstreamTransformations(transformation, resetPager = false) {
         const clonedTransformation = _.clone(transformation);
         // Grab the index of the current transformation - so we know which upstream transformations to exclude
         const existingIndex = _.findIndex(this.datasetInstanceSummary.transformationInstances, {
@@ -834,7 +834,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
         });
 
-        await this.evaluateDataset();
+        await this.evaluateDataset(resetPager);
         return [clonedTransformation, existingIndex];
     }
 
@@ -933,7 +933,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    public async evaluateDataset(resetPager?) {
+    public async evaluateDataset(resetPager?: boolean) {
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
                 this.resetPager();

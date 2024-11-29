@@ -21,8 +21,10 @@ use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\ValueObjects\Application\DataSearchItem;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -45,7 +47,8 @@ class DatasourceService {
         private DatasourceDAO $datasourceDAO,
         private SecurityService $securityService,
         private ValueFunctionEvaluator $valueFunctionEvaluator,
-        private DataProcessorService $dataProcessorService
+        private DataProcessorService $dataProcessorService,
+        private DatasourceHookService $datasourceHookService
     ) {
     }
 
@@ -423,7 +426,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getUpdates()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
-        }
+         }
 
 
         if ($datasourceUpdate->getDeletes()) {
@@ -431,7 +434,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getDeletes()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
-        }
+       }
 
         if ($datasourceUpdate->getReplaces()) {
             $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {

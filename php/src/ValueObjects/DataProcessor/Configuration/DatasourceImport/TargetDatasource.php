@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport;
 
 
+use Kinintel\Objects\Datasource\UpdatableDatasource;
 
 class TargetDatasource {
 
@@ -21,14 +22,21 @@ class TargetDatasource {
      */
     private $fields;
 
+
+    /**
+     * @var string
+     */
+    private $updateMode = UpdatableDatasource::UPDATE_MODE_REPLACE;
+
     /**
      * TargetDatasource constructor.
      * @param string $key
      * @param TargetField[] $fields
      */
-    public function __construct($key, $fields = null) {
+    public function __construct($key, $fields = null, $updateMode = UpdatableDatasource::UPDATE_MODE_REPLACE) {
         $this->key = $key;
         $this->fields = $fields;
+        $this->updateMode = $updateMode;
     }
 
 
@@ -58,6 +66,20 @@ class TargetDatasource {
      */
     public function setFields($fields) {
         $this->fields = $fields;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUpdateMode() {
+        return $this->updateMode;
+    }
+
+    /**
+     * @param string $updateMode
+     */
+    public function setUpdateMode($updateMode) {
+        $this->updateMode = $updateMode;
     }
 
 

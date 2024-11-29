@@ -526,15 +526,19 @@ class DatasetService {
         $exporterConfiguration = $exporter->validateConfig($exporterConfiguration);
 
         // Grab the dataset, via the cache
-        $lookupFunc = function ($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit) {
-            $result =  $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
-            return new ProcessedTabularDataSet($result->getColumns(), $result->getAllData());
-        };
+        if ($cacheTime > 0) {
+            $lookupFunc = function ($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit) {
+                $result = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+                return new ProcessedTabularDataSet($result->getColumns(), $result->getAllData());
+            };
 
-        $lookupFuncParams = [$datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit];
-        $cacheKey = "datasetExport-" . md5(print_r($lookupFuncParams, true));
+            $lookupFuncParams = [$datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit];
+            $cacheKey = "datasetExport-" . md5(print_r($lookupFuncParams, true));
 
-        $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams);
+            $dataset = AppCache::lookup($cacheKey, $lookupFunc, $cacheTime, $lookupFuncParams);
+        } else {
+            $dataset = $this->getEvaluatedDataSetForDataSetInstance($datasetInstance, $parameterValues, $additionalTransformations, $offset, $limit);
+        }
 
         // Export the dataset using exporter
         $contentSource = $exporter->exportDataset($dataset, $exporterConfiguration);

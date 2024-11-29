@@ -2,7 +2,6 @@
 
 namespace Kinintel\Services\Dataset;
 
-use Google\Service\Analytics\Resource\Data;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Account\Project;
 use Kiniauth\Objects\MetaData\Category;
@@ -24,33 +23,22 @@ use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
 use Kinikit\MVC\Response\Download;
-use Kinikit\MVC\Response\Headers;
 use Kinikit\MVC\Response\SimpleResponse;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
-use Kinintel\Controllers\Account\DataProcessor;
-use Kinintel\Controllers\Admin\Dataset;
 use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfile;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSearchResult;
-use Kinintel\Objects\Dataset\DatasetInstanceSnapshotProfileSummary;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
-use Kinintel\Objects\Datasource\TestDatasource;
-use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\Exporter\DatasetExporter;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Test\Services\Dataset\Exporter\TestExporterConfig;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Application\DataSearchItem;
-use Kinintel\ValueObjects\DataProcessor\Configuration\DatasetSnapshot\TabularDatasetSnapshotProcessorConfiguration;
 use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
-use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -841,15 +829,7 @@ class DatasetServiceTest extends TestBase {
         $mockExporter->returnValue("getDownloadFileExtension", "test", [$exportConfig]);
         $mockExporter->returnValue("validateConfig", $exportConfig, [$exportConfig]);
 
-        $processedDataset = new ProcessedTabularDataSet([
-            new Field("name"),
-            new Field("age")
-        ], [
-            ["name" => "Bob", "age" => 22],
-            ["name" => "Mary", "age" => 32],
-            ["name" => "Jane", "age" => 45]
-        ]);
-        $mockExporter->returnValue("exportDataset", new StringContentSource("HELLO WORLD"), [$processedDataset, $exportConfig]);
+        $mockExporter->returnValue("exportDataset", new StringContentSource("HELLO WORLD"), [$dataset, $exportConfig]);
 
 
         $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
@@ -884,6 +864,16 @@ class DatasetServiceTest extends TestBase {
         $this->assertEquals(new SimpleResponse(new StringContentSource("HELLO WORLD"), 200), $response);
 
         // Check different caching time
+        $processedDataset = new ProcessedTabularDataSet([
+            new Field("name"),
+            new Field("age")
+        ], [
+            ["name" => "Bob", "age" => 22],
+            ["name" => "Mary", "age" => 32],
+            ["name" => "Jane", "age" => 45]
+        ]);
+        $mockExporter->returnValue("exportDataset", new StringContentSource("HELLO WORLD"), [$processedDataset, $exportConfig]);
+
         $response = $this->datasetService->exportDatasetInstance($dataSetInstance,
             "test",
             $exportConfig,
