@@ -20,7 +20,7 @@ class FormulaTransformation implements Transformation, SQLDatabaseTransformation
      *
      * @param Expression[] $expressions
      */
-    public function __construct($expressions = []) {
+    public function __construct(array $expressions = []) {
         $this->expressions = $expressions;
     }
 
