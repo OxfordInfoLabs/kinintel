@@ -84,4 +84,8 @@ class PagingTransformation implements Transformation, SQLDatabaseTransformation 
     public function getSQLTransformationProcessorKey() {
         return "paging";
     }
+
+    public function returnAlteredColumns(array $columns): array {
+        return $columns;
+    }
 }

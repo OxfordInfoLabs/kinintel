@@ -162,4 +162,8 @@ class CombineTransformation implements Transformation, SQLDatabaseTransformation
     public function getSQLTransformationProcessorKey() {
         return "combine";
     }
+
+    public function returnAlteredColumns(array $columns): array {
+        return $columns;
+    }
 }

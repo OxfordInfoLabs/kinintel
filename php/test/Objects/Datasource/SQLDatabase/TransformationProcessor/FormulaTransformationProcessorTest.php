@@ -3,9 +3,13 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
+use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
+use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Services\Authentication\AuthenticationCredentialsService;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
@@ -137,6 +141,60 @@ class FormulaTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals('SELECT F1.*, "bingo" test FROM (SELECT MAX(column1) bingo FROM test) F1', $query->getSQL());
 
+
+    }
+
+    public function testReturnAlteredColumnsReturnsSameAsAMaterialisedDataset(){
+
+        /** @var SQLite3DatabaseConnection $dbConnection */
+        $dbConnection = Container::instance()
+            ->get(AuthenticationCredentialsService::class)
+            ->getCredentialsInstanceByKey("test")
+            ->returnCredentials()
+            ->returnDatabaseConnection();
+
+        $dbConnection->executeScript(<<<SQL
+DROP TABLE IF EXISTS __formulaTest;
+CREATE TABLE IF NOT EXISTS __formulaTest (
+name VARCHAR(255),
+age INT,
+PRIMARY KEY (name)
+);
+SQL
+);
+        $DSI = new DatasourceInstance(
+            "formula_test",
+            "Testing",
+            "sqldatabase",
+            new SQLDatabaseDatasourceConfig(
+                SQLDatabaseDatasourceConfig::SOURCE_TABLE,
+                "__formulaTest"
+            ),
+            "test"
+        );
+
+        $formulaTransformation = new FormulaTransformation(
+            [
+                new Expression("Description", "CONCAT([[name]], ', ', [[age]])")
+            ]
+        );
+
+        /** @var SQLDatabaseDatasource $out */
+        $out = $DSI->returnDataSource()->applyTransformation($formulaTransformation);
+        /** @var ArrayTabularDataset $results */
+        $results = $out->materialise();
+        $this->assertCount(3, $results->getColumns());
+        $expectedColumns = [
+            new Field("name"),
+            new Field("age", type: Field::TYPE_INTEGER),
+            new Field("description"),
+        ];
+        $this->assertEquals($expectedColumns, $results->getColumns());
+        $returnedFields = $out->returnFields([], true);
+        foreach ($returnedFields as $returnedField){ // Ignore key field status
+            $returnedField->setKeyField(false);
+        }
+        $this->assertEquals($expectedColumns, $returnedFields);
 
     }
 
