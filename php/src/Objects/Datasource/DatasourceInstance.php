@@ -111,7 +111,7 @@ class DatasourceInstance extends DatasourceInstanceSummary {
      * @param Parameter[] $parameters
      * @param string $description
      */
-    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = [], $description = "") {
+    public function __construct($key, $title, $type, $config = [], $credentialsKey = null, $credentialsType = null, $credentialsConfig = [], $updateConfig = [], $parameters = [], $description = "", $projectKey = null, $accountId = null) {
         parent::__construct($key, $title, $type, $description);
         $this->config = $config;
         $this->credentialsKey = $credentialsKey;
@@ -119,6 +119,8 @@ class DatasourceInstance extends DatasourceInstanceSummary {
         $this->credentialsConfig = $credentialsConfig;
         $this->updateConfig = $updateConfig;
         $this->parameters = $parameters;
+        $this->projectKey = $projectKey;
+        $this->accountId = $accountId;
     }
 
 

@@ -13,25 +13,52 @@
     <hr>
 
     <div class="mt-6" *ngIf="exportableResources">
-        <h3>Included Alert Groups</h3>
+        <h3>My Data</h3>
 
-        <div class="flex items-start"  *ngFor="let alertGroup of exportableResources.resourcesByType.alertGroups">
-            <div class="flex items-center h-5">
+        <div class="flex items-start"  *ngFor="let datasource of exportableResources.datasources">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'datasource-' + datasource.identifier"
+                       [(ngModel)]="exportConfig.datasources[datasource.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{datasource.title}}</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.datasources[datasource.identifier].included">
+                <input type="checkbox"
+                       [name]="'datasource-update-' + datasource.identifier"
+                       [(ngModel)]="exportConfig.datasources[datasource.identifier].includeData"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36" *ngIf="exportConfig.datasources[datasource.identifier].included">
+                <label class="font-medium text-gray-500">Include data in export</label>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources">
+        <h3>Alert Groups</h3>
+
+        <div class="flex items-start"  *ngFor="let alertGroup of exportableResources.alertGroups">
+            <div class="flex items-center h-5 w-12">
                 <input type="checkbox"
                        [name]="'alert-' + alertGroup.identifier"
-                       [(ngModel)]="alertGroupIds[alertGroup.identifier]"
+                       [(ngModel)]="exportConfig.alertGroups[alertGroup.identifier].included"
                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
             </div>
-            <div class="ml-3 text-sm">
+            <div class="ml-3 text-sm w-36">
                 <label class="font-medium text-gray-700">{{alertGroup.title}}</label>
             </div>
-            <div class="flex items-center h-5" *ngIf="alertGroupIds[alertGroup.identifier]">
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.alertGroups[alertGroup.identifier].included">
                 <input type="checkbox"
                        [name]="'alert-update-' + alertGroup.identifier"
-                       [(ngModel)]="alertGroupUpdateindicators[alertGroup.identifier]"
+                       [(ngModel)]="exportConfig.alertGroups[alertGroup.identifier].update"
                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
             </div>
-            <div class="ml-3 text-sm" *ngIf="alertGroupIds[alertGroup.identifier]">
+            <div class="ml-3 text-sm w-48" *ngIf="exportConfig.alertGroups[alertGroup.identifier].included">
                 <label class="font-medium text-gray-500">Update content on import</label>
             </div>
         </div>
@@ -40,16 +67,16 @@
 
 
     <div class="mt-6" *ngIf="exportableResources">
-        <h3>Included Notification Groups</h3>
+        <h3>Notification Groups</h3>
 
-        <div class="flex items-start"  *ngFor="let notificationGroup of exportableResources.resourcesByType.notificationGroups">
-            <div class="flex items-center h-5">
+        <div class="flex items-start"  *ngFor="let notificationGroup of exportableResources.notificationGroups">
+            <div class="flex items-center h-5 w-12">
                 <input type="checkbox"
                        [name]="'notification-' + notificationGroup.identifier"
-                       [(ngModel)]="notificationGroups[notificationGroup.identifier]"
+                       [(ngModel)]="exportConfig.notificationGroups[notificationGroup.identifier].included"
                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
             </div>
-            <div class="ml-3 text-sm">
+            <div class="ml-3 text-sm w-36">
                 <label class="font-medium text-gray-700">{{notificationGroup.title}}</label>
             </div>
         </div>
