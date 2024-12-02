@@ -106,12 +106,14 @@ class WebScraperDatasource extends BaseDatasource {
             Headers::USER_AGENT => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
         ])));
 
+        $colsWithXpath = array_filter($config->getColumns(), fn ($col) => (bool)$col->getXpath());
+
         $targets = array_map(
             fn($xCol) => new XPathTarget(
                 $xCol->getName(),
                 $xCol->getXpath(),
                 $xCol->getAttribute()
-            ), $config->getColumns()
+            ), $colsWithXpath
         );
         $formatter = new XMLResultFormatter($config->getRowsXPath(), [], $targets, html: true);
 
