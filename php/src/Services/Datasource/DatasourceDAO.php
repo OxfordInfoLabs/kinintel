@@ -111,7 +111,7 @@ class DatasourceDAO {
         $clauses = ["import_key = ?"];
         $parameters = [$importKey];
         if ($accountId) {
-            $clauses[] = "accountId = ? or accountId IS NULL";
+            $clauses[] = "accountId = ?";
             $parameters[] = $accountId;
         } else {
             $clauses[] = "accountId IS NULL";
