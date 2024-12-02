@@ -6,6 +6,7 @@ use Kiniauth\Services\Attachment\AttachmentStorage;
 use Kiniauth\Services\Workflow\Task\Task;
 use Kinikit\Core\ApplicationBootstrap;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Services\Alert\AlertGroupTask;
 use Kinintel\Services\DataProcessor\DataProcessorTask;
@@ -14,9 +15,21 @@ use Kinintel\Services\Util\SQLiteFunctions\DotProduct;
 use Kinintel\Services\Util\SQLiteFunctions\Levenshtein;
 use Kinintel\Services\Util\SQLiteFunctions\Regexp;
 use Kinintel\Services\Util\SQLiteFunctions\Reverse;
+use Kinintel\Services\Util\ValueFunction\AuthenticatedItemsValueFunction;
 
 class Bootstrap implements ApplicationBootstrap {
 
+    /**
+     * Wire up value function
+     *
+     * @param ValueFunctionEvaluator $valueFunctionEvaluator
+     * @param AuthenticatedItemsValueFunction $authenticatedItemsValueFunction
+     */
+    public function __construct(
+        private ValueFunctionEvaluator          $valueFunctionEvaluator,
+        private AuthenticatedItemsValueFunction $authenticatedItemsValueFunction) {
+        $this->valueFunctionEvaluator->addValueFunction($this->authenticatedItemsValueFunction);
+    }
 
     public function setup() {
         SQLite3DatabaseConnection::addCustomFunction(new DotProduct());
@@ -30,6 +43,7 @@ class Bootstrap implements ApplicationBootstrap {
 
         // Add attachment storage for google
         Container::instance()->addInterfaceImplementation(AttachmentStorage::class, "google-cloud", GoogleCloudAttachmentStorage::class);
+
 
     }
 }
