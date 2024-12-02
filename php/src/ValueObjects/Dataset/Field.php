@@ -34,6 +34,15 @@ class Field {
 
 
     /**
+     * Boolean flag which if set will only
+     * evaluate the value expression if the data value
+     * for this field is null.  This is useful in persistence scenarios.
+     *
+     * @var boolean
+     */
+    private $valueExpressionOnNullOnly;
+
+    /**
      * @var string
      */
     private $type;
@@ -74,8 +83,10 @@ class Field {
      * @param string $type
      * @param boolean $keyField
      * @param boolean $flattenArray
+     * @param boolean $valueExpressionOnNullOnly
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false) {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false,
+                                $valueExpressionOnNullOnly = false) {
 
         $name = preg_split("/[^\w-]/", $name)[0];
         $this->name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $name);
@@ -90,6 +101,7 @@ class Field {
         $this->type = $type;
         $this->keyField = $keyField;
         $this->flattenArray = $flattenArray;
+        $this->valueExpressionOnNullOnly = $valueExpressionOnNullOnly;
     }
 
 
@@ -128,6 +140,21 @@ class Field {
     public function hasValueExpression() {
         return $this->valueExpression ? true : false;
     }
+
+    /**
+     * @return bool
+     */
+    public function isValueExpressionOnNullOnly(): bool {
+        return $this->valueExpressionOnNullOnly;
+    }
+
+    /**
+     * @param bool $valueExpressionOnNullOnly
+     */
+    public function setValueExpressionOnNullOnly(bool $valueExpressionOnNullOnly): void {
+        $this->valueExpressionOnNullOnly = $valueExpressionOnNullOnly;
+    }
+
 
     /**
      * @return string
@@ -181,8 +208,14 @@ class Field {
     public function evaluateValueExpression($dataItem) {
         $expression = $this->valueExpression;
 
-        $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
-        return $valueFunctionEvaluator->evaluateString($expression, $dataItem, ["[[", "]]"]);
+        $fieldValue = $dataItem[$this->name] ?? null;
+
+        if (!$this->isValueExpressionOnNullOnly() || ($fieldValue == null)) {
+            $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
+            return $valueFunctionEvaluator->evaluateString($expression, $dataItem, ["[[", "]]"]);
+        } else {
+            return $fieldValue;
+        }
     }
 
 
