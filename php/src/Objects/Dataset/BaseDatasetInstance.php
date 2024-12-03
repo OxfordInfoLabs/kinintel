@@ -179,7 +179,6 @@ class BaseDatasetInstance extends ActiveRecord {
     }
 
 
-
     /**
      * Implement validate method to perform additional validation as required
      */
@@ -189,30 +188,39 @@ class BaseDatasetInstance extends ActiveRecord {
 
         // Confirm that the datasource instance exists if a key supplied
         if ($this->datasourceInstanceKey) {
-            /**
-             * @var DatasourceService $dataSourceService
-             */
-            $dataSourceService = Container::instance()->get(DatasourceService::class);
 
-            try {
-                $dataSourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
-            } catch (ObjectNotFoundException $e) {
-                $validationErrors["datasourceInstanceKey"] = new FieldValidationError("datasourceInstanceKey", "notfound", "Data source with instance key '{$this->datasourceInstanceKey}' does not exist");
+            // Allow temporary negative numbered keys for import / export logic.
+            if (!is_numeric($this->datasourceInstanceKey) || $this->datasourceInstanceKey > 0) {
+
+                /**
+                 * @var DatasourceService $dataSourceService
+                 */
+                $dataSourceService = Container::instance()->get(DatasourceService::class);
+
+                try {
+                    $dataSourceService->getDataSourceInstanceByKey($this->datasourceInstanceKey);
+                } catch (ObjectNotFoundException $e) {
+                    $validationErrors["datasourceInstanceKey"] = new FieldValidationError("datasourceInstanceKey", "notfound", "Data source with instance key '{$this->datasourceInstanceKey}' does not exist");
+                }
             }
 
         }
 
         // Confirm that the dataset instance exists if an id supplied.
         if ($this->datasetInstanceId) {
-            /**
-             * @var DatasetService $dataSetService
-             */
-            $dataSetService = Container::instance()->get(DatasetService::class);
 
-            try {
-                $dataSetService->getDataSetInstance($this->datasetInstanceId);
-            } catch (ObjectNotFoundException $e) {
-                $validationErrors["datasetInstanceId"] = new FieldValidationError("datasetInstanceId", "notfound", "Data set with instance id '{$this->datasetInstanceId}' does not exist");
+            if ($this->datasetInstanceId > 0) {
+
+                /**
+                 * @var DatasetService $dataSetService
+                 */
+                $dataSetService = Container::instance()->get(DatasetService::class);
+
+                try {
+                    $dataSetService->getDataSetInstance($this->datasetInstanceId);
+                } catch (ObjectNotFoundException $e) {
+                    $validationErrors["datasetInstanceId"] = new FieldValidationError("datasetInstanceId", "notfound", "Data set with instance id '{$this->datasetInstanceId}' does not exist");
+                }
             }
         }
 

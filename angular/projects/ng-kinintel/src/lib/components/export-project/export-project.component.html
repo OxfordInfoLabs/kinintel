@@ -39,6 +39,25 @@
     </div>
 
 
+
+    <div class="mt-6" *ngIf="exportableResources">
+        <h3>Stored Queries</h3>
+
+        <div class="flex items-start"  *ngFor="let dataset of exportableResources.datasets">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'dataset-' + dataset.identifier"
+                       [(ngModel)]="exportConfig.datasets[dataset.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{dataset.title}}</label>
+            </div>
+        </div>
+
+    </div>
+
+
     <div class="mt-6" *ngIf="exportableResources">
         <h3>Alert Groups</h3>
 
