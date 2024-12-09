@@ -11,6 +11,7 @@ use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\ImportExport\ExportConfig\DatasourceExportConfig;
@@ -24,7 +25,7 @@ class DatasourceImportExporter extends ImportExporter {
      *
      * @param DatasourceService $datasourceService
      */
-    public function __construct(private DatasourceService $datasourceService) {
+    public function __construct(private DatasourceService $datasourceService, private DataProcessorService $dataProcessorService) {
     }
 
 
@@ -73,10 +74,10 @@ class DatasourceImportExporter extends ImportExporter {
      *
      * @param int $accountId
      * @param string $projectKey
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
      * @return void
      */
-    public function createExportObjects(int $accountId, string $projectKey, mixed $exportProjectConfig) {
+    public function createExportObjects(int $accountId, string $projectKey, mixed $objectExportConfig, mixed $allProjectExportConfig) {
 
         /**
          * Loop through each passed export item.
@@ -84,7 +85,7 @@ class DatasourceImportExporter extends ImportExporter {
          * @var DatasourceExportConfig $config
          */
         $exportObjects = [];
-        foreach ($exportProjectConfig as $key => $config) {
+        foreach ($objectExportConfig as $key => $config) {
             if ($config->isIncluded()) {
                 $datasource = $this->datasourceService->getDataSourceInstanceByKey($key);
 
@@ -106,6 +107,49 @@ class DatasourceImportExporter extends ImportExporter {
             }
         }
 
+        // Now grab all processor based data sources
+        $processorBasedDataSources = $this->datasourceService->filterDatasourceInstances("", PHP_INT_MAX, 0, ["snapshot", "querycache", "caching"], $projectKey, $accountId) ?? [];
+
+        // Loop through processor based data sources and merge these into exported objects
+        foreach ($processorBasedDataSources as $dataSource) {
+
+            // Strip processor key and suffix
+            preg_match("/(.*?)(_.*[0-9]+)(.*)$/", $dataSource->getKey(), $matches);
+            if (sizeof($matches) == 4) {
+
+                $processorKey = $matches[1] . $matches[2];
+                $processorConfig = $allProjectExportConfig["dataProcessors"][$processorKey] ?? null;
+                if ($processorConfig?->isIncluded()) {
+
+                    $newProcessorKey = self::getNewExportPK("dataProcessors", $processorKey);
+
+                    $processorPrefix = $matches[1];
+                    $processerSuffix = $matches[3];
+
+                    // Grab the processor
+                    $processorTitle = $this->dataProcessorService->getDataProcessorInstance($processorKey)?->getTitle();
+
+                    // Grab the datasource
+                    $datasource = $this->datasourceService->getDataSourceInstanceByKey($dataSource->getKey());
+
+                    // Nullify table names in config
+                    $datasourceConfig = $datasource->getConfig();
+                    if ($datasourceConfig["tableName"] ?? null) $datasourceConfig["tableName"] = null;
+                    if ($datasourceConfig["cacheDatasourceKey"] ?? null)
+                        $datasourceConfig["cacheDatasourceKey"] = self::remapExportObjectPK("datasources", $datasourceConfig["cacheDatasourceKey"] ?? null);
+
+                    $exportObjects[] = new ExportedDatasource(self::getNewExportPK("datasources", $dataSource->getKey()),
+                        $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(),
+                        $datasourceConfig, [], $newProcessorKey, $processorTitle, $processorPrefix, $processerSuffix);
+
+                }
+
+            }
+
+
+        }
+
+
         return $exportObjects;
 
     }
@@ -117,11 +161,12 @@ class DatasourceImportExporter extends ImportExporter {
      * @param int $accountId
      * @param string $projectKey
      * @param array $exportObjects
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
+     * @param mixed $allProjectExportConfig
      *
      * @return ProjectImportResource[]
      */
-    public function analyseImportObjects(int $accountId, string $projectKey, array $exportObjects, mixed $exportProjectConfig) {
+    public function analyseImportObjects(int $accountId, string $projectKey, array $exportObjects, mixed $objectExportConfig) {
 
         $importObjects = [];
 
@@ -130,7 +175,9 @@ class DatasourceImportExporter extends ImportExporter {
          */
         foreach ($exportObjects as $exportObject) {
 
-            if ($exportProjectConfig[$exportObject->getKey()]->isIncluded()) {
+            $configObject = $objectExportConfig[$exportObject->getKey()] ?? null;
+
+            if ($configObject?->isIncluded()) {
 
                 $mode = ProjectImportResourceStatus::Create;
                 $existingItemIdentifier = null;
@@ -156,50 +203,96 @@ class DatasourceImportExporter extends ImportExporter {
      * @param int $accountId
      * @param string $projectKey
      * @param array $exportObjects
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
      * @return void
      */
-    public function importObjects(int $accountId, string $projectKey, array $exportObjects, mixed $exportProjectConfig) {
+    public function importObjects(int $accountId, string $projectKey, array $exportObjects, mixed $objectExportConfig) {
 
         // Get the analysis for the import objects
-        $analysis = ObjectArrayUtils::indexArrayOfObjectsByMember("identifier", $this->analyseImportObjects($accountId, $projectKey, $exportObjects, $exportProjectConfig));
+        $analysis = ObjectArrayUtils::indexArrayOfObjectsByMember("identifier", $this->analyseImportObjects($accountId, $projectKey, $exportObjects, $objectExportConfig, null));
+
+        // Get all data processors by title
+        $dataProcessorsByTitle = ObjectArrayUtils::indexArrayOfObjectsByMember("title", $this->dataProcessorService->filterDataProcessorInstances([], $projectKey, 0, PHP_INT_MAX, $accountId) ?? []);
 
         /**
          * @var ExportedDatasource $exportObject
          */
         foreach ($exportObjects as $exportObject) {
 
-            $analysisObject = $analysis[$exportObject->getKey()];
-            $exportConfig = $exportProjectConfig[$exportObject->getKey()];
+            $analysisObject = $analysis[$exportObject->getKey()] ?? null;
+            $exportConfig = $objectExportConfig[$exportObject->getKey()] ?? null;
 
-            $keyPrefix = null;
-            $tablePrefix = null;
-            $credentialsKey = null;
-            $datasourceConfig = $exportObject->getConfig() ?? [];
-            switch ($exportObject->getType()) {
-                case "custom":
-                    $keyPrefix = "custom_data_set_$accountId" . "_";
-                    $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
-                    $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
-                    break;
-                case "document":
-                    $keyPrefix = "document_data_set_$accountId" . "_";
-                    $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
-                    $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
-                    break;
+            if ($analysisObject) {
+
+                $keyPrefix = null;
+                $tablePrefix = null;
+                $credentialsKey = null;
+                $datasourceConfig = $exportObject->getConfig() ?? [];
+                switch ($exportObject->getType()) {
+                    case "custom":
+                        $keyPrefix = "custom_data_set_$accountId" . "_";
+                        $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
+                        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+                        break;
+                    case "document":
+                        $keyPrefix = "document_data_set_$accountId" . "_";
+                        $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
+                        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+                        break;
+                }
+
+                $datasourceKey = null;
+                switch ($analysisObject->getImportStatus()) {
+                    case ProjectImportResourceStatus::Create:
+                        $datasourceKey = $keyPrefix . date("U");
+                        break;
+                    case ProjectImportResourceStatus::Update:
+                        $datasourceKey = $analysisObject->getExistingProjectIdentifier();
+                        break;
+                }
+
+                $datasourceConfig["tableName"] = $tablePrefix . $datasourceKey;
+
+
+            } else if ($exportObject->getAssociatedDataProcessorKey()) {
+
+
+                // If data processor already exists in this project with the supplied title, use the
+                // key to create the key
+                if (isset($dataProcessorsByTitle[$exportObject->getDataProcessorTitle()])) {
+                    $datasourceKey = $dataProcessorsByTitle[$exportObject->getDataProcessorTitle()]->getKey() . $exportObject->getDataProcessorKeySuffix();
+                } else {
+                    $dataProcessorKey = self::remapImportedItemId("dataProcessors", $exportObject->getAssociatedDataProcessorKey());
+                    if ($dataProcessorKey == $exportObject->getAssociatedDataProcessorKey()) {
+                        $dataProcessorKey = $exportObject->getDataProcessorKeyPrefix() . "_" . $accountId . "_" . date("U");
+                        self::setImportItemIdMapping("dataProcessors", $exportObject->getAssociatedDataProcessorKey(), $dataProcessorKey);
+                    }
+                    $datasourceKey = $dataProcessorKey . $exportObject->getDataProcessorKeySuffix();
+                }
+
+
+                $tablePrefix = null;
+                $credentialsKey = null;
+                $datasourceConfig = $exportObject->getConfig() ?? [];
+                switch ($exportObject->getType()) {
+                    case "snapshot":
+                        $tablePrefix = Configuration::readParameter("snapshot.datasource.table.prefix");
+                        $credentialsKey = Configuration::readParameter("snapshot.datasource.credentials.key");
+                        $datasourceConfig["tableName"] = $tablePrefix . $datasourceKey;
+                        break;
+                    case "querycache":
+                        $tablePrefix = Configuration::readParameter("querycache.datasource.table.prefix");
+                        $credentialsKey = Configuration::readParameter("querycache.datasource.credentials.key");
+                        $datasourceConfig["tableName"] = $tablePrefix . $datasourceKey;
+                        break;
+                    case "caching":
+                        $datasourceConfig["cacheDatasourceKey"] = self::remapImportedItemId("datasources", $datasourceConfig["cacheDatasourceKey"] ?? null);
+                        break;
+                }
+
+            } else {
+                continue;
             }
-
-            $datasourceKey = null;
-            switch ($analysisObject->getImportStatus()) {
-                case ProjectImportResourceStatus::Create:
-                    $datasourceKey = $keyPrefix . date("U");
-                    break;
-                case ProjectImportResourceStatus::Update:
-                    $datasourceKey = $analysisObject->getExistingProjectIdentifier();
-                    break;
-            }
-
-            $datasourceConfig["tableName"] = $tablePrefix . $datasourceKey;
 
             // Create and save the ds instance
             $newDatasource = new DatasourceInstance($datasourceKey, $exportObject->getTitle(), $exportObject->getType(), $datasourceConfig, $credentialsKey, projectKey: $projectKey, accountId: $accountId);
@@ -209,7 +302,7 @@ class DatasourceImportExporter extends ImportExporter {
             self::setImportItemIdMapping("datasources", $exportObject->getKey(), $datasourceKey);
 
             // If updating data, do this now.
-            if ($exportConfig->isIncludeData()) {
+            if ($exportConfig && $exportConfig->isIncludeData()) {
                 $this->datasourceService->updateDatasourceInstanceByKey($datasourceKey,
                     new DatasourceUpdate($exportObject->getData()));
             }

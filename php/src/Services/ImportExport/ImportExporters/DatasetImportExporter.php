@@ -10,6 +10,7 @@ use Kiniauth\ValueObjects\ImportExport\ProjectImportResourceStatus;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Objects\Dataset\DatasetInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
+use Monolog\Logger;
 
 class DatasetImportExporter extends ImportExporter {
 
@@ -56,15 +57,15 @@ class DatasetImportExporter extends ImportExporter {
      *
      * @param int $accountId
      * @param string $projectKey
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
      *
      * @return DatasetInstanceSummary[]
      */
-    public function createExportObjects(int $accountId, string $projectKey, mixed $exportProjectConfig) {
+    public function createExportObjects(int $accountId, string $projectKey, mixed $objectExportConfig, mixed $allProjectExportConfig) {
 
         // Loop through objects
         $exportObjects = [];
-        foreach ($exportProjectConfig as $key => $config) {
+        foreach ($objectExportConfig as $key => $config) {
             if ($config->isIncluded()) {
                 $dataset = $this->datasetService->getDataSetInstance($key);
                 $dataset->setId(self::getNewExportPK("datasets", $dataset->getId()));
@@ -89,9 +90,11 @@ class DatasetImportExporter extends ImportExporter {
                         $config->setCombinedDataSetInstanceId(self::remapExportObjectPK("datasets", $config->getCombinedDataSetInstanceId()));
                         break;
                 }
+                $transformationInstance->setConfig($config);
             }
 
         }
+
 
         return $exportObjects;
     }
@@ -102,17 +105,18 @@ class DatasetImportExporter extends ImportExporter {
      * @param int $accountId
      * @param string $projectKey
      * @param array $exportObjects
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
+     * @param mixed $allProjectExportConfig
      *
      * @return ProjectImportResource
      */
-    public function analyseImportObjects(int $accountId, string $projectKey, array $exportObjects, mixed $exportProjectConfig) {
+    public function analyseImportObjects(int $accountId, string $projectKey, array $exportObjects, mixed $objectExportConfig) {
 
         $accountQueriesByTitle = ObjectArrayUtils::indexArrayOfObjectsByMember("title", $this->datasetService->filterDataSetInstances("", [], [], $projectKey, 0, PHP_INT_MAX, $accountId));
 
         $importObjects = [];
         foreach ($exportObjects as $exportObject) {
-            if ($exportProjectConfig[$exportObject->getId()]?->isIncluded()) {
+            if ($objectExportConfig[$exportObject->getId()]?->isIncluded()) {
                 $existingAccountObject = $accountQueriesByTitle[$exportObject->getTitle()] ?? null;
                 $importObjects[] = new ProjectImportResource($exportObject->getId(), $exportObject->getTitle(),
                     $existingAccountObject ? ProjectImportResourceStatus::Update : ProjectImportResourceStatus::Create,
@@ -130,17 +134,17 @@ class DatasetImportExporter extends ImportExporter {
      * @param int $accountId
      * @param string $projectKey
      * @param DatasetInstanceSummary[] $exportObjects
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
      *
      * @return void
      */
-    public function importObjects(int $accountId, string $projectKey, array $exportObjects, mixed $exportProjectConfig) {
+    public function importObjects(int $accountId, string $projectKey, array $exportObjects, mixed $objectExportConfig) {
 
         $accountQueriesByTitle = ObjectArrayUtils::indexArrayOfObjectsByMember("title", $this->datasetService->filterDataSetInstances("", [], [], $projectKey, 0, PHP_INT_MAX, $accountId));
 
         // Loop through export objects
         foreach ($exportObjects as $exportObject) {
-            if ($exportProjectConfig[$exportObject->getId()]?->isIncluded()) {
+            if ($objectExportConfig[$exportObject->getId()]?->isIncluded()) {
                 $existingAccountObject = $accountQueriesByTitle[$exportObject->getTitle()] ?? null;
 
                 // Sort out import item id mappings

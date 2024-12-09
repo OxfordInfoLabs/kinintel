@@ -90,7 +90,7 @@ class AlertGroupImportExportersTest extends TestBase {
 
 
         $exportObjects = $this->importExporter->createExportObjects(5, "testProject",
-            [25 => new ObjectUpdateSelectionExportConfig(true, true)]);
+            [25 => new ObjectUpdateSelectionExportConfig(true, true)], []);
 
 
         $this->assertEquals([
@@ -127,7 +127,7 @@ class AlertGroupImportExportersTest extends TestBase {
                 new ProjectImportResource(-3, "Example Alert 3", ProjectImportResourceStatus::Update, 3)
             ]
             , $this->importExporter->analyseImportObjects(5, "testProject", $exportResources,
-                [-1 => new ObjectUpdateSelectionExportConfig(true, false), -2 => new ObjectUpdateSelectionExportConfig(true, false), -3 => new ObjectUpdateSelectionExportConfig(true, true)]));
+                [-1 => new ObjectUpdateSelectionExportConfig(true, false), -2 => new ObjectUpdateSelectionExportConfig(true, false), -3 => new ObjectUpdateSelectionExportConfig(true, true)], null));
 
 
     }

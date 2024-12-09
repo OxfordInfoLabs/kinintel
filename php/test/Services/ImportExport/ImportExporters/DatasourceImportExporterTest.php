@@ -2,17 +2,20 @@
 
 namespace Kinintel\Test\Services\ImportExport\ImportExporters;
 
-use Kiniauth\Objects\Account\Account;
+
 use Kiniauth\Services\ImportExport\ImportExporter;
+use Kiniauth\ValueObjects\ImportExport\ExportConfig\ObjectInclusionExportConfig;
 use Kiniauth\ValueObjects\ImportExport\ProjectExportResource;
 use Kiniauth\ValueObjects\ImportExport\ProjectImportResource;
 use Kiniauth\ValueObjects\ImportExport\ProjectImportResourceStatus;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
+use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
+use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\ImportExport\ImportExporters\DatasourceImportExporter;
 use Kinintel\TestBase;
@@ -37,10 +40,17 @@ class DatasourceImportExporterTest extends TestBase {
      */
     private $datasourceService;
 
+    /**
+     * @var DataProcessorService
+     */
+    private $dataProcessorService;
+
 
     public function setUp(): void {
         $this->datasourceService = MockObjectProvider::mock(DatasourceService::class);
-        $this->importExporter = new DatasourceImportExporter($this->datasourceService);
+        $this->dataProcessorService = MockObjectProvider::mock(DataProcessorService::class);
+        $this->importExporter = new DatasourceImportExporter($this->datasourceService, $this->dataProcessorService);
+
         ImportExporter::resetData();
     }
 
@@ -81,7 +91,7 @@ class DatasourceImportExporterTest extends TestBase {
             "test1" => new DatasourceExportConfig(true, false),
             "test2" => new DatasourceExportConfig(true, false),
             "test3" => new DatasourceExportConfig(false, false),
-        ]);
+        ], []);
 
         $this->assertEquals([
             new ExportedDatasource(-1, "Test DS 1", "custom", '', ["tableName" => null]),
@@ -114,7 +124,7 @@ class DatasourceImportExporterTest extends TestBase {
             "test3" => new DatasourceExportConfig(true, true),
             "test4" => new DatasourceExportConfig(true, true),
             "test5" => new DatasourceExportConfig(false, false),
-        ]);
+        ], []);
 
         $this->assertEquals([
             new ExportedDatasource(-1, "Test DS 3", "custom", '', ["tableName" => null], [
@@ -125,6 +135,55 @@ class DatasourceImportExporterTest extends TestBase {
                 ["column1" => "Value 1", "column2" => "Update 1"],
                 ["column1" => "value 2", "column2" => "Update 2"]
             ]),
+        ], $exportObjects);
+
+
+    }
+
+
+    public function testDataSourcesAreExportedForDataProcessorsWhichAreIncluded() {
+
+        $fullExport = [
+            "dataProcessors" => [
+                "tabularsnapshot_5_12345" => new ObjectInclusionExportConfig(true),
+                "querycaching_5_12345" => new ObjectInclusionExportConfig(true)
+            ]
+        ];
+
+        $this->datasourceService->returnValue("filterDatasourceInstances", [
+            new DatasourceInstanceSearchResult("tabularsnapshot_5_12345", "Historical Snapshot", "snapshot", "Historical Snap"),
+            new DatasourceInstanceSearchResult("tabularsnapshot_5_12345_latest", "Latest Snapshot", "snapshot", "Latest Snap"),
+            new DatasourceInstanceSearchResult("querycaching_5_12345_cache", "Query Cache", "querycache", "Query Cache"),
+            new DatasourceInstanceSearchResult("querycaching_5_12345_caching", "Query Caching", "caching", "Caching Data Source")
+        ], ["", PHP_INT_MAX, 0, ["snapshot", "querycache", "caching"], "testProject", 5]);
+
+        $this->dataProcessorService->returnValue("getDataProcessorInstance", new DataProcessorInstance("tabularsnapshot_5_12345", "Snapshot", "snapshot"), [
+            "tabularsnapshot_5_12345"
+        ]);
+        $this->dataProcessorService->returnValue("getDataProcessorInstance", new DataProcessorInstance("querycaching_5_12345", "Query Cache", "querycaching"), [
+            "querycaching_5_12345"
+        ]);
+
+        $datasource1 = new DatasourceInstance("tabularsnapshot_5_12345", "Historical Snapshot", "snapshot", ["tableName" => "tabularsnapshot_5_12345"], "dap_data", "usernamepassword");
+        $datasource2 = new DatasourceInstance("tabularsnapshot_5_12345_latest", "Latest Snapshot", "snapshot", ["tableName" => "tabularsnapshot_5_12345_latest"], "dap_data", "usernamepassword");
+        $datasource3 = new DatasourceInstance("querycaching_5_12345_cache", "Query Cache", "querycache", ["tableName" => "querycaching_5_12345_cache"], "dap_data", "usernamepassword");
+        $datasource4 = new DatasourceInstance("querycaching_5_12345_caching", "Query Caching", "caching", ["cacheDatasourceKey" => "querycaching_5_12345_cache", "sourceDatasetId" => 4], "dap_data", "usernamepassword");
+
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasource1, ["tabularsnapshot_5_12345"]);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasource2, ["tabularsnapshot_5_12345_latest"]);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasource3, ["querycaching_5_12345_cache"]);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasource4, ["querycaching_5_12345_caching"]);
+
+
+        $exportObjects = $this->importExporter->createExportObjects(5, "testProject", [
+        ], $fullExport);
+
+
+        $this->assertEquals([
+            new ExportedDatasource(-1, "Historical Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", ""),
+            new ExportedDatasource(-2, "Latest Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", "_latest"),
+            new ExportedDatasource(-3, "Query Cache", "querycache", '', ["tableName" => null], [], -2, "Query Cache", "querycaching", "_cache"),
+            new ExportedDatasource(-4, "Query Caching", "caching", '', ["cacheDatasourceKey" => -3, "sourceDatasetId" => 4], [], -2, "Query Cache", "querycaching", "_caching")
         ], $exportObjects);
 
 
@@ -149,7 +208,7 @@ class DatasourceImportExporterTest extends TestBase {
         ], [
             -1 => new DatasourceExportConfig(true, false),
             -2 => new DatasourceExportConfig(true, false)
-        ]);
+        ], null);
 
         $this->assertEquals([
             new ProjectImportResource(-1, "Test DS 1", ProjectImportResourceStatus::Update, "test1"),
@@ -214,8 +273,6 @@ class DatasourceImportExporterTest extends TestBase {
     }
 
 
-
-
     public function testDocumentDatasourcesCreatedCorrectlyFromExport() {
 
         $datasource1 = new DatasourceInstance("test1", "Test DS 1", "document", ["tableName" => "custom.test1"], "dap_data", "usernamepassword");
@@ -270,6 +327,48 @@ class DatasourceImportExporterTest extends TestBase {
 
     }
 
+    public function testProcessorBasedDatasourcesImportedCorrectlyFromExport() {
+
+        $this->dataProcessorService->returnValue("filterDataProcessorInstances", [
+            new DataProcessorInstance("snapshot_5_12345", "Snapshot", "snapshot")
+        ],
+            [[], "testProject", 0, PHP_INT_MAX, 5]);
+
+
+        $exportedObjects = [
+            new ExportedDatasource(-1, "Historical Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", ""),
+            new ExportedDatasource(-2, "Latest Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", "_latest"),
+            new ExportedDatasource(-3, "Query Cache", "querycache", '', ["tableName" => "query_cache_3_cache"], [], -2, "Query Cache", "querycaching", "_cache"),
+            new ExportedDatasource(-4, "Query Caching", "caching", '', ["cacheDatasourceKey" => -3, "sourceDatasetId" => -5], [], -2, "Query Cache", "querycaching", "_caching")
+        ];
+
+
+        // Import data processor related items
+        $this->importExporter->importObjects(5, "testProject", $exportedObjects, []);
+
+
+        // Check our updated data source one was left intact.
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance("snapshot_5_12345", "Historical Snapshot", "snapshot", ["tableName" => "snapshot.snapshot_5_12345"], "test", projectKey: "testProject", accountId: 5)
+        ]));
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance("snapshot_5_12345_latest", "Latest Snapshot", "snapshot", ["tableName" => "snapshot.snapshot_5_12345_latest"], "test", projectKey: "testProject", accountId: 5)
+        ]));
+
+        $queryCacheKey = "querycaching_5_" . date("U") . "_cache";
+        $queryCachingKey = "querycaching_5_" . date("U") . "_caching";
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance($queryCacheKey, "Query Cache", "querycache", ["tableName" => "query_cache." . $queryCacheKey], "test", projectKey: "testProject", accountId: 5)
+        ]));
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance($queryCachingKey, "Query Caching", "caching", ["cacheDatasourceKey" => $queryCacheKey, "sourceDatasetId" => -5], null, projectKey: "testProject", accountId: 5)
+        ]));
+
+    }
 
 
 }

@@ -65,7 +65,7 @@ class DatasetImportExporterTest extends TestBase {
         $exportObjects = $this->importExporter->createExportObjects(5, "testProject", [
             33 => new ObjectInclusionExportConfig(true),
             44 => new ObjectInclusionExportConfig(true)
-        ]);
+        ], []);
 
 
         $this->assertEquals([
@@ -89,7 +89,7 @@ class DatasetImportExporterTest extends TestBase {
             22 => new ObjectInclusionExportConfig(true),
             44 => new ObjectInclusionExportConfig(true),
             33 => new ObjectInclusionExportConfig(true)
-        ]);
+        ], []);
 
 
         $this->assertEquals([
@@ -113,7 +113,7 @@ class DatasetImportExporterTest extends TestBase {
             22 => new ObjectInclusionExportConfig(true),
             44 => new ObjectInclusionExportConfig(true),
             33 => new ObjectInclusionExportConfig(true)
-        ]);
+        ], []);
 
 
         $this->assertEquals([
@@ -147,7 +147,7 @@ class DatasetImportExporterTest extends TestBase {
         ]);
 
 
-        $analysis = $this->importExporter->analyseImportObjects(5, "testProject", $exportObjects, $exportConfig);
+        $analysis = $this->importExporter->analyseImportObjects(5, "testProject", $exportObjects, $exportConfig, null);
         $this->assertEquals([
             new ProjectImportResource(-1, "DS 2", ProjectImportResourceStatus::Update, 22),
             new ProjectImportResource(-2, "DS 3", ProjectImportResourceStatus::Update, 33),

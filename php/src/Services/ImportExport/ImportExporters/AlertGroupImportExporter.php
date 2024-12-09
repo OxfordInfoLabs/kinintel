@@ -55,16 +55,16 @@ class AlertGroupImportExporter extends ImportExporter {
     /**
      * @param int $accountId
      * @param string $projectKey
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
      *
      * @return mixed[]
      */
-    public function createExportObjects(int $accountId, string $projectKey, mixed $exportProjectConfig) {
+    public function createExportObjects(int $accountId, string $projectKey, mixed $objectExportConfig, mixed $allProjectExportConfig) {
 
         // Grab all notification groups
         return array_filter($this->alertService->listAlertGroups("", PHP_INT_MAX, 0, $projectKey, $accountId),
-            function ($item) use ($exportProjectConfig) {
-                if ((($exportProjectConfig[$item->getId()] ?? null)?->isIncluded())) {
+            function ($item) use ($objectExportConfig) {
+                if ((($objectExportConfig[$item->getId()] ?? null)?->isIncluded())) {
                     $newAlertGroupId = self::getNewExportPK("alertGroups", $item->getId());
                     $item->setId($newAlertGroupId);
                     foreach ($item->getNotificationGroups() as $notificationGroup) {
@@ -81,18 +81,19 @@ class AlertGroupImportExporter extends ImportExporter {
      * @param int $accountId
      * @param string $projectKey
      * @param array $exportObjects
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
+     * @param mixed $allProjectExportConfig
      *
      * @return void
      */
-    public function analyseImportObjects(int $accountId, string $projectKey, array $exportObjects, mixed $exportProjectConfig) {
+    public function analyseImportObjects(int $accountId, string $projectKey, array $exportObjects, mixed $objectExportConfig) {
 
         // Handle alert groups.
         $alertGroups = ObjectArrayUtils::indexArrayOfObjectsByMember("title", $this->alertService->listAlertGroups("", PHP_INT_MAX, 0, $projectKey, $accountId));
         $alertGroupResources = [];
         foreach ($exportObjects ?? [] as $alertGroup) {
             if ($alertGroups[$alertGroup->getTitle()] ?? null) {
-                $importStatus = (($exportProjectConfig[$alertGroup->getId()] ?? null)?->isUpdate()) ? ProjectImportResourceStatus::Update : ProjectImportResourceStatus::Ignore;
+                $importStatus = (($objectExportConfig[$alertGroup->getId()] ?? null)?->isUpdate()) ? ProjectImportResourceStatus::Update : ProjectImportResourceStatus::Ignore;
             } else {
                 $importStatus = ProjectImportResourceStatus::Create;
             }
@@ -111,13 +112,13 @@ class AlertGroupImportExporter extends ImportExporter {
      * @param int $accountId
      * @param string $projectKey
      * @param array $exportObjects
-     * @param mixed $exportProjectConfig
+     * @param mixed $objectExportConfig
      * @return void
      */
-    public function importObjects(int $accountId, string $projectKey, array $exportObjects, mixed $exportProjectConfig) {
+    public function importObjects(int $accountId, string $projectKey, array $exportObjects, mixed $objectExportConfig) {
 
         // Analyse the import to determine rules
-        $importAnalysis = $this->analyseImportObjects($accountId, $projectKey, $exportObjects, $exportProjectConfig);
+        $importAnalysis = $this->analyseImportObjects($accountId, $projectKey, $exportObjects, $objectExportConfig, null);
 
         // Handle alert groups
         $importItems = ObjectArrayUtils::indexArrayOfObjectsByMember("id", $exportObjects);
