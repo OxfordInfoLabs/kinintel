@@ -1,0 +1,222 @@
+<div class="p-6 bg-white border-b border-gray-200">
+    <div class="md:flex md:items-center md:justify-between md:space-x-5">
+        <div class="flex items-start flex-1">
+            <div class="pt-1.5">
+                <h1 class="text-2xl font-bold text-gray-900">Export Project</h1>
+                <p class="text-sm font-medium text-gray-500">
+                    Export the current project as a downloadable file for import into other projects
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="mt-6" *ngIf="exportableResources.datasources">
+        <h3>My Data</h3>
+
+        <div class="flex items-start"  *ngFor="let datasource of exportableResources.datasources">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'datasource-' + datasource.identifier"
+                       [(ngModel)]="exportConfig.datasources[datasource.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{datasource.title}}</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.datasources[datasource.identifier].included">
+                <input type="checkbox"
+                       [name]="'datasource-update-' + datasource.identifier"
+                       [(ngModel)]="exportConfig.datasources[datasource.identifier].includeData"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36" *ngIf="exportConfig.datasources[datasource.identifier].included">
+                <label class="font-medium text-gray-500">Include data in export</label>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="mt-6" *ngIf="exportableResources.datasets">
+        <h3>Stored Queries</h3>
+
+        <div class="flex items-start"  *ngFor="let dataset of exportableResources.datasets">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'dataset-' + dataset.identifier"
+                       [(ngModel)]="exportConfig.datasets[dataset.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{dataset.title}}</label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-6" *ngIf="exportableResources.dashboards">
+        <h3>Dashboards</h3>
+
+        <div class="flex items-start"  *ngFor="let dashboard of exportableResources.dashboards">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'dashboard-' + dashboard.identifier"
+                       [(ngModel)]="exportConfig.dashboards[dashboard.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{dashboard.title}}</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.dashboards[dashboard.identifier].included">
+                <input type="checkbox"
+                       [name]="'dashboard-include-alerts-' + dashboard.identifier"
+                       [(ngModel)]="exportConfig.dashboards[dashboard.identifier].includeAlerts"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36" *ngIf="exportConfig.dashboards[dashboard.identifier].included">
+                <label class="font-medium text-gray-500">Include Alerts</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.dashboards[dashboard.identifier].included && exportConfig.dashboards[dashboard.identifier].includeAlerts">
+                <input type="checkbox"
+                       [name]="'dashboard-include-alerts-' + dashboard.identifier"
+                       [(ngModel)]="exportConfig.dashboards[dashboard.identifier].updateAlertTemplates"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-48" *ngIf="exportConfig.dashboards[dashboard.identifier].included && exportConfig.dashboards[dashboard.identifier].includeAlerts">
+                <label class="font-medium text-gray-500">Update Alert Templates</label>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.feeds">
+        <h3>Feeds</h3>
+        <div class="flex items-start"  *ngFor="let feed of exportableResources.feeds">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'feed-' + feed.identifier"
+                       [(ngModel)]="exportConfig.feeds[feed.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">/{{feed.title}}</label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.dataProcessors && _.filter(exportableResources.dataProcessors, {'category': 'snapshot'}).length > 0">
+        <h3>Snapshots</h3>
+        <div class="flex items-start"  *ngFor="let dataProcessor of _.filter(exportableResources.dataProcessors, {'category': 'snapshot'})">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'dataProcessor-' + dataProcessor.identifier"
+                       [(ngModel)]="exportConfig.dataProcessors[dataProcessor.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{dataProcessor.title}}</label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.dataProcessors && _.filter(exportableResources.dataProcessors, {'category': 'querycaching'}).length > 0">
+        <h3>Query Caches</h3>
+        <div class="flex items-start"  *ngFor="let dataProcessor of _.filter(exportableResources.dataProcessors, {'category': 'querycaching'})">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'dataProcessor-' + dataProcessor.identifier"
+                       [(ngModel)]="exportConfig.dataProcessors[dataProcessor.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{dataProcessor.title}}</label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.apiKeys">
+        <h3>API Keys</h3>
+
+        <div class="flex items-start"  *ngFor="let apiKey of exportableResources.apiKeys">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'apikey-' + apiKey.identifier"
+                       [(ngModel)]="exportConfig.apiKeys[apiKey.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{apiKey.title}}</label>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.alertGroups">
+        <h3>Alert Groups</h3>
+
+        <div class="flex items-start"  *ngFor="let alertGroup of exportableResources.alertGroups">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'alert-' + alertGroup.identifier"
+                       [(ngModel)]="exportConfig.alertGroups[alertGroup.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{alertGroup.title}}</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.alertGroups[alertGroup.identifier].included">
+                <input type="checkbox"
+                       [name]="'alert-update-' + alertGroup.identifier"
+                       [(ngModel)]="exportConfig.alertGroups[alertGroup.identifier].update"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-48" *ngIf="exportConfig.alertGroups[alertGroup.identifier].included">
+                <label class="font-medium text-gray-500">Update content on import</label>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.notificationGroups">
+        <h3>Notification Groups</h3>
+
+        <div class="flex items-start"  *ngFor="let notificationGroup of exportableResources.notificationGroups">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'notification-' + notificationGroup.identifier"
+                       [(ngModel)]="exportConfig.notificationGroups[notificationGroup.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{notificationGroup.title}}</label>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="mt-8">
+
+    <div class="pt-5">
+        <div class="flex justify-end">
+            <button type="button" (click)="export()"
+                    class="disabled:opacity-50 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary focus:outline-none">
+                Export</button>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
