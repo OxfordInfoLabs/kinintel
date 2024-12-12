@@ -10,7 +10,6 @@ class ZipCompressorConfiguration implements CompressorConfiguration {
      * The target filename of the entry inside to stream once expanded.
      *
      * @var string
-     * @requiredEither entryFilenames
      */
     private $entryFilename;
 

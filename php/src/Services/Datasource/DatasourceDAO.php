@@ -4,7 +4,10 @@
 namespace Kinintel\Services\Datasource;
 
 
+use Kinikit\Core\Binding\ObjectBindingException;
 use Kinikit\Core\Configuration\FileResolver;
+use Kinikit\Core\Exception\DebugException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Serialisation\JSON\JSONToObjectConverter;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Datasource\DatasourceInstance;
@@ -268,7 +271,17 @@ class DatasourceDAO {
         foreach ($dataSources as $dataSource) {
             //todo Only import files that *end* with .json?
             if (strpos($dataSource, ".json")) {
-                $instance = $this->jsonToObjectConverter->convert(file_get_contents($directory . "/" . $dataSource), DataSourceInstance::class);
+                $jsonString = file_get_contents($directory . "/" . $dataSource);
+                try {
+                    $instance = $this->jsonToObjectConverter->convert($jsonString, DataSourceInstance::class, throwOnExtraFields: true);
+                    if ($instance === null) {
+                        throw new \Exception();
+                    }
+                } catch (\Exception $e) {
+                    $message = "Failed to parse json of hardcoded datasource. See logs.\n".$e->getMessage();
+                    Logger::log("Failed to parse $dataSource | Error message: ".$message);
+                    throw new \Exception($message);
+                }
                 $instance->setKey($instance->getKey());
                 $this->fileSystemDataSources[$instance->getKey()] = $instance;
             } else if (!str_starts_with($dataSource, ".") && is_dir($directory . "/" . $dataSource)) {

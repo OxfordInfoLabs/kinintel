@@ -34,7 +34,7 @@ class UpdatableMappedField {
      * @var array<string, string>
      */
     private $parentFilters;
-    
+
 
     /**
      * An array of mapped fields to synchronise from the parent dataset to the child datasource.
@@ -79,6 +79,9 @@ class UpdatableMappedField {
      */
     private $updateMode;
 
+    /** @var array<string,string> $flattenFieldMappings */
+    private $flattenFieldMappings;
+
     /**
      * UpdatableMappedField constructor.
      *
@@ -99,7 +102,17 @@ class UpdatableMappedField {
      *  rather than objects so we need to create a wrapper object with a single property
      *  named using the target field name.
      */
-    public function __construct($fieldName, $datasourceInstanceKey, $parentFilters = [], $parentFieldMappings = [], $constantFieldValues = [], $updateMode = null, $targetFieldName = null, $retainTargetFieldInParent = false) {
+    public function __construct(
+        $fieldName,
+        $datasourceInstanceKey,
+        $parentFilters = [],
+        $parentFieldMappings = [],
+        $constantFieldValues = [],
+        $updateMode = null,
+        $targetFieldName = null,
+        $retainTargetFieldInParent = false,
+        $flattenFieldMappings = [],
+    ) {
         $this->fieldName = $fieldName;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->parentFieldMappings = $parentFieldMappings;
@@ -108,6 +121,7 @@ class UpdatableMappedField {
         $this->retainTargetFieldInParent = $retainTargetFieldInParent;
         $this->constantFieldValues = $constantFieldValues;
         $this->parentFilters = $parentFilters;
+        $this->flattenFieldMappings = $flattenFieldMappings;
     }
 
 
@@ -224,5 +238,8 @@ class UpdatableMappedField {
         $this->updateMode = $updateMode;
     }
 
+    public function getFlattenFieldMappings(): array {
+        return $this->flattenFieldMappings;
+    }
 
 }

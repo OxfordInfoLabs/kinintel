@@ -60,10 +60,17 @@ class ZipCompressor implements Compressor {
         mkdir($zipFile . "-extracted", 0777, true);
 
         $rawEntryFilenames = $config->getEntryFilenames() ?? [$config->getEntryFilename()];
+        if ($config->getEntryFilenames() !== null){
+            $rawEntryFilenames = $config->getEntryFilenames();
+        } else if ($config->getEntryFilename() !== null){
+            $rawEntryFilenames = [$config->getEntryFilename()];
+        } else {
+            $rawEntryFilenames = [];
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $rawEntryFilenames[] = $zip->getNameIndex($i);
+            }
+        }
 
-        /**
-         * @var ParameterisedStringEvaluator $parameterisedStringEvaluator
-         */
         $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
         $entryFilenames = array_map(function ($filename) use ($parameterisedStringEvaluator, $parameterValues) {
             return $parameterisedStringEvaluator->evaluateString($filename, [], $parameterValues);
@@ -89,7 +96,7 @@ class ZipCompressor implements Compressor {
             }
             shell_exec("cat " . join(" ", $catSources) . " > $streamFilename");
         } else {
-            $streamFilename = $zipFile . "-extracted/" . $config->getEntryFilename();
+            $streamFilename = $zipFile . "-extracted/" . array_pop($entryFilenames);
         }
 
         return new ReadOnlyFileStream($streamFilename);

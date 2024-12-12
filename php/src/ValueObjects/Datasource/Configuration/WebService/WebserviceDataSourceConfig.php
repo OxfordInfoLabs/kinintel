@@ -82,7 +82,7 @@ class WebserviceDataSourceConfig extends FormattedResultDatasourceConfig {
     protected $cacheFileName = null;
 
     /**
-     * Timeout for the cached file if caching used
+     * Timeout in seconds for the cached file if caching used
      *
      * @var int
      */

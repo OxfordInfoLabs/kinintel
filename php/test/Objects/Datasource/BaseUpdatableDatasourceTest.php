@@ -3,16 +3,23 @@
 
 namespace Kinintel\ValueObjects\Datasource;
 
+use Kiniauth\Services\Security\SecurityService;
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Testing\ConcreteClassGenerator;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
+use Kinintel\Services\Authentication\AuthenticationCredentialsService;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\TestBase;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
@@ -26,7 +33,7 @@ include_once "autoloader.php";
  * Class BaseUpdatableDatasourceTest
  * @package Kinintel\ValueObjects\Datasource
  */
-class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
+class BaseUpdatableDatasourceTest extends TestBase {
 
     /**
      * @var BaseUpdatableDatasource
@@ -43,19 +50,21 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
      */
     private $notesDatasource;
 
+    private ValueFunctionEvaluator $valueFunctionEvaluator;
+
 
     public function setUp(): void {
         $this->datasource = ConcreteClassGenerator::instance()->generateInstance(BaseUpdatableDatasource::class);
 
-        $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-        $datasourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $this->datasourceService = MockObjectProvider::mock(DatasourceService::class);
+        $datasourceInstance = MockObjectProvider::mock(DatasourceInstance::class);
         $this->datasourceService->returnValue("getDataSourceInstanceByKey",
             $datasourceInstance);
-        $this->notesDatasource = MockObjectProvider::instance()->getMockInstance(BaseUpdatableDatasource::class);
+        $this->notesDatasource = MockObjectProvider::mock(BaseUpdatableDatasource::class);
         $datasourceInstance->returnValue("returnDataSource", $this->notesDatasource);
-        $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
+        $this->valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
         $this->datasource->setDatasourceService($this->datasourceService);
-        $this->datasource->setValueFunctionEvaluator($valueFunctionEvaluator);
+        $this->datasource->setValueFunctionEvaluator($this->valueFunctionEvaluator);
 
     }
 
@@ -624,6 +633,154 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
+    public function testIfConstantFieldValuesSuppliedAsPartOfConfigUsingReplaceMode() {
+
+        $authService = Container::instance()->get(AuthenticationCredentialsService::class);
+        /** @var SQLDatabaseCredentials $authCreds */
+        $authCreds = $authService->getCredentialsInstanceByKey("test")->returnCredentials();
+        Container::instance()->get(SecurityService::class)->becomeSuperUser();
+        $dbConnection = $authCreds->returnDatabaseConnection();
+        $dbConnection->executeScript(<<<SQL
+DROP TABLE IF EXISTS _test_mapped_fields_parent;
+CREATE TABLE _test_mapped_fields_parent (
+    id INT,
+    description VARCHAR(255),
+    PRIMARY KEY (id, description)
+);
+
+DROP TABLE IF EXISTS _test_mapped_fields_child;
+CREATE TABLE _test_mapped_fields_child (
+    parentId INT,
+    id INT,
+    category VARCHAR(255),
+    title VARCHAR(255),
+    PRIMARY KEY (parentId, id)
+);
+INSERT INTO _test_mapped_fields_child (id, parentId, category, title) VALUES
+(100, 55, 'STAFF', 'Old Item to delete'),
+(200, 100, 'STAFF', 'Old Item to keep'),
+(300, 55, 'STUDENTS', 'Old Item to keep');
+SQL
+        );
+
+        /** @var BaseUpdatableDatasource $datasource */
+        $datasource = ConcreteClassGenerator::instance()->generateInstance(BaseUpdatableDatasource::class);
+        $datasourceService = Container::instance()->get(DatasourceService::class);
+        $childTableDSI = new DatasourceInstance(
+            "notes",
+            "Notes",
+            "sqldatabase",
+            new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "_test_mapped_fields_child"),
+            "test",
+        );
+        $datasourceService->saveDataSourceInstance($childTableDSI);
+        $datasource->setDatasourceService($datasourceService);
+        $datasource->setValueFunctionEvaluator(Container::instance()->get(ValueFunctionEvaluator::class));
+
+        $config = new DatasourceUpdateConfig(
+            mappedFields: [
+                new UpdatableMappedField("notes", "notes",
+                    parentFieldMappings: [
+                        "id" => "parentId",
+//                        "[['STAFF']]" => "category"
+                    ],
+                    constantFieldValues: ["category" => "STAFF"],
+                    updateMode: BaseUpdatableDatasource::UPDATE_MODE_REPLACE
+                )
+            ]
+        );
+        $datasource->setUpdateConfig($config);
+
+        // Update mapped field data
+        $dataSet = $datasource->updateMappedFieldData(
+            new ArrayTabularDataset(
+                [
+                    new Field("id"),
+                    new Field("description"),
+                    new Field("notes")
+                ],
+                [
+                    [
+                        "id" => 55,
+                        "description" => "Hey Bob",
+                        "notes" => [
+                            [
+                                "id" => 1,
+                                "title" => "Item 1"
+                            ],
+                            [
+                                "id" => 2,
+                                "title" => "Item 2"
+                            ]
+                        ]
+                    ],
+                    [
+                        "id" => 77,
+                        "description" => "Hey Mary",
+                        "notes" => [
+                            [
+                                "id" => 3,
+                                "title" => "Item 3"
+                            ],
+                        ]
+                    ]
+                ]
+            ), BaseUpdatableDatasource::UPDATE_MODE_REPLACE
+        );
+
+        $parentData = $dbConnection->query(<<<SQL
+SELECT * FROM _test_mapped_fields_parent;
+SQL
+        )->fetchAll();
+
+        // Check data pruned
+        $this->assertEquals([new Field("id"), new Field("description")], $dataSet->getColumns());
+
+        // Check existing entries in the child table are replaced
+        $expectedChildData = [
+            [
+                "id" => 1,
+                "title" => "Item 1",
+                "parentId" => 55,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 2,
+                "title" => "Item 2",
+                "parentId" => 55,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 3,
+                "title" => "Item 3",
+                "parentId" => 77,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 200,
+                "title" => "Old Item to keep",
+                "parentId" => 100,
+                "category" => "STAFF",
+            ],
+            [
+                "id" => 300,
+                "title" => "Old Item to keep",
+                "parentId" => 55,
+                "category" => "STUDENTS",
+            ]
+        ];
+
+        $childData = $dbConnection->query(<<<SQL
+SELECT * FROM _test_mapped_fields_child;
+SQL
+)->fetchAll();
+
+        usort($expectedChildData, fn($x, $y) => $x["id"] <=> $y["id"]);
+        usort($childData, fn($x, $y) => $x["id"] <=> $y["id"]);
+        $this->assertEquals($expectedChildData, $childData);
+    }
+
+
     public function testIfUpdateModeSuppliedInUpdateConfigThisOverridesPassedMode() {
         $config = new DatasourceUpdateConfig([], [
             new UpdatableMappedField("notes", "notes", [], [], [], BaseUpdatableDatasource::UPDATE_MODE_ADD)
@@ -841,5 +998,164 @@ class BaseUpdatableDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testFlattenChildFields(){
+        $mappedField = new UpdatableMappedField(
+            "notes",
+            "notes",
+            parentFieldMappings:["id" => "parentId"],
+            updateMode: BaseUpdatableDatasource::UPDATE_MODE_REPLACE,
+            flattenFieldMappings: ["tags" => "tag"],
+        );
+
+        $expectedData = [
+            ["parentId" => 7, "id" => 8, "tag" => "Fruits"],
+            ["parentId" => 7, "id" => 8, "tag" => "Vegetables"],
+            ["parentId" => 7, "id" => 9, "tag" => "Fruits"],
+        ];
+
+        $inputData = [
+            [
+                "id" => 7,
+                "notes" => [
+                    [
+                        "id" => 8,
+                        "tags" => ["Fruits", "Vegetables"]
+                    ],
+                    [
+                        "id" => 9,
+                        "tags" => ["Fruits"]
+                    ]
+                ]
+            ]
+        ];
+
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+
+        $this->assertEquals($expectedData, $mappedData);
+
+        $inputData = [
+            "id" => 7,
+            "notes" => []
+        ];
+
+        $expectedData = [];
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+        $this->assertEquals($expectedData, $mappedData);
+    }
+
+    public function testFlattenFieldsWorksWithImplicitIndexArgument(){
+        $mappedField = new UpdatableMappedField(
+            "notes",
+            "notes",
+            parentFieldMappings:[
+                "id" => "parentId",
+                "_index" => "notes_idx"
+            ],
+            updateMode: BaseUpdatableDatasource::UPDATE_MODE_REPLACE,
+            flattenFieldMappings: ["tags" => "tag"],
+        );
+        $inputData = [
+            [
+                "id" => 7,
+                "notes" => []
+            ]
+        ];
+        $expectedData = [];
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+        $this->assertEquals($expectedData, $mappedData);
+
+        $inputData = [
+            [
+                "id" => 7,
+                "notes" => [
+                    [
+                        "id" => 1,
+                        "tags" => ["Fruits", "Vegetables"]
+                    ]
+                ]
+            ]
+        ];
+        $expectedData = [
+            [
+                "parentId" => 7,
+                "id" => 1,
+                "tag" => "Fruits",
+                "notes_idx" => 0
+            ],
+            [
+                "parentId" => 7,
+                "id" => 1,
+                "tag" => "Vegetables",
+                "notes_idx" => 0
+            ]
+        ];
+        $mappedData = BaseUpdatableDatasource::getMappedData($inputData, $mappedField, $this->valueFunctionEvaluator);
+        $this->assertEquals($expectedData, $mappedData);
+    }
+
+    public function testCVEExample(){
+        $data = [
+            [
+                'vendor' => 'Apple',
+                'product' => 'macOS',
+                'versions' =>
+                    [
+                        'version' => 'unspecified',
+                        'status' => 'affected',
+                        'lessThan' => '12.7',
+                        'versionType' => 'custom',
+                    ],
+                'cve_id' => 'CVE-2024-40781',
+                'provider_type' => 'cna',
+                'org_id' => '286789f9-fbc2-4510-9f9a-43facdede74c',
+            ],
+
+            [
+            "vendor" => "apple",
+            "product" => "macos",
+            "cpes" => [
+                ["cpe" => "cpe:2.3:o:apple:macos:12.0:*:*:*:*:*:*:*"],
+                ["cpe" => "cpe:2.3:o:apple:macos:13.0:*:*:*:*:*:*:*"],
+            ],
+            "defaultStatus" => "unknown",
+            "versions" => [
+                ["version" => "12.0"],
+                ["version" => "13.0"]
+            ],
+            "has_cpes" => true,
+            "cve_id" => "CVE-2024-40781",
+            "provider_type" => "adp",
+            "org_id" => "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+        ]];
+
+        $binder = Container::instance()->get(ObjectBinder::class);
+        $mappedFieldRaw = <<<JSON
+{
+    "fieldName": "cpes",
+    "datasourceInstanceKey": "cve-affected-product-cpes",
+    "parentFieldMappings": {
+      "cve_id": "cve_id",
+      "org_id": "org_id",
+      "provider_type": "provider_type",
+      "product": "product",
+      "vendor": "vendor",
+      "_index": "cpe_idx"
+    }
+}
+JSON;
+
+        $mappedField = $binder->bindFromArray(
+            json_decode($mappedFieldRaw, true), UpdatableMappedField::class
+        );
+
+        $mappedData = BaseUpdatableDatasource::getMappedData(
+            $data,
+            $mappedField,
+            Container::instance()->get(ValueFunctionEvaluator::class)
+        );
+
+        $this->assertCount(2, $mappedData);
+        $this->assertSame("cpe:2.3:o:apple:macos:12.0:*:*:*:*:*:*:*", $mappedData[0]["cpe"]);
+    }
 
 }
