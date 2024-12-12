@@ -127,12 +127,12 @@ class AlertGroupImportExporter extends ImportExporter {
         foreach ($importAnalysis as $itemAnalysis) {
 
             $importItem = $importItems[$itemAnalysis->getIdentifier()];
+            $importId = $itemAnalysis->getIdentifier();
 
             switch ($itemAnalysis->getImportStatus()) {
 
                 case ProjectImportResourceStatus::Create:
                     $targetItem = $importItem;
-                    $importId = $targetItem->getId();
                     $targetItem->setId(null);
                     break;
                 case ProjectImportResourceStatus::Update:
@@ -143,23 +143,25 @@ class AlertGroupImportExporter extends ImportExporter {
                     $targetItem->setNotificationLevel($importItem->getNotificationLevel());
                     break;
                 case ProjectImportResourceStatus::Ignore:
-                    continue 2;
+                    $alertId = $itemAnalysis->getExistingProjectIdentifier();
+                    break;
             }
 
-            // Update notification groups
-            foreach ($importItem->getNotificationGroups() as $notificationGroup) {
-                $notificationGroup->setId(self::remapImportedItemId("notificationGroups", $notificationGroup->getId()));
+
+            // If not ignoring, proceed to update and save
+            if ($itemAnalysis->getImportStatus() != ProjectImportResourceStatus::Ignore) {
+                // Update notification groups
+                foreach ($importItem->getNotificationGroups() as $notificationGroup) {
+                    $notificationGroup->setId(self::remapImportedItemId("notificationGroups", $notificationGroup->getId()));
+                }
+                $targetItem->setNotificationGroups($importItem->getNotificationGroups());
+
+                // Save the alert group
+                $alertId = $this->alertService->saveAlertGroup($targetItem, $projectKey, $accountId);
             }
-            $targetItem->setNotificationGroups($importItem->getNotificationGroups());
 
-
-
-            // Save the alert group
-            $alertId = $this->alertService->saveAlertGroup($targetItem, $projectKey, $accountId);
-
-            // If creating update the import itme map
-            if ($itemAnalysis->getImportStatus() == ProjectImportResourceStatus::Create)
-                $this->setImportItemIdMapping("alertGroups", $importId, $alertId);
+            // Update the import item map
+            $this->setImportItemIdMapping("alertGroups", $importId, $alertId);
 
         }
 

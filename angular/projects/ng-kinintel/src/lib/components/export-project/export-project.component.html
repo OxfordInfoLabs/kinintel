@@ -57,6 +57,42 @@
 
     </div>
 
+    <div class="mt-6" *ngIf="exportableResources.dashboards">
+        <h3>Dashboards</h3>
+
+        <div class="flex items-start"  *ngFor="let dashboard of exportableResources.dashboards">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'dashboard-' + dashboard.identifier"
+                       [(ngModel)]="exportConfig.dashboards[dashboard.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{dashboard.title}}</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.dashboards[dashboard.identifier].included">
+                <input type="checkbox"
+                       [name]="'dashboard-include-alerts-' + dashboard.identifier"
+                       [(ngModel)]="exportConfig.dashboards[dashboard.identifier].includeAlerts"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36" *ngIf="exportConfig.dashboards[dashboard.identifier].included">
+                <label class="font-medium text-gray-500">Include Alerts</label>
+            </div>
+            <div class="flex items-center h-5 w-12" *ngIf="exportConfig.dashboards[dashboard.identifier].included && exportConfig.dashboards[dashboard.identifier].includeAlerts">
+                <input type="checkbox"
+                       [name]="'dashboard-include-alerts-' + dashboard.identifier"
+                       [(ngModel)]="exportConfig.dashboards[dashboard.identifier].updateAlertTemplates"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-48" *ngIf="exportConfig.dashboards[dashboard.identifier].included && exportConfig.dashboards[dashboard.identifier].includeAlerts">
+                <label class="font-medium text-gray-500">Update Alert Templates</label>
+            </div>
+        </div>
+
+    </div>
+
+
     <div class="mt-6" *ngIf="exportableResources.feeds">
         <h3>Feeds</h3>
         <div class="flex items-start"  *ngFor="let feed of exportableResources.feeds">
@@ -103,6 +139,25 @@
             </div>
         </div>
     </div>
+
+
+    <div class="mt-6" *ngIf="exportableResources.apiKeys">
+        <h3>API Keys</h3>
+
+        <div class="flex items-start"  *ngFor="let apiKey of exportableResources.apiKeys">
+            <div class="flex items-center h-5 w-12">
+                <input type="checkbox"
+                       [name]="'apikey-' + apiKey.identifier"
+                       [(ngModel)]="exportConfig.apiKeys[apiKey.identifier].included"
+                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+            </div>
+            <div class="ml-3 text-sm w-36">
+                <label class="font-medium text-gray-700">{{apiKey.title}}</label>
+            </div>
+        </div>
+
+    </div>
+
 
     <div class="mt-6" *ngIf="exportableResources.alertGroups">
         <h3>Alert Groups</h3>

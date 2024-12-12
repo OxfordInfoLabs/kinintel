@@ -11,6 +11,7 @@ use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Services\Alert\AlertGroupTask;
 use Kinintel\Services\DataProcessor\DataProcessorTask;
 use Kinintel\Services\ImportExport\ImportExporters\AlertGroupImportExporter;
+use Kinintel\Services\ImportExport\ImportExporters\DashboardImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DataProcessorImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DatasetImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DatasourceImportExporter;
@@ -41,6 +42,7 @@ class Bootstrap implements ApplicationBootstrap {
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(AlertGroupImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DatasourceImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DatasetImportExporter::class));
+        Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DashboardImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(FeedImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DataProcessorImportExporter::class));
     }

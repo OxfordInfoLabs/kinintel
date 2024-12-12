@@ -109,6 +109,14 @@ class DashboardSummary extends DashboardSearchResult {
         $this->hiddenFromListings = $hiddenFromListings;
     }
 
+    /**
+     * @param int $id
+     */
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+
 
     /**
      * @return DashboardDatasetInstance[]

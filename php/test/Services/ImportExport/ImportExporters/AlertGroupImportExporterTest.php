@@ -22,7 +22,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
 
-class AlertGroupImportExportersTest extends TestBase {
+class AlertGroupImportExporterTest extends TestBase {
 
 
     /**

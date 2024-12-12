@@ -30,7 +30,7 @@ class DashboardService {
      * @param SecurityService $securityService
      */
     public function __construct(
-        private DatasetService $datasetService,
+        private DatasetService  $datasetService,
         private MetaDataService $metaDataService,
         private SecurityService $securityService
     ) {
@@ -47,6 +47,16 @@ class DashboardService {
         return $this->getRecursiveDashboardById($id)->returnSummary();
     }
 
+
+    /**
+     * Get a shallow dashboard (non recursively) - useful for exports etc.
+     *
+     * @param $id
+     * @return mixed
+     */
+    public function getShallowDashboard($id) {
+        return $this->getFullDashboard($id)->returnSummary();
+    }
 
     /**
      * Get a full dashboard by id without summarisation for internal use
