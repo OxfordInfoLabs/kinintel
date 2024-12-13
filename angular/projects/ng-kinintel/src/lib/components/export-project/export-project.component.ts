@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {ExportProjectComponent as KAExportProjectComponent} from "ng-kiniauth";
+import {ExportProjectComponent as KAExportProjectComponent} from 'ng-kiniauth';
 
 
 @Component({
