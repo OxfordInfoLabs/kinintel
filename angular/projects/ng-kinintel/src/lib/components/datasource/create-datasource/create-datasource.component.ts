@@ -123,6 +123,11 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     reloadURL: this.reloadURL
                 }
             });
+            dialogRef.afterClosed().subscribe(res => {
+                if (res === 'closed') {
+                    this.location.back();
+                }
+            });
         }
 
 
