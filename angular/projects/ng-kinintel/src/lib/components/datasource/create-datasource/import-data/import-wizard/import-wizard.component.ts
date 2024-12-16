@@ -34,6 +34,8 @@ export class ImportWizardComponent implements OnInit {
 
     public readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
+    private namePrefix: string;
+
     constructor(private dialog: MatDialog,
                 public dialogRef: MatDialogRef<ImportWizardComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -46,7 +48,7 @@ export class ImportWizardComponent implements OnInit {
         this.reloadURL = this.data.reloadURL;
         this.datasourceUpdate = this.data.datasourceUpdate;
         this.backendURL = this.config.backendURL;
-
+        this.namePrefix = this.data.namePrefix || '';
     }
 
     public copied() {
@@ -133,7 +135,7 @@ export class ImportWizardComponent implements OnInit {
     }
 
     public async createStructure() {
-        this.datasourceUpdate.title = this.name;
+        this.datasourceUpdate.title = this.namePrefix + this.name;
 
         this.datasourceUpdate.fields = [
             {title: 'ID', name: 'id', type: 'id'}

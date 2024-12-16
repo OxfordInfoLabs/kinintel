@@ -243,7 +243,8 @@ import { ChangeSourceWarningComponent } from './components/data-explorer/change-
         SnapshotApiAccessComponent,
         QueryCachingComponent,
         DataSharingInviteComponent,
-        ExportProjectComponent
+        ExportProjectComponent,
+        ShareQueryComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

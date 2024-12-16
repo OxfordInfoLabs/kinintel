@@ -32,6 +32,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() backURL = '/imported-data';
     @Input() reloadURL = 'import-data';
     @Input() backendURL: string;
+    @Input() namePrefix = '';
 
     public readonly datasourceTypes: any = [
         'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'
@@ -120,7 +121,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     datasourceUpdate: this.datasourceUpdate,
                     rows: this.rows,
                     datasourceInstanceKey: this.datasourceInstanceKey,
-                    reloadURL: this.reloadURL
+                    reloadURL: this.reloadURL,
+                    namePrefix: this.namePrefix
                 }
             });
             dialogRef.afterClosed().subscribe(res => {
@@ -129,8 +131,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 }
             });
         }
-
-
     }
 
     ngAfterViewInit() {
@@ -477,6 +477,10 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 return this.rows[rowIndex];
             });
         });
+
+        if (this.namePrefix && !this.datasourceUpdate.title.includes(this.namePrefix)) {
+            this.datasourceUpdate.title = this.namePrefix + this.datasourceUpdate.title;
+        }
 
         if (!this.datasourceInstanceKey) {
             await this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {

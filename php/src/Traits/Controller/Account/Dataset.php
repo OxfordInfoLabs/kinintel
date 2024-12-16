@@ -273,7 +273,7 @@ trait Dataset {
      * @param string $projectKey
      */
     public function saveDatasetInstance($dataSetInstanceSummary, $projectKey = null) {
-        $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, $projectKey);
+        return $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, $projectKey);
     }
 
 
