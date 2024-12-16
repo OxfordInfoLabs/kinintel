@@ -1,11 +1,12 @@
 <div class="border-b w-full flex items-center justify-between ">
-    <div class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
+    <div *ngIf="!readonly" class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
         Name
         <input type="text" class="w-full py-1.5 ml-4" placeholder="Enter datasource name"
                [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
                [(ngModel)]="datasourceUpdate.title">
     </div>
-    <div class="flex items-center flex-wrap w-full justify-end bg-white">
+    <div *ngIf="readonly" class="leading-5 font-medium text-lg px-4">{{datasourceUpdate.title.replace((namePrefix || ''), '')}}</div>
+    <div class="flex-1 flex items-center flex-wrap w-full justify-end bg-white">
         <ng-template [ngIf]="_.some(rows, '_selected')">
             <button (click)="deleteSelectedColumns()"
                     class="w-28 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">

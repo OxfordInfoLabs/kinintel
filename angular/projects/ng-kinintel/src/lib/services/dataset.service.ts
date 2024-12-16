@@ -64,14 +64,16 @@ export class DatasetService {
         return this.http.get(`${this.config.backendURL}/dataset/extended/${id}`).toPromise();
     }
 
-    public saveDataset(datasetInstanceSummary, accountId = null) {
+    public saveDataset(datasetInstanceSummary, accountId = null): Promise<number> {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
         const activeTag = this.tagService.activeTag.getValue() || null;
         if (activeTag) {
             datasetInstanceSummary.tags = [activeTag];
         }
         return this.http.post(this.config.backendURL + '/dataset/?projectKey=' + projectKey + '&accountId=' + accountId,
-            datasetInstanceSummary).toPromise();
+            datasetInstanceSummary).toPromise().then((id: number) => {
+                return id;
+        });
     }
 
     public removeDataset(id) {

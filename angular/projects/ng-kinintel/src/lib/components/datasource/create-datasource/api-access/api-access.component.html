@@ -87,7 +87,7 @@
                     <b>limit</b> and <b>offset</b> parameters.
                 </div>
                 <div #list class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}?{{listQueryString}}&limit=50&offset=10</span></pre>
+                    <pre class="whitespace-normal">curl -H <span class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>GET</b> <span class="text-cta">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}?{{listQueryString}}&limit=50&offset=10</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="list.textContent" (cdkCopyToClipboardCopied)="copied()"
                         class="text-white absolute bottom-0 right-0">
@@ -102,7 +102,7 @@
                     Insert a set of new rows to the data source identified by the passed import key
                 </div>
                 <div #create class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+            <pre class="whitespace-normal">curl -H <span class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-cta">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
                         class="text-white absolute bottom-0 right-0">
@@ -122,7 +122,7 @@
                     an insert or update depending on whether the row already exists according to the unique key.
                 </div>
                 <div #replace class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+            <pre class="whitespace-normal">curl -H <span class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-cta">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="replace.textContent"
                         class="text-white absolute bottom-0 right-0">
@@ -141,7 +141,7 @@
                     an update based upon the unique key and will not add any new rows if they don't already exist.
                 </div>
                 <div #update class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PUT</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+            <pre class="whitespace-normal">curl -H <span class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>PUT</b> <span class="text-cta">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="update.textContent"
                         class="text-white absolute bottom-0 right-0">
@@ -159,7 +159,7 @@
                     Delete a set of rows explicitly by unique key for the data source identified by the passed import key.
                 </div>
                 <div #delete class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+            <pre class="whitespace-normal">curl -H <span class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-cta">{{backendURL}}/api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="delete.textContent"
                         class="text-white absolute bottom-0 right-0">
@@ -232,7 +232,7 @@
 
                 </div>
                 <div #deleteFiltered class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-secondary">{{backendURL}}/api/tabularData/filtered/{{datasourceUpdate.instanceImportKey}}</span></pre>
+                    <pre class="whitespace-normal">curl -H <span class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre><pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-cta">{{backendURL}}/api/tabularData/filtered/{{datasourceUpdate.instanceImportKey}}</span></pre>
                 </div>
                 <button mat-icon-button [cdkCopyToClipboard]="deleteFiltered.textContent"
                         class="text-white absolute bottom-0 right-0">

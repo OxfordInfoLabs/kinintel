@@ -20,6 +20,7 @@ export class SharedWithMeComponent implements OnInit {
     @Input() url: string;
     @Input() tableHeading: string;
     @Input() headingLabel: string;
+    @Input() hideHeading = false;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');

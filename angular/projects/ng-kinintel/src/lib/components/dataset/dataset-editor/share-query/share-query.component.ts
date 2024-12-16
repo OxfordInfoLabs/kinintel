@@ -20,6 +20,7 @@ const _ = lodash.default;
 export class ShareQueryComponent implements OnInit {
 
     public shareWithAccount = false;
+    public hideShareWithAccount = false;
     public sharedAccounts: any = [];
     public invitedAccounts: any = [];
     public session: any;
@@ -33,6 +34,7 @@ export class ShareQueryComponent implements OnInit {
     public moment: any = moment;
     public marketplaceData: any = {};
     public listOnMarketplace = false;
+
     protected readonly String = String;
 
     constructor(public dialogRef: MatDialogRef<ShareQueryComponent>,
@@ -43,6 +45,7 @@ export class ShareQueryComponent implements OnInit {
     }
 
     async ngOnInit() {
+        this.hideShareWithAccount = !!this.data.hideShareWithAccount;
         this.session = await this.authService.getSessionData();
         this.loadSharedAccounts();
         this.loadInvitedAccounts();

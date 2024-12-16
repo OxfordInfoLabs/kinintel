@@ -33,6 +33,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() reloadURL = 'import-data';
     @Input() backendURL: string;
     @Input() namePrefix = '';
+    @Input() readonly = false;
 
     public readonly datasourceTypes: any = [
         'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'

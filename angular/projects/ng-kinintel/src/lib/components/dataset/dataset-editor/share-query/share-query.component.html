@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="px-6 pt-6 pb-4">
+                <div *ngIf="!hideShareWithAccount" class="px-6 pt-6 pb-4">
                     <mat-checkbox
                         [(ngModel)]="shareWithAccount" (change)="setLoggedInAccountShareStatus($event)">
                         Share With This Account
