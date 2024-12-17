@@ -56,13 +56,13 @@
         <div class="divider"></div>
         <button (click)="editColumnSettings()"
                 title="Switch on and off columns for display"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <span class="material-symbols-outlined text-xl">table_chart</span>
             columns
         </button>
         <button (click)="createFormula()"
                 title="Create a formula column using an expression based on other columns"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <span class="material-symbols-outlined text-xl">functions</span>
             formula
         </button>
@@ -73,15 +73,15 @@
             <span class="material-symbols-outlined text-xl">filter_alt</span>
             filter
         </button>
-        <button (click)="joinData()"
+        <button *ngIf="!datasetEditorReadonly" (click)="joinData()"
                 title="Join another data set to the current dataset"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <span class="material-symbols-outlined text-xl">merge_type</span>
             join
         </button>
         <button (click)="summariseData()"
                 title="Summarise this data to produce aggregated totals, sums and other derivations"
-            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <span class="material-symbols-outlined text-xl">pivot_table_chart</span>
             summarise
         </button>
@@ -93,23 +93,25 @@
             <span class="material-symbols-outlined text-xl">sync</span>
             reload
         </button>
-        <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
-                title="Share this query with other account holders"
-                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">share</span>
-            share
-        </button>
-        <button (click)="saveAsQuery()"
-                title="Make a copy of this query"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">file_copy</span>
-            copy query
-        </button>
-        <button *ngIf="!dashboardLayoutSettings && datasetInstanceSummary.id" (click)="save()"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">save</span>
-            save
-        </button>
+        <ng-template [ngIf]="!datasetEditorReadonly">
+            <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
+                    title="Share this query with other account holders"
+                    class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                <span class="material-symbols-outlined text-xl">share</span>
+                share
+            </button>
+            <button (click)="saveAsQuery()"
+                    title="Make a copy of this query"
+                    class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                <span class="material-symbols-outlined text-xl">file_copy</span>
+                copy query
+            </button>
+            <button *ngIf="!dashboardLayoutSettings && datasetInstanceSummary.id" (click)="save()"
+                    class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+                <span class="material-symbols-outlined text-xl">save</span>
+                save
+            </button>
+        </ng-template>
     </div>
 </div>
 
@@ -122,15 +124,15 @@
             <ng-template ngFor let-parameter [ngForOf]="parameterValues" let-i=index>
 
                 <label class="pl-4">
-                    {{parameter.title}}
+                    {{ parameter.title }}
                     <div *ngIf="(parameter.value || '').toString().includes('}}')">
                         <mat-chip class="bg-gray-50 ml-2" title="Using parameter value from {{parameter.value}}">
                             <div class="flex items-center">
                                 <span class="material-symbols-outlined text-xl mr-1 text-gray-500">layers</span>
                                 <span *ngIf="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
-                                    [innerHTML]="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')].value"></span>
+                                      [innerHTML]="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')].value"></span>
                                 <span *ngIf="!dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
-                                    class="font-medium text-orange-600">
+                                      class="font-medium text-orange-600">
                                     Parameter Not Found !
                                 </span>
                             </div>
@@ -154,7 +156,8 @@
                         <ng-template [ngIf]="parameter.type === 'list'">
                             <select class="pr-8 py-1.5 pl-1" [(ngModel)]="parameter.value"
                                     (change)="evaluateDataset(true)" required autofocus>
-                                <option *ngFor="let item of parameter.list" [value]="item.value">{{item.label}}</option>
+                                <option *ngFor="let item of parameter.list" [value]="item.value">{{ item.label }}
+                                </option>
                             </select>
                         </ng-template>
                         <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
@@ -222,12 +225,14 @@
                             </mat-menu>
                         </ng-template>
                         <ng-template [ngIf]="Object.keys(dashboardParameters || {}).length">
-                            <button mat-icon-button [matMenuTriggerFor]="dashParamMenu" title="Bind this parameter value to another">
+                            <button mat-icon-button [matMenuTriggerFor]="dashParamMenu"
+                                    title="Bind this parameter value to another">
                                 <mat-icon>text_fields</mat-icon>
                             </button>
                             <mat-menu #dashParamMenu="matMenu">
                                 <button mat-menu-item *ngFor="let dashParamKey of Object.keys(dashboardParameters)"
-                                        (click)="setDashboardParameter(parameter, dashboardParameters[dashParamKey].name)">{{dashboardParameters[dashParamKey].title}}</button>
+                                        (click)="setDashboardParameter(parameter, dashboardParameters[dashParamKey].name)">{{ dashboardParameters[dashParamKey].title }}
+                                </button>
                             </mat-menu>
                         </ng-template>
                     </div>
@@ -240,7 +245,7 @@
             <button mat-icon-button color="primary" class="mx-2" (click)="addParameter()">
                 <mat-icon>add_circle</mat-icon>
             </button>
-            <button type="button" (click)="evaluateDataset(true)"  *ngIf="parameterValues.length"
+            <button type="button" (click)="evaluateDataset(true)" *ngIf="parameterValues.length"
                     class="mr-2 flex items-center whitespace-nowrap justify-center px-4 py-1 border border-transparent text-sm rounded-md shadow-sm text-white bg-primary focus:outline-none">
                 Apply Parameters
             </button>
@@ -256,10 +261,11 @@
         <div class="example-list flex flex-wrap" cdkDropListGroup>
             <ng-template ngFor let-transformation [ngForOf]="terminatingTransformations" let-i="index">
                 <div cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListOrientation="horizontal"
-                    [cdkDropListData]="{item:transformation,index:i}">
+                     [cdkDropListData]="{item:transformation,index:i}">
                     <div class="flex items-center">
                         <div class="new-transformation flex items-center justify-center w-6 h-6">
-                            <a [matMenuTriggerFor]="addTransformation" class="items-center add-transformation text-primary">
+                            <a [matMenuTriggerFor]="addTransformation"
+                               class="items-center add-transformation text-primary">
                                 <mat-icon class="flex items-center w-5 h-5 text-xl">add_circle</mat-icon>
                             </a>
                             <mat-menu #addTransformation="matMenu">
@@ -281,20 +287,25 @@
                             </mat-menu>
                         </div>
 
-                        <div cdkDrag class="pl-0 example-box badge-item w-auto m-0" cdkOverlayOrigin #trigger="cdkOverlayOrigin"
+                        <div cdkDrag class="pl-0 example-box badge-item w-auto m-0" cdkOverlayOrigin
+                             #trigger="cdkOverlayOrigin"
                              [ngClass]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
 
-                            <button class="-mt-0.5" title="Show transformation details"  mat-icon-button
+                            <button class="-mt-0.5" title="Show transformation details" mat-icon-button
                                     (click)="showTransformationDetail(transformation)">
-                                <span class="material-symbols-outlined ml-1 text-xl" *ngIf="transformation.type === 'columns'">table_chart</span>
-                                <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'formula'">functions</span>
+                                <span class="material-symbols-outlined ml-1 text-xl"
+                                      *ngIf="transformation.type === 'columns'">table_chart</span>
+                                <span class="material-symbols-outlined text-xl"
+                                      *ngIf="transformation.type === 'formula'">functions</span>
                                 <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'join'">merge_type</span>
-                                <span class="material-symbols-outlined ml-1 text-xl" *ngIf="transformation.type === 'summarise'">pivot_table_chart</span>
-                                <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'filter'">filter_alt</span>
+                                <span class="material-symbols-outlined ml-1 text-xl"
+                                      *ngIf="transformation.type === 'summarise'">pivot_table_chart</span>
+                                <span class="material-symbols-outlined text-xl"
+                                      *ngIf="transformation.type === 'filter'">filter_alt</span>
                             </button>
 
                             <span class="whitespace-nowrap cursor-pointer"
-                                  (click)="editTerminatingTransformation(transformation)">{{transformation._label}}</span>
+                                  (click)="editTerminatingTransformation(transformation)">{{ transformation._label }}</span>
 
                             <ng-template [ngIf]="transformation.exclude">
                                 <button class="-ml-1" [title]="'Re-enable this transformation'"
@@ -302,15 +313,18 @@
                                     <mat-icon class="text-orange-400">replay</mat-icon>
                                 </button>
                             </ng-template>
-                            <ng-template [ngIf]="!transformation.exclude && i + 1 === terminatingTransformations.length">
+                            <ng-template
+                                [ngIf]="!transformation.exclude && i + 1 === terminatingTransformations.length">
                                 <button class="-ml-1" [title]="'Disable transformation'"
                                         mat-icon-button (click)="disableTransformation(transformation, i)">
                                     <mat-icon>block</mat-icon>
                                 </button>
                             </ng-template>
-                            <ng-template [ngIf]="!transformation.exclude && i + 1 !== terminatingTransformations.length">
-                                <button class="-ml-1" [matMenuTriggerFor]="disableMenu" [title]="'Disable transformation'"
-                                        mat-icon-button >
+                            <ng-template
+                                [ngIf]="!transformation.exclude && i + 1 !== terminatingTransformations.length">
+                                <button class="-ml-1" [matMenuTriggerFor]="disableMenu"
+                                        [title]="'Disable transformation'"
+                                        mat-icon-button>
                                     <mat-icon>block</mat-icon>
                                 </button>
                                 <mat-menu #disableMenu="matMenu">
@@ -335,27 +349,34 @@
                             <div class="p-4 w-96 bg-white shadow rounded">
                                 <ng-template [ngIf]="transformation.type === 'summarise'">
                                     <p class="text-sm text-gray-700 mb-0">
-                                        <b>SELECT&nbsp;</b><span *ngFor="let expression of transformation.config.expressions; let i = index"><span *ngIf="i > 0">, </span>{{expression.customExpression || expression.expressionType + '(' + (expression.fieldName || '') + ')'}}</span><ng-template [ngIf]="transformation.config.summariseFieldNames.length"><br><b>GROUP BY&nbsp;</b> {{transformation.config.summariseFieldNames.join(', ')}}</ng-template>
+                                        <b>SELECT&nbsp;</b><span
+                                        *ngFor="let expression of transformation.config.expressions; let i = index"><span
+                                        *ngIf="i > 0">, </span>{{ expression.customExpression || expression.expressionType + '(' + (expression.fieldName || '') + ')' }}</span>
+                                        <ng-template [ngIf]="transformation.config.summariseFieldNames.length"><br><b>GROUP
+                                            BY&nbsp;</b> {{ transformation.config.summariseFieldNames.join(', ') }}
+                                        </ng-template>
                                     </p>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'formula'">
                                     <div class="text-sm text-gray-700 mb-0">
-                                        <b>EXPRESSION</b>&nbsp;{{decodeURIComponent(transformation.config.expressions[0].expression)}}
+                                        <b>EXPRESSION</b>&nbsp;{{ decodeURIComponent(transformation.config.expressions[0].expression) }}
                                     </div>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'columns'">
                                     <div class="text-sm text-gray-700 mb-0">
-                                        <b>COLUMNS</b>&nbsp;{{_.map(transformation.config.columns, 'title').join(', ')}}
+                                        <b>COLUMNS</b>&nbsp;{{ _.map(transformation.config.columns, 'title').join(', ') }}
                                     </div>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'join'">
                                     <div class="text-sm text-gray-700 mb-0">
-                                        <b>JOIN COLUMNS</b>&nbsp;{{_.map(transformation.config.joinColumns, 'title').join(', ')}}
+                                        <b>JOIN
+                                            COLUMNS</b>&nbsp;{{ _.map(transformation.config.joinColumns, 'title').join(', ') }}
                                     </div>
                                 </ng-template>
                                 <ng-template [ngIf]="transformation.type === 'filter'">
-                                    <div *ngFor="let filter of transformation.config.filters" class="text-sm text-gray-700 mb-0">
-                                        <b>FILTER</b>&nbsp;{{filter.lhsExpression}}&nbsp;<b>{{filter.filterType}}</b>&nbsp;{{filter.rhsExpression}}
+                                    <div *ngFor="let filter of transformation.config.filters"
+                                         class="text-sm text-gray-700 mb-0">
+                                        <b>FILTER</b>&nbsp;{{ filter.lhsExpression }}&nbsp;<b>{{ filter.filterType }}</b>&nbsp;{{ filter.rhsExpression }}
                                     </div>
                                 </ng-template>
                             </div>
@@ -363,9 +384,10 @@
                     </div>
 
                 </div>
-                <button *ngIf="_.some(terminatingTransformations, {exclude: true}) && i === terminatingTransformations.length - 1"
-                        class="ml-4 flex items-center border-none bg-primary text-sm rounded-md text-white pr-2 pl-1 py-0.5"
-                        (click)="enableAllTransformation()">
+                <button
+                    *ngIf="_.some(terminatingTransformations, {exclude: true}) && i === terminatingTransformations.length - 1"
+                    class="ml-4 flex items-center border-none bg-primary text-sm rounded-md text-white pr-2 pl-1 py-0.5"
+                    (click)="enableAllTransformation()">
                     <mat-icon class="mr-1 text-base">replay</mat-icon>
                     Enable All
                 </button>
@@ -435,7 +457,7 @@
             <div class="badge-item outline"
                  [ngClass]="{'exclude bg-orange-50 border-orange-200': _.find(datasetInstanceSummary.transformationInstances, {exclude: true})}"
                  *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
-                <span>{{_.startCase(sort.fieldName)}}&nbsp;<span class="uppercase">{{sort.direction}}</span></span>
+                <span>{{ _.startCase(sort.fieldName) }}&nbsp;<span class="uppercase">{{ sort.direction }}</span></span>
                 <button mat-icon-button (click)="removeFilter(i)">
                     <mat-icon>cancel</mat-icon>
                 </button>
@@ -452,7 +474,8 @@
         <ng-template ngFor let-column [ngForOf]="filterFields">
             <ng-container [matColumnDef]="column.name">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header
-                    class="text-xs font-semibold text-gray-900 py-3.5 px-4"> {{column.title}} </th>
+                    class="text-xs font-semibold text-gray-900 py-3.5 px-4"> {{ column.title }}
+                </th>
                 <td mat-cell *matCellDef="let element" class="py-3 px-4">
                     <ng-template
                         [ngIf]="!Array.isArray(element[column.name]) && !_.isPlainObject(element[column.name])">
@@ -460,7 +483,7 @@
                             <div [innerHTML]="element[column.name]"></div>
                         </ng-template>
                         <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
-                            <div>{{element[column.name].substring(0, 100) + '...'}}</div>
+                            <div>{{ element[column.name].substring(0, 100) + '...' }}</div>
                             <a (click)="viewFullItemData(element[column.name], column.name)"
                                class="flex items-center text-sm text-cta">
                                 view more
@@ -474,14 +497,14 @@
                         </ng-template>
                         <ng-template [ngIf]="!element[column.name]">
                             <span *ngIf="element[column.name] === null" class="font-mono text-gray-400">null</span>
-                            <span *ngIf="element[column.name] !== null">{{element[column.name]}}</span>
+                            <span *ngIf="element[column.name] !== null">{{ element[column.name] }}</span>
                         </ng-template>
                     </ng-template>
                     <ng-template [ngIf]="Array.isArray(element[column.name])">
-                        Contains {{element[column.name].length}} items
+                        Contains {{ element[column.name].length }} items
                     </ng-template>
                     <ng-template [ngIf]="_.isPlainObject(element[column.name])">
-                        Object has {{Object.keys(element[column.name]).length}} keys
+                        Object has {{ Object.keys(element[column.name]).length }} keys
                     </ng-template>
                 </td>
             </ng-container>
@@ -499,7 +522,7 @@
     <div class="flex items-center">
         <div class="text-sm text-gray-500 mr-10">
             <ng-template [ngIf]="dataset">
-                Showing {{offset + 1}} - {{(page * limit) - (limit - tableData.length)}}
+                Showing {{ offset + 1 }} - {{ (page * limit) - (limit - tableData.length) }}
             </ng-template>
         </div>
         <select [value]="limit" (change)="pageSizeChange($event.target.value)"

@@ -87,7 +87,8 @@
             <div class="cell-contents no-p">
                 <ki-dataset-editor #datasetEditorComponent [(datasetInstanceSummary)]="datasetInstanceSummary"
                                    [accountId]="accountId" [newTitle]="newTitle" [newDescription]="newDescription"
-                                   (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
+                                   (dataLoaded)="dataLoaded($event)" [admin]="admin"
+                                    [datasetEditorReadonly]="datasetEditorReadonly"></ki-dataset-editor>
             </div>
         </rsz-layout>
     </rsz-layout>

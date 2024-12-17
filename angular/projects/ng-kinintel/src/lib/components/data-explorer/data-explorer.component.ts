@@ -1,4 +1,4 @@
-import {Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {
     MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
     MatLegacyDialog as MatDialog,
@@ -37,6 +37,8 @@ const _ = lodash.default;
 export class DataExplorerComponent implements OnInit, OnDestroy {
 
     @ViewChild('datasetEditorComponent') datasetEditorComponent: DatasetEditorComponent;
+
+    @Input() datasetEditorReadonly = false;
 
     public _ = _;
     public backendUrl: string;
@@ -77,6 +79,7 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         this.accountId = this.data.accountId;
         this.breadcrumb = this.data.breadcrumb;
         this.backendUrl = this.data.backendUrl;
+        this.datasetEditorReadonly = !!this.data.datasetEditorReadonly;
 
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;
