@@ -22,6 +22,8 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetDat
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetField;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetSourceParameterMapping;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -169,7 +171,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
     }
 
 
-    public function testIfUpdateModeSetOnTargetItIsUsedInsteadOfReplace(){
+    public function testIfUpdateModeSetOnTargetItIsUsedInsteadOfReplace() {
 
         $mockSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
         $mockSource = MockObjectProvider::instance()->getMockInstance(Datasource::class);
@@ -197,7 +199,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         ]);
 
         $config = new TabularDatasourceImportProcessorConfiguration("source", [
-            new TargetDatasource("target",null, UpdatableDatasource::UPDATE_MODE_ADD)
+            new TargetDatasource("target", null, UpdatableDatasource::UPDATE_MODE_ADD)
         ]);
 
         $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
@@ -660,7 +662,7 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("parameterValue")],
             [["parameterValue" => '2022-01-01 10:23:44']]),
             ["targetsource", [], [
-                new TransformationInstance("summarise",new SummariseTransformation([], [
+                new TransformationInstance("summarise", new SummariseTransformation([], [
                     new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "lastUpdated", null, "Parameter Value")
                 ]))
             ]
@@ -708,6 +710,48 @@ class TabularDatasourceImportProcessorTest extends TestBase {
         $this->assertTrue($this->datasourceService->methodWasCalled("getEvaluatedDataSourceByInstanceKey", [
             "inputsource", ["fromDate" => 255], null, 0, 2
         ]));
+
+    }
+
+
+    public function testIfTargetDatasourceAdditionalFiltersAddedToTargetSourceParameterMappingTheseAreAppliedAsAdditiveFiltersWhenQueryingForLatestValueOfField() {
+
+        // Configure target
+        $mockTargetInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockTarget = MockObjectProvider::instance()->getMockInstance(UpdatableDatasource::class);
+        $mockTargetInstance->returnValue("returnDataSource", $mockTarget);
+        $this->datasourceService->returnValue("getDataSourceInstanceByKey", $mockTargetInstance, [
+            "targetsource"
+        ]);
+
+
+        // Programme a call to the target datasource to return latest data for from date.
+        $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("parameterValue")],
+            [["parameterValue" => '2022-01-01 10:23:44']]),
+            ["targetsource", [], [
+                new TransformationInstance("filter", new FilterTransformation([
+                    new Filter("[[param1]]", "Joe", Filter::FILTER_TYPE_EQUALS),
+                    new Filter("[[param2]]", "Bloggs", Filter::FILTER_TYPE_EQUALS),
+                ])),
+                new TransformationInstance("summarise", new SummariseTransformation([], [
+                    new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "lastUpdated", null, "Parameter Value")
+                ]))
+            ]
+            ]);
+
+
+        $config = new TabularDatasourceImportProcessorConfiguration(null, [new TargetDatasource("targetsource")], [], "inputset", 2, 2, new TargetSourceParameterMapping("fromDate", 0, "lastUpdated", TargetSourceParameterMapping::VALUE_RULE_LATEST, null, [
+            "param1" => "Joe",
+            "param2" => "Bloggs"
+        ]));
+
+        $instance = new DataProcessorInstance("no", "need", "tabulardatasourceimport", $config);
+        $this->processor->process($instance);
+
+        $this->assertTrue($this->datasetService->methodWasCalled("getEvaluatedDataSetForDataSetInstance", [
+            "inputset", ["fromDate" => "2022-01-01 10:23:44"], null, 0, 2
+        ]));
+
 
     }
 }
