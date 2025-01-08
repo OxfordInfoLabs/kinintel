@@ -40,6 +40,14 @@ class TargetSourceParameterMapping {
      */
     private $defaultValue;
 
+    /**
+     * An associative array of values keyed by field name which will be applied when querying for the target value
+     * to the target datasource.
+     *
+     * @var array
+     */
+    private $additionalTargetDatasourceFilters;
+
 
     // Value rules
     const VALUE_RULE_LATEST = "latest";
@@ -51,12 +59,13 @@ class TargetSourceParameterMapping {
      * @param string $targetDatasourceField
      * @param string $targetValueRule
      */
-    public function __construct($sourceParameterName, $targetDatasourceIndex, $targetDatasourceField, $targetValueRule = self::VALUE_RULE_LATEST, $defaultValue = null) {
+    public function __construct($sourceParameterName, $targetDatasourceIndex, $targetDatasourceField, $targetValueRule = self::VALUE_RULE_LATEST, $defaultValue = null, $additionalTargetDatasourceFilters = []) {
         $this->sourceParameterName = $sourceParameterName;
         $this->targetDatasourceIndex = $targetDatasourceIndex;
         $this->targetDatasourceField = $targetDatasourceField;
         $this->targetValueRule = $targetValueRule;
         $this->defaultValue = $defaultValue;
+        $this->additionalTargetDatasourceFilters = $additionalTargetDatasourceFilters;
     }
 
 
@@ -128,6 +137,20 @@ class TargetSourceParameterMapping {
      */
     public function setDefaultValue($defaultValue) {
         $this->defaultValue = $defaultValue;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdditionalTargetDatasourceFilters() {
+        return $this->additionalTargetDatasourceFilters;
+    }
+
+    /**
+     * @param array $additionalTargetDatasourceFilters
+     */
+    public function setAdditionalTargetDatasourceFilters($additionalTargetDatasourceFilters) {
+        $this->additionalTargetDatasourceFilters = $additionalTargetDatasourceFilters;
     }
 
 
