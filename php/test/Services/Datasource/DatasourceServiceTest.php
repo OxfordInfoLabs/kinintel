@@ -3,6 +3,7 @@
 
 namespace Kinintel\Services\Datasource;
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
@@ -320,6 +321,38 @@ class DatasourceServiceTest extends TestBase {
 
 
         $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test"));
+
+    }
+
+
+    public function testAccountIdParameterCorrectlyAddedIfLoggedInAccount() {
+
+        $this->securityService->returnValue("getLoggedInSecurableAndAccount", [
+            null, new Account("Test", 0, Account::STATUS_ACTIVE, 56)
+        ]);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        $dataSourceInstance->returnValue("getParameters", [
+            new Parameter("param1", "Parameter 1", Parameter::TYPE_TEXT, false, "Hello World")
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
+        $dataSource->returnValue("materialise", $dataSet, [[
+            "param1" => "",
+            "ACCOUNT_ID" => 56
+        ]]);
+
+
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test"));
+
 
     }
 
@@ -643,7 +676,6 @@ class DatasourceServiceTest extends TestBase {
         $this->assertTrue($dataSource->methodWasCalled("update", [
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
         ]));
-
 
 
     }

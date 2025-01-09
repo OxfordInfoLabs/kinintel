@@ -44,11 +44,11 @@ class DatasourceService {
 
 
     public function __construct(
-        private DatasourceDAO $datasourceDAO,
-        private SecurityService $securityService,
+        private DatasourceDAO          $datasourceDAO,
+        private SecurityService        $securityService,
         private ValueFunctionEvaluator $valueFunctionEvaluator,
-        private DataProcessorService $dataProcessorService,
-        private DatasourceHookService $datasourceHookService
+        private DataProcessorService   $dataProcessorService,
+        private DatasourceHookService  $datasourceHookService
     ) {
     }
 
@@ -426,7 +426,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getUpdates()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
-         }
+        }
 
 
         if ($datasourceUpdate->getDeletes()) {
@@ -434,7 +434,7 @@ class DatasourceService {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getDeletes()[0]));
             $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
-       }
+        }
 
         if ($datasourceUpdate->getReplaces()) {
             $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
@@ -585,6 +585,16 @@ class DatasourceService {
         if (sizeof($validationErrors) > 0) {
             throw new InvalidParametersException($validationErrors);
         }
+
+        // Add in the logged in account id if available
+
+        /**
+         * @var Account $account
+         */
+        $account = $this->securityService->getLoggedInSecurableAndAccount()[1] ?? null;
+        if ($account)
+            $parameterValues["ACCOUNT_ID"] = $account->getAccountId();
+
 
         return $parameterValues;
 
