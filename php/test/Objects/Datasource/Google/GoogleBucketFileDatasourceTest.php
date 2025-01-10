@@ -23,7 +23,7 @@ class GoogleBucketFileDatasourceTest extends TestCase {
             new Field("age")
         ]);
 
-        $authenticationCredentials = new GoogleCloudCredentials(file_get_contents(__DIR__ . "/google-test.json"));
+        $authenticationCredentials = new GoogleCloudCredentials(file_get_contents(__DIR__ . "/google-test.json"), true);
 
         $dataSource = new GoogleBucketFileDatasource($config, $authenticationCredentials);
 
@@ -58,7 +58,7 @@ class GoogleBucketFileDatasourceTest extends TestCase {
             new Field("age")
         ]);
 
-        $authenticationCredentials = new GoogleCloudCredentials(file_get_contents(__DIR__ . "/google-test.json"));
+        $authenticationCredentials = new GoogleCloudCredentials(file_get_contents(__DIR__ . "/google-test.json"), true);
 
         $dataSource = new GoogleBucketFileDatasource($config, $authenticationCredentials);
 
