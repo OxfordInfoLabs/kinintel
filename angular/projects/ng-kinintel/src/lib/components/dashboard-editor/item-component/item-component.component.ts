@@ -455,9 +455,16 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
                 group: item[this.networkData.nodeGroups]
             };
 
+            if (this.networkData.nodes) {
+                if (this.networkData.nodes[nodeItem.id]) {
+                    nodeItem.x = this.networkData.nodes[nodeItem.id].x;
+                    nodeItem.y = this.networkData.nodes[nodeItem.id].y;
+                }
+            }
+
             if (this.networkData.nodeLevelOptions && Object.keys(this.networkData.nodeLevelOptions).length &&
-                this.networkData.nodeLevelOptions[item[this.networkData.nodeIds]]) {
-                this.networkData.nodeLevelOptions[item[this.networkData.nodeIds]].forEach(option => {
+                this.networkData.nodeLevelOptions[nodeItem.id]) {
+                this.networkData.nodeLevelOptions[nodeItem.id].forEach(option => {
                     nodeLevelItem[option.key] = option.value;
                 });
             }
@@ -513,14 +520,15 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             nodes,
             edges
         };
-        const options = {
+        const options: any = {
             nodes: {
                 font: {
                     multi: 'html'
                 }
             },
             edges: {},
-            groups: {}
+            groups: {},
+            layout: {}
         };
 
         const mapOptionValue = (option: any, networkType: string) => {
@@ -562,6 +570,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
         }
 
         const network = new Network(container, data, options);
+        this.networkData.network = network;
     }
 
     public evaluateTextData(textData) {

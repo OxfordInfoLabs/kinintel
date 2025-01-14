@@ -628,7 +628,7 @@ export class ConfigureItemComponent implements OnInit {
 
         this.mapComponentDataToDashboardInstance();
 
-        if (!this.networkData.nodeLevelOptions) {
+        if (!this.networkData.nodeLevelOptions || Array.isArray(this.networkData.nodeLevelOptions)) {
             this.networkData.nodeLevelOptions = {};
         }
 

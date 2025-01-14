@@ -304,13 +304,13 @@
     </button>
     <div class="align-center">
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="canHaveSnapshots"
+                *ngIf="canHaveSnapshots && !datasetEditorReadonly"
                 [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id"
                 (click)="viewQueryCaching()">
             Query Caching
         </button>
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="canHaveSnapshots"
+                *ngIf="canHaveSnapshots && !datasetEditorReadonly"
                 [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id"
                 (click)="viewSnapshots()">
             Manage Snapshots
