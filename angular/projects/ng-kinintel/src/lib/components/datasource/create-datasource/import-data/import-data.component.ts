@@ -63,7 +63,9 @@ export class ImportDataComponent implements OnInit {
                 const text: any = reader.result;
                 this.import.fileName = file.name;
                 this.import.data = this.papa.parse(text, {
-                    delimiter: this.import.delimiter
+                    delimiter: this.import.delimiter,
+                    quoteChar: '',
+                    escapeChar: '\\'
                 }).data;
 
                 const preview = _.clone(this.import.data);
