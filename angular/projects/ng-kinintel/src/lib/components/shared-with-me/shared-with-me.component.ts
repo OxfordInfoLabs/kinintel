@@ -22,6 +22,7 @@ export class SharedWithMeComponent implements OnInit {
     @Input() headingLabel: string;
     @Input() hideHeading = false;
     @Input() datasetEditorReadonly = false;
+    @Input() nameReplaceString: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');

@@ -61,7 +61,7 @@
                         <tbody *ngFor="let item of datasets" class="hover:bg-gray-50">
                         <tr class="hover:bg-gray-50">
                             <td class="border-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">
-                                {{ item.title }}
+                                {{ (item.title || '').replace((nameReplaceString || ''), '') }}
                             </td>
                             <td class="border-b whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 {{ item.owningAccountName }}
