@@ -15,6 +15,12 @@ class DatasourceUpdateField extends Field {
 
 
     /**
+     * @var
+     */
+    private $validationRules;
+
+
+    /**
      * Field constructor.
      *
      * @param string $name
