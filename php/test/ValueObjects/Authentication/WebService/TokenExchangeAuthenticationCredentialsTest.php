@@ -18,7 +18,7 @@ class TokenExchangeAuthenticationCredentialsTest extends TestCase {
 
         $requestDispatcher = MockObjectProvider::mock(HttpRequestDispatcher::class);
 
-        $authCreds = new TokenExchangeAuthenticationCredentials("myExchangeEndPoint", ["header1" => "value1", "header2" => "value2"], ["token" => "myAccessToken"]);
+        $authCreds = new TokenExchangeAuthenticationCredentials("myExchangeEndPoint", ["header1" => "value1", "header2" => "value2"], ["token" => "myAccessToken"], "token");
 
         $mockExchangeRequest = new Request(
             url: "myExchangeEndPoint",

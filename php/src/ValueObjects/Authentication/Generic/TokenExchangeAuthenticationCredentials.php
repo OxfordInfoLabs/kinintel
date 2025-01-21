@@ -16,6 +16,8 @@ class TokenExchangeAuthenticationCredentials implements AuthenticationCredential
 
     private array $payload;
 
+    private string $tokenField;
+
     private HttpRequestDispatcher $requestDispatcher;
 
     /**
@@ -23,10 +25,11 @@ class TokenExchangeAuthenticationCredentials implements AuthenticationCredential
      * @param array $headers
      * @param array $payload
      */
-    public function __construct(string $exchangeEndpoint, array $headers, array $payload) {
+    public function __construct(string $exchangeEndpoint, array $headers, array $payload, string $tokenField) {
         $this->exchangeEndpoint = $exchangeEndpoint;
         $this->headers = $headers;
         $this->payload = $payload;
+        $this->tokenField = $tokenField;
         $this->requestDispatcher = Container::instance()->get(HttpRequestDispatcher::class);
     }
 
@@ -46,7 +49,7 @@ class TokenExchangeAuthenticationCredentials implements AuthenticationCredential
 
         $response = $this->requestDispatcher->dispatch($tokenRequest);
 
-        $token = json_decode($response->getBody(), true)["token"];
+        $token = json_decode($response->getBody(), true)[$this->tokenField] ?? null;
 
         $request->getHeaders()->set("Authorization", "Bearer $token");
         return $request;
