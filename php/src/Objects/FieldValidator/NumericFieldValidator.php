@@ -25,9 +25,9 @@ class NumericFieldValidator implements FieldValidator {
 
         $valid = ($this->allowDecimals && is_numeric($value)) || (!$this->allowDecimals && is_int($value));
 
-        $typeString = $this->allowDecimals ? "a numeric" : "an integer";
+        $typeString = $this->allowDecimals ? "numeric" : "integer";
 
-        return $valid ?: "You must supply " . $typeString . " value for " . $field->getName();
+        return $valid ?: "Invalid " . $typeString . " value supplied for " . $field->getName();
 
     }
 

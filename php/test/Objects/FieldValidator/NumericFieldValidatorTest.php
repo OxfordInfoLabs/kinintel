@@ -26,8 +26,8 @@ class NumericFieldValidatorTest extends TestCase {
         $this->assertEquals(true, $validator->validateValue(null, $field));
 
 
-        $this->assertEquals("You must supply a numeric value for bingo", $validator->validateValue("Hello", $field));
-        $this->assertEquals("You must supply a numeric value for bingo", $validator->validateValue(true, $field));
+        $this->assertEquals("Invalid numeric value supplied for bingo", $validator->validateValue("Hello", $field));
+        $this->assertEquals("Invalid numeric value supplied for bingo", $validator->validateValue(true, $field));
     }
 
     public function testNumericFieldValidatorCorrectlyValidatesNumericValuesWithoutDecimals() {
@@ -43,10 +43,10 @@ class NumericFieldValidatorTest extends TestCase {
         $this->assertEquals(true, $validator->validateValue(null, $field));
 
 
-        $this->assertEquals("You must supply an integer value for bingo", $validator->validateValue("Hello", $field));
-        $this->assertEquals("You must supply an integer value for bingo", $validator->validateValue(true, $field));
-        $this->assertEquals("You must supply an integer value for bingo", $validator->validateValue(1.43, $field));
-        $this->assertEquals("You must supply an integer value for bingo", $validator->validateValue("0.456", $field));
+        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue("Hello", $field));
+        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue(true, $field));
+        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue(1.43, $field));
+        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue("0.456", $field));
 
 
 

@@ -18,7 +18,7 @@ class RequiredFieldValidator implements FieldValidator {
      */
     public function validateValue($value, $field) {
         if ($value === null | $value === "") {
-            return "You must supply a non-blank value for " . $field->getName();
+            return "Value required for " . $field->getName();
         }
         return true;
     }
