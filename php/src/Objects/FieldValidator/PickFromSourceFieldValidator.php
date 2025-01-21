@@ -30,7 +30,7 @@ class PickFromSourceFieldValidator implements FieldValidator {
      * @param int|null $datasetId
      * @param string|null $datasourceInstanceKey
      */
-    public function __construct(public string $valueFieldName, public ?int $datasetId = null, public ?string $datasourceInstanceKey = null) {
+    public function __construct(private string $valueFieldName, private ?int $datasetId = null, private ?string $datasourceInstanceKey = null) {
         $this->datasetService = Container::instance()->get(DatasetService::class);
         $this->datasourceService = Container::instance()->get(DatasourceService::class);
     }
@@ -51,7 +51,7 @@ class PickFromSourceFieldValidator implements FieldValidator {
 
         $allowedValues = $this->lookupValues();
 
-        if (in_array($value, $allowedValues))
+        if (in_array($value, $allowedValues,true))
             return true;
         else
             return "Invalid value supplied for " . $field->getName();

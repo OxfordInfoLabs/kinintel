@@ -26,8 +26,8 @@ class RequiredFieldValidatorTest extends TestCase {
         $validator = new RequiredFieldValidator();
         $field = new DatasourceUpdateField("bingo");
 
-        $this->assertEquals("Value required for bingo", $validator->validateValue(null, $field));
-        $this->assertEquals("Value required for bingo", $validator->validateValue("", $field));
+        $this->assertSame("Value required for bingo", $validator->validateValue(null, $field));
+        $this->assertSame("Value required for bingo", $validator->validateValue("", $field));
 
 
     }

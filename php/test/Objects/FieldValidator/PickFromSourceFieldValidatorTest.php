@@ -46,10 +46,10 @@ class PickFromSourceFieldValidatorTest extends TestCase {
 
 
         // Invalid values
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue("Happy", $field));
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue("11", $field));
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue(true, $field));
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue("Other", $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("Happy", $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("11", $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue(true, $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("Other", $field));
 
 
     }
@@ -86,10 +86,10 @@ class PickFromSourceFieldValidatorTest extends TestCase {
 
 
         // Invalid values
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue("Happy", $field));
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue("11", $field));
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue(true, $field));
-        $this->assertEquals("Invalid value supplied for example", $validator->validateValue("Other", $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("Happy", $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("11", $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue(true, $field));
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("Other", $field));
 
 
     }

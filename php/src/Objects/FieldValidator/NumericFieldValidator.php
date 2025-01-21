@@ -6,7 +6,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 
 class NumericFieldValidator implements FieldValidator {
 
-    public function __construct(public bool $allowDecimals = true) {
+    public function __construct(private bool $allowDecimals = true) {
     }
 
     /**

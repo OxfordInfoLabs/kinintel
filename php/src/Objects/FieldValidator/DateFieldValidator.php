@@ -9,7 +9,7 @@ class DateFieldValidator implements FieldValidator {
     const DATE_FORMAT = "Y-m-d";
     const DATE_TIME_FORMAT = "Y-m-d H:i:s";
 
-    public function __construct(public bool $includeTime = false) {
+    public function __construct(private bool $includeTime = false) {
     }
 
     /**

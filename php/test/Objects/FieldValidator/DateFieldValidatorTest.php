@@ -20,12 +20,12 @@ class DateFieldValidatorTest extends TestCase {
         $this->assertTrue($validator->validateValue("2024-03-23", $field));
 
         // Invalid
-        $this->assertEquals("Invalid date value supplied for bingo", $validator->validateValue("2021-01-23 10:00:00", $field));
-        $this->assertEquals("Invalid date value supplied for bingo",$validator->validateValue("2021-01-23 09", $field));
-        $this->assertEquals("Invalid date value supplied for bingo", $validator->validateValue("01/01/2025", $field));
-        $this->assertEquals("Invalid date value supplied for bingo", $validator->validateValue("Hello", $field));
-        $this->assertEquals("Invalid date value supplied for bingo", $validator->validateValue(33, $field));
-        $this->assertEquals("Invalid date value supplied for bingo", $validator->validateValue("2024", $field));
+        $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("2021-01-23 10:00:00", $field));
+        $this->assertSame("Invalid date value supplied for bingo",$validator->validateValue("2021-01-23 09", $field));
+        $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("01/01/2025", $field));
+        $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("Hello", $field));
+        $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue(33, $field));
+        $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("2024", $field));
 
         // Blanks and nulls ok
         $this->assertTrue($validator->validateValue("", $field));
@@ -45,11 +45,11 @@ class DateFieldValidatorTest extends TestCase {
         $this->assertTrue($validator->validateValue("2024-03-23 09:22:33", $field));
 
         // Invalid
-        $this->assertEquals("Invalid date time value supplied for bingo", $validator->validateValue("2021-01-23", $field));
-        $this->assertEquals("Invalid date time value supplied for bingo", $validator->validateValue("2021-01-23 09", $field));
-        $this->assertEquals("Invalid date time value supplied for bingo", $validator->validateValue("Hello", $field));
-        $this->assertEquals("Invalid date time value supplied for bingo", $validator->validateValue(33, $field));
-        $this->assertEquals("Invalid date time value supplied for bingo", $validator->validateValue("2024", $field));
+        $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("2021-01-23", $field));
+        $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("2021-01-23 09", $field));
+        $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("Hello", $field));
+        $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue(33, $field));
+        $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("2024", $field));
 
         // Blanks and nulls ok
         $this->assertTrue($validator->validateValue("", $field));
