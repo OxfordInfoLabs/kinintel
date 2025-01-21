@@ -87,17 +87,17 @@ class QueryCachingDataProcessorTest extends TestCase {
             columns: [
                 new DatasourceUpdateField(
                     name: "parameters",
-                    valueExpression: "1",
-                    keyField: true
+                    title: "Parameters",
+                    valueExpression: 1, type: Field::TYPE_STRING, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "cached_time",
-                    type: Field::TYPE_DATE_TIME,
-                    keyField: true
+                    title: "Cached Time",
+                    valueExpression: null, type: Field::TYPE_DATE_TIME, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "col1",
-                    keyField: true
+                    title: "Col 1", valueExpression: null, type: Field::TYPE_STRING, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "col2"
@@ -171,12 +171,12 @@ class QueryCachingDataProcessorTest extends TestCase {
             columns: [
                 new DatasourceUpdateField(
                     name: "parameters",
-                    keyField: true
+                    title: true, valueExpression: null, type: Field::TYPE_STRING, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "cached_time",
-                    type: Field::TYPE_DATE_TIME,
-                    keyField: true
+                    title: "Cached Time",
+                    valueExpression: null, type: Field::TYPE_DATE_TIME, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "col1"
@@ -268,12 +268,12 @@ class QueryCachingDataProcessorTest extends TestCase {
             columns: [
                 new DatasourceUpdateField(
                     name: "parameters",
-                    keyField: true
+                    title: true, valueExpression: null, type: Field::TYPE_STRING, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "cached_time",
-                    type: Field::TYPE_DATE_TIME,
-                    keyField: true
+                    title: "Cached Time",
+                    valueExpression: null, type: Field::TYPE_DATE_TIME, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "baseCol1"
@@ -366,21 +366,21 @@ class QueryCachingDataProcessorTest extends TestCase {
             columns: [
                 new DatasourceUpdateField(
                     name: "parameters",
-                    keyField: true
+                    title: "Parameters", valueExpression: null, type: Field::TYPE_STRING, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "cached_time",
-                    type: Field::TYPE_DATE_TIME,
-                    keyField: true
+                    title: "Cached Time",
+                    valueExpression: null, type: Field::TYPE_DATE_TIME, keyField: true
                 ),
                 new DatasourceUpdateField(
                     name: "col1",
-                    type: Field::TYPE_INTEGER
+                    title: "Col 1", valueExpression: null, type: Field::TYPE_INTEGER
                 ),
                 new DatasourceUpdateField(
                     name: "col2",
-                    type: Field::TYPE_STRING,
-                    keyField: true
+                    title: "Col 2",
+                    valueExpression: null, type: Field::TYPE_STRING, keyField: true
                 )
             ],
             indexes: [

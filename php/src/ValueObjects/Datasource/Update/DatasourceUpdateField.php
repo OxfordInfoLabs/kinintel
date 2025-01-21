@@ -4,10 +4,16 @@
 namespace Kinintel\ValueObjects\Datasource\Update;
 
 
+use Kinikit\Core\Binding\ObjectBinder;
+use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\FieldValidator\DateFieldValidator;
 use Kinintel\Objects\FieldValidator\FieldValidator;
 use Kinintel\Objects\FieldValidator\NumericFieldValidator;
+use Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator;
+use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\TypeConfig\FieldTypeConfig;
 
 class DatasourceUpdateField extends Field {
 
@@ -30,6 +36,18 @@ class DatasourceUpdateField extends Field {
      */
     private $validators = null;
 
+
+    /**
+     * @var DatasourceService
+     */
+    private $datasourceService;
+
+    /**
+     * @var DatasetService
+     */
+    private $datasetService;
+
+
     /**
      * Field constructor.
      *
@@ -38,13 +56,20 @@ class DatasourceUpdateField extends Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
+     * @param boolean $flattenArray
+     * @param boolean $valueExpressionOnNullOnly
+     * @param array $typeConfig
      * @param string $previousName
      * @param DatasourceUpdateFieldValidatorConfig[] $validators
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $previousName = "", $validators = []) {
-        parent::__construct($name, $title, $valueExpression, $type, $keyField);
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false, $valueExpressionOnNullOnly = false, $typeConfig = [],
+                                $previousName = "", $validators = []) {
+        parent::__construct($name, $title, $valueExpression, $type, $keyField, $flattenArray, $valueExpressionOnNullOnly, $typeConfig);
         $this->previousName = $previousName;
         $this->validatorConfigs = $validators;
+
+        $this->datasourceService = Container::instance()->get(DatasourceService::class);
+        $this->datasetService = Container::instance()->get(DatasetService::class);
     }
 
 
@@ -76,6 +101,24 @@ class DatasourceUpdateField extends Field {
         $this->validatorConfigs = $validatorConfigs;
     }
 
+    /**
+     * testing only
+     *
+     * @param DatasourceService|object $datasourceService
+     */
+    public function setDatasourceService(DatasourceService $datasourceService): void {
+        $this->datasourceService = $datasourceService;
+    }
+
+    /**
+     * testing only
+     *
+     * @param DatasetService|object $datasetService
+     */
+    public function setDatasetService(DatasetService $datasetService): void {
+        $this->datasetService = $datasetService;
+    }
+
 
     /**
      * Validate a value for this update field
@@ -105,7 +148,7 @@ class DatasourceUpdateField extends Field {
             }
 
             // Add implicit validators
-            switch ($this->getType()){
+            switch ($this->getType()) {
                 case Field::TYPE_INTEGER:
                     $this->validators[] = new NumericFieldValidator(false);
                     break;
@@ -118,9 +161,20 @@ class DatasourceUpdateField extends Field {
                 case Field::TYPE_DATE_TIME:
                     $this->validators[] = new DateFieldValidator(true);
                     break;
+                case Field::TYPE_PICK_FROM_SOURCE:
+                    $fieldConfig = $this->returnFieldTypeConfig();
+                    $validator = new PickFromSourceFieldValidator($fieldConfig->getValueFieldName(),
+                        $fieldConfig->getDatasetId(), $fieldConfig->getDatasourceInstanceKey());
+                    $validator->setDatasetService($this->datasetService);
+                    $validator->setDatasourceService($this->datasourceService);
+                    $this->validators[] = $validator;
+
             }
 
         }
         return $this->validators;
     }
+
+
+
 }

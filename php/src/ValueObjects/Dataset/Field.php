@@ -4,9 +4,11 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\ValueObjects\Dataset\TypeConfig\FieldTypeConfig;
 
 class Field {
 
@@ -49,6 +51,12 @@ class Field {
 
 
     /**
+     * @var mixed
+     */
+    private $typeConfig;
+
+
+    /**
      * @var boolean
      */
     private $keyField;
@@ -71,6 +79,7 @@ class Field {
     const TYPE_FLOAT = "float";
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
+    const TYPE_PICK_FROM_SOURCE = "pickfromsource";
     const TYPE_ID = "id";
 
 
@@ -86,7 +95,7 @@ class Field {
      * @param boolean $valueExpressionOnNullOnly
      */
     public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false,
-                                $valueExpressionOnNullOnly = false) {
+                                $valueExpressionOnNullOnly = false, $typeConfig = []) {
 
         $name = preg_split("/[^\w-]/", $name)[0];
         $this->name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $name);
@@ -102,6 +111,7 @@ class Field {
         $this->keyField = $keyField;
         $this->flattenArray = $flattenArray;
         $this->valueExpressionOnNullOnly = $valueExpressionOnNullOnly;
+        $this->typeConfig = $typeConfig;
     }
 
 
@@ -170,6 +180,20 @@ class Field {
         $this->type = $type;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTypeConfig() {
+        return $this->typeConfig;
+    }
+
+    /**
+     * @param mixed $typeConfig
+     */
+    public function setTypeConfig($typeConfig) {
+        $this->typeConfig = $typeConfig;
+    }
+
 
     /**
      * @return boolean
@@ -201,6 +225,20 @@ class Field {
 
 
     /**
+     * Return the field type config as config object if defined.
+     *
+     * @return FieldTypeConfig
+     */
+    public function returnFieldTypeConfig() {
+        $configClass = Container::instance()->getInterfaceImplementationClass(FieldTypeConfig::class, $this->getType());
+        if ($configClass) {
+            $objectBinder = Container::instance()->get(ObjectBinder::class);
+            return $objectBinder->bindFromArray($this->getTypeConfig() ?? [], $configClass);
+        }
+        return null;
+    }
+
+    /**
      * Evaluate the value expression defined using a supplied data item
      *
      * @param $dataItem
@@ -217,6 +255,8 @@ class Field {
             return $fieldValue;
         }
     }
+
+
 
 
     /**

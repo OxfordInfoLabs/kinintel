@@ -738,7 +738,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, [], "how_many")
         ]);
 
         // Modify the table structure and ensure a create was made
@@ -789,7 +789,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, false),
             new Field("why", null, null, null, false),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, "how_many")
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, false, false, [], "how_many")
         ]);
 
         // Modify the table structure and ensure a create was made
@@ -898,9 +898,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $config->setColumns([
-            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, "which"),
-            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, "what"),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
+            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, false, false, [], "which"),
+            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, false, false, [], "what"),
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, [], "how_many")
         ]);
 
         $config->setIndexes([new Index(["when", "why"])]);

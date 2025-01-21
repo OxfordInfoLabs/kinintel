@@ -22,7 +22,7 @@ class DatasourceUpdateFieldValidatorConfigTest extends \PHPUnit\Framework\TestCa
         $this->assertEquals(new DateFieldValidator(true), $config->returnFieldValidator());
 
         // Pick from
-        $config = new DatasourceUpdateFieldValidatorConfig("pickfrom", ["valueFieldName" => "id", "datasourceInstanceKey" => "test"]);
+        $config = new DatasourceUpdateFieldValidatorConfig("pickfromsource", ["valueFieldName" => "id", "datasourceInstanceKey" => "test"]);
         $this->assertEquals(new PickFromSourceFieldValidator("id", null, "test"), $config->returnFieldValidator());
 
     }

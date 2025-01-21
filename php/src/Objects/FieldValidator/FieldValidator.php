@@ -8,7 +8,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 /**
  * @implementation date \Kinintel\Objects\FieldValidator\DateFieldValidator
  * @implementation numeric \Kinintel\Objects\FieldValidator\NumericFieldValidator
- * @implementation pickfrom \Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator
+ * @implementation pickfromsource \Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator
  * @implementation required \Kinintel\Objects\FieldValidator\RequiredFieldValidator
  *
  */
