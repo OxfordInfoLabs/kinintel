@@ -496,18 +496,28 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         } else {
             this.datasourceUpdate.importKey = this.datasourceUpdate.instanceImportKey;
             await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
-                .then(async () => {
-                    this.adds = [];
-                    this.updates = [];
-                    this.deletes = [];
+                .then(async (result: any) => {
+                    if (result.rejected && result.rejected > 0) {
+                        if (this.adds.length && result.adds < this.adds.length){
+                           let addValidations = result.validationErrors
+                        }
+                        if (this.updates.length && result.updates < this.updates.length){
 
-                    // If we have a filter in use, apply it to the next load...
-                    const transformations = [];
-                    if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
-                        transformations.push({type: 'filter', config: this.filterJunction});
+                        }
+
+                    } else {
+                        this.adds = [];
+                        this.updates = [];
+                        this.deletes = [];
+
+                        // If we have a filter in use, apply it to the next load...
+                        const transformations = [];
+                        if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
+                            transformations.push({type: 'filter', config: this.filterJunction});
+                        }
+
+                        await this.loadDatasource(transformations);
                     }
-
-                    await this.loadDatasource(transformations);
                     return true;
                 })
                 .catch(err => {

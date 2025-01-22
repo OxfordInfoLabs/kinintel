@@ -2,6 +2,8 @@
 
 namespace Kinintel\ValueObjects\Datasource\Update;
 
+use Kinikit\Core\Logging\Logger;
+
 class DatasourceUpdateResult {
 
     /**
@@ -58,7 +60,7 @@ class DatasourceUpdateResult {
      * @return DatasourceUpdateResultItemValidationErrors[]
      */
     public function getValidationErrors(): array {
-        return $this->validationErrors;
+        return $this->validationErrors ?? [];
     }
 
 
@@ -69,17 +71,7 @@ class DatasourceUpdateResult {
      */
     public function combine($otherDatasourceUpdateResult) {
 
-        // Ensure we are upgraded to associative validation errors by type
-        if (isset($this->validationErrors[0])) {
-            $this->validationErrors = [$this->getChangeMode() => $this->validationErrors];
-        }
-
-        $otherValidationErrors = isset($otherDatasourceUpdateResult->validationErrors[0]) ?
-            [$otherDatasourceUpdateResult->getChangeMode() => $otherDatasourceUpdateResult->validationErrors] : (
-                $otherDatasourceUpdateResult->validationErrors ?? []
-            );
-
-        $this->validationErrors = array_merge($this->validationErrors, $otherValidationErrors);
+        $this->validationErrors = array_merge($this->validationErrors, $otherDatasourceUpdateResult->getValidationErrors());
 
         $this->adds += $otherDatasourceUpdateResult->getAdds();
         $this->updates += $otherDatasourceUpdateResult->getUpdates();
@@ -87,10 +79,6 @@ class DatasourceUpdateResult {
         $this->deletes += $otherDatasourceUpdateResult->getDeletes();
         $this->rejected += $otherDatasourceUpdateResult->getRejected();
 
-    }
-
-    private function getChangeMode() {
-        return $this->adds ? "adds" : ($this->updates ? "updates" : ($this->replaces ? "replaces" : "deletes"));
     }
 
 

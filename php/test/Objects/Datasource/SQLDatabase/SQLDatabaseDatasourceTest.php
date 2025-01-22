@@ -538,9 +538,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
 
         // Check an update result was returned
-        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1, [
-            new DatasourceUpdateResultItemValidationErrors(1, ["Invalid integer value supplied for age", "Value required for extraDetail"])
-        ]), $result);
+        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1,["add" =>  [
+            new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age",
+                "extraDetail" => "Value required for extraDetail"])
+        ]]), $result);
 
 
 

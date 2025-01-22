@@ -48,9 +48,10 @@ class DatasourceDataValidator {
                 $dataItem = $data[$i];
                 $errors = [];
                 foreach ($this->validationFields as $validationField) {
-                    $validation = $validationField->validateValue($dataItem[$validationField->getName()] ?? null);
+                    $fieldName = $validationField->getName();
+                    $validation = $validationField->validateValue($dataItem[$fieldName] ?? null);
                     if ($validation !== true) {
-                        $errors[] = $validation;
+                        $errors[$fieldName] = $validation;
                     }
                 }
 

@@ -440,7 +440,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $updateMode == UpdatableDatasource::UPDATE_MODE_REPLACE ? $changed : 0,
             $updateMode == UpdatableDatasource::UPDATE_MODE_DELETE ? $changed : 0,
             sizeof($validationErrors),
-            $validationErrors);
+            sizeof($validationErrors) ? [$updateMode => $validationErrors] : []);
 
 
     }

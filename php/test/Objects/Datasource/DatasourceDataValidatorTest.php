@@ -42,8 +42,8 @@ class DatasourceDataValidatorTest extends \PHPUnit\Framework\TestCase {
 
         $validationErrors = $validator->validateUpdateData($data);
         $this->assertEquals($expectedData, $data);
-        $this->assertEquals([new DatasourceUpdateResultItemValidationErrors(1, ["Invalid integer value supplied for age"]),
-            new DatasourceUpdateResultItemValidationErrors(3, ["Invalid integer value supplied for age"])], $validationErrors);
+        $this->assertEquals([new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age"]),
+            new DatasourceUpdateResultItemValidationErrors(3, ["age" => "Invalid integer value supplied for age"])], $validationErrors);
     }
 
 
@@ -64,9 +64,9 @@ class DatasourceDataValidatorTest extends \PHPUnit\Framework\TestCase {
         $validationErrors = $validator->validateUpdateData($data, true);
         $this->assertEquals($expectedData, $data);
         $this->assertEquals([new DatasourceUpdateResultItemValidationErrors(1,
-            ["Invalid integer value supplied for age"]),
+            ["age" => "Invalid integer value supplied for age"]),
             new DatasourceUpdateResultItemValidationErrors(3,
-                ["Invalid integer value supplied for age"])], $validationErrors);
+                ["age" => "Invalid integer value supplied for age"])], $validationErrors);
     }
 
 }
