@@ -16,18 +16,18 @@ class NumericFieldValidatorTest extends TestCase {
         $validator = new NumericFieldValidator();
         $field = new DatasourceUpdateField("bingo");
 
-        $this->assertEquals(true, $validator->validateValue(1, $field));
-        $this->assertEquals(true, $validator->validateValue("1", $field));
-        $this->assertEquals(true, $validator->validateValue("0.3", $field));
-        $this->assertEquals(true, $validator->validateValue(0.0043, $field));
+        $this->assertSame(true, $validator->validateValue(1, $field));
+        $this->assertSame(true, $validator->validateValue("1", $field));
+        $this->assertSame(true, $validator->validateValue("0.3", $field));
+        $this->assertSame(true, $validator->validateValue(0.0043, $field));
 
         // Blanks and null should be ok.
-        $this->assertEquals(true, $validator->validateValue("", $field));
-        $this->assertEquals(true, $validator->validateValue(null, $field));
+        $this->assertSame(true, $validator->validateValue("", $field));
+        $this->assertSame(true, $validator->validateValue(null, $field));
 
 
-        $this->assertEquals("Invalid numeric value supplied for bingo", $validator->validateValue("Hello", $field));
-        $this->assertEquals("Invalid numeric value supplied for bingo", $validator->validateValue(true, $field));
+        $this->assertSame("Invalid numeric value supplied for bingo", $validator->validateValue("Hello", $field));
+        $this->assertSame("Invalid numeric value supplied for bingo", $validator->validateValue(true, $field));
     }
 
     public function testNumericFieldValidatorCorrectlyValidatesNumericValuesWithoutDecimals() {
@@ -35,18 +35,18 @@ class NumericFieldValidatorTest extends TestCase {
         $validator = new NumericFieldValidator(false);
         $field = new DatasourceUpdateField("bingo");
 
-        $this->assertEquals(true, $validator->validateValue(1, $field));
-        $this->assertEquals(true, $validator->validateValue("1", $field));
+        $this->assertSame(true, $validator->validateValue(1, $field));
+        $this->assertSame(true, $validator->validateValue("1", $field));
 
         // Blanks and null should be ok.
-        $this->assertEquals(true, $validator->validateValue("", $field));
-        $this->assertEquals(true, $validator->validateValue(null, $field));
+        $this->assertSame(true, $validator->validateValue("", $field));
+        $this->assertSame(true, $validator->validateValue(null, $field));
 
 
-        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue("Hello", $field));
-        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue(true, $field));
-        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue(1.43, $field));
-        $this->assertEquals("Invalid integer value supplied for bingo", $validator->validateValue("0.456", $field));
+        $this->assertSame("Invalid integer value supplied for bingo", $validator->validateValue("Hello", $field));
+        $this->assertSame("Invalid integer value supplied for bingo", $validator->validateValue(true, $field));
+        $this->assertSame("Invalid integer value supplied for bingo", $validator->validateValue(1.43, $field));
+        $this->assertSame("Invalid integer value supplied for bingo", $validator->validateValue("0.456", $field));
 
 
 

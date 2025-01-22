@@ -2,6 +2,7 @@
 
 namespace Kinintel\Objects\FieldValidator;
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 
 class NumericFieldValidator implements FieldValidator {
@@ -23,7 +24,7 @@ class NumericFieldValidator implements FieldValidator {
         if ($value === null || $value === "")
             return true;
 
-        $valid = ($this->allowDecimals && is_numeric($value)) || (!$this->allowDecimals && is_int($value));
+        $valid = is_numeric($value) && ($this->allowDecimals || floatval($value) == intval($value));
 
         $typeString = $this->allowDecimals ? "numeric" : "integer";
 

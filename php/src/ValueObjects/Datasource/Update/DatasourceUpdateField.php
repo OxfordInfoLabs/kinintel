@@ -103,7 +103,7 @@ class DatasourceUpdateField extends Field {
      *
      * @param DatasourceService|object $datasourceService
      */
-    public function setDatasourceService(DatasourceService $datasourceService): void {
+    public function setDatasourceService(?DatasourceService $datasourceService): void {
         $this->datasourceService = $datasourceService;
     }
 
@@ -112,7 +112,7 @@ class DatasourceUpdateField extends Field {
      *
      * @param DatasetService|object $datasetService
      */
-    public function setDatasetService(DatasetService $datasetService): void {
+    public function setDatasetService(?DatasetService $datasetService): void {
         $this->datasetService = $datasetService;
     }
 
