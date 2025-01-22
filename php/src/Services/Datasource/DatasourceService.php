@@ -30,6 +30,7 @@ use Kinintel\ValueObjects\Dataset\DatasetTree;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\IndexableDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -301,12 +302,14 @@ class DatasourceService {
      *
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdate $datasourceUpdate
+     *
+     * @return DatasourceUpdateResult
      */
     public function updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate, $allowInsecure = false) {
 
         // Grab the instance and call the child function
         $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
-        $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure);
+        return $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure);
 
     }
 
@@ -318,12 +321,14 @@ class DatasourceService {
      * @param DatasourceUpdate $datasourceUpdate
      * @param string $projectKey
      * @param int $accountId
+     *
+     * @return DatasourceUpdateResult
      */
     public function updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         // Grab the instance and call the child function
         $datasourceInstance = $this->datasourceDAO->getDatasourceInstanceByImportKey($importKey, $accountId);
-        $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, false);
+        return $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, false);
     }
 
 
@@ -363,6 +368,8 @@ class DatasourceService {
      * @param DatasourceInstance $datasourceInstance
      * @param DatasourceUpdate $datasourceUpdate
      * @param boolean $allowInsecure
+     *
+     * @return DatasourceUpdateResult
      *
      * @throws DatasourceNotUpdatableException
      * @throws ObjectNotFoundException
@@ -404,6 +411,7 @@ class DatasourceService {
 
         }
 
+        $result = null;
 
         // Perform the various updates required
         if ($datasourceUpdate->getAdds()) {
@@ -418,14 +426,15 @@ class DatasourceService {
                     return new Field($columnName);
                 }, array_keys($datasourceUpdate->getAdds()[0]));
             }
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
+            $result = $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getAdds()), UpdatableDatasource::UPDATE_MODE_ADD);
         }
 
         if ($datasourceUpdate->getUpdates()) {
             $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getUpdates()[0]));
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
+            $updateResult = $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getUpdates()), UpdatableDatasource::UPDATE_MODE_UPDATE);
+            $result ? $result->combine($updateResult) : $result = $updateResult;
         }
 
 
@@ -433,15 +442,19 @@ class DatasourceService {
             $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getDeletes()[0]));
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
+            $deleteResult = $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getDeletes()), UpdatableDatasource::UPDATE_MODE_DELETE);
+            $result ? $result->combine($deleteResult) : $result = $deleteResult;
         }
 
         if ($datasourceUpdate->getReplaces()) {
             $fields = $datasource->getConfig()->getColumns() ?: array_map(function ($columnName) {
                 return new Field($columnName);
             }, array_keys($datasourceUpdate->getReplaces()[0]));
-            $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getReplaces()), UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $replaceResult = $datasource->update(new ArrayTabularDataset($fields, $datasourceUpdate->getReplaces()), UpdatableDatasource::UPDATE_MODE_REPLACE);
+            $result ? $result->combine($replaceResult) : $result = $replaceResult;
         }
+
+        return $result;
 
     }
 

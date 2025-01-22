@@ -25,6 +25,7 @@ use Kinintel\Objects\Dataset\Tabular\SQLResultSetTabularDataset;
 use Kinintel\Objects\Dataset\Tabular\TabularDataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Objects\Datasource\BaseUpdatableDatasource;
+use Kinintel\Objects\Datasource\DatasourceDataValidator;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
@@ -40,6 +41,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -269,9 +271,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
         } catch (PDOException $e) {
             $time = microtime(true);
-            Logger::log("SQL Database Datasource Error: ".$time);
+            Logger::log("SQL Database Datasource Error: " . $time);
             Logger::log($e);
-            throw new DebugException("Database Error occured when running query, see logs ".$time, debugMessage: $e->getMessage());
+            throw new DebugException("Database Error occured when running query, see logs " . $time, debugMessage: $e->getMessage());
         }
 
         // Grab columns
@@ -305,6 +307,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param Dataset $dataset
      * @param string $updateMode
      *
+     * @return DatasourceUpdateResult
      */
     public function update($dataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
 
@@ -335,13 +338,21 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $dbConnection = $this->returnDatabaseConnection();
         $bulkDataManager = $dbConnection->getBulkDataManager();
 
+        $changed = 0;
+        $validationErrors = [];
+
+        $columns = $dataset->getColumns();
+
+        // Data validator
+        $datasourceDataValidator = new DatasourceDataValidator($columns);
+
         do {
 
             // Get all data from the dataset
             $allData = $dataset->nextNDataItems(50);
 
             // Update mapped field data
-            $insertDataset = $this->updateMappedFieldData(new ArrayTabularDataset($dataset->getColumns(), $allData), $updateMode);
+            $insertDataset = $this->updateMappedFieldData(new ArrayTabularDataset($columns, $allData), $updateMode);
 
             // Only continue if some data to process
             if (sizeof($allData) > 0) {
@@ -372,6 +383,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 }
 
 
+                // Validate the data before insert.
+                $validationErrors = array_merge($validationErrors, $datasourceDataValidator->validateUpdateData($allData, true));
+
                 try {
                     switch ($updateMode) {
                         case UpdatableDatasource::UPDATE_MODE_ADD:
@@ -389,6 +403,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
                     }
 
+                    $changed += sizeof($allData);
+
                     // Run any hooks using hook service if instance info has been proviced
                     if ($this->getInstanceInfo())
                         $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode);
@@ -401,13 +417,13 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                         if (str_contains(strtolower($e->getMessage()), "dup")) {
                             throw new DuplicateEntriesException();
                         } else {
-                            Logger::log("SQL Error writing to table (uniqueness violation). Table name: ".$config->getTableName()." DATA:");
+                            Logger::log("SQL Error writing to table (uniqueness violation). Table name: " . $config->getTableName() . " DATA:");
                             Logger::log($allData, 6);
                             Logger::log($e, 6);
                             throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
                         }
                     } else {
-                        $debugMessage = "SQL Error: " . $e->getMessage() . "\n with tableName ".$config->getTableName();
+                        $debugMessage = "SQL Error: " . $e->getMessage() . "\n with tableName " . $config->getTableName();
                         Logger::log($debugMessage, 4);
                         throw new DebugException(
                             message: "An unexpected error occurred updating the datasource",
@@ -418,6 +434,15 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
             }
         } while (sizeof($allData) == 50);
+
+        return new DatasourceUpdateResult($updateMode == UpdatableDatasource::UPDATE_MODE_ADD ? $changed : 0,
+            $updateMode == UpdatableDatasource::UPDATE_MODE_UPDATE ? $changed : 0,
+            $updateMode == UpdatableDatasource::UPDATE_MODE_REPLACE ? $changed : 0,
+            $updateMode == UpdatableDatasource::UPDATE_MODE_DELETE ? $changed : 0,
+            sizeof($validationErrors),
+            $validationErrors);
+
+
     }
 
     /**

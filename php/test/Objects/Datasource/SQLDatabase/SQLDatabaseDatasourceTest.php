@@ -26,6 +26,7 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\FieldValidator\RequiredFieldValidator;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
@@ -38,6 +39,9 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateFieldValidatorConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -477,7 +481,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $dataSet->returnValue("nextNDataItems", $data, [50]);
 
 
-        $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+        $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+
+        // Check an update result was returned
+        $this->assertEquals(new DatasourceUpdateResult(2), $result);
 
 
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
@@ -489,6 +496,64 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "addinstance",
                 UpdatableDatasource::UPDATE_MODE_ADD
             ]));
+
+    }
+
+
+    public function testValidationErrorsReturnedForRowsWhichFailValidationForInsertUpdateOrReplace() {
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+        $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("addinstance", "Add Instance", "sqldatabase"));
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens",
+                "age" => 55,
+                "extraDetail" => "He's a dude"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => "apple",
+                "extraDetail" => ""
+            ]
+        ];
+
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
+
+        $dataSet->returnValue("getColumns", [
+            new DatasourceUpdateField("name"), new DatasourceUpdateField("age", "Name", null, Field::TYPE_INTEGER),
+            new DatasourceUpdateField("extraDetail", "Extra Detail", null, Field::TYPE_STRING, false, false, false, [], null, [
+                new DatasourceUpdateFieldValidatorConfig("required", [])
+            ])
+        ]);
+
+
+        $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+
+        // Check an update result was returned
+        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1, [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Invalid integer value supplied for age", "Value required for extraDetail"])
+        ]), $result);
+
+
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
+            "test_data", array_slice($data, 0, 1), ["name", "age", "extraDetail"], true
+        ]));
+
+        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
+            [
+                "addinstance",
+                UpdatableDatasource::UPDATE_MODE_ADD
+            ]));
+
 
     }
 

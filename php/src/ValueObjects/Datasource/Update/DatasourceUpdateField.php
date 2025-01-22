@@ -67,9 +67,6 @@ class DatasourceUpdateField extends Field {
         parent::__construct($name, $title, $valueExpression, $type, $keyField, $flattenArray, $valueExpressionOnNullOnly, $typeConfig);
         $this->previousName = $previousName;
         $this->validatorConfigs = $validators;
-
-        $this->datasourceService = Container::instance()->get(DatasourceService::class);
-        $this->datasetService = Container::instance()->get(DatasetService::class);
     }
 
 
@@ -127,7 +124,7 @@ class DatasourceUpdateField extends Field {
      * @return bool|string
      */
     public function validateValue($value) {
-        $validators = $this->getValidators();
+        $validators = $this->returnValidators();
         foreach ($validators as $validator) {
             $validatorResult = $validator->validateValue($value, $this);
             if (is_string($validatorResult))
@@ -138,7 +135,7 @@ class DatasourceUpdateField extends Field {
 
 
     // Ensure we have made the validators
-    private function getValidators() {
+    public function returnValidators() {
         if ($this->validators === null) {
             $this->validators = [];
 
@@ -165,8 +162,12 @@ class DatasourceUpdateField extends Field {
                     $fieldConfig = $this->returnFieldTypeConfig();
                     $validator = new PickFromSourceFieldValidator($fieldConfig->getValueFieldName(),
                         $fieldConfig->getDatasetId(), $fieldConfig->getDatasourceInstanceKey());
-                    $validator->setDatasetService($this->datasetService);
-                    $validator->setDatasourceService($this->datasourceService);
+
+                    if ($this->datasetService)
+                        $validator->setDatasetService($this->datasetService);
+                    if ($this->datasourceService)
+                        $validator->setDatasourceService($this->datasourceService);
+
                     $this->validators[] = $validator;
 
             }
@@ -174,7 +175,6 @@ class DatasourceUpdateField extends Field {
         }
         return $this->validators;
     }
-
 
 
 }
