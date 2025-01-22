@@ -64,7 +64,7 @@ export class ImportDataComponent implements OnInit {
                 this.import.fileName = file.name;
                 this.import.data = this.papa.parse(text, {
                     delimiter: this.import.delimiter,
-                    quoteChar: '',
+                    quoteChar: '"',
                     escapeChar: '\\'
                 }).data;
 
