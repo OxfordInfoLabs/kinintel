@@ -173,6 +173,8 @@
 
                                     </ng-template>
 
+                                    <span class="absolute material-symbols-outlined right-0 w-10 text-orange-500 text-lg" *ngIf="invalidItems[rowIndex] && invalidItems[rowIndex][rowColumn.name]" [matTooltip]="invalidItems[rowIndex][rowColumn.name]">warning</span>
+
                                     <button mat-icon-button [matMenuTriggerFor]="menu"
                                             class="absolute cell-actions" tabindex="-1">
                                         <mat-icon>more_vert</mat-icon>

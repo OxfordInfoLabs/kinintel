@@ -59,6 +59,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public adds: any = [];
     public updates: any = [];
     public deletes: any = [];
+    public invalidItems: any = [];
     public autoIncrementColumn = false;
     public datasourceInstanceKey: string;
     public datasourceUpdate: any = {
@@ -483,6 +484,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.datasourceUpdate.title = this.namePrefix + this.datasourceUpdate.title;
         }
 
+        // Reset invalid items
+        this.invalidItems = [];
+
         if (!this.datasourceInstanceKey) {
             await this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
                 if (!exit) {
@@ -497,13 +501,35 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.datasourceUpdate.importKey = this.datasourceUpdate.instanceImportKey;
             await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
                 .then(async (result: any) => {
-                    if (result.rejected && result.rejected > 0) {
-                        if (this.adds.length && result.adds < this.adds.length){
-                           let addValidations = result.validationErrors
-                        }
-                        if (this.updates.length && result.updates < this.updates.length){
+                    if (result && result.rejected && result.rejected > 0) {
 
+                        this.snackbar.open("There were validation problems with one or more of your rows - see highlighted cells below", null, {
+                            duration: 5000,
+                            verticalPosition: 'top'
+                        });
+
+
+                        let invalidAddRows = _.map(result.validationErrors.add || [], "itemNumber");
+                        for (let i = this.adds.length - 1; i >= 0; i--) {
+                            if (!invalidAddRows.includes(i)) {
+                                this.adds.splice(i, 1);
+                            } else {
+                                this.invalidItems[this.adds[i]] = _.find(result.validationErrors.add, {"itemNumber": i}).validationErrors;
+                            }
                         }
+
+
+                        let invalidUpdateRows = _.map(result.validationErrors.update || [], "itemNumber");
+                        for (let i = this.updates.length - 1; i >= 0; i--) {
+                            if (!invalidUpdateRows.includes(i)) {
+                                this.updates.splice(i, 1);
+                            } else {
+                                this.invalidItems[this.updates[i]] =_.find(result.validationErrors.update, {"itemNumber": i}).validationErrors;
+                            }
+                        }
+
+                        console.log(this.invalidItems);
+
 
                     } else {
                         this.adds = [];
