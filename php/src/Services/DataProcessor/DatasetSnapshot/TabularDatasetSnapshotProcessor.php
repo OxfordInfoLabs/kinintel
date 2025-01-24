@@ -141,7 +141,7 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
             }
 
             $offset += $readChunkSize;
-        } while (sizeof($sourceData) == $readChunkSize);
+        } while (sizeof($sourceData) >= $readChunkSize);
 
 
         // Replace the latest
