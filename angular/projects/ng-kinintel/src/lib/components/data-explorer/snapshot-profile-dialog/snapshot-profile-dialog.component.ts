@@ -68,7 +68,8 @@ export class SnapshotProfileDialogComponent implements OnInit {
                 createHistory: true,
                 createLatest: true,
                 indexes: [],
-                parameterValues: {}
+                parameterValues: {},
+                readChunkSize: 50000
             }
         };
 
