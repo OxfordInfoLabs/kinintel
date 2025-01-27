@@ -10,11 +10,11 @@ class PickFromSourceFieldTypeConfig implements FieldTypeConfig {
     /**
      * @param string $labelFieldName
      * @param string $valueFieldName
-     * @param int|null $datasetId
+     * @param int|null $datasetInstanceId
      * @param string|null $datasourceInstanceKey
      */
     public function __construct(private string $labelFieldName, private string $valueFieldName,
-                                private ?int   $datasetId = null, private ?string $datasourceInstanceKey = null) {
+                                private ?int   $datasetInstanceId = null, private ?string $datasourceInstanceKey = null) {
 
     }
 
@@ -49,15 +49,15 @@ class PickFromSourceFieldTypeConfig implements FieldTypeConfig {
     /**
      * @return int|null
      */
-    public function getDatasetId(): ?int {
-        return $this->datasetId;
+    public function getDatasetInstanceId(): ?int {
+        return $this->datasetInstanceId;
     }
 
     /**
-     * @param int|null $datasetId
+     * @param int|null $datasetInstanceId
      */
-    public function setDatasetId(?int $datasetId): void {
-        $this->datasetId = $datasetId;
+    public function setDatasetInstanceId(?int $datasetInstanceId): void {
+        $this->datasetInstanceId = $datasetInstanceId;
     }
 
     /**

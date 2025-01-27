@@ -1,11 +1,13 @@
 <div class="border-b w-full flex items-center justify-between ">
-    <div *ngIf="!readonly" class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
+    <div *ngIf="!readonly"
+         class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
         Name
         <input type="text" class="w-full py-1.5 ml-4" placeholder="Enter datasource name"
                [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
                [(ngModel)]="datasourceUpdate.title">
     </div>
-    <div *ngIf="readonly" class="leading-5 font-medium text-lg px-4">{{datasourceUpdate.title.replace((namePrefix || ''), '')}}</div>
+    <div *ngIf="readonly"
+         class="leading-5 font-medium text-lg px-4">{{datasourceUpdate.title.replace((namePrefix || ''), '')}}</div>
     <div class="flex-1 flex items-center flex-wrap w-full justify-end bg-white">
         <ng-template [ngIf]="_.some(rows, '_selected')">
             <button (click)="deleteSelectedColumns()"
@@ -16,28 +18,36 @@
             <div class="divider"></div>
         </ng-template>
 
-        <button (click)="showFilters = !showFilters" [ngStyle]="{'background-color': this.showFilters ? '#00000012' : ''}"
+        <button *ngIf="!editMode" (click)="showFilters = !showFilters"
+                [ngStyle]="{'background-color': this.showFilters ? '#00000012' : ''}"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">filter_alt</mat-icon>
             filter
         </button>
-        <div class="divider"></div>
-        <button (click)="advancedSettings()" [disabled]="!datasourceInstanceKey"
+        <div *ngIf="!editMode" class="divider"></div>
+        <button *ngIf="!editMode" (click)="advancedSettings()" [disabled]="!datasourceInstanceKey"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">tune</mat-icon>
             advanced
         </button>
-        <button (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
+        <button *ngIf="!editMode" (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">api</mat-icon>
             api access
         </button>
-        <button (click)="import()"
+        <button *ngIf="!editMode" (click)="import()"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">upload_file</mat-icon>
             upload
         </button>
-        <div class="divider"></div>
+        <div *ngIf="!editMode" class="divider"></div>
+
+        <button *ngIf="editMode" (click)="cancelChanges()"
+                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <mat-icon class="text-xl">cancel</mat-icon>
+            cancel edit
+        </button>
+
         <button (click)="save()"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">save</mat-icon>
@@ -62,7 +72,6 @@
                 Apply Filter
             </button>
         </div>
-
 
 
     </div>
@@ -102,18 +111,22 @@
                                     <button mat-menu-item (click)="sortColumn(column, 'asc')">
                                         <div class="flex items-center justify-between w-full">
                                             Sort Ascending
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor"
                                                  class="h-6 w-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12"/>
                                             </svg>
                                         </div>
                                     </button>
                                     <button mat-menu-item (click)="sortColumn(column, 'desc')">
                                         <div class="flex items-center justify-between w-full">
                                             Sort Descending
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor"
                                                  class="h-6 w-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25" />
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"/>
                                             </svg>
                                         </div>
                                     </button>
@@ -146,12 +159,28 @@
                                 class="p-0 row-cell">
                                 <div
                                     class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
-                                    <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
-                                           type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                           *ngIf="columns[rowColIndex].type !== 'id' && !columns[rowColIndex].keyField"
+                                    <input class="p-0 border-none w-full bg-transparent pr-10 cell-input"
+                                           [type]="inputTypeForField(rowColumn)" #field="ngModel"
+                                           [(ngModel)]="row[rowColumn.name]"
+                                           [step]="1"
+                                           *ngIf="columns[rowColIndex].type !== 'id' && columns[rowColIndex].type !== 'pickfromsource' && !columns[rowColIndex].keyField"
                                            (change)="updateField(field, rowIndex)"
                                            (focus)="focusCell($event, rowIndex, rowColIndex)"
                                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+
+                                    <div *ngIf="columns[rowColIndex].type == 'pickfromsource' && columnPickFromDatasets[rowColumn.name]" class="w-full pr-10">
+                                        <select class= "p-0 border-none w-full bg-transparent cell-input outline-none ring-0" #field="ngModel"
+                                                [(ngModel)]="row[rowColumn.name]"
+                                                (change)="updateField(field, rowIndex)"
+                                                (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                                (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                                            <option *ngFor="let pickFrom of columnPickFromDatasets[rowColumn.name].allData"
+                                                    [value]="pickFrom[rowColumn.typeConfig.valueFieldName]">
+                                                {{pickFrom[rowColumn.typeConfig.labelFieldName]}}
+                                            </option>
+                                        </select>
+                                    </div>
+
 
                                     <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
                                         <div
@@ -173,7 +202,10 @@
 
                                     </ng-template>
 
-                                    <span class="absolute material-symbols-outlined right-0 w-10 text-orange-500 text-lg" *ngIf="invalidItems[rowIndex] && invalidItems[rowIndex][rowColumn.name]" [matTooltip]="invalidItems[rowIndex][rowColumn.name]">warning</span>
+                                    <span
+                                        class="absolute material-symbols-outlined right-0 w-10 text-orange-500 text-lg"
+                                        *ngIf="invalidItems[rowIndex] && invalidItems[rowIndex][rowColumn.name]"
+                                        [matTooltip]="invalidItems[rowIndex][rowColumn.name]">warning</span>
 
                                     <button mat-icon-button [matMenuTriggerFor]="menu"
                                             class="absolute cell-actions" tabindex="-1">
@@ -201,7 +233,7 @@
                 <button mat-icon-button color="primary" title="Add Row" (click)="addRow()">
                     <mat-icon>add_circle</mat-icon>
                 </button>
-                <div class="flex items-center">
+                <div *ngIf="!editMode" class="flex items-center">
                     <div class="text-xs text-gray-400 mr-10">
                         Showing {{offset + 1}}
                         - {{(page * limit) - (limit - rows.length)}}</div>
@@ -266,15 +298,66 @@
                 <ng-template [ngIf]="selectedItem.type !== 'id'">
                     <label class="mb-4">
                         Column Type
-                        <select [(ngModel)]="selectedItem.type" class="capitalize">
+                        <select [(ngModel)]="selectedItem.type">
                             <option [value]="null">-- Select column type --</option>
-                            <option *ngFor="let type of datasourceTypes" [value]="type">
-                                {{ type }}
+                            <option *ngFor="let type of Object.keys(datasourceTypes)" [value]="type">
+                                {{ datasourceTypes[type] }}
                             </option>
                         </select>
                     </label>
                 </ng-template>
 
+                <div *ngIf="selectedItem.type == 'pickfromsource'" class="mb-4">
+
+                    <div *ngIf="selectedItem.typeConfig && columnPickFromDatasets[selectedItem.name]"
+                         class="mb-4">
+                        Datasource: <span
+                        class="text-gray-500">{{ columnPickFromDatasets[selectedItem.name].instanceTitle }}</span>
+                    </div>
+
+                    <button mat-flat-button color="primary" (click)="selectColumnPickFromDatasource(selectedItem)">
+                        Select Datasource
+                    </button>
+
+                    <div *ngIf="selectedItem.typeConfig && columnPickFromDatasets[selectedItem.name]" class="mt-4">
+
+                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            Label column
+                        </label>
+                        <div class="mt-1 sm:col-span-2 sm:mt-0">
+                            <select [(ngModel)]="selectedItem.typeConfig.labelFieldName"
+                                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm py-1 px-2">
+                                <option *ngFor="let column of columnPickFromDatasets[selectedItem.name].columns"
+                                        [value]="column.name">
+                                    {{column.title}}
+                                </option>
+                            </select>
+                        </div>
+
+                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            Value column
+                        </label>
+                        <div class="mt-1 sm:col-span-2 sm:mt-0">
+                            <select [(ngModel)]="selectedItem.typeConfig.valueFieldName"
+                                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm py-1 px-2">
+                                <option *ngFor="let column of columnPickFromDatasets[selectedItem.name].columns"
+                                        [value]="column.name">
+                                    {{column.title}}
+                                </option>
+                            </select>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+                <mat-checkbox class="mb-4"
+                              [ngModel]="_.find(selectedItem.validatorConfigs, {'validatorKey': 'required'})"
+                              (change)="updateColumnRequired($event.checked, selectedItem)">
+                    Required
+                </mat-checkbox>
 
                 <div>
                     <button mat-button color="warn" (click)="deleteSelectedColumn()">Delete Column</button>

@@ -73,7 +73,7 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
         $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_PICK_FROM_SOURCE, false, false, false, [
             "labelFieldName" => "name",
             "valueFieldName" => "id",
-            "datasetId" => 99
+            "datasetInstanceId" => 99
         ]);
 
         $datasourceUpdateField->setDatasetService($datasetService);

@@ -14,7 +14,7 @@ class DatasourceUpdateFieldValidatorConfig {
      * @param string $validatorKey
      * @param mixed $config
      */
-    public function __construct(private string $validatorKey, private mixed $config) {
+    public function __construct(private string $validatorKey, private mixed $config = []) {
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Kinintel\Objects\FieldValidator;
 
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ArrayUtils;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Services\Dataset\DatasetService;
@@ -51,7 +52,7 @@ class PickFromSourceFieldValidator implements FieldValidator {
 
         $allowedValues = $this->lookupValues();
 
-        if (in_array($value, $allowedValues,true))
+        if (in_array($value, $allowedValues, is_bool($value)))
             return true;
         else
             return "Invalid value supplied for " . $field->getName();

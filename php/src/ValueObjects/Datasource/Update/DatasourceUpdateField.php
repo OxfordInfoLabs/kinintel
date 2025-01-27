@@ -161,7 +161,7 @@ class DatasourceUpdateField extends Field {
                 case Field::TYPE_PICK_FROM_SOURCE:
                     $fieldConfig = $this->returnFieldTypeConfig();
                     $validator = new PickFromSourceFieldValidator($fieldConfig->getValueFieldName(),
-                        $fieldConfig->getDatasetId(), $fieldConfig->getDatasourceInstanceKey());
+                        $fieldConfig->getDatasetInstanceId(), $fieldConfig->getDatasourceInstanceKey());
 
                     if ($this->datasetService)
                         $validator->setDatasetService($this->datasetService);

@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
@@ -60,7 +61,7 @@ class SQLResultSetTabularDataset extends TabularDataset {
                     $mappedType = $sqlColumnFieldMapper->mapResultSetColumnToField($resultSetColumns[$column->getName()]);
 
                     // Don't remap id types
-                    if ($column->getType() !== "id")
+                    if (($column->getType() !== Field::TYPE_ID) && ($column->getType() !== Field::TYPE_PICK_FROM_SOURCE))
                         $column->setType($mappedType->getType());
                 }
             }
