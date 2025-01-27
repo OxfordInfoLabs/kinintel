@@ -23,7 +23,7 @@ class FieldWithXPathSelector extends Field {
 
 
     public function __construct($name, $xpath = null, $attribute = null, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false) {
-        parent::__construct($name, $title, $valueExpression, $type, $keyField, $flattenArray);
+        parent::__construct($name, $title, $valueExpression, $type, $keyField, false, $flattenArray);
         $this->xpath = $xpath;
         $this->attribute = $attribute;
     }
@@ -34,7 +34,7 @@ class FieldWithXPathSelector extends Field {
             $this->getTitle(),
             $this->getValueExpression(),
             $this->getType(),
-            $this->isKeyField(),
+            $this->isKeyField(), false,
             $this->isFlattenArray(),
         );
     }

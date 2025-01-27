@@ -53,6 +53,12 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(true, $datasourceUpdateField->validateValue("1996-01-02 10:00:00"));
         $this->assertSame("Invalid date time value supplied for test", $datasourceUpdateField->validateValue("2024-01-01"));
 
+        // Required fields should be validated
+        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_STRING,false,true);
+        $this->assertEquals(true, $datasourceUpdateField->validateValue("Hello"));
+        $this->assertSame("Value required for test", $datasourceUpdateField->validateValue(""));
+        $this->assertSame("Value required for test", $datasourceUpdateField->validateValue(null));
+
         // Pick one types should be validated using field config
         $dataset = new ArrayTabularDataset([
             new Field("id"),
@@ -70,7 +76,7 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
             ]);
 
 
-        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_PICK_FROM_SOURCE, false, false, false, [
+        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_PICK_FROM_SOURCE, false, false, false, false, [
             "labelFieldName" => "name",
             "valueFieldName" => "id",
             "datasetInstanceId" => 99
@@ -92,7 +98,7 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
             ]);
 
 
-        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_PICK_FROM_SOURCE, false, false, false, [
+        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_PICK_FROM_SOURCE, false, false, false, false, [
             "labelFieldName" => "name",
             "valueFieldName" => "id",
             "datasourceInstanceKey" => "example"

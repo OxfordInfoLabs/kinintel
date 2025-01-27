@@ -10,6 +10,7 @@ use Kinintel\Objects\FieldValidator\DateFieldValidator;
 use Kinintel\Objects\FieldValidator\FieldValidator;
 use Kinintel\Objects\FieldValidator\NumericFieldValidator;
 use Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator;
+use Kinintel\Objects\FieldValidator\RequiredFieldValidator;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -56,17 +57,19 @@ class DatasourceUpdateField extends Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
+     * @param boolean $required
      * @param boolean $flattenArray
      * @param boolean $valueExpressionOnNullOnly
      * @param array $typeConfig
      * @param string $previousName
      * @param DatasourceUpdateFieldValidatorConfig[] $validators
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false, $valueExpressionOnNullOnly = false, $typeConfig = [],
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $required = false, $flattenArray = false, $valueExpressionOnNullOnly = false, $typeConfig = [],
                                 $previousName = "", $validators = []) {
-        parent::__construct($name, $title, $valueExpression, $type, $keyField, $flattenArray, $valueExpressionOnNullOnly, $typeConfig);
+        parent::__construct($name, $title, $valueExpression, $type, $keyField, $required, $flattenArray, $valueExpressionOnNullOnly, $typeConfig);
         $this->previousName = $previousName;
         $this->validatorConfigs = $validators;
+
     }
 
 
@@ -144,7 +147,7 @@ class DatasourceUpdateField extends Field {
                 $this->validators[] = $validatorConfig->returnFieldValidator();
             }
 
-            // Add implicit validators
+            // Add implicit type validators
             switch ($this->getType()) {
                 case Field::TYPE_INTEGER:
                     $this->validators[] = new NumericFieldValidator(false);
@@ -170,6 +173,11 @@ class DatasourceUpdateField extends Field {
 
                     $this->validators[] = $validator;
 
+            }
+
+            // Add required validator if set
+            if ($this->isRequired()) {
+                $this->validators[] = new RequiredFieldValidator();
             }
 
         }

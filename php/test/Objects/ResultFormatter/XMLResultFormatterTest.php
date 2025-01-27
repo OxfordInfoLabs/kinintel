@@ -145,7 +145,7 @@ XML;
         $columns = [
             new Field("id"),
             new Field("name"),
-            new Field("date_of_birth", valueExpression: "[[ dob_raw | date 'd-MM-YYYY' ]]"),
+            new Field("date_of_birth", title: "[[ dob_raw | date 'd-MM-YYYY' ]]", valueExpression: "[[ dob_raw | date 'd-MM-YYYY' ]]"),
             new Field("notes"),
         ];
         $result = $formatter->format(new ReadOnlyStringStream($xml), $columns);
@@ -183,7 +183,7 @@ XML;
         $columns = [
             new Field("id"),
             new Field("name"),
-            new Field("date_of_birth", valueExpression: "[[ dob_raw | date 'd-MM-YYYY' ]]"),
+            new Field("date_of_birth", title: "[[ dob_raw | date 'd-MM-YYYY' ]]", valueExpression: "[[ dob_raw | date 'd-MM-YYYY' ]]"),
             new Field("notes"),
         ];
         $result = $formatter->format(new ReadOnlyStringStream($xml), $columns);

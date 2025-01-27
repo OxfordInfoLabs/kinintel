@@ -88,8 +88,9 @@ class SQLColumnFieldMapper {
         // Primary key
         $primaryKey = $field->isKeyField() || ($fieldType == Field::TYPE_ID);
         $autoIncrement = ($fieldType == Field::TYPE_ID);
+        $required = $field->isRequired();
 
-        return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement);
+        return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement,$required);
 
     }
 
@@ -129,6 +130,7 @@ class SQLColumnFieldMapper {
         }
 
         $keyField = false;
+        $required = false;
         if ($resultSetColumn instanceof TableColumn) {
             // Handle special auto increment case
             if ($fieldType == Field::TYPE_INTEGER && $resultSetColumn->isAutoIncrement())
@@ -136,9 +138,11 @@ class SQLColumnFieldMapper {
 
             // Check for key field
             $keyField = $resultSetColumn->isPrimaryKey();
+
+            $required = $resultSetColumn->isNotNull();
         }
 
-        return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField);
+        return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField,$required);
     }
 
 

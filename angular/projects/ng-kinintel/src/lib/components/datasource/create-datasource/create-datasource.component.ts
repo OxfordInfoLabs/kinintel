@@ -604,15 +604,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         }
     }
 
-    public updateColumnRequired(required, field: any) {
-        if (required) {
-            field.validatorConfigs = [{
-                "validatorKey": "required"
-            }]
-        } else {
-            field.validatorConfigs = [];
-        }
-    }
+
 
     private loadDatasource() {
         if (this.datasourceInstanceKey) {

@@ -63,6 +63,12 @@ class Field {
 
 
     /**
+     * @var boolean
+     */
+    private $required;
+
+
+    /**
      * If set, when an array is encountered here it will be flattened
      * out to individual items
      *
@@ -91,10 +97,11 @@ class Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
+     * @param boolean $required
      * @param boolean $flattenArray
      * @param boolean $valueExpressionOnNullOnly
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false,
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $required = false, $flattenArray = false,
                                 $valueExpressionOnNullOnly = false, $typeConfig = []) {
 
         $name = preg_split("/[^\w-]/", $name)[0];
@@ -112,6 +119,7 @@ class Field {
         $this->flattenArray = $flattenArray;
         $this->valueExpressionOnNullOnly = $valueExpressionOnNullOnly;
         $this->typeConfig = $typeConfig;
+        $this->required = $required;
     }
 
 
@@ -212,6 +220,21 @@ class Field {
     /**
      * @return bool
      */
+    public function isRequired() {
+        return $this->required;
+    }
+
+    /**
+     * @param bool $required
+     */
+    public function setRequired($required) {
+        $this->required = $required;
+    }
+
+
+    /**
+     * @return bool
+     */
     public function isFlattenArray() {
         return $this->flattenArray;
     }
@@ -255,8 +278,6 @@ class Field {
             return $fieldValue;
         }
     }
-
-
 
 
     /**

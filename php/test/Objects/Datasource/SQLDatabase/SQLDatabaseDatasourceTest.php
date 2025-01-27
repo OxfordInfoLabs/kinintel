@@ -111,7 +111,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true,false,true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
             new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
             new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
@@ -119,7 +119,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
 
         $expectedColumns = [
-            new Field("id", "Id", null, Field::TYPE_INTEGER, true),
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true,true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
             new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
@@ -150,7 +150,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true,false,true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
             new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
             new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
@@ -158,7 +158,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
 
         $expectedColumns = [
-            new Field("id", "Id", null, Field::TYPE_INTEGER, true),
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true,true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
             new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
@@ -529,7 +529,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $dataSet->returnValue("getColumns", [
             new DatasourceUpdateField("name"), new DatasourceUpdateField("age", "Name", null, Field::TYPE_INTEGER),
-            new DatasourceUpdateField("extraDetail", "Extra Detail", null, Field::TYPE_STRING, false, false, false, [], null, [
+            new DatasourceUpdateField("extraDetail", "Extra Detail", null, Field::TYPE_STRING, false, false, false, false, [], null, [
                 new DatasourceUpdateFieldValidatorConfig("required", [])
             ])
         ]);
@@ -804,7 +804,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, [], "how_many")
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, false, [], "how_many")
         ]);
 
         // Modify the table structure and ensure a create was made
@@ -855,7 +855,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, false),
             new Field("why", null, null, null, false),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, false, false, [], "how_many")
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, false, false, false, [], "how_many")
         ]);
 
         // Modify the table structure and ensure a create was made
@@ -964,9 +964,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $config->setColumns([
-            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, false, false, [], "which"),
-            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, false, false, [], "what"),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, [], "how_many")
+            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, false, false, false, [], "which"),
+            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, false, false, false, [], "what"),
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, false, [], "how_many")
         ]);
 
         $config->setIndexes([new Index(["when", "why"])]);

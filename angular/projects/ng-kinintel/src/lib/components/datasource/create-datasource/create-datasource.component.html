@@ -354,8 +354,7 @@
 
 
                 <mat-checkbox class="mb-4"
-                              [ngModel]="_.find(selectedItem.validatorConfigs, {'validatorKey': 'required'})"
-                              (change)="updateColumnRequired($event.checked, selectedItem)">
+                              [(ngModel)]="selectedItem.required">
                     Required
                 </mat-checkbox>
 
