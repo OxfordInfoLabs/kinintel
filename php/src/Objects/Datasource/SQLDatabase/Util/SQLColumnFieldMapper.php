@@ -90,7 +90,7 @@ class SQLColumnFieldMapper {
         $autoIncrement = ($fieldType == Field::TYPE_ID);
         $required = $field->isRequired();
 
-        return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement,$required);
+        return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement, $required);
 
     }
 
@@ -142,7 +142,7 @@ class SQLColumnFieldMapper {
             $required = $resultSetColumn->isNotNull();
         }
 
-        return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField,$required);
+        return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField, $required);
     }
 
 

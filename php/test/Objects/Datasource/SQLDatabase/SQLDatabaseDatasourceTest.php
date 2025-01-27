@@ -111,7 +111,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true,false,true),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true, false, true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
             new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
             new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
@@ -119,7 +119,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
 
         $expectedColumns = [
-            new Field("id", "Id", null, Field::TYPE_INTEGER, true,true),
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true, true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
             new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
@@ -150,7 +150,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true,false,true),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true, false, true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
             new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
             new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
@@ -158,7 +158,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
 
         $expectedColumns = [
-            new Field("id", "Id", null, Field::TYPE_INTEGER, true,true),
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true, true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
             new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
@@ -538,11 +538,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
 
         // Check an update result was returned
-        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1,["add" =>  [
+        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1, ["add" => [
             new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age",
                 "extraDetail" => "Value required for extraDetail"])
         ]]), $result);
-
 
 
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [

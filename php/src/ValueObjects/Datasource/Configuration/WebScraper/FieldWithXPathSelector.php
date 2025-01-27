@@ -34,7 +34,8 @@ class FieldWithXPathSelector extends Field {
             $this->getTitle(),
             $this->getValueExpression(),
             $this->getType(),
-            $this->isKeyField(), false,
+            $this->isKeyField(),
+            false,
             $this->isFlattenArray(),
         );
     }

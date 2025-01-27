@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;

@@ -4,8 +4,6 @@
 namespace Kinintel\ValueObjects\Datasource\Update;
 
 
-use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\DependencyInjection\Container;
 use Kinintel\Objects\FieldValidator\DateFieldValidator;
 use Kinintel\Objects\FieldValidator\FieldValidator;
 use Kinintel\Objects\FieldValidator\NumericFieldValidator;
@@ -14,7 +12,6 @@ use Kinintel\Objects\FieldValidator\RequiredFieldValidator;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
-use Kinintel\ValueObjects\Dataset\TypeConfig\FieldTypeConfig;
 
 class DatasourceUpdateField extends Field {
 

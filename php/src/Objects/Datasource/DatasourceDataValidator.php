@@ -2,7 +2,6 @@
 
 namespace Kinintel\Objects\Datasource;
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 
