@@ -18,11 +18,11 @@ class TokenExchangeAuthenticationCredentialsTest extends TestCase {
 
         $requestDispatcher = MockObjectProvider::mock(HttpRequestDispatcher::class);
 
-        $authCreds = new TokenExchangeAuthenticationCredentials("myExchangeEndPoint", ["header1" => "value1", "header2" => "value2"], ["token" => "myAccessToken"], "token");
+        $authCreds = new TokenExchangeAuthenticationCredentials("myExchangeEndPoint", ["header1" => "value1", "header2" => "value2"], '{"token" => "myAccessToken"}', "token");
 
         $mockExchangeRequest = new Request(
             url: "myExchangeEndPoint",
-            payload: ["token" => "myAccessToken"],
+            payload: '{"token" => "myAccessToken"}',
             headers: new Headers(["header1" => "value1", "header2" => "value2"])
         );
 
@@ -34,7 +34,7 @@ class TokenExchangeAuthenticationCredentialsTest extends TestCase {
 
         $request = new Request(
             "targetEndpoint",
-            payload: ["some" => "stuff"],
+            payload: '{"some" => "stuff"}',
             headers: new Headers(["bing" => "bong"])
         );
 
@@ -42,7 +42,7 @@ class TokenExchangeAuthenticationCredentialsTest extends TestCase {
 
         $expectedRequest = new Request(
             "targetEndpoint",
-            payload: ["some" => "stuff"],
+            payload: '{"some" => "stuff"}',
             headers: new Headers(["bing" => "bong", "Authorization" => "Bearer myJWTToken"])
         );
 

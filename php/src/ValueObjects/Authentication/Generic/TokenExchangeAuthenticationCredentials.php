@@ -14,7 +14,7 @@ class TokenExchangeAuthenticationCredentials implements AuthenticationCredential
 
     private array $headers;
 
-    private array $payload;
+    private string $payload;
 
     private string $tokenField;
 
@@ -23,9 +23,9 @@ class TokenExchangeAuthenticationCredentials implements AuthenticationCredential
     /**
      * @param string $exchangeEndpoint
      * @param array $headers
-     * @param array $payload
+     * @param string $payload
      */
-    public function __construct(string $exchangeEndpoint, array $headers, array $payload, string $tokenField) {
+    public function __construct(string $exchangeEndpoint, array $headers, string $payload, string $tokenField) {
         $this->exchangeEndpoint = $exchangeEndpoint;
         $this->headers = $headers;
         $this->payload = $payload;
@@ -72,11 +72,11 @@ class TokenExchangeAuthenticationCredentials implements AuthenticationCredential
         $this->headers = $headers;
     }
 
-    public function getPayload(): array {
+    public function getPayload(): string {
         return $this->payload;
     }
 
-    public function setPayload(array $payload): void {
+    public function setPayload(string $payload): void {
         $this->payload = $payload;
     }
 
