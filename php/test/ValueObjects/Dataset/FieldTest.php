@@ -42,7 +42,7 @@ class FieldTest extends \PHPUnit\Framework\TestCase {
 
     public function testIfTheValueExpressionOnNullValueOnlyFlagSetTheExpressionIsOnlyEvaluatedIfNullReturnedForUnderlyingFieldValue() {
 
-        $field = new Field("name", "Name", "Hello [[text | /([y])/]] World", Field::TYPE_STRING, false, false, true);
+        $field = new Field("name", "Name", "Hello [[text | /([y])/]] World", Field::TYPE_STRING, false, false, false, true);
         $this->assertEquals("Hello y World", $field->evaluateValueExpression([
             "text" => "My World"
         ]));

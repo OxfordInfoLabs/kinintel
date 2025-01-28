@@ -6,6 +6,7 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
+import {DatasetService} from "../../../services/dataset.service";
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {Location} from '@angular/common';
 import {
@@ -18,6 +19,8 @@ import {
     ImportWizardComponent
 } from '../create-datasource/import-data/import-wizard/import-wizard.component';
 import {BehaviorSubject} from 'rxjs';
+import {CreateDatasetComponent} from "../../dataset/create-dataset/create-dataset.component";
+
 
 declare var window: any;
 
@@ -35,9 +38,16 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() namePrefix = '';
     @Input() readonly = false;
 
-    public readonly datasourceTypes: any = [
-        'string', 'integer', 'float', 'date', 'datetime', 'mediumstring', 'longstring'
-    ];
+    public readonly datasourceTypes: any = {
+        'string': "Text (up to 255 chars)",
+        'mediumstring': "Medium Text (up to 2000 chars)",
+        'longstring': "Long Text (more than 2000 chars)",
+        'integer': "Number (whole number)",
+        'float': "Decimal number",
+        'date': "Date",
+        'datetime': "Date and Time",
+        "pickfromsource": "Pick From List (using another source)"
+    };
 
     public rows: any = [];
     public columns: any = [
@@ -59,6 +69,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public adds: any = [];
     public updates: any = [];
     public deletes: any = [];
+    public invalidItems: any = [];
+    public editMode = false;
     public autoIncrementColumn = false;
     public datasourceInstanceKey: string;
     public datasourceUpdate: any = {
@@ -86,6 +98,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         }],
         filterJunctions: []
     };
+    public sortConfig = null;
     public openSide = new BehaviorSubject(false);
     public Object = Object;
 
@@ -97,9 +110,14 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     private endCellIndex = null;
     private selectedCell = null;
 
+    // Associative list of pick from datasets used for list selection
+    private columnPickFromDatasets = {};
+
+
     constructor(private dialog: MatDialog,
                 private route: ActivatedRoute,
                 private datasourceService: DatasourceService,
+                private datasetService: DatasetService,
                 private snackbar: MatSnackBar,
                 private location: Location,
                 private router: Router
@@ -166,23 +184,12 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     public applyFilter() {
-        this.loadDatasource([{type: 'filter', config: this.filterJunction}]);
+        this.loadDatasource();
     }
 
     public sortColumn(column: any, direction: string) {
-        const transformations = [];
-        if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
-            transformations.push({type: 'filter', config: this.filterJunction});
-        }
-
-        transformations.push({
-            type: 'multisort',
-            config: {
-                sorts: [{fieldName: column.name, direction}]
-            }
-        });
-
-        this.loadDatasource(transformations);
+        this.sortConfig = {fieldName: column.name, direction};
+        this.loadDatasource();
     }
 
     public updateSelectAll() {
@@ -417,6 +424,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.updates.push(rowIndex);
             }
         }
+        this.editMode = true;
     }
 
     public updateColumnName() {
@@ -483,6 +491,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.datasourceUpdate.title = this.namePrefix + this.datasourceUpdate.title;
         }
 
+        // Reset invalid items
+        this.invalidItems = [];
+
         if (!this.datasourceInstanceKey) {
             await this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
                 if (!exit) {
@@ -496,18 +507,43 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         } else {
             this.datasourceUpdate.importKey = this.datasourceUpdate.instanceImportKey;
             await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate)
-                .then(async () => {
-                    this.adds = [];
-                    this.updates = [];
-                    this.deletes = [];
+                .then(async (result: any) => {
+                    if (result && result.rejected && result.rejected > 0) {
 
-                    // If we have a filter in use, apply it to the next load...
-                    const transformations = [];
-                    if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
-                        transformations.push({type: 'filter', config: this.filterJunction});
+                        this.snackbar.open("There were validation problems with one or more of your rows - see highlighted cells below", null, {
+                            duration: 5000,
+                            verticalPosition: 'top'
+                        });
+
+
+                        let invalidAddRows = _.map(result.validationErrors.add || [], "itemNumber");
+                        for (let i = this.adds.length - 1; i >= 0; i--) {
+                            if (!invalidAddRows.includes(i)) {
+                                this.adds.splice(i, 1);
+                            } else {
+                                this.invalidItems[this.adds[i]] = _.find(result.validationErrors.add, {"itemNumber": i}).validationErrors;
+                            }
+                        }
+
+
+                        let invalidUpdateRows = _.map(result.validationErrors.update || [], "itemNumber");
+                        for (let i = this.updates.length - 1; i >= 0; i--) {
+                            if (!invalidUpdateRows.includes(i)) {
+                                this.updates.splice(i, 1);
+                            } else {
+                                this.invalidItems[this.updates[i]] = _.find(result.validationErrors.update, {"itemNumber": i}).validationErrors;
+                            }
+                        }
+
+
+                    } else {
+                        this.adds = [];
+                        this.updates = [];
+                        this.deletes = [];
+
+
+                        await this.loadDatasource();
                     }
-
-                    await this.loadDatasource(transformations);
                     return true;
                 })
                 .catch(err => {
@@ -520,6 +556,15 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         if (exit) {
             return this.router.navigate([this.backURL]);
         }
+    }
+
+    public cancelChanges() {
+
+        this.adds = [];
+        this.updates = [];
+        this.deletes = [];
+
+        this.loadDatasource();
     }
 
     public deleteSelectedColumn() {
@@ -543,8 +588,36 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         this.loadDatasource();
     }
 
-    private loadDatasource(transformationInstances: any[] = []) {
+
+    // Get input type for field
+    public inputTypeForField(field: any) {
+        switch (field.type) {
+            case "integer":
+            case "float":
+                return "number";
+            case "date":
+                return "date";
+            case "datetime":
+                return "datetime-local";
+            default:
+                return "text";
+        }
+    }
+
+
+
+    private loadDatasource() {
         if (this.datasourceInstanceKey) {
+
+            // If we have a filter in use, apply it to the next load...
+            const transformationInstances = [];
+            if (this.filterJunction.filterJunctions.length || this.filterJunction.filters[0].filterType) {
+                transformationInstances.push({type: 'filter', config: this.filterJunction});
+            }
+            if (this.sortConfig) {
+                transformationInstances.push({type: 'multisort', config: {sorts: [this.sortConfig]}});
+            }
+
             const evaluatedDatasource = {
                 key: this.datasourceInstanceKey,
                 transformationInstances,
@@ -556,6 +629,12 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
                 this.columns = res.columns.map(column => {
                     column.previousName = column.name;
+
+                    if (column.type == "pickfromsource") {
+                        if (!this.columnPickFromDatasets[column.name])
+                            this.populateColumnPickFrom(column);
+                    }
+
                     return column;
                 });
                 this.filterFields = _.map(this.columns, column => {
@@ -580,6 +659,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.selectAll = false;
             });
         }
+        this.editMode = false;
     }
 
     private selectCell(rowIndex, cellIndex) {
@@ -658,6 +738,34 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         this.snackbar.open(message, null, {
             duration: 5000,
             verticalPosition: 'top'
+        });
+    }
+
+    public selectColumnPickFromDatasource(column: any) {
+
+        const dialogRef = this.dialog.open(CreateDatasetComponent, {
+            width: '1200px',
+            height: '800px',
+            data: {}
+        });
+        dialogRef.afterClosed().subscribe(async res => {
+            if (res) {
+                column.typeConfig = {
+                    dataSetInstanceId: res.datasetInstanceId,
+                    datasourceInstanceKey: res.datasourceInstanceKey
+                };
+
+                // Populate the column pick from
+                this.populateColumnPickFrom(column);
+            }
+        });
+    }
+
+
+    // Pick from datasets
+    private populateColumnPickFrom(column: any) {
+        this.datasetService.evaluateDataset(column.typeConfig, '0', '10000000').then((dataset) => {
+            this.columnPickFromDatasets[column.name] = dataset;
         });
     }
 }

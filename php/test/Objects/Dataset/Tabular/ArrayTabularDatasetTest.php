@@ -135,8 +135,8 @@ class ArrayTabularDatasetTest extends \PHPUnit\Framework\TestCase {
 
         $arrayTabularDataSet = new ArrayTabularDataset([
             new Field("name", "Name"),
-            new Field("note_id", "Note Id", null, Field::TYPE_STRING, false, true),
-            new Field("note", "Note", null, Field::TYPE_STRING, false, true)
+            new Field("note_id", "Note Id", null, Field::TYPE_STRING, false, false, true),
+            new Field("note", "Note", null, Field::TYPE_STRING, false, false, true)
         ], [
             ["name" => "Mark", "note_id" => [1, 2, 3, 4, 5], "note" => ["Note 1", "Note 2", "Note 3", "Note 4", "Note 5"]],
             ["name" => "Bob", "note_id" => [6, 7, 8, 9, 10], "note" => ["Note 6", "Note 7", "Note 8", "Note 9", "Note 10"]],

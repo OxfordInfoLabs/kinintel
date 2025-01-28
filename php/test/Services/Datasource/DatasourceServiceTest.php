@@ -45,6 +45,8 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDa
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -659,23 +661,36 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Replace me twice", "age" => 65]
         ]);
 
-        $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
-
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0,  1,["add" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])
+        ]]), [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
-        ]));
+        ]);
 
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0,[
+        ]), [
             $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
-        ]));
+        ]);
 
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2,0,  [
+        ]), [
             $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
-        ]));
+        ]);
 
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1,["replace" =>  [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])
+        ]]), [
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
-        ]));
+        ]);
+
+
+        $result = $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
+
+        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2,[
+            "add" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])],
+            "replace" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])]
+        ]), $result);
 
 
     }

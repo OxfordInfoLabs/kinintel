@@ -168,7 +168,7 @@ trait Datasource {
      * @unsanitise datasourceUpdate
      */
     public function updateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {
-        $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
+        return $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
     }
 
 

@@ -76,12 +76,17 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
 
         // Check primary key fields are mapped to key field as well if set
-        $this->assertEquals(new Field("id", null, null, Field::TYPE_INTEGER, true),
+        $this->assertEquals(new Field("id", null, null, Field::TYPE_INTEGER, true, true),
             $this->mapper->mapResultSetColumnToField(new TableColumn("id", TableColumn::SQL_INTEGER, null, null, null, true)));
 
         // Check auto increment integer fields are mapped to id fields
-        $this->assertEquals(new Field("auto", null, null, Field::TYPE_ID, true),
+        $this->assertEquals(new Field("auto", null, null, Field::TYPE_ID, true, true),
             $this->mapper->mapResultSetColumnToField(new TableColumn("auto", TableColumn::SQL_INTEGER, null, null, null, true, true)));
+
+
+        // Check required fields
+        $this->assertEquals(new Field("test", null, null, Field::TYPE_STRING, false, true),
+            $this->mapper->mapResultSetColumnToField(new TableColumn("test", TableColumn::SQL_VARCHAR, 255, null, null, false, false, true)));
 
     }
 
@@ -112,6 +117,11 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
             $this->mapper->mapFieldToTableColumn(new Field("mediumstring", null, null, Field::TYPE_MEDIUM_STRING)));
         $this->assertEquals(new TableColumn("longstring", TableColumn::SQL_LONGBLOB),
             $this->mapper->mapFieldToTableColumn(new Field("longstring", null, null, Field::TYPE_LONG_STRING)));
+
+
+        // Required fields
+        $this->assertEquals(new TableColumn("string", TableColumn::SQL_VARCHAR, 255, null, null, false, false, true),
+            $this->mapper->mapFieldToTableColumn(new Field("string", null, null, Field::TYPE_STRING, false, true)));
 
 
     }

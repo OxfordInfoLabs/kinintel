@@ -26,6 +26,7 @@ use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
+use Kinintel\Objects\FieldValidator\RequiredFieldValidator;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\ValueObjects\Authentication\FTP\FTPAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
@@ -38,6 +39,9 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateFieldValidatorConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -107,7 +111,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true, false, true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
             new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
             new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
@@ -115,7 +119,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
 
         $expectedColumns = [
-            new Field("id", "Id", null, Field::TYPE_INTEGER, true),
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true, true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
             new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
@@ -146,7 +150,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $this->databaseConnection->returnValue("getTableMetaData", new TableMetaData("test_data", [
-            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true),
+            new TableColumn("id", TableColumn::SQL_INT, null, 2, "", true, false, true),
             new TableColumn("name", TableColumn::SQL_VARCHAR, 255, null, "", false),
             new TableColumn("description", TableColumn::SQL_VARCHAR, 2000, null, "", false),
             new TableColumn("date_started", TableColumn::SQL_DATE_TIME, null, 2, "", false),
@@ -154,7 +158,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]));
 
         $expectedColumns = [
-            new Field("id", "Id", null, Field::TYPE_INTEGER, true),
+            new Field("id", "Id", null, Field::TYPE_INTEGER, true, true),
             new Field("name", "Name", null, Field::TYPE_STRING, false),
             new Field("description", "Description", null, Field::TYPE_MEDIUM_STRING, false),
             new Field("date_started", "Date Started", null, Field::TYPE_DATE_TIME, false),
@@ -477,7 +481,10 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $dataSet->returnValue("nextNDataItems", $data, [50]);
 
 
-        $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+        $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+
+        // Check an update result was returned
+        $this->assertEquals(new DatasourceUpdateResult(2), $result);
 
 
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
@@ -489,6 +496,64 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
                 "addinstance",
                 UpdatableDatasource::UPDATE_MODE_ADD
             ]));
+
+    }
+
+
+    public function testValidationErrorsReturnedForRowsWhichFailValidationForInsertUpdateOrReplace() {
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+        $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("addinstance", "Add Instance", "sqldatabase"));
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens",
+                "age" => 55,
+                "extraDetail" => "He's a dude"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => "apple",
+                "extraDetail" => ""
+            ]
+        ];
+
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
+
+        $dataSet->returnValue("getColumns", [
+            new DatasourceUpdateField("name"), new DatasourceUpdateField("age", "Name", null, Field::TYPE_INTEGER),
+            new DatasourceUpdateField("extraDetail", "Extra Detail", null, Field::TYPE_STRING, false, false, false, false, [], null, [
+                new DatasourceUpdateFieldValidatorConfig("required", [])
+            ])
+        ]);
+
+
+        $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
+
+        // Check an update result was returned
+        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1, ["add" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age",
+                "extraDetail" => "Value required for extraDetail"])
+        ]]), $result);
+
+
+        $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
+            "test_data", array_slice($data, 0, 1), ["name", "age", "extraDetail"], true
+        ]));
+
+        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
+            [
+                "addinstance",
+                UpdatableDatasource::UPDATE_MODE_ADD
+            ]));
+
 
     }
 
@@ -738,7 +803,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, true),
             new Field("why", null, null, null, true),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, false, [], "how_many")
         ]);
 
         // Modify the table structure and ensure a create was made
@@ -789,7 +854,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $config->setColumns([
             new Field("when", null, null, Field::TYPE_DATE, false),
             new Field("why", null, null, null, false),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, "how_many")
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_ID, false, false, false, false, [], "how_many")
         ]);
 
         // Modify the table structure and ensure a create was made
@@ -898,9 +963,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]);
 
         $config->setColumns([
-            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, "which"),
-            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, "what"),
-            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, "how_many")
+            new DatasourceUpdateField("when", null, null, Field::TYPE_DATE, true, false, false, false, [], "which"),
+            new DatasourceUpdateField("why", null, null, Field::TYPE_MEDIUM_STRING, true, false, false, false, [], "what"),
+            new DatasourceUpdateField("macaroni", null, null, Field::TYPE_INTEGER, false, false, false, false, [], "how_many")
         ]);
 
         $config->setIndexes([new Index(["when", "why"])]);
