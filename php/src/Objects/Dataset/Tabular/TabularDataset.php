@@ -82,6 +82,13 @@ abstract class TabularDataset implements Dataset {
         return $this->columns;
     }
 
+    /**
+     * @param Field[] $columns
+     */
+    public function setColumns($columns) {
+        $this->columns = $columns;
+    }
+
 
     /**
      * Return a column by key

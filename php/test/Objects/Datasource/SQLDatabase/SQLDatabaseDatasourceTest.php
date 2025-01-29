@@ -456,7 +456,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testAllDataAddedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuch() {
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
         $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
@@ -503,7 +503,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     public function testValidationErrorsReturnedForRowsWhichFailValidationForInsertUpdateOrReplace() {
 
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
         $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
@@ -544,6 +544,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]]), $result);
 
 
+
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
             "test_data", array_slice($data, 0, 1), ["name", "age", "extraDetail"], true
         ]));
@@ -565,7 +566,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
      */
     public function testDuplicateEntriesExceptionSuppliedExceptionRaisedIfSQLExceptionThrownWith23000Codes() {
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
         $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
@@ -602,7 +603,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testAllDataRemovedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuchUsingKeyFieldNames() {
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
             $this->authCredentials, new DatasourceUpdateConfig(["name"]), $this->validator);
 
 
@@ -646,7 +647,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
     public function testAllDataReplacedCorrectlyUsingBulkDataManagerWhenSuppliedAsSuch() {
 
-        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", "", true),
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
             $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
 
 
