@@ -32,6 +32,19 @@ export class ImportWizardComponent implements OnInit {
     public importKey: string = null;
     public backendURL: string = null;
 
+    public readonly _ = _;
+    public readonly Object = Object;
+    public readonly datasourceTypes: any = {
+        string: 'Text (up to 255 chars)',
+        mediumstring: 'Medium Text (up to 2000 chars)',
+        longstring: 'Long Text (more than 2000 chars)',
+        integer: 'Number (whole number)',
+        float: 'Decimal number',
+        date: 'Date',
+        datetime: 'Date and Time',
+        pickfromsource: 'Pick From List (using another source)'
+    };
+
     public readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
     private namePrefix: string;
@@ -87,6 +100,8 @@ export class ImportWizardComponent implements OnInit {
             );
         }
 
+        console.log(this.columns);
+
         // Clear the input value
         // tslint:disable-next-line:no-non-null-assertion
         event.chipInput!.clear();
@@ -137,9 +152,12 @@ export class ImportWizardComponent implements OnInit {
     public async createStructure() {
         this.datasourceUpdate.title = this.namePrefix + this.name;
 
-        this.datasourceUpdate.fields = [
-            {title: 'ID', name: 'id', type: 'id'}
-        ];
+        // If no primary key fields have been set then add the ID field.
+        if (!_.filter(this.columns, 'keyField').length) {
+            this.datasourceUpdate.fields = [
+                {title: 'ID', name: 'id', type: 'id'}
+            ];
+        }
 
         this.columns.forEach(column => {
             this.datasourceUpdate.fields.push(column);

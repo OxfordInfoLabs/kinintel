@@ -226,11 +226,18 @@
                     </tr>
                     </tbody>
                 </table>
+                <div (click)="addRow()" title="Add Row"
+                     class="cursor-pointer flex items-center text-sm m-2 p-1 bg-gray-100 rounded-md">
+                    <button class="ml-2" mat-icon-button color="primary">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    Add new row
+                </div>
             </div>
 
 
             <div class="border-t bg-gray-50 py-2 flex align-center justify-between">
-                <button mat-icon-button color="primary" title="Add Row" (click)="addRow()">
+                <button class="ml-2" mat-icon-button color="primary" title="Add Row" (click)="addRow()">
                     <mat-icon>add_circle</mat-icon>
                 </button>
                 <div *ngIf="!editMode" class="flex items-center">

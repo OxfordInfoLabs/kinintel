@@ -6,7 +6,7 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
-import {DatasetService} from "../../../services/dataset.service";
+import {DatasetService} from '../../../services/dataset.service';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {Location} from '@angular/common';
 import {
@@ -19,7 +19,7 @@ import {
     ImportWizardComponent
 } from '../create-datasource/import-data/import-wizard/import-wizard.component';
 import {BehaviorSubject} from 'rxjs';
-import {CreateDatasetComponent} from "../../dataset/create-dataset/create-dataset.component";
+import {CreateDatasetComponent} from '../../dataset/create-dataset/create-dataset.component';
 
 
 declare var window: any;
@@ -37,16 +37,25 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() backendURL: string;
     @Input() namePrefix = '';
     @Input() readonly = false;
+    @Input() filterJunction = {
+        logic: 'AND',
+        filters: [{
+            lhsExpression: '',
+            rhsExpression: [],
+            filterType: ''
+        }],
+        filterJunctions: []
+    };
 
     public readonly datasourceTypes: any = {
-        'string': "Text (up to 255 chars)",
-        'mediumstring': "Medium Text (up to 2000 chars)",
-        'longstring': "Long Text (more than 2000 chars)",
-        'integer': "Number (whole number)",
-        'float': "Decimal number",
-        'date': "Date",
-        'datetime': "Date and Time",
-        "pickfromsource": "Pick From List (using another source)"
+        string: 'Text (up to 255 chars)',
+        mediumstring: 'Medium Text (up to 2000 chars)',
+        longstring: 'Long Text (more than 2000 chars)',
+        integer: 'Number (whole number)',
+        float: 'Decimal number',
+        date: 'Date',
+        datetime: 'Date and Time',
+        pickfromsource: 'Pick From List (using another source)'
     };
 
     public rows: any = [];
@@ -89,15 +98,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public selectAll = false;
     public showFilters = false;
     public filterFields = [];
-    public filterJunction = {
-        logic: 'AND',
-        filters: [{
-            lhsExpression: '',
-            rhsExpression: [],
-            filterType: ''
-        }],
-        filterJunctions: []
-    };
     public sortConfig = null;
     public openSide = new BehaviorSubject(false);
     public Object = Object;
@@ -510,28 +510,28 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 .then(async (result: any) => {
                     if (result && result.rejected && result.rejected > 0) {
 
-                        this.snackbar.open("There were validation problems with one or more of your rows - see highlighted cells below", null, {
+                        this.snackbar.open('There were validation problems with one or more of your rows - see highlighted cells below', null, {
                             duration: 5000,
                             verticalPosition: 'top'
                         });
 
 
-                        let invalidAddRows = _.map(result.validationErrors.add || [], "itemNumber");
+                        const invalidAddRows = _.map(result.validationErrors.add || [], 'itemNumber');
                         for (let i = this.adds.length - 1; i >= 0; i--) {
                             if (!invalidAddRows.includes(i)) {
                                 this.adds.splice(i, 1);
                             } else {
-                                this.invalidItems[this.adds[i]] = _.find(result.validationErrors.add, {"itemNumber": i}).validationErrors;
+                                this.invalidItems[this.adds[i]] = _.find(result.validationErrors.add, {itemNumber: i}).validationErrors;
                             }
                         }
 
 
-                        let invalidUpdateRows = _.map(result.validationErrors.update || [], "itemNumber");
+                        const invalidUpdateRows = _.map(result.validationErrors.update || [], 'itemNumber');
                         for (let i = this.updates.length - 1; i >= 0; i--) {
                             if (!invalidUpdateRows.includes(i)) {
                                 this.updates.splice(i, 1);
                             } else {
-                                this.invalidItems[this.updates[i]] = _.find(result.validationErrors.update, {"itemNumber": i}).validationErrors;
+                                this.invalidItems[this.updates[i]] = _.find(result.validationErrors.update, {itemNumber: i}).validationErrors;
                             }
                         }
 
@@ -592,15 +592,15 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     // Get input type for field
     public inputTypeForField(field: any) {
         switch (field.type) {
-            case "integer":
-            case "float":
-                return "number";
-            case "date":
-                return "date";
-            case "datetime":
-                return "datetime-local";
+            case 'integer':
+            case 'float':
+                return 'number';
+            case 'date':
+                return 'date';
+            case 'datetime':
+                return 'datetime-local';
             default:
-                return "text";
+                return 'text';
         }
     }
 
@@ -630,9 +630,10 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 this.columns = res.columns.map(column => {
                     column.previousName = column.name;
 
-                    if (column.type == "pickfromsource") {
-                        if (!this.columnPickFromDatasets[column.name])
+                    if (column.type === 'pickfromsource') {
+                        if (!this.columnPickFromDatasets[column.name]) {
                             this.populateColumnPickFrom(column);
+                        }
                     }
 
                     return column;
