@@ -11,17 +11,17 @@ use Kinikit\Persistence\ORM\ActiveRecord;
  */
 class DatasourceHookInstance extends ActiveRecord {
 
-    const HOOK_MODE_ADD = "add";
-
-    const HOOK_MODE_UPDATE = "update";
-
-    const HOOK_MODE_DELETE = "delete";
-
-    const HOOK_MODE_REPLACE = "replace";
 
     protected ?int $id = null;
 
     protected ?string $datasourceInstanceKey;
+
+    protected ?string $hookKey;
+
+    /**
+     * @json
+     */
+    protected mixed $hookConfig;
 
     protected ?string $dataProcessorInstanceKey;
 
@@ -29,18 +29,28 @@ class DatasourceHookInstance extends ActiveRecord {
 
     protected ?string $hookMode;
 
+    const HOOK_MODE_ADD = "add";
+    const HOOK_MODE_UPDATE = "update";
+    const HOOK_MODE_DELETE = "delete";
+    const HOOK_MODE_REPLACE = "replace";
+    const HOOK_MODE_ALL = "all";
+
 
     /**
      * @param string $datasourceInstanceKey
+     * @param string|null $hookKey
+     * @param mixed|null $hookConfig
      * @param string $dataProcessorInstanceKey
      * @param int $scheduledTaskId
      * @param string $hookMode
      */
-    public function __construct(?string $datasourceInstanceKey, ?string $dataProcessorInstanceKey, ?string $scheduledTaskId, ?string $hookMode) {
+    public function __construct(?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?string $scheduledTaskId = null, ?string $hookMode = null) {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
         $this->scheduledTaskId = $scheduledTaskId;
         $this->hookMode = $hookMode;
+        $this->hookKey = $hookKey;
+        $this->hookConfig = $hookConfig;
     }
 
     public function getId(): ?int {
@@ -54,6 +64,35 @@ class DatasourceHookInstance extends ActiveRecord {
     public function setDatasourceInstanceKey(string $datasourceInstanceKey): void {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getHookKey(): ?string {
+        return $this->hookKey;
+    }
+
+    /**
+     * @param string|null $hookKey
+     */
+    public function setHookKey(?string $hookKey): void {
+        $this->hookKey = $hookKey;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getHookConfig(): mixed {
+        return $this->hookConfig;
+    }
+
+    /**
+     * @param mixed|null $hookConfig
+     */
+    public function setHookConfig(mixed $hookConfig): void {
+        $this->hookConfig = $hookConfig;
+    }
+
 
     public function getDataProcessorInstanceKey(): ?string {
         return $this->dataProcessorInstanceKey;

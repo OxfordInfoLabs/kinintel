@@ -18,17 +18,7 @@ trait Hook {
         $this->hookService = Container::instance()->get(DatasourceHookService::class);
     }
 
-    /**
-     * @http POST /create
-     *
-     * @param string $datasourceInstanceKey
-     * @param string $hookMode
-     * @param string $processorType
-     * @param string $config
-     */
-    public function create($datasourceInstanceKey, $hookMode, $processorType, $config) {
-        $this->hookService->createHook($datasourceInstanceKey, $hookMode, $processorType, $config);
-    }
+
 
     /**
      * @http GET /$hookKey

@@ -341,7 +341,11 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $changed = 0;
         $validationErrors = [];
 
-        $columns = $dataset->getColumns();
+        // Update columns to match those configured on this datasource
+        $datasetColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $dataset->getColumns() ?? []);
+        $datasourceColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $this->getConfig()->getColumns() ?? []);
+        $columns = array_values(array_merge($datasetColumns, $datasourceColumns));
+        $dataset->setColumns($columns);
 
         // Data validator
         $datasourceDataValidator = new DatasourceDataValidator($columns);
@@ -373,6 +377,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                             $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $insertDataset->getColumns());
                     } else {
                         $updateColumns = ObjectArrayUtils::getMemberValueArrayForObjects("name", $insertDataset->getColumns());
+
                     }
                 }
 
