@@ -12,10 +12,19 @@ use Kinikit\Persistence\ORM\ActiveRecord;
 class DatasourceHookInstance extends ActiveRecord {
 
 
+    /**
+     * @var int
+     */
     protected ?int $id = null;
 
+    /**
+     * @var string
+     */
     protected ?string $datasourceInstanceKey;
 
+    /**
+     * @var string
+     */
     protected ?string $hookKey;
 
     /**
@@ -23,11 +32,25 @@ class DatasourceHookInstance extends ActiveRecord {
      */
     protected mixed $hookConfig;
 
+    /**
+     * @var string
+     */
     protected ?string $dataProcessorInstanceKey;
 
+    /**
+     * @var int
+     */
     protected ?int $scheduledTaskId;
 
+    /**
+     * @var string
+     */
     protected ?string $hookMode;
+
+    /**
+     * @var bool
+     */
+    protected bool $enabled = true;
 
     const HOOK_MODE_ADD = "add";
     const HOOK_MODE_UPDATE = "update";
@@ -43,14 +66,16 @@ class DatasourceHookInstance extends ActiveRecord {
      * @param string $dataProcessorInstanceKey
      * @param int $scheduledTaskId
      * @param string $hookMode
+     * @param bool $enabled
      */
-    public function __construct(?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?string $scheduledTaskId = null, ?string $hookMode = null) {
+    public function __construct(?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?string $scheduledTaskId = null, ?string $hookMode = null, $enabled = true) {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
         $this->scheduledTaskId = $scheduledTaskId;
         $this->hookMode = $hookMode;
         $this->hookKey = $hookKey;
         $this->hookConfig = $hookConfig;
+        $this->enabled = $enabled;
     }
 
     public function getId(): ?int {
@@ -122,6 +147,20 @@ class DatasourceHookInstance extends ActiveRecord {
 
     public function setHookMode(string $hookMode): void {
         $this->hookMode = $hookMode;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled): void {
+        $this->enabled = $enabled;
     }
 
 

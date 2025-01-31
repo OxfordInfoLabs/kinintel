@@ -391,6 +391,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                 // Validate the data before insert.
                 $validationErrors = array_merge($validationErrors, $datasourceDataValidator->validateUpdateData($allData, true));
 
+
                 try {
                     switch ($updateMode) {
                         case UpdatableDatasource::UPDATE_MODE_ADD:
@@ -412,7 +413,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
                     // Run any hooks using hook service if instance info has been proviced
                     if ($this->getInstanceInfo())
-                        $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode);
+                        $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode, $allData);
 
 
                 } catch (SQLException $e) {

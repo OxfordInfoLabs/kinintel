@@ -14,11 +14,11 @@ interface DatasourceHook {
 
     /**
      * @param DatasourceHookConfig $hookConfig
-     * @param string $hookMode
+     * @param string $updateMode
      * @param mixed $updateData
      *
      * @return mixed
      */
-    public function processHook($hookConfig, $hookMode, $updateData);
+    public function processHook($hookConfig, $updateMode, $updateData);
 
 }

@@ -2,6 +2,7 @@
 
 namespace Kinintel\Test\Services\Hook;
 
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Binding\ObjectBindingException;
@@ -12,11 +13,12 @@ use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Test\ValueObjects\Hook\TestHookConfig;
+use Kinintel\TestBase;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class DatasourceHookServiceTest extends TestCase {
+class DatasourceHookServiceTest extends TestBase {
 
     private $dataProcessorService;
 
@@ -28,7 +30,7 @@ class DatasourceHookServiceTest extends TestCase {
         $this->dataProcessorService = MockObjectProvider::mock(DataProcessorService::class);
         $this->scheduledTaskService = MockObjectProvider::mock(ScheduledTaskService::class);
         $this->hookService = new DatasourceHookService($this->dataProcessorService, $this->scheduledTaskService,
-            Container::instance()->get(ObjectBinder::class));
+            Container::instance()->get(ObjectBinder::class), Container::instance()->get(ActiveRecordInterceptor::class));
     }
 
     public function testDataProcessorTriggeredCorrectlyForDataProcessorBasedHook() {
@@ -95,6 +97,20 @@ class DatasourceHookServiceTest extends TestCase {
 
     }
 
+
+    public function testHookNotTriggeredIfDisabled() {
+
+        $newHook = new DatasourceHookInstance("testhook5", null, 25, null, 25, "all", false);
+        $newHook->save();
+
+        $this->hookService->processHooks("testhook5", "add");
+
+        $this->assertFalse($this->scheduledTaskService->methodWasCalled("triggerScheduledTask", [
+            25
+        ]));
+
+
+    }
 
 
 }
