@@ -58,7 +58,7 @@ class DatasourceUpdateDatasourceHookTest extends TestCase {
                     "name" => "John",
                     "age" => 33
                 ]
-            ])]));
+            ]), true]));
     }
 
 
@@ -94,7 +94,7 @@ class DatasourceUpdateDatasourceHookTest extends TestCase {
                     "age" => 33,
                     "shoeSize" => 23
                 ]
-            ])]));
+            ]), true]));
 
     }
 
