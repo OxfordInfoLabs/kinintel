@@ -3,18 +3,21 @@
 namespace Kinintel\Services\Hook;
 
 
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 
 class DatasourceHookService {
 
     public function __construct(
-        private DataProcessorService $dataProcessorService,
-        private ScheduledTaskService $scheduledTaskService,
-        private ObjectBinder         $objectBinder
+        private DataProcessorService    $dataProcessorService,
+        private ScheduledTaskService    $scheduledTaskService,
+        private ObjectBinder            $objectBinder,
+        private ActiveRecordInterceptor $activeRecordInterceptor
     ) {
     }
 
@@ -35,7 +38,14 @@ class DatasourceHookService {
     }
 
 
-    // Process hooks for a given update mode, pass update data for manual mode
+    /**
+     * @param $datasourceKey
+     * @param $updateMode
+     * @param $data
+     * @return void
+     * @throws \Kinikit\Core\Exception\AccessDeniedException
+     * @throws \Throwable
+     */
     public function processHooks($datasourceKey, $updateMode, $data = []) {
 
         /** @var DatasourceHookInstance[] $hooks */
@@ -52,6 +62,7 @@ class DatasourceHookService {
             else if ($scheduledTaskId = $hookInstance->getScheduledTaskId()) {
                 $this->scheduledTaskService->triggerScheduledTask($scheduledTaskId);
             } else if ($hookKey = $hookInstance->getHookKey()) {
+
                 $hook = Container::instance()->getInterfaceImplementation(DatasourceHook::class, $hookKey);
                 $configClass = $hook->getConfigClass();
                 $hookConfig = is_a($hookInstance->getHookConfig(), $configClass) ?:

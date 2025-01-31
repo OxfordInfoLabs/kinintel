@@ -2,6 +2,7 @@
 
 namespace Kinintel\Test\Services\Hook;
 
+use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\Binding\ObjectBindingException;
@@ -28,7 +29,7 @@ class DatasourceHookServiceTest extends TestCase {
         $this->dataProcessorService = MockObjectProvider::mock(DataProcessorService::class);
         $this->scheduledTaskService = MockObjectProvider::mock(ScheduledTaskService::class);
         $this->hookService = new DatasourceHookService($this->dataProcessorService, $this->scheduledTaskService,
-            Container::instance()->get(ObjectBinder::class));
+            Container::instance()->get(ObjectBinder::class), Container::instance()->get(ActiveRecordInterceptor::class));
     }
 
     public function testDataProcessorTriggeredCorrectlyForDataProcessorBasedHook() {

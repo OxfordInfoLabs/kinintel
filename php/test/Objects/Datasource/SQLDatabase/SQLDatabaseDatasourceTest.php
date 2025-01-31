@@ -494,7 +494,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "addinstance",
-                UpdatableDatasource::UPDATE_MODE_ADD
+                UpdatableDatasource::UPDATE_MODE_ADD,
+                $data
             ]));
 
     }
@@ -552,7 +553,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "addinstance",
-                UpdatableDatasource::UPDATE_MODE_ADD
+                UpdatableDatasource::UPDATE_MODE_ADD,
+                array_slice($data, 0, 1)
             ]));
 
 
@@ -640,7 +642,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "removeinstance",
-                UpdatableDatasource::UPDATE_MODE_DELETE
+                UpdatableDatasource::UPDATE_MODE_DELETE,
+                $data
             ]));
 
     }
@@ -684,7 +687,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "replaceinstance",
-                UpdatableDatasource::UPDATE_MODE_REPLACE
+                UpdatableDatasource::UPDATE_MODE_REPLACE,
+                $data
             ]));
     }
 
