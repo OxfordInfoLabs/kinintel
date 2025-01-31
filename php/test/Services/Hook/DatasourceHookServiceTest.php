@@ -13,11 +13,12 @@ use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Test\ValueObjects\Hook\TestHookConfig;
+use Kinintel\TestBase;
 use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class DatasourceHookServiceTest extends TestCase {
+class DatasourceHookServiceTest extends TestBase {
 
     private $dataProcessorService;
 
@@ -96,6 +97,20 @@ class DatasourceHookServiceTest extends TestCase {
 
     }
 
+
+    public function testHookNotTriggeredIfDisabled() {
+
+        $newHook = new DatasourceHookInstance("testhook5", null, 25, null, 25, "all", false);
+        $newHook->save();
+
+        $this->hookService->processHooks("testhook5", "add");
+
+        $this->assertFalse($this->scheduledTaskService->methodWasCalled("triggerScheduledTask", [
+            25
+        ]));
+
+
+    }
 
 
 }

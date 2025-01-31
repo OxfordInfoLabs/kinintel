@@ -34,7 +34,7 @@ class DatasourceHookService {
     }
 
     public function getDatasourceHookInstancesForDatasourceInstanceAndMode($key, $mode) {
-        return DatasourceHookInstance::filter("WHERE datasourceInstanceKey = ? AND (hookMode = ? OR hookMode = ?)", $key, $mode, DatasourceHookInstance::HOOK_MODE_ALL);
+        return DatasourceHookInstance::filter("WHERE datasourceInstanceKey = ? AND (hookMode = ? OR hookMode = ?) AND enabled", $key, $mode, DatasourceHookInstance::HOOK_MODE_ALL);
     }
 
 
