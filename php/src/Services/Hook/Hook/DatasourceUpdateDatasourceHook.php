@@ -2,7 +2,6 @@
 
 namespace Kinintel\Services\Hook\Hook;
 
-use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
