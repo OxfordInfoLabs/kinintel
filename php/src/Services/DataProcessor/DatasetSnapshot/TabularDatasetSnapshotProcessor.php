@@ -165,6 +165,9 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
                 $offset += $readChunkSize;
             } while (sizeof($pendingData) >= $readChunkSize);
 
+            // Remove the pending table to save disk space
+            $dataSourcePending->onInstanceDelete();
+
         }
     }
 
