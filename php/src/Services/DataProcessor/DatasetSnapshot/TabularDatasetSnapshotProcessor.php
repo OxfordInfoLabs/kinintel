@@ -163,7 +163,7 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
                 $writeData = new ArrayTabularDataset($fieldsLatest, $pendingData);
                 $dataSourceLatest->update($writeData, UpdatableDatasource::UPDATE_MODE_REPLACE);
                 $offset += $readChunkSize;
-            } while (sizeof($pendingData) == $readChunkSize);
+            } while (sizeof($pendingData) >= $readChunkSize);
 
         }
     }
