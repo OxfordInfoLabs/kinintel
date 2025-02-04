@@ -4,9 +4,11 @@ namespace Kinintel\Objects\Datasource\RSync;
 
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
+use Kinintel\ValueObjects\Authentication\Generic\UsernameAndPasswordAuthenticationCredentials;
 use Kinintel\ValueObjects\Datasource\Configuration\RSync\RSyncDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -30,6 +32,10 @@ class RSyncDatasource extends BaseDatasource {
      */
     public function isAuthenticationRequired() {
         return false;
+    }
+
+    public function getSupportedCredentialClasses() {
+        return [UsernameAndPasswordAuthenticationCredentials::class];
     }
 
     /**
@@ -79,10 +85,19 @@ class RSyncDatasource extends BaseDatasource {
         if (!file_exists($targetDirectory))
             mkdir($targetDirectory, 0777, true);
 
-        exec("rsync $source $targetPath");
+        if ($this->getAuthenticationCredentials()) {
+            /**
+             * @var UsernameAndPasswordAuthenticationCredentials $credentials
+             */
+            $credentials = $this->getAuthenticationCredentials();
+            $command = 'sshpass -p "' . $credentials->getPassword() . '" rsync ' . ($config->getRsyncFlags() ?? "") . " " . $credentials->getUsername() . "@$source $targetPath";
+        } else {
+            $command = "rsync " . ($config->getRsyncFlags() ?? "") . " $source $targetPath";
+        }
+
+        exec($command);
 
         $responseStream = new ReadOnlyFileStream($targetPath);
-
 
         if ($this->getConfig()->getCompressionType()) {
             $compressor = Container::instance()->getInterfaceImplementation(Compressor::class, $this->getConfig()->getCompressionType());

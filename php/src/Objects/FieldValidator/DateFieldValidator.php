@@ -10,6 +10,7 @@ class DateFieldValidator implements FieldValidator {
     const DATE_TIME_FORMAT = "Y-m-d H:i:s";
     const DATE_TIME_TZ_FORMAT = "Y-m-d\TH:i:s";
 
+
     public function __construct(private bool $includeTime = false) {
     }
 
@@ -24,6 +25,9 @@ class DateFieldValidator implements FieldValidator {
         // Allow blanks
         if ($value === null || $value === "")
             return true;
+
+        // Grab first 19 chars to avoid ISO extensions
+        $value = substr($value, 0, 19);
 
         // Attempt normal date and then check for TZ format as well
         $date = date_create_from_format($this->includeTime ? self::DATE_TIME_FORMAT : self::DATE_FORMAT, $value);

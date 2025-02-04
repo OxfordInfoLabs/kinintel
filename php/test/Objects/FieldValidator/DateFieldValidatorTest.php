@@ -45,6 +45,9 @@ class DateFieldValidatorTest extends TestCase {
         $this->assertTrue($validator->validateValue("2024-03-23 09:22:33", $field));
         $this->assertTrue($validator->validateValue("2024-03-23T09:22:33", $field));
         $this->assertTrue($validator->validateValue("2024-03-23T09:22:33", $field));
+        $this->assertTrue($validator->validateValue("2024-03-23T09:22:33.188Z", $field));
+        $this->assertTrue($validator->validateValue("2024-03-23T09:22:33+02:00", $field));
+
 
 
         // Invalid
