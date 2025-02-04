@@ -25,7 +25,7 @@ export class ImportDataComponent implements OnInit {
     public rows: any = [];
     public datasourceInstanceKey: string;
     public reloadURL: string;
-    public importErrors: any[] = [];
+    public importErrors: any = [];
     public _ = _;
     public Object = Object;
 
@@ -149,11 +149,13 @@ export class ImportDataComponent implements OnInit {
             result = await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
         }
 
-       if (result && result.rejected > 0){
-           this.importErrors = <any>Object.values(result.validationErrors)[0];
+        if (result && result.rejected > 0) {
+           this.importErrors = Object.values(result.validationErrors)[0];
            console.log(this.importErrors);
-       } else
+        } else {
            window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
+        }
+
     }
 
 

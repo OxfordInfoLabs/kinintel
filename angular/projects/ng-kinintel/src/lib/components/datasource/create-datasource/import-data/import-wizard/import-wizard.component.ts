@@ -100,8 +100,6 @@ export class ImportWizardComponent implements OnInit {
             );
         }
 
-        console.log(this.columns);
-
         // Clear the input value
         // tslint:disable-next-line:no-non-null-assertion
         event.chipInput!.clear();
