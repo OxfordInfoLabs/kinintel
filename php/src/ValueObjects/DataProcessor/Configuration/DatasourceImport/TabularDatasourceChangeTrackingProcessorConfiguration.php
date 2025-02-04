@@ -24,7 +24,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     /**
      * @var string
-     * @requiredEither targetChangeDatasourceKey,targetSummaryDatasourceKey
+     * @requiredEither targetChangeDatasourceKey,targetAddsDatasourceKey,targetSummaryDatasourceKey
      */
     private $targetLatestDatasourceKey;
 
@@ -32,6 +32,15 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @var string
      */
     private $targetChangeDatasourceKey;
+
+
+    /**
+     * A datasource to simply receive new adds (as opposed to all changes)
+     *
+     * @var string
+     */
+    private $targetAddsDatasourceKey;
+
 
     /**
      * @var string
@@ -75,6 +84,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param DatasetInstance $sourceDataset
      * @param string $targetLatestDatasourceKey
      * @param string $targetChangeDatasourceKey
+     * @param string $targetAddsDatasourceKey
      * @param string $targetSummaryDatasourceKey
      * @param string[] $summaryFields
      * @param int $sourceReadChunkSize
@@ -83,11 +93,12 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param mixed $initialOffset
      * @param string $offsetParameterName
      */
-    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0,
+    public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetAddsDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0,
                                 $offsetParameterName = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
+        $this->targetAddsDatasourceKey = $targetAddsDatasourceKey;
         $this->targetSummaryDatasourceKey = $targetSummaryDatasourceKey;
         $this->summaryFields = $summaryFields;
         $this->sourceReadChunkSize = $sourceReadChunkSize ?: PHP_INT_MAX;
@@ -97,6 +108,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->offsetField = $offsetField;
         $this->initialOffset = $initialOffset;
         $this->offsetParameterName = $offsetParameterName;
+
     }
 
     /**
@@ -168,6 +180,21 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     public function setTargetChangeDatasourceKey($targetChangeDatasourceKey) {
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
     }
+
+    /**
+     * @return string
+     */
+    public function getTargetAddsDatasourceKey() {
+        return $this->targetAddsDatasourceKey;
+    }
+
+    /**
+     * @param string $targetAddsDatasourceKey
+     */
+    public function setTargetAddsDatasourceKey($targetAddsDatasourceKey) {
+        $this->targetAddsDatasourceKey = $targetAddsDatasourceKey;
+    }
+
 
     /**
      * @return string
