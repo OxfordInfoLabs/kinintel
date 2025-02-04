@@ -14,7 +14,7 @@ class RSyncDatasourceTest extends TestCase {
 
     public function testCanRSyncFile() {
 
-        $config = new RSyncDatasourceConfig(__DIR__ . "/testSource.txt", "sv");
+        $config = new RSyncDatasourceConfig(__DIR__ . "/testSource.txt", "", "sv");
 
         $datasource = new RSyncDatasource();
         $datasource->setConfig($config);
