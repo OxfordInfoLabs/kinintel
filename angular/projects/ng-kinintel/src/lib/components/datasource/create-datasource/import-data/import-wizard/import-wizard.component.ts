@@ -133,7 +133,7 @@ export class ImportWizardComponent implements OnInit {
             data: {
                 columns: this.columns,
                 datasourceUpdate: {
-                    title: this.name || '',
+                    title: this.name ? (this.namePrefix || '') + this.name : '',
                     instanceImportKey: '',
                     fields: [],
                     adds: [],

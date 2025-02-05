@@ -83,6 +83,7 @@ export class ImportDataComponent implements OnInit {
     public async importData() {
         this.importingData = true;
         this.importErrors = [];
+
         if (!this.datasourceUpdate.title) {
             this.datasourceUpdate.title = this.import.fileName;
         }
