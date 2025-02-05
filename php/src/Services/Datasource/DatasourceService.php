@@ -478,7 +478,7 @@ class DatasourceService {
 
         // Check privileges if a project key
         $hasManagePrivilege = false;
-        if ($datasourceInstance->getProjectKey()) {
+        if (!$allowInsecure && $datasourceInstance->getProjectKey()) {
             $hasUpdatePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourceupdate", $datasourceInstance->getProjectKey());
             $hasManagePrivilege = $this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "customdatasourcemanage", $datasourceInstance->getProjectKey());
 
