@@ -290,7 +290,6 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
 
         // Identify the key fields
-
         foreach ($fieldKeys as $key) {
             if ($key->isKeyField()) {
                 $keyFieldKeysAsIndex[] = $keyFieldCount;
@@ -305,9 +304,10 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
         $deleteFileStream = new ReadOnlyFileStream($directory . "/deletes.txt");
 
+
         while ($line = $deleteFileStream->readLine()) {
             $explodedLine = explode("#|!", $line);
-            if (sizeof($explodedLine) > 1) {
+            if (sizeof($explodedLine) > 0) {
                 $pkElements = [];
                 foreach ($keyFieldKeysAsIndex as $key) {
                     $pkElements[] = $explodedLine[$key] ?? "";
@@ -315,6 +315,8 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                 $deletedItems[implode("#|!", $pkElements)] = 1;
             }
         }
+
+
 
         $deleteFileItems = explode("\n", file_get_contents($directory . "/deletes.txt"));
 
