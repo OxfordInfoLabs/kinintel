@@ -374,7 +374,7 @@
 
                 <div>
                     <mat-checkbox class="mb-4"
-                                  [(ngModel)]="selectedItem.valueExpressionOnNullOnly">
+                                  [(ngModel)]="selectedItem.valueExpressionOnNullOnly" (change)="!($event.checked) ? selectedItem.valueExpression = '' : null">
                         Has Default Value
                     </mat-checkbox>
                 </div>
