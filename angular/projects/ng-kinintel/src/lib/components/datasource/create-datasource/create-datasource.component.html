@@ -168,14 +168,19 @@
                                            (focus)="focusCell($event, rowIndex, rowColIndex)"
                                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
 
-                                    <div *ngIf="columns[rowColIndex].type == 'pickfromsource' && columnPickFromDatasets[rowColumn.name]" class="w-full pr-10">
-                                        <select class= "p-0 border-none w-full bg-transparent cell-input outline-none ring-0" #field="ngModel"
-                                                [(ngModel)]="row[rowColumn.name]"
-                                                (change)="updateField(field, rowIndex)"
-                                                (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                                (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-                                            <option *ngFor="let pickFrom of columnPickFromDatasets[rowColumn.name].allData"
-                                                    [value]="pickFrom[rowColumn.typeConfig.valueFieldName]">
+                                    <div
+                                        *ngIf="columns[rowColIndex].type == 'pickfromsource' && columnPickFromDatasets[rowColumn.name]"
+                                        class="w-full pr-10">
+                                        <select
+                                            class="p-0 border-none w-full bg-transparent cell-input outline-none ring-0"
+                                            #field="ngModel"
+                                            [(ngModel)]="row[rowColumn.name]"
+                                            (change)="updateField(field, rowIndex)"
+                                            (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                                            <option
+                                                *ngFor="let pickFrom of columnPickFromDatasets[rowColumn.name].allData"
+                                                [value]="pickFrom[rowColumn.typeConfig.valueFieldName]">
                                                 {{pickFrom[rowColumn.typeConfig.labelFieldName]}}
                                             </option>
                                         </select>
@@ -360,10 +365,25 @@
                 </div>
 
 
-                <mat-checkbox class="mb-4"
-                              [(ngModel)]="selectedItem.required">
-                    Required
-                </mat-checkbox>
+                <div>
+                    <mat-checkbox class="mb-4"
+                                  [(ngModel)]="selectedItem.required">
+                        Required
+                    </mat-checkbox>
+                </div>
+
+                <div>
+                    <mat-checkbox class="mb-4"
+                                  [(ngModel)]="selectedItem.valueExpressionOnNullOnly">
+                        Has Default Value
+                    </mat-checkbox>
+                </div>
+
+                <label *ngIf="selectedItem.valueExpressionOnNullOnly" class="mb-4">
+                    Default Value
+                    <input type="text" [(ngModel)]="selectedItem.valueExpression" placeholder="Enter default value">
+                </label>
+
 
                 <div>
                     <button mat-button color="warn" (click)="deleteSelectedColumn()">Delete Column</button>
