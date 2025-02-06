@@ -752,7 +752,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         dialogRef.afterClosed().subscribe(async res => {
             if (res) {
                 column.typeConfig = {
-                    dataSetInstanceId: res.datasetInstanceId,
+                    datasetInstanceId: res.datasetInstanceId,
                     datasourceInstanceKey: res.datasourceInstanceKey
                 };
 
