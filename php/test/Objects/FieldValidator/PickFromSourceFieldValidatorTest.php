@@ -40,8 +40,7 @@ class PickFromSourceFieldValidatorTest extends TestCase {
         $this->assertTrue($validator->validateValue("Bingo", $field));
         $this->assertTrue($validator->validateValue("Grumpy", $field));
 
-        // Blanks and nulls OK
-        $this->assertTrue($validator->validateValue("", $field));
+        // Nulls OK
         $this->assertTrue($validator->validateValue(null, $field));
 
 
@@ -50,7 +49,7 @@ class PickFromSourceFieldValidatorTest extends TestCase {
         $this->assertSame("Invalid value supplied for example", $validator->validateValue("11", $field));
         $this->assertSame("Invalid value supplied for example", $validator->validateValue(true, $field));
         $this->assertSame("Invalid value supplied for example", $validator->validateValue("Other", $field));
-
+        $this->assertSame("Invalid value supplied for example", $validator->validateValue("", $field));
 
     }
 
@@ -81,7 +80,6 @@ class PickFromSourceFieldValidatorTest extends TestCase {
         $this->assertTrue($validator->validateValue("Grumpy", $field));
 
         // Blanks and nulls OK
-        $this->assertTrue($validator->validateValue("", $field));
         $this->assertTrue($validator->validateValue(null, $field));
 
 

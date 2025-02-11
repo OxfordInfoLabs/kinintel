@@ -4,6 +4,7 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 
+use Google\Service\Docs\Tab;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
@@ -41,6 +42,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new Field("decimal", null, null, Field::TYPE_FLOAT),
             $this->mapper->mapResultSetColumnToField(new TableColumn("decimal", TableColumn::SQL_DECIMAL)));
 
+
+        $this->assertEquals(new Field("boolean", null, null, Field::TYPE_BOOLEAN),
+            $this->mapper->mapResultSetColumnToField(new TableColumn("boolean", TableColumn::SQL_TINYINT)));
 
         $this->assertEquals(new Field("date", null, null, Field::TYPE_DATE),
             $this->mapper->mapResultSetColumnToField(new TableColumn("date", TableColumn::SQL_DATE)));
@@ -103,6 +107,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("float", TableColumn::SQL_FLOAT),
             $this->mapper->mapFieldToTableColumn(new Field("float", null, null, Field::TYPE_FLOAT)));
 
+        $this->assertEquals(new TableColumn("boolean", TableColumn::SQL_TINYINT),
+            $this->mapper->mapFieldToTableColumn(new Field("boolean", null, null, Field::TYPE_BOOLEAN)));
+
+
         $this->assertEquals(new TableColumn("date", TableColumn::SQL_DATE),
             $this->mapper->mapFieldToTableColumn(new Field("date", null, null, Field::TYPE_DATE)));
 
@@ -137,6 +145,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(new TableIndexColumn("float"),
             $this->mapper->mapFieldToIndexColumn(new Field("float", null, null, Field::TYPE_FLOAT)));
+
+        $this->assertEquals(new TableIndexColumn("boolean"),
+            $this->mapper->mapFieldToIndexColumn(new Field("boolean", null, null, Field::TYPE_BOOLEAN)));
+
 
         $this->assertEquals(new TableIndexColumn("date"),
             $this->mapper->mapFieldToIndexColumn(new Field("date", null, null, Field::TYPE_DATE)));

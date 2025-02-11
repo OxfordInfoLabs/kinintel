@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Update;
 
 
+use Kinintel\Objects\FieldValidator\BooleanFieldValidator;
 use Kinintel\Objects\FieldValidator\DateFieldValidator;
 use Kinintel\Objects\FieldValidator\FieldValidator;
 use Kinintel\Objects\FieldValidator\NumericFieldValidator;
@@ -147,10 +148,17 @@ class DatasourceUpdateField extends Field {
             // Add implicit type validators
             switch ($this->getType()) {
                 case Field::TYPE_INTEGER:
-                    $this->validators[] = new NumericFieldValidator(false);
+                    $fieldConfig = $this->returnFieldTypeConfig();
+                    $this->validators[] = new NumericFieldValidator(false,
+                        $fieldConfig?->getMinimumValue(), $fieldConfig?->getMaximumValue());
                     break;
                 case Field::TYPE_FLOAT:
-                    $this->validators[] = new NumericFieldValidator(true);
+                    $fieldConfig = $this->returnFieldTypeConfig();
+                    $this->validators[] = new NumericFieldValidator(true,
+                        $fieldConfig?->getMinimumValue(), $fieldConfig?->getMaximumValue());
+                    break;
+                case Field::TYPE_BOOLEAN:
+                    $this->validators[] = new BooleanFieldValidator();
                     break;
                 case Field::TYPE_DATE:
                     $this->validators[] = new DateFieldValidator(false);

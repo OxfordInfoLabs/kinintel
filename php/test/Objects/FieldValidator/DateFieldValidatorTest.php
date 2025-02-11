@@ -26,9 +26,9 @@ class DateFieldValidatorTest extends TestCase {
         $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("Hello", $field));
         $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue(33, $field));
         $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("2024", $field));
+        $this->assertSame("Invalid date value supplied for bingo", $validator->validateValue("", $field));
 
-        // Blanks and nulls ok
-        $this->assertTrue($validator->validateValue("", $field));
+        // Nulls ok
         $this->assertTrue($validator->validateValue(null, $field));
 
 
@@ -56,9 +56,9 @@ class DateFieldValidatorTest extends TestCase {
         $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("Hello", $field));
         $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue(33, $field));
         $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("2024", $field));
+        $this->assertSame("Invalid date time value supplied for bingo", $validator->validateValue("", $field));
 
-        // Blanks and nulls ok
-        $this->assertTrue($validator->validateValue("", $field));
+        // Nulls ok
         $this->assertTrue($validator->validateValue(null, $field));
 
 

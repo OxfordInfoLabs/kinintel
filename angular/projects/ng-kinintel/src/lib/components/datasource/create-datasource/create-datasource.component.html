@@ -163,10 +163,23 @@
                                            [type]="inputTypeForField(rowColumn)" #field="ngModel"
                                            [(ngModel)]="row[rowColumn.name]"
                                            [step]="1"
-                                           *ngIf="columns[rowColIndex].type !== 'id' && columns[rowColIndex].type !== 'pickfromsource' && !columns[rowColIndex].keyField"
-                                           (change)="updateField(field, rowIndex)"
+                                           [max]="columns[rowColIndex].typeConfig.maximumValue"
+                                           [min]="columns[rowColIndex].typeConfig.minimumValue"
+                                           *ngIf="columns[rowColIndex].type !== 'id' && columns[rowColIndex].type !== 'pickfromsource'  && columns[rowColIndex].type !== 'boolean' && !columns[rowColIndex].keyField"
+                                           (change)="updateField(rowColumn, rowIndex, $event)"
                                            (focus)="focusCell($event, rowIndex, rowColIndex)"
                                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+
+
+                                    <input class="p-0 border-none w-full bg-transparent pr-10 cell-input"
+                                           type="checkbox" #field="ngModel"
+                                           [(ngModel)]="row[rowColumn.name]"
+                                           [step]="1"
+                                           *ngIf="columns[rowColIndex].type === 'boolean' && !columns[rowColIndex].keyField"
+                                           (change)="updateField(rowColumn, rowIndex, $event)"
+                                           (focus)="focusCell($event, rowIndex, rowColIndex)"
+                                           (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+
 
                                     <div
                                         *ngIf="columns[rowColIndex].type == 'pickfromsource' && columnPickFromDatasets[rowColumn.name]"
@@ -318,6 +331,18 @@
                         </select>
                     </label>
                 </ng-template>
+
+                <div *ngIf="selectedItem.type == 'integer' || selectedItem.type == 'float'">
+                    <label class="mb-4">
+                        Minimum Value
+                        <input type="number" [(ngModel)]="selectedItem.typeConfig.minimumValue" placeholder="Enter Minimum Value" />
+                    </label>
+
+                    <label class="mb-4">
+                        Maximum Value
+                        <input type="number" [(ngModel)]="selectedItem.typeConfig.maximumValue" placeholder="Enter Maximum Value" />
+                    </label>
+                </div>
 
                 <div *ngIf="selectedItem.type == 'pickfromsource'" class="mb-4">
 

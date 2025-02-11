@@ -47,7 +47,7 @@ class PickFromSourceFieldValidator implements FieldValidator {
     public function validateValue($value, $field) {
 
         // Allow blanks
-        if ($value === null || $value === "")
+        if ($value === null)
             return true;
 
         $allowedValues = $this->lookupValues();

@@ -149,6 +149,10 @@ abstract class TabularDataset implements Dataset {
                     $value = $column->evaluateValueExpression($dataItem);
                 } else {
                     $value = $dataItem[$columnName] ?? null;
+
+                    // Ensure booleans are correctly typed
+                    if ($column->getType() == Field::TYPE_BOOLEAN)
+                        $value = $value ? true : false;
                 }
 
 
