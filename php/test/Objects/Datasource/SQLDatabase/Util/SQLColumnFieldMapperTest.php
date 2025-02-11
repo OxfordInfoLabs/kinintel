@@ -4,7 +4,6 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 
-use Google\Service\Docs\Tab;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLColumnFieldMapper;
