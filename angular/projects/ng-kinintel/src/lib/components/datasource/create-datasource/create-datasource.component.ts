@@ -569,12 +569,17 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     public cancelChanges() {
-
         this.adds = [];
         this.updates = [];
         this.deletes = [];
 
         this.loadDatasource();
+    }
+
+    public setTypeConfig() {
+        if (!this.selectedItem.typeConfig) {
+            this.selectedItem.typeConfig = {};
+        }
     }
 
     public deleteSelectedColumn() {

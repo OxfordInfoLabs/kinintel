@@ -323,7 +323,7 @@
                 <ng-template [ngIf]="selectedItem.type !== 'id'">
                     <label class="mb-4">
                         Column Type
-                        <select [(ngModel)]="selectedItem.type">
+                        <select [(ngModel)]="selectedItem.type" (ngModelChange)="setTypeConfig()">
                             <option [value]="null">-- Select column type --</option>
                             <option *ngFor="let type of Object.keys(datasourceTypes)" [value]="type">
                                 {{ datasourceTypes[type] }}
@@ -333,7 +333,7 @@
                 </ng-template>
 
                 <div class="flex items-center gap-2"
-                     *ngIf="selectedItem.type == 'integer' || selectedItem.type == 'float'">
+                     *ngIf="selectedItem.typeConfig && selectedItem.type == 'integer' || selectedItem.type == 'float'">
                     <label class="mb-4 w-32">
                         Minimum Value
                         <input type="number" class="py-1 px-2"
