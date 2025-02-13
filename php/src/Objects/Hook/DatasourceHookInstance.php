@@ -52,6 +52,11 @@ class DatasourceHookInstance extends ActiveRecord {
      */
     protected bool $enabled = true;
 
+    /**
+     * @var bool
+     */
+    protected bool $executeInsecure = false;
+
     const HOOK_MODE_ADD = "add";
     const HOOK_MODE_UPDATE = "update";
     const HOOK_MODE_DELETE = "delete";
@@ -68,7 +73,8 @@ class DatasourceHookInstance extends ActiveRecord {
      * @param string $hookMode
      * @param bool $enabled
      */
-    public function __construct(?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?string $scheduledTaskId = null, ?string $hookMode = null, $enabled = true) {
+    public function __construct(?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?string $scheduledTaskId = null, ?string $hookMode = null, $enabled = true,
+                                        $executeInsecure = false) {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
         $this->scheduledTaskId = $scheduledTaskId;
@@ -76,6 +82,7 @@ class DatasourceHookInstance extends ActiveRecord {
         $this->hookKey = $hookKey;
         $this->hookConfig = $hookConfig;
         $this->enabled = $enabled;
+        $this->executeInsecure = $executeInsecure;
     }
 
     public function getId(): ?int {
@@ -161,6 +168,20 @@ class DatasourceHookInstance extends ActiveRecord {
      */
     public function setEnabled(bool $enabled): void {
         $this->enabled = $enabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExecuteInsecure(): bool {
+        return $this->executeInsecure;
+    }
+
+    /**
+     * @param bool $executeInsecure
+     */
+    public function setExecuteInsecure(bool $executeInsecure): void {
+        $this->executeInsecure = $executeInsecure;
     }
 
 
