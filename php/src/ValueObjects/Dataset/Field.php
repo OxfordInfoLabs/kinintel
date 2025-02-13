@@ -83,6 +83,7 @@ class Field {
     const TYPE_LONG_STRING = "longstring";
     const TYPE_INTEGER = "integer";
     const TYPE_FLOAT = "float";
+    const TYPE_BOOLEAN = "boolean";
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
     const TYPE_PICK_FROM_SOURCE = "pickfromsource";
@@ -255,6 +256,8 @@ class Field {
     public function returnFieldTypeConfig() {
         $configClass = Container::instance()->getInterfaceImplementationClass(FieldTypeConfig::class, $this->getType());
         if ($configClass) {
+            if (is_a($this->getTypeConfig(), $configClass))
+                return $this->getTypeConfig();
             $objectBinder = Container::instance()->get(ObjectBinder::class);
             return $objectBinder->bindFromArray($this->getTypeConfig() ?? [], $configClass);
         }

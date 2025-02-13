@@ -52,6 +52,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         mediumstring: 'Medium Text (up to 2000 chars)',
         longstring: 'Long Text (more than 2000 chars)',
         integer: 'Number (whole number)',
+        boolean: "Tick (Yes / No)",
         float: 'Decimal number',
         date: 'Date',
         datetime: 'Date and Time',
@@ -366,7 +367,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     public addRow(index?) {
         const row = {};
         this.columns.forEach(column => {
-            row[column.name] = '';
+            row[column.name] = null;
         });
 
         if (index > -1) {
@@ -418,12 +419,21 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         }
     }
 
-    public updateField(field, rowIndex) {
+    public updateField(field, rowIndex, event) {
         if (this.adds.indexOf(rowIndex) === -1) {
             if (this.updates.indexOf(rowIndex) === -1) {
                 this.updates.push(rowIndex);
             }
         }
+
+        // Handle implicit false values for booleans and implicit nulls for other fields
+        if (field.type == 'boolean') {
+            this.rows[rowIndex][field.name] = event.target.checked;
+        } else {
+            if (this.rows[rowIndex][field.name] === '')
+                this.rows[rowIndex][field.name] = null;
+        }
+
         this.editMode = true;
     }
 
@@ -595,6 +605,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             case 'integer':
             case 'float':
                 return 'number';
+            case 'boolean':
+                return 'checkbox';
             case 'date':
                 return 'date';
             case 'datetime':
@@ -603,7 +615,6 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                 return 'text';
         }
     }
-
 
 
     private loadDatasource() {

@@ -8,6 +8,7 @@ use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Dataset\TypeConfig\NumericFieldTypeConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateFieldValidatorConfig;
 
@@ -34,8 +35,24 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
 
         // Integers should be strictly validated
         $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_INTEGER);
-        $this->assertEquals(true, $datasourceUpdateField->validateValue("12"));
+        $this->assertSame(true, $datasourceUpdateField->validateValue("12"));
         $this->assertSame("Invalid integer value supplied for test", $datasourceUpdateField->validateValue("12.5"));
+
+        // Integers with min and/or max configuration
+        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_INTEGER);
+        $datasourceUpdateField->setTypeConfig(new NumericFieldTypeConfig(0));
+        $this->assertSame(true, $datasourceUpdateField->validateValue(0));
+        $this->assertSame(true, $datasourceUpdateField->validateValue(55));
+        $this->assertSame("Invalid value supplied for test.  Must be greater than or equal to 0", $datasourceUpdateField->validateValue(-5));
+
+
+
+
+        // Booleans should be strictly validated
+        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_BOOLEAN);
+        $this->assertSame(true, $datasourceUpdateField->validateValue(true));
+        $this->assertSame("Invalid boolean value supplied for test", $datasourceUpdateField->validateValue("12.5"));
+
 
         // Floats should be strictly validated
         $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_FLOAT);
@@ -58,6 +75,9 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(true, $datasourceUpdateField->validateValue("Hello"));
         $this->assertSame("Value required for test", $datasourceUpdateField->validateValue(""));
         $this->assertSame("Value required for test", $datasourceUpdateField->validateValue(null));
+
+
+
 
         // Pick one types should be validated using field config
         $dataset = new ArrayTabularDataset([
@@ -116,6 +136,8 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
 
 
 }
