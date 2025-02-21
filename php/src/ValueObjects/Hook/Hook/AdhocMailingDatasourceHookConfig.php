@@ -6,7 +6,7 @@ use Kinintel\ValueObjects\Hook\DatasourceHookConfig;
 
 class AdhocMailingDatasourceHookConfig implements DatasourceHookConfig {
 
-    public function __construct(private int $mailingId, private ?array $emailAddresses = []) {
+    public function __construct(private int $mailingId, private ?array $emailAddresses = null) {
     }
 
     /**

@@ -30,9 +30,12 @@ class AdhocMailingDatasourceHook implements DatasourceHook {
     public function processHook($hookConfig, $updateMode, $updateData) {
 
         foreach ($updateData ?? [] as $updateDataItem) {
-            $adhocMailing = new AdhocMailing($hookConfig->getMailingId(), "", "", true, [],
-                [new TemplateParameter("data","Data",null,$updateDataItem)]);
-            $this->mailingService->processAdhocMailing($adhocMailing);
+
+            foreach ($hookConfig->getEmailAddresses() ?? [null] as $emailAddress) {
+                $adhocMailing = new AdhocMailing($hookConfig->getMailingId(), "", $emailAddress, $emailAddress === null, [],
+                    [new TemplateParameter("data", "Data", null, $updateDataItem)]);
+                $this->mailingService->processAdhocMailing($adhocMailing);
+            }
         }
     }
 }
