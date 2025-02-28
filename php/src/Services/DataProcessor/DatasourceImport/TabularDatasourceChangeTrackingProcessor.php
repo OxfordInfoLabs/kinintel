@@ -92,7 +92,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
 
             // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
-            if (isset($changeLimit) && ($addsTotal > $changeLimit || $deletesTotal > $changeLimit)) {
+            if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
                 return;
             }
 
@@ -134,7 +134,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                 exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
 
                 // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
-                if (isset($changeLimit) && ($addsTotal > $changeLimit || $deletesTotal > $changeLimit)) {
+                if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
                     return;
                 }
 
@@ -180,7 +180,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
 
             // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
-            if (isset($changeLimit) && ($addsTotal > $changeLimit || $deletesTotal > $changeLimit)) {
+            if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
                 return;
             }
 
