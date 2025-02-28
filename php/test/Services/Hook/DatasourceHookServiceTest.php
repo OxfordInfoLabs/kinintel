@@ -26,11 +26,14 @@ class DatasourceHookServiceTest extends TestBase {
 
     private $hookService;
 
+    private $activeRecordInterceptor;
+
     public function setUp(): void {
         $this->dataProcessorService = MockObjectProvider::mock(DataProcessorService::class);
         $this->scheduledTaskService = MockObjectProvider::mock(ScheduledTaskService::class);
+        $this->activeRecordInterceptor = MockObjectProvider::mock(ActiveRecordInterceptor::class);
         $this->hookService = new DatasourceHookService($this->dataProcessorService, $this->scheduledTaskService,
-            Container::instance()->get(ObjectBinder::class), Container::instance()->get(ActiveRecordInterceptor::class));
+            Container::instance()->get(ObjectBinder::class), $this->activeRecordInterceptor);
     }
 
     public function testDataProcessorTriggeredCorrectlyForDataProcessorBasedHook() {
@@ -108,6 +111,34 @@ class DatasourceHookServiceTest extends TestBase {
         $this->assertFalse($this->scheduledTaskService->methodWasCalled("triggerScheduledTask", [
             25
         ]));
+
+
+    }
+
+    public function testHookExecutedWithSecurityBypassedIfExecuteInsecureFlagSet() {
+
+        // Control case first
+        $newHook = new DatasourceHookInstance("testhook6", null, null, null, 25, "all", true, false);
+        $newHook->save();
+
+        $this->hookService->processHooks("testhook6", "add");
+
+        // Check scheduled task called
+        $this->assertTrue($this->scheduledTaskService->methodWasCalled("triggerScheduledTask", [
+            25
+        ]));
+
+        $this->assertFalse($this->activeRecordInterceptor->methodWasCalled("executeInsecure"));
+
+
+
+        // Insecure case
+        $newHook = new DatasourceHookInstance("testhook6", null, null, null, 25, "all", true, true);
+        $newHook->save();
+
+        $this->hookService->processHooks("testhook6", "add");
+
+        $this->assertTrue($this->activeRecordInterceptor->methodWasCalled("executeInsecure"));
 
 
     }

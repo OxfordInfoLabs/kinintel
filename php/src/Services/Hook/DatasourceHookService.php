@@ -55,23 +55,34 @@ class DatasourceHookService {
         // Process all applicable hooks
         foreach ($hooks as $hookInstance) {
 
-            // Check for processor based hooks
-            if ($processorKey = $hookInstance->getDataProcessorInstanceKey()) {
-                $this->dataProcessorService->triggerDataProcessorInstance($processorKey);
-            } // Check for scheduled task based hooks
-            else if ($scheduledTaskId = $hookInstance->getScheduledTaskId()) {
-                $this->scheduledTaskService->triggerScheduledTask($scheduledTaskId);
-            } else if ($hookKey = $hookInstance->getHookKey()) {
+            $executable = function () use ($hookInstance, $updateMode, $data) {
 
-                $hook = Container::instance()->getInterfaceImplementation(DatasourceHook::class, $hookKey);
-                $configClass = $hook->getConfigClass();
-                $hookConfig = is_a($hookInstance->getHookConfig(), $configClass) ?:
-                    $this->objectBinder->bindFromArray($hookInstance->getHookConfig(), $configClass);
+                // Check for processor based hooks
+                if ($processorKey = $hookInstance->getDataProcessorInstanceKey()) {
+                    $this->dataProcessorService->triggerDataProcessorInstance($processorKey);
+                } // Check for scheduled task based hooks
+                else if ($scheduledTaskId = $hookInstance->getScheduledTaskId()) {
+                    $this->scheduledTaskService->triggerScheduledTask($scheduledTaskId);
+                } else if ($hookKey = $hookInstance->getHookKey()) {
 
-                // Process the hook
-                $hook->processHook($hookConfig, $updateMode, $data);
+                    $hook = Container::instance()->getInterfaceImplementation(DatasourceHook::class, $hookKey);
+                    $configClass = $hook->getConfigClass();
+                    $hookConfig = is_a($hookInstance->getHookConfig(), $configClass) ?:
+                        $this->objectBinder->bindFromArray($hookInstance->getHookConfig(), $configClass);
 
+                    // Process the hook
+                    $hook->processHook($hookConfig, $updateMode, $data);
+
+                }
+            };
+
+            // Handle secure and insecure versions separately
+            if ($hookInstance->isExecuteInsecure()) {
+                $this->activeRecordInterceptor->executeInsecure($executable);
+            } else {
+                $executable();
             }
+
         }
 
     }
