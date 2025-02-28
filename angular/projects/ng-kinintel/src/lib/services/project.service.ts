@@ -21,10 +21,12 @@ export class ProjectService {
         }
     }
 
-    public getProjects(filterString = '', limit= 10, offset= 0) {
-        return this.http.get(this.config.backendURL + '/project', {
-            params: {filterString, limit: limit.toString(), offset: offset.toString()}
-        });
+    public getProjects(filterString = '', limit= 10, offset= 0, accountId?) {
+        const params: any =  {filterString, limit: limit.toString(), offset: offset.toString()};
+        if (accountId) {
+            params.accountId = accountId;
+        }
+        return this.http.get(this.config.backendURL + '/project', {params});
     }
 
     public getProject(key) {

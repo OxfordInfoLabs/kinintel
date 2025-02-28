@@ -123,7 +123,7 @@ export class ImportDataComponent implements OnInit {
         }).forEach(row => {
             const rowData = {};
             this.import.columns.forEach((column: any, index: number) => {
-                rowData[column.name] = row[index];
+                rowData[column.name] = (!_.isUndefined(row[index]) && row[index] !== '') ? row[index] : null;
             });
             csvData.push(rowData);
         });

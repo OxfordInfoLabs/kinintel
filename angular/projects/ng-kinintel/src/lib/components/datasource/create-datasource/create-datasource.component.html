@@ -130,13 +130,13 @@
                                             </svg>
                                         </div>
                                     </button>
-                                    <ng-template [ngIf]="column.type !== 'id'">
+                                    <ng-template [ngIf]="column.type !== 'id' && editColumns">
                                         <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
                                             Insert column before
                                         </button>
                                     </ng-template>
-                                    <button mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
-                                    <button mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
+                                    <button *ngIf="editColumns" mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
+                                    <button *ngIf="editColumns" mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
                                 </mat-menu>
                             </th>
                         </ng-template>

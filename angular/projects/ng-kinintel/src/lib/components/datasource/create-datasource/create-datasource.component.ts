@@ -37,6 +37,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() backendURL: string;
     @Input() namePrefix = '';
     @Input() readonly = false;
+    @Input() editColumns = true;
     @Input() filterJunction = {
         logic: 'AND',
         filters: [{
@@ -52,7 +53,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         mediumstring: 'Medium Text (up to 2000 chars)',
         longstring: 'Long Text (more than 2000 chars)',
         integer: 'Number (whole number)',
-        boolean: "Tick (Yes / No)",
+        boolean: 'Tick (Yes / No)',
         float: 'Decimal number',
         date: 'Date',
         datetime: 'Date and Time',
@@ -338,7 +339,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
 
     public selectColumn(column, index) {
-        if (!column.autoIncrement) {
+        if (this.editColumns && !column.autoIncrement) {
             this.selectedCell = null;
             document.querySelectorAll('.datasource-table .bg-indigo-50').forEach(element => {
                 element.classList.remove('bg-indigo-50');
@@ -577,7 +578,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     public setTypeConfig() {
-        if (!this.selectedItem.typeConfig) {
+        if (!this.selectedItem.typeConfig || Array.isArray(this.selectedItem.typeConfig)) {
             this.selectedItem.typeConfig = {};
         }
     }
