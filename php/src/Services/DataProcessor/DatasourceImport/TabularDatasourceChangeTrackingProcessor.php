@@ -64,6 +64,8 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
         $datasourceKeys = $config->getSourceDatasourceKeys();
         $targetSummaryDatasourceKey = $config->getTargetSummaryDatasourceKey();
 
+        $changeLimit = $config->getChangeLimit();
+
         $setDate = new \DateTime();
 
         if ($config->getSourceDataset()) {
@@ -85,6 +87,14 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             // Track changes between the new and previous
             passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
             passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");
+
+            exec("wc -l $directory/adds.txt | awk '{print $1}'", $addsTotal);
+            exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
+
+            // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
+            if (isset($changeLimit) && ($addsTotal > $changeLimit || $deletesTotal > $changeLimit)) {
+                return;
+            }
 
             // Identify and changes and write to the latest and changes tables
             $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey, $targetWriteChunkSize);
@@ -315,7 +325,6 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                 $deletedItems[implode("#|!", $pkElements)] = 1;
             }
         }
-
 
 
         $deleteFileItems = explode("\n", file_get_contents($directory . "/deletes.txt"));

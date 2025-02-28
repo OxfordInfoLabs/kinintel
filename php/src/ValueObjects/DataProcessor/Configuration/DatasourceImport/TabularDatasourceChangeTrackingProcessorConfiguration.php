@@ -79,6 +79,11 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     private $offsetParameterName;
 
     /**
+     * @var int
+     */
+    private $changeLimit;
+
+    /**
      * @param string[] $sourceDatasourceKeys
      * @param SourceDatasource[] $sourceDatasources
      * @param DatasetInstance $sourceDataset
@@ -92,9 +97,10 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param string $offsetField
      * @param mixed $initialOffset
      * @param string $offsetParameterName
+     * @param int $changeLimit
      */
     public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetAddsDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0,
-                                $offsetParameterName = null) {
+                                $offsetParameterName = null, $changeLimit = null) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -108,7 +114,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->offsetField = $offsetField;
         $this->initialOffset = $initialOffset;
         $this->offsetParameterName = $offsetParameterName;
-
+        $this->changeLimit = $changeLimit;
     }
 
     /**
@@ -294,5 +300,12 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->offsetParameterName = $offsetParameterName;
     }
 
+    public function getChangeLimit(): ?int {
+        return $this->changeLimit;
+    }
+
+    public function setChangeLimit(?int $changeLimit): void {
+        $this->changeLimit = $changeLimit;
+    }
 
 }
