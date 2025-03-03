@@ -93,6 +93,9 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
             // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
             if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
+                if ($config->isUpdatePreviousWhenTooManyChanges()) {
+                    copy($directory . "/new.txt", $directory . "/previous.txt");
+                }
                 return;
             }
 
@@ -135,6 +138,9 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
                 // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
                 if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
+                    if ($config->isUpdatePreviousWhenTooManyChanges()) {
+                        copy($directory . "/new.txt", $directory . "/previous.txt");
+                    }
                     return;
                 }
 
@@ -181,6 +187,9 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
             // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
             if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
+                if ($config->isUpdatePreviousWhenTooManyChanges()) {
+                    copy($directory . "/new.txt", $directory . "/previous.txt");
+                }
                 return;
             }
 

@@ -84,6 +84,11 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
     private $changeLimit;
 
     /**
+     * @var bool
+     */
+    private $updatePreviousWhenTooManyChanges;
+
+    /**
      * @param string[] $sourceDatasourceKeys
      * @param SourceDatasource[] $sourceDatasources
      * @param DatasetInstance $sourceDataset
@@ -98,9 +103,10 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
      * @param mixed $initialOffset
      * @param string $offsetParameterName
      * @param int $changeLimit
+     * @param bool $updatePreviousWhenTooManyChanges
      */
     public function __construct($sourceDatasourceKeys = [], $sourceDatasources = [], $sourceDataset = null, $targetLatestDatasourceKey = null, $targetChangeDatasourceKey = null, $targetAddsDatasourceKey = null, $targetSummaryDatasourceKey = null, $summaryFields = [], $sourceReadChunkSize = null, $targetWriteChunkSize = null, $offsetField = null, $initialOffset = 0,
-                                $offsetParameterName = null, $changeLimit = null) {
+                                $offsetParameterName = null, $changeLimit = null, $updatePreviousWhenTooManyChanges = false) {
         $this->sourceDatasourceKeys = $sourceDatasourceKeys;
         $this->targetLatestDatasourceKey = $targetLatestDatasourceKey;
         $this->targetChangeDatasourceKey = $targetChangeDatasourceKey;
@@ -115,6 +121,7 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
         $this->initialOffset = $initialOffset;
         $this->offsetParameterName = $offsetParameterName;
         $this->changeLimit = $changeLimit;
+        $this->updatePreviousWhenTooManyChanges = $updatePreviousWhenTooManyChanges;
     }
 
     /**
@@ -306,6 +313,14 @@ class TabularDatasourceChangeTrackingProcessorConfiguration {
 
     public function setChangeLimit(?int $changeLimit): void {
         $this->changeLimit = $changeLimit;
+    }
+
+    public function isUpdatePreviousWhenTooManyChanges(): bool {
+        return $this->updatePreviousWhenTooManyChanges;
+    }
+
+    public function setUpdatePreviousWhenTooManyChanges(bool $updatePreviousWhenTooManyChanges): void {
+        $this->updatePreviousWhenTooManyChanges = $updatePreviousWhenTooManyChanges;
     }
 
 }
