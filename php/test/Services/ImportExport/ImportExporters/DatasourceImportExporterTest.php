@@ -254,7 +254,7 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         // Check new one was created
-        $newDatasourceKey = "custom_data_set_5_" . date("U");
+        $newDatasourceKey = "custom_data_set_5_" . (intval(date("U")) + 1);
         $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
 
@@ -309,7 +309,7 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         // Check new one was created
-        $newDatasourceKey = "document_data_set_5_" . date("U");
+        $newDatasourceKey = "document_data_set_5_" . (intval(date("U")) + 1);
         $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
 

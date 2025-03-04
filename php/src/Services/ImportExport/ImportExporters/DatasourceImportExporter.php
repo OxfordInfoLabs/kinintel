@@ -20,6 +20,9 @@ use Kinintel\ValueObjects\ImportExport\ExportObjects\ExportedDatasource;
 class DatasourceImportExporter extends ImportExporter {
 
 
+    // Unique import index to add to current date.
+    private $importIndex = 0;
+
     /**
      * Construct with injection services
      *
@@ -244,7 +247,7 @@ class DatasourceImportExporter extends ImportExporter {
                 $datasourceKey = null;
                 switch ($analysisObject->getImportStatus()) {
                     case ProjectImportResourceStatus::Create:
-                        $datasourceKey = $keyPrefix . date("U");
+                        $datasourceKey = $keyPrefix . (intval(date("U")) + ++$this->importIndex);
                         break;
                     case ProjectImportResourceStatus::Update:
                         $datasourceKey = $analysisObject->getExistingProjectIdentifier();
