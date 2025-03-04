@@ -6,15 +6,25 @@ use Kinintel\Objects\Datasource\DatasourceInstanceSearchResult;
 
 class ExportedDatasource extends DatasourceInstanceSearchResult {
 
+
     /**
+     * @param string|null $importKey
      * @param mixed $config
      */
-    public function __construct($key, $title, $type, $description, private mixed $config, private array $data = [],
+    public function __construct(string          $key, string $title, string $type, ?string $description, private ?string $importKey, private mixed $config, private array $data = [],
                                 private ?string $associatedDataProcessorKey = null,
                                 private ?string $dataProcessorTitle = null,
                                 private ?string $dataProcessorKeyPrefix = null,
                                 private ?string $dataProcessorKeySuffix = null) {
         parent::__construct($key, $title, $type, $description);
+
+    }
+
+    /**
+     * @return string
+     */
+    public function getImportKey(): ?string {
+        return $this->importKey;
     }
 
 

@@ -20,6 +20,9 @@ use Kinintel\ValueObjects\ImportExport\ExportObjects\ExportedDatasource;
 class DatasourceImportExporter extends ImportExporter {
 
 
+    // Unique import index to add to current date.
+    private $importIndex = 0;
+
     /**
      * Construct with injection services
      *
@@ -102,7 +105,7 @@ class DatasourceImportExporter extends ImportExporter {
 
 
                 $exportObjects[] = new ExportedDatasource(self::getNewExportPK("datasources", $key),
-                    $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(),
+                    $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(), $datasource->getImportKey(),
                     $datasourceConfig, $data);
             }
         }
@@ -139,7 +142,7 @@ class DatasourceImportExporter extends ImportExporter {
                         $datasourceConfig["cacheDatasourceKey"] = self::remapExportObjectPK("datasources", $datasourceConfig["cacheDatasourceKey"] ?? null);
 
                     $exportObjects[] = new ExportedDatasource(self::getNewExportPK("datasources", $dataSource->getKey()),
-                        $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(),
+                        $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(), null,
                         $datasourceConfig, [], $newProcessorKey, $processorTitle, $processorPrefix, $processerSuffix);
 
                 }
@@ -244,7 +247,7 @@ class DatasourceImportExporter extends ImportExporter {
                 $datasourceKey = null;
                 switch ($analysisObject->getImportStatus()) {
                     case ProjectImportResourceStatus::Create:
-                        $datasourceKey = $keyPrefix . date("U");
+                        $datasourceKey = $keyPrefix . (intval(date("U")) + ++$this->importIndex);
                         break;
                     case ProjectImportResourceStatus::Update:
                         $datasourceKey = $analysisObject->getExistingProjectIdentifier();

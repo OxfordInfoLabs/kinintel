@@ -10,6 +10,9 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
 
 class DataProcessorItem {
 
+    // Item index
+    public static $newItemIndex = 0;
+
     /**
      * @param string|null $title
      * @param string|null $type
@@ -27,12 +30,12 @@ class DataProcessorItem {
      */
     public function __construct(private ?string $title,
                                 private ?string $type,
-                                private mixed $config,
+                                private mixed   $config,
                                 private ?string $trigger = DataProcessorInstance::TRIGGER_ADHOC,
                                 private ?string $relatedObjectType = null,
                                 private ?string $relatedObjectPrimaryKey = null,
                                 private ?string $relatedObjectTitle = null,
-                                private $taskTimePeriods = [],
+                                private         $taskTimePeriods = [],
                                 private ?string $taskStatus = null,
                                 private ?string $taskLastStartTime = null,
                                 private ?string $taskLastEndTime = null,
@@ -226,10 +229,10 @@ class DataProcessorItem {
     public function toDataProcessorInstance(
         $projectKey = null,
         $accountId = Account::LOGGED_IN_ACCOUNT
-    ) : DataProcessorInstance {
+    ): DataProcessorInstance {
 
         // Handle new and existing cases
-        $key = $this->getKey() ?: $this->getType() . "_" . ($accountId ?? 0) . "_" . date("U");
+        $key = $this->getKey() ?: $this->getType() . "_" . ($accountId ?? 0) . "_" . (intval(date("U")) + ++self::$newItemIndex);
 
         $scheduledTask = new ScheduledTask(
             new ScheduledTaskSummary("dataprocessor", $key, ["dataProcessorKey" => $key], []), $projectKey, $accountId);
@@ -254,7 +257,7 @@ class DataProcessorItem {
      * @param DataProcessorInstance $dataProcessorInstance
      * @return DataProcessorItem
      */
-    public static function fromDataProcessorInstance($dataProcessorInstance) : DataProcessorItem {
+    public static function fromDataProcessorInstance($dataProcessorInstance): DataProcessorItem {
         return new DataProcessorItem($dataProcessorInstance->getTitle(), $dataProcessorInstance->getType(), $dataProcessorInstance->getConfig(),
             $dataProcessorInstance->getTrigger(), $dataProcessorInstance->getRelatedObjectType(), $dataProcessorInstance->getRelatedObjectKey(), $dataProcessorInstance->getRelatedObjectTitle(),
             $dataProcessorInstance->getScheduledTask()?->getTimePeriods(),

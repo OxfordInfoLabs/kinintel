@@ -82,7 +82,9 @@ class DatasourceImportExporterTest extends TestBase {
     public function testCanExportIncludedDatasourcesWithoutIncludedData() {
 
         $datasource1 = new DatasourceInstance("test1", "Test DS 1", "custom", ["tableName" => "hellotest1"], "dap_data", "usernamepassword");
+        $datasource1->setImportKey("test1-import");
         $datasource2 = new DatasourceInstance("test2", "Test DS 2", "custom", ["tableName" => "hellotest2"], "dap_data", "usernamepassword");
+        $datasource2->setImportKey("test2-import");
 
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasource1, ["test1"]);
         $this->datasourceService->returnValue("getDataSourceInstanceByKey", $datasource2, ["test2"]);
@@ -94,8 +96,8 @@ class DatasourceImportExporterTest extends TestBase {
         ], []);
 
         $this->assertEquals([
-            new ExportedDatasource(-1, "Test DS 1", "custom", '', ["tableName" => null]),
-            new ExportedDatasource(-2, "Test DS 2", "custom", '', ["tableName" => null]),
+            new ExportedDatasource(-1, "Test DS 1", "custom", '', "test1-import", ["tableName" => null]),
+            new ExportedDatasource(-2, "Test DS 2", "custom", '', "test2-import", ["tableName" => null]),
         ], $exportObjects);
 
 
@@ -127,11 +129,11 @@ class DatasourceImportExporterTest extends TestBase {
         ], []);
 
         $this->assertEquals([
-            new ExportedDatasource(-1, "Test DS 3", "custom", '', ["tableName" => null], [
+            new ExportedDatasource(-1, "Test DS 3", "custom", '', null, ["tableName" => null], [
                 ["column1" => "Value 1"],
                 ["column1" => "value 2"]
             ]),
-            new ExportedDatasource(-2, "Test DS 4", "custom", '', ["tableName" => null], [
+            new ExportedDatasource(-2, "Test DS 4", "custom", '', null, ["tableName" => null], [
                 ["column1" => "Value 1", "column2" => "Update 1"],
                 ["column1" => "value 2", "column2" => "Update 2"]
             ]),
@@ -180,10 +182,10 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         $this->assertEquals([
-            new ExportedDatasource(-1, "Historical Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", ""),
-            new ExportedDatasource(-2, "Latest Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", "_latest"),
-            new ExportedDatasource(-3, "Query Cache", "querycache", '', ["tableName" => null], [], -2, "Query Cache", "querycaching", "_cache"),
-            new ExportedDatasource(-4, "Query Caching", "caching", '', ["cacheDatasourceKey" => -3, "sourceDatasetId" => 4], [], -2, "Query Cache", "querycaching", "_caching")
+            new ExportedDatasource(-1, "Historical Snapshot", "snapshot", '', null, ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", ""),
+            new ExportedDatasource(-2, "Latest Snapshot", "snapshot", '', null, ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", "_latest"),
+            new ExportedDatasource(-3, "Query Cache", "querycache", '', null, ["tableName" => null], [], -2, "Query Cache", "querycaching", "_cache"),
+            new ExportedDatasource(-4, "Query Caching", "caching", '', null, ["cacheDatasourceKey" => -3, "sourceDatasetId" => 4], [], -2, "Query Cache", "querycaching", "_caching")
         ], $exportObjects);
 
 
@@ -203,8 +205,8 @@ class DatasourceImportExporterTest extends TestBase {
         ]);
 
         $analysis = $this->importExporter->analyseImportObjects(5, "testProject", [
-            new ExportedDatasource(-1, "Test DS 1", "custom", null, ["tableName" => null]),
-            new ExportedDatasource(-2, "Test DS 2", "custom", null, ["tableName" => null]),
+            new ExportedDatasource(-1, "Test DS 1", "custom", null, null, ["tableName" => null]),
+            new ExportedDatasource(-2, "Test DS 2", "custom", null, null, ["tableName" => null]),
         ], [
             -1 => new DatasourceExportConfig(true, false),
             -2 => new DatasourceExportConfig(true, false)
@@ -232,8 +234,8 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         $this->importExporter->importObjects(5, "testProject", [
-            new ExportedDatasource(-1, "Test DS 1", "custom", null, ["tableName" => null, "otherProp" => 1]),
-            new ExportedDatasource(-2, "Test DS 2", "custom", null, ["tableName" => null, "otherProp" => 2], [
+            new ExportedDatasource(-1, "Test DS 1", "custom", null, null, ["tableName" => null, "otherProp" => 1]),
+            new ExportedDatasource(-2, "Test DS 2", "custom", null, null, ["tableName" => null, "otherProp" => 2], [
                 ["column1" => "Test", "column2" => "Live"],
                 ["column1" => "Test 2", "column2" => "Live 2"]
             ]),
@@ -252,7 +254,7 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         // Check new one was created
-        $newDatasourceKey = "custom_data_set_5_" . date("U");
+        $newDatasourceKey = "custom_data_set_5_" . (intval(date("U")) + 1);
         $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
 
@@ -287,8 +289,8 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         $this->importExporter->importObjects(5, "testProject", [
-            new ExportedDatasource(-1, "Test DS 1", "document", null, ["tableName" => null, "otherProp" => 1]),
-            new ExportedDatasource(-2, "Test DS 2", "document", null, ["tableName" => null, "otherProp" => 2], [
+            new ExportedDatasource(-1, "Test DS 1", "document", null, null, ["tableName" => null, "otherProp" => 1]),
+            new ExportedDatasource(-2, "Test DS 2", "document", null, null, ["tableName" => null, "otherProp" => 2], [
                 ["column1" => "Test", "column2" => "Live"],
                 ["column1" => "Test 2", "column2" => "Live 2"]
             ]),
@@ -307,7 +309,7 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         // Check new one was created
-        $newDatasourceKey = "document_data_set_5_" . date("U");
+        $newDatasourceKey = "document_data_set_5_" . (intval(date("U")) + 1);
         $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
 
 
@@ -336,10 +338,10 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         $exportedObjects = [
-            new ExportedDatasource(-1, "Historical Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", ""),
-            new ExportedDatasource(-2, "Latest Snapshot", "snapshot", '', ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", "_latest"),
-            new ExportedDatasource(-3, "Query Cache", "querycache", '', ["tableName" => "query_cache_3_cache"], [], -2, "Query Cache", "querycaching", "_cache"),
-            new ExportedDatasource(-4, "Query Caching", "caching", '', ["cacheDatasourceKey" => -3, "sourceDatasetId" => -5], [], -2, "Query Cache", "querycaching", "_caching")
+            new ExportedDatasource(-1, "Historical Snapshot", "snapshot", '', null, ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", ""),
+            new ExportedDatasource(-2, "Latest Snapshot", "snapshot", '', null, ["tableName" => null], [], -1, "Snapshot", "tabularsnapshot", "_latest"),
+            new ExportedDatasource(-3, "Query Cache", "querycache", '', null, ["tableName" => "query_cache_3_cache"], [], -2, "Query Cache", "querycaching", "_cache"),
+            new ExportedDatasource(-4, "Query Caching", "caching", '', null, ["cacheDatasourceKey" => -3, "sourceDatasetId" => -5], [], -2, "Query Cache", "querycaching", "_caching")
         ];
 
 
