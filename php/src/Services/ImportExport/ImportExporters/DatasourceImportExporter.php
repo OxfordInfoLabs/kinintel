@@ -102,7 +102,7 @@ class DatasourceImportExporter extends ImportExporter {
 
 
                 $exportObjects[] = new ExportedDatasource(self::getNewExportPK("datasources", $key),
-                    $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(),
+                    $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(), $datasource->getImportKey(),
                     $datasourceConfig, $data);
             }
         }
@@ -139,7 +139,7 @@ class DatasourceImportExporter extends ImportExporter {
                         $datasourceConfig["cacheDatasourceKey"] = self::remapExportObjectPK("datasources", $datasourceConfig["cacheDatasourceKey"] ?? null);
 
                     $exportObjects[] = new ExportedDatasource(self::getNewExportPK("datasources", $dataSource->getKey()),
-                        $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(),
+                        $datasource->getTitle(), $datasource->getType(), $datasource->getDescription(), null,
                         $datasourceConfig, [], $newProcessorKey, $processorTitle, $processorPrefix, $processerSuffix);
 
                 }
