@@ -125,6 +125,8 @@ class DataProcessorImportExporterTest extends TestBase {
 
     public function testCanImportDataProcessorsFromObjectsAndConfig() {
 
+        DataProcessorItem::$newItemIndex = 0;
+
         $this->dataProcessorService->returnValue("filterDataProcessorInstances", [
             new DataProcessorInstance("test-processor-1", "Test Snapshot", "tabulardatasetsnapshot")
         ],
@@ -149,7 +151,7 @@ class DataProcessorImportExporterTest extends TestBase {
 
 
         // Programme return value for processor save
-        $newProcessorKey = "querycaching_5_" . date("U");
+        $newProcessorKey = "querycaching_5_" . (intval(date("U")) + 1);
         $this->dataProcessorService->returnValue("saveDataProcessorInstance", $newProcessorKey, [
             (new DataProcessorItem("Test Query Cache", "querycaching", ["sourceQueryId" => 101, "primaryKeyColumnNames" => ["title", "type"]],
                 DataProcessorInstance::TRIGGER_ADHOC, "DatasetInstance", 101, null, [],

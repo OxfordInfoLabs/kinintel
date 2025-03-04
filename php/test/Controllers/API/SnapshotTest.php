@@ -125,22 +125,24 @@ class SnapshotTest extends TestBase {
             ["testmanagement"]);
 
 
-        $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "My first one", "tabulardatasetsnapshot",
+        $processorKey = intval(date("U")) + 1;
+
+        $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . $processorKey, "My first one", "tabulardatasetsnapshot",
             new TabularDatasetSnapshotProcessorConfiguration([], [], [], true, false), DataProcessorInstance::TRIGGER_ADHOC,
-            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . date("U"), [
-                "dataProcessorKey" => "tabulardatasetsnapshot_3_" . date("U")
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . $processorKey, [
+                "dataProcessorKey" => "tabulardatasetsnapshot_3_" . $processorKey
             ], []), "helloWorld", 3),
             DataProcessorInstance::RELATED_OBJECT_TYPE_DATASET_INSTANCE, 38, "helloWorld", 3);
 
 
-        $this->dataProcessorService->returnValue("saveDataProcessorInstance", "tabulardatasetsnapshot_3_" . date("U"), [
+        $this->dataProcessorService->returnValue("saveDataProcessorInstance", "tabulardatasetsnapshot_3_" . ($processorKey), [
             $expectedInstance
         ]);
 
 
         $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], [], false));
 
-        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . date("U")], $newKey);
+        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . ($processorKey)], $newKey);
 
     }
 
@@ -152,22 +154,23 @@ class SnapshotTest extends TestBase {
             ["testmanagement"]);
 
 
-        $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "My first one", "tabulardatasetsnapshot",
+        $processorExtension = (intval(date("U")) + 2);
+        $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . $processorExtension, "My first one", "tabulardatasetsnapshot",
             new TabularDatasetSnapshotProcessorConfiguration([], [], ["param1" => "Bernard", "param2" => "Bingo"], true, false, null, [new Index(["column1", "column2"]), new Index(["column3", "column1"])]), DataProcessorInstance::TRIGGER_ADHOC,
-            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . date("U"), [
-                "dataProcessorKey" => "tabulardatasetsnapshot_3_" . date("U")
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . $processorExtension, [
+                "dataProcessorKey" => "tabulardatasetsnapshot_3_" . $processorExtension
             ], []), "helloWorld", 3),
             DataProcessorInstance::RELATED_OBJECT_TYPE_DATASET_INSTANCE, 38, "helloWorld", 3);
 
 
-        $this->dataProcessorService->returnValue("saveDataProcessorInstance", "tabulardatasetsnapshot_3_" . date("U"), [
+        $this->dataProcessorService->returnValue("saveDataProcessorInstance", "tabulardatasetsnapshot_3_" . $processorExtension, [
             $expectedInstance
         ]);
 
 
         $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", ["param1" => "Bernard", "param2" => "Bingo"], [["column1", "column2"], ["column3", "column1"]], false));
 
-        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . date("U")], $newKey);
+        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . $processorExtension], $newKey);
 
     }
 
@@ -238,8 +241,9 @@ class SnapshotTest extends TestBase {
             ["testmanagement"]);
 
 
+        $suffix = intval(date("U")) + 3;
         $instances = [
-            new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "Example 1", "tabulardatasetsnapshot", ["property1" => "test"], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 38),
+            new DataProcessorInstance("tabulardatasetsnapshot_3_" . $suffix, "Example 1", "tabulardatasetsnapshot", ["property1" => "test"], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 38),
             new DataProcessorInstance("existing-data-processor", "Example 2", "tabulardatasetincrementalsnapshot", ["property2" => "test2"], DataProcessorInstance::TRIGGER_SCHEDULED, new ScheduledTask(new ScheduledTaskSummary("test", "Test", [], [], ScheduledTask::STATUS_COMPLETED, "2028-01-01 10:00:00", null, "2020-01-01 10:00:00")), "DatasetInstance", 38)
         ];
 
@@ -251,25 +255,25 @@ class SnapshotTest extends TestBase {
                 "relatedObjectKey" => 38], null, 0, 1000000
         ]);
 
-        $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . date("U"), "My first one", "tabulardatasetsnapshot",
+        $expectedInstance = new DataProcessorInstance("tabulardatasetsnapshot_3_" . $suffix, "My first one", "tabulardatasetsnapshot",
             new TabularDatasetSnapshotProcessorConfiguration([], [], [], true, false), DataProcessorInstance::TRIGGER_ADHOC,
-            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . date("U"), [
-                "dataProcessorKey" => "tabulardatasetsnapshot_3_" . date("U")
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "tabulardatasetsnapshot_3_" . $suffix, [
+                "dataProcessorKey" => "tabulardatasetsnapshot_3_" . $suffix
             ], []), "helloWorld", 3),
             DataProcessorInstance::RELATED_OBJECT_TYPE_DATASET_INSTANCE, 38, "helloWorld", 3);
 
 
-        $this->dataProcessorService->returnValue("saveDataProcessorInstance", "tabulardatasetsnapshot_3_" . date("U"), [
+        $this->dataProcessorService->returnValue("saveDataProcessorInstance", "tabulardatasetsnapshot_3_" . $suffix, [
             $expectedInstance
         ]);
 
 
         $newKey = $this->snapshot->createSnapshotForManagementKey("testmanagement", new SnapshotDescriptor("My first one", [], [], true));
 
-        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . date("U")], $newKey);
+        $this->assertEquals(["snapshotKey" => "tabulardatasetsnapshot_3_" . $suffix], $newKey);
 
         $this->assertTrue($this->dataProcessorService->methodWasCalled("triggerDataProcessorInstance", [
-            "tabulardatasetsnapshot_3_" . date("U")
+            "tabulardatasetsnapshot_3_" . $suffix
         ]));
 
 
