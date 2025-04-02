@@ -86,6 +86,15 @@
             summarise
         </button>
 
+        <div *ngIf="!datasetEditorReadonly" class="divider"></div>
+        <button *ngIf="!datasetEditorReadonly" (click)="addPagingMarker()"
+                title="Insert paging marker to limit results at this stage in the query flow"
+                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <span class="material-symbols-outlined text-xl">skip_next</span>
+            paging marker
+        </button>
+
+
         <div class="divider"></div>
         <button (click)="evaluateDataset()"
                 title="Reload this query based upon changes you may have made"

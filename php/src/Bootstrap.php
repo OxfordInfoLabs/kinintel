@@ -39,6 +39,7 @@ class Bootstrap implements ApplicationBootstrap {
     }
 
     public function setup() {
+
         SQLite3DatabaseConnection::addCustomFunction(new DotProduct());
         SQLite3DatabaseConnection::addCustomFunction(new Levenshtein());
         SQLite3DatabaseConnection::addCustomFunction(new Regexp());
@@ -55,9 +56,9 @@ class Bootstrap implements ApplicationBootstrap {
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(AlertGroupImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DatasourceImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DatasetImportExporter::class));
-        Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DashboardImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(FeedImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DataProcessorImportExporter::class));
+        Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DashboardImportExporter::class));
 
     }
 }

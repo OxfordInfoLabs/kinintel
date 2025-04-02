@@ -181,6 +181,7 @@ class DatasetImportExporter extends ImportExporter {
                         $config->setCombinedDataSetInstanceId(self::remapImportedItemId("datasets", $config->getCombinedDataSetInstanceId()));
                         break;
                 }
+                $transformationInstance->setConfig($config);
             }
 
             // Save the dataset instance

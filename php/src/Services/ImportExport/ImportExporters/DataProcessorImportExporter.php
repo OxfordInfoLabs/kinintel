@@ -148,8 +148,14 @@ class DataProcessorImportExporter extends ImportExporter {
             $existingItem = $allAccountDataProcessors[$exportObject->getTitle()] ?? null;
             $importKey = $exportObject->getKey();
 
-            $exportObject->setKey($existingItem?->getKey());
+            // Grab an existing import mapping if one has already been created (in datasource e.g.)
+            $existingImportMapping = self::remapImportedItemId("dataProcessors", $importKey);
+            $existingImportMapping = $existingImportMapping == $importKey ? null : $existingImportMapping;
+
+            // Set the key to either an existing processor or an existing mapping if one has been prepared
+            $exportObject->setKey($existingItem?->getKey() ?? $existingImportMapping);
             $saveObject = $exportObject->toDataProcessorInstance($projectKey, $accountId);
+
 
             // Synchronise schedule status etc if existing item
             if ($existingItem) {
