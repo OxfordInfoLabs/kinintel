@@ -279,13 +279,13 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         });
     }
 
-    public async deleteSelectedColumns() {
+    public async deleteSelectedEntries() {
         const message = 'Are you sure you would like to remove all of the selected entries? This action cannot be reversed.';
         if (window.confirm(message)) {
             const selected = _.filter(this.rows, '_selected');
             await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, {
                 title: this.datasourceUpdate.title,
-                instanceImportKey: this.datasourceUpdate.instanceImportKey || '',
+                importKey: this.datasourceUpdate.instanceImportKey || '',
                 fields: this.datasourceUpdate.fields,
                 adds: [],
                 updates: [],

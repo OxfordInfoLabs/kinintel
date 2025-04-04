@@ -10,7 +10,7 @@
          class="leading-5 font-medium text-lg px-4">{{datasourceUpdate.title.replace((namePrefix || ''), '')}}</div>
     <div class="flex-1 flex items-center flex-wrap w-full justify-end bg-white">
         <ng-template [ngIf]="_.some(rows, '_selected')">
-            <button (click)="deleteSelectedColumns()"
+            <button (click)="deleteSelectedEntries()"
                     class="w-28 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
                 <mat-icon class="text-xl">delete_forever</mat-icon>
                 delete selected
