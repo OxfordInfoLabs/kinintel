@@ -273,7 +273,7 @@ trait Dataset {
      * @param string $projectKey
      */
     public function saveDatasetInstance($dataSetInstanceSummary, $projectKey = null) {
-        $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, $projectKey);
+        return $this->datasetService->saveDataSetInstance($dataSetInstanceSummary, $projectKey);
     }
 
 
@@ -335,11 +335,7 @@ trait Dataset {
         // Set the account id and project key as parameter values
         $parameterValues = $datasetInstanceSummary->getParameterValues();
 
-        /**
-         * @var Account $account
-         */
-        $account = $this->securityService->getLoggedInSecurableAndAccount()[1];
-        $parameterValues["ACCOUNT_ID"] = $account->getAccountId();
+        // Bosh in Project Key as a parameter for use in queries.
         $parameterValues["PROJECT_KEY"] = $projectKey;
 
         $datasetInstanceSummary->setParameterValues($parameterValues);

@@ -87,7 +87,8 @@
             <div class="cell-contents no-p">
                 <ki-dataset-editor #datasetEditorComponent [(datasetInstanceSummary)]="datasetInstanceSummary"
                                    [accountId]="accountId" [newTitle]="newTitle" [newDescription]="newDescription"
-                                   (dataLoaded)="dataLoaded($event)" [admin]="admin"></ki-dataset-editor>
+                                   (dataLoaded)="dataLoaded($event)" [admin]="admin"
+                                    [datasetEditorReadonly]="datasetEditorReadonly"></ki-dataset-editor>
             </div>
         </rsz-layout>
     </rsz-layout>
@@ -303,13 +304,13 @@
     </button>
     <div class="align-center">
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="canHaveSnapshots"
+                *ngIf="canHaveSnapshots && !datasetEditorReadonly"
                 [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id"
                 (click)="viewQueryCaching()">
             Query Caching
         </button>
         <button mat-stroked-button color="primary" class="mr-2 bg-white"
-                *ngIf="canHaveSnapshots"
+                *ngIf="canHaveSnapshots && !datasetEditorReadonly"
                 [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id"
                 (click)="viewSnapshots()">
             Manage Snapshots
@@ -317,7 +318,7 @@
         <button *ngIf="canExportData" mat-stroked-button color="primary" class="mr-2 bg-white" (click)="exportData()">
             Export Data
         </button>
-        <button mat-flat-button color="primary" (click)="saveChanges()">
+        <button *ngIf="!datasetEditorReadonly" mat-flat-button color="primary" (click)="saveChanges()">
             Save & Exit
         </button>
     </div>

@@ -146,6 +146,8 @@ class AlertService {
         return $alertGroup->returnSummary();
     }
 
+
+
     /**
      * Save an alert group
      *

@@ -190,8 +190,10 @@
                                 </div>
                             </div>
 
-                            <div *ngIf="snapshot.config.createHistory &&
-                                snapshot.type === 'tabulardatasetsnapshot'"
+
+
+
+                            <div *ngIf="snapshot.config.createHistory && snapshot.type === 'tabulardatasetsnapshot'"
                                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                                 <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time Lapse
                                     Fields</label>
@@ -268,14 +270,7 @@
                                                     class="ml-1 text-red-600">*</span>
                                 </label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <div class="mb-2 text-xs ">
-                                        Select the key fields for this data feed. <br>
-                                        <ng-template [ngIf]="snapshot.trigger === 'scheduled'">
-                                            This required where <span class="font-medium">Time Lapse Fields</span> have
-                                            been
-                                            specified.
-                                        </ng-template>
-                                    </div>
+
                                     <mat-select #selectModel="ngModel" #selectKeyFields
                                                 [required]="snapshot.config.timeLapsedFields.length > 0"
                                                 [(ngModel)]="snapshot.config.keyFieldNames" multiple
@@ -291,6 +286,14 @@
                                                     [value]="column.name">{{ column.title }}
                                         </mat-option>
                                     </mat-select>
+                                    <div class="mt-2 text-xs ">
+                                        Select the key fields for this data feed. <br>
+                                        <ng-template [ngIf]="snapshot.trigger === 'scheduled'">
+                                            This required where <span class="font-medium">Time Lapse Fields</span> have
+                                            been
+                                            specified.
+                                        </ng-template>
+                                    </div>
                                 </div>
                             </div>
                             <div
@@ -299,9 +302,7 @@
                                     Indexes
                                 </label>
                                 <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <div class="mb-2 text-xs ">
-                                        Select the fields you would like to set database indexes on. <br>
-                                    </div>
+
 
                                     <ng-template ngFor let-snapshotIndex [ngForOf]="snapshot.config.indexes"
                                                  let-i="index">
@@ -323,8 +324,33 @@
                                             (click)="snapshot.config.indexes.push({fieldNames: []})">
                                         Add Indexes
                                     </button>
+
+                                    <div class="mt-2 text-xs ">
+                                        Select the fields you would like to set database indexes on. <br>
+                                    </div>
                                 </div>
                             </div>
+
+
+                            <div
+                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                   Read chunk size
+                                </label>
+                                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                                    <input type="text"
+                                           [(ngModel)]="snapshot.config.readChunkSize"
+                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+
+                                    <div class="mt-2 text-xs ">
+                                        Set the chunk size for reading data when generating this snapshot.  This can be usefully
+                                        overridden to larger values if the query is expected to be very slow or smaller values
+                                        if the dataset is very wide.
+                                    </div>
+                                </div>
+
+                            </div>
+
 
                         </div>
                     </div>

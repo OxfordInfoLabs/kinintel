@@ -17,13 +17,20 @@ class RSyncDatasourceConfig extends FormattedResultDatasourceConfig {
     private $source;
 
     /**
+     * @var string
+     */
+    private $rsyncFlags;
+
+    /**
      * @param string $source
+     * @param string $rsyncFlags
      * @param string $resultFormat
      * @param mixed $resultFormatConfig
      * @param Field[] $columns
      */
-    public function __construct($source, $resultFormat = "json", $resultFormatConfig = [], $columns = []) {
+    public function __construct($source, $rsyncFlags = "", $resultFormat = "json", $resultFormatConfig = [], $columns = []) {
         $this->source = $source;
+        $this->rsyncFlags = $rsyncFlags;
         parent::__construct($resultFormat, $resultFormatConfig, $columns);
     }
 
@@ -39,6 +46,20 @@ class RSyncDatasourceConfig extends FormattedResultDatasourceConfig {
      */
     public function setSource($source) {
         $this->source = $source;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRsyncFlags() {
+        return $this->rsyncFlags;
+    }
+
+    /**
+     * @param string $rsyncFlags
+     */
+    public function setRsyncFlags( $rsyncFlags) {
+        $this->rsyncFlags = $rsyncFlags;
     }
 
 

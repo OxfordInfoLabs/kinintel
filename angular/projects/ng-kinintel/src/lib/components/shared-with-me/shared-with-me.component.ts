@@ -20,6 +20,9 @@ export class SharedWithMeComponent implements OnInit {
     @Input() url: string;
     @Input() tableHeading: string;
     @Input() headingLabel: string;
+    @Input() hideHeading = false;
+    @Input() datasetEditorReadonly = false;
+    @Input() nameReplaceString: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -101,7 +104,8 @@ export class SharedWithMeComponent implements OnInit {
                 showChart: false,
                 admin: false,
                 breadcrumb: this.headingLabel || 'Datasets',
-                url: this.url
+                url: this.url,
+                datasetEditorReadonly: this.datasetEditorReadonly
             }
         });
         dialogRef.afterClosed().subscribe(res => {

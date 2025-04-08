@@ -4,9 +4,11 @@
 namespace Kinintel\ValueObjects\Dataset;
 
 
+use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Core\Util\StringUtils;
+use Kinintel\ValueObjects\Dataset\TypeConfig\FieldTypeConfig;
 
 class Field {
 
@@ -34,15 +36,36 @@ class Field {
 
 
     /**
+     * Boolean flag which if set will only
+     * evaluate the value expression if the data value
+     * for this field is null.  This is useful in persistence scenarios.
+     *
+     * @var boolean
+     */
+    private $valueExpressionOnNullOnly;
+
+    /**
      * @var string
      */
     private $type;
 
 
     /**
+     * @var mixed
+     */
+    private $typeConfig;
+
+
+    /**
      * @var boolean
      */
     private $keyField;
+
+
+    /**
+     * @var boolean
+     */
+    private $required;
 
 
     /**
@@ -60,8 +83,10 @@ class Field {
     const TYPE_LONG_STRING = "longstring";
     const TYPE_INTEGER = "integer";
     const TYPE_FLOAT = "float";
+    const TYPE_BOOLEAN = "boolean";
     const TYPE_DATE = "date";
     const TYPE_DATE_TIME = "datetime";
+    const TYPE_PICK_FROM_SOURCE = "pickfromsource";
     const TYPE_ID = "id";
 
 
@@ -73,9 +98,12 @@ class Field {
      * @param string $valueExpression
      * @param string $type
      * @param boolean $keyField
+     * @param boolean $required
      * @param boolean $flattenArray
+     * @param boolean $valueExpressionOnNullOnly
      */
-    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $flattenArray = false) {
+    public function __construct($name, $title = null, $valueExpression = null, $type = self::TYPE_STRING, $keyField = false, $required = false, $flattenArray = false,
+                                $valueExpressionOnNullOnly = false, $typeConfig = []) {
 
         $name = preg_split("/[^\w-]/", $name)[0];
         $this->name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $name);
@@ -90,6 +118,9 @@ class Field {
         $this->type = $type;
         $this->keyField = $keyField;
         $this->flattenArray = $flattenArray;
+        $this->valueExpressionOnNullOnly = $valueExpressionOnNullOnly;
+        $this->typeConfig = $typeConfig;
+        $this->required = $required;
     }
 
 
@@ -130,6 +161,21 @@ class Field {
     }
 
     /**
+     * @return bool
+     */
+    public function isValueExpressionOnNullOnly(): bool {
+        return $this->valueExpressionOnNullOnly;
+    }
+
+    /**
+     * @param bool $valueExpressionOnNullOnly
+     */
+    public function setValueExpressionOnNullOnly(bool $valueExpressionOnNullOnly): void {
+        $this->valueExpressionOnNullOnly = $valueExpressionOnNullOnly;
+    }
+
+
+    /**
      * @return string
      */
     public function getType() {
@@ -141,6 +187,20 @@ class Field {
      */
     public function setType($type) {
         $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTypeConfig() {
+        return $this->typeConfig;
+    }
+
+    /**
+     * @param mixed $typeConfig
+     */
+    public function setTypeConfig($typeConfig) {
+        $this->typeConfig = $typeConfig;
     }
 
 
@@ -161,6 +221,21 @@ class Field {
     /**
      * @return bool
      */
+    public function isRequired() {
+        return $this->required;
+    }
+
+    /**
+     * @param bool $required
+     */
+    public function setRequired($required) {
+        $this->required = $required;
+    }
+
+
+    /**
+     * @return bool
+     */
     public function isFlattenArray() {
         return $this->flattenArray;
     }
@@ -174,6 +249,22 @@ class Field {
 
 
     /**
+     * Return the field type config as config object if defined.
+     *
+     * @return FieldTypeConfig
+     */
+    public function returnFieldTypeConfig() {
+        $configClass = Container::instance()->getInterfaceImplementationClass(FieldTypeConfig::class, $this->getType());
+        if ($configClass) {
+            if (is_a($this->getTypeConfig(), $configClass))
+                return $this->getTypeConfig();
+            $objectBinder = Container::instance()->get(ObjectBinder::class);
+            return $objectBinder->bindFromArray($this->getTypeConfig() ?? [], $configClass);
+        }
+        return null;
+    }
+
+    /**
      * Evaluate the value expression defined using a supplied data item
      *
      * @param $dataItem
@@ -181,8 +272,14 @@ class Field {
     public function evaluateValueExpression($dataItem) {
         $expression = $this->valueExpression;
 
-        $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
-        return $valueFunctionEvaluator->evaluateString($expression, $dataItem, ["[[", "]]"]);
+        $fieldValue = $dataItem[$this->name] ?? null;
+
+        if (!$this->isValueExpressionOnNullOnly() || ($fieldValue == null)) {
+            $valueFunctionEvaluator = Container::instance()->get(ValueFunctionEvaluator::class);
+            return $valueFunctionEvaluator->evaluateString($expression, $dataItem, ["[[", "]]"]);
+        } else {
+            return $fieldValue;
+        }
     }
 
 

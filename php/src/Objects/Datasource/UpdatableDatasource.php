@@ -6,6 +6,7 @@ namespace Kinintel\Objects\Datasource;
 
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 
 interface UpdatableDatasource {
@@ -46,7 +47,7 @@ interface UpdatableDatasource {
      * @param Dataset $dataset
      *
      * @param string $updateMode
-     * @return mixed|void
+     * @return DatasourceUpdateResult
      */
     public function update($dataset, $updateMode = self::UPDATE_MODE_ADD);
 

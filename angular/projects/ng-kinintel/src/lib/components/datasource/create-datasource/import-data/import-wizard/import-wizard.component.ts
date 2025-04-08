@@ -32,7 +32,22 @@ export class ImportWizardComponent implements OnInit {
     public importKey: string = null;
     public backendURL: string = null;
 
+    public readonly _ = _;
+    public readonly Object = Object;
+    public readonly datasourceTypes: any = {
+        string: 'Text (up to 255 chars)',
+        mediumstring: 'Medium Text (up to 2000 chars)',
+        longstring: 'Long Text (more than 2000 chars)',
+        integer: 'Number (whole number)',
+        float: 'Decimal number',
+        date: 'Date',
+        datetime: 'Date and Time',
+        pickfromsource: 'Pick From List (using another source)'
+    };
+
     public readonly separatorKeysCodes = [ENTER, COMMA] as const;
+
+    private namePrefix: string;
 
     constructor(private dialog: MatDialog,
                 public dialogRef: MatDialogRef<ImportWizardComponent>,
@@ -46,7 +61,7 @@ export class ImportWizardComponent implements OnInit {
         this.reloadURL = this.data.reloadURL;
         this.datasourceUpdate = this.data.datasourceUpdate;
         this.backendURL = this.config.backendURL;
-
+        this.namePrefix = this.data.namePrefix || '';
     }
 
     public copied() {
@@ -118,7 +133,7 @@ export class ImportWizardComponent implements OnInit {
             data: {
                 columns: this.columns,
                 datasourceUpdate: {
-                    title: this.name || '',
+                    title: this.name ? (this.namePrefix || '') + this.name : '',
                     instanceImportKey: '',
                     fields: [],
                     adds: [],
@@ -133,11 +148,14 @@ export class ImportWizardComponent implements OnInit {
     }
 
     public async createStructure() {
-        this.datasourceUpdate.title = this.name;
+        this.datasourceUpdate.title = this.namePrefix + this.name;
 
-        this.datasourceUpdate.fields = [
-            {title: 'ID', name: 'id', type: 'id'}
-        ];
+        // If no primary key fields have been set then add the ID field.
+        if (!_.filter(this.columns, 'keyField').length) {
+            this.datasourceUpdate.fields = [
+                {title: 'ID', name: 'id', type: 'id'}
+            ];
+        }
 
         this.columns.forEach(column => {
             this.datasourceUpdate.fields.push(column);

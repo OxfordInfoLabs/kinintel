@@ -145,9 +145,12 @@ class DataProcessorService {
             throw new AccessDeniedException("You have not been granted access to manage data processors.");
         }
 
-        // Trigger the scheduled task
+        // Trigger the scheduled task if one exists to run in the background
         if ($dataProcessor->getScheduledTask()) {
             $this->scheduledTaskService->triggerScheduledTask($dataProcessor->getScheduledTask()->getId());
+        } // Otherwise run synchronously
+        else {
+            $this->processDataProcessorInstanceObject($dataProcessor);
         }
     }
 

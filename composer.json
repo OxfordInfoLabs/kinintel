@@ -11,6 +11,7 @@
   "type": "library",
   "require": {
     "oxil/kiniauth": "dev-master",
+    "oxil/kinimailer": "dev-main",
     "aws/aws-sdk-php": "*",
     "smalot/pdfparser": "dev-master",
     "google/cloud-storage": "dev-main",
@@ -20,7 +21,7 @@
     "phpunit/phpunit": "9.6.19"
   },
   "scripts": {
-    "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../kinikit/kinikit-core vendor/oxil/kinikit-core; ln -s ../../../kinikit/kinikit-mvc vendor/oxil/kinikit-mvc; ln -s ../../../kinikit/kinikit-persistence vendor/oxil/kinikit-persistence; ln -s ../../../kiniauth vendor/oxil/kiniauth"
+    "dev": "rm -rf vendor/oxil/kini*; ln -s ../../../kinikit/kinikit-core vendor/oxil/kinikit-core; ln -s ../../../kinikit/kinikit-mvc vendor/oxil/kinikit-mvc; ln -s ../../../kinikit/kinikit-persistence vendor/oxil/kinikit-persistence; ln -s ../../../kiniauth vendor/oxil/kiniauth; ln -s ../../../kinimailer vendor/oxil/kinimailer"
   },
   "minimum-stability": "dev",
   "autoload": {

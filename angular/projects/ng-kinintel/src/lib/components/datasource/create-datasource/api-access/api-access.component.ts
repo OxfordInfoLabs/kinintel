@@ -46,7 +46,7 @@ export class ApiAccessComponent implements OnInit {
 
         this.columns.forEach((column, index) => {
             if (column.type !== 'id') {
-                example.push('<span class="text-secondary">"' + column.name + '":</span> "' + column.type + '"');
+                example.push('<span class="text-cta">"' + column.name + '":</span> "' + column.type + '"');
                 if (index !== this.columns.length - 1) {
                     example.push(', ');
                 }
@@ -60,7 +60,7 @@ export class ApiAccessComponent implements OnInit {
 
         const update = ['[{'];
         this.columns.forEach((column, index) => {
-            update.push('<span class="text-secondary">"' + column.name + '":</span> "' + column.type + '"');
+            update.push('<span class="text-cta">"' + column.name + '":</span> "' + column.type + '"');
             if (index !== this.columns.length - 1) {
                 update.push(', ');
             }
@@ -70,7 +70,7 @@ export class ApiAccessComponent implements OnInit {
 
         const deleteFiltered: string[] = ['[{'];
         if (this.columns.length > 0) {
-            deleteFiltered.push('<span class="text-secondary">"column":</span> "' + this.columns[0].name + '", <span class="text-secondary">"value:</span> "25", <span class="text-secondary">"matchType:</span> "eq"');
+            deleteFiltered.push('<span class="text-cta">"column":</span> "' + this.columns[0].name + '", <span class="text-cta">"value:</span> "25", <span class="text-cta">"matchType:</span> "eq"');
         }
         deleteFiltered.push('}]');
         this.deleteFilteredExample = deleteFiltered.join('');

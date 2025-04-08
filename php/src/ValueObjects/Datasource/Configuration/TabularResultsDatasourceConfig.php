@@ -46,13 +46,17 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
         $evaluatedColumns = [];
         foreach ($this->columns ?? [] as $column) {
 
+            /**
+             * @var Field $field
+             */
+            $field = unserialize(serialize($column));
+
             $valueExpression = preg_replace_callback("/{{(.*?)}}/", function ($matches) use ($parameterValues) {
                 return $parameterValues[$matches[1]] ?? "";
             }, $column->getValueExpression() ?? "");
 
-            $evaluatedColumns[] = new Field($column->getName(), $column->getTitle(),
-                $valueExpression, $column->getType(), $column->isKeyField(), $column->isFlattenArray());
-
+            $field->setValueExpression($valueExpression);
+            $evaluatedColumns[] = $field;
         }
 
         return $evaluatedColumns;

@@ -18,6 +18,8 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetDat
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetField;
 use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetSourceParameterMapping;
 use Kinintel\ValueObjects\Dataset\Field;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -246,12 +248,22 @@ class TabularDatasourceImportProcessor extends BaseDataProcessor {
                     break;
             }
 
+            $transformationInstances = [];
 
-            $returnedData = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($targetDatasourceKey, [], [
-                new TransformationInstance("summarise", new SummariseTransformation([], [
-                    new SummariseExpression($expressionType, $targetSourceParameterMapping->getTargetDatasourceField(), null, "Parameter Value")
-                ]))
-            ])->getAllData();
+            // if additional target datasource filters, add these now.
+            if ($targetSourceParameterMapping->getAdditionalTargetDatasourceFilters()) {
+                $filters = [];
+                foreach ($targetSourceParameterMapping->getAdditionalTargetDatasourceFilters() as $fieldKey => $filterValue) {
+                    $filters[] = new Filter("[[" . $fieldKey . "]]", $filterValue, Filter::FILTER_TYPE_EQUALS);
+                }
+                $transformationInstances[] = new TransformationInstance("filter", new FilterTransformation($filters));
+            }
+
+            $transformationInstances[] = new TransformationInstance("summarise", new SummariseTransformation([], [
+                new SummariseExpression($expressionType, $targetSourceParameterMapping->getTargetDatasourceField(), null, "Parameter Value")
+            ]));
+
+            $returnedData = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($targetDatasourceKey, [], $transformationInstances)->getAllData();
 
             $parameterValue = $returnedData[0]["parameterValue"] ?? null ?: $targetSourceParameterMapping->getDefaultValue() ?: null;
 

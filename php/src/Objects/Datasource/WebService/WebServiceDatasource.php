@@ -12,6 +12,7 @@ use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
+use Kinintel\ValueObjects\Authentication\Generic\TokenExchangeAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\BasicAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\HTTPHeaderAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\WebService\QueryParameterAuthenticationCredentials;
@@ -54,7 +55,8 @@ class WebServiceDatasource extends BaseDatasource {
         BasicAuthenticationCredentials::class,
         QueryParameterAuthenticationCredentials::class,
         HTTPHeaderAuthenticationCredentials::class,
-        SubstitutionParameterAuthenticationCredentials::class
+        SubstitutionParameterAuthenticationCredentials::class,
+        TokenExchangeAuthenticationCredentials::class
     ];
 
 

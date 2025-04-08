@@ -42,6 +42,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
             $this->mapper->mapResultSetColumnToField(new TableColumn("decimal", TableColumn::SQL_DECIMAL)));
 
 
+        $this->assertEquals(new Field("boolean", null, null, Field::TYPE_BOOLEAN),
+            $this->mapper->mapResultSetColumnToField(new TableColumn("boolean", TableColumn::SQL_TINYINT)));
+
         $this->assertEquals(new Field("date", null, null, Field::TYPE_DATE),
             $this->mapper->mapResultSetColumnToField(new TableColumn("date", TableColumn::SQL_DATE)));
 
@@ -76,12 +79,17 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
 
         // Check primary key fields are mapped to key field as well if set
-        $this->assertEquals(new Field("id", null, null, Field::TYPE_INTEGER, true),
+        $this->assertEquals(new Field("id", null, null, Field::TYPE_INTEGER, true, true),
             $this->mapper->mapResultSetColumnToField(new TableColumn("id", TableColumn::SQL_INTEGER, null, null, null, true)));
 
         // Check auto increment integer fields are mapped to id fields
-        $this->assertEquals(new Field("auto", null, null, Field::TYPE_ID, true),
+        $this->assertEquals(new Field("auto", null, null, Field::TYPE_ID, true, true),
             $this->mapper->mapResultSetColumnToField(new TableColumn("auto", TableColumn::SQL_INTEGER, null, null, null, true, true)));
+
+
+        // Check required fields
+        $this->assertEquals(new Field("test", null, null, Field::TYPE_STRING, false, true),
+            $this->mapper->mapResultSetColumnToField(new TableColumn("test", TableColumn::SQL_VARCHAR, 255, null, null, false, false, true)));
 
     }
 
@@ -97,6 +105,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(new TableColumn("float", TableColumn::SQL_FLOAT),
             $this->mapper->mapFieldToTableColumn(new Field("float", null, null, Field::TYPE_FLOAT)));
+
+        $this->assertEquals(new TableColumn("boolean", TableColumn::SQL_TINYINT),
+            $this->mapper->mapFieldToTableColumn(new Field("boolean", null, null, Field::TYPE_BOOLEAN)));
+
 
         $this->assertEquals(new TableColumn("date", TableColumn::SQL_DATE),
             $this->mapper->mapFieldToTableColumn(new Field("date", null, null, Field::TYPE_DATE)));
@@ -114,6 +126,11 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
             $this->mapper->mapFieldToTableColumn(new Field("longstring", null, null, Field::TYPE_LONG_STRING)));
 
 
+        // Required fields
+        $this->assertEquals(new TableColumn("string", TableColumn::SQL_VARCHAR, 255, null, null, false, false, true),
+            $this->mapper->mapFieldToTableColumn(new Field("string", null, null, Field::TYPE_STRING, false, true)));
+
+
     }
 
     public function testCanMapFieldsToIndexColumns() {
@@ -127,6 +144,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(new TableIndexColumn("float"),
             $this->mapper->mapFieldToIndexColumn(new Field("float", null, null, Field::TYPE_FLOAT)));
+
+        $this->assertEquals(new TableIndexColumn("boolean"),
+            $this->mapper->mapFieldToIndexColumn(new Field("boolean", null, null, Field::TYPE_BOOLEAN)));
+
 
         $this->assertEquals(new TableIndexColumn("date"),
             $this->mapper->mapFieldToIndexColumn(new Field("date", null, null, Field::TYPE_DATE)));

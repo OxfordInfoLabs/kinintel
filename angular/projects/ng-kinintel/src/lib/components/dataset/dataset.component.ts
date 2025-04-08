@@ -23,7 +23,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
     @Input() headingLabel: string;
     @Input() headingDescription: string;
-    @Input() backendUrl:string;
+    @Input() backendUrl: string;
     @Input() newTitle: string;
     @Input() newDescription: string;
     @Input() hideCreate: boolean;

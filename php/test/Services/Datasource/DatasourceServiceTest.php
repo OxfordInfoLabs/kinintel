@@ -3,6 +3,7 @@
 
 namespace Kinintel\Services\Datasource;
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
@@ -44,6 +45,8 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDa
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
+use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateWithStructure;
 use Kinintel\ValueObjects\Datasource\WebService\JSONWebServiceDataSourceConfig;
 use Kinintel\ValueObjects\Parameter\Parameter;
@@ -320,6 +323,38 @@ class DatasourceServiceTest extends TestBase {
 
 
         $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test"));
+
+    }
+
+
+    public function testAccountIdParameterCorrectlyAddedIfLoggedInAccount() {
+
+        $this->securityService->returnValue("getLoggedInSecurableAndAccount", [
+            null, new Account("Test", 0, Account::STATUS_ACTIVE, 56)
+        ]);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+        $dataSourceInstance->returnValue("getParameters", [
+            new Parameter("param1", "Parameter 1", Parameter::TYPE_TEXT, false, "Hello World")
+        ]);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
+        $dataSource->returnValue("materialise", $dataSet, [[
+            "param1" => "",
+            "ACCOUNT_ID" => 56
+        ]]);
+
+
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test"));
+
 
     }
 
@@ -626,24 +661,36 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Replace me twice", "age" => 65]
         ]);
 
-        $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
-
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0,  1,["add" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])
+        ]]), [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
-        ]));
+        ]);
 
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0,[
+        ]), [
             $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
-        ]));
+        ]);
 
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2,0,  [
+        ]), [
             $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
-        ]));
+        ]);
 
-        $this->assertTrue($dataSource->methodWasCalled("update", [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1,["replace" =>  [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])
+        ]]), [
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
-        ]));
+        ]);
 
+
+        $result = $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
+
+        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2,[
+            "add" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])],
+            "replace" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])]
+        ]), $result);
 
 
     }

@@ -21,20 +21,24 @@ export class ProjectService {
         }
     }
 
-    public getProjects(filterString = '', limit= 10, offset= 0) {
-        return this.http.get(this.config.backendURL + '/project', {
-            params: {filterString, limit: limit.toString(), offset: offset.toString()}
-        });
+    public getProjects(filterString = '', limit= 10, offset= 0, accountId?) {
+        const params: any =  {filterString, limit: limit.toString(), offset: offset.toString()};
+        if (accountId) {
+            params.accountId = accountId;
+        }
+        return this.http.get(this.config.backendURL + '/project', {params});
     }
 
     public getProject(key) {
         return this.http.get(this.config.backendURL + '/project/' + key).toPromise();
     }
 
-    public createProject(name, description) {
-        return this.http.post(this.config.backendURL + '/project', {
-            name, description
-        }).toPromise();
+    public createProject(name, description, accountId?) {
+        let url = `${this.config.backendURL}/project`;
+        if (accountId) {
+            url = url + '?accountId=' + accountId;
+        }
+        return this.http.post(url, {name, description}).toPromise();
     }
 
     public updateProject(name: string, description: string, key: string) {
@@ -43,8 +47,12 @@ export class ProjectService {
         }).toPromise();
     }
 
-    public removeProject(key) {
-        return this.http.delete(this.config.backendURL + '/project/' + key).toPromise();
+    public removeProject(key, accountId?) {
+        let url = this.config.backendURL + '/project/' + key;
+        if (accountId) {
+            url = url + '?accountId=' + accountId;
+        }
+        return this.http.delete(url).toPromise();
     }
 
     public async updateProjectSettings(projectKey, settings) {

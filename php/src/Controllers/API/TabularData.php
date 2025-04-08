@@ -109,7 +109,7 @@ class TabularData {
 
 
     /**
-     * Insert a set of rows to the data source indentified by the passed import key
+     * Insert a set of rows to the data source identified by the passed import key
      *
      * @http POST /$importKey
      *
@@ -119,8 +119,7 @@ class TabularData {
      */
     public function insert($importKey, $rows) {
         $datasourceUpdate = new DatasourceUpdate($rows);
-        $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
-        return ["added" => sizeof($rows)];
+        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
     }
 
 
@@ -135,8 +134,8 @@ class TabularData {
      */
     public function update($importKey, $rows) {
         $datasourceUpdate = new DatasourceUpdate([], $rows);
-        $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
-        return ["updated" => sizeof($rows)];
+        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+
     }
 
 
@@ -151,8 +150,7 @@ class TabularData {
      */
     public function replace($importKey, $rows) {
         $datasourceUpdate = new DatasourceUpdate([], [], [], $rows);
-        $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
-        return ["replaced" => sizeof($rows)];
+        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
     }
 
 
@@ -167,8 +165,8 @@ class TabularData {
      */
     public function delete($importKey, $deletePKs) {
         $datasourceUpdate = new DatasourceUpdate([], [], $deletePKs);
-        $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
-        return ["deleted" => sizeof($deletePKs)];
+        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+
     }
 
 

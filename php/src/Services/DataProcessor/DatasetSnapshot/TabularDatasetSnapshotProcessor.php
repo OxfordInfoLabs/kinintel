@@ -141,7 +141,7 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
             }
 
             $offset += $readChunkSize;
-        } while (sizeof($sourceData) == $readChunkSize);
+        } while (sizeof($sourceData) >= $readChunkSize);
 
 
         // Replace the latest
@@ -163,7 +163,10 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
                 $writeData = new ArrayTabularDataset($fieldsLatest, $pendingData);
                 $dataSourceLatest->update($writeData, UpdatableDatasource::UPDATE_MODE_REPLACE);
                 $offset += $readChunkSize;
-            } while (sizeof($pendingData) == $readChunkSize);
+            } while (sizeof($pendingData) >= $readChunkSize);
+
+            // Remove the pending table to save disk space
+            $dataSourcePending->onInstanceDelete();
 
         }
     }

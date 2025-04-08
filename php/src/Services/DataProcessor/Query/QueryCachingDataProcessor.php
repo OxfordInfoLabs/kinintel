@@ -94,12 +94,12 @@ class QueryCachingDataProcessor implements DataProcessor {
         $cachingCols = [
             new DatasourceUpdateField(
                 name: "parameters",
-                keyField: true
+                title: "Parameters", valueExpression: null, type: Field::TYPE_STRING, keyField: true
             ),
             new DatasourceUpdateField(
                 name: "cached_time",
-                type: Field::TYPE_DATE_TIME,
-                keyField: true
+                title: "Cached Time",
+                valueExpression: null, type: Field::TYPE_DATE_TIME, keyField: true
             )];
 
         // Default value if there aren't parameters supplied

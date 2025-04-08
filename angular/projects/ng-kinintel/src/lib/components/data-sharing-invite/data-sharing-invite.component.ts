@@ -1,13 +1,14 @@
 import {Component, OnInit} from '@angular/core';
-import {DatasetService} from "../../services/dataset.service";
-import {ActivatedRoute} from "@angular/router";
+import {DatasetService} from '../../services/dataset.service';
+import {ActivatedRoute} from '@angular/router';
+import {AuthenticationService} from 'ng-kiniauth';
 
 @Component({
     selector: 'ki-data-sharing-invite',
     templateUrl: './data-sharing-invite.component.html',
     styleUrls: ['./data-sharing-invite.component.sass']
 })
-export class DataSharingInviteComponent {
+export class DataSharingInviteComponent implements OnInit {
 
     public inviteAccepted = false;
     public inviteCancelled = false;
@@ -16,16 +17,18 @@ export class DataSharingInviteComponent {
     public details: any = {};
 
     constructor(private datasetService: DatasetService,
-                private route: ActivatedRoute) {
+                private route: ActivatedRoute,
+                private authService: AuthenticationService, ) {
 
     }
 
     async ngOnInit() {
+        await this.authService.getSessionData();
 
         this.invitationCode = this.route.snapshot.queryParams.invitationCode;
 
         try {
-            this.details = await this.datasetService.getSharableItemForInvitation(this.invitationCode)
+            this.details = await this.datasetService.getSharableItemForInvitation(this.invitationCode);
         } catch (e) {
             this.invitationError = true;
         }

@@ -41,18 +41,18 @@ class AlertGroupSummary {
     protected $taskStatus;
 
     /**
-     * @var string
+     * @var \DateTime
      */
     protected $taskLastStartTime;
 
     /**
-     * @var string
+     * @var  \DateTime
      */
     protected $taskLastEndTime;
 
 
     /**
-     * @var string
+     * @var  \DateTime
      */
     protected $taskNextStartTime;
 
@@ -91,9 +91,9 @@ class AlertGroupSummary {
      * @param ScheduledTaskTimePeriod[] $taskTimePeriods
      * @param NotificationGroupSummary[] $notificationGroups
      * @param string $taskStatus
-     * @param string $taskLastStartTime
-     * @param string $taskLastEndTime
-     * @param string $nextStartTime
+     * @param  \DateTime $taskLastStartTime
+     * @param  \DateTime $taskLastEndTime
+     * @param  \DateTime $nextStartTime
      * @param integer $id
      */
     public function __construct($title, $taskTimePeriods = [], $notificationGroups = [], $notificationTitle = null,
@@ -126,6 +126,15 @@ class AlertGroupSummary {
     }
 
     /**
+     * @param int|null $id
+     */
+    public function setId(?int $id): void {
+        $this->id = $id;
+    }
+
+
+
+    /**
      * @return string
      */
     public function getTitle() {
@@ -154,21 +163,21 @@ class AlertGroupSummary {
     }
 
     /**
-     * @return string
+     * @return  \DateTime
      */
     public function getTaskLastStartTime() {
         return $this->taskLastStartTime;
     }
 
     /**
-     * @return string
+     * @return  \DateTime
      */
     public function getTaskLastEndTime() {
         return $this->taskLastEndTime;
     }
 
     /**
-     * @return string
+     * @return  \DateTime
      */
     public function getTaskNextStartTime() {
         return $this->taskNextStartTime;

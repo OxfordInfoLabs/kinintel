@@ -59,9 +59,12 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
         $targetLatestDatasourceKey = $config->getTargetLatestDatasourceKey();
         $targetChangeDatasourceKey = $config->getTargetChangeDatasourceKey();
+        $targetAddsDatasourceKey = $config->getTargetAddsDatasourceKey();
 
         $datasourceKeys = $config->getSourceDatasourceKeys();
         $targetSummaryDatasourceKey = $config->getTargetSummaryDatasourceKey();
+
+        $changeLimit = $config->getChangeLimit();
 
         $setDate = new \DateTime();
 
@@ -85,8 +88,19 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
             passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
+            exec("wc -l $directory/adds.txt | awk '{print $1}'", $addsTotal);
+            exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
+
+            // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
+            if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
+                if ($config->isUpdatePreviousWhenTooManyChanges()) {
+                    copy($directory . "/new.txt", $directory . "/previous.txt");
+                }
+                return;
+            }
+
             // Identify and changes and write to the latest and changes tables
-            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey, $targetWriteChunkSize);
 
             // Copy the new file across to the previous
             if (file_exists($directory . "/new.txt")) {
@@ -119,8 +133,19 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                 passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
                 passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
+                exec("wc -l $directory/adds.txt | awk '{print $1}'", $addsTotal);
+                exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
+
+                // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
+                if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
+                    if ($config->isUpdatePreviousWhenTooManyChanges()) {
+                        copy($directory . "/new.txt", $directory . "/previous.txt");
+                    }
+                    return;
+                }
+
                 // Identify and changes and write to the latest and changes tables
-                $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+                $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey, $targetWriteChunkSize);
 
                 // Copy the new file across to the previous
                 if (file_exists($directory . "/new.txt")) {
@@ -157,8 +182,19 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             passthru("diff -N $previousFile $newFile | grep -aE '^>' | sed -E 's/^> //' > $directory/adds.txt");
             passthru("diff -N $previousFile $newFile | grep -aE '^<' | sed -E 's/^< //' > $directory/deletes.txt");
 
+            exec("wc -l $directory/adds.txt | awk '{print $1}'", $addsTotal);
+            exec("wc -l $directory/deletes.txt | awk '{print $1}'", $deletesTotal);
+
+            // Do nothing is there are too many changes - use to avoid mass deletes/adds due to dodgy files
+            if (isset($changeLimit) && ($addsTotal[0] > $changeLimit || $deletesTotal[0] > $changeLimit)) {
+                if ($config->isUpdatePreviousWhenTooManyChanges()) {
+                    copy($directory . "/new.txt", $directory . "/previous.txt");
+                }
+                return;
+            }
+
             // Identify and changes and write to the latest and changes tables
-            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize);
+            $this->analyseChanges($fieldKeys, $directory, $setDate->format('Y-m-d H:i:s'), $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey, $targetWriteChunkSize);
 
             // Copy the new file across to the previous
             if (file_exists($directory . "/new.txt")) {
@@ -189,7 +225,6 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             }
             $lineCount = -1;
             $evaluated = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($datasourceKey, $parameterValues, [], $offset, $sourceReadChunkSize);
-
 
 
             // Initialise next
@@ -273,7 +308,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
     }
 
-    private function analyseChanges($fieldKeys, $directory, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetWriteChunkSize) {
+    private function analyseChanges($fieldKeys, $directory, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey, $targetWriteChunkSize) {
 
 
         // Initialise some variables
@@ -290,7 +325,6 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
 
         // Identify the key fields
-
         foreach ($fieldKeys as $key) {
             if ($key->isKeyField()) {
                 $keyFieldKeysAsIndex[] = $keyFieldCount;
@@ -305,9 +339,10 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
         $deleteFileStream = new ReadOnlyFileStream($directory . "/deletes.txt");
 
+
         while ($line = $deleteFileStream->readLine()) {
             $explodedLine = explode("#|!", $line);
-            if (sizeof($explodedLine) > 1) {
+            if (sizeof($explodedLine) > 0) {
                 $pkElements = [];
                 foreach ($keyFieldKeysAsIndex as $key) {
                     $pkElements[] = $explodedLine[$key] ?? "";
@@ -315,6 +350,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
                 $deletedItems[implode("#|!", $pkElements)] = 1;
             }
         }
+
 
         $deleteFileItems = explode("\n", file_get_contents($directory . "/deletes.txt"));
 
@@ -357,7 +393,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
                 // Carry out a datasource update once the batch size is reached
                 if ($updateCount >= $targetWriteChunkSize) {
-                    $this->updateTargetDatasources($trueUpdates, "UPDATE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
+                    $this->updateTargetDatasources($trueUpdates, "UPDATE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey);
                     $trueUpdates = [];
                     $updateCount = 0;
                 }
@@ -379,7 +415,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
             // Update target datasources once batch size is reached
             if ($addCount >= $targetWriteChunkSize) {
-                $this->updateTargetDatasources($trueAdds, "ADD", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
+                $this->updateTargetDatasources($trueAdds, "ADD", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey);
                 $trueAdds = [];
                 $addCount = 0;
             }
@@ -387,10 +423,10 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
         // Clear up any leftovers
         if ($addCount > 0) {
-            $this->updateTargetDatasources($trueAdds, "ADD", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
+            $this->updateTargetDatasources($trueAdds, "ADD", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey);
         }
         if ($updateCount > 0) {
-            $this->updateTargetDatasources($trueUpdates, "UPDATE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
+            $this->updateTargetDatasources($trueUpdates, "UPDATE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey);
         }
 
         // Process the remaining delete items
@@ -415,7 +451,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
             }
 
             if ($delCount >= $targetWriteChunkSize) {
-                $this->updateTargetDatasources($trueDeletes, "DELETE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
+                $this->updateTargetDatasources($trueDeletes, "DELETE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey);
                 $trueDeletes = [];
                 $delCount = 0;
             }
@@ -423,11 +459,11 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
         }
 
         if ($delCount > 0)
-            $this->updateTargetDatasources($trueDeletes, "DELETE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey);
+            $this->updateTargetDatasources($trueDeletes, "DELETE", $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey);
     }
 
 
-    private function updateTargetDatasources($data, $updateType, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey) {
+    private function updateTargetDatasources($data, $updateType, $setDate, $targetLatestDatasourceKey, $targetChangeDatasourceKey, $targetAddsDatasourceKey) {
 
         // Initialise variables according to the update type
         $adds = $updateType == "ADD" ? $data : [];
@@ -443,20 +479,33 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
 
         // Construct the changes update and update the changes table
-
-        $changeType = new Field("change_type");
-        $changeDate = new Field("change_date");
-
-        for ($i = 0; $i < sizeof($data); $i++) {
-            $data[$i][$changeType->getName()] = $updateType;
-            $data[$i][$changeDate->getName()] = $setDate;
-        }
-
-        $datasourceChangesUpdate = new DatasourceUpdate([], [], [], $data);
-
         if ($targetChangeDatasourceKey) {
+            $changeType = new Field("change_type");
+            $changeDate = new Field("change_date");
+
+            for ($i = 0; $i < sizeof($data); $i++) {
+                $data[$i][$changeType->getName()] = $updateType;
+                $data[$i][$changeDate->getName()] = $setDate;
+            }
+
+            $datasourceChangesUpdate = new DatasourceUpdate([], [], [], $data);
+
             $this->datasourceService->updateDatasourceInstanceByKey($targetChangeDatasourceKey, $datasourceChangesUpdate, true);
         }
+
+        // Handle adds only datasource
+        if ($targetAddsDatasourceKey && ($updateType == "ADD")) {
+            $addedDate = new Field("added_date");
+            for ($i = 0; $i < sizeof($data); $i++) {
+                unset($data[$i]["change_type"]);
+                unset($data[$i]["change_date"]);
+                $data[$i][$addedDate->getName()] = $setDate;
+            }
+            $datasourceChangesUpdate = new DatasourceUpdate([], [], [], $data);
+            $this->datasourceService->updateDatasourceInstanceByKey($targetAddsDatasourceKey, $datasourceChangesUpdate, true);
+
+        }
+
 
     }
 

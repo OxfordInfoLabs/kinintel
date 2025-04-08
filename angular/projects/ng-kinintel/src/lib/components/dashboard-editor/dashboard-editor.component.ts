@@ -495,6 +495,22 @@ export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit,
     }
 
     public save(showSaved = true) {
+        for (const networkData of _.values(this.dashboard.layoutSettings.networkData)) {
+            if (networkData.network) {
+                const nodes = {};
+                networkData.network.storePositions();
+                for (const nodeKey of Object.keys(networkData.network.body.nodes)) {
+                    nodes[nodeKey] = {
+                        x: networkData.network.body.nodes[nodeKey].x,
+                        y: networkData.network.body.nodes[nodeKey].y,
+                    };
+                }
+
+                networkData.nodes = nodes;
+                delete networkData.network;
+            }
+        }
+
         this.dashboard.layoutSettings.grid = this.grid.save(true);
         this.dashboard.layoutSettings.grid.forEach(gridItem => {
             const itemElement = document.createRange().createContextualFragment(gridItem.content);

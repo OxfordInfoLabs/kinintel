@@ -25,7 +25,9 @@ export class ImportDataComponent implements OnInit {
     public rows: any = [];
     public datasourceInstanceKey: string;
     public reloadURL: string;
+    public importErrors: any = [];
     public _ = _;
+    public Object = Object;
 
     constructor(public dialogRef: MatDialogRef<ImportDataComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
@@ -63,7 +65,9 @@ export class ImportDataComponent implements OnInit {
                 const text: any = reader.result;
                 this.import.fileName = file.name;
                 this.import.data = this.papa.parse(text, {
-                    delimiter: this.import.delimiter
+                    delimiter: this.import.delimiter,
+                    quoteChar: '"',
+                    escapeChar: '\\'
                 }).data;
 
                 const preview = _.clone(this.import.data);
@@ -78,6 +82,8 @@ export class ImportDataComponent implements OnInit {
 
     public async importData() {
         this.importingData = true;
+        this.importErrors = [];
+
         if (!this.datasourceUpdate.title) {
             this.datasourceUpdate.title = this.import.fileName;
         }
@@ -117,31 +123,41 @@ export class ImportDataComponent implements OnInit {
         }).forEach(row => {
             const rowData = {};
             this.import.columns.forEach((column: any, index: number) => {
-                rowData[column.name] = row[index];
+                rowData[column.name] = (!_.isUndefined(row[index]) && row[index] !== '') ? row[index] : null;
             });
             csvData.push(rowData);
         });
 
+        let result = null;
+
         if (this.importType === 1) {
             if (this.rows.length && this.datasourceInstanceKey) {
-                await this.datasourceService.deleteFromDatasource(this.datasourceInstanceKey, []);
+               await this.datasourceService.deleteFromDatasource(this.datasourceInstanceKey, []);
             }
 
             this.datasourceUpdate.adds = csvData;
 
             if (!this.datasourceInstanceKey) {
-                this.datasourceInstanceKey = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
+                result = this.datasourceInstanceKey = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
             } else {
-                await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
+                result = await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
             }
         } else if (this.importType === 2) {
             this.datasourceUpdate.replaces = csvData;
-            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
+            result = await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
         } else if (this.importType === 3) {
             this.datasourceUpdate.adds = csvData;
-            await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
+            result = await this.datasourceService.updateCustomDatasource(this.datasourceInstanceKey, this.datasourceUpdate);
         }
 
-        window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
+        if (result && result.rejected > 0) {
+           this.importErrors = Object.values(result.validationErrors)[0];
+           console.log(this.importErrors);
+        } else {
+           window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
+        }
+
     }
+
+
 }

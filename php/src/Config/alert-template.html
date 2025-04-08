@@ -9,8 +9,12 @@
             [[alert.title]]
         </th>
         <td style="border-bottom: 1px solid #cccccc;padding-top: 8px;padding-bottom:8px;">
-            <a d-if="alert.notificationCta" d-href="alert.notificationCta" d-html="alert.notificationMessage"></a>
-            <span d-if="alert.notificationCta | not" d-html="alert.notificationMessage"></span>
+            <a d-if="alert.notificationCta" d-href="alert.notificationCta">
+                <span d-html="alert.notificationMessage"></span>
+            </a>
+            <div d-if="alert.notificationCta | not">
+                <div d-html="alert.notificationMessage"></div>
+            </div>
         </td>
     </tr>
 

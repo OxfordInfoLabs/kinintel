@@ -23,6 +23,7 @@ class SQLColumnFieldMapper {
         Field::TYPE_STRING => TableColumn::SQL_VARCHAR,
         Field::TYPE_MEDIUM_STRING => TableColumn::SQL_VARCHAR,
         Field::TYPE_INTEGER => TableColumn::SQL_INTEGER,
+        Field::TYPE_BOOLEAN => TableColumn::SQL_TINYINT,
         Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
         Field::TYPE_DATE => TableColumn::SQL_DATE,
         Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
@@ -62,6 +63,7 @@ class SQLColumnFieldMapper {
         TableColumn::SQL_DECIMAL => Field::TYPE_FLOAT,
         TableColumn::SQL_REAL => Field::TYPE_FLOAT,
         TableColumn::SQL_FLOAT => Field::TYPE_FLOAT,
+        TableColumn::SQL_TINYINT => Field::TYPE_BOOLEAN,
         TableColumn::SQL_SMALLINT => Field::TYPE_INTEGER,
         TableColumn::SQL_INTEGER => Field::TYPE_INTEGER,
         TableColumn::SQL_TIME => Field::TYPE_INTEGER,
@@ -88,8 +90,9 @@ class SQLColumnFieldMapper {
         // Primary key
         $primaryKey = $field->isKeyField() || ($fieldType == Field::TYPE_ID);
         $autoIncrement = ($fieldType == Field::TYPE_ID);
+        $required = $field->isRequired();
 
-        return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement);
+        return new TableColumn($field->getName(), $type, $length, null, null, $primaryKey, $autoIncrement, $required);
 
     }
 
@@ -129,6 +132,7 @@ class SQLColumnFieldMapper {
         }
 
         $keyField = false;
+        $required = false;
         if ($resultSetColumn instanceof TableColumn) {
             // Handle special auto increment case
             if ($fieldType == Field::TYPE_INTEGER && $resultSetColumn->isAutoIncrement())
@@ -136,9 +140,11 @@ class SQLColumnFieldMapper {
 
             // Check for key field
             $keyField = $resultSetColumn->isPrimaryKey();
+
+            $required = $resultSetColumn->isNotNull();
         }
 
-        return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField);
+        return new Field($resultSetColumn->getName(), null, null, $fieldType, $keyField, $required);
     }
 
 

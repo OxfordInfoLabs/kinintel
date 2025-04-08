@@ -112,6 +112,13 @@ class FeedSummary extends ActiveRecord {
     }
 
     /**
+     * @param int $id
+     */
+    public function setId($id): void {
+        $this->id = $id;
+    }
+
+    /**
      * @return string
      */
     public function getPath() {

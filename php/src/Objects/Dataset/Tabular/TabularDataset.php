@@ -82,6 +82,13 @@ abstract class TabularDataset implements Dataset {
         return $this->columns;
     }
 
+    /**
+     * @param Field[] $columns
+     */
+    public function setColumns($columns) {
+        $this->columns = $columns;
+    }
+
 
     /**
      * Return a column by key
@@ -142,6 +149,10 @@ abstract class TabularDataset implements Dataset {
                     $value = $column->evaluateValueExpression($dataItem);
                 } else {
                     $value = $dataItem[$columnName] ?? null;
+
+                    // Ensure booleans are correctly typed
+                    if ($column->getType() == Field::TYPE_BOOLEAN)
+                        $value = $value ? true : false;
                 }
 
 
