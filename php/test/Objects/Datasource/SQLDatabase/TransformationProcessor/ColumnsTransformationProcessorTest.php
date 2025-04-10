@@ -260,7 +260,7 @@ class ColumnsTransformationProcessorTest extends TestCase {
             true
         );
         $fields = $datasource->returnFields([]);
-        $this->assertEquals($fields, [new Field("name", keyField: true), new Field("age", type: Field::TYPE_INTEGER)]);
+        $this->assertEquals([new Field("name", keyField: true, required: true), new Field("age", type: Field::TYPE_INTEGER, required: true)], $fields);
         $out = $datasource->applyTransformation($transformation);
         $this->assertEquals($out, $datasource);
         $fields = $datasource->returnFields([], deriveUpToTransformation: true);
@@ -269,6 +269,61 @@ class ColumnsTransformationProcessorTest extends TestCase {
         $actual = $actualDataset->getAllData();
 
         $this->assertEquals([["birthName" => "Maurice"]], $actual);
+    }
+
+
+    public function testCanPerformMultipleColumnTransformations(){
+
+        /** @var SQLDatabaseCredentials $creds */
+        $creds = Container::instance()
+            ->get(AuthenticationCredentialsService::class)
+            ->getCredentialsInstanceByKey("test")
+            ->returnCredentials();
+        $dbConnection = $creds->returnDatabaseConnection();
+        $dbConnection->executeScript("
+        DROP TABLE IF EXISTS __columnsTransformationTest;
+        CREATE TABLE __columnsTransformationTest (
+            name VARCHAR(255) NOT NULL,
+            age INTEGER NOT NULL,
+            PRIMARY KEY (name)
+        );
+        INSERT INTO __columnsTransformationTest (name, age) VALUES 
+        ('Maurice', 22);
+        ");
+
+        $datasourceConfig = new SQLDatabaseDatasourceConfig(
+            SQLDatabaseDatasourceConfig::SOURCE_TABLE ,
+            "__columnsTransformationTest"
+        );
+
+        $datasource = new SQLDatabaseDatasource(
+            $datasourceConfig,
+            $creds,
+            new DatasourceUpdateConfig(["name", "age"]),
+            instanceKey: "columns-transformation-test"
+        );
+
+        $columnsTransformation = new ColumnsTransformation(
+            [new Field("name", "Birth name")],
+            true
+        );
+
+
+        $out = $datasource->applyTransformation($columnsTransformation);
+       ;
+
+        $columnsTransformation2 = new ColumnsTransformation(
+            [new Field("birthName", "Birth name new")],
+            true,
+            ColumnNamingConvention::UNDERSCORE
+        );
+
+        $out = $out->applyTransformation($columnsTransformation2);
+
+        $dataset = $out->materialise();
+        $this->assertEquals([new Field("birth_name_new", "Birth name new")], $dataset->getColumns());
+        $this->assertEquals([["birth_name_new" => "Maurice"]], $dataset->getAllData());
+
     }
 
     public function testCanPerformColumnsTransformationAfterFormula(){
@@ -309,12 +364,9 @@ class ColumnsTransformationProcessorTest extends TestCase {
             true
         );
 
-//        $fields = $datasource->returnFields([]);
-//        $this->assertEquals($fields, [new Field("name", keyField: true), new Field("age", type: Field::TYPE_INTEGER)]);
+
         $out = $datasource->applyTransformation($formulaTransformation);
         $out = $out->applyTransformation($columnsTransformation);
-//        $fields = $out->returnFields([], deriveUpToTransformation: true);
-//        $this->assertEquals([new Field("birthName", "Birth name", keyField: true), new Field("lengthOfName", keyField: false)], $fields);
         $actualDataset = $out->materialise();
         $actual = $actualDataset->getAllData();
         $this->assertEquals([["birthName" => "Maurice", "lengthOfName" => 7]], $actual);
@@ -327,7 +379,7 @@ class ColumnsTransformationProcessorTest extends TestCase {
 
         $out = $out->applyTransformation($columnsTransformation2);
         $fields = $out->returnFields([], deriveUpToTransformation: true);
-        $this->assertEquals($fields, [new Field("birth_name_new", "Birth name new")]);
+        $this->assertEquals([new Field("birth_name_new", "Birth name new")], $fields);
 
         $data = $out->materialise()->getAllData();
         $this->assertEquals([["birth_name_new" => "Maurice"]], $data);

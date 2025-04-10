@@ -51,9 +51,11 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
      */
     public function updateQuery($transformation, $query, $parameterValues, $dataSource) {
 
+
         /** @var SQLDatabaseDatasourceConfig $dataSourceConfig */
         $dataSourceConfig = $dataSource->getConfig();
         $resetColumnNames = $transformation->isResetColumnNames();
+
 
         if (is_array($dataSourceConfig->getColumns())) {
 
@@ -64,6 +66,7 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
             // Handle alias logic if resetting columns
             if ($resetColumnNames) $this->aliasIndex++;
         }
+
 
         // Returns the altered transformations
         $newColumns = $transformation->returnAlteredColumns($existingColumns);
@@ -77,13 +80,14 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
             $aliasStrings[] = "C" . $this->aliasIndex . "." . $transformation->getColumns()[$i]->getName() . " AS " . $newColumns[$i]->getName();
         }
 
-        //TODO Why do we do this??? Shouldn't the config stay the same?
+
+        // Update the logic to update columns.
         $dataSourceConfig->setColumns($newColumns);
 
         // Reset the query if required
         if ($resetColumnNames) {
             if (!isset($aliasStrings) || !$aliasStrings) throw new \Exception("NO ALIAS STRINGS");
-            $query = new SQLQuery(join(", ", $aliasStrings), "(" . $query->getSQL() . ") C" . $this->aliasIndex);
+            $query = new SQLQuery(join(", ", $aliasStrings), "(" . $query->getSQL() . ") C" . $this->aliasIndex, $query->getParameters());
         }
 
         return $query;

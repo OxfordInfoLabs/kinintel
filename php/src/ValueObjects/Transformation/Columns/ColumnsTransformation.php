@@ -101,12 +101,11 @@ class ColumnsTransformation implements Transformation, SQLDatabaseTransformation
     public function returnAlteredColumns(array $columns): array {
         $newColumnTitles = [];
         $existingColumns = ObjectArrayUtils::indexArrayOfObjectsByMember("name", $columns);
+
         foreach ($this->getColumns() as $newColumn) {
-            $existingColumn = $existingColumns[$newColumn->getName()] ?? null;
-            if (!$existingColumn) {
-                $newColumns[] = $newColumn;
-                continue;
-            }
+
+            $existingColumn = $existingColumns[$newColumn->getName()] ?? $newColumn;
+
             // If resetting column names, create alias strings
             if ($this->isResetColumnNames()) {
 

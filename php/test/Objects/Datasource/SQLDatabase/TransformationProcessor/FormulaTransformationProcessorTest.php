@@ -193,6 +193,7 @@ SQL
         $returnedFields = $out->returnFields([], true);
         foreach ($returnedFields as $returnedField){ // Ignore key field status
             $returnedField->setKeyField(false);
+            $returnedField->setRequired(false);
         }
         $this->assertEquals($expectedColumns, $returnedFields);
 

@@ -60,7 +60,7 @@ class ColumnsTransformationTest extends TestBase {
 
         $this->assertEquals([
             new Field("leftName", "Left Name"),
-            new Field("forename", "Right Name"),
+            new Field("rightName", "Right Name"),
         ], $altered);
     }
 

@@ -294,6 +294,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         // Get columns from the datasource config if we are using original columns
         $originalFields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
 
+
         // If there aren't explicit columns and it's a table based datasource with no column changing transformations
         // Generate explicit columns to allow for dataset update.
         if ($this->getConfig()->getSource() == "table" && !$originalFields && ($this->hasOriginalColumns || $deriveUpToTransformation)) {
@@ -306,17 +307,25 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             ));
         }
 
-        if ($this->hasOriginalColumns || $deriveUpToTransformation === false) return $originalFields;
+
+        if ($this->hasOriginalColumns || ($deriveUpToTransformation === false)) return $originalFields;
+
 
         $fields = $originalFields;
         foreach ($this->transformations as $transformation) {
+
             /** @var SQLDatabaseTransformation $transformation */
 
             // Only derive until we get to the target transformation
             if ($transformation === $deriveUpToTransformation) break;
 
+
             $fields = $transformation->returnAlteredColumns($fields);
+
         }
+
+
+
 
         return $fields;
     }
