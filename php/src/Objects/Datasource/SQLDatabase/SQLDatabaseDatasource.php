@@ -56,8 +56,6 @@ use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 use PDOException;
 
-use function Kinikit\Core\Util\println;
-
 class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
     /**
