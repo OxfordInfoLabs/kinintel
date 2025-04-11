@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase;
 
 
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\TabularResultsDatasourceConfig;
 
 class SQLDatabaseDatasourceConfig extends TabularResultsDatasourceConfig {

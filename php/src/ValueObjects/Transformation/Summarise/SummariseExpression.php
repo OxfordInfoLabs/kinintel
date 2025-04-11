@@ -5,6 +5,7 @@ namespace Kinintel\ValueObjects\Transformation\Summarise;
 
 use Kinikit\Core\Util\StringUtils;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
+use Kinintel\ValueObjects\Dataset\Field;
 
 /**
  * Capture a summarise expression
@@ -157,11 +158,17 @@ class SummariseExpression {
         $function = $sqlValueEvaluator->evaluateFilterValue($function, $parameterValues, null, $clauseParameters);
 
         if ($this->customLabel) {
-            $function .= " " . $databaseConnection->escapeColumn($this->getCustomFieldName($databaseConnection));
+            $function .= " " . $databaseConnection->escapeColumn($this->getCustomFieldName());
         }
 
         return $function;
 
+    }
+
+    public function toField() : Field { // We generate the title!
+        return new Field(
+            $this->getCustomFieldName(),
+        );
     }
 
 

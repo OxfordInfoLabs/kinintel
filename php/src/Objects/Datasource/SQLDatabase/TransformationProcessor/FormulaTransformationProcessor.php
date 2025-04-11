@@ -7,6 +7,7 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
@@ -48,12 +49,14 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
         $datasourceTransformations = $dataSource->returnTransformations();
         $transformationIndex = array_search($transformation, $datasourceTransformations);
         $substitutions = [];
-        $hasSummarise = false;
+        $wrapQuery = false;
         for ($i = $transformationIndex - 1; $i >= 0; $i--) {
             $previousTransformation = $datasourceTransformations[$i];
             // We can stop at summarisations or joins as these will create sub queries anyway.
-            if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof JoinTransformation) {
-                if ($previousTransformation instanceof SummariseTransformation) $hasSummarise = true;
+            if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof JoinTransformation ||
+                $previousTransformation instanceof ColumnsTransformation) {
+                if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof ColumnsTransformation)
+                    $wrapQuery = true;
                 break;
             }
             if ($previousTransformation instanceof FormulaTransformation) {
@@ -80,7 +83,7 @@ class FormulaTransformationProcessor extends SQLTransformationProcessor {
 
 
         // If Group By, make sure we wrap the query
-        if ($query->hasGroupByClause() || $hasSummarise) {
+        if ($query->hasGroupByClause() || $wrapQuery) {
             $params = array_merge($clauseParams, $query->getParameters());
             $query = new SQLQuery("F" . ++$this->aliasIndex . ".*, " . join(", ", $clauses), "(" . $query->getSQL() . ") F" . $this->aliasIndex, $params);
         } else {

@@ -84,7 +84,7 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      * @param Field[] $joinColumns
      */
     public function __construct($joinedDataSourceKey = null, $joinedDataSetId = null, $joinParameterMappings = [],
-                                $joinFilters = null, $joinColumns = [], $strictJoin = false) {
+                                $joinFilters = null, array $joinColumns = [], $strictJoin = false) {
         $this->joinedDataSourceInstanceKey = $joinedDataSourceKey;
         $this->joinedDataSetInstanceId = $joinedDataSetId;
         $this->joinParameterMappings = $joinParameterMappings;
@@ -221,5 +221,9 @@ class JoinTransformation implements Transformation, SQLDatabaseTransformation {
      */
     public function getSQLTransformationProcessorKey() {
         return "join";
+    }
+
+    public function returnAlteredColumns(array $columns): array {
+        return array_merge($columns, $this->getJoinColumns());
     }
 }

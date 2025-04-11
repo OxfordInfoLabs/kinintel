@@ -23,9 +23,11 @@ use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
+use Kinintel\Services\Authentication\AuthenticationCredentialsService;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLDatabaseCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Dataset\ProcessedTabularDataSet;
@@ -84,6 +86,8 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
      */
     private $processor;
 
+    private JoinTransformationProcessor $originalJoinProcessor;
+
 
     public function setUp(): void {
         $this->authCredentials = MockObjectProvider::instance()->getMockInstance(SQLiteAuthenticationCredentials::class);
@@ -93,6 +97,13 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->asynchronousProcessor = MockObjectProvider::instance()->getMockInstance(AsynchronousProcessor::class);
         $this->processor = new JoinTransformationProcessor($this->dataSourceService, $this->dataSetService, $this->synchronousProcessor, $this->asynchronousProcessor);
         $this->validator = MockObjectProvider::instance()->getMockInstance(Validator::class);
+
+        $this->originalJoinProcessor = Container::instance()->get(JoinTransformationProcessor::class);
+        Container::instance()->set(JoinTransformationProcessor::class, $this->processor);
+    }
+    protected function tearDown(): void {
+        Container::instance()->set(JoinTransformationProcessor::class, $this->originalJoinProcessor);
+        parent::tearDown();
     }
 
 
@@ -1166,6 +1177,91 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             new Field("category", "Category"), new Field("status", "Status")
         ]]));
 
+    }
+
+    public function testJoinColumnsAreSameAsEvaluatedEndToEnd(){
+        /** @var SQLDatabaseCredentials $creds */
+        $creds = Container::instance()
+            ->get(AuthenticationCredentialsService::class)
+            ->getCredentialsInstanceByKey("test")
+            ->returnCredentials();
+        $dbConnection = $creds->returnDatabaseConnection();
+        $dbConnection->executeScript("
+        DROP TABLE IF EXISTS __joinTransformationTest;
+        CREATE TABLE __joinTransformationTest (
+            name VARCHAR(255) NOT NULL,
+            age INTEGER NOT NULL,
+            PRIMARY KEY (name)
+        );
+        INSERT INTO __joinTransformationTest (name, age) VALUES 
+        ('Maurice', 23),
+        ('Sam', 100);
+        
+       DROP TABLE IF EXISTS __joinTransformationTest2;
+        CREATE TABLE __joinTransformationTest2 (
+            age INTEGER NOT NULL,
+            status VARCHAR(255) NOT NULL,
+            PRIMARY KEY (age, status)
+        );
+        INSERT INTO __joinTransformationTest2 (age, status) VALUES 
+        (23, 'Naive'),
+        (100, 'Wise');
+        ");
+
+        $datasourceConfig = new SQLDatabaseDatasourceConfig(
+            SQLDatabaseDatasourceConfig::SOURCE_TABLE ,
+            "__joinTransformationTest"
+        );
+
+        $datasourceConfig2 = new SQLDatabaseDatasourceConfig(
+            SQLDatabaseDatasourceConfig::SOURCE_TABLE ,
+            "__joinTransformationTest2"
+        );
+
+        $peopleDSI = new DatasourceInstance(
+            "join-transformation-test",
+            "Joining 1",
+            "sqldatabase",
+            $datasourceConfig,
+            "test"
+        );
+        $statusDSI = new DatasourceInstance(
+            "join-transformation-test2",
+            "Joining 2",
+            "sqldatabase",
+            $datasourceConfig2,
+            "test"
+        );
+
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $peopleDSI, ["join-transformation-test"]);
+        $this->dataSourceService->returnValue("getDataSourceInstanceByKey", $statusDSI, ["join-transformation-test2"]);
+
+        $transformation = new JoinTransformation(
+            "join-transformation-test2",
+            joinFilters: new FilterJunction([new Filter("[[age]]", "[[age]]", Filter::FILTER_TYPE_EQUALS)]),
+            joinColumns: [new Field("status")]
+        );
+
+        /** @var SQLDatabaseDatasource $peopleDatasource */
+        $peopleDatasource = $peopleDSI->returnDataSource();
+        $transformed = $peopleDatasource->applyTransformation($transformation);
+        $expectedFields = $peopleDatasource->returnFields([], true);
+        $columnsWithJoined = [
+            new Field("name"),
+            new Field("age", type: Field::TYPE_INTEGER),
+            new Field("status")
+        ];
+        $this->assertEquals($columnsWithJoined, $expectedFields);
+        $this->assertCount(3, $expectedFields);
+        /** @var ArrayTabularDataset $results */
+        $results = $transformed->materialise();
+        $actualFields = $results->getColumns();
+
+        //Ignore key fields
+        foreach ($expectedFields as $field){
+            $field->setKeyField(false);
+        }
+        $this->assertEquals($expectedFields, $actualFields);
     }
 
 }

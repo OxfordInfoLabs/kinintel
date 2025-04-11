@@ -7,6 +7,7 @@ use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
+use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -91,7 +92,7 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
             // We can stop at summarisations or joins as these will create sub queries anyway.
             if ($previousTransformation instanceof SummariseTransformation || $previousTransformation instanceof JoinTransformation)
                 break;
-            if ($previousTransformation instanceof FormulaTransformation) {
+            if ($previousTransformation instanceof FormulaTransformation || $previousTransformation instanceof ColumnsTransformation) {
                 $wrapRequired = true;
                 break;
             }
