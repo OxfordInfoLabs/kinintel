@@ -70,7 +70,7 @@ export class DatasetService {
         if (activeTag) {
             datasetInstanceSummary.tags = [activeTag];
         }
-        return this.http.post(this.config.backendURL + '/dataset/' + (projectKey ? 'projectKey=' + projectKey + '&' : '?') + 'accountId=' + accountId,
+        return this.http.post(this.config.backendURL + '/dataset/' + (projectKey ? '?projectKey=' + projectKey + '&' : '?') + 'accountId=' + accountId,
             datasetInstanceSummary).toPromise().then((id: number) => {
             return id;
         });
