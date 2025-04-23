@@ -2,6 +2,7 @@
 
 namespace Kinintel\Objects\Datasource;
 
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 
@@ -9,6 +10,12 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidation
  * External validator for validating datasource items
  */
 class DatasourceDataValidator {
+
+
+    /**
+     * @var Field
+     */
+    private $idField = null;
 
     /**
      * @var DatasourceUpdateField[]
@@ -24,6 +31,10 @@ class DatasourceDataValidator {
         foreach ($fields ?? [] as $field) {
             if (($field instanceof DatasourceUpdateField) && sizeof($field->returnValidators()))
                 $this->validationFields[] = $field;
+
+            // Stash id field if we have one
+            if ($field->getType() === Field::TYPE_ID)
+                $this->idField = $field;
         }
     }
 
@@ -34,9 +45,10 @@ class DatasourceDataValidator {
      * items which fail validation and return an array of validation errors.
      *
      * @param mixed[] $data
+     * @param $updateMode
      * @return DatasourceUpdateResultItemValidationErrors[]
      */
-    public function validateUpdateData(&$data, $pruneInvalidItems = false) {
+    public function validateUpdateData(&$data, $updateMode, $pruneInvalidItems = false) {
 
         $validationErrors = [];
 
@@ -52,6 +64,16 @@ class DatasourceDataValidator {
                     if ($validation !== true) {
                         $errors[$fieldName] = $validation;
                     }
+
+                }
+
+                if ($this->idField){
+                    $idFieldName = $this->idField->getName();
+                    $idFieldHasValue = isset($dataItem[$idFieldName]);
+                    if (($updateMode == UpdatableDatasource::UPDATE_MODE_ADD) && $idFieldHasValue )
+                        $errors[$idFieldName] = "Value should not be supplied for $idFieldName when adding new items";
+                    if (($updateMode !== UpdatableDatasource::UPDATE_MODE_ADD) && !$idFieldHasValue)
+                        $errors[$idFieldName] = "Value required for $idFieldName for $updateMode of items";
                 }
 
                 // If validation errors,

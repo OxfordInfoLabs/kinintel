@@ -24,6 +24,7 @@ export class ApiAccessComponent implements OnInit {
     public listQueryString: string = '';
     public createExample: string;
     public updateExample: string;
+    public deleteExample: string;
     public deleteFilteredExample: string;
     public showExample = false;
 
@@ -46,7 +47,7 @@ export class ApiAccessComponent implements OnInit {
 
         this.columns.forEach((column, index) => {
             if (column.type !== 'id') {
-                example.push('<span class="text-cta">"' + column.name + '":</span> "' + column.type + '"');
+                example.push('<span class="text-cta">"' + column.name + '":</span> ' + this.getColumnTypeDisplayString(column.type));
                 if (index !== this.columns.length - 1) {
                     example.push(', ');
                 }
@@ -60,13 +61,26 @@ export class ApiAccessComponent implements OnInit {
 
         const update = ['[{'];
         this.columns.forEach((column, index) => {
-            update.push('<span class="text-cta">"' + column.name + '":</span> "' + column.type + '"');
+            update.push('<span class="text-cta">"' + column.name + '":</span> ' + this.getColumnTypeDisplayString(column.type));
             if (index !== this.columns.length - 1) {
                 update.push(', ');
             }
         });
         update.push('}]');
         this.updateExample = update.join('');
+
+        const deleteString: string[] = ['[{'];
+        this.columns.forEach((column, index) => {
+            if (column.type === 'id' || column.keyField) {
+                if (index > 0) {
+                    deleteString.push(', ');
+                }
+                deleteString.push('<span class="text-cta">"' + column.name + '":</span> ' + this.getColumnTypeDisplayString(column.type));
+            }
+        });
+
+        deleteString.push('}]');
+        this.deleteExample = deleteString.join('');
 
         const deleteFiltered: string[] = ['[{'];
         if (this.columns.length > 0) {
@@ -76,6 +90,35 @@ export class ApiAccessComponent implements OnInit {
         this.deleteFilteredExample = deleteFiltered.join('');
 
         this.apiKeys = await this.http.get('/account/apikey/first/customdatasourceupdate').toPromise();
+    }
+
+
+    private getColumnTypeDisplayString(columnType) {
+        let exampleValue = null;
+        switch (columnType) {
+            case "integer":
+                exampleValue = 10;
+                break;
+            case "id":
+                exampleValue = 1;
+                break;
+            case "float":
+                exampleValue = "1.5";
+                break;
+            case "date":
+                exampleValue= "2025-01-01";
+                break;
+            case "datetime":
+                exampleValue = "2025-01-01 10:00:00";
+                break;
+            case "boolean":
+                exampleValue = "true";
+                break;
+            default:
+                exampleValue = "string value";
+                break;
+        }
+        return columnType === "id" || columnType === "integer" || columnType === "float" || columnType === "boolean" ? exampleValue : '"' + exampleValue + '"';
     }
 
     public copied() {

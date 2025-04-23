@@ -18,7 +18,9 @@ class RequiredFieldValidator implements FieldValidator {
      */
     public function validateValue($value, $field) {
         if ($value === null | $value === "") {
-            return "Value required for " . $field->getName();
+            $message = "Value required for " . $field->getName();
+            if ($field->isKeyField() && !$field->isRequired()) $message .= " as it is a key field";
+            return $message;
         }
         return true;
     }

@@ -36,6 +36,7 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
@@ -311,6 +312,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      */
     public function update($dataset, $updateMode = UpdatableDatasource::UPDATE_MODE_ADD) {
 
+
         /**
          * @var DatasourceUpdateConfig
          */
@@ -355,6 +357,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             // Get all data from the dataset
             $allData = $dataset->nextNDataItems(50);
 
+
             // Update mapped field data
             $insertDataset = $this->updateMappedFieldData(new ArrayTabularDataset($columns, $allData), $updateMode);
 
@@ -367,7 +370,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                     if ($updateMode == UpdatableDatasource::UPDATE_MODE_DELETE) {
                         $updateColumns = [];
                         foreach ($insertDataset->getColumns() as $column) {
-                            if ($column->isKeyField()) {
+                            if ($column->isKeyField() || $column->getType() == Field::TYPE_ID) {
                                 $updateColumns[] = $column->getName();
                             }
                         }
@@ -389,7 +392,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
 
                 // Validate the data before insert.
-                $validationErrors = array_merge($validationErrors, $datasourceDataValidator->validateUpdateData($allData, true));
+                $validationErrors = array_merge($validationErrors, $datasourceDataValidator->validateUpdateData($allData, $updateMode, true));
 
 
                 try {
