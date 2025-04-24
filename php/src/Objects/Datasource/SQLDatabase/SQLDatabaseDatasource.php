@@ -36,6 +36,7 @@ use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
@@ -54,7 +55,6 @@ use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 use PDOException;
-
 
 class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
@@ -214,7 +214,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         if ($transformation instanceof SQLDatabaseTransformation) {
 
-            // Negate original columns if a none filter / sort transformation encountered.
+            // Negate original columns if a non filter / sort transformation encountered.
             if (!($transformation instanceof FilterTransformation || $transformation instanceof MultiSortTransformation || $transformation instanceof PagingTransformation))
                 $this->hasOriginalColumns = false;
 
@@ -258,10 +258,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $query = $this->buildQuery($parameterValues);
 
-        /**
-         * @var DatabaseConnection $dbConnection
-         */
-        $dbConnection = $this->returnDatabaseConnection();
 
         Logger::log($query->getParameters(), 6);
         Logger::log($query->getSQL(), 6);
@@ -276,28 +272,60 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             throw new DebugException("Database Error occured when running query, see logs " . $time, debugMessage: $e->getMessage());
         }
 
-        // Grab columns
-        $columns = $this->getConfig()->returnEvaluatedColumns($parameterValues);
-
-
-        // If no explicit columns and table based query with no column changing transformations
-        // Generate explicit columns to allow for dataset update.
-        if ($this->getConfig()->getSource() == "table" && !$columns && $this->hasOriginalColumns) {
-
-            $columns = [];
-            $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
-
-            foreach ($tableMetaData->getColumns() as $column) {
-                $columns[] = $this->sqlColumnFieldMapper->mapResultSetColumnToField($column);
-            }
-        }
-
+        $fields = $this->returnFields($parameterValues);
 
         // Return a tabular dataset
-        $result = new SQLResultSetTabularDataset($resultSet, $columns);
+        $result = new SQLResultSetTabularDataset($resultSet, $fields);
 
         return $result;
 
+    }
+
+    /**
+     * @param $parameterValues
+     * @param bool|Transformation $deriveUpToTransformation If false, we don't derive columns. If true, we derive based on all transformations. If given a transformation, we derive up to the transformation before.
+     * @return Field[]
+     */
+    public function returnFields($parameterValues, bool|Transformation $deriveUpToTransformation = false) : array {
+        $dbConnection = $this->returnDatabaseConnection();
+
+        // Get columns from the datasource config if we are using original columns
+        $originalFields = $this->getConfig()->returnEvaluatedColumns($parameterValues);
+
+
+        // If there aren't explicit columns and it's a table based datasource with no column changing transformations
+        // Generate explicit columns to allow for dataset update.
+        if ($this->getConfig()->getSource() == "table" && !$originalFields && ($this->hasOriginalColumns || $deriveUpToTransformation)) {
+
+            $tableMetaData = $dbConnection->getTableMetaData($this->getConfig()->getTableName());
+
+            $originalFields = array_values(array_map(
+                fn($resultSetColumn) => $this->sqlColumnFieldMapper->mapResultSetColumnToField($resultSetColumn),
+                $tableMetaData->getColumns()
+            ));
+        }
+
+
+        if ($this->hasOriginalColumns || ($deriveUpToTransformation === false)) return $originalFields;
+
+
+        $fields = $originalFields;
+        foreach ($this->transformations as $transformation) {
+
+            /** @var SQLDatabaseTransformation $transformation */
+
+            // Only derive until we get to the target transformation
+            if ($transformation === $deriveUpToTransformation) break;
+
+
+            $fields = $transformation->returnAlteredColumns($fields);
+
+        }
+
+
+
+
+        return $fields;
     }
 
 
@@ -540,9 +568,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
     // Build SQL statement using configured settings
     public function buildQuery($parameterValues = []) {
 
-        /**
-         * @var SQLDatabaseDatasourceConfig $config
-         */
+        /** @var SQLDatabaseDatasourceConfig $config */
         $config = $this->getConfig();
 
         $parameterisedStringEvaluator = Container::instance()->get(ParameterisedStringEvaluator::class);
@@ -575,12 +601,9 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         }
 
 
-        /**
-         * Process each transformation
-         *
-         * @var $transformation SQLDatabaseTransformation
-         */
+        // Process each transformation
         foreach ($this->transformations as $transformation) {
+            /* @var $transformation SQLDatabaseTransformation */
             $processorKey = $transformation->getSQLTransformationProcessorKey();
             $processor = $this->getTransformationProcessor($processorKey);
             $query = $processor->updateQuery($transformation, $query, $parameterValues, $this);

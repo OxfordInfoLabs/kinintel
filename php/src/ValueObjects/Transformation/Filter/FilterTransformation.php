@@ -20,4 +20,8 @@ class FilterTransformation extends FilterJunction implements Transformation, SQL
     public function getSQLTransformationProcessorKey() {
         return "filter";
     }
+
+    public function returnAlteredColumns(array $columns): array {
+        return $columns;
+    }
 }

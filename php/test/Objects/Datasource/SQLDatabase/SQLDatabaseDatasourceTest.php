@@ -131,7 +131,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
          */
         $dataSet = $sqlDatabaseDatasource->materialiseDataset();
 
-        $this->assertEquals(new SQLResultSetTabularDataset($resultSet, $expectedColumns, true), $dataSet);
+        $this->assertEquals(new SQLResultSetTabularDataset($resultSet, $expectedColumns), $dataSet);
     }
 
 

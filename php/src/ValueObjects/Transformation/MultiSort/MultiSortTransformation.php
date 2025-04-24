@@ -42,4 +42,8 @@ class MultiSortTransformation implements Transformation, SQLDatabaseTransformati
     public function getSQLTransformationProcessorKey() {
         return "multisort";
     }
+
+    public function returnAlteredColumns(array $columns): array {
+        return $columns;
+    }
 }

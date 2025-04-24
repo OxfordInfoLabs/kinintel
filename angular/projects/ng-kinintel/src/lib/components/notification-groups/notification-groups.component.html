@@ -95,7 +95,7 @@
 
                                 <div class="flex items-center justify-center">
                                     <div class="text-xs text-gray-400 mr-10">
-                                        Showing {{offset + 1}} - {{(page * limit) - (limit - notificationGroups.length)}}</div>
+                                        Showing {{offset.getValue() + 1}} - {{(page * limit.getValue()) - (limit.getValue() - notificationGroups.length)}}</div>
                                     <select [value]="limit.getValue()" (change)="pageSizeChange($event.target.value)"
                                             class="mr-8 p-1.5">
                                         <option [value]="1">1</option>

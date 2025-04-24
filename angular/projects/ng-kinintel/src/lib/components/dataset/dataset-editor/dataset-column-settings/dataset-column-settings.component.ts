@@ -1,6 +1,10 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {
+    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+    MatLegacyDialogRef as MatDialogRef
+} from '@angular/material/legacy-dialog';
 import * as lodash from 'lodash';
+
 const _ = lodash.default;
 import {Subject} from 'rxjs';
 
@@ -16,6 +20,8 @@ export class DatasetColumnSettingsComponent implements OnInit {
     public reset = false;
     public resetFields = [];
     public resetTrigger = new Subject();
+    public resetColumnNames: boolean = false;
+    public namingConvention: string = "CAMEL";
 
     constructor(public dialogRef: MatDialogRef<DatasetColumnSettingsComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -25,10 +31,12 @@ export class DatasetColumnSettingsComponent implements OnInit {
         this.columns = this.data.columns;
         this.reset = this.data.reset;
         this.resetFields = this.data.resetFields;
+        this.resetColumnNames = this.data.resetColumnNames;
+        this.namingConvention = this.data.namingConvention;
     }
 
     public updateSettings() {
-        this.dialogRef.close(_.filter(this.columns, 'selected'));
+        this.dialogRef.close({columns: _.filter(this.columns, 'selected'), resetColumnNames: this.resetColumnNames, namingConvention: this.namingConvention});
     }
 
     public resetColumns() {

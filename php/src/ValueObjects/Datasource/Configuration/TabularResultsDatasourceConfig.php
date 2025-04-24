@@ -40,7 +40,7 @@ class TabularResultsDatasourceConfig implements DatasourceConfig {
     /**
      * Return evaluated columns - substitute parameter values where applicable
      *
-     * @param array $parameterValues
+     * @param Field[] $parameterValues
      */
     public function returnEvaluatedColumns($parameterValues = []) {
         $evaluatedColumns = [];
