@@ -3,6 +3,7 @@
 
 namespace Kinintel\Controllers\API;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\DatasourceUpdateException;
@@ -160,11 +161,11 @@ class TabularData {
      * @http DELETE /$importKey
      *
      * @param string $importKey
-     * @param mixed[] $deletePKs
+     * @param mixed[] $pkValues
      * @return mixed
      */
-    public function delete($importKey, $deletePKs) {
-        $datasourceUpdate = new DatasourceUpdate([], [], $deletePKs);
+    public function delete($importKey, $pkValues) {
+        $datasourceUpdate = new DatasourceUpdate([], [], $pkValues);
         return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
 
     }

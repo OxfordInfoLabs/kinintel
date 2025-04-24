@@ -181,13 +181,14 @@ class DatasourceUpdateField extends Field {
             }
 
             // Add required validator if set
-            if ($this->isRequired()) {
+            if ($this->isRequired() || $this->isKeyField()) {
                 $this->validators[] = new RequiredFieldValidator();
             }
 
         }
         return $this->validators;
     }
+
 
 
 }

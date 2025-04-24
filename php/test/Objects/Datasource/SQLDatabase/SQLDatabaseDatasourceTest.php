@@ -545,7 +545,6 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         ]]), $result);
 
 
-
         $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
             "test_data", array_slice($data, 0, 1), ["name", "age", "extraDetail"], true
         ]));
@@ -556,6 +555,47 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
                 UpdatableDatasource::UPDATE_MODE_ADD,
                 array_slice($data, 0, 1)
             ]));
+
+
+    }
+
+
+    public function testValidationErrorsReturnedForRowsWhichFailValidationForDeleteWithBadParametersOrInsufficientPrimaryKey() {
+
+
+        $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
+            $this->authCredentials, new DatasourceUpdateConfig(), $this->validator);
+
+        $sqlDatabaseDatasource->setDatasourceHookService($this->datasourceHookService);
+        $sqlDatabaseDatasource->setInstanceInfo(new DatasourceInstance("addinstance", "Add Instance", "sqldatabase"));
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(TabularDataset::class);
+
+
+        $data = [
+            [
+                "name" => "Bobby Owens"
+            ],
+            [
+                "name" => "David Suchet",
+                "age" => "apple"
+            ]
+        ];
+
+        $dataSet->returnValue("nextNDataItems", $data, [50]);
+
+        $dataSet->returnValue("getColumns", [
+            new DatasourceUpdateField("name", null, null, Field::TYPE_STRING, true), new DatasourceUpdateField("age", "Name", null, Field::TYPE_INTEGER, true)
+        ]);
+
+
+        $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
+
+        // Check an update result was returned
+        $this->assertEquals(new DatasourceUpdateResult(0, 0, 0, 0, 2, ["delete" => [
+            new DatasourceUpdateResultItemValidationErrors(0, ["age" => "Value required for age as it is a key field"]),
+            new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age"])
+        ]]), $result);
 
 
     }
