@@ -181,14 +181,13 @@ class DatasourceUpdateField extends Field {
             }
 
             // Add required validator if set
-            if ($this->isRequired() || $this->isKeyField()) {
+            if ($this->isRequired() || ($this->isKeyField() && ($this->getType() !== Field::TYPE_ID))) {
                 $this->validators[] = new RequiredFieldValidator();
             }
 
         }
         return $this->validators;
     }
-
 
 
 }
