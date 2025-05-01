@@ -50,7 +50,7 @@ class Snapshot {
     /**
      * @return void
      */
-    public function handleRequest(){
+    public function handleRequest() {
         throw new Exception("Invalid endpoint called");
     }
 
@@ -135,7 +135,7 @@ class Snapshot {
             $fullDataSetInstance = $this->datasetService->getFullDataSetInstanceByManagementKey($managementKey);
 
             // Map indexes to
-            $indexes = array_map(fn($index) => new Index($index) ,$snapshotDescriptor->getIndexes() ?? []);
+            $indexes = array_map(fn($index) => new Index($index), $snapshotDescriptor->getIndexes() ?? []);
 
             // Create config.
             $config = new TabularDatasetSnapshotProcessorConfiguration([], [], $snapshotDescriptor->getParameterValues(), true, false, null, $indexes);
@@ -188,7 +188,7 @@ class Snapshot {
         $config->setParameterValues($snapshotDescriptor->getParameterValues());
 
         // Map indexes to
-        $indexes = array_map(fn($index) => new Index($index) ,$snapshotDescriptor->getIndexes() ?? []);
+        $indexes = array_map(fn($index) => new Index($index), $snapshotDescriptor->getIndexes() ?? []);
         $config->setIndexes($indexes);
 
         $existingSnapshot->setConfig($config);
@@ -235,6 +235,34 @@ class Snapshot {
         }
 
         return ["status" => "success"];
+    }
+
+
+    /**
+     * Kill a snapshot for a snapshot key
+     *
+     * @http PATCH /kill/$managementKey/$snapshotKey
+     *
+     * @param $managementKey
+     * @param $snapshotKey
+     * @return array
+     */
+    public function killSnapshot($managementKey, $snapshotKey) {
+
+        // Verify snapshot key exists
+        $this->verifySnapshotKeyExistsForManagementKey($managementKey, $snapshotKey);
+
+        try {
+
+            // Kill data processor
+            $this->dataProcessorService->killDataProcessorInstance($snapshotKey);
+
+        } catch (AccessDeniedException $e) {
+            throw new AccessDeniedException("The API key used does not have sufficient permissions to manage snapshots.");
+        }
+
+        return ["status" => "success"];
+
     }
 
 

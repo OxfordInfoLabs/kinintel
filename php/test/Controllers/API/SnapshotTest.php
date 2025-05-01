@@ -309,6 +309,35 @@ class SnapshotTest extends TestBase {
 
     }
 
+    public function testCanKillSnapshotForManagementKeyAndSnapshotKey() {
+
+        $this->datasetService->returnValue("getDatasetInstanceByManagementKey",
+            new DatasetInstanceSummary("Test", "testing", null, [], [], [], null, null, [], 38, null, "testmanagement"),
+            ["testmanagement"]);
+
+
+        $instances = [
+            new DataProcessorInstance("mysnapshot", "Example 1", "tabulardatasetsnapshot", ["property1" => "test"], DataProcessorInstance::TRIGGER_ADHOC, null, "DatasetInstance", 38),
+            new DataProcessorInstance("existing-data-processor", "Example 2", "tabulardatasetincrementalsnapshot", ["property2" => "test2"], DataProcessorInstance::TRIGGER_SCHEDULED, new ScheduledTask(new ScheduledTaskSummary("test", "Test", [], [], ScheduledTask::STATUS_RUNNING, "2028-01-01 10:00:00", null, "2020-01-01 10:00:00")), "DatasetInstance", 38)
+        ];
+
+
+        $this->dataProcessorService->returnValue("filterDataProcessorInstances", $instances, [
+            ["type" =>
+                new LikeFilter("type", "%snapshot%"),
+                "relatedObjectType" => "DatasetInstance",
+                "relatedObjectKey" => 38], null, 0, 1000000
+        ]);
+
+        $this->snapshot->killSnapshot("testmanagement", "mysnapshot");
+
+        $this->assertTrue($this->dataProcessorService->methodWasCalled("killDataProcessorInstance", [
+            "mysnapshot"
+        ]));
+
+
+    }
+
     public function testCanRemoveSnapshotForManagementKeyAndSnapshotKey() {
 
 

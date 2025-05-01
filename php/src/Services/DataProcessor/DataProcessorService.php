@@ -154,6 +154,28 @@ class DataProcessorService {
         }
     }
 
+    /**
+     * Kill a data processor using the passed key. Useful for user created data processors
+     *
+     * @param $instanceKey
+     * @return void
+     */
+    public function killDataProcessorInstance($instanceKey) {
+
+        // Get the data processor
+        $dataProcessor = $this->dataProcessorDAO->getDataProcessorInstanceByKey($instanceKey);
+
+        if ($dataProcessor->getProjectKey() && !$this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "dataprocessormanage", $dataProcessor->getProjectKey())) {
+            throw new AccessDeniedException("You have not been granted access to manage data processors.");
+        }
+
+        // Kill the scheduled task if one exists to run in the background
+        if ($dataProcessor->getScheduledTask()) {
+            $this->scheduledTaskService->killScheduledTask($dataProcessor->getScheduledTask()->getId());
+        }
+
+    }
+
 
     /**
      * Remove a data processor instance by instance key.
