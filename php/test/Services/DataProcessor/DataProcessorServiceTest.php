@@ -178,6 +178,22 @@ class DataProcessorServiceTest extends TestBase {
         $this->assertTrue($this->scheduledTaskService->methodWasCalled("triggerScheduledTask", [123]));
     }
 
+    public function testCanKillDataProcessorInstanceWhenProcessorAttachedInDatabase() {
+
+        $existingItem = new DataProcessorInstance("onetokill", "Previous Valid",
+            "sqlquery", ["query" => "SELECT * FROM previous_test", "authenticationCredentialsKey" => "test"],
+            DataProcessorInstance::TRIGGER_ADHOC,
+            new ScheduledTask(new ScheduledTaskSummary("dataprocessor", "updatedone",
+                ["dataProcessorKey" => "onetokill"], [], ScheduledTask::STATUS_COMPLETED, null, "2020-01-01 10:00:00", "2020-01-01 11:00:00", null, 86400, 123), "testProject", 1));
+
+        $this->dataProcessorDao->returnValue("getDataProcessorInstanceByKey", $existingItem, ["onetokill"]);
+
+        // Trigger data processor
+        $this->dataProcessorService->killDataProcessorInstance("onetokill");
+
+        // Check scheduled task was triggered
+        $this->assertTrue($this->scheduledTaskService->methodWasCalled("killScheduledTask", [123]));
+    }
 
     public function testCanRemoveDataProcessorInstance() {
 
