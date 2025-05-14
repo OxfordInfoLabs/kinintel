@@ -78,6 +78,14 @@ export class DatasetFilterComponent implements OnInit {
             this.filter._periodValue = periodValues[0];
             this.filter._period = periodValues[1];
         }
+
+        // If parameter value, make temporary members for binding
+        if (this.filter.inclusionCriteria && this.filter.inclusionCriteria !== "Always") {
+            let splitData = this.filter.inclusionData.split("=");
+            this.filter._inclusionParam = splitData[0];
+            this.filter._inclusionParamValue = splitData.length > 1 ? splitData[1] : "";
+        }
+
     }
 
     public viewColumns(columns) {

@@ -66,16 +66,25 @@ class SQLFilterJunctionEvaluator {
      */
     private function createFilterJunctionStatement($filterJunction, &$parameters, $templateParameters = []) {
 
-        // Create an array of filter clauses
-        $clauses = array_map(function ($filter) use (&$parameters, $templateParameters) {
-            return $this->createFilterStatement($filter, $parameters, $templateParameters);
-        }, $filterJunction->getFilters());
+        if ($filterJunction->meetsInclusionCriteria($templateParameters)) {
 
-        $clauses = array_merge($clauses, array_map(function ($junction) use (&$parameters, $templateParameters) {
-            return "(" . $this->createFilterJunctionStatement($junction, $parameters, $templateParameters) . ")";
-        }, $filterJunction->getFilterJunctions()));
+            // Create an array of filter clauses
+            $clauses = [];
+            foreach ($filterJunction->getFilters() ?? [] as $filter) {
+                if ($filter->meetsInclusionCriteria($templateParameters))
+                    $clauses[] = $this->createFilterStatement($filter, $parameters, $templateParameters);
+            };
 
-        return join(" " . $filterJunction->getLogic() . " ", $clauses);
+            foreach ($filterJunction->getFilterJunctions() ?? [] as $junction) {
+                if ($junction->meetsInclusionCriteria($templateParameters))
+                    $clauses[] = "(" . $this->createFilterJunctionStatement($junction, $parameters, $templateParameters) . ")";
+            }
+
+
+            return join(" " . $filterJunction->getLogic() . " ", $clauses);
+        } else {
+            return "";
+        }
     }
 
     /**

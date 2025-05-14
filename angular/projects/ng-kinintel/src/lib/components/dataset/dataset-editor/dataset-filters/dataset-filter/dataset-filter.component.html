@@ -73,7 +73,8 @@
                     <mat-icon>table_chart</mat-icon>
                     <span>Columns</span>
                 </button>
-                <button *ngIf="parameterValues && parameterValues.length" mat-menu-item [matMenuTriggerFor]="parameterValuesMenu">
+                <button *ngIf="parameterValues && parameterValues.length" mat-menu-item
+                        [matMenuTriggerFor]="parameterValuesMenu">
                     <mat-icon>text_fields</mat-icon>
                     <span>Parameters</span>
                 </button>
@@ -99,8 +100,9 @@
                 </button>
             </mat-menu>
         </div>
-        <div *ngIf="(filter.filterType === 'similarto' || filter.filterType === 'between' || filter.filterType === 'like' || filter.filterType === 'notlike')"
-             class="ml-2 relative w-full">
+        <div
+            *ngIf="(filter.filterType === 'similarto' || filter.filterType === 'between' || filter.filterType === 'like' || filter.filterType === 'notlike')"
+            class="ml-2 relative w-full">
 
             <ng-template [ngIf]="filter.filterType === 'similarto'">
                 <select class="w-full" name="similarityDistance" [(ngModel)]="filter.rhsExpression[1]">
@@ -113,10 +115,10 @@
 
             <ng-template [ngIf]="filter.filterType === 'like' || filter.filterType === 'notlike'">
                 <select class="w-full" name="regexp" [(ngModel)]="filter.rhsExpression[1]">
-                    <option  [value]="'likewildcard'">
+                    <option [value]="'likewildcard'">
                         Wildcard pattern
                     </option>
-                    <option  [value]="'likeregexp'">
+                    <option [value]="'likeregexp'">
                         Regular Expression
                     </option>
 
@@ -206,7 +208,8 @@
         </div>
     </div>
 
-    <mat-select [(ngModel)]="filter.filterType" class="mr-4 p-2" name="filterType" (ngModelChange)="updateFilterType(filter)">
+    <mat-select [(ngModel)]="filter.filterType" class="mr-4 p-2" name="filterType"
+                (ngModelChange)="updateFilterType(filter)">
         <mat-option value="">-- Select Condition --</mat-option>
         <mat-option [value]="filterType.value" *ngFor="let filterType of getFilterTypes()">
             {{ filterType.label }}
@@ -244,10 +247,10 @@
 
     <div *ngIf="filter.filterType === 'like' || filter.filterType === 'notlike'" class="pl-2 pr-8 mr-4 full">
         <select name="regexp" [(ngModel)]="filter.rhsExpression[1]">
-            <option  [value]="'likewildcard'">
+            <option [value]="'likewildcard'">
                 Wildcard pattern
             </option>
-            <option  [value]="'likeregexp'">
+            <option [value]="'likeregexp'">
                 Regular Expression
             </option>
 
@@ -265,6 +268,35 @@
 
 
 </ng-template>
+
+<div *ngIf="!joinFilterFields" class="flex">
+    Depends <input type="checkbox" #depends [checked]="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'"
+                   (click)="filter.inclusionCriteria = depends.checked ? 'ParameterPresent' : 'Always'"/>
+
+    <select *ngIf="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'" [(ngModel)]="filter.inclusionCriteria">
+        <option value="ParameterPresent">Parameter Is Set</option>
+        <option value="ParameterValue">Parameter Has Value</option>
+    </select>
+
+    <select *ngIf="filter.inclusionCriteria == 'ParameterPresent'" [(ngModel)]="filter._inclusionParam" (change)="filter.inclusionData = filter._inclusionParam" >
+        <option *ngFor="let param of parameterValues" [value]="param.name">
+            {{param.title}}
+        </option>
+    </select>
+
+    <select *ngIf="filter.inclusionCriteria == 'ParameterValue'" [(ngModel)]="filter._inclusionParam">
+        <option *ngFor="let param of parameterValues" [value]="param.name">
+            {{param.title}}
+        </option>
+    </select>
+
+
+    <input *ngIf="filter.inclusionCriteria == 'ParameterValue'" [(ngModel)]="filter._inclusionParamValue"
+           (change)="filter.inclusionData = filter._inclusionParam + '=' + filter._inclusionParamValue" />
+
+
+</div>
+
 
 <div>
     <button mat-icon-button color="warn" title="Remove filter" (click)="removeFilter()">
