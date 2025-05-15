@@ -38,7 +38,30 @@
 
     <div class="w-full flex items-start">
         <div class="relative w-full">
-            <input *ngIf="!filter._expType" type="text" [(ngModel)]="filter.rhsExpression[0]" name="filterValue"
+
+
+            <mat-chip-grid *ngIf="filter.filterType === 'in' || filter.filterType === 'notin'"
+                           class="bg-white pl-2" #chipGrid aria-label="Enter values">
+                <mat-chip-row *ngFor="let inValue of filter.rhsExpression"
+                              class="bg-white"
+                              (removed)="removeInValue(inValue)"
+                              [editable]="true"
+                              (edited)="editInValue(inValue, $event)"
+                              [aria-description]="'press enter to edit ' + inValue">
+                    {{inValue}}
+                    <button matChipRemove [attr.aria-label]="'remove ' + inValue">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </mat-chip-row>
+                <input placeholder="Value" class="border-0"
+                       [matChipInputFor]="chipGrid"
+                       [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
+                       [matChipInputAddOnBlur]="true"
+                       (matChipInputTokenEnd)="addInValue($event)"/>
+            </mat-chip-grid>
+
+
+            <input *ngIf="!filter._expType && filter.filterType !== 'in' && filter.filterType !== 'notin'" type="text" [(ngModel)]="filter.rhsExpression[0]" name="filterValue"
                    placeholder="Value"
                    class="pl-2 py-2 pr-8 mr-4 full">
             <input *ngIf="filter._expType === 'date-picker'" type="date" [(ngModel)]="filter.rhsExpression[0]"
@@ -65,11 +88,11 @@
                 <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="updateExpressionType(filter, null, [])">
+                <button *ngIf="filter.filterType !== 'in' && filter.filterType !== 'notin'"  mat-menu-item (click)="updateExpressionType(filter, null, [])">
                     <mat-icon>title</mat-icon>
                     <span>Text</span>
                 </button>
-                <button mat-menu-item [matMenuTriggerFor]="columnMenu">
+                <button *ngIf="filter.filterType !== 'in' && filter.filterType !== 'notin'"  mat-menu-item [matMenuTriggerFor]="columnMenu">
                     <mat-icon>table_chart</mat-icon>
                     <span>Columns</span>
                 </button>
@@ -78,11 +101,11 @@
                     <mat-icon>text_fields</mat-icon>
                     <span>Parameters</span>
                 </button>
-                <button mat-menu-item (click)="updateExpressionType(filter, 'date-picker', [])">
+                <button *ngIf="filter.filterType !== 'in' && filter.filterType !== 'notin'"  mat-menu-item (click)="updateExpressionType(filter, 'date-picker', [])">
                     <mat-icon>calendar_month</mat-icon>
                     <span>Date Picker</span>
                 </button>
-                <button mat-menu-item (click)="updateExpressionType(filter, 'period')">
+                <button *ngIf="filter.filterType !== 'in' && filter.filterType !== 'notin'"  mat-menu-item (click)="updateExpressionType(filter, 'period')">
                     <mat-icon>restore</mat-icon>
                     <span>Time Period</span>
                 </button>
@@ -226,6 +249,8 @@
 
             <input *ngIf="customValue" type="text" [(ngModel)]="filter.rhsExpression[0]"
                    name="filterValue" placeholder="Custom value" class="mr-4 full p-2 font-mono">
+
+
         </div>
         <div class="mt-2 custom-checkbox flex items-center justify-between">
             <div>

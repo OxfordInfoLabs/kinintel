@@ -4,6 +4,8 @@ import * as lodash from 'lodash';
 const _ = lodash.default;
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {Subject} from 'rxjs';
+import {MatChipEditedEvent, MatChipInputEvent} from "@angular/material/chips";
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 
 @Component({
     selector: 'ki-dataset-filter',
@@ -29,7 +31,9 @@ export class DatasetFilterComponent implements OnInit {
         {label: 'Like', value: 'like', string: 'like'},
         {label: 'Not Like', value: 'notlike', string: 'not like'},
         {label: 'Bitwise AND', value: 'bitwiseand', string: 'bitwise and'},
-        {label: 'Bitwise OR', value: 'bitwiseor', string: 'bitwise or'}
+        {label: 'Bitwise OR', value: 'bitwiseor', string: 'bitwise or'},
+        {label: 'Is One Of', value: 'in', string: 'in'},
+        {label: 'Is Not One Of', value: 'notin', string: 'not in'}
     ];
 
     @Input() filter: any;
@@ -46,6 +50,8 @@ export class DatasetFilterComponent implements OnInit {
     public customValue = false;
     public customLhs = false;
     public _ = _;
+    public COMMA = COMMA;
+    public ENTER = ENTER;
 
     constructor(private dialog: MatDialog) {
     }
@@ -101,7 +107,7 @@ export class DatasetFilterComponent implements OnInit {
 
     updateFilterType(filter: any) {
         if (filter.filterType !== 'similarto' && filter.filterType !== 'between'
-            && filter.filterType !== 'like' && filter.filterType !== 'notlike') {
+            && filter.filterType !== 'like' && filter.filterType !== 'notlike' && filter.filterType !== 'in' && filter.filterType !== 'notin') {
             if (filter.rhsExpression && filter.rhsExpression.length > 1) {
                 filter.rhsExpression = filter.rhsExpression.slice(0, 1);
             }
@@ -123,13 +129,73 @@ export class DatasetFilterComponent implements OnInit {
         if (type === 'period') {
             filter.rhsExpression[fieldIndex] = `${filter._periodValue || 1}_${filter._period || 'DAYS'}_AGO`;
         } else {
-            filter.rhsExpression[fieldIndex] = value;
+            if (filter.filterType == 'in' || filter.filterType == 'notin'){
+                filter.rhsExpression.push(value);
+            } else {
+                filter.rhsExpression[fieldIndex] = value;
+            }
         }
     }
 
     public updatePeriodValue(value, period, filter, fieldIndex = 0) {
         filter.rhsExpression[fieldIndex] = `${value}_${period}_AGO`;
     }
+
+
+    /**
+     * Add an in value
+     *
+     * @param event
+     */
+    public addInValue(event: MatChipInputEvent) {
+        const value = (event.value || '').trim();
+
+        // Add our fruit
+        if (value) {
+            this.filter.rhsExpression.push(value);
+        }
+
+        // Clear the input value
+        event.chipInput!.clear();
+    }
+
+    /**
+     * Remove an in value
+     *
+     * @param inValue
+     */
+    public removeInValue(inValue: string) {
+
+        const index = this.filter.rhsExpression.indexOf(inValue);
+
+        if (index >= 0) {
+            this.filter.rhsExpression.splice(index, 1);
+        }
+    }
+
+    /**
+     * Edit an in value
+     *
+     * @param inValue
+     * @param event
+     */
+    public editInValue(inValue: string, event: MatChipEditedEvent) {
+        const value = event.value.trim();
+
+        // Remove fruit if it no longer has a name
+        if (!value) {
+            this.removeInValue(inValue);
+            return;
+        }
+
+        // Edit existing fruit
+        const index = this.filter.rhsExpression.indexOf(inValue);
+        if (index >= 0) {
+            this.filter.rhsExpression[index].name = value;
+        }
+
+    }
+
 
     public removeFilter() {
         this.filterJunction.filters.splice(this.filterIndex, 1);
