@@ -189,10 +189,12 @@ class SQLFilterJunctionEvaluator {
                 $clause = "$lhsExpression BETWEEN ? AND ?";
                 break;
             case Filter::FILTER_TYPE_IN:
-                $clause = "$lhsExpression IN (" . $rhsExpression . ")";
+                if (trim($rhsExpression))
+                    $clause = "$lhsExpression IN (" . $rhsExpression . ")";
                 break;
             case Filter::FILTER_TYPE_NOT_IN:
-                $clause = "$lhsExpression NOT IN (" . $rhsExpression . ")";
+                if (trim($rhsExpression))
+                    $clause = "$lhsExpression NOT IN (" . $rhsExpression . ")";
                 break;
             default:
                 $clause = "$lhsExpression = $rhsExpression";

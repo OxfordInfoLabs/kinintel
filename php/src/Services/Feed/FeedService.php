@@ -23,8 +23,8 @@ class FeedService {
      * @param GoogleRecaptchaProvider $captchaProvider
      */
     public function __construct(
-        private DatasetService $datasetService,
-        private SecurityService $securityService,
+        private DatasetService          $datasetService,
+        private SecurityService         $securityService,
         private GoogleRecaptchaProvider $captchaProvider
     ) {
     }
@@ -201,7 +201,14 @@ class FeedService {
         // Ensure we fill all parameter values with exposed parameter values
         $exportParameters = [];
         foreach ($feed->getExposedParameterNames() as $exposedParameterName) {
-            $exportParameters[$exposedParameterName] = $parameterValues[$exposedParameterName] ?? "";
+
+            if (isset($parameterValues[$exposedParameterName])) {
+                $parameterValue = str_getcsv($parameterValues[$exposedParameterName], ",", '"');
+                $exportParameters[$exposedParameterName] = sizeof($parameterValue) == 1 ? $parameterValue[0] : $parameterValue;
+            } else {
+                $exportParameters[$exposedParameterName] = "";
+            }
+
         }
 
         // Limit the limit

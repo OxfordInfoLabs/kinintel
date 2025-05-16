@@ -38,6 +38,8 @@ import {
 import {
     RemoveTransformationWarningComponent
 } from '../dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
+import {COMMA, ENTER} from "@angular/cdk/keycodes";
+import {MatChipInputEvent} from "@angular/material/chips";
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -740,7 +742,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
                 .then((data: any) => {
                     const list = _.map(data.allData, item => {
-                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                        return {
+                            label: item[parameter.settings.labelColumn],
+                            value: item[parameter.settings.valueColumn]
+                        };
                     });
                     parameter.list = _.uniqWith(list, _.isEqual);
                 });
@@ -932,6 +937,41 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
             return false;
         });
+    }
+
+
+    /**
+     * Add an in value
+     *
+     * @param event
+     */
+    public addParameterValue(parameter: any, event: any) {
+
+        const value = (event.value || event.target.value || '').trim();
+
+        // Add our fruit
+        if (value) {
+            parameter.value.push(value);
+        }
+
+
+        // Clear the input value
+        if (event.chipInput)
+            event.chipInput!.clear();
+    }
+
+    /**
+     * Remove an in value
+     *
+     * @param inValue
+     */
+    public removeParameterValue(parameter: any, value: string) {
+
+        const index = parameter.value.indexOf(value);
+
+        if (index >= 0) {
+            parameter.value.splice(index, 1);
+        }
     }
 
     public async evaluateDataset(resetPager?: boolean) {
@@ -1157,6 +1197,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     protected readonly decodeURI = decodeURI;
+    protected readonly ENTER = ENTER;
+    protected readonly COMMA = COMMA;
 }
 
 @Component({

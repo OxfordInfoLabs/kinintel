@@ -159,10 +159,14 @@ class DatasetServiceTest extends TestBase {
             [
                 "filters" => [["lhsExpression" => "property",
                     "rhsExpression" => "foobar",
-                    "filterType" => "eq"]],
+                    "filterType" => "eq",
+                    "inclusionCriteria" => "Always",
+                    "inclusionData" => null]],
                 "logic" => "AND",
                 "filterJunctions" => [],
-                "sQLTransformationProcessorKey" => "filter"
+                "sQLTransformationProcessorKey" => "filter",
+                "inclusionCriteria" => "Always",
+                "inclusionData" => null
             ]
         ), $transformationInstance);
 

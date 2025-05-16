@@ -25,7 +25,7 @@ trait InclusionCriteria {
     }
 
     /**
-     * @return mixed|string|null
+     * @return mixed
      */
     public function getInclusionData(): mixed {
         return $this->inclusionData;
