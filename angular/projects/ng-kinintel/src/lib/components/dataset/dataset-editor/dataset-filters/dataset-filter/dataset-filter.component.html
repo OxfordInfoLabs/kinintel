@@ -41,9 +41,9 @@
 
 
             <mat-chip-grid *ngIf="filter.filterType === 'in' || filter.filterType === 'notin'"
-                           class="bg-white pl-2" #chipGrid aria-label="Enter values">
+                           class="bg-white pl-2 py-0.5 rounded border border-gray-200" #chipGrid aria-label="Enter values">
                 <mat-chip-row *ngFor="let inValue of filter.rhsExpression"
-                              class="bg-white"
+                              class="bg-white my-0"
                               (removed)="removeInValue(inValue)"
                               [editable]="true"
                               (edited)="editInValue(inValue, $event)"
@@ -53,7 +53,7 @@
                         <mat-icon>cancel</mat-icon>
                     </button>
                 </mat-chip-row>
-                <input placeholder="Value" class="border-0"
+                <input placeholder="Value" class="ml-0 border-0 pl-2 py-1.5 self-center"
                        [matChipInputFor]="chipGrid"
                        [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
                        [matChipInputAddOnBlur]="true"
@@ -294,31 +294,9 @@
 
 </ng-template>
 
-<div *ngIf="!joinFilterFields" class="flex">
-    Depends <input type="checkbox" #depends [checked]="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'"
-                   (click)="filter.inclusionCriteria = depends.checked ? 'ParameterPresent' : 'Always'"/>
+<div *ngIf="!joinFilterFields" class="flex items-start">
 
-    <select *ngIf="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'" [(ngModel)]="filter.inclusionCriteria">
-        <option value="ParameterPresent">Parameter Is Set</option>
-        <option value="ParameterValue">Parameter Has Value</option>
-    </select>
-
-    <select *ngIf="filter.inclusionCriteria == 'ParameterPresent'" [(ngModel)]="filter._inclusionParam" (change)="filter.inclusionData = filter._inclusionParam" >
-        <option *ngFor="let param of parameterValues" [value]="param.name">
-            {{param.title}}
-        </option>
-    </select>
-
-    <select *ngIf="filter.inclusionCriteria == 'ParameterValue'" [(ngModel)]="filter._inclusionParam">
-        <option *ngFor="let param of parameterValues" [value]="param.name">
-            {{param.title}}
-        </option>
-    </select>
-
-
-    <input *ngIf="filter.inclusionCriteria == 'ParameterValue'" [(ngModel)]="filter._inclusionParamValue"
-           (change)="filter.inclusionData = filter._inclusionParam + '=' + filter._inclusionParamValue" />
-
+    <ki-dataset-filter-inclusion [filter]="filter" [parameterValues]="parameterValues"></ki-dataset-filter-inclusion>
 
 </div>
 

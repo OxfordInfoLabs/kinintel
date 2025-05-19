@@ -106,6 +106,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import { RemoveTransformationWarningComponent } from './components/dataset/dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
 import { ExportProjectComponent } from './components/export-project/export-project.component';
 import { ChangeSourceWarningComponent } from './components/data-explorer/change-source-warning/change-source-warning.component';
+import { DatasetFilterInclusionComponent } from './components/dataset/dataset-editor/dataset-filters/dataset-filter-inclusion/dataset-filter-inclusion.component';
 
 
 @NgModule({
@@ -178,7 +179,8 @@ import { ChangeSourceWarningComponent } from './components/data-explorer/change-
         AdvancedSettingsComponent,
         RemoveTransformationWarningComponent,
         ExportProjectComponent,
-        ChangeSourceWarningComponent
+        ChangeSourceWarningComponent,
+        DatasetFilterInclusionComponent
     ],
     imports: [
         BrowserModule,

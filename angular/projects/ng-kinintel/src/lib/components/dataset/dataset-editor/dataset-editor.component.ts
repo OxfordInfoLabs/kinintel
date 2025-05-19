@@ -718,7 +718,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe(parameter => {
             if (parameter) {
                 if (!clonedParameter) {
-                    parameter.value = parameter.defaultValue || '';
+                    if (parameter.defaultValue) {
+                        parameter.value = parameter.defaultValue;
+                    }
 
                     this.parameterValues.push(parameter);
                     this.datasetInstanceSummary.parameters.push(parameter);
@@ -733,6 +735,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 if (parameter.type === 'list') {
                     this.loadListParameters(parameter);
                 }
+
+                this.setAvailableFilterParameters();
             }
         });
     }
@@ -942,28 +946,24 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
     /**
      * Add an in value
-     *
-     * @param event
      */
     public addParameterValue(parameter: any, event: any) {
 
-        const value = (event.value || event.target.value || '').trim();
+        const value = (event.value || event.target?.value || '').trim();
 
-        // Add our fruit
-        if (value) {
+        if (value && value !== 'null' && parameter.value.indexOf(value) === -1) {
             parameter.value.push(value);
         }
 
-
         // Clear the input value
-        if (event.chipInput)
+        if (event.chipInput) {
             event.chipInput!.clear();
+        }
     }
 
     /**
      * Remove an in value
      *
-     * @param inValue
      */
     public removeParameterValue(parameter: any, value: string) {
 
@@ -981,10 +981,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
 
             const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
-            const filterParameterValues = _.map(_.concat(_.values(this.dashboardParameters), _.values(this.parameterValues)), param => {
-                return {name: param.name, title: param.title};
-            });
-            this.filterParameterValues = _.uniqBy(filterParameterValues, 'name');
+            this.setAvailableFilterParameters();
 
             const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
             let finished = false;
@@ -1063,6 +1060,13 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 }
             }, 3000);
         });
+    }
+
+    private setAvailableFilterParameters() {
+        const filterParameterValues = _.map(_.concat(_.values(this.dashboardParameters), _.values(this.parameterValues)), param => {
+            return {name: param.name, title: param.title};
+        });
+        this.filterParameterValues = _.uniqBy(filterParameterValues, 'name');
     }
 
     private _removeTransformation(transformation, index?) {

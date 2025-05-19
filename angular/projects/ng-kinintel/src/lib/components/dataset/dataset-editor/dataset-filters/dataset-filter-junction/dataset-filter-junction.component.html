@@ -11,31 +11,9 @@
 
         </div>
 
-        <div *ngIf="!joinFilterFields" class="flex">
-            Depends <input type="checkbox" #depends [checked]="filterJunction.inclusionCriteria && filterJunction.inclusionCriteria !== 'Always'"
-                           (click)="filterJunction.inclusionCriteria = depends.checked ? 'ParameterPresent' : 'Always'"/>
-
-            <select *ngIf="filterJunction.inclusionCriteria && filterJunction.inclusionCriteria !== 'Always'" [(ngModel)]="filterJunction.inclusionCriteria">
-                <option value="ParameterPresent">Parameter Is Set</option>
-                <option value="ParameterValue">Parameter Has Value</option>
-            </select>
-
-            <select *ngIf="filterJunction.inclusionCriteria == 'ParameterPresent'" [(ngModel)]="filterJunction._inclusionParam" (change)="filterJunction.inclusionData = filterJunction._inclusionParam" >
-                <option *ngFor="let param of parameterValues" [value]="param.name">
-                    {{param.title}}
-                </option>
-            </select>
-
-            <select *ngIf="filterJunction.inclusionCriteria == 'ParameterValue'" [(ngModel)]="filterJunction._inclusionParam">
-                <option *ngFor="let param of parameterValues" [value]="param.name">
-                    {{param.title}}
-                </option>
-            </select>
-
-
-            <input *ngIf="filterJunction.inclusionCriteria == 'ParameterValue'" [(ngModel)]="filterJunction._inclusionParamValue"
-                   (change)="filterJunction.inclusionData = filterJunction._inclusionParam + '=' + filterJunction._inclusionParamValue" />
-
+        <div *ngIf="!joinFilterFields" class="flex {{(filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'mt-0': 'mt-2'}}">
+            <ki-dataset-filter-inclusion class="-ml-2" [filter]="filterJunction" [parameterValues]="parameterValues"
+                                         dependsString="Filter group depends"></ki-dataset-filter-inclusion>
 
         </div>
 
