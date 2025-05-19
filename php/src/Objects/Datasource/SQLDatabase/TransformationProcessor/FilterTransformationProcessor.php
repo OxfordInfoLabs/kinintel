@@ -46,31 +46,35 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
 
         $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation, $parameterValues);
 
-        // Wrap query if required
-        if ($this->queryWrapRequired($dataSource, $transformation)) {
-            $query = new SQLQuery("*", "(" . $query->getSQL() . ") E" . ++$this->aliasIndex, $query->getParameters());
-        }
+        // If SQL returned, continue
+        if ($evaluated["sql"]) {
 
-        if ($query->hasGroupByClause()) {
-
-            $sql = $evaluated["sql"];
-            $params = $evaluated["parameters"];
-            if ($havingClause = $query->getHavingClause()) {
-                $sql = "(" . $havingClause . ") AND (" . $sql . ")";
-                $params = array_merge($query->getParametersByClauseType(SQLQuery::HAVING_CLAUSE), $params);
+            // Wrap query if required
+            if ($this->queryWrapRequired($dataSource, $transformation)) {
+                $query = new SQLQuery("*", "(" . $query->getSQL() . ") E" . ++$this->aliasIndex, $query->getParameters());
             }
 
-            $query->setHavingClause($sql, $params);
-        } else {
+            if ($query->hasGroupByClause()) {
 
-            $sql = $evaluated["sql"];
-            $params = $evaluated["parameters"];
-            if ($whereClause = $query->getWhereClause()) {
-                $sql = "(" . $whereClause . ") AND (" . $sql . ")";
-                $params = array_merge($query->getParametersByClauseType(SQLQuery::WHERE_CLAUSE), $params);
+                $sql = $evaluated["sql"];
+                $params = $evaluated["parameters"];
+                if ($havingClause = $query->getHavingClause()) {
+                    $sql = "(" . $havingClause . ") AND (" . $sql . ")";
+                    $params = array_merge($query->getParametersByClauseType(SQLQuery::HAVING_CLAUSE), $params);
+                }
+
+                $query->setHavingClause($sql, $params);
+            } else {
+
+                $sql = $evaluated["sql"];
+                $params = $evaluated["parameters"];
+                if ($whereClause = $query->getWhereClause()) {
+                    $sql = "(" . $whereClause . ") AND (" . $sql . ")";
+                    $params = array_merge($query->getParametersByClauseType(SQLQuery::WHERE_CLAUSE), $params);
+                }
+
+                $query->setWhereClause($sql, $params);
             }
-
-            $query->setWhereClause($sql, $params);
         }
 
         return $query;

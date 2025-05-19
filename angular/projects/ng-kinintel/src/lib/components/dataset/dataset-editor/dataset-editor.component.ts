@@ -38,6 +38,8 @@ import {
 import {
     RemoveTransformationWarningComponent
 } from '../dataset-editor/remove-transformation-warning/remove-transformation-warning.component';
+import {COMMA, ENTER} from "@angular/cdk/keycodes";
+import {MatChipInputEvent} from "@angular/material/chips";
 
 @Component({
     selector: 'ki-dataset-editor',
@@ -716,7 +718,9 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe(parameter => {
             if (parameter) {
                 if (!clonedParameter) {
-                    parameter.value = parameter.defaultValue || '';
+                    if (parameter.defaultValue) {
+                        parameter.value = parameter.defaultValue;
+                    }
 
                     this.parameterValues.push(parameter);
                     this.datasetInstanceSummary.parameters.push(parameter);
@@ -731,6 +735,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 if (parameter.type === 'list') {
                     this.loadListParameters(parameter);
                 }
+
+                this.setAvailableFilterParameters();
             }
         });
     }
@@ -740,7 +746,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             return this.datasetService.evaluateDataset(parameter.settings.datasetInstance, '0', '100000')
                 .then((data: any) => {
                     const list = _.map(data.allData, item => {
-                        return {label: item[parameter.settings.labelColumn], value: item[parameter.settings.valueColumn]};
+                        return {
+                            label: item[parameter.settings.labelColumn],
+                            value: item[parameter.settings.valueColumn]
+                        };
                     });
                     parameter.list = _.uniqWith(list, _.isEqual);
                 });
@@ -934,6 +943,37 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         });
     }
 
+
+    /**
+     * Add an in value
+     */
+    public addParameterValue(parameter: any, event: any) {
+
+        const value = (event.value || event.target?.value || '').trim();
+
+        if (value && value !== 'null' && parameter.value.indexOf(value) === -1) {
+            parameter.value.push(value);
+        }
+
+        // Clear the input value
+        if (event.chipInput) {
+            event.chipInput!.clear();
+        }
+    }
+
+    /**
+     * Remove an in value
+     *
+     */
+    public removeParameterValue(parameter: any, value: string) {
+
+        const index = parameter.value.indexOf(value);
+
+        if (index >= 0) {
+            parameter.value.splice(index, 1);
+        }
+    }
+
     public async evaluateDataset(resetPager?: boolean) {
         return new Promise(async (resolve, reject) => {
             if (resetPager) {
@@ -941,10 +981,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
             }
 
             const clonedDatasetInstance = await this.prepareDatasetInstanceForEvaluation();
-            const filterParameterValues = _.map(_.concat(_.values(this.dashboardParameters), _.values(this.parameterValues)), param => {
-                return {name: param.name, title: param.title};
-            });
-            this.filterParameterValues = _.uniqBy(filterParameterValues, 'name');
+            this.setAvailableFilterParameters();
 
             const trackingKey = Date.now() + (Math.random() + 1).toString(36).substr(2, 5);
             let finished = false;
@@ -1023,6 +1060,13 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
                 }
             }, 3000);
         });
+    }
+
+    private setAvailableFilterParameters() {
+        const filterParameterValues = _.map(_.concat(_.values(this.dashboardParameters), _.values(this.parameterValues)), param => {
+            return {name: param.name, title: param.title};
+        });
+        this.filterParameterValues = _.uniqBy(filterParameterValues, 'name');
     }
 
     private _removeTransformation(transformation, index?) {
@@ -1157,6 +1201,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     }
 
     protected readonly decodeURI = decodeURI;
+    protected readonly ENTER = ENTER;
+    protected readonly COMMA = COMMA;
 }
 
 @Component({

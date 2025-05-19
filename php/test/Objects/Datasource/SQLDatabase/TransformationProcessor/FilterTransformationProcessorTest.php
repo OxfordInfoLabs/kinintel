@@ -18,6 +18,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\InclusionCriteriaType;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 
@@ -246,7 +247,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testBitwiseAndFilterAppliedCorrectly(){
+    public function testBitwiseAndFilterAppliedCorrectly() {
 
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
@@ -260,7 +261,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
-    public function testBitwiseOrFilterAppliedCorrectly(){
+    public function testBitwiseOrFilterAppliedCorrectly() {
 
         $processor = new FilterTransformationProcessor($this->templateParser);
         $query = $processor->updateQuery(new FilterTransformation([
@@ -303,6 +304,53 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
     }
+
+
+    public function testFiltersWithInclusionCriteriaAppliedCorrectly(){
+
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+
+        // Test one without parameters set, confirm no where clause written
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN,InclusionCriteriaType::ParameterPresent, "test")
+        ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data", $query->getSQL());
+        $this->assertEquals([], $query->getParameters());
+
+
+        // Now one with a parameter set
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN,InclusionCriteriaType::ParameterPresent, "test")
+        ]), new SQLQuery("*", "test_data"), ["test" => 1], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE \"weight\" > ?", $query->getSQL());
+        $this->assertEquals([10], $query->getParameters());
+
+
+        // A conditional filter junction without parameters set
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
+        ],[], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
+            new SQLQuery("*", "test_data"), [], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data", $query->getSQL());
+        $this->assertEquals([], $query->getParameters());
+
+
+        // And with a parameter set
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
+        ],[], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
+            new SQLQuery("*", "test_data"), ["test" => 1], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE \"weight\" > ?", $query->getSQL());
+        $this->assertEquals([10], $query->getParameters());
+
+    }
+
+
 
 
     public function testNestedFilterJunctionsAreAppliedCorrectlyAsExpected() {

@@ -8,6 +8,8 @@ use Kinikit\Core\Util\Primitive;
 
 class Filter {
 
+    use InclusionCriteria;
+
     /**
      * LHS expression for filter
      *
@@ -60,14 +62,18 @@ class Filter {
     const LIKE_MATCH_WILDCARD = "likewildcard";
     const LIKE_MATCH_REGEXP = "likeregexp";
 
+
+
     /**
      * Filter constructor.
      *
      * @param string $lhsExpression
      * @param mixed $rhsExpression
      * @param string $filterType
+     * @poram InclusionCriteriaType $inclusionCriteria
+     * @param string $inclusionData
      */
-    public function __construct($lhsExpression, $rhsExpression, $filterType = null) {
+    public function __construct(mixed $lhsExpression, mixed $rhsExpression, ?string $filterType = null, ?InclusionCriteriaType $inclusionCriteria = InclusionCriteriaType::Always, mixed $inclusionData = null) {
         $this->lhsExpression = $lhsExpression;
         $this->rhsExpression = $rhsExpression;
 
@@ -80,6 +86,8 @@ class Filter {
         }
 
         $this->filterType = $filterType;
+        $this->inclusionCriteria = $inclusionCriteria;
+        $this->inclusionData = $inclusionData;
 
     }
 
@@ -103,6 +111,8 @@ class Filter {
     public function getFilterType() {
         return $this->filterType;
     }
+
+
 
 
 }
