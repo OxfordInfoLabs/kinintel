@@ -10,6 +10,13 @@
             </mat-button-toggle-group>
 
         </div>
+
+        <div *ngIf="!joinFilterFields" class="flex {{(filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'mt-0': 'mt-2'}}">
+            <ki-dataset-filter-inclusion class="-ml-2" [filter]="filterJunction" [parameterValues]="parameterValues"
+                                         dependsString="Filter group depends"></ki-dataset-filter-inclusion>
+
+        </div>
+
         <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
 
             <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"

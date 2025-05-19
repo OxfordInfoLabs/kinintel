@@ -6,9 +6,13 @@ namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
+use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\FilterTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
+use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\InclusionCriteriaType;
 
 include_once "autoloader.php";
 
@@ -175,7 +179,6 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ])));
 
 
-
         // OPEN LIKE EXPLICIT WILCARD TYPE
         $this->assertEquals([
             "sql" => "\"name\" LIKE ?",
@@ -311,6 +314,58 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
     }
 
+    public function testFiltersOmittedIfInclusionCriteriaNotMet() {
+
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
+
+        // No parameters passed, first clause only expected.
+        $this->assertEquals([
+            "sql" => "\"name\" = ?",
+            "parameters" => [
+                "Joe Bloggs"
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "Joe Bloggs"),
+            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "testParam"),
+            new Filter("[[shoeSize]]", 25, Filter::FILTER_TYPE_EQUALS, InclusionCriteriaType::ParameterValue, "testParam=55"),
+        ]), []));
+
+
+        // Parameter set, should include two clauses
+        $this->assertEquals([
+            "sql" => "\"name\" = ? AND \"age\" IN (?,?,?,?)",
+            "parameters" => [
+                "Joe Bloggs",
+                5,
+                7,
+                9,
+                11
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "Joe Bloggs"),
+            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "testParam"),
+            new Filter("[[shoeSize]]", 25, Filter::FILTER_TYPE_EQUALS, InclusionCriteriaType::ParameterValue, "testParam=55"),
+        ]), ["testParam" => 1]));
+
+
+        // Parameter value set correctly, should include three clauses
+        $this->assertEquals([
+            "sql" => "\"name\" = ? AND \"age\" IN (?,?,?,?) AND \"shoeSize\" = ?",
+            "parameters" => [
+                "Joe Bloggs",
+                5,
+                7,
+                9,
+                11,
+                25
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "Joe Bloggs"),
+            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "testParam"),
+            new Filter("[[shoeSize]]", 25, Filter::FILTER_TYPE_EQUALS, InclusionCriteriaType::ParameterValue, "testParam=55"),
+        ]), ["testParam" => 55]));
+    }
+
 
     public function testNestedJunctionsAreEvaluatedCorrectly() {
 
@@ -339,6 +394,93 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ],
             FilterJunction::LOGIC_OR
         )));
+
+    }
+
+
+    public function testJunctionsIncludedSelectivelyIfInclusionRulesDefined() {
+
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
+
+
+        // No params passed
+        $this->assertEquals([
+            "sql" => "(\"dob\" > ?)",
+            "parameters" => [
+                '2000-01-01'
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([],
+            [
+                new FilterJunction([
+                    new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                ]),
+                new FilterJunction([
+                    new Filter("[[name]]", "Joe Bloggs"),
+                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "testParam"),
+                new FilterJunction([
+                    new Filter("[[shoeSize]]", "25"),
+                ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterValue, "testParam=5")
+            ]
+
+        ), []));
+
+
+        $this->assertEquals([
+            "sql" => "(\"dob\" > ?) AND (\"name\" = ? AND \"age\" IN (?,?,?,?))",
+            "parameters" => [
+                '2000-01-01',
+                'Joe Bloggs',
+                5,
+                7,
+                9,
+                11
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([],
+            [
+                new FilterJunction([
+                    new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                ]),
+                new FilterJunction([
+                    new Filter("[[name]]", "Joe Bloggs"),
+                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "testParam"),
+                new FilterJunction([
+                    new Filter("[[shoeSize]]", "25"),
+                ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterValue, "testParam=5")
+            ]
+
+        ), ["testParam" => 1]));
+
+
+        $this->assertEquals([
+            "sql" => "(\"dob\" > ?) AND (\"name\" = ? AND \"age\" IN (?,?,?,?)) AND (\"shoeSize\" = ?)",
+            "parameters" => [
+                '2000-01-01',
+                'Joe Bloggs',
+                5,
+                7,
+                9,
+                11,
+                25
+            ]
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([],
+            [
+                new FilterJunction([
+                    new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                ]),
+                new FilterJunction([
+                    new Filter("[[name]]", "Joe Bloggs"),
+                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "testParam"),
+                new FilterJunction([
+                    new Filter("[[shoeSize]]", "25"),
+                ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterValue, "testParam=5")
+            ]
+
+        ), ["testParam" => 5]));
+
+
 
     }
 

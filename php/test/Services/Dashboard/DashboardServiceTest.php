@@ -174,11 +174,15 @@ class DashboardServiceTest extends TestBase {
             "filters" => [[
                 "lhsExpression" => "value",
                 "rhsExpression" => "bingo",
-                "filterType" => "eq"
+                "filterType" => "eq",
+                "inclusionCriteria" => "Always",
+                "inclusionData" => null
             ]],
             "logic" => "AND",
             "filterJunctions" => [],
-            "sQLTransformationProcessorKey" => "filter"
+            "sQLTransformationProcessorKey" => "filter",
+            "inclusionCriteria" => "Always",
+            "inclusionData" => null
         ])], $dashboardDatasetInstance->getTransformationInstances());
 
         $dashboardDatasetInstance = $reDashboard->getDatasetInstances()[1];
@@ -190,11 +194,15 @@ class DashboardServiceTest extends TestBase {
             "filters" => [[
                 "lhsExpression" => "value",
                 "rhsExpression" => "bingo",
-                "filterType" => "eq"
+                "filterType" => "eq",
+                "inclusionCriteria" => "Always",
+                "inclusionData" => null
             ]],
             "logic" => "AND",
             "filterJunctions" => [],
-            "sQLTransformationProcessorKey" => "filter"
+            "sQLTransformationProcessorKey" => "filter",
+            "inclusionCriteria" => "Always",
+            "inclusionData" => null
         ])], $dashboardDatasetInstance->getTransformationInstances());
 
 

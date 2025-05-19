@@ -19,6 +19,13 @@ export class DatasetFiltersComponent implements OnInit {
     }
 
     ngOnInit(): void {
+
+        // If parameter value, make temporary members for binding
+        if (this.filterJunction.inclusionCriteria && this.filterJunction.inclusionCriteria !== "Always") {
+            let splitData = this.filterJunction.inclusionData.split("=");
+            this.filterJunction._inclusionParam = splitData[0];
+            this.filterJunction._inclusionParamValue = splitData.length > 1 ? splitData[1] : "";
+        }
     }
 
     public addFilter(type) {

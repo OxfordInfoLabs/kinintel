@@ -9,6 +9,8 @@ namespace Kinintel\ValueObjects\Transformation\Filter;
  */
 class FilterJunction {
 
+    use InclusionCriteria;
+
     /**
      * One of the logic constants below
      *
@@ -44,11 +46,15 @@ class FilterJunction {
      * @param Filter[] $filters
      * @param FilterJunction[] $filterJunctions
      * @param string $logic
+     * @param InclusionCriteriaType $inclusionCriteria
+     * @param mixed $inclusionData
      */
-    public function __construct($filters = [], $filterJunctions = [], $logic = self::LOGIC_AND) {
+    public function __construct(array $filters = [], array $filterJunctions = [], string $logic = self::LOGIC_AND, ?InclusionCriteriaType $inclusionCriteria = InclusionCriteriaType::Always, mixed $inclusionData = null) {
         $this->logic = $logic;
         $this->filters = $filters;
         $this->filterJunctions = $filterJunctions;
+        $this->inclusionData = $inclusionData;
+        $this->inclusionCriteria = $inclusionCriteria;
     }
 
     /**

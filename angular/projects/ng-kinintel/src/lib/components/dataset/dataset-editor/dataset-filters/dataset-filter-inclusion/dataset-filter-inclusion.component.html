@@ -1,0 +1,33 @@
+<ng-template [ngIf]="parameterValues.length">
+    <div class="m-2">
+        <mat-checkbox #depends [checked]="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'"
+                      (change)="filter.inclusionCriteria = depends.checked ? 'ParameterPresent' : 'Always'">
+            <span class="font-normal">{{ dependsString }}</span>
+        </mat-checkbox>
+    </div>
+
+    <select *ngIf="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'"
+            class="mr-1 py-2" [(ngModel)]="filter.inclusionCriteria">
+        <option value="ParameterPresent">Parameter Is Set</option>
+        <option value="ParameterValue">Parameter Has Value</option>
+    </select>
+
+    <select *ngIf="filter.inclusionCriteria == 'ParameterPresent'" class="mr-1 py-2"
+            [(ngModel)]="filter._inclusionParam" (change)="filter.inclusionData = filter._inclusionParam">
+        <option *ngFor="let param of parameterValues" [value]="param.name">
+            {{ param.title }}
+        </option>
+    </select>
+
+    <select *ngIf="filter.inclusionCriteria == 'ParameterValue'" class="mr-1 py-2"
+            [(ngModel)]="filter._inclusionParam">
+        <option *ngFor="let param of parameterValues" [value]="param.name">
+            {{ param.title }}
+        </option>
+    </select>
+
+    <input *ngIf="filter.inclusionCriteria == 'ParameterValue'"
+           placeholder="Enter value"
+           class="py-2" [(ngModel)]="filter._inclusionParamValue"
+           (change)="filter.inclusionData = filter._inclusionParam + '=' + filter._inclusionParamValue"/>
+</ng-template>

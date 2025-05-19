@@ -154,16 +154,18 @@
                     </div>
                 </div>
 
-                <ng-template [ngIf]="parameter.type !== 'list'">
+                <ng-template [ngIf]="parameter.type !== 'date' && parameter.type !== 'datetime' && parameter.type !== 'boolean'">
 
                     <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                         <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                             Is this parameter multiple
                         </label>
                         <div class="mt-1 sm:col-span-2 sm:mt-0">
-                            <mat-slide-toggle [(ngModel)]="parameter.multiple">Multiple</mat-slide-toggle>
+                            <mat-slide-toggle [(ngModel)]="parameter.multiple" (change)="multipleStatusUpdated()">Multiple</mat-slide-toggle>
                         </div>
                     </div>
+                </ng-template>
+                <ng-template [ngIf]="parameter.type !== 'list'">
                     <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
                         <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                             Enter a default value for this parameter
@@ -173,8 +175,9 @@
                                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
                         </div>
                     </div>
-
                 </ng-template>
+
+
             </div>
         </div>
     </div>
