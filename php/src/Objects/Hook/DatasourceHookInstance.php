@@ -3,6 +3,7 @@
 namespace Kinintel\Objects\Hook;
 
 
+use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
 /**
@@ -11,11 +12,18 @@ use Kinikit\Persistence\ORM\ActiveRecord;
  */
 class DatasourceHookInstance extends ActiveRecord {
 
+    use AccountProject;
+
 
     /**
      * @var int
      */
     protected ?int $id = null;
+
+    /**
+     * @var string
+     */
+    protected ?string $title = null;
 
     /**
      * @var string
@@ -72,9 +80,13 @@ class DatasourceHookInstance extends ActiveRecord {
      * @param int $scheduledTaskId
      * @param string $hookMode
      * @param bool $enabled
+     * @param bool $executeInsecure
+     * @param int $accountId
+     * @param string $projectKey
      */
-    public function __construct(?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?string $scheduledTaskId = null, ?string $hookMode = null, $enabled = true,
-                                        $executeInsecure = false) {
+    public function __construct(?string $title = null, ?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?int $scheduledTaskId = null,
+                                string  $hookMode = self::HOOK_MODE_ALL, bool $enabled = true, bool $executeInsecure = false, ?int $accountId = null, ?string $projectKey = null, $id = null) {
+        $this->title = $title;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
         $this->scheduledTaskId = $scheduledTaskId;
@@ -83,17 +95,32 @@ class DatasourceHookInstance extends ActiveRecord {
         $this->hookConfig = $hookConfig;
         $this->enabled = $enabled;
         $this->executeInsecure = $executeInsecure;
+        $this->accountId = $accountId;
+        $this->projectKey = $projectKey;
+        $this->id = $id;
     }
 
     public function getId(): ?int {
         return $this->id;
     }
 
-    public function getDatasourceInstanceKey(): string {
+    public function setId(?int $id): void {
+        $this->id = $id;
+    }
+
+    public function getTitle(): ?string {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void {
+        $this->title = $title;
+    }
+
+    public function getDatasourceInstanceKey(): ?string {
         return $this->datasourceInstanceKey;
     }
 
-    public function setDatasourceInstanceKey(string $datasourceInstanceKey): void {
+    public function setDatasourceInstanceKey(?string $datasourceInstanceKey): void {
         $this->datasourceInstanceKey = $datasourceInstanceKey;
     }
 
@@ -148,7 +175,7 @@ class DatasourceHookInstance extends ActiveRecord {
         $this->scheduledTaskId = $scheduledTaskId;
     }
 
-    public function isHookMode(): string {
+    public function getHookMode(): string {
         return $this->hookMode;
     }
 
