@@ -3,6 +3,7 @@
 namespace Kinintel\Services\Hook;
 
 
+use Kiniauth\Objects\Account\Account;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
 use Kinikit\Core\Binding\ObjectBinder;
@@ -22,11 +23,11 @@ class DatasourceHookService {
     }
 
     /**
-     * @param string $hookKey
+     * @param int $hookId
      * @return DatasourceHookInstance
      */
-    public function getDatasourceHookByKey($hookKey) {
-        return DatasourceHookInstance::fetch($hookKey);
+    public function getDatasourceHookById($hookId) {
+        return DatasourceHookInstance::fetch($hookId);
     }
 
     public function getDatasourceInstanceHooksForDatasource($datasourceInstanceKey) {
@@ -87,9 +88,65 @@ class DatasourceHookService {
 
     }
 
-    public function deleteHook($hookKey) {
-        $hook = $this->getDatasourceHookByKey($hookKey);
+    /**
+     * Delete a datasource hook instance
+     *
+     * @param int $hookId
+     * @return void
+     */
+    public function deleteHook($hookId) {
+        $hook = $this->getDatasourceHookById($hookId);
         $hook->remove();
     }
 
+    /**
+     * Save a hook instance
+     *
+     * @param DatasourceHookInstance $hookInstance
+     */
+    public function saveHookInstance($hookInstance, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $hookInstance->setProjectKey($projectKey);
+        $hookInstance->setAccountId($accountId);
+
+        $hookInstance->save();
+        return $hookInstance->getId();
+
+    }
+
+    /**
+     * Filter datasource hook instances
+     *
+     * @param string $projectKey
+     * @param int $offset
+     * @param int $limit
+     * @param int $accountId
+     *
+     * @return DatasourceHookInstance[]
+     */
+    public function filterDatasourceHookInstances($projectKey = null, $offset = 0, $limit = 10, $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $params = [];
+        if ($accountId === null) {
+            $whereClause = "WHERE accountId IS NULL";
+        } else {
+            $whereClause = "WHERE accountId = ?";
+            $params[] = $accountId;
+        }
+
+        if ($projectKey) {
+            $whereClause .= " AND project_key = ?";
+            $params[] = $projectKey;
+        }
+
+        $whereClause .= " LIMIT ? OFFSET ?";
+
+        $params[] = $limit;
+        $params[] = $offset;
+
+        // Return a summary array
+        Logger::log($whereClause);
+        return DatasourceHookInstance::filter($whereClause, $params);
+
+    }
 }
