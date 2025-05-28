@@ -14,14 +14,14 @@
 
     <select *ngIf="filter.inclusionCriteria == 'ParameterPresent'" class="mr-1 py-2"
             [(ngModel)]="filter._inclusionParam" (change)="filter.inclusionData = filter._inclusionParam">
-        <option *ngFor="let param of parameterValues" [value]="param.name">
+        <option *ngFor="let param of parameterValues" [ngValue]="param.name">
             {{ param.title }}
         </option>
     </select>
 
     <select *ngIf="filter.inclusionCriteria == 'ParameterValue'" class="mr-1 py-2"
             [(ngModel)]="filter._inclusionParam">
-        <option *ngFor="let param of parameterValues" [value]="param.name">
+        <option *ngFor="let param of parameterValues" [ngValue]="param.name">
             {{ param.title }}
         </option>
     </select>
