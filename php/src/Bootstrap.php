@@ -15,6 +15,7 @@ use Kinintel\Services\ImportExport\ImportExporters\AlertGroupImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DashboardImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DataProcessorImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DatasetImportExporter;
+use Kinintel\Services\ImportExport\ImportExporters\DatasourceHookImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DatasourceImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\FeedImportExporter;
 use Kinintel\Services\Util\AttachmentStorage\GoogleCloudAttachmentStorage;
@@ -59,6 +60,7 @@ class Bootstrap implements ApplicationBootstrap {
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(FeedImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DataProcessorImportExporter::class));
         Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DashboardImportExporter::class));
+        Container::instance()->get(ProjectImporterExporter::class)->addImportExporter(Container::instance()->get(DatasourceHookImportExporter::class));
 
     }
 }

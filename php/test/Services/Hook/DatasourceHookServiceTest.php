@@ -4,17 +4,17 @@ namespace Kinintel\Test\Services\Hook;
 
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kiniauth\Services\Workflow\Task\Scheduled\ScheduledTaskService;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Binding\ObjectBinder;
-use Kinikit\Core\Binding\ObjectBindingException;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Test\ValueObjects\Hook\TestHookConfig;
 use Kinintel\TestBase;
-use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
@@ -34,11 +34,12 @@ class DatasourceHookServiceTest extends TestBase {
         $this->activeRecordInterceptor = MockObjectProvider::mock(ActiveRecordInterceptor::class);
         $this->hookService = new DatasourceHookService($this->dataProcessorService, $this->scheduledTaskService,
             Container::instance()->get(ObjectBinder::class), $this->activeRecordInterceptor);
+        AuthenticationHelper::login("admin@kinicart.com", "password");
     }
 
     public function testDataProcessorTriggeredCorrectlyForDataProcessorBasedHook() {
 
-        $newHook = new DatasourceHookInstance("testhook", "testprocessor", null, "testprocessor", null, "add");
+        $newHook = new DatasourceHookInstance("My Hook", "testhook", "testprocessor", null, "testprocessor", null, "add");
         $newHook->save();
 
         $this->hookService->processHooks("testhook", "add");
@@ -47,11 +48,14 @@ class DatasourceHookServiceTest extends TestBase {
             "testprocessor"
         ]));
 
+        // Clean up
+        $this->hookService->deleteHook(1);
+
     }
 
     public function testScheduledTaskIsTriggeredCorrectlyForTaskBasedHook() {
 
-        $newHook = new DatasourceHookInstance("testhook2", null, 25, null, 25, "add");
+        $newHook = new DatasourceHookInstance("My Hook", "testhook2", null, 25, null, 25, "add");
         $newHook->save();
 
         $this->hookService->processHooks("testhook2", "add");
@@ -60,6 +64,8 @@ class DatasourceHookServiceTest extends TestBase {
             25
         ]));
 
+        // Clean up
+        $this->hookService->deleteHook(2);
     }
 
 
@@ -71,7 +77,7 @@ class DatasourceHookServiceTest extends TestBase {
         Container::instance()->set(get_class($mockHook), $mockHook);
         $mockHook->returnValue("getConfigClass", TestHookConfig::class);
 
-        $newHook = new DatasourceHookInstance("testhook3", "test", [
+        $newHook = new DatasourceHookInstance("My Hook", "testhook3", "test", [
             "testProp" => "Hello World"
         ], null, null, "add");
         $newHook->save();
@@ -85,11 +91,14 @@ class DatasourceHookServiceTest extends TestBase {
             new TestHookConfig("Hello World"), "add", $data
         ]));
 
+        // Clean up
+        $this->hookService->deleteHook(3);
+
     }
 
     public function testHookTriggeredCorrectlyForHookConfiguredForAllModes() {
 
-        $newHook = new DatasourceHookInstance("testhook4", null, 25, null, 25, "all");
+        $newHook = new DatasourceHookInstance("My Hook", "testhook4", null, 25, null, 25, "all");
         $newHook->save();
 
         $this->hookService->processHooks("testhook4", "add");
@@ -98,12 +107,15 @@ class DatasourceHookServiceTest extends TestBase {
             25
         ]));
 
+        // Clean up
+        $this->hookService->deleteHook(4);
+
     }
 
 
     public function testHookNotTriggeredIfDisabled() {
 
-        $newHook = new DatasourceHookInstance("testhook5", null, 25, null, 25, "all", false);
+        $newHook = new DatasourceHookInstance("My Hook", "testhook5", null, 25, null, 25, "all", false);
         $newHook->save();
 
         $this->hookService->processHooks("testhook5", "add");
@@ -112,13 +124,15 @@ class DatasourceHookServiceTest extends TestBase {
             25
         ]));
 
+        // Clean up
+        $this->hookService->deleteHook(5);
 
     }
 
     public function testHookExecutedWithSecurityBypassedIfExecuteInsecureFlagSet() {
 
         // Control case first
-        $newHook = new DatasourceHookInstance("testhook6", null, null, null, 25, "all", true, false);
+        $newHook = new DatasourceHookInstance("My Hook", "testhook6", null, null, null, 25, "all", true, false);
         $newHook->save();
 
         $this->hookService->processHooks("testhook6", "add");
@@ -131,17 +145,87 @@ class DatasourceHookServiceTest extends TestBase {
         $this->assertFalse($this->activeRecordInterceptor->methodWasCalled("executeInsecure"));
 
 
-
         // Insecure case
-        $newHook = new DatasourceHookInstance("testhook6", null, null, null, 25, "all", true, true);
+        $newHook = new DatasourceHookInstance("My Hook", "testhook6", null, null, null, 25, "all", true, true);
         $newHook->save();
 
         $this->hookService->processHooks("testhook6", "add");
 
         $this->assertTrue($this->activeRecordInterceptor->methodWasCalled("executeInsecure"));
 
+        // Clean up
+        $this->hookService->deleteHook(6);
+        $this->hookService->deleteHook(7);
 
     }
 
+    public function testCanSaveAHookInstance() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $dataSetInstance = new DatasourceHookInstance("Test Hook", "testSource");
+
+        $id = $this->hookService->saveHookInstance($dataSetInstance, 5, 1);
+
+        // Check saved correctly in db
+        $dataset = DatasourceHookInstance::fetch($id);
+        $this->assertEquals(1, $dataset->getAccountId());
+        $this->assertEquals(5, $dataset->getProjectKey());
+
+
+        $reSet = $this->hookService->getDatasourceHookById($id);
+        $this->assertEquals("Test Hook", $reSet->getTitle());
+        $this->assertEquals("testSource", $reSet->getDatasourceInstanceKey());
+
+        // Remove the data set instance
+        $this->hookService->deleteHook($id);
+
+        try {
+            $this->hookService->getDatasourceHookById($id);
+            $this->fail("Should have thrown here");
+        } catch (ObjectNotFoundException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function testCanFilterHooksByAccountIdAndProjectKey() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $hook1 = new DatasourceHookInstance("Hook 1", "datasourceKey1", "hookKey", accountId: null, id: 101);
+        $hook2 = new DatasourceHookInstance("Hook 2", "datasourceKey2", "hookKey", accountId: 1, projectKey: "myKey", id: 102);
+        $hook3 = new DatasourceHookInstance("Hook 3", "datasourceKey2", "hookKey", accountId: 2, projectKey: "myKey", id: 103);
+        $hook4 = new DatasourceHookInstance("Hook 4", "datasourceKey2", "hookKey", accountId: 2, projectKey: "myOtherKey", id: 104);
+        $hook5 = new DatasourceHookInstance("Hook 5", "datasourceKey2", "hookKey", accountId: 3, id: 105);
+
+        $hook1->save();
+        $hook2->save();
+        $hook3->save();
+        $hook4->save();
+        $hook5->save();
+
+        $hook1 = DatasourceHookInstance::fetch(101);
+        $hook2 = DatasourceHookInstance::fetch(102);
+        $hook3 = DatasourceHookInstance::fetch(103);
+        $hook4 = DatasourceHookInstance::fetch(104);
+
+        $hooks = $this->hookService->filterDatasourceHookInstances(accountId: null);
+        $this->assertEquals([$hook1], $hooks);
+
+        $hooks = $this->hookService->filterDatasourceHookInstances(accountId: 1);
+        $this->assertEquals([$hook2], $hooks);
+
+        $hooks = $this->hookService->filterDatasourceHookInstances(accountId: 2);
+        $this->assertEquals([$hook3, $hook4], $hooks);
+
+        $hooks = $this->hookService->filterDatasourceHookInstances(projectKey: "myKey", accountId: 2);
+        $this->assertEquals([$hook3], $hooks);
+
+        $hooks = $this->hookService->filterDatasourceHookInstances(projectKey: "myKey", accountId: null);
+        $this->assertEquals([], $hooks);
+
+        $hooks = $this->hookService->filterDatasourceHookInstances(projectKey: "myKey", accountId: 3);
+        $this->assertEquals([], $hooks);
+    }
 
 }
