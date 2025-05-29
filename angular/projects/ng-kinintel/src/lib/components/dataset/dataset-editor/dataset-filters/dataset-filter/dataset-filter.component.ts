@@ -78,7 +78,7 @@ export class DatasetFilterComponent implements OnInit {
         }
 
 
-        if (String(this.filter.rhsExpression[0]).includes('AGO')) {
+        if (String(this.filter.rhsExpression[0]).includes('AGO') && !String(this.filter.rhsExpression[0]).includes('AGO}}')) {
             this.filter._expType = 'period';
             const periodValues = this.filter.rhsExpression[0].split('_');
             this.filter._periodValue = periodValues[0];
@@ -86,10 +86,10 @@ export class DatasetFilterComponent implements OnInit {
         }
 
         // If parameter value, make temporary members for binding
-        if (this.filter.inclusionCriteria && this.filter.inclusionCriteria !== "Always") {
-            let splitData = this.filter.inclusionData.split("=");
+        if (this.filter.inclusionCriteria && this.filter.inclusionCriteria !== 'Always') {
+            const splitData = this.filter.inclusionData.split('=');
             this.filter._inclusionParam = splitData[0];
-            this.filter._inclusionParamValue = splitData.length > 1 ? splitData[1] : "";
+            this.filter._inclusionParamValue = splitData.length > 1 ? splitData[1] : '';
         }
 
     }
