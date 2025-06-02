@@ -71,17 +71,24 @@ class SQLFilterJunctionEvaluator {
             // Create an array of filter clauses
             $clauses = [];
             foreach ($filterJunction->getFilters() ?? [] as $filter) {
-                if ($filter->meetsInclusionCriteria($templateParameters))
-                    $clauses[] = $this->createFilterStatement($filter, $parameters, $templateParameters);
+                if ($filter->meetsInclusionCriteria($templateParameters)) {
+                    $statement = $this->createFilterStatement($filter, $parameters, $templateParameters);
+                    if (trim($statement))
+                        $clauses[] = $statement;
+                }
             };
 
             foreach ($filterJunction->getFilterJunctions() ?? [] as $junction) {
-                if ($junction->meetsInclusionCriteria($templateParameters))
-                    $clauses[] = "(" . $this->createFilterJunctionStatement($junction, $parameters, $templateParameters) . ")";
+                if ($junction->meetsInclusionCriteria($templateParameters)) {
+                    $statement = $this->createFilterJunctionStatement($junction, $parameters, $templateParameters);
+                    if (trim($statement))
+                        $clauses[] = "(" . $statement . ")";
+                }
+
             }
 
 
-            return join(" " . $filterJunction->getLogic() . " ", $clauses);
+            return trim(join(" " . $filterJunction->getLogic() . " ", $clauses));
         } else {
             return "";
         }
