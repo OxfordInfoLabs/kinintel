@@ -6,6 +6,7 @@ use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Stream\File\ReadOnlyFileStream;
+use Kinintel\Exception\RSyncException;
 use Kinintel\Objects\Datasource\BaseDatasource;
 use Kinintel\Services\Datasource\Processing\Compression\Compressor;
 use Kinintel\ValueObjects\Authentication\Generic\UsernameAndPasswordAuthenticationCredentials;
@@ -95,7 +96,11 @@ class RSyncDatasource extends BaseDatasource {
             $command = "rsync " . ($config->getRsyncFlags() ?? "") . " $source $targetPath";
         }
 
-        exec($command);
+        exec($command, $output, $resultCode);
+
+        if ($resultCode != 0) {
+            throw new RSyncException("RSync failed from $source to $targetPath.", $resultCode);
+        }
 
         $responseStream = new ReadOnlyFileStream($targetPath);
 
