@@ -499,19 +499,21 @@ class DatasetService {
 
     }
 
+
     /**
-     * Export a dataset using a defined exporter and configuration
+     * Export a dataset instance
      *
-     * @param DatasetInstanceSummary $datasetInstance
-     * @param string $exporterKey
-     * @param mixed $exporterConfiguration
-     * @param array $parameterValues
-     * @param TransformationInstance[] $additionalTransformations
-     * @param int $offset
-     * @param int $limit
-     *
-     * @return Response
-     *
+     * @param $datasetInstance
+     * @param $exporterKey
+     * @param $exporterConfiguration
+     * @param $parameterValues
+     * @param $additionalTransformations
+     * @param $offset
+     * @param $limit
+     * @param $streamAsDownload
+     * @param $cacheTime
+     * @return Download|SimpleResponse
+     * @throws \Kinintel\Exception\InvalidDatasourceExporterConfigException
      */
     public function exportDatasetInstance($datasetInstance, $exporterKey, $exporterConfiguration = null, $parameterValues = [], $additionalTransformations = [], $offset = 0, $limit = 25, $streamAsDownload = true, $cacheTime = 0) {
 
