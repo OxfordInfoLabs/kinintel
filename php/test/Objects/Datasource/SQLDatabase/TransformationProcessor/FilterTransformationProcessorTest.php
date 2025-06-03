@@ -306,14 +306,14 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testFiltersWithInclusionCriteriaAppliedCorrectly(){
+    public function testFiltersWithInclusionCriteriaAppliedCorrectly() {
 
 
         $processor = new FilterTransformationProcessor($this->templateParser);
 
         // Test one without parameters set, confirm no where clause written
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN,InclusionCriteriaType::ParameterPresent, "test")
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN, InclusionCriteriaType::ParameterPresent, "test")
         ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data", $query->getSQL());
@@ -322,17 +322,27 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         // Now one with a parameter set
         $query = $processor->updateQuery(new FilterTransformation([
-            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN,InclusionCriteriaType::ParameterPresent, "test")
+            new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN, InclusionCriteriaType::ParameterPresent, "test")
         ]), new SQLQuery("*", "test_data"), ["test" => 1], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"weight\" > ?", $query->getSQL());
         $this->assertEquals([10], $query->getParameters());
 
+        // Multi parameter type
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[weight]]", ["{{test}}"], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "test"),
+            new Filter("[[age]]", ["{{test2}}"], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "test2" )
+        ]), new SQLQuery("*", "test_data"), ["test" => [], "test2" => []], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data", $query->getSQL());
+        $this->assertEquals([], $query->getParameters());
+
+
 
         // A conditional filter junction without parameters set
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
-        ],[], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
+        ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
             new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data", $query->getSQL());
@@ -342,15 +352,14 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // And with a parameter set
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
-        ],[], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
+        ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
             new SQLQuery("*", "test_data"), ["test" => 1], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"weight\" > ?", $query->getSQL());
         $this->assertEquals([10], $query->getParameters());
 
+
     }
-
-
 
 
     public function testNestedFilterJunctionsAreAppliedCorrectlyAsExpected() {
