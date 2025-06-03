@@ -359,9 +359,6 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals([10], $query->getParameters());
 
 
-
-
-
     }
 
 

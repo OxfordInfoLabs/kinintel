@@ -951,6 +951,10 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 
         const value = (event.value || event.target?.value || '').trim();
 
+        if (!_.isArray(parameter.value)) {
+            parameter.value = [];
+        }
+
         if (value && value !== 'null' && parameter.value.indexOf(value) === -1) {
             parameter.value.push(value);
         }
