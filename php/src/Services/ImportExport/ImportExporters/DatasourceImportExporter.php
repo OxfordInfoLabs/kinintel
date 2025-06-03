@@ -298,7 +298,7 @@ class DatasourceImportExporter extends ImportExporter {
             }
 
             // Create and save the ds instance
-            $newDatasource = new DatasourceInstance($datasourceKey, $exportObject->getTitle(), $exportObject->getType(), $datasourceConfig, $credentialsKey, projectKey: $projectKey, accountId: $accountId);
+            $newDatasource = new DatasourceInstance($datasourceKey, $exportObject->getTitle(), $exportObject->getType(), $datasourceConfig, $credentialsKey, projectKey: $projectKey, accountId: $accountId, importKey: $exportObject->getImportKey());
             $this->datasourceService->saveDataSourceInstance($newDatasource);
 
             // Update import item id mapping for downstream use.

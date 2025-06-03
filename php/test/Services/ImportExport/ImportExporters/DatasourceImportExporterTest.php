@@ -234,8 +234,8 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         $this->importExporter->importObjects(5, "testProject", [
-            new ExportedDatasource(-1, "Test DS 1", "custom", null, null, ["tableName" => null, "otherProp" => 1]),
-            new ExportedDatasource(-2, "Test DS 2", "custom", null, null, ["tableName" => null, "otherProp" => 2], [
+            new ExportedDatasource(-1, "Test DS 1", "custom", null, "testds1", ["tableName" => null, "otherProp" => 1]),
+            new ExportedDatasource(-2, "Test DS 2", "custom", null, "testds2", ["tableName" => null, "otherProp" => 2], [
                 ["column1" => "Test", "column2" => "Live"],
                 ["column1" => "Test 2", "column2" => "Live 2"]
             ]),
@@ -249,7 +249,7 @@ class DatasourceImportExporterTest extends TestBase {
 
         // Check our updated one was updated intact
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
-            new DatasourceInstance("test1", "Test DS 1", "custom", ["tableName" => "custom.test1", "otherProp" => 1], $credentialsKey, projectKey: "testProject", accountId: 5)
+            new DatasourceInstance("test1", "Test DS 1", "custom", ["tableName" => "custom.test1", "otherProp" => 1], $credentialsKey, projectKey: "testProject", accountId: 5, importKey: "testds1")
         ]));
 
 
@@ -259,7 +259,7 @@ class DatasourceImportExporterTest extends TestBase {
 
 
         $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
-            new DatasourceInstance($newDatasourceKey, "Test DS 2", "custom", ["tableName" => $tableName, "otherProp" => 2], $credentialsKey, projectKey: "testProject", accountId: 5)
+            new DatasourceInstance($newDatasourceKey, "Test DS 2", "custom", ["tableName" => $tableName, "otherProp" => 2], $credentialsKey, projectKey: "testProject", accountId: 5, importKey: "testds2")
         ]));
 
 
