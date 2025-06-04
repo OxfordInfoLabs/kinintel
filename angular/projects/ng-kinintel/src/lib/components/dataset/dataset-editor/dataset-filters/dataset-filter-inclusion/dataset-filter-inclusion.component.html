@@ -1,4 +1,4 @@
-<ng-template [ngIf]="parameterValues.length">
+<ng-template [ngIf]="parameterValues && parameterValues.length">
     <div class="m-2">
         <mat-checkbox #depends [checked]="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'"
                       (change)="filter.inclusionCriteria = depends.checked ? 'ParameterPresent' : 'Always'">
