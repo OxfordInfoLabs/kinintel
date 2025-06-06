@@ -513,6 +513,10 @@ class DatasourceService {
 
         foreach ($transformationInstances as $transformationInstance) {
 
+            // Bail out if instance does not meet inclusion criteria.
+            if (!$transformationInstance->meetsInclusionCriteria($parameterValues))
+                continue;
+
             $transformation = $transformationInstance->returnTransformation();
 
             // If a marker transformation, use a paging transformation instead

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinintel\ValueObjects\Transformation\Filter;
+namespace Kinintel\ValueObjects\Transformation;
 
 trait InclusionCriteria {
 
@@ -57,7 +57,12 @@ trait InclusionCriteria {
             case InclusionCriteriaType::Always:
                 return true;
             case InclusionCriteriaType::ParameterPresent:
-                return isset($parameters[$this->inclusionData]) && $parameters[$this->inclusionData] !== '';
+                return isset($parameters[$this->inclusionData]) && $parameters[$this->inclusionData] !== ''
+                    && $parameters[$this->inclusionData] !== [];
+            case InclusionCriteriaType::ParameterNotPresent:
+                return !isset($parameters[$this->inclusionData])
+                    || $parameters[$this->inclusionData] === ''
+                    || $parameters[$this->inclusionData] === [];
             case InclusionCriteriaType::ParameterValue:
                 $data = explode("=", $this->inclusionData);
                 return sizeof($data) == 2 && (($parameters[$data[0]] ?? null) == $data[1]);

@@ -4,7 +4,12 @@
 namespace Kinintel\ValueObjects\Transformation\MultiSort;
 
 
+use Kinintel\ValueObjects\Transformation\InclusionCriteria;
+use Kinintel\ValueObjects\Transformation\InclusionCriteriaType;
+
 class Sort {
+
+    use InclusionCriteria;
 
     /**
      * The field upon which to sort
@@ -30,9 +35,11 @@ class Sort {
      * @param string $fieldName
      * @param string $direction
      */
-    public function __construct($fieldName, $direction) {
+    public function __construct($fieldName, $direction, ?InclusionCriteriaType $inclusionCriteria = InclusionCriteriaType::Always, mixed $inclusionData = null) {
         $this->fieldName = $fieldName;
         $this->direction = $direction;
+        $this->inclusionCriteria = $inclusionCriteria;
+        $this->inclusionData = $inclusionData;
     }
 
 

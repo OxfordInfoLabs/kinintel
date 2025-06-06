@@ -211,6 +211,10 @@ class DatasourceServiceTest extends TestBase {
         $transformationInstance2->returnValue("returnTransformation", $transformation2);
         $transformationInstance3->returnValue("returnTransformation", $transformation3);
 
+        $transformationInstance1->returnValue("meetsInclusionCriteria", true, [["test" => 1]]);
+        $transformationInstance2->returnValue("meetsInclusionCriteria", true, [["test" => 1]]);
+        $transformationInstance3->returnValue("meetsInclusionCriteria", true, [["test" => 1]]);
+
 
         $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
         $transformed1->returnValue("getSupportedTransformationClasses", [
@@ -226,15 +230,15 @@ class DatasourceServiceTest extends TestBase {
 
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
-            $transformation1, [], new PagingTransformation(20, 0)
+            $transformation1,["test" => 1], new PagingTransformation(20, 0)
         ]);
 
         $transformed1->returnValue("applyTransformation", $transformed2, [
-            $transformation2, [], new PagingTransformation(20, 0)
+            $transformation2, ["test" => 1], new PagingTransformation(20, 0)
         ]);
 
         $transformed2->returnValue("applyTransformation", $transformed3, [
-            $transformation3, [], new PagingTransformation(20, 0)
+            $transformation3, ["test" => 1], new PagingTransformation(20, 0)
         ]);
 
 
@@ -247,7 +251,74 @@ class DatasourceServiceTest extends TestBase {
         $transformed3->returnValue("materialise", $dataSet);
 
 
-        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", [], [$transformationInstance1, $transformationInstance2, $transformationInstance3], 0, 20));
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", ["test" => 1], [$transformationInstance1, $transformationInstance2, $transformationInstance3], 0, 20));
+
+
+    }
+
+    public function testTransformationsSuppressedIfInclusionCriteriaSuppliedAndNotMet() {
+
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+
+        // Ensure that transformation classes supported by the datasource
+        $dataSource->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformation1 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+        $transformation2 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+        $transformation3 = MockObjectProvider::instance()->getMockInstance(Transformation::class);
+
+
+        $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance2 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+        $transformationInstance3 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
+
+        $transformationInstance1->returnValue("returnTransformation", $transformation1);
+        $transformationInstance2->returnValue("returnTransformation", $transformation2);
+        $transformationInstance3->returnValue("returnTransformation", $transformation3);
+
+        $transformationInstance1->returnValue("meetsInclusionCriteria", true, [["test" => 1]]);
+        $transformationInstance2->returnValue("meetsInclusionCriteria", false, [["test" => 1]]);
+        $transformationInstance3->returnValue("meetsInclusionCriteria", true, [["test" => 1]]);
+
+
+        $transformed1 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed1->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformed2 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+        $transformed2->returnValue("getSupportedTransformationClasses", [
+            Transformation::class
+        ]);
+
+        $transformed3 = MockObjectProvider::instance()->getMockInstance(BaseDatasource::class);
+
+
+        $dataSource->returnValue("applyTransformation", $transformed1, [
+            $transformation1, ["test" => 1], new PagingTransformation(20, 0)
+        ]);
+
+        $transformed1->returnValue("applyTransformation", $transformed3, [
+            $transformation1, ["test" => 1], new PagingTransformation(20, 0)
+        ]);
+
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        $dataSet = MockObjectProvider::instance()->getMockInstance(Dataset::class);
+        $transformed3->returnValue("materialise", $dataSet);
+
+
+        $this->assertEquals($dataSet, $this->dataSourceService->getEvaluatedDataSourceByInstanceKey("test", ["test" => 1], [$transformationInstance1, $transformationInstance2, $transformationInstance3], 0, 20));
 
 
     }
@@ -382,6 +453,7 @@ class DatasourceServiceTest extends TestBase {
 
         $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
+        $transformationInstance1->returnValue("meetsInclusionCriteria", true);
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
             $transformation1, ["param1" => "Joe", "param2" => "Bloggs"], new PagingTransformation(10, 10)
@@ -425,6 +497,7 @@ class DatasourceServiceTest extends TestBase {
 
         $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
+        $transformationInstance1->returnValue("meetsInclusionCriteria", true);
 
         $dataSource->returnValue("applyTransformation", $transformed1, [
             $transformation1, [], new PagingTransformation(50, 15)
@@ -500,6 +573,7 @@ class DatasourceServiceTest extends TestBase {
         $transformation1 = MockObjectProvider::instance()->getMockInstance(AnotherTestTransformation::class);
         $transformationInstance1 = MockObjectProvider::instance()->getMockInstance(TransformationInstance::class);
         $transformationInstance1->returnValue("returnTransformation", $transformation1);
+        $transformationInstance1->returnValue("meetsInclusionCriteria", true);
 
         $dataSourceInstance->returnValue("returnDataSource", $dataSource);
         $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
@@ -660,24 +734,24 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Replace me twice", "age" => 65]
         ]);
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0,  1,["add" => [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0, 1, ["add" => [
             new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])
         ]]), [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
         ]);
 
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0,[
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0, [
         ]), [
             $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
         ]);
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2,0,  [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2, 0, [
         ]), [
             $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
         ]);
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1,["replace" =>  [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1, ["replace" => [
             new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])
         ]]), [
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
@@ -686,7 +760,7 @@ class DatasourceServiceTest extends TestBase {
 
         $result = $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
 
-        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2,[
+        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2, [
             "add" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])],
             "replace" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])]
         ]), $result);

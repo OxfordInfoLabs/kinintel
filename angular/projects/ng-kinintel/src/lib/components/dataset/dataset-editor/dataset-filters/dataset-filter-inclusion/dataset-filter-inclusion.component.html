@@ -9,15 +9,17 @@
     <select *ngIf="filter.inclusionCriteria && filter.inclusionCriteria !== 'Always'"
             class="mr-1 py-2" [(ngModel)]="filter.inclusionCriteria">
         <option value="ParameterPresent">Parameter Is Set</option>
+        <option value="ParameterNotPresent">Parameter Is Not Set</option>
         <option value="ParameterValue">Parameter Has Value</option>
     </select>
 
-    <select *ngIf="filter.inclusionCriteria == 'ParameterPresent'" class="mr-1 py-2"
+    <select *ngIf="filter.inclusionCriteria == 'ParameterPresent' || filter.inclusionCriteria == 'ParameterNotPresent'" class="mr-1 py-2"
             [(ngModel)]="filter._inclusionParam" (change)="filter.inclusionData = filter._inclusionParam">
         <option *ngFor="let param of parameterValues" [ngValue]="param.name">
             {{ param.title }}
         </option>
     </select>
+
 
     <select *ngIf="filter.inclusionCriteria == 'ParameterValue'" class="mr-1 py-2"
             [(ngModel)]="filter._inclusionParam">
