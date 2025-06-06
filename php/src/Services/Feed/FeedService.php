@@ -203,8 +203,13 @@ class FeedService {
         foreach ($feed->getExposedParameterNames() as $exposedParameterName) {
 
             if (isset($parameterValues[$exposedParameterName])) {
-                $parameterValue = str_getcsv($parameterValues[$exposedParameterName], ",", '"');
-                $exportParameters[$exposedParameterName] = sizeof($parameterValue) == 1 ? $parameterValue[0] : $parameterValue;
+                // Empty string doesn't survive str_get_csv
+                if ($parameterValues[$exposedParameterName] === "") {
+                    $exportParameters[$exposedParameterName] = "";
+                } else {
+                    $parameterValue = str_getcsv($parameterValues[$exposedParameterName], ",", '"');
+                    $exportParameters[$exposedParameterName] = sizeof($parameterValue) == 1 ? $parameterValue[0] : $parameterValue;
+                }
             } else {
                 $exportParameters[$exposedParameterName] = "";
             }
