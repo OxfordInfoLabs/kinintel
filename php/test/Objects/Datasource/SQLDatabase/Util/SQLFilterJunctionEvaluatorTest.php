@@ -5,14 +5,10 @@ namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
-use Kinikit\Persistence\ORM\Query\Filter\LikeFilter;
-use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\FilterTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
-use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
-use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
-use Kinintel\ValueObjects\Transformation\Filter\InclusionCriteriaType;
+use Kinintel\ValueObjects\Transformation\InclusionCriteriaType;
 
 include_once "autoloader.php";
 
