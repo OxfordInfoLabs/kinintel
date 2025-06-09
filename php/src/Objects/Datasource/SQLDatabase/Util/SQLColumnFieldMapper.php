@@ -28,7 +28,8 @@ class SQLColumnFieldMapper {
         Field::TYPE_DATE => TableColumn::SQL_DATE,
         Field::TYPE_DATE_TIME => TableColumn::SQL_DATE_TIME,
         Field::TYPE_ID => TableColumn::SQL_INTEGER,
-        Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB
+        Field::TYPE_LONG_STRING => TableColumn::SQL_LONGBLOB,
+        Field::TYPE_JSON => TableColumn::SQL_JSON
     ];
 
     /**
@@ -68,6 +69,7 @@ class SQLColumnFieldMapper {
         TableColumn::SQL_INTEGER => Field::TYPE_INTEGER,
         TableColumn::SQL_TIME => Field::TYPE_INTEGER,
         TableColumn::SQL_TIMESTAMP => Field::TYPE_DATE_TIME,
+        TableColumn::SQL_JSON => Field::TYPE_JSON,
         TableColumn::SQL_UNKNOWN => Field::TYPE_STRING
     ];
 
