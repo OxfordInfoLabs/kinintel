@@ -76,8 +76,11 @@ class ColumnsTransformationProcessor extends SQLTransformationProcessor {
             throw new \Exception("Assertion Failed! Altered Columns should have the same keys as transformation columns");
         }
 
-        for ($i = 0; $i < count($newColumns); $i++) { // I wish there were zip
-            $aliasStrings[] = "C" . $this->aliasIndex . "." . $transformation->getColumns()[$i]->getName() . " AS " . $newColumns[$i]->getName();
+        for ($i = 0; $i < count($newColumns); $i++) {
+            $escapedOriginal = $dataSource->returnDatabaseConnection()->escapeColumn($transformation->getColumns()[$i]->getName());
+            $escapedNew = $dataSource->returnDatabaseConnection()->escapeColumn($newColumns[$i]->getName());
+
+            $aliasStrings[] = "C" . $this->aliasIndex . "." . $escapedOriginal . " AS " . $escapedNew;
         }
 
 
