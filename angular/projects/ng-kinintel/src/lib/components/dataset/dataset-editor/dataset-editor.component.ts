@@ -57,6 +57,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     @Input() newTitle;
     @Input() newDescription;
     @Input() datasetEditorReadonly = false;
+    @Input() datasetEditorSimpleMode: boolean = false;
 
     @Output() dataLoaded = new EventEmitter<any>();
     @Output() datasetInstanceSummaryChange = new EventEmitter();

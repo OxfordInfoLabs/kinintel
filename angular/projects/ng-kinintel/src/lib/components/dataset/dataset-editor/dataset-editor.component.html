@@ -42,7 +42,7 @@
     </div>
 </div>
 
-<div class="border-b cell-header end">
+<div *ngIf="!datasetEditorReadonly" class="border-b cell-header end">
     <div class="leading-5 px-4 text-xs uppercase tracking-wider font-medium border-r-2 text-gray-600">
         Operations
     </div>
@@ -73,7 +73,7 @@
             <span class="material-symbols-outlined text-xl">filter_alt</span>
             filter
         </button>
-        <button *ngIf="!datasetEditorReadonly" (click)="joinData()"
+        <button *ngIf="!datasetEditorSimpleMode" (click)="joinData()"
                 title="Join another data set to the current dataset"
                 class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <span class="material-symbols-outlined text-xl">merge_type</span>
@@ -86,8 +86,8 @@
             summarise
         </button>
 
-        <div *ngIf="!datasetEditorReadonly" class="divider"></div>
-        <button *ngIf="!datasetEditorReadonly" (click)="addPagingMarker()"
+        <div *ngIf="!datasetEditorSimpleMode" class="divider"></div>
+        <button *ngIf="!datasetEditorSimpleMode" (click)="addPagingMarker()"
                 title="Insert paging marker to limit results at this stage in the query flow"
                 class="w-24 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <span class="material-symbols-outlined text-xl">skip_next</span>
@@ -102,7 +102,7 @@
             <span class="material-symbols-outlined text-xl">sync</span>
             reload
         </button>
-        <ng-template [ngIf]="!datasetEditorReadonly">
+        <ng-template [ngIf]="!datasetEditorSimpleMode">
             <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
                     title="Share this query with other account holders"
                     class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
