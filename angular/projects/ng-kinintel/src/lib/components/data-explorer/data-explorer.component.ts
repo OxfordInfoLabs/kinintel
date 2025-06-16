@@ -39,6 +39,8 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
     @ViewChild('datasetEditorComponent') datasetEditorComponent: DatasetEditorComponent;
 
     @Input() datasetEditorReadonly = false;
+    @Input() datasetEditorSimpleMode = false;
+    @Input() datasetEditorNoTools: boolean = false;
 
     public _ = _;
     public backendUrl: string;
@@ -80,6 +82,8 @@ export class DataExplorerComponent implements OnInit, OnDestroy {
         this.breadcrumb = this.data.breadcrumb;
         this.backendUrl = this.data.backendUrl;
         this.datasetEditorReadonly = !!this.data.datasetEditorReadonly;
+        this.datasetEditorSimpleMode = !!this.data.datasetEditorSimpleMode;
+        this.datasetEditorNoTools = !!this.data.datasetEditorNoTools;
 
         if (!this.datasetInstanceSummary.id) {
             this.datasetTitle = this.datasetInstanceSummary.title;
