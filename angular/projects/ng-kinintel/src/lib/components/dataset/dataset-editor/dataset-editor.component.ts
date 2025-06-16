@@ -1112,7 +1112,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         const parameterValues = {};
         paramValues.forEach(paramValue => {
             const existParam = _.find(this.parameterValues, {name: paramValue.name});
-            if (!existParam || (existParam && _.isNil(existParam.value))) {
+            if (!existParam) {
                 const existingValue = this.datasetInstanceSummary.parameterValues[paramValue.name];
                 paramValue.value = _.isNil(existingValue) ? paramValue.defaultValue : existingValue;
                 parameterValues[paramValue.name] = paramValue;

@@ -201,7 +201,7 @@
                                 <ng-template [ngIf]="parameter._dateType === 'period'">
                                     <div class="flex items-center">
                                         <input #periodValue type="number" placeholder="No." required autofocus
-                                               class="w-16 mr-2" min="0" [value]="parameter._periodValue || 1"
+                                               class="w-16 mr-2" min="0" [value]="parameter._periodValue"
                                                (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
 
                                         <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
