@@ -107,6 +107,7 @@ import { RemoveTransformationWarningComponent } from './components/dataset/datas
 import { ExportProjectComponent } from './components/export-project/export-project.component';
 import { ChangeSourceWarningComponent } from './components/data-explorer/change-source-warning/change-source-warning.component';
 import { DatasetFilterInclusionComponent } from './components/dataset/dataset-editor/dataset-filters/dataset-filter-inclusion/dataset-filter-inclusion.component';
+import { FeedApiModalComponent } from './components/shared-with-me/feed-api-modal/feed-api-modal.component';
 
 
 @NgModule({
@@ -180,7 +181,8 @@ import { DatasetFilterInclusionComponent } from './components/dataset/dataset-ed
         RemoveTransformationWarningComponent,
         ExportProjectComponent,
         ChangeSourceWarningComponent,
-        DatasetFilterInclusionComponent
+        DatasetFilterInclusionComponent,
+        FeedApiModalComponent
     ],
     imports: [
         BrowserModule,
