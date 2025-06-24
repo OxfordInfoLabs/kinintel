@@ -2,8 +2,8 @@ import {Component, Inject, Input, OnInit} from '@angular/core';
 import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {TagService} from '../../services/tag.service';
-import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
+import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 
 @Component({
     selector: 'ki-tag-picker',
@@ -24,7 +24,7 @@ export class TagPickerComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<TagPickerComponent>,
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private tagService: TagService,
-                public config: KinintelModuleConfig) {
+                @Inject(KININTEL_MODULE_CONFIG) public config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {

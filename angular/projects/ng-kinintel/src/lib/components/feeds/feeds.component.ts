@@ -1,8 +1,7 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {FeedService} from '../../services/feed.service';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
-import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasetService} from '../../services/dataset.service';
@@ -11,6 +10,7 @@ import {Router} from '@angular/router';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {HttpClient} from '@angular/common/http';
 import {ProjectService} from '../../services/project.service';
+import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 
 @Component({
     selector: 'ki-feeds',
@@ -38,7 +38,7 @@ export class FeedsComponent implements OnInit, OnDestroy {
                 private feedService: FeedService,
                 private datasetService: DatasetService,
                 private router: Router,
-                public config: KinintelModuleConfig,
+                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
                 private snackBar: MatSnackBar,
                 private http: HttpClient,
                 private projectService: ProjectService) {

@@ -11,7 +11,7 @@ import * as lodash from 'lodash';
 import {DatasourceService} from '../../../../../services/datasource.service';
 import {HttpClient} from '@angular/common/http';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
-import {KinintelModuleConfig} from '../../../../../../lib/ng-kinintel.module';
+import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../../../../config/kinintel-module-config';
 
 const _ = lodash.default;
 
@@ -54,7 +54,7 @@ export class ImportWizardComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data: any,
                 private datasourceService: DatasourceService,
                 private snackBar: MatSnackBar,
-                private config: KinintelModuleConfig) {
+                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig) {
     }
 
     async ngOnInit() {

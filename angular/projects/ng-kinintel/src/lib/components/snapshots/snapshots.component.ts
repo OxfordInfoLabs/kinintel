@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {BehaviorSubject, interval, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
@@ -6,13 +6,13 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DatasetService} from '../../services/dataset.service';
-import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as lodash from 'lodash';
 import {Router} from '@angular/router';
 import {
     SnapshotProfileDialogComponent
 } from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 import {DataProcessorService} from '../../services/data-processor.service';
+import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 const _ = lodash.default;
 
 @Component({
@@ -67,7 +67,7 @@ export class SnapshotsComponent implements OnInit, OnDestroy {
                 private datasetService: DatasetService,
                 private dataProcessorService: DataProcessorService,
                 private router: Router,
-                public config: KinintelModuleConfig) {
+                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {
