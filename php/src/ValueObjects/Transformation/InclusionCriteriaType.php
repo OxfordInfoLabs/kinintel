@@ -8,5 +8,4 @@ enum InclusionCriteriaType: string {
     case ParameterPresent = "parameterpresent";
     case ParameterNotPresent = "parameternotpresent";
     case ParameterValue = "parametervalue";
-    case ParameterNotPresent = "parameternotpresent";
 }
