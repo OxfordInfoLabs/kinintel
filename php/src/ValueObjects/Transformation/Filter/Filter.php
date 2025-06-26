@@ -5,6 +5,8 @@ namespace Kinintel\ValueObjects\Transformation\Filter;
 
 
 use Kinikit\Core\Util\Primitive;
+use Kinintel\ValueObjects\Transformation\InclusionCriteria;
+use Kinintel\ValueObjects\Transformation\InclusionCriteriaType;
 
 class Filter {
 

@@ -1,14 +1,14 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DashboardService} from '../../services/dashboard.service';
-import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {MetadataComponent} from '../metadata/metadata.component';
 import * as lodash from 'lodash';
+import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 const _ = lodash.default;
 
 @Component({
@@ -46,7 +46,7 @@ export class DashboardsComponent implements OnInit {
                 private projectService: ProjectService,
                 private dashboardService: DashboardService,
                 private dialog: MatDialog,
-                public config: KinintelModuleConfig) {
+                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {

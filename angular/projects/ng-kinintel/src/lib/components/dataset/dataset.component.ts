@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
@@ -6,13 +6,13 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DatasetService} from '../../services/dataset.service';
-import {KinintelModuleConfig} from '../../ng-kinintel.module';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 import {MetadataComponent} from '../metadata/metadata.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CreateDatasetComponent} from './create-dataset/create-dataset.component';
 import {Location} from '@angular/common';
+import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 
 @Component({
     selector: 'ki-dataset',
@@ -62,7 +62,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 private datasetService: DatasetService,
                 private router: Router,
                 private route: ActivatedRoute,
-                public config: KinintelModuleConfig,
+                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
                 private location: Location) {
     }
 

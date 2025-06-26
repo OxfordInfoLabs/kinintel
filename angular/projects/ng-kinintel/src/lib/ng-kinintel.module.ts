@@ -107,6 +107,8 @@ import { RemoveTransformationWarningComponent } from './components/dataset/datas
 import { ExportProjectComponent } from './components/export-project/export-project.component';
 import { ChangeSourceWarningComponent } from './components/data-explorer/change-source-warning/change-source-warning.component';
 import { DatasetFilterInclusionComponent } from './components/dataset/dataset-editor/dataset-filters/dataset-filter-inclusion/dataset-filter-inclusion.component';
+import { KININTEL_MODULE_CONFIG, KinintelModuleConfig } from './config/kinintel-module-config';
+import { FeedApiModalComponent } from './components/shared-with-me/feed-api-modal/feed-api-modal.component';
 
 
 @NgModule({
@@ -180,7 +182,8 @@ import { DatasetFilterInclusionComponent } from './components/dataset/dataset-ed
         RemoveTransformationWarningComponent,
         ExportProjectComponent,
         ChangeSourceWarningComponent,
-        DatasetFilterInclusionComponent
+        DatasetFilterInclusionComponent,
+        FeedApiModalComponent
     ],
     imports: [
         BrowserModule,
@@ -256,17 +259,9 @@ export class NgKinintelModule {
         return {
             ngModule: NgKinintelModule,
             providers: [
-                {provide: KinintelModuleConfig, useValue: conf || {}}
+                {provide: KININTEL_MODULE_CONFIG, useValue: conf || {}}
             ]
         };
     }
 }
 
-export class KinintelModuleConfig {
-    backendURL: string;
-    guestURL?: string;
-    externalURL?: string;
-    tagLabel?: string;
-    tagMenuLabel?: string;
-    dataSearchTypeMapping?: any;
-}

@@ -1,0 +1,56 @@
+<div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+
+    <div class="dialog-title bg-gray-50" cdkDragHandle>
+        <h2 mat-dialog-title>
+            Signal API Access
+        </h2>
+
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <div class="relative w-full">
+            <div class="text-base font-semibold">cURL</div>
+            <div class="text-sm mb-2">
+                This is the recommended approach for consuming the API.
+            </div>
+            <div #createCurl class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+            <pre class="whitespace-normal">
+curl -H <span class="text-emerald-400">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span class="text-emerald-400">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+                <pre class="whitespace-normal">
+-X <b>GET</b> <span class="text-emerald-400">{{feedUrl}}{{feed.path}}<ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames" let-i=index>{{i === 0 ? '?' : '&'}}{{param}}=<b>[[VALUE]]</b></ng-template></span></pre>
+
+            </div>
+            <button mat-icon-button (click)="copy(createCurl.textContent)"
+                    class="text-white absolute bottom-0 right-0">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+
+        <div class="relative w-full">
+            <div class="text-base font-semibold">HTTPS</div>
+            <div class="text-sm mb-2">
+                We recommend only using this for testing the API endpoint.
+            </div>
+            <div #createHttps class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4"><pre class="whitespace-normal">{{feedUrl}}{{feed.path}}<span class="text-emerald-400">?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b></span><ng-template ngFor let-param [ngForOf]="feed.exposedParameterNames"><span class="text-emerald-400">&{{param}}=<b>[[VALUE]]</b></span></ng-template></pre></div>
+
+            <button mat-icon-button (click)="copy(createHttps.textContent)"
+                    class="text-white absolute bottom-0 right-0">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+
+
+
+    </div>
+
+    <div class="dialog-footer">
+        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+    </div>
+
+</div>
+
+

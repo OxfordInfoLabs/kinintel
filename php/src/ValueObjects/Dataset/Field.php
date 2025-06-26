@@ -88,6 +88,7 @@ class Field {
     const TYPE_DATE_TIME = "datetime";
     const TYPE_PICK_FROM_SOURCE = "pickfromsource";
     const TYPE_ID = "id";
+    const TYPE_JSON = "json";
 
 
     /**

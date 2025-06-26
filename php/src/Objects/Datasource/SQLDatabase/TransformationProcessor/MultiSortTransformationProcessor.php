@@ -4,6 +4,7 @@
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -26,10 +27,12 @@ class MultiSortTransformationProcessor extends SQLTransformationProcessor {
 
             $sortStrings = [];
             foreach ($transformation->getSorts() as $sort) {
-                $sortStrings[] = $databaseConnection->escapeColumn($sort->getFieldName()) . " " . $sort->getDirection();
+                if ($sort->meetsInclusionCriteria($parameterValues))
+                    $sortStrings[] = $databaseConnection->escapeColumn($sort->getFieldName()) . " " . $sort->getDirection();
             }
 
-            $query->setOrderByClause(join(", ", $sortStrings));
+            if (sizeof($sortStrings))
+                $query->setOrderByClause(join(", ", $sortStrings));
         }
         return $query;
     }

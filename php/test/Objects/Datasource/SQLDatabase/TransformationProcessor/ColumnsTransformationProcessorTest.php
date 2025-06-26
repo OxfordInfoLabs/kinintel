@@ -6,6 +6,8 @@ use Kiniauth\Services\Security\AuthenticationService;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\MySQL\MySQLDatabaseConnection;
+use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\ColumnsTransformationProcessor;
 use Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor\SQLTransformationProcessor;
@@ -45,6 +47,8 @@ class ColumnsTransformationProcessorTest extends TestCase {
 
         $query = new SQLQuery("*", "test");
         $datasource = MockObjectProvider::mock(SQLDatabaseDatasource::class);
+        $databaseConnection = new SQLite3DatabaseConnection();
+        $datasource->returnValue("returnDatabaseConnection", $databaseConnection);
         $fields = [
             new Field("column1", "Column 1"),
             new Field("column2", "Column 2"),
@@ -84,11 +88,14 @@ class ColumnsTransformationProcessorTest extends TestCase {
         $datasourceConfig = new SQLDatabaseDatasourceConfig("table", "test", "");
         $datasource->returnValue("getConfig", $datasourceConfig);
         $datasource->returnValue("returnFields", $originalFields);
+        $databaseConnection = new SQLite3DatabaseConnection();
+        $datasource->returnValue("returnDatabaseConnection", $databaseConnection);
+
 
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
         // Check query unaffected
-        $expectedQuery = new SQLQuery("C1.column1 AS updatedColumn1, C1.column3 AS updatedColumn3",
+        $expectedQuery = new SQLQuery('C1."column1" AS "updatedColumn1", C1."column3" AS "updatedColumn3"',
             "(SELECT * FROM test) C1");
 
         $this->assertEquals($expectedQuery, $updatedQuery);
@@ -120,10 +127,13 @@ class ColumnsTransformationProcessorTest extends TestCase {
         $datasource->returnValue("getConfig", $datasourceConfig);
         $datasource->returnValue("returnFields", $originalFields);
 
+        $databaseConnection = new SQLite3DatabaseConnection();
+        $datasource->returnValue("returnDatabaseConnection", $databaseConnection);
+
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
         // Check query unaffected
-        $expectedQuery = new SQLQuery("C1.column1 AS updated_column_1, C1.column3 AS updated_column_3",
+        $expectedQuery = new SQLQuery('C1."column1" AS "updated_column_1", C1."column3" AS "updated_column_3"',
             "(SELECT * FROM test) C1");
 
         $this->assertEquals($expectedQuery, $updatedQuery);
@@ -161,8 +171,12 @@ class ColumnsTransformationProcessorTest extends TestCase {
         $datasource->returnValue("getConfig", $datasourceConfig);
         $datasource->returnValue("returnFields", $originalFields);
 
+        $databaseConnection = new SQLite3DatabaseConnection();
+        $datasource->returnValue("returnDatabaseConnection", $databaseConnection);
+
+
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
-        $expectedUpdatedQuerySQL = "SELECT C1.column1 AS updated_column_1, C1.column3 AS updated_column_3 FROM (SELECT * FROM test) C1";
+        $expectedUpdatedQuerySQL = 'SELECT C1."column1" AS "updated_column_1", C1."column3" AS "updated_column_3" FROM (SELECT * FROM test) C1';
         $this->assertSame($expectedUpdatedQuerySQL, $updatedQuery->getSQL());
 
 
@@ -178,8 +192,8 @@ class ColumnsTransformationProcessorTest extends TestCase {
 
 
         // Check query unaffected
-        $expectedQuery = new SQLQuery("C2.updated_column_1 AS resetColumn1, C2.updated_column_3 AS otherResetColumn2",
-            "(SELECT C1.column1 AS updated_column_1, C1.column3 AS updated_column_3 FROM (SELECT * FROM test) C1) C2");
+        $expectedQuery = new SQLQuery('C2."updated_column_1" AS "resetColumn1", C2."updated_column_3" AS "otherResetColumn2"',
+            '(SELECT C1."column1" AS "updated_column_1", C1."column3" AS "updated_column_3" FROM (SELECT * FROM test) C1) C2');
 
         $this->assertEquals($expectedQuery, $updatedQuery);
 
@@ -211,10 +225,14 @@ class ColumnsTransformationProcessorTest extends TestCase {
         $datasource->returnValue("getConfig", $datasourceConfig);
         $datasource->returnValue("returnFields", $originalColumns, [[], $transformation]);
 
+        $databaseConnection = new SQLite3DatabaseConnection();
+        $datasource->returnValue("returnDatabaseConnection", $databaseConnection);
+
+
         $updatedQuery = $this->processor->updateQuery($transformation, $query, [], $datasource);
 
         // Check query unaffected
-        $expectedQuery = new SQLQuery("C1.column1 AS updated_column, C1.column3 AS updated_column_2, C1.column4 AS updated_column_3",
+        $expectedQuery = new SQLQuery('C1."column1" AS "updated_column", C1."column3" AS "updated_column_2", C1."column4" AS "updated_column_3"',
             "(SELECT * FROM test) C1");
 
         $this->assertEquals($expectedQuery, $updatedQuery);

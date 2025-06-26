@@ -1,11 +1,17 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Observable, of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
-import {DatasetService} from "../../services/dataset.service";
-import {DataExplorerComponent} from "../data-explorer/data-explorer.component";
-import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
-import {Router} from "@angular/router";
+import {DatasetService} from '../../services/dataset.service';
+import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {Router} from '@angular/router';
+import shortHash from 'short-hash';
 import * as lodash from 'lodash';
+import {FeedService} from '../../services/feed.service';
+import {
+    FeedApiModalComponent
+} from '../shared-with-me/feed-api-modal/feed-api-modal.component';
+
 const _ = lodash.default;
 
 @Component({
@@ -23,6 +29,7 @@ export class SharedWithMeComponent implements OnInit {
     @Input() hideHeading = false;
     @Input() datasetEditorReadonly = false;
     @Input() nameReplaceString: string;
+    @Input() feedUrl: string;
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -34,7 +41,10 @@ export class SharedWithMeComponent implements OnInit {
 
     private reload = new Subject();
 
-    constructor(private datasetService: DatasetService, private dialog: MatDialog, private router: Router) {
+    constructor(private datasetService: DatasetService,
+                private dialog: MatDialog,
+                private router: Router,
+                private feedService: FeedService) {
     }
 
     ngOnInit() {
@@ -76,10 +86,42 @@ export class SharedWithMeComponent implements OnInit {
         this.reload.next(Date.now());
     }
 
+    public async apiAccess(dataset: any) {
+        dataset._loadingAPI = true;
+        const hash = shortHash(String(dataset.id));
+        const feeds: any = await this.feedService.listFeeds(hash, '1', '0').toPromise();
+        let feedId = null;
+        if (!feeds.length) {
+            const feedData = {
+                exporterConfiguration: {includeHeaderRow: true, separator: ','},
+                cacheTimeSeconds: 0,
+                path: hash,
+                datasetInstanceId: dataset.id,
+                datasetLabel: dataset,
+                exporterKey: 'json'
+            };
+
+            feedId = await this.feedService.saveFeed(feedData);
+        } else {
+            feedId = feeds[0].id;
+        }
+
+        const feed = await this.feedService.getFeed(feedId);
+        dataset._loadingAPI = false;
+
+        const dialog = this.dialog.open(FeedApiModalComponent, {
+            width: '700px',
+            height: '450px',
+            data: {
+                feed,
+                feedUrl: this.feedUrl
+            }
+        });
+    }
+
     public getDatasets() {
         return this.datasetService.getAccountSharedDatasets(this.searchText.getValue(), this.limit, this.offset).toPromise();
     }
-
 
     // Create extended dataset from source id.
     public extend(id) {
