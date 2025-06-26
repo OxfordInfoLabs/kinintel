@@ -1,6 +1,6 @@
 <?php
 
-namespace Kinintel\ValueObjects\Transformation\Filter;
+namespace Kinintel\ValueObjects\Transformation;
 
 
 enum InclusionCriteriaType: string {
@@ -8,4 +8,5 @@ enum InclusionCriteriaType: string {
     case ParameterPresent = "parameterpresent";
     case ParameterNotPresent = "parameternotpresent";
     case ParameterValue = "parametervalue";
+    case ParameterNotPresent = "parameternotpresent";
 }

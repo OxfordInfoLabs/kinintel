@@ -57,7 +57,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         float: 'Decimal number',
         date: 'Date',
         datetime: 'Date and Time',
-        pickfromsource: 'Pick From List (using another source)'
+        pickfromsource: 'Pick From List (using another source)',
+        json: 'Nested JSON Object'
     };
 
     public rows: any = [];

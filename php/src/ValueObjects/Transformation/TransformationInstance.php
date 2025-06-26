@@ -13,6 +13,8 @@ use Kinintel\Exception\InvalidTransformationTypeException;
 
 class TransformationInstance {
 
+    use InclusionCriteria;
+
     /**
      * @var string
      */
