@@ -3,6 +3,7 @@
 namespace Kinintel\Services\Hook;
 
 use Kinintel\ValueObjects\Hook\DatasourceHookConfig;
+use Kinintel\ValueObjects\Hook\DatasourceHookUpdateMetaData;
 
 interface DatasourceHook {
 
@@ -16,9 +17,10 @@ interface DatasourceHook {
      * @param DatasourceHookConfig $hookConfig
      * @param string $updateMode
      * @param mixed $updateData
+     * @param ?DatasourceHookUpdateMetaData|null $hookUpdateMetaData
      *
      * @return mixed
      */
-    public function processHook($hookConfig, $updateMode, $updateData);
+    public function processHook($hookConfig, $updateMode, $updateData, ?DatasourceHookUpdateMetaData $hookUpdateMetaData = null);
 
 }

@@ -441,7 +441,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
                     $changed += sizeof($allData);
 
-                    // Run any hooks using hook service if instance info has been proviced
+                    // Run any hooks using hook service if instance info has been provided
                     if ($this->getInstanceInfo())
                         $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode, $allData);
 

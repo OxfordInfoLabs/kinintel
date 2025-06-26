@@ -7,6 +7,7 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
+use Kinintel\ValueObjects\Hook\DatasourceHookUpdateMetaData;
 use Kinintel\ValueObjects\Hook\Hook\DatasourceUpdateDatasourceHookConfig;
 
 class DatasourceUpdateDatasourceHook implements DatasourceHook {
@@ -34,10 +35,11 @@ class DatasourceUpdateDatasourceHook implements DatasourceHook {
      * @param DatasourceUpdateDatasourceHookConfig $hookConfig
      * @param string $updateMode
      * @param array $updateData
+     * @param DatasourceHookUpdateMetaData|null $hookUpdateMetaData
      *
      * @return void
      */
-    public function processHook($hookConfig, $updateMode, $updateData) {
+    public function processHook($hookConfig, $updateMode, $updateData, DatasourceHookUpdateMetaData $hookUpdateMetaData = null) {
 
         $data = null;
         if ($hookConfig->getFields()) {

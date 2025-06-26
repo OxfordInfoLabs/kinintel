@@ -32,7 +32,7 @@ class AdhocMailingDatasourceHookTest extends TestCase {
     public function testAdhocMailingCalledForConfiguredMailingWithSendToMailingListEnabled() {
 
         $hookConfig = new AdhocMailingDatasourceHookConfig(22);
-        $this->hook->processHook($hookConfig,"add", [
+        $this->hook->processHook($hookConfig, "add", [
             ["name" => "John Brown", "age" => 25, "dob" => "01/01/1997"]
         ]);
 
@@ -49,7 +49,7 @@ class AdhocMailingDatasourceHookTest extends TestCase {
             "test@one.com",
             "test@two.com"
         ]);
-        $this->hook->processHook($hookConfig,"add", [
+        $this->hook->processHook($hookConfig, "add", [
             ["name" => "John Brown", "age" => 25, "dob" => "01/01/1997"]
         ]);
 
