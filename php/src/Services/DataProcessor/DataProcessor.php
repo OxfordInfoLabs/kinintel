@@ -16,6 +16,7 @@ use Kinintel\Objects\DataProcessor\DataProcessorInstance;
  * @implementation sqlquery \Kinintel\Services\DataProcessor\Query\SQLQueryDataProcessor
  * @implementation querycaching \Kinintel\Services\DataProcessor\Query\QueryCachingDataProcessor
  * @implementation multi \Kinintel\Services\DataProcessor\Multi\MultiDataProcessor
+ * @implementation command \Kinintel\Services\DataProcessor\Command\CommandDataProcessor
  */
 interface DataProcessor {
 
