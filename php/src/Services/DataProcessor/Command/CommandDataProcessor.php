@@ -16,9 +16,9 @@ class CommandDataProcessor implements DataProcessor {
         /** @var CommandDataProcessorConfiguration $config */
         $config = $instance->returnConfig();
 
-        passthru($config->getCommand(), $resultCode);
+        $success = exec($config->getCommand(), result_code: $resultCode);
 
-        if ($resultCode !== 0) {
+        if ($success == false) {
             throw new \Exception("Command exited with status code $resultCode");
         }
 
