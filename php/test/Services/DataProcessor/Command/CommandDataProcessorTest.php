@@ -40,7 +40,7 @@ class CommandDataProcessorTest extends TestBase {
             $this->processor->process($instance);
             $this->fail("Should haven thrown");
         } catch (\Exception $e) {
-            $this->assertEquals("Command exited with status code 127", $e->getMessage());
+            $this->assertEquals("Command exited with status code 127. Output:\n", $e->getMessage());
         }
 
     }
