@@ -645,6 +645,9 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
             };
 
             this.datasourceService.evaluateDatasource(evaluatedDatasource).then((res: any) => {
+
+                let jsonColumns = [];
+
                 this.columns = res.columns.map(column => {
                     column.previousName = column.name;
 
@@ -652,6 +655,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                         if (!this.columnPickFromDatasets[column.name]) {
                             this.populateColumnPickFrom(column);
                         }
+                    } else if (column.type === 'json') {
+                        jsonColumns.push(column.name);
                     }
 
                     return column;
@@ -663,6 +668,16 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     };
                 });
                 this.rows = res.allData;
+
+                // If JSON Columns, ensure we deserialise JSON values
+                if (jsonColumns.length) {
+                    this.rows.forEach(row => {
+                        jsonColumns.forEach(jsonColumn => {
+                            if (row[jsonColumn] || null)
+                                row[jsonColumn] = JSON.stringify(row[jsonColumn]);
+                        });
+                    });
+                }
 
                 this.endOfResults = this.rows.length < this.limit;
 
