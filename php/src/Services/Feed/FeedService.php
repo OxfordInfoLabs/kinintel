@@ -13,7 +13,10 @@ use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Objects\Feed\PushFeed;
+use Kinintel\Objects\Feed\PushFeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\ValueObjects\Feed\PushFeedConfig;
 
 class FeedService {
 
@@ -168,6 +171,51 @@ class FeedService {
         return $this->evaluateFeed($feed, $parameterValues, $offset, $limit, $request);
 
     }
+
+
+    /**
+     * Filter push feeds by feed path and limit and offset.
+     *
+     * @param ?string $feedPath
+     * @param ?string $projectKey
+     * @param ?int $offset
+     * @param ?int $limit
+     * @param mixed $accountId
+     * @return PushFeedSummary[]
+     */
+    public function filterPushFeeds(?string $feedPath = null, ?string $projectKey = null, ?int $offset = 0, ?int $limit = 10, mixed $accountId = Account::LOGGED_IN_ACCOUNT): array {
+
+    }
+
+
+    /**
+     * Save a push feed and return the id.
+     *
+     * @param PushFeedSummary $pushFeed
+     * @param ?string $projectKey
+     * @param mixed $accountId
+     *
+     * @return int
+     */
+    public function savePushFeed(PushFeedSummary $pushFeedSummary, ?string $projectKey = null,
+                                 mixed           $accountId = Account::LOGGED_IN_ACCOUNT) {
+
+        $pushFeed = new PushFeed($pushFeedSummary, $projectKey, $accountId);
+        $pushFeed->save();
+
+        return $pushFeed->getId();
+
+    }
+
+    /**
+     * Remove a push feed by id
+     *
+     * @param int $pushFeedId
+     */
+    public function removePushFeed(int $pushFeedId) {
+
+    }
+
 
     /**
      * Evaluate a feed object

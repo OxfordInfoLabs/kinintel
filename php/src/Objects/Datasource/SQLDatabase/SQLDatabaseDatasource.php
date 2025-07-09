@@ -43,6 +43,7 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
+use Kinintel\ValueObjects\Hook\MetaData\SQLDatabaseDatasourceHookUpdateMetaData;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -286,7 +287,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @param bool|Transformation $deriveUpToTransformation If false, we don't derive columns. If true, we derive based on all transformations. If given a transformation, we derive up to the transformation before.
      * @return Field[]
      */
-    public function returnFields($parameterValues, bool|Transformation $deriveUpToTransformation = false) : array {
+    public function returnFields($parameterValues, bool|Transformation $deriveUpToTransformation = false): array {
         $dbConnection = $this->returnDatabaseConnection();
 
         // Get columns from the datasource config if we are using original columns
@@ -321,8 +322,6 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             $fields = $transformation->returnAlteredColumns($fields);
 
         }
-
-
 
 
         return $fields;
@@ -442,9 +441,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
                     $changed += sizeof($allData);
 
                     // Run any hooks using hook service if instance info has been provided
-                    if ($this->getInstanceInfo())
-                        $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode, $allData);
-
+                    if ($this->getInstanceInfo()) {
+                        $metaData = new SQLDatabaseDatasourceHookUpdateMetaData($this->returnDatabaseConnection());
+                        $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode, $allData, $metaData);
+                    }
 
                 } catch (SQLException $e) {
                     // There are multiple errors with code 23000 and they relate to integrity constraints

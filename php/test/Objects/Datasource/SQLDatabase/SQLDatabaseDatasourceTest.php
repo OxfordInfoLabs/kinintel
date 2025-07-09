@@ -42,6 +42,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateFieldValidatorConfig;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
+use Kinintel\ValueObjects\Hook\MetaData\SQLDatabaseDatasourceHookUpdateMetaData;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -491,11 +492,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             "test_data", $data, null, true
         ]));
 
+        $metaData = new SQLDatabaseDatasourceHookUpdateMetaData($sqlDatabaseDatasource->returnDatabaseConnection());
+
         $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "addinstance",
                 UpdatableDatasource::UPDATE_MODE_ADD,
-                $data
+                $data,
+                $metaData
             ]));
 
     }
@@ -553,8 +557,9 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             [
                 "addinstance",
                 UpdatableDatasource::UPDATE_MODE_ADD,
-                array_slice($data, 0, 1)
-            ]));
+                array_slice($data, 0, 1),
+                new SQLDatabaseDatasourceHookUpdateMetaData($sqlDatabaseDatasource->returnDatabaseConnection())
+        ]));
 
 
     }
@@ -683,7 +688,8 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             [
                 "removeinstance",
                 UpdatableDatasource::UPDATE_MODE_DELETE,
-                $data
+                $data,
+                new SQLDatabaseDatasourceHookUpdateMetaData($sqlDatabaseDatasource->returnDatabaseConnection())
             ]));
 
     }
@@ -724,11 +730,14 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             "test_data", $data, null
         ]));
 
+        $metaData = new SQLDatabaseDatasourceHookUpdateMetaData($sqlDatabaseDatasource->returnDatabaseConnection());
+
         $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "replaceinstance",
                 UpdatableDatasource::UPDATE_MODE_REPLACE,
-                $data
+                $data,
+                $metaData
             ]));
     }
 

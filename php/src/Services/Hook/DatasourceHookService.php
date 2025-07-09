@@ -47,7 +47,7 @@ class DatasourceHookService {
      * @throws \Kinikit\Core\Exception\AccessDeniedException
      * @throws \Throwable
      */
-    public function processHooks($datasourceKey, $updateMode, $data = []) {
+    public function processHooks($datasourceKey, $updateMode, $data = [], $metaData = null) {
 
         /** @var DatasourceHookInstance[] $hooks */
         $hooks = $this->getDatasourceHookInstancesForDatasourceInstanceAndMode($datasourceKey, $updateMode);
@@ -56,7 +56,7 @@ class DatasourceHookService {
         // Process all applicable hooks
         foreach ($hooks as $hookInstance) {
 
-            $executable = function () use ($hookInstance, $updateMode, $data) {
+            $executable = function () use ($hookInstance, $updateMode, $data, $metaData) {
 
                 // Check for processor based hooks
                 if ($processorKey = $hookInstance->getDataProcessorInstanceKey()) {
@@ -72,7 +72,7 @@ class DatasourceHookService {
                         $this->objectBinder->bindFromArray($hookInstance->getHookConfig(), $configClass);
 
                     // Process the hook
-                    $hook->processHook($hookConfig, $updateMode, $data);
+                    $hook->processHook($hookConfig, $updateMode, $data, $metaData);
 
                 }
             };

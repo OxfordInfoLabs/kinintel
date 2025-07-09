@@ -1,0 +1,1 @@
+pushfeed=\Kinintel\Services\Feed\PushFeedTask

@@ -5,6 +5,10 @@ namespace Kinintel\Services\Hook;
 use Kinintel\ValueObjects\Hook\DatasourceHookConfig;
 use Kinintel\ValueObjects\Hook\DatasourceHookUpdateMetaData;
 
+
+/**
+ * @implementation pushfeed \Kinintel\Services\Hook\Hook\PushFeedDatasourceHook
+ */
 interface DatasourceHook {
 
 

@@ -20,6 +20,8 @@ use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Objects\Feed\PushFeed;
+use Kinintel\Objects\Feed\PushFeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Feed\FeedService;
 use Kinintel\TestBase;
@@ -634,6 +636,39 @@ class FeedServiceTest extends TestBase {
         $_SERVER["HTTP_REFERER"] = "https://test.sad.com/mypath?hello=true";
         $response = $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
         $this->assertEquals($expectedResponse, $response);
+
+
+    }
+
+
+    public function testCanCreateReadFilterAndRemovePushFeeds() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $pushFeed1 = new PushFeedSummary("Example Push 1", "/test", "https://bodgemeout.com",
+            ["param1" => "bing", "param2" => "bong"], ["id"], "id", 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+
+        $id1 = $this->feedService->savePushFeed($pushFeed1, "bongo", 1);
+        $this->assertNotNull($id1);
+
+        $pushFeed2 = new PushFeedSummary("Example Push 2", "/source", "https://bodgemeout.com",
+            ["param1" => "bing", "param2" => "bong"], ["id"], "id", 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+
+        $id2 = $this->feedService->savePushFeed($pushFeed2, null, 1);
+        $this->assertNotNull($id2);
+
+        $pushFeed3 = new PushFeedSummary("Example Push 3", "/home", "https://bodgemeout.com",
+            ["param1" => "bing", "param2" => "bong"], ["id"], "id", 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+
+        $id3 = $this->feedService->savePushFeed($pushFeed3, null, 2);
+        $this->assertNotNull($id3);
+
+
+        // Check some filtered results
+        $this->assertEquals([$pushFeed1], $this->feedService->filterPushFeeds("", "bongo", 0, 10, 1));
+        $this->assertEquals([$pushFeed1, $pushFeed2], $this->feedService->filterPushFeeds("", null, 0, 10, 1));
+        $this->assertEquals([$pushFeed3], $this->feedService->filterPushFeeds("", null, 0, 10, 2));
+
 
 
     }

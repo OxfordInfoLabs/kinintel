@@ -11,6 +11,7 @@ use Kinikit\Core\Template\ValueFunction\ValueFunctionEvaluator;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Services\Alert\AlertGroupTask;
 use Kinintel\Services\DataProcessor\DataProcessorTask;
+use Kinintel\Services\Feed\PushFeedTask;
 use Kinintel\Services\ImportExport\ImportExporters\AlertGroupImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DashboardImportExporter;
 use Kinintel\Services\ImportExport\ImportExporters\DataProcessorImportExporter;
@@ -49,6 +50,7 @@ class Bootstrap implements ApplicationBootstrap {
         // Inject task implementations specific to kinintel
         Container::instance()->addInterfaceImplementation(Task::class, "alertgroup", AlertGroupTask::class);
         Container::instance()->addInterfaceImplementation(Task::class, "dataprocessor", DataProcessorTask::class);
+        Container::instance()->addInterfaceImplementation(Task::class, "pushfeed", PushFeedTask::class);
 
         // Add attachment storage for google
         Container::instance()->addInterfaceImplementation(AttachmentStorage::class, "google-cloud", GoogleCloudAttachmentStorage::class);

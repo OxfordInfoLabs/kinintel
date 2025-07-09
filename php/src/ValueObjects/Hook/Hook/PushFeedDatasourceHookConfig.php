@@ -10,21 +10,23 @@ class PushFeedDatasourceHookConfig {
      *
      *
      * @param int $feedId
-     * @param array $feedParameterValues
-     * @param string|null $lastInsertIdParameterName
      * @param string $pushUrl
+     * @param array $feedParameterValues
+     * @param string[] $statefulParameterKeys
+     * @param string|null $lastInsertIdParameterName
      * @param bool $signWithKeyPairId
-     * @param array|null $otherHeaders
+     * @param string[] $otherHeaders
      * @param string|null $method
      */
     public function __construct(
         private int     $feedId,
-        private ?array  $feedParameterValues = [],
+        private string  $pushUrl,
+        private array  $feedParameterValues = [],
+        private array  $statefulParameterKeys = [],
         private ?string $lastInsertIdParameterName = null,
-        private ?string $pushUrl = null,
-        private bool $signWithKeyPairId = false,
-        private array  $otherHeaders = [],
-        private string $method = Request::METHOD_POST,) {
+        private ?int    $signWithKeyPairId = null,
+        private array   $otherHeaders = [],
+        private string  $method = Request::METHOD_POST) {
     }
 
 
@@ -57,6 +59,20 @@ class PushFeedDatasourceHookConfig {
     }
 
     /**
+     * @return array
+     */
+    public function getStatefulParameterKeys(): array {
+        return $this->statefulParameterKeys;
+    }
+
+    /**
+     * @param array $statefulParameterKeys
+     */
+    public function setStatefulParameterKeys(array $statefulParameterKeys): void {
+        $this->statefulParameterKeys = $statefulParameterKeys;
+    }
+
+    /**
      * @return string|null
      */
     public function getLastInsertIdParameterName(): ?string {
@@ -73,42 +89,42 @@ class PushFeedDatasourceHookConfig {
     /**
      * @return string
      */
-    public function getPushUrl(): ?string {
+    public function getPushUrl(): string {
         return $this->pushUrl;
     }
 
     /**
      * @param string $pushUrl
      */
-    public function setPushUrl(?string $pushUrl): void {
+    public function setPushUrl(string $pushUrl): void {
         $this->pushUrl = $pushUrl;
     }
 
     /**
      * @return string|null
      */
-    public function getSignWithKeyPairId(): ?bool {
+    public function getSignWithKeyPairId(): ?int {
         return $this->signWithKeyPairId;
     }
 
     /**
      * @param bool $signWithKeyPairId
      */
-    public function setSignWithKeyPairId(?bool $signWithKeyPairId): void {
+    public function setSignWithKeyPairId(?int $signWithKeyPairId): void {
         $this->signWithKeyPairId = $signWithKeyPairId;
     }
 
     /**
-     * @return array|null
+     * @return array
      */
-    public function getOtherHeaders(): ?array {
+    public function getOtherHeaders(): array {
         return $this->otherHeaders;
     }
 
     /**
-     * @param array|null $otherHeaders
+     * @param array $otherHeaders
      */
-    public function setOtherHeaders(?array $otherHeaders): void {
+    public function setOtherHeaders(array $otherHeaders): void {
         $this->otherHeaders = $otherHeaders;
     }
 
