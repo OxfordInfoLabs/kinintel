@@ -14,10 +14,11 @@ class DatasourceUpdateResult {
      * @param int $replaces
      * @param int $deletes
      * @param int $rejected
+     * @param int $ignored
      * @param DatasourceUpdateResultItemValidationErrors[] $validationErrors
      */
     public function __construct(private int $adds = 0, private int $updates = 0, private int $replaces = 0,
-                                private int $deletes = 0, private int $rejected = 0, private array $validationErrors = []) {
+                                private int $deletes = 0, private int $rejected = 0, private int $ignored = 0, private array $validationErrors = []) {
 
     }
 
@@ -57,6 +58,16 @@ class DatasourceUpdateResult {
     }
 
     /**
+     * @return int
+     */
+    public function getIgnored(): int {
+        return $this->ignored;
+    }
+
+
+
+
+    /**
      * @return DatasourceUpdateResultItemValidationErrors[]
      */
     public function getValidationErrors(): array {
@@ -78,6 +89,7 @@ class DatasourceUpdateResult {
         $this->replaces += $otherDatasourceUpdateResult->getReplaces();
         $this->deletes += $otherDatasourceUpdateResult->getDeletes();
         $this->rejected += $otherDatasourceUpdateResult->getRejected();
+        $this->ignored += $otherDatasourceUpdateResult->getIgnored();
 
     }
 

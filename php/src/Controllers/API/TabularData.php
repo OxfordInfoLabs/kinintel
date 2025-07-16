@@ -6,6 +6,7 @@ namespace Kinintel\Controllers\API;
 use Kinikit\Core\Logging\Logger;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\Request\Request;
+use Kinikit\MVC\Response\JSONResponse;
 use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Exception\FieldNotFoundException;
 use Kinintel\Objects\Dataset\Dataset;
@@ -120,7 +121,8 @@ class TabularData {
      */
     public function insert($importKey, $rows) {
         $datasourceUpdate = new DatasourceUpdate($rows);
-        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        $result = $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        return new JSONResponse($result, $result->getRejected() > 0 ? 422 : 200);
     }
 
 
@@ -135,7 +137,8 @@ class TabularData {
      */
     public function update($importKey, $rows) {
         $datasourceUpdate = new DatasourceUpdate([], $rows);
-        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        $result = $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        return new JSONResponse($result, $result->getRejected() > 0 ? 422 : 200);
 
     }
 
@@ -151,7 +154,8 @@ class TabularData {
      */
     public function replace($importKey, $rows) {
         $datasourceUpdate = new DatasourceUpdate([], [], [], $rows);
-        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        $result = $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        return new JSONResponse($result, $result->getRejected() > 0 ? 422 : 200);
     }
 
 
@@ -166,8 +170,8 @@ class TabularData {
      */
     public function delete($importKey, $pkValues) {
         $datasourceUpdate = new DatasourceUpdate([], [], $pkValues);
-        return $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
-
+        $result = $this->datasourceService->updateDatasourceInstanceByImportKey($importKey, $datasourceUpdate);
+        return new JSONResponse($result, $result->getRejected() > 0 ? 422 : 200);
     }
 
 

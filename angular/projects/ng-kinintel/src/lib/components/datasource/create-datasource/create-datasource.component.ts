@@ -530,9 +530,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
                         const invalidAddRows = _.map(result.validationErrors.add || [], 'itemNumber');
                         for (let i = this.adds.length - 1; i >= 0; i--) {
-                            if (!invalidAddRows.includes(i)) {
-                                this.adds.splice(i, 1);
-                            } else {
+                            if (invalidAddRows.includes(i)) {
                                 this.invalidItems[this.adds[i]] = _.find(result.validationErrors.add, {itemNumber: i}).validationErrors;
                             }
                         }
@@ -540,9 +538,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
                         const invalidUpdateRows = _.map(result.validationErrors.update || [], 'itemNumber');
                         for (let i = this.updates.length - 1; i >= 0; i--) {
-                            if (!invalidUpdateRows.includes(i)) {
-                                this.updates.splice(i, 1);
-                            } else {
+                            if (invalidUpdateRows.includes(i)) {
                                 this.invalidItems[this.updates[i]] = _.find(result.validationErrors.update, {itemNumber: i}).validationErrors;
                             }
                         }
