@@ -734,24 +734,24 @@ class DatasourceServiceTest extends TestBase {
             ["name" => "Replace me twice", "age" => 65]
         ]);
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0, 1, ["add" => [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0, 1, 0, ["add" => [
             new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])
         ]]), [
             $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
         ]);
 
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0, [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0, 0, [
         ]), [
             $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
         ]);
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2, 0, [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2, 0, 0, [
         ]), [
             $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
         ]);
 
-        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1, ["replace" => [
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1, 0, ["replace" => [
             new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])
         ]]), [
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
@@ -760,7 +760,7 @@ class DatasourceServiceTest extends TestBase {
 
         $result = $this->dataSourceService->updateDatasourceInstanceByKey("test", $datasourceUpdate);
 
-        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2, [
+        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2, 0, [
             "add" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])],
             "replace" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])]
         ]), $result);

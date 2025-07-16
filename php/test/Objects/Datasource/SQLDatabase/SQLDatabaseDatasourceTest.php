@@ -478,7 +478,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("nextNDataItems", $data, [50]);
+        $dataSet->returnValue("nextNDataItems", $data, [SQLDatabaseDatasource::READ_BATCH_SIZE]);
 
 
         $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
@@ -501,7 +501,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
     }
 
 
-    public function testValidationErrorsReturnedForRowsWhichFailValidationForInsertUpdateOrReplace() {
+    public function testValidationErrorsReturnedForRowsWhichFailValidationForInsertUpdateOrReplaceAndOtherRowsIgnored() {
 
 
         $sqlDatabaseDatasource = new SQLDatabaseDatasource(new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "test_data", ""),
@@ -526,7 +526,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("nextNDataItems", $data, [50]);
+        $dataSet->returnValue("nextNDataItems", $data, [SQLDatabaseDatasource::READ_BATCH_SIZE]);
 
         $dataSet->returnValue("getColumns", [
             new DatasourceUpdateField("name"), new DatasourceUpdateField("age", "Name", null, Field::TYPE_INTEGER),
@@ -539,17 +539,19 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_ADD);
 
         // Check an update result was returned
-        $this->assertEquals(new DatasourceUpdateResult(1, 0, 0, 0, 1, ["add" => [
+        $this->assertEquals(new DatasourceUpdateResult(0, 0, 0, 0, 1, 1, ["add" => [
             new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age",
                 "extraDetail" => "Value required for extraDetail"])
         ]]), $result);
 
 
-        $this->assertTrue($this->bulkDataManager->methodWasCalled("insert", [
+        // Make sure no insert occurred
+        $this->assertFalse($this->bulkDataManager->methodWasCalled("insert", [
             "test_data", array_slice($data, 0, 1), ["name", "age", "extraDetail"], true
         ]));
 
-        $this->assertTrue($this->datasourceHookService->methodWasCalled("processHooks",
+        // Make sure no hooks were called.
+        $this->assertFalse($this->datasourceHookService->methodWasCalled("processHooks",
             [
                 "addinstance",
                 UpdatableDatasource::UPDATE_MODE_ADD,
@@ -582,7 +584,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("nextNDataItems", $data, [50]);
+        $dataSet->returnValue("nextNDataItems", $data, [SQLDatabaseDatasource::READ_BATCH_SIZE]);
 
         $dataSet->returnValue("getColumns", [
             new DatasourceUpdateField("name", null, null, Field::TYPE_STRING, true), new DatasourceUpdateField("age", "Name", null, Field::TYPE_INTEGER, true)
@@ -592,7 +594,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $result = $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
 
         // Check an update result was returned
-        $this->assertEquals(new DatasourceUpdateResult(0, 0, 0, 0, 2, ["delete" => [
+        $this->assertEquals(new DatasourceUpdateResult(0, 0, 0, 0, 2, 0, ["delete" => [
             new DatasourceUpdateResultItemValidationErrors(0, ["age" => "Value required for age as it is a key field"]),
             new DatasourceUpdateResultItemValidationErrors(1, ["age" => "Invalid integer value supplied for age"])
         ]]), $result);
@@ -627,7 +629,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("nextNDataItems", $data, [50]);
+        $dataSet->returnValue("nextNDataItems", $data, [SQLDatabaseDatasource::READ_BATCH_SIZE]);
 
 
         $this->bulkDataManager->throwException("insert", new SQLException("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry", 23000), [
@@ -669,7 +671,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("nextNDataItems", $data, [50]);
+        $dataSet->returnValue("nextNDataItems", $data, [SQLDatabaseDatasource::READ_BATCH_SIZE]);
 
 
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_DELETE);
@@ -714,7 +716,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
             ]
         ];
 
-        $dataSet->returnValue("nextNDataItems", $data, [50]);
+        $dataSet->returnValue("nextNDataItems", $data, [SQLDatabaseDatasource::READ_BATCH_SIZE]);
 
 
         $sqlDatabaseDatasource->update($dataSet, UpdatableDatasource::UPDATE_MODE_REPLACE);
