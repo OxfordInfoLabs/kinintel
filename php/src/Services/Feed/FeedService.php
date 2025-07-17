@@ -185,6 +185,29 @@ class FeedService {
      */
     public function filterPushFeeds(?string $feedPath = null, ?string $projectKey = null, ?int $offset = 0, ?int $limit = 10, mixed $accountId = Account::LOGGED_IN_ACCOUNT): array {
 
+        // Construct dynamic clauses as required.
+        $filters = ["accountId = ?"];
+        $params = [$accountId];
+        if ($feedPath) {
+            $filters[] = "feedPath = ?";
+            $params[] = $feedPath;
+        }
+
+        if ($projectKey) {
+            $filters[] = "projectKey = ?";
+            $params[] = $projectKey;
+        }
+
+        // Add offset and limits
+        $params[] = $limit;
+        $params[] = $offset;
+
+        return array_map(function ($pushFeed) {
+            return $pushFeed->toSummary();
+        },
+            PushFeed::filter("WHERE " . join(" AND ", $filters) . " LIMIT ? OFFSET ?", $params));
+
+
     }
 
 
