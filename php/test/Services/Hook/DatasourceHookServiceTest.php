@@ -88,11 +88,11 @@ class DatasourceHookServiceTest extends TestBase {
 
         // Check process hook called correctly
         $this->assertTrue($mockHook->methodWasCalled("processHook", [
-            new TestHookConfig("Hello World"), "add", $data
+            new TestHookConfig("Hello World"), "add", $data, null
         ]));
 
         // Clean up
-        $this->hookService->deleteHook(3);
+        $this->hookService->deleteHook($newHook->getId());
 
     }
 

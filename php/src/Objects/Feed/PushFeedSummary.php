@@ -8,7 +8,7 @@ use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Persistence\ORM\ActiveRecord;
 
 /**
- * @table ki_push_feed_state
+ * @table ki_push_feed
  */
 class PushFeedSummary extends ActiveRecord {
 
@@ -17,13 +17,7 @@ class PushFeedSummary extends ActiveRecord {
      * @var array
      * @json
      */
-    private array $feedParameterValues = [];
-
-    /**
-     * @var array
-     * @json
-     */
-    private array $statefulParameterKeys = [];
+    protected array $feedParameterValues = [];
 
     /**
      * @var array
@@ -31,24 +25,47 @@ class PushFeedSummary extends ActiveRecord {
      */
     private array $otherHeaders = [];
 
-    public function __construct(protected string  $description,
-                                protected string  $feedPath,
-                                protected string  $pushUrl,
-                                array             $feedParameterValues = [],
-                                array             $statefulParameterKeys = [],
-                                protected ?string $lastInsertIdParameterName = null,
-                                protected ?int    $signWithKeyPairId = null,
-                                array             $otherHeaders = [],
-                                protected string  $method = Request::METHOD_POST,
-                                protected ?int    $id = null) {
+    public function __construct(protected string $description = "",
+                                protected string $feedPath = "",
+                                protected string $pushUrl = "",
+                                protected string $feedSequenceParameterKey = "",
+                                protected string $feedSequenceResultFieldName = "",
+                                array            $feedParameterValues = [],
+                                protected ?int   $signWithKeyPairId = null,
+                                array            $otherHeaders = [],
+                                protected string $method = Request::METHOD_POST,
+                                protected ?int   $id = null) {
+        $this->feedParameterValues = $feedParameterValues;
+        $this->otherHeaders = $otherHeaders;
 
     }
 
     /**
-     * @return int|null
+     * @return array
      */
-    public function getId(): ?int {
-        return $this->id;
+    public function getFeedParameterValues(): array {
+        return $this->feedParameterValues;
+    }
+
+    /**
+     * @param array $feedParameterValues
+     */
+    public function setFeedParameterValues(array $feedParameterValues): void {
+        $this->feedParameterValues = $feedParameterValues;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOtherHeaders(): array {
+        return $this->otherHeaders;
+    }
+
+    /**
+     * @param array $otherHeaders
+     */
+    public function setOtherHeaders(array $otherHeaders): void {
+        $this->otherHeaders = $otherHeaders;
     }
 
     /**
@@ -64,7 +81,6 @@ class PushFeedSummary extends ActiveRecord {
     public function setDescription(string $description): void {
         $this->description = $description;
     }
-
 
     /**
      * @return string
@@ -95,45 +111,31 @@ class PushFeedSummary extends ActiveRecord {
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getFeedParameterValues(): array {
-        return $this->feedParameterValues;
+    public function getFeedSequenceParameterKey(): string {
+        return $this->feedSequenceParameterKey;
     }
 
     /**
-     * @param array $feedParameterValues
+     * @param string $feedSequenceParameterKey
      */
-    public function setFeedParameterValues(array $feedParameterValues): void {
-        $this->feedParameterValues = $feedParameterValues;
+    public function setFeedSequenceParameterKey(string $feedSequenceParameterKey): void {
+        $this->feedSequenceParameterKey = $feedSequenceParameterKey;
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getStatefulParameterKeys(): array {
-        return $this->statefulParameterKeys;
+    public function getFeedSequenceResultFieldName(): string {
+        return $this->feedSequenceResultFieldName;
     }
 
     /**
-     * @param array $statefulParameterKeys
+     * @param string $feedSequenceResultFieldName
      */
-    public function setStatefulParameterKeys(array $statefulParameterKeys): void {
-        $this->statefulParameterKeys = $statefulParameterKeys;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getLastInsertIdParameterName(): ?string {
-        return $this->lastInsertIdParameterName;
-    }
-
-    /**
-     * @param string|null $lastInsertIdParameterName
-     */
-    public function setLastInsertIdParameterName(?string $lastInsertIdParameterName): void {
-        $this->lastInsertIdParameterName = $lastInsertIdParameterName;
+    public function setFeedSequenceResultFieldName(string $feedSequenceResultFieldName): void {
+        $this->feedSequenceResultFieldName = $feedSequenceResultFieldName;
     }
 
     /**
@@ -151,20 +153,6 @@ class PushFeedSummary extends ActiveRecord {
     }
 
     /**
-     * @return array
-     */
-    public function getOtherHeaders(): array {
-        return $this->otherHeaders;
-    }
-
-    /**
-     * @param array $otherHeaders
-     */
-    public function setOtherHeaders(array $otherHeaders): void {
-        $this->otherHeaders = $otherHeaders;
-    }
-
-    /**
      * @return string
      */
     public function getMethod(): string {
@@ -176,6 +164,20 @@ class PushFeedSummary extends ActiveRecord {
      */
     public function setMethod(string $method): void {
         $this->method = $method;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId(): ?int {
+        return $this->id;
+    }
+
+    /**
+     * @param int|null $id
+     */
+    public function setId(?int $id): void {
+        $this->id = $id;
     }
 
 

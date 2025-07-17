@@ -8,7 +8,9 @@ use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
+use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
 use Kinikit\Core\Exception\AccessDeniedException;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
@@ -28,7 +30,8 @@ class FeedService {
     public function __construct(
         private DatasetService          $datasetService,
         private SecurityService         $securityService,
-        private GoogleRecaptchaProvider $captchaProvider
+        private GoogleRecaptchaProvider $captchaProvider,
+        private QueuedTaskService       $queuedTaskService,
     ) {
     }
 
@@ -203,7 +206,7 @@ class FeedService {
         $params[] = $offset;
 
         return array_map(function ($pushFeed) {
-            return $pushFeed->toSummary();
+            return $pushFeed->generateSummary();
         },
             PushFeed::filter("WHERE " . join(" AND ", $filters) . " LIMIT ? OFFSET ?", $params));
 
@@ -236,6 +239,48 @@ class FeedService {
      * @param int $pushFeedId
      */
     public function removePushFeed(int $pushFeedId) {
+
+        $pushFeed = PushFeed::fetch($pushFeedId);
+        $pushFeed->remove();
+
+    }
+
+
+    /**
+     * Queue push feed by id
+     *
+     * @param int $pushFeedId
+     * @return void
+     */
+    public function queuePushFeed(int $pushFeedId) {
+
+        // Grab the push feed
+        $pushFeed = PushFeedSummary::fetch($pushFeedId);
+
+        // Construct the task description from params
+        $paramsHash = md5(join(":", array_values($pushFeed->getFeedParameterValues() ?? [])));
+        $taskDescription = "Push Feed -> " . $pushFeed->getPushUrl() . " (" . $paramsHash . ")";
+
+
+        // Check no existing task with the same description and if not, queue
+        $tasks = $this->queuedTaskService->listQueuedTasks("push-feed");
+        $indexedTasks = ObjectArrayUtils::indexArrayOfObjectsByMember("description", $tasks);
+
+        if (!($indexedTasks[$taskDescription] ?? null))
+            // Queue the task
+            $this->queuedTaskService->queueTask("push-feed", "pushfeed", $taskDescription, ["pushFeedId" => $pushFeedId], null, 0);
+
+
+    }
+
+
+    /**
+     * Execute push feed by id.
+     *
+     * @param $pushFeedId
+     * @return void
+     */
+    public function executePushFeed($pushFeedId) {
 
     }
 

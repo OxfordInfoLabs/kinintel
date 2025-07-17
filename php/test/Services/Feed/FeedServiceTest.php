@@ -4,11 +4,15 @@
 namespace Kinintel\Test\Services\Feed;
 
 use Kiniauth\Objects\Security\Role;
+use Kiniauth\Objects\Workflow\Task\Queued\StoredQueueItem;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
+use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
+use Kiniauth\ValueObjects\QueuedTask\QueueItem;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\ValidationException;
 use Kinikit\MVC\ContentSource\StringContentSource;
 use Kinikit\MVC\Request\Headers;
@@ -55,12 +59,19 @@ class FeedServiceTest extends TestBase {
      */
     private $captchaProvider;
 
+
+    /**
+     * @var MockObject
+     */
+    private $queuedTaskService;
+
     public function setUp(): void {
 
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->captchaProvider = MockObjectProvider::instance()->getMockInstance(GoogleRecaptchaProvider::class);
-        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider);
+        $this->queuedTaskService = MockObjectProvider::instance()->getMockInstance(QueuedTaskService::class);
+        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->queuedTaskService);
     }
 
 
@@ -645,33 +656,105 @@ class FeedServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $pushFeed1 = new PushFeedSummary("Example Push 1", "/test", "https://bodgemeout.com",
-            ["param1" => "bing", "param2" => "bong"], ["id"], "id", 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+        $pushFeed1 = new PushFeedSummary("Example Push 1", "/test", "https://bodgemeout.com", "id", "id",
+            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
 
         $id1 = $this->feedService->savePushFeed($pushFeed1, "bongo", 1);
         $this->assertNotNull($id1);
 
-        $pushFeed2 = new PushFeedSummary("Example Push 2", "/source", "https://bodgemeout.com",
-            ["param1" => "bing", "param2" => "bong"], ["id"], "id", 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+        $pushFeed2 = new PushFeedSummary("Example Push 2", "/source", "https://bodgemeout.com", "id", "id",
+            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
 
         $id2 = $this->feedService->savePushFeed($pushFeed2, null, 1);
         $this->assertNotNull($id2);
 
-        $pushFeed3 = new PushFeedSummary("Example Push 3", "/home", "https://bodgemeout.com",
-            ["param1" => "bing", "param2" => "bong"], ["id"], "id", 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+        $pushFeed3 = new PushFeedSummary("Example Push 3", "/home", "https://bodgemeout.com", "id", "id",
+            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
 
         $id3 = $this->feedService->savePushFeed($pushFeed3, null, 2);
         $this->assertNotNull($id3);
 
 
         // Check some filtered results
-        $this->assertEquals([$pushFeed1], $this->feedService->filterPushFeeds("", "bongo", 0, 10, 1));
-        $this->assertEquals([$pushFeed1, $pushFeed2], $this->feedService->filterPushFeeds("", null, 0, 10, 1));
-        $this->assertEquals([$pushFeed3], $this->feedService->filterPushFeeds("", null, 0, 10, 2));
+        $this->assertEquals([PushFeedSummary::fetch(1)], $this->feedService->filterPushFeeds("", "bongo", 0, 10, 1));
+        $this->assertEquals([PushFeedSummary::fetch(1), PushFeedSummary::fetch(2)], $this->feedService->filterPushFeeds("", null, 0, 10, 1));
+        $this->assertEquals([PushFeedSummary::fetch(3)], $this->feedService->filterPushFeeds("", null, 0, 10, 2));
 
+
+        $this->feedService->removePushFeed(1);
+
+        try {
+            PushFeed::fetch(1);
+            $this->fail("Should have deleted");
+        } catch (ObjectNotFoundException $e) {
+        }
 
 
     }
 
+
+    public function testQueuedTaskCreatedForPushFeedIfNoneExistsForSameTitle() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testme", "https://phonehome.com", "id", "id", [
+            "param1" => "Hello",
+            "param2" => 33
+        ]));
+
+        $id = $this->feedService->savePushFeed($pushFeed, null, 2);
+
+        // Ensure no overlapping tasks
+        $this->queuedTaskService->returnValue("listQueuedTasks", [], ["push-feed"]);
+
+
+        // Queue a push feed.
+        $this->feedService->queuePushFeed($id);
+
+        $this->assertTrue($this->queuedTaskService->methodWasCalled("queueTask", [
+            "push-feed",
+            "pushfeed",
+            "Push Feed -> https://phonehome.com (" . md5("Hello:33") . ")",
+            ["pushFeedId" => $id],
+            null,
+            0
+        ]));
+
+    }
+
+
+    public function testQueuedTaskNotCreatedForPushFeedIfOneAlreadyExistsForSameTitle() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testme", "https://phonehome.com", "id", "id", [
+            "param1" => "Hello",
+            "param2" => 33
+        ]));
+
+        $id = $this->feedService->savePushFeed($pushFeed, null, 2);
+
+        // Ensure no overlapping tasks
+        $this->queuedTaskService->returnValue("listQueuedTasks", [
+            new QueueItem("push-feed", "test", "pushfeed",
+                "Push Feed -> https://phonehome.com (" . md5("Hello:33") . ")", new \DateTime(), QueueItem::STATUS_PENDING)
+        ], ["push-feed"]);
+
+
+        // Queue a push feed.
+        $this->feedService->queuePushFeed($id);
+
+        $this->assertFalse($this->queuedTaskService->methodWasCalled("queueTask", [
+            "push-feed",
+            "pushfeed",
+            "Push Feed -> https://phonehome.com (" . md5("Hello:33") . ")",
+            ["pushFeedId" => $id],
+            null,
+            0
+        ]));
+
+    }
 
 }

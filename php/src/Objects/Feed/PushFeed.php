@@ -7,7 +7,7 @@ use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\HTTP\Request\Request;
 
 /**
- * @table ki_push_feed_state
+ * @table ki_push_feed
  * @generate
  */
 class PushFeed extends PushFeedSummary {
@@ -15,10 +15,9 @@ class PushFeed extends PushFeedSummary {
     use AccountProject;
 
     /**
-     * @json
-     * @var array
+     * @var string
      */
-    private array $lastPushStatefulParameterValues = [];
+    private ?string $lastPushedSequenceValue = null;
 
     /**
      * Construct a push feed with a summary and account and project
@@ -32,9 +31,9 @@ class PushFeed extends PushFeedSummary {
             parent::__construct($pushFeedSummary->getDescription(),
                 $pushFeedSummary->getFeedPath(),
                 $pushFeedSummary->getPushUrl(),
+                $pushFeedSummary->getFeedSequenceParameterKey(),
+                $pushFeedSummary->getFeedSequenceResultFieldName(),
                 $pushFeedSummary->getFeedParameterValues(),
-                $pushFeedSummary->getStatefulParameterKeys(),
-                $pushFeedSummary->getLastInsertIdParameterName(),
                 $pushFeedSummary->getSignWithKeyPairId(),
                 $pushFeedSummary->getOtherHeaders(),
                 $pushFeedSummary->getMethod(),
@@ -45,18 +44,19 @@ class PushFeed extends PushFeedSummary {
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getLastPushStatefulParameterValues(): array {
-        return $this->lastPushStatefulParameterValues;
+    public function getLastPushedSequenceValue(): ?string {
+        return $this->lastPushedSequenceValue;
     }
 
     /**
-     * @param array $lastPushStatefulParameterValues
+     * @param string $lastPushedSequenceValue
      */
-    public function setLastPushStatefulParameterValues(array $lastPushStatefulParameterValues): void {
-        $this->lastPushStatefulParameterValues = $lastPushStatefulParameterValues;
+    public function setLastPushedSequenceValue(?string $lastPushedSequenceValue): void {
+        $this->lastPushedSequenceValue = $lastPushedSequenceValue;
     }
+
 
     /**
      * Generate a summary from a push feed.
@@ -65,8 +65,8 @@ class PushFeed extends PushFeedSummary {
      */
     public function generateSummary() {
         return new PushFeedSummary($this->getDescription(),
-            $this->getFeedPath(), $this->getPushUrl(), $this->getFeedParameterValues(), $this->getStatefulParameterKeys(),
-            $this->getLastInsertIdParameterName(), $this->getSignWithKeyPairId(), $this->getOtherHeaders(),
+            $this->getFeedPath(), $this->getPushUrl(), $this->getFeedSequenceParameterKey(), $this->getFeedSequenceResultFieldName(),
+            $this->getFeedParameterValues(), $this->getSignWithKeyPairId(), $this->getOtherHeaders(),
             $this->getMethod(), $this->getId());
     }
 
