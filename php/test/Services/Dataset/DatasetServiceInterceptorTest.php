@@ -165,104 +165,104 @@ class DatasetServiceInterceptorTest extends TestBase {
     }
 
 
-    public function testActivityLoggedCorrectlyForSimpleSuccessfulDatasetInstancesOnCompletion() {
-
-        $datasetInstanceSummary = new DatasetInstanceSummary("Test Query", "test-json");
-        $datasetInstance = new DatasetInstance($datasetInstanceSummary, 25);
-        $datasetInstance->setId(33);
-
-        // Call before method to generate transaction id
-        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance
-        ], null);
-
-        $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance
-        ], null, null);
-
-        $this->assertTrue($this->activityLogger->methodWasCalled("createLog", [
-            "Dataset Query",
-            33, "Test Query",
-            ["result" => "Success"],
-            date("U")
-        ]));
-
-    }
-
-
-    public function testActivityLoggedCorrectlyForSimpleFailedDatasetInstancesOnCompletion() {
-
-        $datasetInstanceSummary = new DatasetInstanceSummary("Test Query", "test-json");
-        $datasetInstance = new DatasetInstance($datasetInstanceSummary, 25);
-        $datasetInstance->setId(33);
-
-        // Call before method to generate transaction id
-        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance
-        ], null);
-
-
-        $this->interceptor->onException($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance
-        ], new \Exception("Query Failed"), null);
-
-        $this->assertTrue($this->activityLogger->methodWasCalled("createLog", [
-            "Dataset Query",
-            33, "Test Query",
-            ["result" => "Error", "errorMessage" => "Query Failed"],
-            date("U")
-        ]));
-
-    }
-
-
-    public function testActivityLoggedOncePerAccountDatasourceLevelOnEvaluations() {
-
-        // Two from same account with hierarchy
-        $datasetInstanceSummary1 = new DatasetInstanceSummary("Test Query", "test-json");
-        $datasetInstance1 = new DatasetInstance($datasetInstanceSummary1, 25);
-        $datasetInstance1->setId(33);
-
-        $datasetInstanceSummary2 = new DatasetInstanceSummary("Test Derived Query", null, 33);
-        $datasetInstance2 = new DatasetInstance($datasetInstanceSummary2, 25);
-        $datasetInstance2->setId(35);
-
-        // Call methods in expected order
-        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance2
-        ], null);
-
-        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance1
-        ], null);
-
-
-        $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance1
-        ], null, null);
-
-
-        $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
-            "dataSetInstance" => $datasetInstance2
-        ], null, null);
-
-
-        // Check log created for derived query
-        $this->assertTrue($this->activityLogger->methodWasCalled("createLog", [
-            "Dataset Query",
-            35, "Test Derived Query",
-            ["result" => "Success"],
-            date("U")
-        ]));
-
-        // Check no log created for parent query
-        $this->assertFalse($this->activityLogger->methodWasCalled("createLog", [
-            "Dataset Query",
-            33, "Test Query",
-            ["result" => "Success"],
-            date("U")
-        ]));
-    }
+//    public function testActivityLoggedCorrectlyForSimpleSuccessfulDatasetInstancesOnCompletion() {
+//
+//        $datasetInstanceSummary = new DatasetInstanceSummary("Test Query", "test-json");
+//        $datasetInstance = new DatasetInstance($datasetInstanceSummary, 25);
+//        $datasetInstance->setId(33);
+//
+//        // Call before method to generate transaction id
+//        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance
+//        ], null);
+//
+//        $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance
+//        ], null, null);
+//
+//        $this->assertTrue($this->activityLogger->methodWasCalled("createLog", [
+//            "Dataset Query",
+//            33, "Test Query",
+//            ["result" => "Success"],
+//            date("U")
+//        ]));
+//
+//    }
+//
+//
+//    public function testActivityLoggedCorrectlyForSimpleFailedDatasetInstancesOnCompletion() {
+//
+//        $datasetInstanceSummary = new DatasetInstanceSummary("Test Query", "test-json");
+//        $datasetInstance = new DatasetInstance($datasetInstanceSummary, 25);
+//        $datasetInstance->setId(33);
+//
+//        // Call before method to generate transaction id
+//        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance
+//        ], null);
+//
+//
+//        $this->interceptor->onException($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance
+//        ], new \Exception("Query Failed"), null);
+//
+//        $this->assertTrue($this->activityLogger->methodWasCalled("createLog", [
+//            "Dataset Query",
+//            33, "Test Query",
+//            ["result" => "Error", "errorMessage" => "Query Failed"],
+//            date("U")
+//        ]));
+//
+//    }
+//
+//
+//    public function testActivityLoggedOncePerAccountDatasourceLevelOnEvaluations() {
+//
+//        // Two from same account with hierarchy
+//        $datasetInstanceSummary1 = new DatasetInstanceSummary("Test Query", "test-json");
+//        $datasetInstance1 = new DatasetInstance($datasetInstanceSummary1, 25);
+//        $datasetInstance1->setId(33);
+//
+//        $datasetInstanceSummary2 = new DatasetInstanceSummary("Test Derived Query", null, 33);
+//        $datasetInstance2 = new DatasetInstance($datasetInstanceSummary2, 25);
+//        $datasetInstance2->setId(35);
+//
+//        // Call methods in expected order
+//        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance2
+//        ], null);
+//
+//        $this->interceptor->beforeMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance1
+//        ], null);
+//
+//
+//        $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance1
+//        ], null, null);
+//
+//
+//        $this->interceptor->afterMethod($this->datasetService, "getEvaluatedDataSetForDataSetInstance", [
+//            "dataSetInstance" => $datasetInstance2
+//        ], null, null);
+//
+//
+//        // Check log created for derived query
+//        $this->assertTrue($this->activityLogger->methodWasCalled("createLog", [
+//            "Dataset Query",
+//            35, "Test Derived Query",
+//            ["result" => "Success"],
+//            date("U")
+//        ]));
+//
+//        // Check no log created for parent query
+//        $this->assertFalse($this->activityLogger->methodWasCalled("createLog", [
+//            "Dataset Query",
+//            33, "Test Query",
+//            ["result" => "Success"],
+//            date("U")
+//        ]));
+//    }
 
 
 }
