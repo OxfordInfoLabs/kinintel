@@ -43,7 +43,6 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
-use Kinintel\ValueObjects\Hook\MetaData\SQLDatabaseDatasourceHookUpdateMetaData;
 use Kinintel\ValueObjects\Transformation\Columns\ColumnsTransformation;
 use Kinintel\ValueObjects\Transformation\Combine\CombineTransformation;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -100,6 +99,13 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      * @var string[]
      */
     private static $additionalCredentialClasses = [];
+
+
+    // Read batch size for reading records for update.
+    const READ_BATCH_SIZE = 1000;
+
+    // Update batch size (used to configure batching inserters etfc)
+    const UPDATE_BATCH_SIZE = 50;
 
 
     /**
@@ -367,6 +373,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         $bulkDataManager = $dbConnection->getBulkDataManager();
 
         $changed = 0;
+        $ignored = 0;
         $validationErrors = [];
 
         // Update columns to match those configured on this datasource
@@ -381,7 +388,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         do {
 
             // Get all data from the dataset
-            $allData = $dataset->nextNDataItems(50);
+            $allData = $dataset->nextNDataItems(self::READ_BATCH_SIZE);
 
 
             // Update mapped field data
@@ -412,70 +419,74 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
                 // Ensure we don't exceed the batch size.
                 if ($updateColumns) {
-                    $batchSize = 50 / ceil(sizeof($updateColumns) / 15);
+                    $batchSize = self::UPDATE_BATCH_SIZE / ceil(sizeof($updateColumns) / 15);
                     $bulkDataManager->setBatchSize($batchSize);
                 }
 
 
                 // Validate the data before insert.
-                $validationErrors = array_merge($validationErrors, $datasourceDataValidator->validateUpdateData($allData, $updateMode, true));
+                $newValidationErrors = $datasourceDataValidator->validateUpdateData($allData, $updateMode, true);
+                $validationErrors = array_merge($validationErrors, $newValidationErrors);
 
+                if (sizeof($validationErrors) == 0) {
 
-                try {
-                    switch ($updateMode) {
-                        case UpdatableDatasource::UPDATE_MODE_ADD:
-                            $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns, true);
-                            break;
-                        case UpdatableDatasource::UPDATE_MODE_DELETE:
-                            $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
-                            break;
-                        case UpdatableDatasource::UPDATE_MODE_REPLACE:
-                            $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
-                            break;
-                        case UpdatableDatasource::UPDATE_MODE_UPDATE:
-                            $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
-                            break;
+                    try {
+                        switch ($updateMode) {
+                            case UpdatableDatasource::UPDATE_MODE_ADD:
+                                $bulkDataManager->insert($config->getTableName(), $allData, $updateColumns, true);
+                                break;
+                            case UpdatableDatasource::UPDATE_MODE_DELETE:
+                                $bulkDataManager->delete($config->getTableName(), $allData, $updateColumns);
+                                break;
+                            case UpdatableDatasource::UPDATE_MODE_REPLACE:
+                                $bulkDataManager->replace($config->getTableName(), $allData, $updateColumns);
+                                break;
+                            case UpdatableDatasource::UPDATE_MODE_UPDATE:
+                                $bulkDataManager->update($config->getTableName(), $allData, $updateColumns);
+                                break;
 
-                    }
-
-                    $changed += sizeof($allData);
-
-                    // Run any hooks using hook service if instance info has been provided
-                    if ($this->getInstanceInfo()) {
-                        $metaData = new SQLDatabaseDatasourceHookUpdateMetaData($this->returnDatabaseConnection());
-                        $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode, $allData, $metaData);
-                    }
-
-                } catch (SQLException $e) {
-                    // There are multiple errors with code 23000 and they relate to integrity constraints
-                    // https://dev.mysql.com/doc/connector-j/en/connector-j-reference-error-sqlstates.html
-                    if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
-                        if (str_contains(strtolower($e->getMessage()), "dup")) {
-                            throw new DuplicateEntriesException();
-                        } else {
-                            Logger::log("SQL Error writing to table (uniqueness violation). Table name: " . $config->getTableName() . " DATA:");
-                            Logger::log($allData, 6);
-                            Logger::log($e, 6);
-                            throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
                         }
-                    } else {
-                        $debugMessage = "SQL Error: " . $e->getMessage() . "\n with tableName " . $config->getTableName();
-                        Logger::log($debugMessage, 4);
-                        throw new DebugException(
-                            message: "An unexpected error occurred updating the datasource",
-                            debugMessage: $debugMessage
-                        );
+
+                        $changed += sizeof($allData);
+
+                        // Run any hooks using hook service if instance info has been proviced
+                        if ($this->getInstanceInfo())
+                            $this->datasourceHookService->processHooks($this->getInstanceInfo()->getKey(), $updateMode, $allData);
+
+
+                    } catch (SQLException $e) {
+                        // There are multiple errors with code 23000 and they relate to integrity constraints
+                        // https://dev.mysql.com/doc/connector-j/en/connector-j-reference-error-sqlstates.html
+                        if ($e->getSqlStateCode() >= 23000 && $e->getSqlStateCode() <= 24000) {
+                            if (str_contains(strtolower($e->getMessage()), "dup")) {
+                                throw new DuplicateEntriesException();
+                            } else {
+                                Logger::log("SQL Error writing to table (uniqueness violation). Table name: " . $config->getTableName() . " DATA:");
+                                Logger::log($allData, 6);
+                                Logger::log($e, 6);
+                                throw new DatasourceUpdateException("Error updating the datasource: A row had a null primary key or other uniqueness violation.");
+                            }
+                        } else {
+                            $debugMessage = "SQL Error: " . $e->getMessage() . "\n with tableName " . $config->getTableName();
+                            Logger::log($debugMessage, 4);
+                            throw new DebugException(
+                                message: "An unexpected error occurred updating the datasource",
+                                debugMessage: $debugMessage
+                            );
+                        }
                     }
+                } else {
+                    $ignored += sizeof($allData);
                 }
 
             }
-        } while (sizeof($allData) == 50);
+        } while (sizeof($allData) == self::READ_BATCH_SIZE);
 
         return new DatasourceUpdateResult($updateMode == UpdatableDatasource::UPDATE_MODE_ADD ? $changed : 0,
             $updateMode == UpdatableDatasource::UPDATE_MODE_UPDATE ? $changed : 0,
             $updateMode == UpdatableDatasource::UPDATE_MODE_REPLACE ? $changed : 0,
             $updateMode == UpdatableDatasource::UPDATE_MODE_DELETE ? $changed : 0,
-            sizeof($validationErrors),
+            sizeof($validationErrors), $ignored,
             sizeof($validationErrors) ? [$updateMode => $validationErrors] : []);
 
 

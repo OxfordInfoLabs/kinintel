@@ -329,6 +329,139 @@ class DatasourceImportExporterTest extends TestBase {
 
     }
 
+    public function testSqlDatabaseDatasourcesForDocumentChunksAndDocumentIndexAreCreatedCorrectlyFromExport() {
+
+        $datasourceChunks = new DatasourceInstance("test1", "Test DS 1 Chunks", "sqldatabase", ["tableName" => "custom.test1"], "dap_data", "usernamepassword");
+        $datasourceIndex = new DatasourceInstance("test2", "Test DS 1 Index", "sqldatabase", ["tableName" => "custom.test1"], "dap_data", "usernamepassword");
+
+        $this->datasourceService->returnValue("getDatasourceInstanceByTitle", $datasourceChunks, [
+            "Test DS 1 Chunks", "testProject", 5
+        ]);
+        $this->datasourceService->returnValue("getDatasourceInstanceByTitle", $datasourceIndex, [
+            "Test DS 1 Index", "testProject", 5
+        ]);
+
+        $this->datasourceService->throwException("getDatasourceInstanceByTitle", new ObjectNotFoundException(DatasourceInstance::class, "Test DS 1 Chunks"), [
+            "Test DS 2 Chunks", "testProject", 5
+        ]);
+        $this->datasourceService->throwException("getDatasourceInstanceByTitle", new ObjectNotFoundException(DatasourceInstance::class, "Test DS 1 Index"), [
+            "Test DS 2 Index", "testProject", 5
+        ]);
+
+
+        $this->importExporter->importObjects(5, "testProject", [
+            new ExportedDatasource(-1, "Test DS 1 Chunks", "sqldatabase", null, null, ["tableName" => null, "otherProp" => 1]),
+            new ExportedDatasource(-2, "Test DS 2 Chunks", "sqldatabase", null, null, ["tableName" => null, "otherProp" => 2], [
+                ["column1" => "Test", "column2" => "Live"],
+                ["column1" => "Test 2", "column2" => "Live 2"]
+            ]),
+            new ExportedDatasource(-3, "Test DS 1 Index", "sqldatabase", null, null, ["tableName" => null, "otherProp" => 3]),
+            new ExportedDatasource(-4, "Test DS 2 Index", "sqldatabase", null, null, ["tableName" => null, "otherProp" => 4], [
+                ["column1" => "Test", "column2" => "Live"],
+                ["column1" => "Test 2", "column2" => "Live 2"]
+            ])
+        ], [
+            -1 => new DatasourceExportConfig(true, false),
+            -2 => new DatasourceExportConfig(true, true),
+            -3 => new DatasourceExportConfig(true, false),
+            -4 => new DatasourceExportConfig(true, true)
+        ]);
+
+        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+
+
+        // Check our updated one was updated intact
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance("test1", "Test DS 1 Chunks", "sqldatabase", ["tableName" => "custom.test1", "otherProp" => 1], $credentialsKey, projectKey: "testProject", accountId: 5)
+        ]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance("test2", "Test DS 1 Index", "sqldatabase", ["tableName" => "custom.test2", "otherProp" => 3], $credentialsKey, projectKey: "testProject", accountId: 5)
+        ]));
+
+        // Check new one was created
+        $newChunksDatasourceKey = "chunks_document_data_set_5_" . (intval(date("U")) + 1);
+        $newIndexDatasourceKey = "index_document_data_set_5_" . (intval(date("U")) + 2);
+
+        $tableNameChunks = Configuration::readParameter("custom.datasource.table.prefix") . $newChunksDatasourceKey;
+        $tableNameIndex = Configuration::readParameter("custom.datasource.table.prefix") . $newIndexDatasourceKey;
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance($newChunksDatasourceKey, "Test DS 2 Chunks", "sqldatabase", ["tableName" => $tableNameChunks, "otherProp" => 2], $credentialsKey, projectKey: "testProject", accountId: 5)
+        ]));
+        $this->assertEquals($this->datasourceService->getMethodCallHistory("saveDataSourceInstance")[3], [
+            new DatasourceInstance($newIndexDatasourceKey, "Test DS 2 Index", "sqldatabase", ["tableName" => $tableNameIndex, "otherProp" => 4], $credentialsKey, projectKey: "testProject", accountId: 5)
+        ]);
+
+        // Check data was added to new one
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
+            $newChunksDatasourceKey, new DatasourceUpdate([
+                ["column1" => "Test", "column2" => "Live"],
+                ["column1" => "Test 2", "column2" => "Live 2"]
+            ])
+        ]));
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
+            $newIndexDatasourceKey, new DatasourceUpdate([
+                ["column1" => "Test", "column2" => "Live"],
+                ["column1" => "Test 2", "column2" => "Live 2"]
+            ])
+        ]));
+
+    }
+
+    public function testRegularSqlDatabaseDatasourcesAreCreatedCorrectlyFromExport() {
+
+        $datasource1 = new DatasourceInstance("test1", "Test DS 1", "sqldatabase", ["tableName" => "custom.test1"], "dap_data", "usernamepassword");
+
+        $this->datasourceService->returnValue("getDatasourceInstanceByTitle", $datasource1, [
+            "Test DS 1", "testProject", 5
+        ]);
+
+        $this->datasourceService->throwException("getDatasourceInstanceByTitle", new ObjectNotFoundException(DatasourceInstance::class, "Test DS 1"), [
+            "Test DS 2", "testProject", 5
+        ]);
+
+
+        $this->importExporter->importObjects(5, "testProject", [
+            new ExportedDatasource(-1, "Test DS 1", "sqldatabase", null, null, ["tableName" => null, "otherProp" => 1]),
+            new ExportedDatasource(-2, "Test DS 2", "sqldatabase", null, null, ["tableName" => null, "otherProp" => 2], [
+                ["column1" => "Test", "column2" => "Live"],
+                ["column1" => "Test 2", "column2" => "Live 2"]
+            ]),
+        ], [
+            -1 => new DatasourceExportConfig(true, false),
+            -2 => new DatasourceExportConfig(true, true)
+        ]);
+
+        $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+
+
+        // Check our updated one was updated intact
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance("test1", "Test DS 1", "sqldatabase", ["tableName" => "custom.test1", "otherProp" => 1], $credentialsKey, projectKey: "testProject", accountId: 5)
+        ]));
+
+
+        // Check new one was created
+        $newDatasourceKey = "sqldatabase_data_set_5_" . (intval(date("U")) + 1);
+        $tableName = Configuration::readParameter("custom.datasource.table.prefix") . $newDatasourceKey;
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            new DatasourceInstance($newDatasourceKey, "Test DS 2", "sqldatabase", ["tableName" => $tableName, "otherProp" => 2], $credentialsKey, projectKey: "testProject", accountId: 5)
+        ]));
+
+
+        // Check data was added to new one
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
+            $newDatasourceKey, new DatasourceUpdate([
+                ["column1" => "Test", "column2" => "Live"],
+                ["column1" => "Test 2", "column2" => "Live 2"]
+            ])
+        ]));
+
+    }
+
     public function testProcessorBasedDatasourcesImportedCorrectlyFromExport() {
 
         $this->dataProcessorService->returnValue("filterDataProcessorInstances", [

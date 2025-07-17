@@ -242,6 +242,21 @@ class DatasourceImportExporter extends ImportExporter {
                         $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
                         $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
                         break;
+                    case "sqldatabase":
+                        if (str_ends_with($exportObject->getTitle(), "Chunks")) {
+                            $keyPrefix = "chunks_document_data_set_$accountId" . "_";
+                            $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
+                            $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+                        } else if (str_ends_with($exportObject->getTitle(), "Index")) {
+                            $keyPrefix = "index_document_data_set_$accountId" . "_";
+                            $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
+                            $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+                        } else {
+                            $keyPrefix = "sqldatabase_data_set_$accountId" . "_";
+                            $tablePrefix = Configuration::readParameter("custom.datasource.table.prefix");
+                            $credentialsKey = Configuration::readParameter("custom.datasource.credentials.key");
+                        }
+                        break;
                 }
 
                 $datasourceKey = null;
