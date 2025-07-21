@@ -656,20 +656,23 @@ class FeedServiceTest extends TestBase {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
-        $pushFeed1 = new PushFeedSummary("Example Push 1", "/test", "https://bodgemeout.com", "id", "id",
-            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+        $pushFeed1 = new PushFeedSummary("Example Push 1", "/test", "https://bodgemeout.com", "id", "id", "",
+            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT,
+            "myDatasource");
 
         $id1 = $this->feedService->savePushFeed($pushFeed1, "bongo", 1);
         $this->assertNotNull($id1);
 
-        $pushFeed2 = new PushFeedSummary("Example Push 2", "/source", "https://bodgemeout.com", "id", "id",
-            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+        $pushFeed2 = new PushFeedSummary("Example Push 2", "/source", "https://bodgemeout.com", "id", "id", "",
+            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT,
+            "otherDatasource");
 
         $id2 = $this->feedService->savePushFeed($pushFeed2, null, 1);
         $this->assertNotNull($id2);
 
-        $pushFeed3 = new PushFeedSummary("Example Push 3", "/home", "https://bodgemeout.com", "id", "id",
-            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT);
+        $pushFeed3 = new PushFeedSummary("Example Push 3", "/home", "https://bodgemeout.com", "id", "id", "",
+            ["param1" => "bing", "param2" => "bong"], 22, ["content-type" => "text/json"], \Kinikit\Core\HTTP\Request\Request::METHOD_PUT,
+            "myDatasource");
 
         $id3 = $this->feedService->savePushFeed($pushFeed3, null, 2);
         $this->assertNotNull($id3);
@@ -698,7 +701,7 @@ class FeedServiceTest extends TestBase {
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
 
-        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testme", "https://phonehome.com", "id", "id", [
+        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testme", "https://phonehome.com", "id", "id", "", [
             "param1" => "Hello",
             "param2" => 33
         ]));
@@ -729,7 +732,7 @@ class FeedServiceTest extends TestBase {
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
 
-        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testme", "https://phonehome.com", "id", "id", [
+        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testme", "https://phonehome.com", "id", "id", "", [
             "param1" => "Hello",
             "param2" => 33
         ]));

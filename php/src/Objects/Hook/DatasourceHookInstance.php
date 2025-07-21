@@ -65,6 +65,15 @@ class DatasourceHookInstance extends ActiveRecord {
      */
     protected bool $executeInsecure = false;
 
+
+    /**
+     * Related item id - if this hook is being added as a subordinate to another
+     * object.
+     *
+     * @var int
+     */
+    protected ?int $relatedItemId = null;
+
     const HOOK_MODE_ADD = "add";
     const HOOK_MODE_UPDATE = "update";
     const HOOK_MODE_DELETE = "delete";
@@ -81,11 +90,14 @@ class DatasourceHookInstance extends ActiveRecord {
      * @param string $hookMode
      * @param bool $enabled
      * @param bool $executeInsecure
+     * @param int $relatedItemId
      * @param int $accountId
      * @param string $projectKey
      */
     public function __construct(?string $title = null, ?string $datasourceInstanceKey = null, ?string $hookKey = null, mixed $hookConfig = null, ?string $dataProcessorInstanceKey = null, ?int $scheduledTaskId = null,
-                                string  $hookMode = self::HOOK_MODE_ALL, bool $enabled = true, bool $executeInsecure = false, ?int $accountId = null, ?string $projectKey = null, $id = null) {
+                                string  $hookMode = self::HOOK_MODE_ALL, bool $enabled = true, bool $executeInsecure = false,
+                                ?int    $relatedItemId = null,
+                                ?int    $accountId = null, ?string $projectKey = null, $id = null) {
         $this->title = $title;
         $this->datasourceInstanceKey = $datasourceInstanceKey;
         $this->dataProcessorInstanceKey = $dataProcessorInstanceKey;
@@ -95,6 +107,7 @@ class DatasourceHookInstance extends ActiveRecord {
         $this->hookConfig = $hookConfig;
         $this->enabled = $enabled;
         $this->executeInsecure = $executeInsecure;
+        $this->relatedItemId = $relatedItemId;
         $this->accountId = $accountId;
         $this->projectKey = $projectKey;
         $this->id = $id;
@@ -209,6 +222,20 @@ class DatasourceHookInstance extends ActiveRecord {
      */
     public function setExecuteInsecure(bool $executeInsecure): void {
         $this->executeInsecure = $executeInsecure;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getRelatedItemId(): ?int {
+        return $this->relatedItemId;
+    }
+
+    /**
+     * @param int|null $relatedItemId
+     */
+    public function setRelatedItemId(?int $relatedItemId): void {
+        $this->relatedItemId = $relatedItemId;
     }
 
 

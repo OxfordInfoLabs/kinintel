@@ -17,26 +17,32 @@ class PushFeedSummary extends ActiveRecord {
      * @var array
      * @json
      */
-    protected array $feedParameterValues = [];
+    protected ?array $feedParameterValues = [];
 
     /**
      * @var array
      * @json
      */
-    private array $otherHeaders = [];
+    private ?array $otherHeaders = [];
 
-    public function __construct(protected string $description = "",
-                                protected string $feedPath = "",
-                                protected string $pushUrl = "",
-                                protected string $feedSequenceParameterKey = "",
-                                protected string $feedSequenceResultFieldName = "",
-                                array            $feedParameterValues = [],
-                                protected ?int   $signWithKeyPairId = null,
-                                array            $otherHeaders = [],
-                                protected string $method = Request::METHOD_POST,
-                                protected ?int   $id = null) {
-        $this->feedParameterValues = $feedParameterValues;
-        $this->otherHeaders = $otherHeaders;
+
+    public function __construct(protected ?string $description = "",
+                                protected ?string $feedPath = "",
+                                protected ?string $pushUrl = "",
+                                protected ?string $feedSequenceParameterKey = "",
+                                protected ?string $feedSequenceResultFieldName = "",
+                                protected ?string $initialSequenceValue = "",
+                                ?array            $feedParameterValues = [],
+                                protected ?int    $signWithKeyPairId = null,
+                                ?array            $otherHeaders = [],
+                                protected ?string $method = Request::METHOD_POST,
+                                protected ?string $triggerDatasourceKey = "",
+                                protected ?int    $id = null) {
+        $this->feedParameterValues = $feedParameterValues ?? [];
+        $this->otherHeaders = $otherHeaders ?? [];
+
+        $this->setTriggerDatasourceKey($this->triggerDatasourceKey);
+        $this->setDescription($this->description);
 
     }
 
@@ -71,14 +77,14 @@ class PushFeedSummary extends ActiveRecord {
     /**
      * @return string
      */
-    public function getDescription(): string {
+    public function getDescription(): ?string {
         return $this->description;
     }
 
     /**
      * @param string $description
      */
-    public function setDescription(string $description): void {
+    public function setDescription(?string $description): void {
         $this->description = $description;
     }
 
@@ -139,6 +145,21 @@ class PushFeedSummary extends ActiveRecord {
     }
 
     /**
+     * @return string
+     */
+    public function getInitialSequenceValue(): string {
+        return $this->initialSequenceValue;
+    }
+
+    /**
+     * @param string $initialSequenceValue
+     */
+    public function setInitialSequenceValue(string $initialSequenceValue): void {
+        $this->initialSequenceValue = $initialSequenceValue;
+    }
+
+
+    /**
      * @return int|null
      */
     public function getSignWithKeyPairId(): ?int {
@@ -165,6 +186,21 @@ class PushFeedSummary extends ActiveRecord {
     public function setMethod(string $method): void {
         $this->method = $method;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getTriggerDatasourceKey(): ?string {
+        return $this->triggerDatasourceKey;
+    }
+
+    /**
+     * @param string|null $triggerDatasourceKey
+     */
+    public function setTriggerDatasourceKey(?string $triggerDatasourceKey): void {
+        $this->triggerDatasourceKey = $triggerDatasourceKey;
+    }
+
 
     /**
      * @return int|null

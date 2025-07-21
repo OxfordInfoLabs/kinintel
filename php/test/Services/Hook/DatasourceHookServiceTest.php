@@ -8,6 +8,7 @@ use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Binding\ObjectBinder;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinikit\Persistence\ORM\Exception\ObjectNotFoundException;
 use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
@@ -49,7 +50,7 @@ class DatasourceHookServiceTest extends TestBase {
         ]));
 
         // Clean up
-        $this->hookService->deleteHook(1);
+        $this->hookService->deleteHook($newHook->getId());
 
     }
 
@@ -132,8 +133,8 @@ class DatasourceHookServiceTest extends TestBase {
     public function testHookExecutedWithSecurityBypassedIfExecuteInsecureFlagSet() {
 
         // Control case first
-        $newHook = new DatasourceHookInstance("My Hook", "testhook6", null, null, null, 25, "all", true, false);
-        $newHook->save();
+        $newHook1 = new DatasourceHookInstance("My Hook", "testhook6", null, null, null, 25, "all", true, false);
+        $newHook1->save();
 
         $this->hookService->processHooks("testhook6", "add");
 
@@ -146,16 +147,16 @@ class DatasourceHookServiceTest extends TestBase {
 
 
         // Insecure case
-        $newHook = new DatasourceHookInstance("My Hook", "testhook6", null, null, null, 25, "all", true, true);
-        $newHook->save();
+        $newHook2 = new DatasourceHookInstance("My Hook", "testhook6", null, null, null, 25, "all", true, true);
+        $newHook2->save();
 
         $this->hookService->processHooks("testhook6", "add");
 
         $this->assertTrue($this->activeRecordInterceptor->methodWasCalled("executeInsecure"));
 
         // Clean up
-        $this->hookService->deleteHook(6);
-        $this->hookService->deleteHook(7);
+        $this->hookService->deleteHook($newHook1->getId());
+        $this->hookService->deleteHook($newHook2->getId());
 
     }
 
@@ -188,7 +189,10 @@ class DatasourceHookServiceTest extends TestBase {
         }
     }
 
+
     public function testCanFilterHooksByAccountIdAndProjectKey() {
+
+        Container::instance()->get(DatabaseConnection::class)->execute("DELETE FROM ki_datasource_hook_instance");
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
