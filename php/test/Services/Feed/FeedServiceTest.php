@@ -11,6 +11,7 @@ use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kiniauth\ValueObjects\QueuedTask\QueueItem;
 use Kinikit\Core\Exception\AccessDeniedException;
+use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\ValidationException;
@@ -27,6 +28,7 @@ use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Objects\Feed\PushFeed;
 use Kinintel\Objects\Feed\PushFeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Dataset\Exporter\JSONContentSource;
 use Kinintel\Services\Feed\FeedService;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Feed\FeedWebsiteConfig;
@@ -65,13 +67,19 @@ class FeedServiceTest extends TestBase {
      */
     private $queuedTaskService;
 
+    /**
+     * @var HttpRequestDispatcher|MockObject
+     */
+    private $requestDispatcher;
+
     public function setUp(): void {
 
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->captchaProvider = MockObjectProvider::instance()->getMockInstance(GoogleRecaptchaProvider::class);
         $this->queuedTaskService = MockObjectProvider::instance()->getMockInstance(QueuedTaskService::class);
-        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->queuedTaskService);
+        $this->requestDispatcher = MockObjectProvider::mock(HttpRequestDispatcher::class);
+        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->queuedTaskService, $this->requestDispatcher);
     }
 
 
@@ -757,6 +765,71 @@ class FeedServiceTest extends TestBase {
             null,
             0
         ]));
+
+    }
+
+    public function testPushFeedProcessedCorrectlyForSimplePushFeedWithValidEndpoint() {
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        // Create a new feed
+        $feedSummary = new FeedSummary("/testmepush", 2, ["param1", "param2", "id"], "json", [
+            "config" => "Hello"
+        ]);
+
+        $this->feedService->saveFeed($feedSummary, null, 2);
+
+
+        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testmepush", "https://phonehome.com", "id", "id", 99, [
+            "param1" => "Hello",
+            "param2" => 33
+        ]));
+
+        $id = $this->feedService->savePushFeed($pushFeed, null, 2);
+
+
+        $data = [["id" => 99, "name" => "Bob"],
+            ["id" => 100, "name" => "Mary"], ["id" => 101, "name" => "Jane"]];
+
+        $expectedResponse = new SimpleResponse(new JSONContentSource($data));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "json",
+            ["config" => "Hello"],
+            ["param1" => "Hello",
+                "param2" => 33,
+                "id" => 99],
+            [],
+            0,
+            1000,
+            false,
+            0
+        ]);
+
+
+        // Process push feed
+        $this->feedService->processPushFeed($id);
+
+        $expectedRequest = new \Kinikit\Core\HTTP\Request\Request("https://phonehome.com", Request::METHOD_POST, [],
+            json_encode([
+                ["id" => 100, "name" => "Mary"], ["id" => 101, "name" => "Jane"]], JSON_INVALID_UTF8_IGNORE), new \Kinikit\Core\HTTP\Request\Headers([\Kinikit\Core\HTTP\Request\Headers::CONTENT_TYPE => "text/json"]));
+
+        // Check external URL was called
+        $this->assertTrue($this->requestDispatcher->methodWasCalled("dispatch", [$expectedRequest]));
+
+        // Check last pushed sequence value updated
+        $pushFeed = PushFeed::fetch($id);
+        $this->assertEquals(101, $pushFeed->getLastPushedSequenceValue());
+    }
+
+
+    public function testNotificationCreatedToDesignatedGroupsWhenErrorsOccurredInPushFeed(){
+
+
 
     }
 

@@ -10,6 +10,8 @@ use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
 use Kinikit\Core\Exception\AccessDeniedException;
+use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
+use Kinikit\Core\HTTP\Request\Headers;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
@@ -18,6 +20,7 @@ use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Objects\Feed\PushFeed;
 use Kinintel\Objects\Feed\PushFeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Dataset\Exporter\JSONContentSource;
 use Kinintel\ValueObjects\Feed\PushFeedConfig;
 
 class FeedService {
@@ -32,6 +35,7 @@ class FeedService {
         private SecurityService         $securityService,
         private GoogleRecaptchaProvider $captchaProvider,
         private QueuedTaskService       $queuedTaskService,
+        private HttpRequestDispatcher   $httpRequestDispatcher
     ) {
     }
 
@@ -275,12 +279,58 @@ class FeedService {
 
 
     /**
-     * Execute push feed by id.
+     * Process push feed by id.
      *
      * @param $pushFeedId
      * @return void
      */
-    public function executePushFeed($pushFeedId) {
+    public function processPushFeed($pushFeedId) {
+
+        /**
+         * @var PushFeed $pushFeed
+         */
+        $pushFeed = PushFeed::fetch($pushFeedId);
+
+        // Construct feed request
+        $feedParams = $pushFeed->getFeedParameterValues();
+        $lastQueriedValue = $pushFeed->getLastPushedSequenceValue() ?? $pushFeed->getInitialSequenceValue();
+
+        if ($pushFeed->getFeedSequenceParameterKey()) {
+            $feedParams[$pushFeed->getFeedSequenceParameterKey()] = $lastQueriedValue;
+
+        }
+
+
+        // Execute the feed
+        $response = $this->evaluateFeedByPath($pushFeed->getFeedPath(), $feedParams, 0, 1000);
+
+        if ($response->getContentSource() instanceof JSONContentSource) {
+
+            $data = $response->getContentSource()->getData();
+
+            // If a feed sequence result field name, use this
+            if ($pushFeed->getFeedSequenceResultFieldName()) {
+                while (($data[0][$pushFeed->getFeedSequenceResultFieldName()] ?? null) <= $lastQueriedValue)
+                    array_shift($data);
+            }
+
+            // Construct headers
+            $headers = new Headers([Headers::CONTENT_TYPE => "text/json"]);
+
+            // Create the request
+            $request = new \Kinikit\Core\HTTP\Request\Request($pushFeed->getPushUrl(), $pushFeed->getMethod(),
+                [], json_encode($data, JSON_INVALID_UTF8_IGNORE), $headers);
+
+
+            // Update push feed
+            $pushFeed->setLastPushedSequenceValue(array_pop($data)[$pushFeed->getFeedSequenceResultFieldName()] ?? null);
+            $pushFeed->save();
+
+            // Send it off
+            $this->httpRequestDispatcher->dispatch($request);
+
+
+        }
 
     }
 

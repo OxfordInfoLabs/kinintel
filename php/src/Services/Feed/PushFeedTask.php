@@ -22,7 +22,7 @@ class PushFeedTask implements Task {
      */
     public function run($configuration) {
         if ($configuration["pushFeedId"] ?? null) {
-            $this->feedService->executePushFeed($configuration["pushFeedId"]);
+            $this->feedService->processPushFeed($configuration["pushFeedId"]);
         }
     }
 }

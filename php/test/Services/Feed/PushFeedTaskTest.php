@@ -28,7 +28,7 @@ class PushFeedTaskTest extends TestBase {
         $pushFeedTask = new PushFeedTask($this->service);
         $pushFeedTask->run(["pushFeedId" => 99]);
 
-        $this->assertTrue($this->service->methodWasCalled("executePushFeed", [99]));
+        $this->assertTrue($this->service->methodWasCalled("processPushFeed", [99]));
 
     }
 
