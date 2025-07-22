@@ -5,7 +5,9 @@ namespace Kinintel\Services\Feed;
 
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Security\Role;
+use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
@@ -35,7 +37,8 @@ class FeedService {
         private SecurityService         $securityService,
         private GoogleRecaptchaProvider $captchaProvider,
         private QueuedTaskService       $queuedTaskService,
-        private HttpRequestDispatcher   $httpRequestDispatcher
+        private HttpRequestDispatcher   $httpRequestDispatcher,
+        private NotificationService     $notificationService
     ) {
     }
 
@@ -302,11 +305,11 @@ class FeedService {
 
 
         // Execute the feed
-        $response = $this->evaluateFeedByPath($pushFeed->getFeedPath(), $feedParams, 0, 1000);
+        $feedResponse = $this->evaluateFeedByPath($pushFeed->getFeedPath(), $feedParams, 0, 1000);
 
-        if ($response->getContentSource() instanceof JSONContentSource) {
+        if ($feedResponse->getContentSource() instanceof JSONContentSource) {
 
-            $data = $response->getContentSource()->getData();
+            $data = $feedResponse->getContentSource()->getData();
 
             // If a feed sequence result field name, use this
             if ($pushFeed->getFeedSequenceResultFieldName()) {
@@ -322,14 +325,22 @@ class FeedService {
                 [], json_encode($data, JSON_INVALID_UTF8_IGNORE), $headers);
 
 
-            // Update push feed
-            $pushFeed->setLastPushedSequenceValue(array_pop($data)[$pushFeed->getFeedSequenceResultFieldName()] ?? null);
-            $pushFeed->save();
-
             // Send it off
-            $this->httpRequestDispatcher->dispatch($request);
+            $pushResponse = $this->httpRequestDispatcher->dispatch($request);
+
+            if ($pushResponse->getStatusCode() < 200 || $pushResponse->getStatusCode() >= 400) {
+
+                if ($pushFeed->getNotificationGroups() ?? null){
+                    
+                }
 
 
+            } else {
+
+                // Update push feed
+                $pushFeed->setLastPushedSequenceValue(array_pop($data)[$pushFeed->getFeedSequenceResultFieldName()] ?? null);
+                $pushFeed->save();
+            }
         }
 
     }

@@ -4,6 +4,7 @@ namespace Kinintel\Objects\Feed;
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Communication\Notification\NotificationGroup;
+use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
 use Kiniauth\Traits\Account\AccountProject;
 use Kinikit\Core\HTTP\Request\Request;
 use Kinikit\Persistence\ORM\ActiveRecord;
@@ -24,16 +25,14 @@ class PushFeedSummary extends ActiveRecord {
      * @var array
      * @json
      */
-    private ?array $otherHeaders = [];
-
+    protected ?array $otherHeaders = [];
 
     /**
-     * @var NotificationGroup[]
+     * @var NotificationGroupSummary[]
      * @manyToMany
      * @linkTable ki_push_feed_notification_group
      */
-    private ?array $notificationGroups = [];
-
+    protected ?array $notificationGroups = [];
 
 
     public function __construct(protected ?string $description = "",
@@ -47,6 +46,7 @@ class PushFeedSummary extends ActiveRecord {
                                 ?array            $otherHeaders = [],
                                 protected ?string $method = Request::METHOD_POST,
                                 protected ?string $triggerDatasourceKey = "",
+                                array             $notificationGroups = [],
                                 protected ?int    $id = null) {
         $this->feedParameterValues = $feedParameterValues ?? [];
         $this->otherHeaders = $otherHeaders ?? [];
@@ -54,6 +54,7 @@ class PushFeedSummary extends ActiveRecord {
         $this->setTriggerDatasourceKey($this->triggerDatasourceKey);
         $this->setDescription($this->description);
 
+        $this->notificationGroups = $notificationGroups;
     }
 
     /**

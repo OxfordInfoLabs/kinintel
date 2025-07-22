@@ -3,8 +3,12 @@
 
 namespace Kinintel\Test\Services\Feed;
 
+use Kiniauth\Objects\Communication\Notification\NotificationGroup;
+use Kiniauth\Objects\Communication\Notification\NotificationGroupSummary;
+use Kiniauth\Objects\Communication\Notification\NotificationSummary;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Objects\Workflow\Task\Queued\StoredQueueItem;
+use Kiniauth\Services\Communication\Notification\NotificationService;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
@@ -12,6 +16,8 @@ use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kiniauth\ValueObjects\QueuedTask\QueueItem;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
+use Kinikit\Core\HTTP\Response\Response;
+use Kinikit\Core\Stream\String\ReadOnlyStringStream;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\Core\Validation\ValidationException;
@@ -72,6 +78,11 @@ class FeedServiceTest extends TestBase {
      */
     private $requestDispatcher;
 
+    /**
+     * @var NotificationService|MockObject
+     */
+    private $notificationService;
+
     public function setUp(): void {
 
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
@@ -79,7 +90,9 @@ class FeedServiceTest extends TestBase {
         $this->captchaProvider = MockObjectProvider::instance()->getMockInstance(GoogleRecaptchaProvider::class);
         $this->queuedTaskService = MockObjectProvider::instance()->getMockInstance(QueuedTaskService::class);
         $this->requestDispatcher = MockObjectProvider::mock(HttpRequestDispatcher::class);
-        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->queuedTaskService, $this->requestDispatcher);
+        $this->notificationService = MockObjectProvider::mock(NotificationService::class);
+
+        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->queuedTaskService, $this->requestDispatcher, $this->notificationService);
     }
 
 
@@ -827,8 +840,71 @@ class FeedServiceTest extends TestBase {
     }
 
 
-    public function testNotificationCreatedToDesignatedGroupsWhenErrorsOccurredInPushFeed(){
+    public function testNotificationCreatedToDesignatedGroupsWhenErrorsOccurredInPushFeedIfNotificationGroupsSupplied() {
 
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+
+        // Create a new feed
+        $feedSummary = new FeedSummary("/testmepushbad", 2, ["param1", "param2", "id"], "json", [
+            "config" => "Hello"
+        ]);
+
+        $this->feedService->saveFeed($feedSummary, null, 2);
+
+
+        $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testmepushbad", "https://phonehome.com", "id", "id", 99, [
+            "param1" => "Hello",
+            "param2" => 33
+        ], notificationGroups: [new NotificationGroupSummary("test", id: 1)]));
+
+        $id = $this->feedService->savePushFeed($pushFeed, null, 2);
+
+
+        $data = [["id" => 99, "name" => "Bob"],
+            ["id" => 100, "name" => "Mary"], ["id" => 101, "name" => "Jane"]];
+
+        $expectedResponse = new SimpleResponse(new JSONContentSource($data));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "json",
+            ["config" => "Hello"],
+            ["param1" => "Hello",
+                "param2" => 33,
+                "id" => 99],
+            [],
+            0,
+            1000,
+            false,
+            0
+        ]);
+
+
+        $expectedRequest = new \Kinikit\Core\HTTP\Request\Request("https://phonehome.com", Request::METHOD_POST, [],
+            json_encode([
+                ["id" => 100, "name" => "Mary"], ["id" => 101, "name" => "Jane"]], JSON_INVALID_UTF8_IGNORE), new \Kinikit\Core\HTTP\Request\Headers([\Kinikit\Core\HTTP\Request\Headers::CONTENT_TYPE => "text/json"]));
+
+        $this->requestDispatcher->returnValue("dispatch", new Response(new ReadOnlyStringStream("Bad Response"), 500, new \Kinikit\Core\HTTP\Response\Headers([]), $expectedRequest), [
+            $expectedRequest
+        ]);
+
+        // Process push feed
+        $this->feedService->processPushFeed($id);
+
+        $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
+            new NotificationSummary("Push Feed Failed", "An attempt to push feed data to https://phonehome.com has failed.  Please see error log below.\n\nBad Response",null,[new NotificationGroupSummary("test", id: 1)]),
+            null,
+            2
+        ]));
+
+        // Check last pushed sequence value updated
+        $pushFeed = PushFeed::fetch($id);
+        $this->assertNull($pushFeed->getLastPushedSequenceValue());
 
 
     }

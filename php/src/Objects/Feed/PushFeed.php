@@ -52,7 +52,7 @@ class PushFeed extends PushFeedSummary {
             $pushFeedSummary?->getSignWithKeyPairId(),
             $pushFeedSummary?->getOtherHeaders(),
             $pushFeedSummary?->getMethod(),
-            $pushFeedSummary?->getTriggerDatasourceKey(),
+            $pushFeedSummary?->getTriggerDatasourceKey(), [],
             $pushFeedSummary?->getId());
 
         $this->setAccountId($accountId);
@@ -128,7 +128,7 @@ class PushFeed extends PushFeedSummary {
             $this->getFeedPath(), $this->getPushUrl(), $this->getFeedSequenceParameterKey(), $this->getFeedSequenceResultFieldName(),
             $this->getInitialSequenceValue(),
             $this->getFeedParameterValues(), $this->getSignWithKeyPairId(), $this->getOtherHeaders(),
-            $this->getMethod(), $this->getTriggerDatasourceKey(), $this->getId());
+            $this->getMethod(), $this->getTriggerDatasourceKey(), [], $this->getId());
     }
 
 }
