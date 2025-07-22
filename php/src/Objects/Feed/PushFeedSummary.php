@@ -35,6 +35,7 @@ class PushFeedSummary extends ActiveRecord {
     protected ?array $notificationGroups = [];
 
 
+
     public function __construct(protected ?string $description = "",
                                 protected ?string $feedPath = "",
                                 protected ?string $pushUrl = "",
@@ -46,7 +47,9 @@ class PushFeedSummary extends ActiveRecord {
                                 ?array            $otherHeaders = [],
                                 protected ?string $method = Request::METHOD_POST,
                                 protected ?string $triggerDatasourceKey = "",
-                                array             $notificationGroups = [],
+                                protected ?string $failedPushNotificationTitle = "",
+                                protected ?string $failedPushNotificationDescription = "",
+                                ?array             $notificationGroups = [],
                                 protected ?int    $id = null) {
         $this->feedParameterValues = $feedParameterValues ?? [];
         $this->otherHeaders = $otherHeaders ?? [];
@@ -55,6 +58,7 @@ class PushFeedSummary extends ActiveRecord {
         $this->setDescription($this->description);
 
         $this->notificationGroups = $notificationGroups;
+
     }
 
     /**
@@ -210,6 +214,34 @@ class PushFeedSummary extends ActiveRecord {
      */
     public function setTriggerDatasourceKey(?string $triggerDatasourceKey): void {
         $this->triggerDatasourceKey = $triggerDatasourceKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFailedPushNotificationTitle(): ?string {
+        return $this->failedPushNotificationTitle;
+    }
+
+    /**
+     * @param string $failedPushNotificationTitle
+     */
+    public function setFailedPushNotificationTitle(?string $failedPushNotificationTitle): void {
+        $this->failedPushNotificationTitle = $failedPushNotificationTitle;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFailedPushNotificationDescription(): ?string {
+        return $this->failedPushNotificationDescription;
+    }
+
+    /**
+     * @param string $failedPushNotificationDescription
+     */
+    public function setFailedPushNotificationDescription(?string $failedPushNotificationDescription): void {
+        $this->failedPushNotificationDescription = $failedPushNotificationDescription;
     }
 
     /**

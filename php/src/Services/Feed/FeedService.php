@@ -14,6 +14,8 @@ use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
 use Kinikit\Core\Exception\AccessDeniedException;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
 use Kinikit\Core\HTTP\Request\Headers;
+use Kinikit\Core\Template\KinibindTemplateParser;
+use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
@@ -28,6 +30,11 @@ use Kinintel\ValueObjects\Feed\PushFeedConfig;
 class FeedService {
 
     /**
+     * @var TemplateParser
+     */
+    private $templateParser;
+
+    /**
      * @param DatasetService $datasetService
      * @param SecurityService $securityService
      * @param GoogleRecaptchaProvider $captchaProvider
@@ -40,6 +47,7 @@ class FeedService {
         private HttpRequestDispatcher   $httpRequestDispatcher,
         private NotificationService     $notificationService
     ) {
+        $this->templateParser = new KinibindTemplateParser("d", ["[[", "]]"]);
     }
 
 
@@ -294,6 +302,7 @@ class FeedService {
          */
         $pushFeed = PushFeed::fetch($pushFeedId);
 
+
         // Construct feed request
         $feedParams = $pushFeed->getFeedParameterValues();
         $lastQueriedValue = $pushFeed->getLastPushedSequenceValue() ?? $pushFeed->getInitialSequenceValue();
@@ -328,10 +337,20 @@ class FeedService {
             // Send it off
             $pushResponse = $this->httpRequestDispatcher->dispatch($request);
 
+
             if ($pushResponse->getStatusCode() < 200 || $pushResponse->getStatusCode() >= 400) {
 
-                if ($pushFeed->getNotificationGroups() ?? null){
-                    
+                if ($pushFeed->getNotificationGroups() ?? null) {
+
+                    // Generate a failed notification if required
+                    $model = ["pushUrl" => $pushFeed->getPushUrl(), "errorLog" => $pushResponse->getBody()];
+                    $title = $this->templateParser->parseTemplateText($pushFeed->getFailedPushNotificationTitle(), $model);
+                    $description = $this->templateParser->parseTemplateText($pushFeed->getFailedPushNotificationDescription(), $model);
+
+                    $notificationSummary = new NotificationSummary($title, $description, null,
+                        $pushFeed->getNotificationGroups());
+
+                    $this->notificationService->createNotification($notificationSummary, $pushFeed->getProjectKey(), $pushFeed->getAccountId());
                 }
 
 

@@ -854,10 +854,15 @@ class FeedServiceTest extends TestBase {
         $this->feedService->saveFeed($feedSummary, null, 2);
 
 
+        $notificationGroup = new NotificationGroup(new NotificationGroupSummary("Test"), null, 2);
+        $notificationGroup->save();
+
+
         $pushFeed = new PushFeed(new PushFeedSummary("Home", "/testmepushbad", "https://phonehome.com", "id", "id", 99, [
             "param1" => "Hello",
             "param2" => 33
-        ], notificationGroups: [new NotificationGroupSummary("test", id: 1)]));
+        ], triggerDatasourceKey: "", failedPushNotificationTitle: "Push Feed Failed", failedPushNotificationDescription: "An attempt to push data to [[pushUrl]] has been unsuccessful.  Please see below for error log.\n\n[[errorLog]]",
+            notificationGroups: [new NotificationGroupSummary("test", id: $notificationGroup->getId())]));
 
         $id = $this->feedService->savePushFeed($pushFeed, null, 2);
 
@@ -896,8 +901,9 @@ class FeedServiceTest extends TestBase {
         // Process push feed
         $this->feedService->processPushFeed($id);
 
+
         $this->assertTrue($this->notificationService->methodWasCalled("createNotification", [
-            new NotificationSummary("Push Feed Failed", "An attempt to push feed data to https://phonehome.com has failed.  Please see error log below.\n\nBad Response",null,[new NotificationGroupSummary("test", id: 1)]),
+            new NotificationSummary("Push Feed Failed", "An attempt to push data to https://phonehome.com has been unsuccessful.  Please see below for error log.\n\nBad Response", null, [new NotificationGroupSummary("Test", id: 1)]),
             null,
             2
         ]));
