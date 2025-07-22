@@ -2,7 +2,6 @@
 
 namespace Kinintel\Services\Dataset;
 
-use Kiniauth\Services\Application\ActivityLogger;
 use Kiniauth\Services\Security\ActiveRecordInterceptor;
 use Kinikit\Core\DependencyInjection\ContainerInterceptor;
 use Kinintel\Objects\Dataset\DatasetInstance;
@@ -30,10 +29,8 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
      * Construct with active record interceptor and dataset service for reference
      *
      * @param ActiveRecordInterceptor $activeRecordInterceptor
-     * @param ActivityLogger $activityLogger
      */
-    public function __construct(private ActiveRecordInterceptor $activeRecordInterceptor,
-                                private ActivityLogger          $activityLogger) {
+    public function __construct(private ActiveRecordInterceptor $activeRecordInterceptor) {
     }
 
 
@@ -177,12 +174,6 @@ class DatasetServiceInterceptor extends ContainerInterceptor {
 
                 // If single depth, log the query
                 $level = $this->datasetAccountQueryDepths[$fullDatasetInstance->getAccountId()] ?? 0;
-                if ($level < 2) {
-
-                    $this->activityLogger->createLog("Dataset Query", $dataSetInstance->getId(),
-                        $dataSetInstance->getTitle(), $data,
-                        $this->transactionId);
-                }
 
                 // If level more than one don't log.
                 if (($level > 0) && ($methodName == "getEvaluatedDataSetForDataSetInstance")) {
