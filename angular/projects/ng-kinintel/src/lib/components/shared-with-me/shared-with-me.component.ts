@@ -111,7 +111,7 @@ export class SharedWithMeComponent implements OnInit {
 
         const dialog = this.dialog.open(FeedApiModalComponent, {
             width: '700px',
-            height: '450px',
+            height: '650px',
             data: {
                 feed,
                 feedUrl: this.feedUrl
