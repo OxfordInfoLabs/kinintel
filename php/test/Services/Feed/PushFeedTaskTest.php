@@ -4,7 +4,7 @@ namespace Kinintel\Test\Services\Feed;
 
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
-use Kinintel\Services\Feed\FeedService;
+use Kinintel\Services\Feed\PushFeedService;
 use Kinintel\Services\Feed\PushFeedTask;
 use Kinintel\TestBase;
 
@@ -14,13 +14,13 @@ class PushFeedTaskTest extends TestBase {
 
 
     /**
-     * @var FeedService|MockObject
+     * @var PushFeedService|MockObject
      */
     private $service;
 
 
     public function setUp(): void {
-        $this->service = MockObjectProvider::mock(FeedService::class);
+        $this->service = MockObjectProvider::mock(PushFeedService::class);
     }
 
     public function testRunCallsExecutePushFeed() {

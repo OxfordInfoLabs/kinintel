@@ -8,9 +8,9 @@ class PushFeedTask implements Task {
 
 
     /**
-     * @param FeedService $feedService
+     * @param PushFeedService $pushFeedService
      */
-    public function __construct(private FeedService $feedService) {
+    public function __construct(private PushFeedService $pushFeedService) {
     }
 
 
@@ -22,7 +22,7 @@ class PushFeedTask implements Task {
      */
     public function run($configuration) {
         if ($configuration["pushFeedId"] ?? null) {
-            $this->feedService->processPushFeed($configuration["pushFeedId"]);
+            $this->pushFeedService->processPushFeed($configuration["pushFeedId"]);
         }
     }
 }

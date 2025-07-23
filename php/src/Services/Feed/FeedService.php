@@ -29,10 +29,7 @@ use Kinintel\ValueObjects\Feed\PushFeedConfig;
 
 class FeedService {
 
-    /**
-     * @var TemplateParser
-     */
-    private $templateParser;
+
 
     /**
      * @param DatasetService $datasetService
@@ -42,12 +39,8 @@ class FeedService {
     public function __construct(
         private DatasetService          $datasetService,
         private SecurityService         $securityService,
-        private GoogleRecaptchaProvider $captchaProvider,
-        private QueuedTaskService       $queuedTaskService,
-        private HttpRequestDispatcher   $httpRequestDispatcher,
-        private NotificationService     $notificationService
+        private GoogleRecaptchaProvider $captchaProvider
     ) {
-        $this->templateParser = new KinibindTemplateParser("d", ["[[", "]]"]);
     }
 
 
@@ -191,178 +184,6 @@ class FeedService {
     }
 
 
-    /**
-     * Filter push feeds by feed path and limit and offset.
-     *
-     * @param ?string $feedPath
-     * @param ?string $projectKey
-     * @param ?int $offset
-     * @param ?int $limit
-     * @param mixed $accountId
-     * @return PushFeedSummary[]
-     */
-    public function filterPushFeeds(?string $feedPath = null, ?string $projectKey = null, ?int $offset = 0, ?int $limit = 10, mixed $accountId = Account::LOGGED_IN_ACCOUNT): array {
-
-        // Construct dynamic clauses as required.
-        $filters = ["accountId = ?"];
-        $params = [$accountId];
-        if ($feedPath) {
-            $filters[] = "feedPath = ?";
-            $params[] = $feedPath;
-        }
-
-        if ($projectKey) {
-            $filters[] = "projectKey = ?";
-            $params[] = $projectKey;
-        }
-
-        // Add offset and limits
-        $params[] = $limit;
-        $params[] = $offset;
-
-        return array_map(function ($pushFeed) {
-            return $pushFeed->generateSummary();
-        },
-            PushFeed::filter("WHERE " . join(" AND ", $filters) . " LIMIT ? OFFSET ?", $params));
-
-
-    }
-
-
-    /**
-     * Save a push feed and return the id.
-     *
-     * @param PushFeedSummary $pushFeed
-     * @param ?string $projectKey
-     * @param mixed $accountId
-     *
-     * @return int
-     */
-    public function savePushFeed(PushFeedSummary $pushFeedSummary, ?string $projectKey = null,
-                                 mixed           $accountId = Account::LOGGED_IN_ACCOUNT) {
-
-        $pushFeed = new PushFeed($pushFeedSummary, $projectKey, $accountId);
-        $pushFeed->save();
-
-        return $pushFeed->getId();
-
-    }
-
-    /**
-     * Remove a push feed by id
-     *
-     * @param int $pushFeedId
-     */
-    public function removePushFeed(int $pushFeedId) {
-
-        $pushFeed = PushFeed::fetch($pushFeedId);
-        $pushFeed->remove();
-
-    }
-
-
-    /**
-     * Queue push feed by id
-     *
-     * @param int $pushFeedId
-     * @return void
-     */
-    public function queuePushFeed(int $pushFeedId) {
-
-        // Grab the push feed
-        $pushFeed = PushFeedSummary::fetch($pushFeedId);
-
-        // Construct the task description from params
-        $paramsHash = md5(join(":", array_values($pushFeed->getFeedParameterValues() ?? [])));
-        $taskDescription = "Push Feed -> " . $pushFeed->getPushUrl() . " (" . $paramsHash . ")";
-
-
-        // Check no existing task with the same description and if not, queue
-        $tasks = $this->queuedTaskService->listQueuedTasks("push-feed");
-        $indexedTasks = ObjectArrayUtils::indexArrayOfObjectsByMember("description", $tasks);
-
-        if (!($indexedTasks[$taskDescription] ?? null))
-            // Queue the task
-            $this->queuedTaskService->queueTask("push-feed", "pushfeed", $taskDescription, ["pushFeedId" => $pushFeedId], null, 0);
-
-
-    }
-
-
-    /**
-     * Process push feed by id.
-     *
-     * @param $pushFeedId
-     * @return void
-     */
-    public function processPushFeed($pushFeedId) {
-
-        /**
-         * @var PushFeed $pushFeed
-         */
-        $pushFeed = PushFeed::fetch($pushFeedId);
-
-
-        // Construct feed request
-        $feedParams = $pushFeed->getFeedParameterValues();
-        $lastQueriedValue = $pushFeed->getLastPushedSequenceValue() ?? $pushFeed->getInitialSequenceValue();
-
-        if ($pushFeed->getFeedSequenceParameterKey()) {
-            $feedParams[$pushFeed->getFeedSequenceParameterKey()] = $lastQueriedValue;
-
-        }
-
-
-        // Execute the feed
-        $feedResponse = $this->evaluateFeedByPath($pushFeed->getFeedPath(), $feedParams, 0, 1000);
-
-        if ($feedResponse->getContentSource() instanceof JSONContentSource) {
-
-            $data = $feedResponse->getContentSource()->getData();
-
-            // If a feed sequence result field name, use this
-            if ($pushFeed->getFeedSequenceResultFieldName()) {
-                while (($data[0][$pushFeed->getFeedSequenceResultFieldName()] ?? null) <= $lastQueriedValue)
-                    array_shift($data);
-            }
-
-            // Construct headers
-            $headers = new Headers([Headers::CONTENT_TYPE => "text/json"]);
-
-            // Create the request
-            $request = new \Kinikit\Core\HTTP\Request\Request($pushFeed->getPushUrl(), $pushFeed->getMethod(),
-                [], json_encode($data, JSON_INVALID_UTF8_IGNORE), $headers);
-
-
-            // Send it off
-            $pushResponse = $this->httpRequestDispatcher->dispatch($request);
-
-
-            if ($pushResponse->getStatusCode() < 200 || $pushResponse->getStatusCode() >= 400) {
-
-                if ($pushFeed->getNotificationGroups() ?? null) {
-
-                    // Generate a failed notification if required
-                    $model = ["pushUrl" => $pushFeed->getPushUrl(), "errorLog" => $pushResponse->getBody()];
-                    $title = $this->templateParser->parseTemplateText($pushFeed->getFailedPushNotificationTitle(), $model);
-                    $description = $this->templateParser->parseTemplateText($pushFeed->getFailedPushNotificationDescription(), $model);
-
-                    $notificationSummary = new NotificationSummary($title, $description, null,
-                        $pushFeed->getNotificationGroups());
-
-                    $this->notificationService->createNotification($notificationSummary, $pushFeed->getProjectKey(), $pushFeed->getAccountId());
-                }
-
-
-            } else {
-
-                // Update push feed
-                $pushFeed->setLastPushedSequenceValue(array_pop($data)[$pushFeed->getFeedSequenceResultFieldName()] ?? null);
-                $pushFeed->save();
-            }
-        }
-
-    }
 
 
     /**

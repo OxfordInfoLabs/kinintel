@@ -4,6 +4,7 @@ namespace Kinintel\Services\Hook\Hook;
 
 use Kinikit\Core\Util\ObjectArrayUtils;
 use Kinintel\Services\Feed\FeedService;
+use Kinintel\Services\Feed\PushFeedService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Hook\DatasourceHookUpdateMetaData;
 use Kinintel\ValueObjects\Hook\Hook\PushFeedDatasourceHookConfig;
@@ -14,7 +15,7 @@ use Kinintel\ValueObjects\Hook\MetaData\SQLDatabaseDatasourceHookUpdateMetaData;
  */
 class PushFeedDatasourceHook implements DatasourceHook {
 
-    public function __construct(private FeedService $feedService) {
+    public function __construct(private PushFeedService $pushFeedService) {
     }
 
 
@@ -38,7 +39,7 @@ class PushFeedDatasourceHook implements DatasourceHook {
         }
 
         // Queue the push feed
-        $this->feedService->queuePushFeed($hookConfig->getPushFeedId());
+        $this->pushFeedService->queuePushFeed($hookConfig->getPushFeedId());
 
     }
 }

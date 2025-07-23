@@ -8,6 +8,7 @@ use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Feed\FeedService;
+use Kinintel\Services\Feed\PushFeedService;
 use Kinintel\Services\Hook\Hook\PushFeedDatasourceHook;
 use Kinintel\ValueObjects\Hook\Hook\PushFeedDatasourceHookConfig;
 use Kinintel\ValueObjects\Hook\MetaData\SQLDatabaseDatasourceHookUpdateMetaData;
@@ -18,9 +19,9 @@ include_once "autoloader.php";
 class PushFeedDatasourceHookTest extends TestCase {
 
     /**
-     * @var FeedService|MockObject
+     * @var PushFeedService|MockObject
      */
-    private $feedService;
+    private $pushFeedService;
 
     /**
      * @var PushFeedDatasourceHook
@@ -35,8 +36,8 @@ class PushFeedDatasourceHookTest extends TestCase {
     public function setUp(): void {
 
         // Create a hook with a mock service.
-        $this->feedService = MockObjectProvider::mock(FeedService::class);
-        $this->hook = new PushFeedDatasourceHook($this->feedService);
+        $this->pushFeedService = MockObjectProvider::mock(PushFeedService::class);
+        $this->hook = new PushFeedDatasourceHook($this->pushFeedService);
 
     }
 
@@ -54,7 +55,7 @@ class PushFeedDatasourceHookTest extends TestCase {
         ], new SQLDatabaseDatasourceHookUpdateMetaData($dbConnection));
 
 
-        $this->assertFalse($this->feedService->methodWasCalled("queuePushFeed"));
+        $this->assertFalse($this->pushFeedService->methodWasCalled("queuePushFeed"));
 
     }
 
@@ -76,7 +77,7 @@ class PushFeedDatasourceHookTest extends TestCase {
         ], new SQLDatabaseDatasourceHookUpdateMetaData($dbConnection));
 
 
-        $this->assertTrue($this->feedService->methodWasCalled("queuePushFeed", [
+        $this->assertTrue($this->pushFeedService->methodWasCalled("queuePushFeed", [
             25
         ]));
 
