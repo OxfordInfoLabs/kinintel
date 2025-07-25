@@ -320,7 +320,7 @@
         <div class="example-list flex flex-wrap" cdkDropListGroup>
             <ng-template ngFor let-transformation [ngForOf]="terminatingTransformations" let-i="index">
                 <div cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListOrientation="horizontal"
-                     [cdkDropListData]="{item:transformation,index:i}">
+                     [cdkDropListData]="{item:transformation,index:i}" *ngIf="!transformation.hidden">
                     <div class="flex items-center">
                         <div class="new-transformation flex items-center justify-center w-6 h-6">
                             <a [matMenuTriggerFor]="addTransformation"
