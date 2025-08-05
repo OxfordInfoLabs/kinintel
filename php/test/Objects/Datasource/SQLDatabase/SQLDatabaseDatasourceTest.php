@@ -44,6 +44,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResult;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateResultItemValidationErrors;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 
@@ -751,13 +752,13 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
 
         // Issue a filtered delete
-        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([new Filter("[[test]]", "Market"), new Filter("[[other]]", [33, 44, 55, 66], Filter::FILTER_TYPE_IN)], [], FilterJunction::LOGIC_OR));
+        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([new Filter("[[test]]", "Market"), new Filter("[[other]]", [33, 44, 55, 66], Filter::FILTER_TYPE_IN)], [], FilterLogic::OR));
 
         // Confirm that the expected query was executed
         $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data WHERE `test` = ? OR `other` IN (?,?,?,?)", ["Market", 33, 44, 55, 66]]));
 
         // Issue a delete all command with no filters
-        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([], [], FilterJunction::LOGIC_OR));
+        $sqlDatabaseDatasource->filteredDelete(new FilterJunction([], [], FilterLogic::OR));
 
         // Confirm that the expected query was executed
         $this->assertTrue($this->databaseConnection->methodWasCalled("execute", ["DELETE FROM test_data", []]));

@@ -16,6 +16,7 @@ use Kinintel\ValueObjects\Datasource\DatasourceUpdateConfig;
 use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableDatasource {
@@ -166,13 +167,13 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                     foreach ($keySet as $key => $value) {
                         $filters[] = new Filter("[[" . $key . "]]", $value, Filter::FILTER_TYPE_EQUALS);
                     }
-                    $filterJunctions[] = new FilterJunction($filters, [], FilterJunction::LOGIC_AND);
+                    $filterJunctions[] = new FilterJunction($filters, [], FilterLogic::AND);
                 }
 
                 // Create a filter transformation to apply to the datasource
                 $transformation = new FilterTransformation([],
                     $filterJunctions,
-                    FilterJunction::LOGIC_OR
+                    FilterLogic::OR
                 );
 
 

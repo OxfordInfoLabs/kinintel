@@ -88,7 +88,7 @@ class SQLFilterJunctionEvaluator {
             }
 
 
-            return trim(join(" " . $filterJunction->getLogic() . " ", $clauses));
+            return trim(join(" " . $filterJunction->getLogic()->name . " ", $clauses));
         } else {
             return "";
         }
