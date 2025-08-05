@@ -22,6 +22,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -863,11 +864,11 @@ SQL
             new FilterTransformation([], [
                 new FilterJunction([
                     new Filter("[[parentId]]", 1, Filter::FILTER_TYPE_EQUALS)
-                ], [], FilterJunction::LOGIC_AND),
+                ], [], FilterLogic::AND),
                 new FilterJunction([
                     new Filter("[[parentId]]", 2, Filter::FILTER_TYPE_EQUALS)
-                ], [], FilterJunction::LOGIC_AND)
-            ], FilterJunction::LOGIC_OR)
+                ], [], FilterLogic::AND)
+            ], FilterLogic::OR)
         ]);
         $filteredDatasource->returnValue("materialise", new ArrayTabularDataset([
             new Field("id"),

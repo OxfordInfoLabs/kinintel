@@ -17,10 +17,9 @@ class FilterJunction {
     /**
      * One of the logic constants below
      *
-     * @var string
      * @required
      */
-    protected $logic;
+    protected FilterLogic $logic;
 
 
     /**
@@ -38,21 +37,16 @@ class FilterJunction {
      */
     protected $filterJunctions;
 
-
-    // Logic modes
-    const LOGIC_AND = "AND";
-    const LOGIC_OR = "OR";
-
     /**
      * FilterJunction constructor.
      *
      * @param Filter[] $filters
      * @param FilterJunction[] $filterJunctions
-     * @param string $logic
+     * @param FilterLogic $logic
      * @param InclusionCriteriaType $inclusionCriteria
      * @param mixed $inclusionData
      */
-    public function __construct(array $filters = [], array $filterJunctions = [], string $logic = self::LOGIC_AND, ?InclusionCriteriaType $inclusionCriteria = InclusionCriteriaType::Always, mixed $inclusionData = null) {
+    public function __construct(array $filters = [], array $filterJunctions = [], FilterLogic $logic = FilterLogic::AND, ?InclusionCriteriaType $inclusionCriteria = InclusionCriteriaType::Always, mixed $inclusionData = null) {
         $this->logic = $logic;
         $this->filters = $filters;
         $this->filterJunctions = $filterJunctions;
@@ -61,7 +55,7 @@ class FilterJunction {
     }
 
     /**
-     * @return string
+     * @return FilterLogic
      */
     public function getLogic() {
         return $this->logic;
@@ -82,7 +76,7 @@ class FilterJunction {
     }
 
     /**
-     * @param string $logic
+     * @param FilterLogic $logic
      */
     public function setLogic($logic) {
         $this->logic = $logic;

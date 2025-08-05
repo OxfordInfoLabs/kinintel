@@ -17,6 +17,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
@@ -295,7 +296,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[age]]", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], Filter::FILTER_TYPE_NOT_IN),
             new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
-        ], [], FilterJunction::LOGIC_OR), new SQLQuery("*", "test_data"), [], $this->dataSource);
+        ], [], FilterLogic::OR), new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"age\" NOT IN (?,?,?,?,?,?,?,?,?,?) OR \"weight\" > ?", $query->getSQL());
         $this->assertEquals([
@@ -342,7 +343,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // A conditional filter junction without parameters set
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
-        ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
+        ], [], FilterLogic::AND, InclusionCriteriaType::ParameterPresent, "test"),
             new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data", $query->getSQL());
@@ -352,7 +353,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // And with a parameter set
         $query = $processor->updateQuery(new FilterTransformation([
             new Filter("[[weight]]", 10, Filter::FILTER_TYPE_GREATER_THAN)
-        ], [], FilterJunction::LOGIC_AND, InclusionCriteriaType::ParameterPresent, "test"),
+        ], [], FilterLogic::AND, InclusionCriteriaType::ParameterPresent, "test"),
             new SQLQuery("*", "test_data"), ["test" => 1], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"weight\" > ?", $query->getSQL());
@@ -389,7 +390,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             new FilterJunction([
                 new Filter("[[name]]", "bob%", Filter::FILTER_TYPE_LIKE),
                 new Filter("[[name]]", "mary%", Filter::FILTER_TYPE_LIKE),
-            ], [], FilterJunction::LOGIC_OR)
+            ], [], FilterLogic::OR)
         ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"age\" NOT IN (?,?,?,?,?,?,?,?,?,?) AND \"weight\" > ? AND (\"name\" LIKE ? OR \"name\" LIKE ?)", $query->getSQL());

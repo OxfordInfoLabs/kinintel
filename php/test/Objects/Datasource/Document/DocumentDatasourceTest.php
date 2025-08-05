@@ -34,6 +34,7 @@ use Kinintel\ValueObjects\Datasource\Document\CustomDocumentData;
 use Kinintel\ValueObjects\Datasource\UpdatableMappedField;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\Phrase;
 use Kinintel\ValueObjects\Util\Analysis\TextAnalysis\StopWord;
@@ -343,9 +344,9 @@ class DocumentDatasourceTest extends \PHPUnit\Framework\TestCase {
                 [
                     new FilterJunction([
                         new Filter("[[document_file_name]]", "test.txt", Filter::FILTER_TYPE_EQUALS)
-                    ], [], FilterJunction::LOGIC_AND)
+                    ], [], FilterLogic::AND)
                 ],
-                FilterJunction::LOGIC_OR
+                FilterLogic::OR
             )
         ]);
 
