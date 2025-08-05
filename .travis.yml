@@ -1,7 +1,7 @@
 dist: jammy
 language: php
 php:
-  - '2'
+  - '8.2'
 services:
   - mysql
   - postgresql
