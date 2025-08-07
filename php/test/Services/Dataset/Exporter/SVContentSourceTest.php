@@ -74,4 +74,32 @@ class SVContentSourceTest extends TestBase {
 
     }
 
+    public function testCanExportDatasetWithNestedJSONDataAsCSV(){
+
+
+        $svExporter =  Container::instance()->get(SVDatasetExporter::class);
+
+        $data = [
+            ["name" => "Bob", "data" => ["age" => 33]],
+            ["name" => "Mary", "data" => ["age" => 44]],
+            ["name" => "Joan", "data" => ["age" => 55]]
+        ];
+
+
+        $dataset = new ArrayTabularDataset([
+            new Field("name"),
+            new Field("data")
+        ], $data);
+
+        // Default configuration
+        ob_start();
+        $svContentSource = new SVContentSource($dataset, new SVDatasetExporterConfiguration());
+        $svContentSource->streamContent();
+        $results = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertEquals("name,data\nBob,\"{\"\"age\"\":33}\"\nMary,\"{\"\"age\"\":44}\"\nJoan,\"{\"\"age\"\":55}\"\n", $results);
+
+    }
+
 }

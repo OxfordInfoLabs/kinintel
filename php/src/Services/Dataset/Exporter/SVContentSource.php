@@ -63,7 +63,10 @@ class SVContentSource extends ContentSource {
 
         // Output as csv
         while ($item = $this->dataset->nextDataItem()) {
-            fputcsv($out, array_values($item), $separator);
+            $values = array_map(function ($value) {
+                return is_array($value) || is_object($value) ? json_encode($value, JSON_INVALID_UTF8_IGNORE) : $value;
+            }, array_values($item));
+            fputcsv($out, $values, $separator);
         }
     }
 }
