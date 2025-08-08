@@ -42,11 +42,12 @@ class FilterQueryParser {
      */
     public function convertQueryToFilterJunction($queryString) {
 
-        $substitutions = [];
 
-
-        // Sort out nested apostrophes
+        // Sort out nested apostrophes up front.
         $sanitised = str_replace("\\'", "##APOST##", $queryString);
+
+        // Substitutions array applied next
+        $substitutions = [];
 
         // Extract content items first
         $sanitised = preg_replace_callback("/[0-9'\"].*?[0-9'\"]/", function ($matches) use (&$substitutions) {
@@ -54,8 +55,30 @@ class FilterQueryParser {
             return "?" . sizeof($substitutions);
         }, $sanitised);
 
+
+        // Now process structural elements
+
+
+        $filter = $this->convertClauseToFilter($sanitised, $substitutions);
+
+        return new FilterJunction([$filter]);
+
+    }
+
+
+    /**
+     * Convert a single clause into a filter
+     *
+     * @param $queryString
+     * @param array $substitutions
+     *
+     * @return Filter
+     * @throws InvalidQueryClauseException
+     */
+    private function convertClauseToFilter(string $queryString, array $substitutions): Filter {
+
         // Explode the expression on whitespace firstly
-        $tokenised = preg_split("/ +/", $sanitised,3);
+        $tokenised = preg_split("/ +/", $queryString, 3);
 
         if (sizeof($tokenised) >= 2) {
 
@@ -84,19 +107,15 @@ class FilterQueryParser {
 
             }
 
-
-            $filter = new Filter($lhs, $rhs, $operator);
-
-
-            return new FilterJunction([$filter]);
+            return new Filter($lhs, $rhs, $operator);
 
         } else {
             throw new InvalidQueryClauseException($queryString);
         }
-
-
     }
 
+
+    // Substitute placeholder values for a string
     private function substitutePlaceholderValues($string, $placeholders) {
 
         return preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
