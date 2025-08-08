@@ -78,7 +78,7 @@ class FeedServiceTest extends TestBase {
         $reFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Hello"
-        ], 0, null, $feedId);
+        ], false, '', 0, null, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, [], null, "test-json"));
         $this->assertEquals($expected, $reFeed);
 
@@ -89,7 +89,7 @@ class FeedServiceTest extends TestBase {
         $reReFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Goodbye"
-        ], 0, null, $feedId);
+        ], false, '', 0, null, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, [], null, "test-json"));
         $this->assertEquals($expected, $reReFeed);
 
@@ -466,7 +466,7 @@ class FeedServiceTest extends TestBase {
 
         $feedSummary = new FeedSummary("filter/feed7", 2, [], "test", [
             "config" => "Hello"
-        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
+        ], false, '', 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
 
         $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
 
@@ -545,7 +545,7 @@ class FeedServiceTest extends TestBase {
 
         $feedSummary = new FeedSummary("filter/feed8", 2, [], "test", [
             "config" => "Hello"
-        ], 0, new FeedWebsiteConfig(["happy.com", "test.sad.com"]));
+        ], false, '', 0, new FeedWebsiteConfig(["happy.com", "test.sad.com"]));
 
         $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
 

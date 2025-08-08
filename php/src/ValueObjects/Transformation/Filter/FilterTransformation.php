@@ -2,6 +2,8 @@
 
 
 namespace Kinintel\ValueObjects\Transformation\Filter;
+
+use Kinintel\Exception\InvalidQueryClauseException;
 use Kinintel\ValueObjects\Transformation\SQLDatabaseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
 
@@ -24,4 +26,7 @@ class FilterTransformation extends FilterJunction implements Transformation, SQL
     public function returnAlteredColumns(array $columns): array {
         return $columns;
     }
+
+
+
 }

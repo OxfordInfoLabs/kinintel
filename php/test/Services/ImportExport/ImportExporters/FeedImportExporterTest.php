@@ -39,9 +39,9 @@ class FeedImportExporterTest extends TestBase {
     public function testCanGetAllExportableResources() {
 
         $this->feedService->returnValue("filterFeeds", [
-            new FeedSummary("/test1", 1, ["input1"], "json", [], 0, null, 55),
-            new FeedSummary("/test2", 2, ["input2"], "json", [], 0, null, 66),
-            new FeedSummary("/test3", 3, ["input3"], "json", [], 0, null, 77),
+            new FeedSummary("/test1", 1, ["input1"], "json", [], false, '', 0, null, 55),
+            new FeedSummary("/test2", 2, ["input2"], "json", [], false, '', 0, null, 66),
+            new FeedSummary("/test3", 3, ["input3"], "json", [], false, '', 0, null, 77),
         ], [
             "", "testProject", 0, PHP_INT_MAX, 5
         ]);
@@ -60,9 +60,9 @@ class FeedImportExporterTest extends TestBase {
     public function testCanCreateExportResourcesWithSubstitutedValues() {
 
         $this->feedService->returnValue("filterFeeds", [
-            new FeedSummary("/test1", 1, ["input1"], "json", [], 0, null, 55),
-            new FeedSummary("/test2", 2, ["input2"], "json", [], 0, null, 66),
-            new FeedSummary("/test3", 3, ["input3"], "json", [], 0, null, 77),
+            new FeedSummary("/test1", 1, ["input1"], "json", [], false, '', 0, null, 55),
+            new FeedSummary("/test2", 2, ["input2"], "json", [], false, '', 0, null, 66),
+            new FeedSummary("/test3", 3, ["input3"], "json", [], false, '', 0, null, 77),
         ], [
             "", "testProject", 0, PHP_INT_MAX, 5
         ]);
@@ -80,8 +80,8 @@ class FeedImportExporterTest extends TestBase {
         ], []);
 
         $this->assertEquals([
-            new FeedSummary("/test1", -1, ["input1"], "json", [], 0, null, -1),
-            new FeedSummary("/test3", -3, ["input3"], "json", [], 0, null, -2),
+            new FeedSummary("/test1", -1, ["input1"], "json", [], false, '', 0, null, -1),
+            new FeedSummary("/test3", -3, ["input3"], "json", [], false, '', 0, null, -2),
         ], $exported);
 
     }
@@ -90,16 +90,16 @@ class FeedImportExporterTest extends TestBase {
     public function testCanAnalyseImportForFeedExport() {
 
         $this->feedService->returnValue("filterFeeds", [
-            new FeedSummary("/test1", 1, ["input1"], "json", [], 0, null, 55),
-            new FeedSummary("/test2", 2, ["input2"], "json", [], 0, null, 66),
+            new FeedSummary("/test1", 1, ["input1"], "json", [], false, '', 0, null, 55),
+            new FeedSummary("/test2", 2, ["input2"], "json", [], false, '', 0, null, 66),
         ], [
             "", "testProject", 0, PHP_INT_MAX, 5
         ]);
 
 
         $analysis = $this->importExporter->analyseImportObjects(5, "testProject", [
-            new FeedSummary("/test1", -1, ["input1"], "json", [], 0, null, -1),
-            new FeedSummary("/test3", -3, ["input3"], "json", [], 0, null, -2),
+            new FeedSummary("/test1", -1, ["input1"], "json", [], false, '', 0, null, -1),
+            new FeedSummary("/test3", -3, ["input3"], "json", [], false, '', 0, null, -2),
         ], []);
 
 
@@ -114,8 +114,8 @@ class FeedImportExporterTest extends TestBase {
     public function testCanImportFeedsFromExport() {
 
         $this->feedService->returnValue("filterFeeds", [
-            new FeedSummary("/test1", 1, ["input1"], "json", [], 0, null, 55),
-            new FeedSummary("/test2", 2, ["input2"], "json", [], 0, null, 66),
+            new FeedSummary("/test1", 1, ["input1"], "json", [], false, '', 0, null, 55),
+            new FeedSummary("/test2", 2, ["input2"], "json", [], false, '', 0, null, 66),
         ], [
             "", "testProject", 0, PHP_INT_MAX, 5
         ]);
@@ -125,19 +125,19 @@ class FeedImportExporterTest extends TestBase {
 
 
         $this->importExporter->importObjects(5, "testProject", [
-            new FeedSummary("/test1", -1, ["input1"], "json", [], 0, null, -1),
-            new FeedSummary("/test3", -3, ["input3"], "json", [], 0, null, -2),
+            new FeedSummary("/test1", -1, ["input1"], "json", [], false, '', 0, null, -1),
+            new FeedSummary("/test3", -3, ["input3"], "json", [], false, '', 0, null, -2),
         ], []);
 
 
         $this->assertTrue($this->feedService->methodWasCalled("saveFeed",[
-            new FeedSummary("/test1",33, ["input1"], "json", [], 0, null, 55),
+            new FeedSummary("/test1", 33, ["input1"], "json", [], false, '', 0, null, 55),
             "testProject",
             5
         ]));
 
         $this->assertTrue($this->feedService->methodWasCalled("saveFeed",[
-            new FeedSummary("/test3",44, ["input3"], "json", [], 0, null),
+            new FeedSummary("/test3", 44, ["input3"], "json", [], false, '', 0, null),
             "testProject",
             5
         ]));

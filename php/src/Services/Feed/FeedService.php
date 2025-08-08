@@ -98,7 +98,7 @@ class FeedService {
     public function isFeedURLAvailable($feedUrl, $currentItemId = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
         // Use feed validator
-        $feed = new Feed(new FeedSummary($feedUrl, null, null, null, null, 0, null, $currentItemId), null, $accountId);
+        $feed = new Feed(new FeedSummary($feedUrl, null, null, null, null, false, '', 0, null, $currentItemId), null, $accountId);
         return sizeof($feed->validate()) == 0;
     }
 
