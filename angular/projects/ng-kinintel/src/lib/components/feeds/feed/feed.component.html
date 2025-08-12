@@ -36,7 +36,8 @@
                                            [ngClass]="{'border-red-600': !!error}"
                                            placeholder="my-new-data-feed" [(ngModel)]="feed.path">
                                 </div>
-                                <small *ngIf="!error" class="font-normal">The path used to identify this API Connection</small>
+                                <small *ngIf="!error" class="font-normal">The path used to identify this API
+                                    Connection</small>
                                 <small *ngIf="error" class="font-normal text-red-600">{{error}}</small>
 
                             </div>
@@ -68,15 +69,17 @@
                             </label>
                             <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
                                 <mat-checkbox class="example-margin" [(ngModel)]="cacheEnabled"
-                                    (ngModelChange)="updateCacheEnabled($event)">
-                                    Enable API Caching</mat-checkbox>
+                                              (ngModelChange)="updateCacheEnabled($event)">
+                                    Enable API Caching
+                                </mat-checkbox>
 
                                 <div class="flex mt-4" *ngIf="cacheEnabled">
                                       <span
                                           class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                                         Cache time in seconds
                                       </span>
-                                    <input type="number" class="w-full rounded-l-none flex-1" placeholder="time in seconds"
+                                    <input type="number" class="w-full rounded-l-none flex-1"
+                                           placeholder="time in seconds"
                                            [(ngModel)]="feed.cacheTimeSeconds">
                                 </div>
                                 <small class="font-normal">Enable caching to reduce requests to the server. Setting
@@ -122,8 +125,48 @@
                                         {{param.title}}
                                     </mat-list-option>
                                 </mat-selection-list>
+                                <small class="font-normal">If selected, these parameters will be available to be
+                                    supplied as request parameters with names matching the parameter names.</small>
                             </div>
                         </div>
+
+                        <div *ngIf="feedDataset"
+                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                Advanced Querying
+                            </label>
+                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                                <mat-checkbox class="example-margin" [(ngModel)]="feed.adhocFiltering">
+                                    Enable Adhoc Filtering
+                                </mat-checkbox>
+                                <small class="font-normal">Adhoc filtering allows adhoc field filters to be supplied as
+                                    request parameters
+                                    in the format field_operator=value</small>
+
+
+                                <mat-checkbox class="example-margin mt-3" [(ngModel)]="feed.advancedQuerying">
+                                    Enable Advanced Querying
+                                </mat-checkbox>
+
+                                <div class="flex mt-4" *ngIf="feed.advancedQuerying">
+                                      <span
+                                          class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                       Request Parameter Name
+                                      </span>
+                                    <input type="text" class="w-full rounded-l-none flex-1"
+                                           placeholder="Parameter name"
+                                           [(ngModel)]="feed.advancedQueryParameterName">
+                                </div>
+
+                                <small class="font-normal">Advanced querying allows for advanced queries to be supplied as a query string with nested
+                                boolean logic.</small>
+                            </div>
+
+
+
+                        </div>
+
+
                     </div>
                 </div>
             </div>

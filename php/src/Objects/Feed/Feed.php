@@ -29,6 +29,7 @@ class Feed extends FeedSummary {
                 $feedSummary->getExposedParameterNames(), $feedSummary->getExporterKey(),
                 $feedSummary->getExporterConfiguration(),
                 $feedSummary->isAdhocFiltering(),
+                $feedSummary->isAdvancedQuerying(),
                 $feedSummary->getAdvancedQueryParameterName(),
                 $feedSummary->getCacheTimeSeconds(), $feedSummary->getWebsiteConfig(),
                 $feedSummary->getId());
@@ -62,7 +63,8 @@ class Feed extends FeedSummary {
         $summary = new FeedSummary($this->getPath(), $this->getDatasetInstanceId(),
             $this->getExposedParameterNames(),
             $this->getExporterKey(), $this->getExporterConfiguration(),
-            $this->isAdhocFiltering(), $this->getAdvancedQueryParameterName(),
+            $this->isAdhocFiltering(), $this->isAdvancedQuerying(),
+            $this->getAdvancedQueryParameterName(),
             $this->getCacheTimeSeconds(), $this->getWebsiteConfig(), $this->getId());
         $summary->setDatasetLabel($this->getDatasetLabel());
         return $summary;
