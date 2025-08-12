@@ -77,6 +77,14 @@ class FilterQueryParser {
      */
     private function convertClauseToFilterJunction(string $queryString, array $substitutions): FilterJunction {
 
+        do {
+            $origQueryString = $queryString;
+            $queryString = preg_replace_callback("/\(([^\(]*?)\)/", function ($matches) use (&$substitutions) {
+                $substitutions[] = $this->convertClauseToFilterJunction($matches[1], $substitutions);
+                return "$" . sizeof($substitutions);
+            }, $queryString);
+        } while ($queryString !== $origQueryString);
+
         $andMatches = preg_split("/\W&&\W/", $queryString, -1);
         $orMatches = preg_split("/\W\|\|\W/", $queryString, -1);
 
@@ -87,12 +95,19 @@ class FilterQueryParser {
         $junctionLogic = sizeof($orMatches) > 1 ? FilterLogic::OR : FilterLogic::AND;
         $junctionItems = sizeof($orMatches) > 1 ? $orMatches : $andMatches;
 
-        $filters = array_map(function ($item) use ($substitutions) {
-            return $this->convertClauseToFilter($item, $substitutions);
-        }, $junctionItems);
+        $filters = [];
+        $filterJunctions = [];
+        foreach ($junctionItems as $item) {
+            $trimmed = trim($item);
+            if (str_starts_with($trimmed, "$"))
+                $filterJunctions[] = $substitutions[substr($trimmed, 1) - 1];
+            else
+                $filters[] = $this->convertClauseToFilter($item, $substitutions);
+        }
+
 
         // Return new filter junction
-        return new FilterJunction($filters, [], $junctionLogic);
+        return new FilterJunction($filters, $filterJunctions, $junctionLogic);
 
     }
 
@@ -149,13 +164,15 @@ class FilterQueryParser {
     // Substitute placeholder values for a string - perform 2 rounds to allow for recursive placeholders
     private function substitutePlaceholderValues($string, $placeholders) {
 
-        $round1 = preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
-            return str_replace("##APOST##", "'", $placeholders[$placeholder[1] - 1]);
-        }, $string);
+        do {
+            $origString = $string;
+            $string = preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
+                return str_replace("##APOST##", "'", $placeholders[$placeholder[1] - 1]);
+            }, $string);
 
-        return preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
-            return $placeholders[$placeholder[1] - 1];
-        }, $round1);
+        } while ($string !== $origString);
+
+        return $string;
     }
 
 

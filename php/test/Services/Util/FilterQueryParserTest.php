@@ -285,8 +285,69 @@ class FilterQueryParserTest extends TestBase {
     }
 
 
-    
+    public function testSimpleBracketedExpressionsAreEvaluatedToFilterGroups() {
 
+        $query = "(id isnull && name == 'bob') || (name contains 'mary' && age < 32)";
+
+        $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
+        $this->assertEquals(new FilterJunction([], [
+            new FilterJunction([
+                new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
+                new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+            ]),
+            new FilterJunction([
+                new Filter("[[name]]", "mary", Filter::FILTER_TYPE_CONTAINS),
+                new Filter("[[age]]", 32, Filter::FILTER_TYPE_LESS_THAN)
+            ])
+        ], FilterLogic::OR), $junction);
+
+
+        $query = "age > 18 && (id isnull && name == 'bob') && (name contains 'mary' && age < 32)";
+
+        $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
+        $this->assertEquals(new FilterJunction([
+            new Filter("[[age]]", 18, Filter::FILTER_TYPE_GREATER_THAN)
+        ], [
+            new FilterJunction([
+                new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
+                new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+            ]),
+            new FilterJunction([
+                new Filter("[[name]]", "mary", Filter::FILTER_TYPE_CONTAINS),
+                new Filter("[[age]]", 32, Filter::FILTER_TYPE_LESS_THAN)
+            ])
+        ], FilterLogic::AND), $junction);
+
+
+    }
+
+
+    public function testNestedBracketedExpressionsAreEvaluatedCorrectly() {
+
+        $query = "age > 18 && ((id isnull && name == 'bob') || ((name contains 'mary' || name contains 'bob') && age < 32))";
+
+        $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
+        $this->assertEquals(new FilterJunction([
+            new Filter("[[age]]", 18, Filter::FILTER_TYPE_GREATER_THAN)
+        ], [
+            new FilterJunction([], [
+                new FilterJunction([
+                        new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
+                        new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+                    ]
+                ),
+                new FilterJunction([
+                    new Filter("[[age]]", 32, Filter::FILTER_TYPE_LESS_THAN)
+                ], [
+                    new FilterJunction([
+                        new Filter("[[name]]", "mary", Filter::FILTER_TYPE_CONTAINS),
+                        new Filter("[[name]]", "bob", Filter::FILTER_TYPE_CONTAINS)
+                    ], [], FilterLogic::OR)
+                ])
+            ], FilterLogic::OR)
+        ], FilterLogic::AND), $junction);
+
+    }
 
 
 }
