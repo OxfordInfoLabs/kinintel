@@ -2,6 +2,7 @@
 
 namespace Kinintel\Services\Util;
 
+use Kinintel\Exception\AmbiguousQueryLogicException;
 use Kinintel\Exception\InvalidQueryClauseException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -56,12 +57,42 @@ class FilterQueryParser {
         }, $sanitised);
 
 
+        $sanitised = preg_replace_callback("/\[.*?\]/", function ($matches) use (&$substitutions) {
+            $substitutions[] = $matches[0];
+            return "?" . sizeof($substitutions);
+        }, $sanitised);
+
         // Now process structural elements
+        return $this->convertClauseToFilterJunction($sanitised, $substitutions);
+
+    }
 
 
-        $filter = $this->convertClauseToFilter($sanitised, $substitutions);
+    /**
+     * Convert clause to a filter junction.
+     *
+     * @param string $queryString
+     * @param array $sustitutions
+     * @return FilterJunction
+     */
+    private function convertClauseToFilterJunction(string $queryString, array $substitutions): FilterJunction {
 
-        return new FilterJunction([$filter]);
+        $andMatches = preg_split("/\W&&\W/", $queryString, -1);
+        $orMatches = preg_split("/\W\|\|\W/", $queryString, -1);
+
+        if (sizeof($orMatches) > 1 && sizeof($andMatches) > 1)
+            throw new AmbiguousQueryLogicException($queryString);
+
+        // Work out which logic to apply and to which items
+        $junctionLogic = sizeof($orMatches) > 1 ? FilterLogic::OR : FilterLogic::AND;
+        $junctionItems = sizeof($orMatches) > 1 ? $orMatches : $andMatches;
+
+        $filters = array_map(function ($item) use ($substitutions) {
+            return $this->convertClauseToFilter($item, $substitutions);
+        }, $junctionItems);
+
+        // Return new filter junction
+        return new FilterJunction($filters, [], $junctionLogic);
 
     }
 
@@ -78,9 +109,9 @@ class FilterQueryParser {
     private function convertClauseToFilter(string $queryString, array $substitutions): Filter {
 
         // Explode the expression on whitespace firstly
-        $tokenised = preg_split("/ +/", $queryString, 3);
+        $tokenised = preg_split("/ +/", $queryString);
 
-        if (sizeof($tokenised) >= 2) {
+        if (sizeof($tokenised) >= 2 && sizeof($tokenised) < 4) {
 
             $lhs = str_contains($tokenised[0], "?") ? $this->substitutePlaceholderValues($tokenised[0], $substitutions) :
                 (!is_numeric($tokenised[0]) ? "[[" . $tokenised[0] . "]]" : $tokenised[0]);
@@ -115,12 +146,16 @@ class FilterQueryParser {
     }
 
 
-    // Substitute placeholder values for a string
+    // Substitute placeholder values for a string - perform 2 rounds to allow for recursive placeholders
     private function substitutePlaceholderValues($string, $placeholders) {
 
-        return preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
+        $round1 = preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
             return str_replace("##APOST##", "'", $placeholders[$placeholder[1] - 1]);
         }, $string);
+
+        return preg_replace_callback("/\?([0-9]+)/", function ($placeholder) use ($placeholders) {
+            return $placeholders[$placeholder[1] - 1];
+        }, $round1);
     }
 
 

@@ -2,10 +2,13 @@
 
 namespace Kinintel\Test\Services\Util;
 
+use Kinintel\Exception\AmbiguousQueryLogicException;
+use Kinintel\Exception\InvalidQueryClauseException;
 use Kinintel\Services\Util\FilterQueryParser;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 
 include_once "autoloader.php";
@@ -22,6 +25,30 @@ class FilterQueryParserTest extends TestBase {
     public function setUp(): void {
         $this->filterQueryParser = new FilterQueryParser();
     }
+
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testInvalidQueryClauseExceptionRaisedIfInvalidOperatorsSupplied() {
+        $query = "id badoperator";
+
+        try {
+            $this->filterQueryParser->convertQueryToFilterJunction($query);
+            $this->fail("Bad query");
+        } catch (InvalidQueryClauseException $e) {
+        }
+
+
+        $query = "id badoperator 3";
+
+        try {
+            $this->filterQueryParser->convertQueryToFilterJunction($query);
+            $this->fail("Bad query");
+        } catch (InvalidQueryClauseException $e) {
+        }
+    }
+
 
     public function testCanConvertValidSingleEqualsQueryStringIntoJunction() {
 
@@ -159,38 +186,107 @@ class FilterQueryParserTest extends TestBase {
 
     }
 
-    public function testCanConvertValidMultiValuedOperatorTypeQueryStringIntoFilterJunction(){
+    public function testCanConvertValidMultiValuedOperatorTypeQueryStringIntoFilterJunction() {
 
         // in with string values
         $query = "type in ['bob', 'mary', 'paul']";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[type]]", ["bob","mary","paul"], Filter::FILTER_TYPE_IN)
+            new Filter("[[type]]", ["bob", "mary", "paul"], Filter::FILTER_TYPE_IN)
         ]), $junction);
 
         // in with numeric values
         $query = "age in [12,13,14]";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[age]]", [12,13,14], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [12, 13, 14], Filter::FILTER_TYPE_IN)
         ]), $junction);
 
         // not in with string values
         $query = "type notin ['bob', 'mary', 'paul']";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[type]]", ["bob","mary","paul"], Filter::FILTER_TYPE_NOT_IN)
+            new Filter("[[type]]", ["bob", "mary", "paul"], Filter::FILTER_TYPE_NOT_IN)
         ]), $junction);
 
         // not in with numeric values
         $query = "age notin [12,13,14]";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[age]]", [12,13,14], Filter::FILTER_TYPE_NOT_IN)
+            new Filter("[[age]]", [12, 13, 14], Filter::FILTER_TYPE_NOT_IN)
         ]), $junction);
 
-        
+
     }
+
+
+    public function testCanConvertValidSimpleLogicalJunctions() {
+
+        // AND junction
+        $query = "id isnull && name == 'bob'";
+        $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
+        $this->assertEquals(new FilterJunction([
+            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
+            new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+        ]), $junction);
+
+        // OR junction
+        $query = "id isnull || name == 'bob'";
+        $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
+        $this->assertEquals(new FilterJunction([
+            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
+            new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+        ], [], FilterLogic::OR), $junction);
+
+        // Multiple clauses
+        $query = "id isnull && name == 'bob' && age > 5";
+        $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
+        $this->assertEquals(new FilterJunction([
+            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
+            new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS),
+            new Filter("[[age]]", 5, Filter::FILTER_TYPE_GREATER_THAN),
+        ]), $junction);
+
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testInvalidQueryClauseExceptionIfInvalidJunctionsSupplied() {
+
+        // Bad junction
+        $query = "id isnull FIND name == 'bob'";
+
+        try {
+            $this->filterQueryParser->convertQueryToFilterJunction($query);
+            $this->fail("Bad query");
+        } catch (InvalidQueryClauseException $e) {
+        }
+
+    }
+
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAmbiguousQueryLogicExceptionRaisedIfMixedLogicSuppliedToJunction() {
+
+
+        // Bad junction
+        $query = "id isnull && name == 'bob' || age < 25";
+
+        try {
+            $this->filterQueryParser->convertQueryToFilterJunction($query);
+            $this->fail("Ambiguous logic");
+        } catch (AmbiguousQueryLogicException $e) {
+        }
+
+
+    }
+
+
+    
+
 
 
 }
