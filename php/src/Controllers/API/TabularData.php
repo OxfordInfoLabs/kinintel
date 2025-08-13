@@ -15,6 +15,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -82,7 +83,7 @@ class TabularData {
 
                 $explodedValue = explode("|", $value);
                 $matchValue = array_shift($explodedValue);
-                $filters[] = new Filter("[[" . $key . "]]", $matchValue, $explodedValue[0] ?? Filter::FILTER_TYPE_EQUALS);
+                $filters[] = new Filter("[[" . $key . "]]", $matchValue, isset($explodedValue[0]) ? FilterType::fromString($explodedValue[0]) : FilterType::eq);
             }
         }
 
@@ -208,7 +209,7 @@ class TabularData {
 
             $value = $filter["value"] ?? null;
 
-            $matchType = $filter["matchType"] ?? (is_array($value) ? Filter::FILTER_TYPE_IN : Filter::FILTER_TYPE_EQUALS);
+            $matchType = $filter["matchType"] ?? (is_array($value) ? FilterType::in : FilterType::eq);
 
 
             $mappedFilters[] = new Filter("[[" . $columnName . "]]", $value, $matchType);

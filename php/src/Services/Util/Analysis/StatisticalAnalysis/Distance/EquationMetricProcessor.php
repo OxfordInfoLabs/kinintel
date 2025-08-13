@@ -12,6 +12,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
@@ -68,8 +69,8 @@ class EquationMetricProcessor implements MetricProcessor {
 
             //Join the two sources with respect to their phrases (and the condition that the first document's name comes alphabetically before).
             new TransformationInstance("join", new JoinTransformation($config->getDatasourceKey(), null, [], new FilterJunction([
-                new Filter("[[" . $config->getComponentFieldName() . "]]", "[[" . $config->getComponentFieldName() . "]]", Filter::FILTER_TYPE_EQUALS),
-                new Filter("[[" . $config->getKeyFieldName() . "]]", "[[" . $config->getKeyFieldName() . "]]", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[" . $config->getComponentFieldName() . "]]", "[[" . $config->getComponentFieldName() . "]]", FilterType::eq),
+                new Filter("[[" . $config->getKeyFieldName() . "]]", "[[" . $config->getKeyFieldName() . "]]", FilterType::gt)
             ]), [new Field($config->getKeyFieldName()), new Field($config->getValueFieldName())], true)),
 
             //Summarise over the data with distance

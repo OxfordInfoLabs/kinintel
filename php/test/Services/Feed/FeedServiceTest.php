@@ -28,6 +28,7 @@ use Kinintel\ValueObjects\Feed\FeedWebsiteConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -634,6 +635,49 @@ class FeedServiceTest extends TestBase {
     }
 
 
+    public function testIfAdvancedQueryingIsDisabledFilterTransformationNotAddedToFeed(){
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("/new/advancedquerydis", 2, [], "test", [
+            "config" => "Hello"
+        ]);
+
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+
+
+        $expectedJunction = new FilterJunction([new Filter("[[id]]", 33, FilterType::eq)]);
+
+        $this->filterQueryParser->returnValue("convertQueryToFilterJunction", $expectedJunction, [
+            "id == 33"
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("/new/advancedquerydis",["query" => "id == 33"]);
+        $this->assertEquals($expectedResponse, $response);
+
+
+    }
+
+
     public function testIfAdvancedQueryingEnabledFilterTransformationIsAddedToTheFeed() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
@@ -642,10 +686,10 @@ class FeedServiceTest extends TestBase {
             "config" => "Hello"
         ], false, true);
 
-        $feedId = $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
 
 
-        $expectedJunction = new FilterJunction([new Filter("[[id]]", 33, Filter::FILTER_TYPE_EQUALS)]);
+        $expectedJunction = new FilterJunction([new Filter("[[id]]", 33, FilterType::eq)]);
 
         $this->filterQueryParser->returnValue("convertQueryToFilterJunction", $expectedJunction, [
             "id == 33"

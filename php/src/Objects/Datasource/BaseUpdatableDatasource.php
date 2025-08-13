@@ -18,6 +18,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 
 abstract class BaseUpdatableDatasource extends BaseDatasource implements UpdatableDatasource {
 
@@ -165,7 +166,7 @@ abstract class BaseUpdatableDatasource extends BaseDatasource implements Updatab
                 foreach ($mappedKeys as $keySet) {
                     $filters = [];
                     foreach ($keySet as $key => $value) {
-                        $filters[] = new Filter("[[" . $key . "]]", $value, Filter::FILTER_TYPE_EQUALS);
+                        $filters[] = new Filter("[[" . $key . "]]", $value, FilterType::eq);
                     }
                     $filterJunctions[] = new FilterJunction($filters, [], FilterLogic::AND);
                 }

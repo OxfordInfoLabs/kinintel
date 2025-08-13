@@ -7,6 +7,7 @@ use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 
 /**
  * Simple evaluator class for evaluating SQL filter junctions to produce SQL clauses
@@ -113,45 +114,45 @@ class SQLFilterJunctionEvaluator {
 
         $clause = "";
         switch ($filter->getFilterType()) {
-            case Filter::FILTER_TYPE_NOT_EQUALS:
+            case FilterType::neq:
                 $clause = "$lhsExpression <> $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_NULL:
+            case FilterType::null:
                 $clause = "$lhsExpression IS NULL";
                 $rhsParams = [];
                 break;
-            case Filter::FILTER_TYPE_NOT_NULL:
+            case FilterType::notnull:
                 $clause = "$lhsExpression IS NOT NULL";
                 $rhsParams = [];
                 break;
-            case Filter::FILTER_TYPE_GREATER_THAN:
+            case FilterType::gt:
                 $clause = "$lhsExpression > $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO:
+            case FilterType::gte:
                 $clause = "$lhsExpression >= $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_LESS_THAN:
+            case FilterType::lt:
                 $clause = "$lhsExpression < $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO:
+            case FilterType::lte:
                 $clause = "$lhsExpression <= $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_BITWISE_OR:
+            case FilterType::bitwiseor:
                 $clause = "$lhsExpression | $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_BITWISE_AND:
+            case FilterType::bitwiseand:
                 $clause = "$lhsExpression & $rhsExpression";
                 break;
-            case Filter::FILTER_TYPE_STARTS_WITH:
+            case FilterType::startswith:
                 $clause = "$lhsExpression LIKE CONCAT($rhsExpression,'%')";
                 break;
-            case Filter::FILTER_TYPE_ENDS_WITH:
+            case FilterType::endswith:
                 $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression)";
                 break;
-            case Filter::FILTER_TYPE_CONTAINS:
+            case FilterType::contains:
                 $clause = "$lhsExpression LIKE CONCAT('%', $rhsExpression, '%')";
                 break;
-            case Filter::FILTER_TYPE_SIMILAR_TO:
+            case FilterType::similarto:
 
                 if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array containing a match string and a maximum distance");
@@ -162,8 +163,8 @@ class SQLFilterJunctionEvaluator {
 
                 $clause = "(ABS(LENGTH($lhsExpression) - LENGTH($rhsExpressionComponents[0])) <= $rhsExpressionComponents[1]) AND (LEVENSHTEIN($lhsExpression, $rhsExpressionComponents[0]) <= $rhsExpressionComponents[1])";
                 break;
-            case Filter::FILTER_TYPE_LIKE:
-            case Filter::FILTER_TYPE_NOT_LIKE:
+            case FilterType::like:
+            case FilterType::notlike:
 
                 $last = $rhsParams[count($rhsParams ?? []) - 1] ?? null;
 
@@ -185,21 +186,21 @@ class SQLFilterJunctionEvaluator {
                     array_pop($rhsExpressionComponents);
                 }
 
-                $clause = "$lhsExpression " . ($filter->getFilterType() == Filter::FILTER_TYPE_NOT_LIKE ? "NOT " : "") . "$likeKeyword " . join(",", $rhsExpressionComponents);
+                $clause = "$lhsExpression " . ($filter->getFilterType() == FilterType::notlike ? "NOT " : "") . "$likeKeyword " . join(",", $rhsExpressionComponents);
 
                 break;
 
-            case Filter::FILTER_TYPE_BETWEEN:
+            case FilterType::between:
                 if (!is_array($rhsExpressionComponents) || sizeof($rhsExpressionComponents) !== 2) {
                     throw new DatasourceTransformationException("Filter value for {$filter->getLhsExpression()} must be a two valued array");
                 }
                 $clause = "$lhsExpression BETWEEN ? AND ?";
                 break;
-            case Filter::FILTER_TYPE_IN:
+            case FilterType::in:
                 if (trim($rhsExpression))
                     $clause = "$lhsExpression IN (" . $rhsExpression . ")";
                 break;
-            case Filter::FILTER_TYPE_NOT_IN:
+            case FilterType::notin:
                 if (trim($rhsExpression))
                     $clause = "$lhsExpression NOT IN (" . $rhsExpression . ")";
                 break;

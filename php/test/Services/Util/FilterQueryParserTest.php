@@ -10,6 +10,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 
 include_once "autoloader.php";
 
@@ -56,28 +57,28 @@ class FilterQueryParserTest extends TestBase {
         $query = "id == 25";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 25, Filter::FILTER_TYPE_EQUALS)
+            new Filter("[[id]]", 25, FilterType::eq)
         ]), $junction);
 
         // String values quoted
         $query = "name == 'Mark'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", "Mark", Filter::FILTER_TYPE_EQUALS)
+            new Filter("[[name]]", "Mark", FilterType::eq)
         ]), $junction);
 
         // String values with escaped quotes
         $query = "name == 'Mark\'s Domain'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", "Mark's Domain", Filter::FILTER_TYPE_EQUALS)
+            new Filter("[[name]]", "Mark's Domain", FilterType::eq)
         ]), $junction);
 
         // String values in double quotes
         $query = 'name == "Mark"';
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", "Mark", Filter::FILTER_TYPE_EQUALS)
+            new Filter("[[name]]", "Mark", FilterType::eq)
         ]), $junction);
 
     }
@@ -89,70 +90,70 @@ class FilterQueryParserTest extends TestBase {
         $query = "id > 25";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 25, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[id]]", 25, FilterType::gt)
         ]), $junction);
 
         // Greater than or equal to
         $query = "id >= 25";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 25, Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)
+            new Filter("[[id]]", 25, FilterType::gte)
         ]), $junction);
 
         // Less than
         $query = "id < 25";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 25, Filter::FILTER_TYPE_LESS_THAN)
+            new Filter("[[id]]", 25, FilterType::lt)
         ]), $junction);
 
         // Less than or equal to
         $query = "id <= 25";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 25, Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO)
+            new Filter("[[id]]", 25, FilterType::lte)
         ]), $junction);
 
         // Not equals
         $query = "id != 25";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 25, Filter::FILTER_TYPE_NOT_EQUALS)
+            new Filter("[[id]]", 25, FilterType::neq)
         ]), $junction);
 
         // Null
         $query = "id isnull";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL)
+            new Filter("[[id]]", null, FilterType::null)
         ]), $junction);
 
         // Not null
         $query = "id isnotnull";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", null, Filter::FILTER_TYPE_NOT_NULL)
+            new Filter("[[id]]", null, FilterType::notnull)
         ]), $junction);
 
         // Contains
         $query = "id contains 5";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 5, Filter::FILTER_TYPE_CONTAINS)
+            new Filter("[[id]]", 5, FilterType::contains)
         ]), $junction);
 
         // Starts with
         $query = "id startswith 5";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 5, Filter::FILTER_TYPE_STARTS_WITH)
+            new Filter("[[id]]", 5, FilterType::startswith)
         ]), $junction);
 
         // Starts with
         $query = "id endswith 5";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", 5, Filter::FILTER_TYPE_ENDS_WITH)
+            new Filter("[[id]]", 5, FilterType::endswith)
         ]), $junction);
 
 
@@ -160,28 +161,28 @@ class FilterQueryParserTest extends TestBase {
         $query = "name like '*mark*'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_WILDCARD], FilterType::like)
         ]), $junction);
 
         // Not Like
         $query = "name notlike '*mark*'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_NOT_LIKE)
+            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_WILDCARD], FilterType::notlike)
         ]), $junction);
 
         // Like Regexp
         $query = "name likeregexp '*mark*'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_REGEXP], Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_REGEXP], FilterType::like)
         ]), $junction);
 
         // Not Like
         $query = "name notlikeregexp '*mark*'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_REGEXP], Filter::FILTER_TYPE_NOT_LIKE)
+            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_REGEXP], FilterType::notlike)
         ]), $junction);
 
     }
@@ -192,28 +193,28 @@ class FilterQueryParserTest extends TestBase {
         $query = "type in ['bob', 'mary', 'paul']";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[type]]", ["bob", "mary", "paul"], Filter::FILTER_TYPE_IN)
+            new Filter("[[type]]", ["bob", "mary", "paul"], FilterType::in)
         ]), $junction);
 
         // in with numeric values
         $query = "age in [12,13,14]";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[age]]", [12, 13, 14], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [12, 13, 14], FilterType::in)
         ]), $junction);
 
         // not in with string values
         $query = "type notin ['bob', 'mary', 'paul']";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[type]]", ["bob", "mary", "paul"], Filter::FILTER_TYPE_NOT_IN)
+            new Filter("[[type]]", ["bob", "mary", "paul"], FilterType::notin)
         ]), $junction);
 
         // not in with numeric values
         $query = "age notin [12,13,14]";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[age]]", [12, 13, 14], Filter::FILTER_TYPE_NOT_IN)
+            new Filter("[[age]]", [12, 13, 14], FilterType::notin)
         ]), $junction);
 
 
@@ -226,25 +227,25 @@ class FilterQueryParserTest extends TestBase {
         $query = "id isnull && name == 'bob'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
-            new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+            new Filter("[[id]]", null, FilterType::null),
+            new Filter("[[name]]", "bob", FilterType::eq)
         ]), $junction);
 
         // OR junction
         $query = "id isnull || name == 'bob'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
-            new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+            new Filter("[[id]]", null, FilterType::null),
+            new Filter("[[name]]", "bob", FilterType::eq)
         ], [], FilterLogic::OR), $junction);
 
         // Multiple clauses
         $query = "id isnull && name == 'bob' && age > 5";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
-            new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS),
-            new Filter("[[age]]", 5, Filter::FILTER_TYPE_GREATER_THAN),
+            new Filter("[[id]]", null, FilterType::null),
+            new Filter("[[name]]", "bob", FilterType::eq),
+            new Filter("[[age]]", 5, FilterType::gt),
         ]), $junction);
 
     }
@@ -292,12 +293,12 @@ class FilterQueryParserTest extends TestBase {
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([], [
             new FilterJunction([
-                new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
-                new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+                new Filter("[[id]]", null, FilterType::null),
+                new Filter("[[name]]", "bob", FilterType::eq)
             ]),
             new FilterJunction([
-                new Filter("[[name]]", "mary", Filter::FILTER_TYPE_CONTAINS),
-                new Filter("[[age]]", 32, Filter::FILTER_TYPE_LESS_THAN)
+                new Filter("[[name]]", "mary", FilterType::contains),
+                new Filter("[[age]]", 32, FilterType::lt)
             ])
         ], FilterLogic::OR), $junction);
 
@@ -306,15 +307,15 @@ class FilterQueryParserTest extends TestBase {
 
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[age]]", 18, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", 18, FilterType::gt)
         ], [
             new FilterJunction([
-                new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
-                new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+                new Filter("[[id]]", null, FilterType::null),
+                new Filter("[[name]]", "bob", FilterType::eq)
             ]),
             new FilterJunction([
-                new Filter("[[name]]", "mary", Filter::FILTER_TYPE_CONTAINS),
-                new Filter("[[age]]", 32, Filter::FILTER_TYPE_LESS_THAN)
+                new Filter("[[name]]", "mary", FilterType::contains),
+                new Filter("[[age]]", 32, FilterType::lt)
             ])
         ], FilterLogic::AND), $junction);
 
@@ -328,20 +329,20 @@ class FilterQueryParserTest extends TestBase {
 
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[age]]", 18, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", 18, FilterType::gt)
         ], [
             new FilterJunction([], [
                 new FilterJunction([
-                        new Filter("[[id]]", null, Filter::FILTER_TYPE_NULL),
-                        new Filter("[[name]]", "bob", Filter::FILTER_TYPE_EQUALS)
+                        new Filter("[[id]]", null, FilterType::null),
+                        new Filter("[[name]]", "bob", FilterType::eq)
                     ]
                 ),
                 new FilterJunction([
-                    new Filter("[[age]]", 32, Filter::FILTER_TYPE_LESS_THAN)
+                    new Filter("[[age]]", 32, FilterType::lt)
                 ], [
                     new FilterJunction([
-                        new Filter("[[name]]", "mary", Filter::FILTER_TYPE_CONTAINS),
-                        new Filter("[[name]]", "bob", Filter::FILTER_TYPE_CONTAINS)
+                        new Filter("[[name]]", "mary", FilterType::contains),
+                        new Filter("[[name]]", "bob", FilterType::contains)
                     ], [], FilterLogic::OR)
                 ])
             ], FilterLogic::OR)

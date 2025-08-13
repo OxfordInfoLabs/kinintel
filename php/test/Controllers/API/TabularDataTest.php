@@ -19,6 +19,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDataso
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -166,8 +167,8 @@ class TabularDataTest extends TestBase {
         $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
             $this->datasourceInstance, [], [
                 new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("[[test]]", 1,Filter::FILTER_TYPE_GREATER_THAN),
-                    new Filter("[[test2]]", "*hello*", Filter::FILTER_TYPE_LIKE)
+                    new Filter("[[test]]", 1,FilterType::gt),
+                    new Filter("[[test2]]", "*hello*", FilterType::like)
                 ]))
             ], 0, 100
         ]);
@@ -192,8 +193,8 @@ class TabularDataTest extends TestBase {
         $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
             $this->datasourceInstance, [], [
                 new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("[[test]]", 1,Filter::FILTER_TYPE_GREATER_THAN),
-                    new Filter("[[test2]]", "*hello*", Filter::FILTER_TYPE_LIKE)
+                    new Filter("[[test]]", 1,FilterType::gt),
+                    new Filter("[[test2]]", "*hello*", FilterType::like)
                 ])),
                 new TransformationInstance("multisort", new MultiSortTransformation([
                     new Sort("test", Sort::DIRECTION_ASC)
@@ -218,8 +219,8 @@ class TabularDataTest extends TestBase {
         $this->datasourceService->returnValue("getEvaluatedDataSource", $arrayDataset, [
             $this->datasourceInstance, [], [
                 new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("[[test]]", 1,Filter::FILTER_TYPE_GREATER_THAN),
-                    new Filter("[[test2]]", "*hello*", Filter::FILTER_TYPE_LIKE)
+                    new Filter("[[test]]", 1,FilterType::gt),
+                    new Filter("[[test2]]", "*hello*", FilterType::like)
                 ])),
                 new TransformationInstance("multisort", new MultiSortTransformation([
                     new Sort("test", Sort::DIRECTION_DESC),
@@ -290,13 +291,13 @@ class TabularDataTest extends TestBase {
         // In filters for arrays
         $this->tabularData->filteredDelete("bingo", [["column" => "test", "value" => [3, 5, 7]], ["column" => "test2", "value" => ["Mark", "Bob"]]]);
         $this->assertTrue($this->datasourceService->methodWasCalled("filteredDeleteFromDatasourceInstanceByImportKey", ["bingo",
-            new FilterJunction([new Filter("[[test]]", [3, 5, 7], Filter::FILTER_TYPE_IN), new Filter("[[test2]]", ["Mark", "Bob"], Filter::FILTER_TYPE_IN)])]));
+            new FilterJunction([new Filter("[[test]]", [3, 5, 7], FilterType::in), new Filter("[[test2]]", ["Mark", "Bob"], FilterType::in)])]));
 
 
         // Advanced filtering
-        $this->tabularData->filteredDelete("bingo", [["column" => "test", "value" => "55", "matchType" => Filter::FILTER_TYPE_GREATER_THAN], ["column" => "test2", "value" => "Mark", "matchType" => Filter::FILTER_TYPE_LIKE]]);
+        $this->tabularData->filteredDelete("bingo", [["column" => "test", "value" => "55", "matchType" => FilterType::gt], ["column" => "test2", "value" => "Mark", "matchType" => FilterType::like]]);
         $this->assertTrue($this->datasourceService->methodWasCalled("filteredDeleteFromDatasourceInstanceByImportKey", ["bingo",
-            new FilterJunction([new Filter("[[test]]", 55, Filter::FILTER_TYPE_GREATER_THAN), new Filter("[[test2]]", "Mark", Filter::FILTER_TYPE_LIKE)])]));
+            new FilterJunction([new Filter("[[test]]", 55, FilterType::gt), new Filter("[[test2]]", "Mark", FilterType::like)])]));
 
 
     }

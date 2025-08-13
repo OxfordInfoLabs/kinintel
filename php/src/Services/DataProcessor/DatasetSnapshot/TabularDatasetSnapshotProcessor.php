@@ -22,6 +22,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\Index;
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
@@ -398,7 +399,7 @@ class TabularDatasetSnapshotProcessor extends BaseDataProcessor {
             foreach ($timeLapsedFieldSet->getDayOffsets() as $dayOffset) {
                 $date = (new \DateTime())->sub(new \DateInterval("P" . $dayOffset . "D"))->format("Y-m-d");
                 try {
-                    $evaluateDatasource = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($dataSourceInstanceKey, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", $date, "eq")]))], 0, 1);
+                    $evaluateDatasource = $this->datasourceService->getEvaluatedDataSourceByInstanceKey($dataSourceInstanceKey, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", $date, FilterType::eq)]))], 0, 1);
                     if ($nextLine = $evaluateDatasource->nextRawDataItem()) {
                         $distinctTimeLapses[$dayOffset] = $nextLine["snapshot_date"];
                     } else {

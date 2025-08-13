@@ -8,26 +8,27 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 
 class FilterQueryParser {
 
-    const CONDITION_TOKENS = ["==" => Filter::FILTER_TYPE_EQUALS,
-        "!=" => Filter::FILTER_TYPE_NOT_EQUALS,
-        ">" => Filter::FILTER_TYPE_GREATER_THAN,
-        ">=" => Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO,
-        "<" => Filter::FILTER_TYPE_LESS_THAN,
-        "<=" => Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO,
-        Filter::FILTER_TYPE_CONTAINS => Filter::FILTER_TYPE_CONTAINS,
-        Filter::FILTER_TYPE_STARTS_WITH => Filter::FILTER_TYPE_STARTS_WITH,
-        Filter::FILTER_TYPE_ENDS_WITH => Filter::FILTER_TYPE_ENDS_WITH,
-        "like" => Filter::FILTER_TYPE_LIKE,
-        "likeregexp" => Filter::FILTER_TYPE_LIKE,
-        "notlike" => Filter::FILTER_TYPE_NOT_LIKE,
-        "notlikeregexp" => Filter::FILTER_TYPE_NOT_LIKE,
-        Filter::FILTER_TYPE_IN => Filter::FILTER_TYPE_IN,
-        Filter::FILTER_TYPE_NOT_IN => Filter::FILTER_TYPE_NOT_IN,
-        "isnull" => Filter::FILTER_TYPE_NULL,
-        "isnotnull" => Filter::FILTER_TYPE_NOT_NULL];
+    const CONDITION_TOKENS = ["==" => FilterType::eq,
+        "!=" =>FilterType::neq,
+        ">" => FilterType::gt,
+        ">=" => FilterType::gte,
+        "<" => FilterType::lt,
+        "<=" => FilterType::lte,
+        "contains" => FilterType::contains,
+        "startswith" => FilterType::startswith,
+        "endswith" => FilterType::endswith,
+        "like" => FilterType::like,
+        "likeregexp" => FilterType::like,
+        "notlike" => FilterType::notlike,
+        "notlikeregexp" => FilterType::notlike,
+        "in" => FilterType::in,
+        "notin"=> FilterType::notin,
+        "isnull" => FilterType::null,
+        "isnotnull" => FilterType::notnull];
 
     const LOGIC_TOKENs = [
         "&&" => FilterLogic::AND,
@@ -142,12 +143,12 @@ class FilterQueryParser {
                     (!is_numeric($tokenised[2]) ? "[[" . $tokenised[2] . "]]" : $tokenised[2]);
 
                 // Handle the like cases to convert into an array structure.
-                if ($operator == Filter::FILTER_TYPE_LIKE || $operator == Filter::FILTER_TYPE_NOT_LIKE) {
+                if ($operator == FilterType::like || $operator == FilterType::notlike) {
                     $rhs = [$rhs, str_contains($tokenised[1], "regexp") ? Filter::LIKE_MATCH_REGEXP : Filter::LIKE_MATCH_WILDCARD];
                 }
 
                 // if an in clause, process this as an array of values
-                if ($operator == Filter::FILTER_TYPE_IN || $operator == Filter::FILTER_TYPE_NOT_IN) {
+                if ($operator == FilterType::in || $operator == FilterType::notin) {
                     $rhs = preg_split("/\W*,\W*/", trim($rhs, " []"));
                 }
 

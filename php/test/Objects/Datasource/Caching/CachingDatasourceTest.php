@@ -17,6 +17,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConf
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
@@ -123,7 +124,7 @@ class CachingDatasourceTest extends TestCase {
             [
                 new FilterTransformation([
                     new Filter("[[parameters]]", $encodedParams),
-                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), FilterType::gt)])
             ]);
 
 
@@ -211,7 +212,7 @@ class CachingDatasourceTest extends TestCase {
             [
                 new FilterTransformation([
                     new Filter("[[parameters]]", $encodedParams),
-                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), FilterType::gt)])
             ]);
 
 
@@ -292,7 +293,7 @@ class CachingDatasourceTest extends TestCase {
             [
                 new FilterTransformation([
                     new Filter("[[parameters]]", $encodedParams),
-                    new Filter("[[cached_time]]", $cacheExpiry->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+                    new Filter("[[cached_time]]", $cacheExpiry->format("Y-m-d H:i:s"), FilterType::gt)])
             ]);
 
 
@@ -364,7 +365,7 @@ class CachingDatasourceTest extends TestCase {
             [
                 new FilterTransformation([
                     new Filter("[[parameters]]", $encodedParams),
-                    new Filter("[[cached_time]]", $cacheExpiry->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+                    new Filter("[[cached_time]]", $cacheExpiry->format("Y-m-d H:i:s"), FilterType::gt)])
             ]);
 
         $enhancedData = new ArrayTabularDataset([
@@ -433,7 +434,7 @@ class CachingDatasourceTest extends TestCase {
             [
                 new FilterTransformation([
                     new Filter("[[parameters]]", $encodedParams),
-                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), FilterType::gt)])
             ]);
 
 
@@ -467,7 +468,7 @@ class CachingDatasourceTest extends TestCase {
         $this->cacheDatasource->returnValue("applyTransformation", $previousCachedDatasource, [
             new FilterTransformation([
                 new Filter("[[parameters]]", $encodedParams),
-                new Filter("[[cached_time]]", $fourteenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[cached_time]]", $fourteenDaysAgo->format("Y-m-d H:i:s"), FilterType::gt)
             ])
         ]);
 
@@ -518,7 +519,7 @@ class CachingDatasourceTest extends TestCase {
             [
                 new FilterTransformation([
                     new Filter("[[parameters]]", $encodedParams),
-                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), Filter::FILTER_TYPE_GREATER_THAN)])
+                    new Filter("[[cached_time]]", $sevenDaysAgo->format("Y-m-d H:i:s"), FilterType::gt)])
             ]);
 
 
