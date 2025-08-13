@@ -88,6 +88,15 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"name\" IS NULL", $query->getSQL());
+
+
+        $processor = new FilterTransformationProcessor($this->templateParser);
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[name]]", "", FilterType::isnull)
+        ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE \"name\" IS NULL", $query->getSQL());
+
     }
 
     public function testNotNullFiltersAppliedCorrectly() {
@@ -97,6 +106,13 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
 
         $this->assertEquals("SELECT * FROM test_data WHERE \"name\" IS NOT NULL", $query->getSQL());
+
+        $query = $processor->updateQuery(new FilterTransformation([
+            new Filter("[[name]]", "", FilterType::isnotnull)
+        ]), new SQLQuery("*", "test_data"), [], $this->dataSource);
+
+        $this->assertEquals("SELECT * FROM test_data WHERE \"name\" IS NOT NULL", $query->getSQL());
+
     }
 
     public function testGreaterThanFiltersAppliedCorrectly() {

@@ -142,10 +142,6 @@ class FilterQueryParser {
                 $rhs = str_contains($tokenised[2], "?") ? $this->substitutePlaceholderValues($tokenised[2], $substitutions) :
                     (!is_numeric($tokenised[2]) ? "[[" . $tokenised[2] . "]]" : $tokenised[2]);
 
-                // Handle the like cases to convert into an array structure.
-                if ($operator == FilterType::like || $operator == FilterType::notlike) {
-                    $rhs = [$rhs, str_contains($tokenised[1], "regexp") ? Filter::LIKE_MATCH_REGEXP : Filter::LIKE_MATCH_WILDCARD];
-                }
 
                 // if an in clause, process this as an array of values
                 if ($operator == FilterType::in || $operator == FilterType::notin) {

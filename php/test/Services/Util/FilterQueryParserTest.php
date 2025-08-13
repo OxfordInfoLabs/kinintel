@@ -172,17 +172,17 @@ class FilterQueryParserTest extends TestBase {
         ]), $junction);
 
         // Like Regexp
-        $query = "name likeregexp '*mark*'";
+        $query = "name like '/mark/'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_REGEXP], FilterType::like)
+            new Filter("[[name]]", ["mark", Filter::LIKE_MATCH_REGEXP], FilterType::like)
         ]), $junction);
 
         // Not Like
-        $query = "name notlikeregexp '*mark*'";
+        $query = "name notlike '/mark/'";
         $junction = $this->filterQueryParser->convertQueryToFilterJunction($query);
         $this->assertEquals(new FilterJunction([
-            new Filter("[[name]]", ["*mark*", Filter::LIKE_MATCH_REGEXP], FilterType::notlike)
+            new Filter("[[name]]", ["mark", Filter::LIKE_MATCH_REGEXP], FilterType::notlike)
         ]), $junction);
 
     }

@@ -48,12 +48,26 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             new Filter("[[name]]", "", FilterType::null)
         ])));
 
+        $this->assertEquals([
+            "sql" => "\"name\" IS NULL",
+            "parameters" => []
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "", FilterType::isnull)
+        ])));
+
         // NOT NULL
         $this->assertEquals([
             "sql" => "\"name\" IS NOT NULL",
             "parameters" => []
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "", FilterType::notnull)
+        ])));
+
+        $this->assertEquals([
+            "sql" => "\"name\" IS NOT NULL",
+            "parameters" => []
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "", FilterType::isnotnull)
         ])));
 
         // GREATER THAN

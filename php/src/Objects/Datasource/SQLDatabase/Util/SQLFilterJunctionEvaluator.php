@@ -118,10 +118,12 @@ class SQLFilterJunctionEvaluator {
                 $clause = "$lhsExpression <> $rhsExpression";
                 break;
             case FilterType::null:
+            case FilterType::isnull:
                 $clause = "$lhsExpression IS NULL";
                 $rhsParams = [];
                 break;
             case FilterType::notnull:
+            case FilterType::isnotnull:
                 $clause = "$lhsExpression IS NOT NULL";
                 $rhsParams = [];
                 break;
