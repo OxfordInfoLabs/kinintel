@@ -635,7 +635,7 @@ class FeedServiceTest extends TestBase {
     }
 
 
-    public function testIfAdvancedQueryingIsDisabledFilterTransformationNotAddedToFeed(){
+    public function testIfAdvancedQueryingIsDisabledFilterTransformationNotAddedToFeed() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
@@ -671,9 +671,61 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
-        $response = $this->feedService->evaluateFeed("/new/advancedquerydis",["query" => "id == 33"]);
+        $response = $this->feedService->evaluateFeed("/new/advancedquerydis", ["query" => "id == 33"]);
         $this->assertEquals($expectedResponse, $response);
 
+
+    }
+
+
+    public function testIfAdhocFilteringEnabledFilterTransformationIsAddedToFeedWhereAdhocParametersExist() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("/new/adhoc", 2, [], "test", [
+            "config" => "Hello"
+        ], true);
+
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        // Map expected transformation
+        $expectedFilters = [
+            new Filter("[[param1]]", 25, FilterType::eq),
+            new Filter("[[param2]]", "*string*", FilterType::like),
+            new Filter("[[param3]]", "smith", FilterType::similarto),
+            new Filter("[[param4]]", ["mark", "john", "james"], FilterType::in)
+        ];
+
+
+        $expectedTransformationInstance = new TransformationInstance("filter", new FilterTransformation($expectedFilters));
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [$expectedTransformationInstance],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("/new/adhoc",
+            ["param1_eq" => 25, "param2_like" => "*string*", "param3_similarto" => "smith", "param4_in" => "mark,john,james"]
+        );
+
+
+
+
+        $this->assertEquals($expectedResponse, $response);
 
     }
 
@@ -684,7 +736,7 @@ class FeedServiceTest extends TestBase {
 
         $feedSummary = new FeedSummary("/new/advancedquery", 2, [], "test", [
             "config" => "Hello"
-        ], false, true);
+        ], false, true, "mango");
 
         $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
 
@@ -717,7 +769,7 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
-        $response = $this->feedService->evaluateFeed("/new/advancedquery",["query" => "id == 33"]);
+        $response = $this->feedService->evaluateFeed("/new/advancedquery", ["mango" => "id == 33"]);
         $this->assertEquals($expectedResponse, $response);
 
     }

@@ -15,6 +15,7 @@ use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\FilterQueryParser;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
@@ -221,6 +222,12 @@ class FeedService {
         }
 
         $additionalTransformations = [];
+
+        if ($feed->isAdhocFiltering()) {
+            $filters = Filter::createFiltersFromFieldTypeIndexedArray($parameterValues);
+            if (sizeof($filters))
+                $additionalTransformations[] = new TransformationInstance("filter", new FilterTransformation($filters));
+        }
 
         // Add any advanced queries if this functionality is enabled.
         if ($feed->isAdvancedQuerying() && isset($parameterValues[$feed->getAdvancedQueryParameterName()])) {
