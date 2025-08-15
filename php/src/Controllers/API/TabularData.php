@@ -11,6 +11,7 @@ use Kinintel\Exception\DatasourceUpdateException;
 use Kinintel\Exception\FieldNotFoundException;
 use Kinintel\Objects\Dataset\Dataset;
 use Kinintel\Services\Datasource\DatasourceService;
+use Kinintel\Services\Util\FilterQueryParser;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
@@ -28,14 +29,20 @@ class TabularData {
      */
     private $datasourceService;
 
+    /**
+     * @var FilterQueryParser
+     */
+    private $filterQueryParser;
 
     /**
      * Import constructor.
      *
      * @param DatasourceService $datasourceService
+     * @param FilterQueryParser $filterQueryParser
      */
-    public function __construct($datasourceService) {
+    public function __construct($datasourceService, $filterQueryParser) {
         $this->datasourceService = $datasourceService;
+        $this->filterQueryParser = $filterQueryParser;
     }
 
     /**
@@ -73,6 +80,8 @@ class TabularData {
         // Filters
         $transformationInstances = [];
         $filters = [];
+
+        // Handle legacy filter format (TO BE DEPRECATED)
         foreach ($params as $key => $value) {
 
             if (str_starts_with($key, "filter_")) {
@@ -87,8 +96,19 @@ class TabularData {
             }
         }
 
+        // Handle new core filter format
+        $filters = array_merge($filters, Filter::createFiltersFromFieldTypeIndexedArray($params));
+
         if (sizeof($filters))
             $transformationInstances[] = new TransformationInstance("filter", new FilterTransformation($filters));
+
+
+        // Handle advanced queries
+        if ($params["query"] ?? null) {
+            $filterJunction = $this->filterQueryParser->convertQueryToFilterJunction($params["query"]);
+            $transformationInstances[] = new TransformationInstance("filter", new FilterTransformation($filterJunction->getFilters(),
+                $filterJunction->getFilterJunctions(), $filterJunction->getLogic()));
+        }
 
         if ($params["sort"] ?? null) {
             $splitSort = explode("|", $params["sort"]);
