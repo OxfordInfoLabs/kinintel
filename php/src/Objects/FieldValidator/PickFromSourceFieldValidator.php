@@ -12,7 +12,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 class PickFromSourceFieldValidator implements FieldValidator {
 
     // Static allowed values by source collection for efficiency
-    private static $allowedValuesBySource = [];
+    public static $allowedValuesBySource = [];
 
     /**
      * @var DatasetService
@@ -139,12 +139,14 @@ class PickFromSourceFieldValidator implements FieldValidator {
                     if ($datum[$this->valueFieldName] ?? null)
                         $values[$datum[$this->valueFieldName]] = 1;
                 }
-                return array_keys($values);
+                self::$allowedValuesBySource[$key] = array_keys($values);
+            } else {
+                self::$allowedValuesBySource[$key] = [];
             }
 
         }
 
-        return [];
+        return self::$allowedValuesBySource[$key] ?? [];
     }
 
 

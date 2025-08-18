@@ -4,6 +4,7 @@
 namespace Kinintel\ValueObjects\Datasource\Update;
 
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Objects\FieldValidator\BooleanFieldValidator;
 use Kinintel\Objects\FieldValidator\DateFieldValidator;
 use Kinintel\Objects\FieldValidator\FieldValidator;
@@ -125,6 +126,7 @@ class DatasourceUpdateField extends Field {
      * @return bool|string
      */
     public function validateValue($value) {
+
         $validators = $this->returnValidators();
         foreach ($validators as $validator) {
             $validatorResult = $validator->validateValue($value, $this);
