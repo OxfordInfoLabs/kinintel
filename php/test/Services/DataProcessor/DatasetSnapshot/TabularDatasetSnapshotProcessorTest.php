@@ -29,6 +29,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableManag
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
@@ -719,19 +720,19 @@ class TabularDatasetSnapshotProcessorTest extends TestBase {
         $now = date("Y-m-d H:i:s");
 
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $oneDayAgo]]), [
-            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($oneDayAgo, 0, 10), "eq")]))], 0, 1
+            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($oneDayAgo, 0, 10), FilterType::eq)]))], 0, 1
         ]);
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $sevenDaysAgo]]), [
-            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($sevenDaysAgo, 0, 10), "eq")]))], 0, 1
+            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($sevenDaysAgo, 0, 10), FilterType::eq)]))], 0, 1
         ]);
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fifteenDaysAgo]]), [
-            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fifteenDaysAgo, 0, 10), "eq")]))], 0, 1
+            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fifteenDaysAgo, 0, 10), FilterType::eq)]))], 0, 1
         ]);
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $thirtyDaysAgo]]), [
-            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($thirtyDaysAgo, 0, 10), "eq")]))], 0, 1
+            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($thirtyDaysAgo, 0, 10), FilterType::eq)]))], 0, 1
         ]);
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", new ArrayTabularDataset([new Field("snapshot_date")], [["snapshot_date" => $fiveDaysAgo]]), [
-            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fiveDaysAgo, 0, 10), "eq")]))], 0, 1
+            "mytestsnapshot", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("substr([[snapshot_date]], 1, 10)", substr($fiveDaysAgo, 0, 10), FilterType::eq)]))], 0, 1
         ]);
 
 

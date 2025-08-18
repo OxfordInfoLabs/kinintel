@@ -19,6 +19,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Configuration\Caching\CachingDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
@@ -233,7 +234,7 @@ class CachingDatasource extends BaseDatasource {
 
         // If the cache mode is complete we are only interested in the last data set
         if ($config->getCacheMode() == CachingDatasourceConfig::CACHE_MODE_COMPLETE) {
-            $filters[] = new Filter("[[" . $config->getCacheDatasourceCachedTimeField() . "]]", $cacheThreshold, Filter::FILTER_TYPE_GREATER_THAN);
+            $filters[] = new Filter("[[" . $config->getCacheDatasourceCachedTimeField() . "]]", $cacheThreshold, FilterType::gt);
         }
 
         $cacheDatasource = $cacheDatasource->applyTransformation(new FilterTransformation($filters));

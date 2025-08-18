@@ -14,6 +14,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
@@ -513,7 +514,7 @@ class TabularDatasourceChangeTrackingProcessor extends BaseDataProcessor {
 
         // Create filters array
         $filters = array_map(function ($item) {
-            return new Filter("[[" . $item . "]]", null, Filter::FILTER_TYPE_NOT_NULL);
+            return new Filter("[[" . $item . "]]", null, FilterType::notnull);
         }, $summaryFields);
 
         /**

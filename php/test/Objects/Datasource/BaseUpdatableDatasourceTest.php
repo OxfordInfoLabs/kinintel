@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
@@ -863,10 +864,10 @@ SQL
         $this->notesDatasource->returnValue("applyTransformation", $filteredDatasource, [
             new FilterTransformation([], [
                 new FilterJunction([
-                    new Filter("[[parentId]]", 1, Filter::FILTER_TYPE_EQUALS)
+                    new Filter("[[parentId]]", 1, FilterType::eq)
                 ], [], FilterLogic::AND),
                 new FilterJunction([
-                    new Filter("[[parentId]]", 2, Filter::FILTER_TYPE_EQUALS)
+                    new Filter("[[parentId]]", 2, FilterType::eq)
                 ], [], FilterLogic::AND)
             ], FilterLogic::OR)
         ]);

@@ -35,6 +35,7 @@ use Kinintel\ValueObjects\Alert\ActiveDashboardDatasetAlerts;
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
 
 include_once "autoloader.php";
@@ -543,7 +544,7 @@ class AlertServiceTest extends TestBase {
             [
                 new ActiveDashboardDatasetAlerts($dashboardDataset1, [
                     new Alert("Test Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
-                        new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                        new Filter("test", "5", FilterType::gt)
                     ]),
                         "UNPARSED TEMPLATE", null, $alertGroupId)
                 ])
@@ -557,7 +558,7 @@ class AlertServiceTest extends TestBase {
             ],
                 ["data" => "Your item"]]), [
                 $dashboardDataset1, [new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                    new Filter("test", "5", FilterType::gt)
                 ]))]
             ]);
 
@@ -607,11 +608,11 @@ class AlertServiceTest extends TestBase {
 
         $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [
             new Alert("First Alert", "rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
-                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("test", "5", FilterType::gt)
             ]),
                 "UNPARSED TEMPLATE", "UNPARSED CTA", "UNPARSED SUMMARY TEMPLATE"),
             new Alert("Second Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
-                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("test", "5", FilterType::gt)
             ]),
                 "UNPARSED TEMPLATE 2", "UNPARSED CTA 2", "UNPARSED SUMMARY TEMPLATE 2"),
         ]);
@@ -684,7 +685,7 @@ class AlertServiceTest extends TestBase {
             ],
                 ["data" => "Your item"]]), [
                 $dashboardDataset1, [new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                    new Filter("test", "5", FilterType::gt)
                 ]))]
             ]);
 
@@ -706,11 +707,11 @@ class AlertServiceTest extends TestBase {
 
         $dashboardDataset1 = new DashboardDatasetInstance("testdataset1", null, null, [], [
             new Alert("First Alert", "rowcount", ["matchType" => "greater", "value" => 0], new FilterTransformation([
-                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("test", "5", FilterType::gt)
             ]),
                 "UNPARSED TEMPLATE", "UNPARSED CTA", "UNPARSED SUMMARY TEMPLATE"),
             new Alert("Second Alert", "rowcount", ["matchType" => "greater", "value" => 1], new FilterTransformation([
-                new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("test", "5", FilterType::gt)
             ]),
                 "UNPARSED TEMPLATE 2", "UNPARSED CTA 2", "UNPARSED SUMMARY TEMPLATE 2"),
         ]);
@@ -783,7 +784,7 @@ class AlertServiceTest extends TestBase {
             ],
                 ["data" => "Your item"]]), [
                 $dashboardDataset1, [new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("test", "5", Filter::FILTER_TYPE_GREATER_THAN)
+                    new Filter("test", "5", FilterType::gt)
                 ]))]
             ]);
 

@@ -37,6 +37,7 @@ use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Join\JoinColumn;
 use Kinintel\ValueObjects\Transformation\Join\JoinParameterMapping;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
@@ -1006,7 +1007,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try a simple column based join
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("[[name]]", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]));
+                new Filter("[[name]]", "[[otherName]]", FilterType::eq)]));
 
         $joinTransformation->setEvaluatedDataSource($joinDatasource);
 
@@ -1021,7 +1022,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try a simple value based join
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("[[name]]", "bobby", Filter::FILTER_TYPE_EQUALS)]));
+                new Filter("[[name]]", "bobby", FilterType::eq)]));
 
         $joinTransformation->setEvaluatedDataSource($joinDatasource);
 
@@ -1062,7 +1063,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try a simple column based join
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("[[name]]", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [], true);
+                new Filter("[[name]]", "[[otherName]]", FilterType::eq)]), [], true);
 
         $joinTransformation->setEvaluatedDataSource($joinDatasource);
 
@@ -1105,7 +1106,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try a simple column based join
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("bob", "[[name]]", Filter::FILTER_TYPE_LIKE)]));
+                new Filter("bob", "[[name]]", FilterType::like)]));
 
         $joinTransformation->setEvaluatedDataSource($joinDatasource);
 
@@ -1155,7 +1156,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         // Try simple non aliased columns
         $joinTransformation = new JoinTransformation("testsource", null, [],
             new FilterJunction([
-                new Filter("[[name]]", "[[otherName]]", Filter::FILTER_TYPE_EQUALS)]), [
+                new Filter("[[name]]", "[[otherName]]", FilterType::eq)]), [
                 new Field("name"), new Field("category"), new Field("status")
             ]);
 
@@ -1238,7 +1239,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
         $transformation = new JoinTransformation(
             "join-transformation-test2",
-            joinFilters: new FilterJunction([new Filter("[[age]]", "[[age]]", Filter::FILTER_TYPE_EQUALS)]),
+            joinFilters: new FilterJunction([new Filter("[[age]]", "[[age]]", FilterType::eq)]),
             joinColumns: [new Field("status")]
         );
 

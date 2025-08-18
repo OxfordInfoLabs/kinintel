@@ -9,6 +9,7 @@ use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\InclusionCriteriaType;
 
 include_once "autoloader.php";
@@ -44,7 +45,14 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"name\" IS NULL",
             "parameters" => []
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "", Filter::FILTER_TYPE_NULL)
+            new Filter("[[name]]", "", FilterType::null)
+        ])));
+
+        $this->assertEquals([
+            "sql" => "\"name\" IS NULL",
+            "parameters" => []
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "", FilterType::isnull)
         ])));
 
         // NOT NULL
@@ -52,7 +60,14 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"name\" IS NOT NULL",
             "parameters" => []
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "", Filter::FILTER_TYPE_NOT_NULL)
+            new Filter("[[name]]", "", FilterType::notnull)
+        ])));
+
+        $this->assertEquals([
+            "sql" => "\"name\" IS NOT NULL",
+            "parameters" => []
+        ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
+            new Filter("[[name]]", "", FilterType::isnotnull)
         ])));
 
         // GREATER THAN
@@ -60,7 +75,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"age\" > ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", 44, Filter::FILTER_TYPE_GREATER_THAN)
+            new Filter("[[age]]", 44, FilterType::gt)
         ])));
 
         // GREATER THAN OR EQUAL TO
@@ -68,7 +83,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"age\" >= ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", 44, Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)
+            new Filter("[[age]]", 44, FilterType::gte)
         ])));
 
         // LESS THAN
@@ -76,7 +91,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"age\" < ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", 44, Filter::FILTER_TYPE_LESS_THAN)
+            new Filter("[[age]]", 44, FilterType::lt)
         ])));
 
         // LESS THAN OR EQUAL TO
@@ -84,7 +99,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"age\" <= ?",
             "parameters" => [44]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", 44, Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO)
+            new Filter("[[age]]", 44, FilterType::lte)
         ])));
 
 
@@ -95,7 +110,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "ee"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "ee", Filter::FILTER_TYPE_STARTS_WITH)
+            new Filter("[[name]]", "ee", FilterType::startswith)
         ])));
 
         // ENDS WITH
@@ -105,7 +120,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "ee"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "ee", Filter::FILTER_TYPE_ENDS_WITH)
+            new Filter("[[name]]", "ee", FilterType::endswith)
         ])));
 
 
@@ -116,7 +131,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "ee"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "ee", Filter::FILTER_TYPE_CONTAINS)
+            new Filter("[[name]]", "ee", FilterType::contains)
         ])));
 
 
@@ -130,7 +145,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 5
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", ["ee", 5], Filter::FILTER_TYPE_SIMILAR_TO)
+            new Filter("[[name]]", ["ee", 5], FilterType::similarto)
         ])));
 
 
@@ -141,7 +156,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "%ee"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "*ee", Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", "*ee", FilterType::like)
         ])));
 
         // SUFFIX LIKE
@@ -151,7 +166,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "ee%"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "ee*", Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", "ee*", FilterType::like)
         ])));
 
         // OPEN LIKE
@@ -161,7 +176,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "%ee%"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "*ee*", Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", "*ee*", FilterType::like)
         ])));
 
 
@@ -172,7 +187,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "%ee%"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", "*ee*", Filter::FILTER_TYPE_NOT_LIKE)
+            new Filter("[[name]]", "*ee*", FilterType::notlike)
         ])));
 
 
@@ -183,7 +198,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "%ee%"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", ["*ee*", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", ["*ee*", Filter::LIKE_MATCH_WILDCARD], FilterType::like)
         ])));
 
 
@@ -194,7 +209,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 "%ee%"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", ["*ee*", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_NOT_LIKE)
+            new Filter("[[name]]", ["*ee*", Filter::LIKE_MATCH_WILDCARD], FilterType::notlike)
         ])));
 
 
@@ -203,7 +218,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"name\" LIKE CONCAT(%, ?, %)",
             "parameters" => ["hi"]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", ["CONCAT(%, 'hi', %)", Filter::LIKE_MATCH_WILDCARD], Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", ["CONCAT(%, 'hi', %)", Filter::LIKE_MATCH_WILDCARD], FilterType::like)
         ])));
 
         // MISSING LIKE_MATCH_WILDCARD Defaults to wildcard
@@ -211,7 +226,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             "sql" => "\"name\" LIKE CONCAT(%, ?, %)",
             "parameters" => ["hi"]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", ["CONCAT(%, 'hi', %)"], Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", ["CONCAT(%, 'hi', %)"], FilterType::like)
         ])));
 
 
@@ -222,7 +237,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 ".*ee.*"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", [".*ee.*", Filter::LIKE_MATCH_REGEXP], Filter::FILTER_TYPE_LIKE)
+            new Filter("[[name]]", [".*ee.*", Filter::LIKE_MATCH_REGEXP], FilterType::like)
         ])));
 
 
@@ -233,7 +248,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 ".*ee.*"
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[name]]", [".*ee.*", Filter::LIKE_MATCH_REGEXP], Filter::FILTER_TYPE_NOT_LIKE)
+            new Filter("[[name]]", [".*ee.*", Filter::LIKE_MATCH_REGEXP], FilterType::notlike)
         ])));
 
 
@@ -245,7 +260,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 50
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", [12, 50], Filter::FILTER_TYPE_BETWEEN)
+            new Filter("[[age]]", [12, 50], FilterType::between)
         ])));
 
 
@@ -258,7 +273,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 75
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", [12, 50, 75], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [12, 50, 75], FilterType::in)
         ])));
 
         // NOT IN
@@ -270,7 +285,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
                 75
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
-            new Filter("[[age]]", [12, 50, 75], Filter::FILTER_TYPE_NOT_IN)
+            new Filter("[[age]]", [12, 50, 75], FilterType::notin)
         ])));
     }
 
@@ -290,7 +305,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "Joe Bloggs"),
-            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
         ])));
 
 
@@ -306,7 +321,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "Joe Bloggs"),
-            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+            new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
         ], [], FilterLogic::OR)));
 
     }
@@ -323,8 +338,8 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "Joe Bloggs"),
-            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "testParam"),
-            new Filter("[[shoeSize]]", 25, Filter::FILTER_TYPE_EQUALS, InclusionCriteriaType::ParameterValue, "testParam=55"),
+            new Filter("[[age]]", [5, 7, 9, 11], FilterType::in, InclusionCriteriaType::ParameterPresent, "testParam"),
+            new Filter("[[shoeSize]]", 25, FilterType::eq, InclusionCriteriaType::ParameterValue, "testParam=55"),
         ]), []));
 
 
@@ -340,8 +355,8 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "Joe Bloggs"),
-            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "testParam"),
-            new Filter("[[shoeSize]]", 25, Filter::FILTER_TYPE_EQUALS, InclusionCriteriaType::ParameterValue, "testParam=55"),
+            new Filter("[[age]]", [5, 7, 9, 11], FilterType::in, InclusionCriteriaType::ParameterPresent, "testParam"),
+            new Filter("[[shoeSize]]", 25, FilterType::eq, InclusionCriteriaType::ParameterValue, "testParam=55"),
         ]), ["testParam" => 1]));
 
 
@@ -358,8 +373,8 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([
             new Filter("[[name]]", "Joe Bloggs"),
-            new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN, InclusionCriteriaType::ParameterPresent, "testParam"),
-            new Filter("[[shoeSize]]", 25, Filter::FILTER_TYPE_EQUALS, InclusionCriteriaType::ParameterValue, "testParam=55"),
+            new Filter("[[age]]", [5, 7, 9, 11], FilterType::in, InclusionCriteriaType::ParameterPresent, "testParam"),
+            new Filter("[[shoeSize]]", 25, FilterType::eq, InclusionCriteriaType::ParameterValue, "testParam=55"),
         ]), ["testParam" => 55]));
     }
 
@@ -381,12 +396,12 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[dob]]", "2000-01-01", FilterType::gt)
             ],
             [
                 new FilterJunction([
                     new Filter("[[name]]", "Joe Bloggs"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ])
             ],
             FilterLogic::OR
@@ -409,11 +424,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([],
             [
                 new FilterJunction([
-                    new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                    new Filter("[[dob]]", "2000-01-01", FilterType::gt)
                 ]),
                 new FilterJunction([
                     new Filter("[[name]]", "Joe Bloggs"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ], [], FilterLogic::AND, InclusionCriteriaType::ParameterPresent, "testParam"),
                 new FilterJunction([
                     new Filter("[[shoeSize]]", "25"),
@@ -436,11 +451,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([],
             [
                 new FilterJunction([
-                    new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                    new Filter("[[dob]]", "2000-01-01", FilterType::gt)
                 ]),
                 new FilterJunction([
                     new Filter("[[name]]", "Joe Bloggs"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ], [], FilterLogic::AND, InclusionCriteriaType::ParameterPresent, "testParam"),
                 new FilterJunction([
                     new Filter("[[shoeSize]]", "25"),
@@ -464,11 +479,11 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction([],
             [
                 new FilterJunction([
-                    new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                    new Filter("[[dob]]", "2000-01-01", FilterType::gt)
                 ]),
                 new FilterJunction([
                     new Filter("[[name]]", "Joe Bloggs"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ], [], FilterLogic::AND, InclusionCriteriaType::ParameterPresent, "testParam"),
                 new FilterJunction([
                     new Filter("[[shoeSize]]", "25"),
@@ -499,12 +514,12 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("[[dob]]", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[dob]]", "2000-01-01", FilterType::gt)
             ],
             [
                 new FilterJunction([
                     new Filter("[[name]]", "Joe Bloggs"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ])
             ],
             FilterLogic::OR
@@ -534,12 +549,12 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("SUBSTR([[dob]], 0, 10)", "2000-01-01", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("SUBSTR([[dob]], 0, 10)", "2000-01-01", FilterType::gt)
             ],
             [
                 new FilterJunction([
                     new Filter("'Me:' || [[name]]", "Joe Bloggs"),
-                    new Filter("[[age]] * 10", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]] * 10", [5, 7, 9, 11], FilterType::in)
                 ])
             ],
             FilterLogic::OR
@@ -564,12 +579,12 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("[[dob]]", "[[new_dob]]", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[dob]]", "[[new_dob]]", FilterType::gt)
             ],
             [
                 new FilterJunction([
                     new Filter("[[name]]", "[[new_name]]"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ])
             ],
             FilterLogic::OR
@@ -592,12 +607,12 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]
         ], $filterJunctionEvaluator->evaluateFilterJunctionSQL(new FilterJunction(
             [
-                new Filter("[[dob]]", "[[new_dob]]", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[dob]]", "[[new_dob]]", FilterType::gt)
             ],
             [
                 new FilterJunction([
                     new Filter("[[name]]", "[[new_name]]"),
-                    new Filter("[[age]]", [5, 7, 9, 11], Filter::FILTER_TYPE_IN)
+                    new Filter("[[age]]", [5, 7, 9, 11], FilterType::in)
                 ])
             ],
             FilterLogic::OR

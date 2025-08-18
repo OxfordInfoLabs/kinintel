@@ -20,6 +20,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDa
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -49,10 +50,10 @@ class TabularDatasetIncrementalSnapshotProcessor extends BaseDataProcessor {
     const DATA_LIMIT = 50000;
 
     const NEWER_VALUES_RULE_TO_FILTER_TYPE = [
-        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER => Filter::FILTER_TYPE_GREATER_THAN,
-        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL => Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO,
-        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER => Filter::FILTER_TYPE_LESS_THAN,
-        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER_OR_EQUAL => Filter::FILTER_TYPE_LESS_THAN_OR_EQUAL_TO
+        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER => FilterType::gt,
+        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_GREATER_OR_EQUAL => FilterType::gte,
+        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER => FilterType::lt,
+        TabularDatasetIncrementalSnapshotProcessorConfiguration::LATEST_VALUE_LESSER_OR_EQUAL =>FilterType::lte
     ];
 
 
@@ -117,7 +118,7 @@ class TabularDatasetIncrementalSnapshotProcessor extends BaseDataProcessor {
         // If reference value, set up transformations for the query
         if ($referenceValue) {
 
-            $filterType = self::NEWER_VALUES_RULE_TO_FILTER_TYPE[$config->getNewerValuesRule()] ?? Filter::FILTER_TYPE_GREATER_THAN;
+            $filterType = self::NEWER_VALUES_RULE_TO_FILTER_TYPE[$config->getNewerValuesRule()] ?? FilterType::gt;
             $filterTransformations = [new TransformationInstance("filter",
                 new FilterTransformation([
                     new Filter("[[" . $newerValuesField . "]]", $referenceValue, $filterType)

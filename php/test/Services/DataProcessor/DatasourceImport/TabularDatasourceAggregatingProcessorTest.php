@@ -14,6 +14,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -67,7 +68,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $today = (new \DateTime("midnight"))->format("Y-m-d H:i:s");
 
-        $filters = [new Filter("[[date]]", $today, "gte")];
+        $filters = [new Filter("[[date]]", $today, FilterType::gte)];
 
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset1, ["source1", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
@@ -173,7 +174,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $today = (new \DateTime("midnight"))->format("Y-m-d H:i:s");
 
-        $filters = [new Filter("[[date]]", $today, "gte")];
+        $filters = [new Filter("[[date]]", $today, FilterType::gte)];
 
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset1, ["source1", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),
@@ -282,7 +283,7 @@ class TabularDatasourceAggregatingProcessorTest extends TestCase {
 
         $today = (new \DateTime("midnight"))->format("Y-m-d H:i:s");
 
-        $filters = [new Filter("[[date]]", $today, "gte")];
+        $filters = [new Filter("[[date]]", $today, FilterType::gte)];
 
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $dataset1, ["source1", [], [
             new TransformationInstance("filter", new FilterTransformation($filters)),

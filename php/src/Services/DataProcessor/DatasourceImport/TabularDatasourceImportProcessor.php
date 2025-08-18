@@ -20,6 +20,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetSou
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -254,7 +255,7 @@ class TabularDatasourceImportProcessor extends BaseDataProcessor {
             if ($targetSourceParameterMapping->getAdditionalTargetDatasourceFilters()) {
                 $filters = [];
                 foreach ($targetSourceParameterMapping->getAdditionalTargetDatasourceFilters() as $fieldKey => $filterValue) {
-                    $filters[] = new Filter("[[" . $fieldKey . "]]", $filterValue, Filter::FILTER_TYPE_EQUALS);
+                    $filters[] = new Filter("[[" . $fieldKey . "]]", $filterValue, FilterType::eq);
                 }
                 $transformationInstances[] = new TransformationInstance("filter", new FilterTransformation($filters));
             }

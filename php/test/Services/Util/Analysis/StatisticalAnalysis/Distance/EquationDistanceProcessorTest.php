@@ -17,6 +17,7 @@ use Kinintel\Services\Util\Analysis\StatisticalAnalysis\Distance\EquationMetricP
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
@@ -83,8 +84,8 @@ class EquationDistanceProcessorTest extends TestCase {
 
         $expectedJoinTransformation = new JoinTransformation("sourceKey", null, [],
             new FilterJunction([
-                new Filter("[[phrase]]", "[[phrase]]", Filter::FILTER_TYPE_EQUALS),
-                new Filter("[[document]]", "[[document]]", Filter::FILTER_TYPE_GREATER_THAN)
+                new Filter("[[phrase]]", "[[phrase]]", FilterType::eq),
+                new Filter("[[document]]", "[[document]]", FilterType::gt)
             ]), [new Field("document"), new Field("frequency")], true);
 
         $expectedSummariseTransformation = new SummariseTransformation(["document", "document_2"], [

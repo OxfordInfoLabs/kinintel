@@ -12,6 +12,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TabularDa
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\MultiSort\MultiSortTransformation;
 use Kinintel\ValueObjects\Transformation\MultiSort\Sort;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -139,7 +140,7 @@ class TabularDatasourceAggregatingProcessor extends BaseDataProcessor {
         // Get the latest raw data
         $datasourceInstanceKey = $aggSource->getKey();
 
-        $filters = [new Filter("[[{$aggSource->getDateColumn()}]]", $fromDate, "gte")];
+        $filters = [new Filter("[[{$aggSource->getDateColumn()}]]", $fromDate, FilterType::gte)];
 
         /**
          * @var ArrayTabularDataset $dataset
