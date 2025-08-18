@@ -44,6 +44,7 @@ use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -1080,7 +1081,7 @@ class DatasetServiceTest extends TestBase {
 
         $queryInstance = new DatasetInstance(new DatasetInstanceSummary("Test Query", null, $dataset1->getId(), [
             new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId(), [],
-                new FilterJunction([new Filter("[[value]]", "[[value]]", Filter::FILTER_TYPE_EQUALS)])
+                new FilterJunction([new Filter("[[value]]", "[[value]]", FilterType::eq)])
             ))
         ]));
 
@@ -1133,7 +1134,7 @@ class DatasetServiceTest extends TestBase {
 
         $queryInstance = new DatasetInstance(new DatasetInstanceSummary("Test Query", null, $dataset1->getId(), [
             new TransformationInstance("join", new JoinTransformation(null, $dataset3->getId(), [],
-                new FilterJunction([new Filter("[[value]]", "[[value]]", Filter::FILTER_TYPE_EQUALS)])
+                new FilterJunction([new Filter("[[value]]", "[[value]]", FilterType::eq)])
             ))
         ]));
 

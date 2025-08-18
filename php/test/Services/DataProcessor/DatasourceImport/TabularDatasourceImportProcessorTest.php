@@ -24,6 +24,7 @@ use Kinintel\ValueObjects\DataProcessor\Configuration\DatasourceImport\TargetSou
 use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -730,8 +731,8 @@ class TabularDatasourceImportProcessorTest extends TestBase {
             [["parameterValue" => '2022-01-01 10:23:44']]),
             ["targetsource", [], [
                 new TransformationInstance("filter", new FilterTransformation([
-                    new Filter("[[param1]]", "Joe", Filter::FILTER_TYPE_EQUALS),
-                    new Filter("[[param2]]", "Bloggs", Filter::FILTER_TYPE_EQUALS),
+                    new Filter("[[param1]]", "Joe", FilterType::eq),
+                    new Filter("[[param2]]", "Bloggs", FilterType::eq),
                 ])),
                 new TransformationInstance("summarise", new SummariseTransformation([], [
                     new SummariseExpression(SummariseExpression::EXPRESSION_TYPE_MAX, "lastUpdated", null, "Parameter Value")

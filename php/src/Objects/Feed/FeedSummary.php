@@ -42,6 +42,29 @@ class FeedSummary extends ActiveRecord {
 
 
     /**
+     * If set, additive adhoc filtering is enabled via request parameters
+     *
+     * @var bool
+     */
+    protected $adhocFiltering;
+
+
+    /**
+     * If set, advanced querying is enabled.
+     *
+     * @var bool
+     */
+    protected $advancedQuerying;
+
+    /**
+     * Set the name of the advanced query parameter name.
+     *
+     * @var string
+     */
+    protected $advancedQueryParameterName = "query";
+
+
+    /**
      * Exporter key used for defining the exporter
      *
      * @var string
@@ -89,10 +112,13 @@ class FeedSummary extends ActiveRecord {
      * @param string[] $exposedParameterNames
      * @param string $exporterKey
      * @param mixed $exporterConfiguration
+     * @param bool $adhocFiltering
+     * @param bool $advancedQuerying
+     * @param string $advancedQueryParameterName
      * @param int $cacheTimeSeconds
      * @param FeedWebsiteConfig $websiteConfig
      */
-    public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $cacheTimeSeconds = 0, $websiteConfig = null, $id = null) {
+    public function __construct($path, $datasetInstanceId, $exposedParameterNames, $exporterKey, $exporterConfiguration, $adhocFiltering = false, $advancedQuerying = false, $advancedQueryParameterName = "query", $cacheTimeSeconds = 0, $websiteConfig = null, $id = null) {
         $this->path = $path;
         $this->datasetInstanceId = $datasetInstanceId;
         $this->exposedParameterNames = $exposedParameterNames;
@@ -101,6 +127,9 @@ class FeedSummary extends ActiveRecord {
         $this->id = $id;
         $this->cacheTimeSeconds = $cacheTimeSeconds;
         $this->websiteConfig = $websiteConfig ?? new FeedWebsiteConfig();
+        $this->adhocFiltering = $adhocFiltering;
+        $this->advancedQuerying = $advancedQuerying;
+        $this->advancedQueryParameterName = $advancedQueryParameterName;
     }
 
 
@@ -159,6 +188,50 @@ class FeedSummary extends ActiveRecord {
     public function setExposedParameterNames($exposedParameterNames) {
         $this->exposedParameterNames = $exposedParameterNames;
     }
+
+    /**
+     * @return bool
+     */
+    public function isAdhocFiltering(): ?bool {
+        return $this->adhocFiltering;
+    }
+
+    /**
+     * @param bool $adhocFiltering
+     */
+    public function setAdhocFiltering(?bool $adhocFiltering): void {
+        $this->adhocFiltering = $adhocFiltering;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdvancedQuerying(): ?bool {
+        return $this->advancedQuerying;
+    }
+
+    /**
+     * @param bool $advancedQuerying
+     */
+    public function setAdvancedQuerying(?bool $advancedQuerying): void {
+        $this->advancedQuerying = $advancedQuerying;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getAdvancedQueryParameterName(): ?string {
+        return $this->advancedQueryParameterName;
+    }
+
+    /**
+     * @param string $advancedQueryParameterName
+     */
+    public function setAdvancedQueryParameterName(?string $advancedQueryParameterName): void {
+        $this->advancedQueryParameterName = $advancedQueryParameterName;
+    }
+
 
     /**
      * @return string

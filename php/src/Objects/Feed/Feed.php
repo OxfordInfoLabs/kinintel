@@ -27,7 +27,11 @@ class Feed extends FeedSummary {
             parent::__construct($feedSummary->getPath(),
                 $feedSummary->getDatasetInstanceId(),
                 $feedSummary->getExposedParameterNames(), $feedSummary->getExporterKey(),
-                $feedSummary->getExporterConfiguration(), $feedSummary->getCacheTimeSeconds(), $feedSummary->getWebsiteConfig(),
+                $feedSummary->getExporterConfiguration(),
+                $feedSummary->isAdhocFiltering(),
+                $feedSummary->isAdvancedQuerying(),
+                $feedSummary->getAdvancedQueryParameterName(),
+                $feedSummary->getCacheTimeSeconds(), $feedSummary->getWebsiteConfig(),
                 $feedSummary->getId());
         }
         $this->projectKey = $projectKey;
@@ -56,8 +60,12 @@ class Feed extends FeedSummary {
      * Return a summary object
      */
     public function returnSummary() {
-        $summary = new FeedSummary($this->getPath(), $this->getDatasetInstanceId(), $this->getExposedParameterNames(),
-            $this->getExporterKey(), $this->getExporterConfiguration(), $this->getCacheTimeSeconds(), $this->getWebsiteConfig(), $this->getId());
+        $summary = new FeedSummary($this->getPath(), $this->getDatasetInstanceId(),
+            $this->getExposedParameterNames(),
+            $this->getExporterKey(), $this->getExporterConfiguration(),
+            $this->isAdhocFiltering(), $this->isAdvancedQuerying(),
+            $this->getAdvancedQueryParameterName(),
+            $this->getCacheTimeSeconds(), $this->getWebsiteConfig(), $this->getId());
         $summary->setDatasetLabel($this->getDatasetLabel());
         return $summary;
     }

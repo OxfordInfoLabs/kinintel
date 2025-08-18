@@ -52,9 +52,9 @@ export class ApiAccessComponent implements OnInit {
                     example.push(', ');
                 }
             }
-            this.listQueryString += 'filter_' + column.name + '=VALUE&';
+            this.listQueryString += column.name + '_eq=VALUE&';
             if (index == this.columns.length - 1)
-                this.listQueryString += 'sort=' + column.name + '|desc';
+                this.listQueryString += 'query=' + column.name + '+isnotnull&sort=' + column.name + '|desc';
         });
         example.push('}]');
         this.createExample = example.join('');

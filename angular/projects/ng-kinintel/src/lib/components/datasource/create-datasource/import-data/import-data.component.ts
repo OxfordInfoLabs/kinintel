@@ -152,7 +152,6 @@ export class ImportDataComponent implements OnInit {
 
         if (result && result.rejected > 0) {
            this.importErrors = Object.values(result.validationErrors)[0];
-           console.log(this.importErrors);
         } else {
            window.location.href = this.reloadURL + '/' + this.datasourceInstanceKey;
         }

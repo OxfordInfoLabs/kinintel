@@ -16,6 +16,7 @@ use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdate;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Formula\Expression;
 use Kinintel\ValueObjects\Transformation\Formula\FormulaTransformation;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
@@ -927,7 +928,7 @@ class TabularDatasourceChangeTrackingProcessorTest extends TestBase {
             "test1", [], [], 0, PHP_INT_MAX
         ]);
         $this->datasourceService->returnValue("getEvaluatedDataSourceByInstanceKey", $summarisedData, [
-            "test1", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[name]]", null, Filter::FILTER_TYPE_NOT_NULL)])),
+            "test1", [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[name]]", null, FilterType::notnull)])),
                 new TransformationInstance("formula", new FormulaTransformation([
                     new Expression("Summary Date", "NOW()"),
                     new Expression("Month", "MONTH(NOW())"),

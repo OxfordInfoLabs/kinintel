@@ -22,8 +22,14 @@ use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Feed\FeedService;
+use Kinintel\Services\Util\FilterQueryParser;
 use Kinintel\TestBase;
 use Kinintel\ValueObjects\Feed\FeedWebsiteConfig;
+use Kinintel\ValueObjects\Transformation\Filter\Filter;
+use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
+use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
+use Kinintel\ValueObjects\Transformation\TransformationInstance;
 use PHPUnit\Framework\MockObject\MockObject;
 
 include_once "autoloader.php";
@@ -53,12 +59,19 @@ class FeedServiceTest extends TestBase {
      */
     private $captchaProvider;
 
+    /**
+     * @var FilterQueryParser
+     */
+    private $filterQueryParser;
+
     public function setUp(): void {
 
         $this->datasetService = MockObjectProvider::instance()->getMockInstance(DatasetService::class);
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->captchaProvider = MockObjectProvider::instance()->getMockInstance(GoogleRecaptchaProvider::class);
-        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider);
+        $this->filterQueryParser = MockObjectProvider::mock(FilterQueryParser::class);
+
+        $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->filterQueryParser);
     }
 
 
@@ -78,7 +91,7 @@ class FeedServiceTest extends TestBase {
         $reFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Hello"
-        ], 0, null, $feedId);
+        ], false, '', "query", 0, null, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, [], null, "test-json"));
         $this->assertEquals($expected, $reFeed);
 
@@ -89,7 +102,7 @@ class FeedServiceTest extends TestBase {
         $reReFeed = $this->feedService->getFeedById($feedId);
         $expected = new FeedSummary("/new/feed", 2, ["param1", "param2"], "test", [
             "config" => "Goodbye"
-        ], 0, null, $feedId);
+        ], false, '', "query", 0, null, $feedId);
         $expected->setDatasetLabel(new DatasetInstanceSearchResult(2, "Test Dataset", null, null, [], null, "test-json"));
         $this->assertEquals($expected, $reReFeed);
 
@@ -483,7 +496,7 @@ class FeedServiceTest extends TestBase {
 
         $feedSummary = new FeedSummary("filter/feed7", 2, [], "test", [
             "config" => "Hello"
-        ], 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
+        ], false, '', "query", 0, new FeedWebsiteConfig([], true, "SECRETKEY", 0.6));
 
         $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
 
@@ -562,7 +575,7 @@ class FeedServiceTest extends TestBase {
 
         $feedSummary = new FeedSummary("filter/feed8", 2, [], "test", [
             "config" => "Hello"
-        ], 0, new FeedWebsiteConfig(["happy.com", "test.sad.com"]));
+        ], false, '', "query", 0, new FeedWebsiteConfig(["happy.com", "test.sad.com"]));
 
         $this->feedService->saveFeed($feedSummary, "wiperBlades", 2);
 
@@ -638,5 +651,144 @@ class FeedServiceTest extends TestBase {
 
     }
 
+
+    public function testIfAdvancedQueryingIsDisabledFilterTransformationNotAddedToFeed() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("/new/advancedquerydis", 2, [], "test", [
+            "config" => "Hello"
+        ]);
+
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+
+
+        $expectedJunction = new FilterJunction([new Filter("[[id]]", 33, FilterType::eq)]);
+
+        $this->filterQueryParser->returnValue("convertQueryToFilterJunction", $expectedJunction, [
+            "id == 33"
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("/new/advancedquerydis", ["query" => "id == 33"]);
+        $this->assertEquals($expectedResponse, $response);
+
+
+    }
+
+
+    public function testIfAdhocFilteringEnabledFilterTransformationIsAddedToFeedWhereAdhocParametersExist() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("/new/adhoc", 2, [], "test", [
+            "config" => "Hello"
+        ], true);
+
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        // Map expected transformation
+        $expectedFilters = [
+            new Filter("[[param1]]", 25, FilterType::eq),
+            new Filter("[[param2]]", "*string*", FilterType::like),
+            new Filter("[[param3]]", "smith", FilterType::similarto),
+            new Filter("[[param4]]", ["mark", "john", "james"], FilterType::in)
+        ];
+
+
+        $expectedTransformationInstance = new TransformationInstance("filter", new FilterTransformation($expectedFilters));
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [$expectedTransformationInstance],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("/new/adhoc",
+            ["param1_eq" => 25, "param2_like" => "*string*", "param3_similarto" => "smith", "param4_in" => "mark,john,james"]
+        );
+
+
+
+
+        $this->assertEquals($expectedResponse, $response);
+
+    }
+
+
+    public function testIfAdvancedQueryingEnabledFilterTransformationIsAddedToTheFeed() {
+
+        AuthenticationHelper::login("admin@kinicart.com", "password");
+
+        $feedSummary = new FeedSummary("/new/advancedquery", 2, [], "test", [
+            "config" => "Hello"
+        ], false, true, "mango");
+
+        $this->feedService->saveFeed($feedSummary, "soapSuds", 2);
+
+
+        $expectedJunction = new FilterJunction([new Filter("[[id]]", 33, FilterType::eq)]);
+
+        $this->filterQueryParser->returnValue("convertQueryToFilterJunction", $expectedJunction, [
+            "id == 33"
+        ]);
+
+        $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
+
+        // Map expected transformation
+        $expectedTransformationInstance = new TransformationInstance("filter", new FilterTransformation($expectedJunction->getFilters()));
+
+        $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
+
+        $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
+
+        $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
+            $datasetInstance,
+            "test",
+            ["config" => "Hello"],
+            [],
+            [$expectedTransformationInstance],
+            0,
+            50,
+            false,
+            0
+        ]);
+
+        $response = $this->feedService->evaluateFeed("/new/advancedquery", ["mango" => "id == 33"]);
+        $this->assertEquals($expectedResponse, $response);
+
+    }
 
 }

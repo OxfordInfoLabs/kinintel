@@ -23,6 +23,7 @@ use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\ManagedTableSQLDa
 use Kinintel\ValueObjects\Datasource\Configuration\SQLDatabase\SQLDatabaseDatasourceConfig;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
+use Kinintel\ValueObjects\Transformation\Filter\FilterType;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseExpression;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
@@ -353,7 +354,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
                     "phone" => "01223 333333"
                 ]
             ]), [
-                99, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)]))], 0, 50000
+                99, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", FilterType::gte)]))], 0, 50000
             ]);
 
 
@@ -453,7 +454,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
                     "phone" => "01223 333333"
                 ]
             ]), [
-                99, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", Filter::FILTER_TYPE_LESS_THAN)]))], 0, 50000
+                99, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", FilterType::lt)]))], 0, 50000
             ]);
 
 
@@ -552,7 +553,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
                     "phone" => "01223 333333"
                 ]
             ]), [
-                99, ["test" => "Hello", "test2" => 44], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", Filter::FILTER_TYPE_LESS_THAN)]))], 0, 50000
+                99, ["test" => "Hello", "test2" => 44], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", FilterType::lt)]))], 0, 50000
             ]);
 
 
@@ -652,7 +653,7 @@ class TabularDatasetIncrementalSnapshotProcessorTest extends TestBase {
                     "phone" => "01223 333333"
                 ]
             ]), [
-                99, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", Filter::FILTER_TYPE_GREATER_THAN_OR_EQUAL_TO)]))], 0, 50000
+                99, [], [new TransformationInstance("filter", new FilterTransformation([new Filter("[[id]]", "25", FilterType::gte)]))], 0, 50000
             ]);
 
 
