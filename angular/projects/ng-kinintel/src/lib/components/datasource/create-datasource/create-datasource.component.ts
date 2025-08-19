@@ -20,6 +20,7 @@ import {
 } from '../create-datasource/import-data/import-wizard/import-wizard.component';
 import {BehaviorSubject} from 'rxjs';
 import {CreateDatasetComponent} from '../../dataset/create-dataset/create-dataset.component';
+import shortHash from 'short-hash';
 
 
 declare var window: any;
@@ -37,6 +38,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
     @Input() backendURL: string;
     @Input() namePrefix = '';
     @Input() readonly = false;
+    @Input() automaticImportKey: boolean = false;
+    @Input() hideAPIAccess: boolean = false;
     @Input() editColumns = true;
     @Input() filterJunction = {
         logic: 'AND',
@@ -144,7 +147,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
                     rows: this.rows,
                     datasourceInstanceKey: this.datasourceInstanceKey,
                     reloadURL: this.reloadURL,
-                    namePrefix: this.namePrefix
+                    namePrefix: this.namePrefix,
+                    automaticImportKey: this.automaticImportKey
                 }
             });
             dialogRef.afterClosed().subscribe(res => {
@@ -506,7 +510,13 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         // Reset invalid items
         this.invalidItems = [];
 
+
         if (!this.datasourceInstanceKey) {
+
+            if (this.automaticImportKey){
+                this.datasourceUpdate.importKey = shortHash(Date.now().toString());
+            }
+
             await this.datasourceService.createCustomDatasource(this.datasourceUpdate).then(key => {
                 if (!exit) {
                     window.location.href = this.reloadURL + '/' + key;
