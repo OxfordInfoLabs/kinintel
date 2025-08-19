@@ -30,7 +30,7 @@
             <mat-icon class="text-xl">tune</mat-icon>
             advanced
         </button>
-        <button *ngIf="!editMode" (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
+        <button *ngIf="!editMode && !hideAPIAccess" (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
                 class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
             <mat-icon class="text-xl">api</mat-icon>
             api access
