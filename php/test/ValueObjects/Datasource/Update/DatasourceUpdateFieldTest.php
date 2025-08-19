@@ -5,6 +5,7 @@ namespace Kinintel\Test\ValueObjects\Datasource\Update;
 
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
+use Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -15,6 +16,10 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateFieldValidatorConfig
 include_once "autoloader.php";
 
 class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
+
+    public function setUp(): void {
+        PickFromSourceFieldValidator::$allowedValuesBySource = [];
+    }
 
     public function testExplicitValidatorConfigsAreUsedToValidateFieldValues() {
 
