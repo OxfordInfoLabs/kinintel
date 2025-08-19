@@ -60,7 +60,7 @@ class CustomDatasourceService {
                 "tableName" => $tableName,
                 "columns" => $datasourceUpdate->getFields(),
                 "manageTableStructure" => true
-            ], $credentialsKey);
+            ], $credentialsKey, importKey: $datasourceUpdate->getImportKey());
 
             // Set account id and project key
             $datasourceInstance->setAccountId($accountId);
@@ -370,11 +370,11 @@ class CustomDatasourceService {
         return $mimetype;
     }
 
-    private function downloadFromLink($link) : array {
+    private function downloadFromLink($link): array {
         // Process link if it's from a Google Drive share link
-        if (str_contains($link, "drive.google")){
+        if (str_contains($link, "drive.google")) {
 
-            if (!$id = substr(strstr($link, "id="), 3)){
+            if (!$id = substr(strstr($link, "id="), 3)) {
                 $matches = [];
                 preg_match("/file\/d\/(.*?)\//", $link, $matches);
                 $id = $matches[1];
@@ -394,7 +394,7 @@ class CustomDatasourceService {
     private function retryOnFail(callable $downloadFromLink, array $args) {
         try {
             return $downloadFromLink(...$args);
-        } catch (Exception $e){
+        } catch (Exception $e) {
             return $downloadFromLink(...$args);
         }
     }
