@@ -30,6 +30,7 @@ export class SharedWithMeComponent implements OnInit {
     @Input() datasetEditorReadonly = false;
     @Input() nameReplaceString: string;
     @Input() feedUrl: string;
+    @Input() apiDocsUrl: string = '';
 
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
@@ -98,7 +99,9 @@ export class SharedWithMeComponent implements OnInit {
                 path: hash,
                 datasetInstanceId: dataset.id,
                 datasetLabel: dataset,
-                exporterKey: 'json'
+                exporterKey: 'json',
+                advancedQuerying: true,
+                adhocFiltering: true
             };
 
             feedId = await this.feedService.saveFeed(feedData);
@@ -109,14 +112,18 @@ export class SharedWithMeComponent implements OnInit {
         const feed = await this.feedService.getFeed(feedId);
         dataset._loadingAPI = false;
 
-        const dialog = this.dialog.open(FeedApiModalComponent, {
-            width: '700px',
-            height: '650px',
-            data: {
-                feed,
-                feedUrl: this.feedUrl
-            }
-        });
+        if (this.apiDocsUrl) {
+            window.location.href = this.apiDocsUrl + "?sharedDatasetId=" + dataset.id;
+        } else {
+            const dialog = this.dialog.open(FeedApiModalComponent, {
+                width: '700px',
+                height: '650px',
+                data: {
+                    feed,
+                    feedUrl: this.feedUrl
+                }
+            });
+        }
     }
 
     public getDatasets() {
