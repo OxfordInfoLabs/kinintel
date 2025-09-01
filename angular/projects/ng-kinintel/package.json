@@ -1,6 +1,6 @@
 {
   "name": "ng-kinintel",
-  "version": "0.0.370",
+  "version": "0.0.378",
   "peerDependencies": {
     "@angular/common": "^15.2.9",
     "@angular/core": "^15.2.9"

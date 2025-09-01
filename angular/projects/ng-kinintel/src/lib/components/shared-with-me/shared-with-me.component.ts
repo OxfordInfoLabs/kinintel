@@ -127,7 +127,8 @@ export class SharedWithMeComponent implements OnInit {
     }
 
     public getDatasets() {
-        return this.datasetService.getAccountSharedDatasets(this.searchText.getValue(), this.limit, this.offset).toPromise();
+        const searchString = this.nameReplaceString + this.searchText.getValue();
+        return this.datasetService.getAccountSharedDatasets(searchString, this.limit, this.offset).toPromise();
     }
 
     // Create extended dataset from source id.
