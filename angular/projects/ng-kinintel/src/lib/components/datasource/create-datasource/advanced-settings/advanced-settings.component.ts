@@ -92,6 +92,10 @@ export class AdvancedSettingsComponent implements OnInit {
 
     public async saveChanges() {
         this.errorMessage = '';
+
+        // Map the importKey so it doesn't get wiped.
+        this.datasourceUpdate.importKey = this.datasourceUpdate.instanceImportKey;
+
         this.datasourceUpdate.indexes = _.filter(this.advancedSettings.indexes, index => {
             return index.fieldNames.length;
         });
