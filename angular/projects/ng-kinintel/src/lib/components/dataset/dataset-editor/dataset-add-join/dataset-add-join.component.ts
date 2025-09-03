@@ -342,7 +342,7 @@ export class DatasetAddJoinComponent implements OnInit {
                 filters: [{
                     lhsExpression: '',
                     rhsExpression: '',
-                    filterType: ''
+                    filterType: 'eq'
                 }],
                 filterJunctions: []
             };

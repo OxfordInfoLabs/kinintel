@@ -12,6 +12,7 @@ import {DatasourceService} from '../../../../../services/datasource.service';
 import {HttpClient} from '@angular/common/http';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../../../../config/kinintel-module-config';
+import shortHash from 'short-hash';
 
 const _ = lodash.default;
 
@@ -160,6 +161,9 @@ export class ImportWizardComponent implements OnInit {
         this.columns.forEach(column => {
             this.datasourceUpdate.fields.push(column);
         });
+
+        if (this.data.automaticImportKey)
+            this.datasourceUpdate.importKey = shortHash(Date.now().toString());
 
         const key = await this.datasourceService.createCustomDatasource(this.datasourceUpdate);
 

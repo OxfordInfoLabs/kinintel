@@ -292,6 +292,10 @@ export class DocumentDatasourceComponent implements OnInit {
                     {
                         title: 'WTSA',
                         value: 'wtsa'
+                    },
+                    {
+                        title: 'WTDC',
+                        value: 'wtdc'
                     }
                 ];
             })
