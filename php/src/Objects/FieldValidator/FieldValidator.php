@@ -10,6 +10,7 @@ use Kinintel\ValueObjects\Datasource\Update\DatasourceUpdateField;
  * @implementation numeric \Kinintel\Objects\FieldValidator\NumericFieldValidator
  * @implementation pickfromsource \Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator
  * @implementation required \Kinintel\Objects\FieldValidator\RequiredFieldValidator
+ * @implementation json \Kinintel\Objects\FieldValidator\JSONFieldValidator
  *
  */
 interface FieldValidator {
