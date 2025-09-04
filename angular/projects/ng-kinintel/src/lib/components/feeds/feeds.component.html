@@ -83,7 +83,7 @@
                         <tbody *ngFor="let feed of feeds" class="hover:bg-gray-50">
                         <tr class="hover:bg-gray-50">
                             <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
-                                class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">
+                                class="border-gray-200 px-4 py-2 text-sm font-medium text-gray-900">
                                 <div class="flex items-center">
                                     {{feedUrl}}{{feed.path}}
                                     <mat-icon color="primary" class="ml-2 text-sm cursor-pointer"
@@ -92,13 +92,13 @@
                                 </div>
                             </td>
                             <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
-                                class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
+                                class="border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 <a class="primary hover:underline font-medium"
                                    (click)="view(feed.datasetInstanceId)">
                                     {{feed.datasetLabel ? feed.datasetLabel.title : ''}}</a>
                             </td>
                             <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"
-                                class="whitespace-nowrap border-gray-200 px-4 py-2 text-sm text-gray-500">
+                                class="border-gray-200 px-4 py-2 text-sm text-gray-500">
                                 {{feed.exposedParameterNames.join(', ')}}
                             </td>
                             <td [ngClass]="{'border-b': !feed._showExample, 'border-b-0': feed._showExample}"

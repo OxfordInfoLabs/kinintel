@@ -23,6 +23,8 @@ export class DashboardsComponent implements OnInit {
     @Input() allowNew: boolean;
     @Input() admin: boolean;
     @Input() accountId: any;
+    @Input() viewURL = '/dashboards/view/';
+    @Input() editURL: string;
 
     public dashboards: any = [];
     public searchText = new BehaviorSubject('');
@@ -81,17 +83,17 @@ export class DashboardsComponent implements OnInit {
 
     public edit(id) {
         const route = _.filter(this.router.url.split('/'))[0];
-        this.router.navigateByUrl(`${route}/${id}${this.admin ? '?a=true' : ''}`);
+        this.router.navigateByUrl(`${this.editURL || route}/${id}${this.admin ? '?a=true' : ''}`);
     }
 
     public copy(id) {
         const route = _.filter(this.router.url.split('/'))[0];
-        this.router.navigateByUrl(`${route}/copy/${id}${this.admin ? '?a=true' : ''}`);
+        this.router.navigateByUrl(`${this.editURL || route}/copy/${id}${this.admin ? '?a=true' : ''}`);
     }
 
     public extend(id) {
         const route = _.filter(this.router.url.split('/'))[0];
-        this.router.navigateByUrl(`${route}/extend/${id}${this.admin ? '?a=true' : ''}`);
+        this.router.navigateByUrl(`${this.editURL || route}/extend/${id}${this.admin ? '?a=true' : ''}`);
     }
 
     public delete(id) {

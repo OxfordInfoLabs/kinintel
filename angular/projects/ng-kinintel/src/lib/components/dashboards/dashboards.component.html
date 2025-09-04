@@ -91,7 +91,7 @@
                                 [ngClass]="{'border-b-0': i === dashboards.length - 1, 'border-b': i !== dashboards.length - 1}">
                                 <div class="flex flex-col">
                                     <div class="item-title-select flex items-center font-medium cursor-pointer hover:underline"
-                                         [routerLink]="['/dashboards/view/' + element.id]">
+                                         [routerLink]="[viewURL + element.id]">
                                         {{element.title}}
                                     </div>
                                     <div (click)="element.viewDescription = !element.viewDescription"
@@ -110,7 +110,7 @@
                             <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm font-medium"
                                 [ngClass]="{'border-b-0': i === dashboards.length - 1, 'border-b': i !== dashboards.length - 1}">
                                 <div class="flex items-center justify-end">
-                                    <button mat-button color="primary" [routerLink]="['/dashboards/view/' + element.id]"> View</button>
+                                    <button mat-button color="primary" [routerLink]="[viewURL + element.id]"> View</button>
                                     <div class="divider"></div>
                                     <button color="primary" mat-icon-button [matMenuTriggerFor]="itemMenu">
                                         <mat-icon>more_vert</mat-icon>

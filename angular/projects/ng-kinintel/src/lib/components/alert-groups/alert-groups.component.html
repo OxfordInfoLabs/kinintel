@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="mt-6 flex flex-col-reverse justify-stretch">
-            <button type="button" [routerLink]="['/alert-groups', 0]"
+            <button type="button" [routerLink]="[routePath, 0]"
                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary focus:outline-none">
                 Create Alert Group
             </button>
@@ -18,7 +18,7 @@
 </div>
 
 <div class="p-4" *ngIf="!alertGroups.length && !loading">
-    <button type="button" [routerLink]="['/alert-groups', 0]"
+    <button type="button" [routerLink]="[routePath, 0]"
             class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center hover:border-gray-400 focus:outline-none">
 
         <div class="relative inline-block">
@@ -95,7 +95,7 @@
                         <td class="relative whitespace-nowrap border-gray-200 py-2 px-4 text-right text-sm"
                             [ngClass]="{'border-b-0': i === alertGroups.length - 1, 'border-b': i !== alertGroups.length - 1}">
                             <div class="align-center justify-end">
-                                <button mat-button color="primary" [routerLink]="['/alert-groups', element.id]"> Edit
+                                <button mat-button color="primary" [routerLink]="[routePath, element.id]"> Edit
                                 </button>
                                 <div class="divider"></div>
                                 <div class="divider"></div>
