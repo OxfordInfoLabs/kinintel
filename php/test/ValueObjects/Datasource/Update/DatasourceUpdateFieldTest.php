@@ -75,6 +75,13 @@ class DatasourceUpdateFieldTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(true, $datasourceUpdateField->validateValue("1996-01-02 10:00:00"));
         $this->assertSame("Invalid date time value supplied for test", $datasourceUpdateField->validateValue("2024-01-01"));
 
+        // JSON field values should be strictly validated
+        $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_JSON);
+        $this->assertEquals(true, $datasourceUpdateField->validateValue('{"name": "Mark"}'));
+        $this->assertSame("Invalid json value supplied for test.  Please ensure that the data is well formed with keys and string values quoted with double quotes.", $datasourceUpdateField->validateValue("2024-01-01"));
+
+
+
         // Required fields should be validated
         $datasourceUpdateField = new DatasourceUpdateField("test", "Test", null, Field::TYPE_STRING,false,true);
         $this->assertEquals(true, $datasourceUpdateField->validateValue("Hello"));
