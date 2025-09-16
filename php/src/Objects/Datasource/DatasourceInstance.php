@@ -91,6 +91,12 @@ class DatasourceInstance extends DatasourceInstanceSummary {
 
 
     /**
+     * @var string
+     */
+    private $inheritConfigDatasourceKey;
+
+
+    /**
      * @var ObjectTag[]
      * @oneToMany
      * @childJoinColumns object_id, object_type=KiDatasourceInstance
@@ -353,5 +359,6 @@ class DatasourceInstance extends DatasourceInstanceSummary {
 
 
     }
+
 
 }
