@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {NotificationService} from '../../../../lib/services/notification.service';
 import {AlertService} from '../../../../lib/services/alert.service';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
@@ -13,6 +13,8 @@ import {ActivatedRoute, Router} from '@angular/router';
     styleUrls: ['./edit-alert-group.component.sass']
 })
 export class EditAlertGroupComponent implements OnInit {
+
+    @Input() routePath = '/alert-groups';
 
     public alertGroup: any = {};
     public notificationGroups: any = [];
@@ -66,7 +68,7 @@ export class EditAlertGroupComponent implements OnInit {
 
     public save() {
         this.alertService.saveAlertGroup(this.alertGroup).then(() => {
-            this.router.navigate(['/alert-groups']);
+            this.router.navigate([this.routePath]);
         });
     }
 

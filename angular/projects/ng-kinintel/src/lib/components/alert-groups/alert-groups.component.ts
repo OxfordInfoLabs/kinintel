@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {ProjectService} from '../../../lib/services/project.service';
@@ -11,6 +11,8 @@ import moment from 'moment';
     styleUrls: ['./alert-groups.component.sass']
 })
 export class AlertGroupsComponent implements OnInit {
+
+    @Input() routePath = '/alert-groups';
 
     public alertGroups: any = [];
     public searchText = new BehaviorSubject('');

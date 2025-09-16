@@ -10,6 +10,7 @@ use Kinintel\Objects\FieldValidator\FieldValidator;
 use Kinintel\Objects\FieldValidator\NumericFieldValidator;
 use Kinintel\Objects\FieldValidator\PickFromSourceFieldValidator;
 use Kinintel\Objects\FieldValidator\RequiredFieldValidator;
+use Kinintel\Objects\FieldValidator\JSONFieldValidator;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\ValueObjects\Dataset\Field;
@@ -165,6 +166,9 @@ class DatasourceUpdateField extends Field {
                     break;
                 case Field::TYPE_DATE_TIME:
                     $this->validators[] = new DateFieldValidator(true);
+                    break;
+                case Field::TYPE_JSON:
+                    $this->validators[] = new JSONFieldValidator(true);
                     break;
                 case Field::TYPE_PICK_FROM_SOURCE:
                     $fieldConfig = $this->returnFieldTypeConfig();
