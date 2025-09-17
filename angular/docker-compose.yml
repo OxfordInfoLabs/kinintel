@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+    angular-lib:
+        build: .
+        container_name: angular-lib-builder
+        volumes:
+            - .:/projects
+            - /projects/node_modules
+        command: ng build ng-kinintel --watch
+        tty: true
+
+    angular-lib-build:
+        build: .
+        container_name: angular-lib-once
+        volumes:
+            - .:/projects
+            - /projects/node_modules
+        command: ng build ng-kinintel
+        tty: true
