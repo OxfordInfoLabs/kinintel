@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
-import {KinintelModuleConfig} from '../ng-kinintel.module';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import {AuthenticationService} from 'ng-kiniauth';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class ProjectService {
 
     public activeProject = new BehaviorSubject(null);
 
-    constructor(private config: KinintelModuleConfig,
+    constructor(@Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private http: HttpClient,
                 private authService: AuthenticationService) {
 

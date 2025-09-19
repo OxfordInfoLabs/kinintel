@@ -1,6 +1,6 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {KinintelModuleConfig} from '../ng-kinintel.module';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 
@@ -10,7 +10,7 @@ const _ = lodash.default;
 export class ExternalService {
 
     constructor(private http: HttpClient,
-                private config: KinintelModuleConfig) {
+                @Inject(KININTEL_CONFIG) private config: KinintelModuleConfig) {
     }
 
     public getDashboard(id, params) {

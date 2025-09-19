@@ -1,14 +1,14 @@
-import {Injectable} from '@angular/core';
-import {KinintelModuleConfig} from '../ng-kinintel.module';
+import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ProjectService} from './project.service';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AlertService {
 
-    constructor(private config: KinintelModuleConfig,
+    constructor(@Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private http: HttpClient,
                 private projectService: ProjectService) {
     }

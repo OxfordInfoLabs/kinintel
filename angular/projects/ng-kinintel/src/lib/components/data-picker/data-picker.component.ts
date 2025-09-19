@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Inject, Input, OnInit, Output} from '@angular/core';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import * as lodash from 'lodash';
 import {DataSearchService} from '../../services/data-search.service';
-import {KinintelModuleConfig} from '../../ng-kinintel.module';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';
 
 const _ = lodash.default;
 
@@ -33,7 +33,7 @@ export class DataPickerComponent implements OnInit {
 
 
     constructor(private dataSearchService: DataSearchService,
-                private config: KinintelModuleConfig) {
+                @Inject(KININTEL_CONFIG) private config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {

@@ -1,6 +1,6 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {KinintelModuleConfig} from '../ng-kinintel.module';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import {ProjectService} from './project.service';
 
 @Injectable({
@@ -9,7 +9,7 @@ import {ProjectService} from './project.service';
 export class NotificationService {
 
     constructor(private http: HttpClient,
-                private config: KinintelModuleConfig,
+                @Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private projectService: ProjectService) {
     }
 
