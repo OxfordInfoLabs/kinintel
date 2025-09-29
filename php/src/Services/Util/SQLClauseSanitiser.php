@@ -142,8 +142,8 @@ class SQLClauseSanitiser {
         "ROW_COUNT" => ["params" => ["..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the number of rows in the current data set. If column names are supplied as arguments
             these are used to partition the row count to unique values of the supplied columns."],
-        "ROW_NUMBER" => ["params" => ["X", "Y"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
-            "description" => "Returns the sequential index of the current row in the current data set.  The arguments X and Y define criteria for sorting the rows with an optional direction e.g. ROW_NUMBER([[mycolumn]] DESC) or ROW_NUMBER([[othercolumn]] ASC)"],
+        "ROW_NUMBER" => ["params" => ["W", "X", "Y", "Z"], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
+            "description" => "Returns the sequential index of the current row in the current data set.  The arguments W and X define criteria for sorting the rows with an optional direction e.g. ROW_NUMBER([[mycolumn]] DESC) or ROW_NUMBER([[othercolumn]] ASC).  The arguments Y and Z define optional columns to partition the data over prior to sorting."],
         "MAXIMUM" => ["params" => ["X", "..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
             "description" => "Returns the maximum of values of X in the dataset. Later arguments are columns to be partitioned over. E.g. MAXIMUM([[day]], [[month]]) will be 31 for the January rows, 28 for the February rows, etc."],
         "MINIMUM" => ["params" => ["X", "..."], "category" => self::NUMERIC_WHITELISTED_FUNCTION,
