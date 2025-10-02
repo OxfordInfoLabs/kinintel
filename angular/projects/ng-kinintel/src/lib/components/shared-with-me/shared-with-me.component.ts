@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {BehaviorSubject, merge, Observable, of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
 import {DatasetService} from '../../services/dataset.service';
@@ -32,6 +32,8 @@ export class SharedWithMeComponent implements OnInit {
     @Input() feedUrl: string;
     @Input() apiDocsUrl: string = '';
 
+    @Output() loaded = new EventEmitter();
+
     public datasets: any = [];
     public searchText = new BehaviorSubject('');
     public limit = 10;
@@ -60,6 +62,7 @@ export class SharedWithMeComponent implements OnInit {
             this.endOfResults = datasets.length < this.limit;
             this.datasets = datasets;
             this.loading = false;
+            this.loaded.next(this.datasets);
         });
 
         this.searchText.subscribe(() => {
