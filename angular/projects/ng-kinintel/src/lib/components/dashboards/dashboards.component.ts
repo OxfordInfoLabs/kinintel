@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DashboardService} from '../../services/dashboard.service';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {MetadataComponent} from '../metadata/metadata.component';
 import * as lodash from 'lodash';
@@ -48,7 +49,7 @@ export class DashboardsComponent implements OnInit {
                 private projectService: ProjectService,
                 private dashboardService: DashboardService,
                 private dialog: MatDialog,
-                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig) {
+                @Inject(KININTEL_CONFIG) public config: KinintelModuleConfig) {
     }
 
     ngOnInit(): void {

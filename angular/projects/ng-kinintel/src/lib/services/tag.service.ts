@@ -2,7 +2,7 @@ import {Inject, Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {ProjectService} from './project.service';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../config/kinintel-module-config';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 
 @Injectable({
     providedIn: 'root'
@@ -11,7 +11,7 @@ export class TagService {
 
     public activeTag = new BehaviorSubject(null);
 
-    constructor(@Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
+    constructor(@Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private http: HttpClient,
                 private projectService: ProjectService) {
 

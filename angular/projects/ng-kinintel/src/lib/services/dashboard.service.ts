@@ -2,6 +2,7 @@ import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import {BehaviorSubject} from 'rxjs';
 import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../config/kinintel-module-config';
 
@@ -13,7 +14,7 @@ export class DashboardService {
     public dashboardItems = new BehaviorSubject({});
     public dirtyDashboard = new BehaviorSubject(false);
 
-    constructor(@Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
+    constructor(@Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private http: HttpClient,
                 private tagService: TagService,
                 private projectService: ProjectService) {

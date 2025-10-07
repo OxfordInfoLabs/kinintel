@@ -81,7 +81,13 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
         $this->assertEquals("100 * SUM(test) / SUM(SUM(test)) OVER ()", $authCreds->parseSQL($sql));
 
         $sql = "ROW_NUMBER()";
-        $this->assertEquals("ROW_NUMBER() OVER (ORDER BY 1=1)", $authCreds->parseSQL($sql));
+        $this->assertEquals("ROW_NUMBER() OVER (PARTITION BY 1=1, 1=1 ORDER BY 1=1, 1=1)", $authCreds->parseSQL($sql));
+
+        $sql = "ROW_NUMBER(test,test2)";
+        $this->assertEquals("ROW_NUMBER() OVER (PARTITION BY 1=1, 1=1 ORDER BY test, test2)", $authCreds->parseSQL($sql));
+
+        $sql = "ROW_NUMBER(test,test2, test3, test4)";
+        $this->assertEquals("ROW_NUMBER() OVER (PARTITION BY test3, test4 ORDER BY test, test2)", $authCreds->parseSQL($sql));
 
         $sql = "TOTAL(test)";
         $this->assertEquals("SUM(test) OVER (PARTITION BY null)", $authCreds->parseSQL($sql));

@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+    angular-lib:
+        build: .
+        container_name: ng-kinintel-watch
+        volumes:
+            - .:/projects
+            - /projects/node_modules
+        command: ng build ng-kinintel --watch
+        tty: true
+
+    angular-lib-build:
+        build: .
+        container_name: ng-kinintel-build
+        volumes:
+            - .:/projects
+            - /projects/node_modules
+        command: ng build ng-kinintel
+        tty: true
+
+    angular-lib-production:
+        build: .
+        container_name: ng-kinintel-production
+        volumes:
+            - .:/projects
+            - /projects/node_modules
+        command: sh -c "cd projects/ng-kinintel && npm version patch && cd ../.. && ng build ng-kinintel --configuration production"
+        tty: true

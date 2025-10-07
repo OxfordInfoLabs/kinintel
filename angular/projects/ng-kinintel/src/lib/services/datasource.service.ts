@@ -1,7 +1,6 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { Inject } from '@angular/core';
-import { KININTEL_MODULE_CONFIG, KinintelModuleConfig } from '../config/kinintel-module-config';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import {ProjectService} from '../services/project.service';
 import {interval, of} from 'rxjs';
 import {catchError, map, switchMap} from 'rxjs/operators';
@@ -20,7 +19,7 @@ export interface DatasourceUpdate {
 })
 export class DatasourceService {
 
-    constructor(@Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
+    constructor(@Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private http: HttpClient,
                 private projectService: ProjectService) {
     }

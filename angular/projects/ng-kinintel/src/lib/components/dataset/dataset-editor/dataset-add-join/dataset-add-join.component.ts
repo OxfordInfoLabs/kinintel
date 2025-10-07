@@ -8,7 +8,6 @@ import {TagService} from '../../../../services/tag.service';
 import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
 import * as lodash from 'lodash';
 const _ = lodash.default;
-import {DatasetEditorComponent} from '../../dataset-editor/dataset-editor.component';
 import {MatStepper} from '@angular/material/stepper';
 import {DataProcessorService} from '../../../../services/data-processor.service';
 
@@ -77,7 +76,7 @@ export class DatasetAddJoinComponent implements OnInit {
 
     public _ = _;
 
-    private datasetEditor: DatasetEditorComponent;
+    private datasetEditor: any;
 
     constructor(private datasetService: DatasetService,
                 private datasourceService: DatasourceService,

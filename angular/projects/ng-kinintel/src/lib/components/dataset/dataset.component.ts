@@ -6,6 +6,7 @@ import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DatasetService} from '../../services/dataset.service';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 import {MetadataComponent} from '../metadata/metadata.component';
@@ -62,7 +63,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 private datasetService: DatasetService,
                 private router: Router,
                 private route: ActivatedRoute,
-                @Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
+                @Inject(KININTEL_CONFIG) public config: KinintelModuleConfig,
                 private location: Location) {
     }
 

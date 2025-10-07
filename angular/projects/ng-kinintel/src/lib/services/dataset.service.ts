@@ -1,21 +1,20 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
+import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
 import {map, switchMap} from 'rxjs/operators';
 import {interval} from 'rxjs';
-import { Inject } from '@angular/core';
-import { KININTEL_MODULE_CONFIG, KinintelModuleConfig } from '../config/kinintel-module-config';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DatasetService {
 
-    constructor(@Inject(KININTEL_MODULE_CONFIG) private config: KinintelModuleConfig,
+    constructor(@Inject(KININTEL_CONFIG) private config: KinintelModuleConfig,
                 private http: HttpClient,
                 private tagService: TagService,
                 private projectService: ProjectService) {
