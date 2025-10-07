@@ -688,7 +688,7 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
-        $response = $this->feedService->evaluateFeed("/new/advancedquerydis", ["query" => "id == 33"]);
+        $response = $this->feedService->evaluateFeedByPath("/new/advancedquerydis", ["query" => "id == 33"]);
         $this->assertEquals($expectedResponse, $response);
 
 
@@ -735,7 +735,7 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
-        $response = $this->feedService->evaluateFeed("/new/adhoc",
+        $response = $this->feedService->evaluateFeedByPath("/new/adhoc",
             ["param1_eq" => 25, "param2_like" => "*string*", "param3_similarto" => "smith", "param4_in" => "mark,john,james"]
         );
 
@@ -786,7 +786,7 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
-        $response = $this->feedService->evaluateFeed("/new/advancedquery", ["mango" => "id == 33"]);
+        $response = $this->feedService->evaluateFeedByPath("/new/advancedquery", ["mango" => "id == 33"]);
         $this->assertEquals($expectedResponse, $response);
 
     }
