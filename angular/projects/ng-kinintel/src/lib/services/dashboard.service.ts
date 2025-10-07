@@ -4,7 +4,6 @@ import {TagService} from './tag.service';
 import {ProjectService} from './project.service';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import {BehaviorSubject} from 'rxjs';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../config/kinintel-module-config';
 
 @Injectable({
     providedIn: 'root'

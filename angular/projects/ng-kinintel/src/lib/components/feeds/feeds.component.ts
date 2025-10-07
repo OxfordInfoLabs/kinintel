@@ -11,7 +11,6 @@ import {Router} from '@angular/router';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {HttpClient} from '@angular/common/http';
 import {ProjectService} from '../../services/project.service';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 
 @Component({
     selector: 'ki-feeds',

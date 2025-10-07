@@ -13,7 +13,6 @@ import {MetadataComponent} from '../metadata/metadata.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CreateDatasetComponent} from './create-dataset/create-dataset.component';
 import {Location} from '@angular/common';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 
 @Component({
     selector: 'ki-dataset',

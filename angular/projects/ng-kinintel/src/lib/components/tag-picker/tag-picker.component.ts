@@ -4,7 +4,6 @@ import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {TagService} from '../../services/tag.service';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 
 @Component({
     selector: 'ki-tag-picker',

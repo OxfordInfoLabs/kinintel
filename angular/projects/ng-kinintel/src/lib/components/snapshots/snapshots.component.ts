@@ -13,7 +13,6 @@ import {
     SnapshotProfileDialogComponent
 } from '../data-explorer/snapshot-profile-dialog/snapshot-profile-dialog.component';
 import {DataProcessorService} from '../../services/data-processor.service';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 const _ = lodash.default;
 
 @Component({

@@ -9,7 +9,6 @@ import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {MetadataComponent} from '../metadata/metadata.component';
 import * as lodash from 'lodash';
-import {KININTEL_MODULE_CONFIG, KinintelModuleConfig} from '../../config/kinintel-module-config';
 const _ = lodash.default;
 
 @Component({
