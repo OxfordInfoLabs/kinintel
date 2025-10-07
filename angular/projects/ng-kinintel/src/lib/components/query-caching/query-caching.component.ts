@@ -3,7 +3,6 @@ import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {DataProcessorService, } from '../../services/data-processor.service';
 import * as lodash from 'lodash';
-import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {Router} from '@angular/router';
 import {DatasetService} from '../../services/dataset.service';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
@@ -131,7 +130,9 @@ export class QueryCachingComponent implements OnInit {
         });
     }
 
-    private openDialogEditor(datasetInstanceSummary) {
+    private async openDialogEditor(datasetInstanceSummary) {
+        const { DataExplorerComponent } = await import('../data-explorer/data-explorer.component');
+
         this.router.navigate(['/snapshots'], {fragment: _.kebabCase(datasetInstanceSummary.title || datasetInstanceSummary.datasourceInstanceKey)});
         const dialogRef = this.dialog.open(DataExplorerComponent, {
             width: '100vw',

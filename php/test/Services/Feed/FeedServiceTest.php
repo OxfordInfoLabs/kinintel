@@ -120,6 +120,23 @@ class FeedServiceTest extends TestBase {
 
     }
 
+    public function testCanGetFeedByPath() {
+
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $feedSummary = new FeedSummary("/pathed/feed", 2, ["param1", "param2"], "test", [
+            "config" => "Hello"
+        ]);
+
+        $feedId = $this->feedService->saveFeed($feedSummary, "dnsAbuse", 1);
+
+        $byPath = $this->feedService->getFeedByPath("/pathed/feed");
+        $this->assertEquals($feedId, $byPath->getId());
+
+        $this->feedService->removeFeed($feedId);
+    }
+
+
     public function testCanCheckIfFeedUrlAvailableAndValidatedOnSave() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
@@ -224,7 +241,7 @@ class FeedServiceTest extends TestBase {
 
 
         try {
-            $this->feedService->evaluateFeed("bad/feed");
+            $this->feedService->evaluateFeedByPath("bad/feed");
             $this->fail("Should have thrown here");
         } catch (FeedNotFoundException $e) {
             $this->assertEquals(new FeedNotFoundException("bad/feed"), $e);
@@ -265,7 +282,7 @@ class FeedServiceTest extends TestBase {
         $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
 
 
-        $response = $this->feedService->evaluateFeed("filter/feed3");
+        $response = $this->feedService->evaluateFeedByPath("filter/feed3");
 
         $this->assertEquals($expectedResponse, $response);
 
@@ -304,7 +321,7 @@ class FeedServiceTest extends TestBase {
         $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
 
 
-        $response = $this->feedService->evaluateFeed("filter/feed4", [
+        $response = $this->feedService->evaluateFeedByPath("filter/feed4", [
             "param1" => "Bingo",
             "param2" => "Bongo",
             "param3" => "Bango",
@@ -352,7 +369,7 @@ class FeedServiceTest extends TestBase {
 
 
         // Check both normal CSV format and with enclosures
-        $response = $this->feedService->evaluateFeed("filter/feed5", [
+        $response = $this->feedService->evaluateFeedByPath("filter/feed5", [
             "param1" => "Bingo,Bongo,Bango",
             "param2" => '"Yes, this is me","No, this is you"'
         ]);
@@ -395,7 +412,7 @@ class FeedServiceTest extends TestBase {
 
         $this->securityService->returnValue("checkLoggedInHasPrivilege", true);
 
-        $response = $this->feedService->evaluateFeed("filter/feed6");
+        $response = $this->feedService->evaluateFeedByPath("filter/feed6");
         $this->assertEquals($expectedResponse, $response);
 
         $feedSummary = $this->feedService->getFeedById($feedId);
@@ -417,7 +434,7 @@ class FeedServiceTest extends TestBase {
             120
         ]);
 
-        $response = $this->feedService->evaluateFeed("filter/feed6");
+        $response = $this->feedService->evaluateFeedByPath("filter/feed6");
         $this->assertEquals($expectedResponse, $response);
 
     }
@@ -440,7 +457,7 @@ class FeedServiceTest extends TestBase {
         ]);
 
         try {
-            $this->feedService->evaluateFeed("/new/feed");
+            $this->feedService->evaluateFeedByPath("/new/feed");
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -467,7 +484,7 @@ class FeedServiceTest extends TestBase {
             0
         ]);
 
-        $response = $this->feedService->evaluateFeed("/new/feed");
+        $response = $this->feedService->evaluateFeedByPath("/new/feed");
         $this->assertEquals($expectedResponse, $response);
 
     }
@@ -506,7 +523,7 @@ class FeedServiceTest extends TestBase {
         // Try one without a valid request
 
         try {
-            $this->feedService->evaluateFeed("filter/feed7");
+            $this->feedService->evaluateFeedByPath("filter/feed7");
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -514,7 +531,7 @@ class FeedServiceTest extends TestBase {
 
         // Try one with an invalid request
         try {
-            $this->feedService->evaluateFeed("filter/feed7", [], 0, 50, new Request(new Headers()));
+            $this->feedService->evaluateFeedByPath("filter/feed7", [], 0, 50, new Request(new Headers()));
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -527,7 +544,7 @@ class FeedServiceTest extends TestBase {
 
         // Try one with an invalid request
         try {
-            $this->feedService->evaluateFeed("filter/feed7", [], 0, 50, $request);
+            $this->feedService->evaluateFeedByPath("filter/feed7", [], 0, 50, $request);
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -541,7 +558,7 @@ class FeedServiceTest extends TestBase {
             "CAPTCHAKEY", $request
         ]);
 
-        $response = $this->feedService->evaluateFeed("filter/feed7", [], 0, 50, $request);
+        $response = $this->feedService->evaluateFeedByPath("filter/feed7", [], 0, 50, $request);
         $this->assertEquals($expectedResponse, $response);
 
         // Confirm that the backend google service was configured correctly.
@@ -583,14 +600,14 @@ class FeedServiceTest extends TestBase {
 
         // Try one without a valid request
         try {
-            $this->feedService->evaluateFeed("filter/feed8");
+            $this->feedService->evaluateFeedByPath("filter/feed8");
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
 
         // Try one with an invalid request
         try {
-            $this->feedService->evaluateFeed("filter/feed8", [], 0, 50, new Request(new Headers()));
+            $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -599,7 +616,7 @@ class FeedServiceTest extends TestBase {
         // Try ones with invalid referrers
         $_SERVER["HTTP_REFERER"] = "https://www.google.com/helloworld?myname=test";
         try {
-            $this->feedService->evaluateFeed("filter/feed8", [], 0, 50, new Request(new Headers()));
+            $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -607,7 +624,7 @@ class FeedServiceTest extends TestBase {
         // Subdomain should not be good.
         $_SERVER["HTTP_REFERER"] = "https://www.happy.com/helloworld?myname=test";
         try {
-            $this->feedService->evaluateFeed("filter/feed8", [], 0, 50, new Request(new Headers()));
+            $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -615,7 +632,7 @@ class FeedServiceTest extends TestBase {
         // Subdomain should not be good.
         $_SERVER["HTTP_REFERER"] = "https://sad.com/helloworld?myname=test";
         try {
-            $this->feedService->evaluateFeed("filter/feed8", [], 0, 50, new Request(new Headers()));
+            $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
             $this->fail("Should have thrown here");
         } catch (AccessDeniedException $e) {
         }
@@ -623,12 +640,12 @@ class FeedServiceTest extends TestBase {
 
         // Valid referrers
         $_SERVER["HTTP_REFERER"] = "https://happy.com/mypath?hello=true";
-        $response = $this->feedService->evaluateFeed("filter/feed8", [], 0, 50, new Request(new Headers()));
+        $response = $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
         $this->assertEquals($expectedResponse, $response);
 
         // Valid referrers
         $_SERVER["HTTP_REFERER"] = "https://test.sad.com/mypath?hello=true";
-        $response = $this->feedService->evaluateFeed("filter/feed8", [], 0, 50, new Request(new Headers()));
+        $response = $this->feedService->evaluateFeedByPath("filter/feed8", [], 0, 50, new Request(new Headers()));
         $this->assertEquals($expectedResponse, $response);
 
 

@@ -102,14 +102,14 @@ class DatasourceHookImportExporter extends ImportExporter {
 
                 // Sort out import item id mappings
                 if ($existingAccountObject) {
-                    self::setImportItemIdMapping("datasets", $exportObject->getId(), $existingAccountObject->getId());
+                    self::setImportItemIdMapping("hooks", $exportObject->getId(), $existingAccountObject->getId());
                     $exportObject->setId($existingAccountObject->getId());
                 } else {
                     $exportId = $exportObject->getId();
                     $exportObject->setId(null);
                     $newId = $this->hookService->saveHookInstance($exportObject, $projectKey, $accountId);
                     $exportObject->setId($newId);
-                    self::setImportItemIdMapping("datasets", $exportId, $newId);
+                    self::setImportItemIdMapping("hooks", $exportId, $newId);
                 }
             }
         }

@@ -10,7 +10,8 @@
         "lint": "ng lint",
         "build:lib": "ng build ng-kinintel",
         "build:lib-p": "cd projects/ng-kinintel && npm version patch && cd ../.. && ng build ng-kinintel --configuration production",
-        "watch:lib": "ng build ng-kinintel --watch"
+        "watch:lib": "ng build ng-kinintel --watch",
+        "publish": "npm run build:lib-p && cd dist/ng-kinintel && npm publish"
     },
     "private": true,
     "dependencies": {

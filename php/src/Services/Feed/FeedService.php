@@ -47,6 +47,26 @@ class FeedService {
     }
 
     /**
+     * Get a feed by path
+     *
+     * @param $path
+     *
+     * @return Feed
+     */
+    public function getFeedByPath($feedPath) {
+        // Check matching feeds
+        $matchingFeeds = Feed::filter("WHERE path = ?", $feedPath);
+        if (sizeof($matchingFeeds) == 0) {
+            throw new FeedNotFoundException($feedPath);
+        }
+
+        $feed = $matchingFeeds[0];
+
+        return $feed;
+
+    }
+
+    /**
      * Filter the list of feeds optionally by a filter string and for a specific project
      *
      * @param string $filterString
@@ -147,23 +167,34 @@ class FeedService {
      * @param int $limit
      * @param Request $request
      */
-    public function evaluateFeed($feedPath, $parameterValues = [], $offset = 0, $limit = 50, $request = null) {
+    public function evaluateFeedByPath($feedPath, $parameterValues = [], $offset = 0, $limit = 50, $request = null) {
 
-        // Check matching feeds
-        $matchingFeeds = Feed::filter("WHERE path = ?", $feedPath);
-        if (sizeof($matchingFeeds) == 0) {
-            throw new FeedNotFoundException($feedPath);
-        }
+        // Get feed by path and evaluate as object
+        $feed = $this->getFeedByPath($feedPath);
+        return $this->evaluateFeed($feed, $parameterValues, $offset, $limit, $request);
 
-        /**
-         * @var Feed $feed
-         */
-        $feed = $matchingFeeds[0];
+    }
 
+    /**
+     * Evaluate a feed object
+     *
+     * @param Feed $feed
+     * @param Request|null $request
+     * @param array $parameterValues
+     * @param int $limit
+     * @param int $offset
+     * @return \Kinikit\MVC\Response\Download|\Kinikit\MVC\Response\Response|\Kinikit\MVC\Response\SimpleResponse
+     * @throws AccessDeniedException
+     * @throws \Kiniauth\Exception\Security\MissingScopeObjectIdForPrivilegeException
+     * @throws \Kiniauth\Exception\Security\NonExistentPrivilegeException
+     */
+    private function evaluateFeed(Feed $feed, array $parameterValues = [], int $offset = 0, int $limit = 50, ?Request $request = null): \Kinikit\MVC\Response\Download|\Kinikit\MVC\Response\Response|\Kinikit\MVC\Response\SimpleResponse {
+
+
+        // Check access granted to evaluate the feed
         if ($feed->getProjectKey() && !$this->securityService->checkLoggedInHasPrivilege(Role::SCOPE_PROJECT, "feedaccess", $feed->getProjectKey())) {
             throw new AccessDeniedException("You have not been granted access to feeds");
         }
-
 
         // If we have referring domains, check these now.
         if ($feed->getWebsiteConfig()->getReferringDomains()) {
