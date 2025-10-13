@@ -53,8 +53,8 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
 
     public readonly datasourceTypes: any = {
         string: 'Text (up to 255 chars)',
-        mediumstring: 'Medium Text (up to 2000 chars)',
-        longstring: 'Long Text (more than 2000 chars)',
+        mediumstring: 'Medium Text (up to 32767 chars)',
+        longstring: 'Long Text (more than 32767 chars)',
         integer: 'Number (whole number)',
         boolean: 'Tick (Yes / No)',
         float: 'Decimal number',

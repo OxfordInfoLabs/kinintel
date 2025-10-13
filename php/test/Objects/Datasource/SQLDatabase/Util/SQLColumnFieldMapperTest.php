@@ -72,10 +72,10 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
             $this->mapper->mapResultSetColumnToField(new TableColumn("string", TableColumn::SQL_VARCHAR, 256)));
 
         $this->assertEquals(new Field("string", null, null, Field::TYPE_MEDIUM_STRING),
-            $this->mapper->mapResultSetColumnToField(new TableColumn("string", TableColumn::SQL_VARCHAR, 2000)));
+            $this->mapper->mapResultSetColumnToField(new TableColumn("string", TableColumn::SQL_VARCHAR, 32767)));
 
         $this->assertEquals(new Field("string", null, null, Field::TYPE_LONG_STRING),
-            $this->mapper->mapResultSetColumnToField(new TableColumn("string", TableColumn::SQL_VARCHAR, 2001)));
+            $this->mapper->mapResultSetColumnToField(new TableColumn("string", TableColumn::SQL_VARCHAR, 32768)));
 
 
         // Check primary key fields are mapped to key field as well if set
@@ -120,7 +120,7 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         // String types
         $this->assertEquals(new TableColumn("string", TableColumn::SQL_VARCHAR, 255),
             $this->mapper->mapFieldToTableColumn(new Field("string", null, null, Field::TYPE_STRING)));
-        $this->assertEquals(new TableColumn("mediumstring", TableColumn::SQL_VARCHAR, 2000),
+        $this->assertEquals(new TableColumn("mediumstring", TableColumn::SQL_VARCHAR, 32767),
             $this->mapper->mapFieldToTableColumn(new Field("mediumstring", null, null, Field::TYPE_MEDIUM_STRING)));
         $this->assertEquals(new TableColumn("longstring", TableColumn::SQL_LONGBLOB),
             $this->mapper->mapFieldToTableColumn(new Field("longstring", null, null, Field::TYPE_LONG_STRING)));
