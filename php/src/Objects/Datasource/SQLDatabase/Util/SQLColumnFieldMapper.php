@@ -43,7 +43,7 @@ class SQLColumnFieldMapper {
 
     const FIELD_TYPE_LENGTH_MAP = [
         Field::TYPE_STRING => 255,
-        Field::TYPE_MEDIUM_STRING => 2000,
+        Field::TYPE_MEDIUM_STRING => 32767,
         Field::TYPE_ID => 11
     ];
 
@@ -56,7 +56,7 @@ class SQLColumnFieldMapper {
         TableColumn::SQL_VARCHAR => [
             0 => Field::TYPE_STRING,
             256 => Field::TYPE_MEDIUM_STRING,
-            2001 => Field::TYPE_LONG_STRING
+            32768 => Field::TYPE_LONG_STRING
         ],
         TableColumn::SQL_BIGINT => Field::TYPE_INTEGER,
         TableColumn::SQL_BLOB => Field::TYPE_LONG_STRING,

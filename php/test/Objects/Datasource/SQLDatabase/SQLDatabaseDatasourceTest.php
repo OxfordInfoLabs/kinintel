@@ -787,7 +787,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
             new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, true),
-            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 32767, null, null, false),
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
         ]);
 
@@ -936,7 +936,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $newMetaData = new TableMetaData("mytable", [
             new TableColumn("when", TableColumn::SQL_DATE, null, null, null, true),
             new TableColumn("why", TableColumn::SQL_VARCHAR, 255, null, null, true),
-            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, false),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 32767, null, null, false),
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false),
             new TableColumn("notes", TableColumn::SQL_LONGBLOB)
         ], [
@@ -984,7 +984,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
 
         $existingMetaData = new TableMetaData("mytable", [
             new TableColumn("which", TableColumn::SQL_DATE, null, null, null, true),
-            new TableColumn("what", TableColumn::SQL_VARCHAR, 2000, null, null, true),
+            new TableColumn("what", TableColumn::SQL_VARCHAR, 32767, null, null, true),
             new TableColumn("how_many", TableColumn::SQL_INTEGER, null, null, null, false)
         ], [
             // Try using just the hash to test backwards compatibility
@@ -999,7 +999,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         // Expect create table statement created using ddl generator
         $newMetaData = new TableMetaData("mytable", [
             new UpdatableTableColumn("when", TableColumn::SQL_DATE, null, null, null, true, false, false, "which"),
-            new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 2000, null, null, true, false, false, "what"),
+            new UpdatableTableColumn("why", TableColumn::SQL_VARCHAR, 32767, null, null, true, false, false, "what"),
             new UpdatableTableColumn("macaroni", TableColumn::SQL_INTEGER, null, null, null, false, false, false, "how_many")
         ], [
             new TableIndex("idx_" . md5("whenwhy"), [new TableIndexColumn("when"), new TableIndexColumn("why", 500)]),
