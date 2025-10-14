@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\MetaData\ResultSetColumn;
 use Kinikit\Persistence\Database\MetaData\TableColumn;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
@@ -121,8 +120,6 @@ class SQLColumnFieldMapper {
      * @return Field
      */
     public function mapResultSetColumnToField($resultSetColumn) {
-
-        Logger::log($resultSetColumn);
 
         // Look up field type
         $fieldType = self::SQL_TYPE_FIELD_TYPE_MAP[$resultSetColumn->getType()] ?? Field::TYPE_LONG_STRING;
