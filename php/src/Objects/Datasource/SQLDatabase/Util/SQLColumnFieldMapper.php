@@ -23,6 +23,7 @@ class SQLColumnFieldMapper {
         Field::TYPE_STRING => TableColumn::SQL_VARCHAR,
         Field::TYPE_MEDIUM_STRING => TableColumn::SQL_VARCHAR,
         Field::TYPE_INTEGER => TableColumn::SQL_INTEGER,
+        Field::TYPE_BIGINTEGER => TableColumn::SQL_BIGINT,
         Field::TYPE_BOOLEAN => TableColumn::SQL_TINYINT,
         Field::TYPE_FLOAT => TableColumn::SQL_FLOAT,
         Field::TYPE_DATE => TableColumn::SQL_DATE,
@@ -58,7 +59,6 @@ class SQLColumnFieldMapper {
             256 => Field::TYPE_MEDIUM_STRING,
             32768 => Field::TYPE_LONG_STRING
         ],
-        TableColumn::SQL_BIGINT => Field::TYPE_INTEGER,
         TableColumn::SQL_BLOB => Field::TYPE_LONG_STRING,
         TableColumn::SQL_LONGBLOB => Field::TYPE_LONG_STRING,
         TableColumn::SQL_DECIMAL => Field::TYPE_FLOAT,
@@ -67,6 +67,7 @@ class SQLColumnFieldMapper {
         TableColumn::SQL_TINYINT => Field::TYPE_BOOLEAN,
         TableColumn::SQL_SMALLINT => Field::TYPE_INTEGER,
         TableColumn::SQL_INTEGER => Field::TYPE_INTEGER,
+        TableColumn::SQL_BIGINT => Field::TYPE_BIGINTEGER,
         TableColumn::SQL_TIME => Field::TYPE_INTEGER,
         TableColumn::SQL_TIMESTAMP => Field::TYPE_DATE_TIME,
         TableColumn::SQL_JSON => Field::TYPE_JSON,

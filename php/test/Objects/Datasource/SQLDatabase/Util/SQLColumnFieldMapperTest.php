@@ -29,6 +29,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new Field("id", null, null, Field::TYPE_INTEGER),
             $this->mapper->mapResultSetColumnToField(new TableColumn("id", TableColumn::SQL_INTEGER)));
 
+        $this->assertEquals(new Field("id", null, null, Field::TYPE_BIGINTEGER),
+            $this->mapper->mapResultSetColumnToField(new TableColumn("id", TableColumn::SQL_BIGINT)));
+
         $this->assertEquals(new Field("float", null, null, Field::TYPE_FLOAT),
             $this->mapper->mapResultSetColumnToField(new TableColumn("float", TableColumn::SQL_FLOAT)));
 
@@ -40,7 +43,6 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(new Field("decimal", null, null, Field::TYPE_FLOAT),
             $this->mapper->mapResultSetColumnToField(new TableColumn("decimal", TableColumn::SQL_DECIMAL)));
-
 
         $this->assertEquals(new Field("boolean", null, null, Field::TYPE_BOOLEAN),
             $this->mapper->mapResultSetColumnToField(new TableColumn("boolean", TableColumn::SQL_TINYINT)));
@@ -103,6 +105,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(new TableColumn("integer", TableColumn::SQL_INTEGER),
             $this->mapper->mapFieldToTableColumn(new Field("integer", null, null, Field::TYPE_INTEGER)));
 
+        $this->assertEquals(new TableColumn("big-integer", TableColumn::SQL_BIGINT),
+            $this->mapper->mapFieldToTableColumn(new Field("big-integer", null, null, Field::TYPE_BIGINTEGER)));
+
         $this->assertEquals(new TableColumn("float", TableColumn::SQL_FLOAT),
             $this->mapper->mapFieldToTableColumn(new Field("float", null, null, Field::TYPE_FLOAT)));
 
@@ -141,6 +146,9 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         // Standard types
         $this->assertEquals(new TableIndexColumn("integer"),
             $this->mapper->mapFieldToIndexColumn(new Field("integer", null, null, Field::TYPE_INTEGER)));
+
+        $this->assertEquals(new TableIndexColumn("big-integer"),
+            $this->mapper->mapFieldToIndexColumn(new Field("big-integer", null, null, Field::TYPE_BIGINTEGER)));
 
         $this->assertEquals(new TableIndexColumn("float"),
             $this->mapper->mapFieldToIndexColumn(new Field("float", null, null, Field::TYPE_FLOAT)));

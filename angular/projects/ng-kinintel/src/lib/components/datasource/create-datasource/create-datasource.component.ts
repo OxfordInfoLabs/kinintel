@@ -56,6 +56,7 @@ export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestr
         mediumstring: 'Medium Text (up to 32767 chars)',
         longstring: 'Long Text (more than 32767 chars)',
         integer: 'Number (whole number)',
+        biginteger: 'Number (large number)',
         boolean: 'Tick (Yes / No)',
         float: 'Decimal number',
         date: 'Date',
