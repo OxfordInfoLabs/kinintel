@@ -82,6 +82,7 @@ class Field {
     const TYPE_MEDIUM_STRING = "mediumstring";
     const TYPE_LONG_STRING = "longstring";
     const TYPE_INTEGER = "integer";
+    const TYPE_BIGINTEGER = "biginteger";
     const TYPE_FLOAT = "float";
     const TYPE_BOOLEAN = "boolean";
     const TYPE_DATE = "date";
