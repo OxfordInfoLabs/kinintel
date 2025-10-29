@@ -37,6 +37,7 @@ class DatasourceHookInstance extends ActiveRecord {
 
     /**
      * @json
+     * @sqlType LONGTEXT
      */
     protected mixed $hookConfig;
 
