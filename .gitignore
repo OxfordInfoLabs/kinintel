@@ -5,6 +5,7 @@ db.log
 kinintel*.db
 Files/*
 .phpunit.result.cache
+.phpunit.cache
 .DS_Store
 img/.DS_Store
 /php/test/Files/
