@@ -44,10 +44,6 @@ class OpenAIEmbeddingServiceTest extends TestBase {
         $this->embeddingService = new OpenAIEmbeddingService($this->requestDispatcher, $this->credentialsService);
     }
 
-    /**
-     * @nontravis
-     * @return void
-     */
     public function testGetEmbedding(){
         $target = "This is target sentence which we should go for";
         $goodStr = "A sentence to aim at";
