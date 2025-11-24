@@ -15,10 +15,10 @@ jobs:
         image: mysql:8.0
 
         env:
-          MYSQL_ROOT_PASSWORD: k1n1k1tt3st
-          MYSQL_DATABASE: kinikittest
-          MYSQL_USER: kinikittest
-          MYSQL_PASSWORD: kinikittest
+          MYSQL_ROOT_PASSWORD: k1n1nt3lt3st
+          MYSQL_DATABASE: kininteltest
+          MYSQL_USER: kininteltest
+          MYSQL_PASSWORD: kininteltest
 
         ports:
           - 3310:3306
@@ -33,9 +33,9 @@ jobs:
         image: postgres:15
 
         env:
-          POSTGRES_USER: kinikittest
-          POSTGRES_PASSWORD: kinikittest
-          POSTGRES_DB: kinikittest
+          POSTGRES_USER: kininteltest
+          POSTGRES_PASSWORD: kininteltest
+          POSTGRES_DB: kininteltest
 
         ports:
           - 5432:5432

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: kinintel_postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kininteltest
+      POSTGRES_PASSWORD: kininteltest
+      POSTGRES_DB: kininteltest
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  mysql_db:
+    image: mysql:8.0
+    container_name: kinintel_mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: k1n1nt3lt3st
+      MYSQL_DATABASE: kininteltest
+      MYSQL_USER: kininteltest
+      MYSQL_PASSWORD: kininteltest
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    driver:
+      local
+  postgres_data:
+    driver:
+      local
