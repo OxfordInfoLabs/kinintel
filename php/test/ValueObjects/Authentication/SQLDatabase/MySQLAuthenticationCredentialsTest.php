@@ -12,8 +12,8 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
     public function testCanReturnDatabaseConnectionForConfiguredMySQLConnection() {
 
-        $credentials = new MySQLAuthenticationCredentials("localhost", null, "kininteltest",
-            null, "utf8", "kininteltest", "kininteltest");
+        $credentials = new MySQLAuthenticationCredentials("127.0.0.1", null, "kininteltest",
+            3310, "utf8", "kininteltest", "kininteltest");
 
         $databaseInstance = $credentials->returnDatabaseConnection();
         $this->assertInstanceOf(MySQLDatabaseConnection::class, $databaseInstance);
@@ -23,8 +23,8 @@ class MySQLAuthenticationCredentialsTest extends TestCase {
 
     public function testCanParseFunctionRemappings() {
 
-        $authCreds = new MySQLAuthenticationCredentials("localhost", null, "kininteltest",
-            null, "utf8", "kininteltest", "kininteltest");
+        $authCreds = new MySQLAuthenticationCredentials("127.0.0.1", null, "kininteltest",
+            3310, "utf8", "kininteltest", "kininteltest");
 
 //        $authCreds->execute("DROP TABLE IF EXISTS test_create");
 //
