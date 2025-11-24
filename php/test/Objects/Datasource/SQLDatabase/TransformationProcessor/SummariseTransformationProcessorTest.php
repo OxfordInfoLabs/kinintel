@@ -247,7 +247,7 @@ SQL
         $this->assertCount(3, $results->getColumns());
         $expectedColumns = [
             new Field("name"),
-            new Field("recordsPerName", "Records Per Name", type: Field::TYPE_INTEGER),
+            new Field("recordsPerName", "Records Per Name", type: Field::TYPE_BIGINTEGER),
             new Field("averageAge", type: Field::TYPE_FLOAT),
         ];
         $this->assertEquals($expectedColumns, $results->getColumns());
