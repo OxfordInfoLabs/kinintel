@@ -1,0 +1,58 @@
+name: CI - PHPUnit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+
+        env:
+          MYSQL_ROOT_PASSWORD: k1n1nt3lt3st
+          MYSQL_DATABASE: kininteltest
+          MYSQL_USER: kininteltest
+          MYSQL_PASSWORD: kininteltest
+
+        ports:
+          - 3310:3306
+
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      postgres:
+        image: postgres:15
+
+        env:
+          POSTGRES_USER: kininteltest
+          POSTGRES_PASSWORD: kininteltest
+          POSTGRES_DB: kininteltest
+
+        ports:
+          - 5432:5432
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run PHPUnit
+        working-directory: "php/test"
+        run: "../../vendor/bin/phpunit"
