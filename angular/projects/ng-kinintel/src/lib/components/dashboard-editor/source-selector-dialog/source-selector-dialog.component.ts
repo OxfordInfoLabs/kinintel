@@ -2,7 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {Subject} from 'rxjs';
 import {DatasetService} from '../../../services/dataset.service';
 import {DatasourceService} from '../../../services/datasource.service';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 

@@ -2,15 +2,14 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MatChipEditedEvent, MatChipInputEvent} from '@angular/material/chips';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {ImportDataComponent} from '../import-data.component';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef,
+    MatDialog
+} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 import {DatasourceService} from '../../../../../services/datasource.service';
-import { HttpClient } from '@angular/common/http';
-import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../../../../../kinintel-config';
 import shortHash from 'short-hash';
 

@@ -2,9 +2,9 @@ import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {Subject} from 'rxjs';
-import {MatChipEditedEvent, MatChipInputEvent} from "@angular/material/chips";
+import {MatChipEditedEvent, MatChipInputEvent} from '@angular/material/chips';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 
 @Component({

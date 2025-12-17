@@ -3,16 +3,16 @@ import * as lodash from 'lodash';
 
 const _ = lodash.default;
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialog as MatDialog,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef
+} from '@angular/material/dialog';
 import {DatasetSummariseComponent} from './dataset-summarise/dataset-summarise.component';
 import {DatasetAddJoinComponent} from './dataset-add-join/dataset-add-join.component';
 import {DatasetCreateFormulaComponent} from './dataset-create-formula/dataset-create-formula.component';
 import {DatasetColumnSettingsComponent} from './dataset-column-settings/dataset-column-settings.component';
 import {DatasetService} from '../../../services/dataset.service';
-import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {DatasetFilterComponent} from './dataset-filters/dataset-filter/dataset-filter.component';
 import {
     DatasetAddParameterComponent

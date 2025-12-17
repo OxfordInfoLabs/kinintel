@@ -2,12 +2,12 @@ import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core'
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {ImportDataComponent} from '../create-datasource/import-data/import-data.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DatasourceService, DatasourceUpdate} from '../../../services/datasource.service';
 import {DatasetService} from '../../../services/dataset.service';
-import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {Location} from '@angular/common';
 import {
     ApiAccessComponent

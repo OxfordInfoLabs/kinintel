@@ -1,5 +1,5 @@
 import {Component, Inject, Input, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {TagService} from '../../services/tag.service';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';

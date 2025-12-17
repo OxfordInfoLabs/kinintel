@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import * as lodash from 'lodash';
 const _ = lodash.default;
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {DatasetAddParameterComponent} from './dataset-add-parameter/dataset-add-parameter.component';
 import {Subject} from 'rxjs';
 
