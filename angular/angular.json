@@ -15,7 +15,7 @@
             },
             "architect": {
                 "build": {
-                    "builder": "@angular-devkit/build-angular:ng-packagr",
+                    "builder": "@angular/build:ng-packagr",
                     "options": {
                         "tsConfig": "projects/ng-kinintel/tsconfig.lib.json",
                         "project": "projects/ng-kinintel/ng-package.json"
@@ -27,7 +27,7 @@
                     }
                 },
                 "test": {
-                    "builder": "@angular-devkit/build-angular:karma",
+                    "builder": "@angular/build:karma",
                     "options": {
                         "main": "projects/ng-kinintel/src/test.ts",
                         "tsConfig": "projects/ng-kinintel/tsconfig.spec.json",
