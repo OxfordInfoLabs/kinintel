@@ -2,36 +2,36 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": "./",
-        "outDir": "./dist/out-tsc",
-        "sourceMap": true,
-        "declaration": false,
-        "experimentalDecorators": true,
-        "moduleResolution": "node",
-        "importHelpers": true,
-        "esModuleInterop": true,
-        "allowUmdGlobalAccess": true,
-        "resolveJsonModule": true,
-        "paths": {
-            "ng-kinintel/*": [
-                "projects/ng-kinintel/*",
-                "projects/ng-kinintel"
-            ],
-            "ng-kinintel": [
-                "dist/ng-kinintel/ng-kinintel",
-                "dist/ng-kinintel"
-            ]
-        },
-        "target": "ES2022",
-        "module": "es2020",
-        "lib": [
-            "es2018",
-            "dom"
+      "baseUrl": "./",
+      "outDir": "./dist/out-tsc",
+      "sourceMap": true,
+      "declaration": false,
+      "experimentalDecorators": true,
+      "moduleResolution": "bundler",
+      "importHelpers": true,
+      "esModuleInterop": true,
+      "allowUmdGlobalAccess": true,
+      "resolveJsonModule": true,
+      "paths": {
+        "ng-kinintel/*": [
+          "projects/ng-kinintel/*",
+          "projects/ng-kinintel"
         ],
-        "types": [
-            "resize-observer-browser"
-        ],
-        "useDefineForClassFields": false
+        "ng-kinintel": [
+          "dist/ng-kinintel/ng-kinintel",
+          "dist/ng-kinintel"
+        ]
+      },
+      "target": "ES2022",
+      "module": "es2020",
+      "lib": [
+        "es2018",
+        "dom"
+      ],
+      "types": [
+        "resize-observer-browser"
+      ],
+      "useDefineForClassFields": false
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false
