@@ -9,7 +9,7 @@ import {
 } from '@angular/material/legacy-dialog';
 import * as lodash from 'lodash';
 import {DatasourceService} from '../../../../../services/datasource.service';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../../../../../kinintel-config';
 import shortHash from 'short-hash';

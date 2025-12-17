@@ -9,7 +9,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {FeedComponent} from './feed/feed.component';
 import {Router} from '@angular/router';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {ProjectService} from '../../services/project.service';
 
 @Component({

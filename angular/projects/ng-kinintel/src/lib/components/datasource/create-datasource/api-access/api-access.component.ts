@@ -5,7 +5,7 @@ import {
 } from '@angular/material/legacy-dialog';
 import {DatasourceService} from '../../../../services/datasource.service';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: 'ki-api-access',

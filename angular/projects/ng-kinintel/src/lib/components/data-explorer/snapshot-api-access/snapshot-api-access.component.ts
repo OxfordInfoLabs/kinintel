@@ -5,7 +5,7 @@ import {
 } from '@angular/material/legacy-dialog';
 import {DatasetService} from '../../../services/dataset.service';
 import {MatLegacySnackBar as MatSnackBar} from "@angular/material/legacy-snack-bar";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
 @Component({
     selector: 'ki-snapshot-api-access',

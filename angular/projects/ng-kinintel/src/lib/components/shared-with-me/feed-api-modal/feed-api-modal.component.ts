@@ -3,7 +3,7 @@ import {
     MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialog as MatDialog,
     MatLegacyDialogRef as MatDialogRef
 } from '@angular/material/legacy-dialog';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
