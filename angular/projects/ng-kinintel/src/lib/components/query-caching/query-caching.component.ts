@@ -14,7 +14,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-query-caching',
     templateUrl: './query-caching.component.html',
-    styleUrls: ['./query-caching.component.sass']
+    styleUrls: ['./query-caching.component.sass'],
+    standalone: false
 })
 export class QueryCachingComponent implements OnInit {
 

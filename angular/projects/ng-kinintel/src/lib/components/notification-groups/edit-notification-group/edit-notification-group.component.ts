@@ -13,7 +13,8 @@ import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDial
 @Component({
     selector: 'ki-edit-notification-group',
     templateUrl: './edit-notification-group.component.html',
-    styleUrls: ['./edit-notification-group.component.sass']
+    styleUrls: ['./edit-notification-group.component.sass'],
+    standalone: false
 })
 export class EditNotificationGroupComponent implements OnInit {
 

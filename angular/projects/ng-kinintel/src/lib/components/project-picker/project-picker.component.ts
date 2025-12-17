@@ -14,7 +14,8 @@ const _ = lodash.default;
     selector: 'ki-project-picker',
     templateUrl: './project-picker.component.html',
     styleUrls: ['./project-picker.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ProjectPickerComponent implements OnInit {
 

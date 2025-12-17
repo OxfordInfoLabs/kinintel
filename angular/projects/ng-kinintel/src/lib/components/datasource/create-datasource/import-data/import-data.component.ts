@@ -13,7 +13,8 @@ const _ = lodash.default;
     selector: 'ki-import-data',
     templateUrl: './import-data.component.html',
     styleUrls: ['./import-data.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ImportDataComponent implements OnInit {
 

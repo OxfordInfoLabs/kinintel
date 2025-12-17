@@ -7,7 +7,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-whitelisted-sql-functions',
     templateUrl: './whitelisted-sql-functions.component.html',
-    styleUrls: ['./whitelisted-sql-functions.component.sass']
+    styleUrls: ['./whitelisted-sql-functions.component.sass'],
+    standalone: false
 })
 export class WhitelistedSqlFunctionsComponent implements OnInit {
 

@@ -11,7 +11,8 @@ const _ = lodash.default;
     selector: 'ki-edit-query-cache',
     templateUrl: './edit-query-cache.component.html',
     styleUrls: ['./edit-query-cache.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class EditQueryCacheComponent implements OnInit {
 

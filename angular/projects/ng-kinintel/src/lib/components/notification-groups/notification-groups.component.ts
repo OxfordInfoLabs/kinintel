@@ -11,7 +11,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-notification-groups',
     templateUrl: './notification-groups.component.html',
-    styleUrls: ['./notification-groups.component.sass']
+    styleUrls: ['./notification-groups.component.sass'],
+    standalone: false
 })
 export class NotificationGroupsComponent implements OnInit {
 

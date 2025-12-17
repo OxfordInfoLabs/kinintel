@@ -4,7 +4,8 @@ import {Subject} from 'rxjs';
 @Component({
     selector: 'ki-dataset-filter-junction',
     templateUrl: './dataset-filter-junction.component.html',
-    styleUrls: ['./dataset-filter-junction.component.sass']
+    styleUrls: ['./dataset-filter-junction.component.sass'],
+    standalone: false
 })
 export class DatasetFilterJunctionComponent implements OnInit {
 

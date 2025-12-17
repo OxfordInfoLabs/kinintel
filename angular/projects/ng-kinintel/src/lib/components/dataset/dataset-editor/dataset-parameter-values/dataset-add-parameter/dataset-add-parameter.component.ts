@@ -14,7 +14,8 @@ import {DatasetService} from '../../../../../services/dataset.service';
     selector: 'ki-dataset-add-parameter',
     templateUrl: './dataset-add-parameter.component.html',
     styleUrls: ['./dataset-add-parameter.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetAddParameterComponent implements OnInit {
 

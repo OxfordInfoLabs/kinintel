@@ -12,7 +12,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-datasource',
     templateUrl: './datasource.component.html',
-    styleUrls: ['./datasource.component.sass']
+    styleUrls: ['./datasource.component.sass'],
+    standalone: false
 })
 export class DatasourceComponent implements OnInit, OnDestroy {
 

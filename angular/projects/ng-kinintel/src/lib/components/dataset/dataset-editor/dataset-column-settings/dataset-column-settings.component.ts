@@ -12,7 +12,8 @@ import {Subject} from 'rxjs';
     selector: 'ki-dataset-column-settings',
     templateUrl: './dataset-column-settings.component.html',
     styleUrls: ['./dataset-column-settings.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetColumnSettingsComponent implements OnInit {
 

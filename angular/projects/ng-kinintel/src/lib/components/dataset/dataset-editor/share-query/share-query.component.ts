@@ -15,7 +15,8 @@ const _ = lodash.default;
     selector: 'ki-share-query',
     templateUrl: './share-query.component.html',
     styleUrls: ['./share-query.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ShareQueryComponent implements OnInit {
 

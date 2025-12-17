@@ -6,7 +6,8 @@ import {AlertService} from '../../../../services/alert.service';
     selector: 'ki-edit-dashboard-alert',
     templateUrl: './edit-dashboard-alert.component.html',
     styleUrls: ['./edit-dashboard-alert.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class EditDashboardAlertComponent implements OnInit {
 

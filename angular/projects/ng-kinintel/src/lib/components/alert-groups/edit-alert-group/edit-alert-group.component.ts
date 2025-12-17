@@ -10,7 +10,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 @Component({
     selector: 'ki-edit-alert-group',
     templateUrl: './edit-alert-group.component.html',
-    styleUrls: ['./edit-alert-group.component.sass']
+    styleUrls: ['./edit-alert-group.component.sass'],
+    standalone: false
 })
 export class EditAlertGroupComponent implements OnInit {
 

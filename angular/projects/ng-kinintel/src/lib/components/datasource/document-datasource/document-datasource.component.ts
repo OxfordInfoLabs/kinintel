@@ -15,7 +15,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-document-datasource',
     templateUrl: './document-datasource.component.html',
-    styleUrls: ['./document-datasource.component.sass']
+    styleUrls: ['./document-datasource.component.sass'],
+    standalone: false
 })
 export class DocumentDatasourceComponent implements OnInit {
 

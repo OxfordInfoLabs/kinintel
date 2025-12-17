@@ -4,7 +4,8 @@ import {MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialo
 @Component({
     selector: 'ki-upstream-changes-confirmation',
     templateUrl: './upstream-changes-confirmation.component.html',
-    styleUrls: ['./upstream-changes-confirmation.component.sass']
+    styleUrls: ['./upstream-changes-confirmation.component.sass'],
+    standalone: false
 })
 export class UpstreamChangesConfirmationComponent implements OnInit {
 

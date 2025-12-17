@@ -12,7 +12,8 @@ const _ = lodash.default;
     selector: 'ki-save-as-query',
     templateUrl: './save-as-query.component.html',
     styleUrls: ['./save-as-query.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class SaveAsQueryComponent implements OnInit {
 

@@ -7,7 +7,8 @@ const _ = lodash.default;
     selector: 'ki-dataset-create-formula',
     templateUrl: './dataset-create-formula.component.html',
     styleUrls: ['./dataset-create-formula.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetCreateFormulaComponent implements OnInit {
 

@@ -3,9 +3,10 @@ import {ExportProjectComponent as KAExportProjectComponent} from 'ng-kiniauth';
 
 
 @Component({
-  selector: 'ki-export-project',
-  templateUrl: './export-project.component.html',
-  styleUrls: ['./export-project.component.sass']
+    selector: 'ki-export-project',
+    templateUrl: './export-project.component.html',
+    styleUrls: ['./export-project.component.sass'],
+    standalone: false
 })
 export class ExportProjectComponent extends KAExportProjectComponent{
     public alertGroupIds = {};

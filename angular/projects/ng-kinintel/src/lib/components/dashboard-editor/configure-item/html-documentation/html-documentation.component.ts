@@ -4,7 +4,8 @@ import {Subject} from 'rxjs';
 @Component({
     selector: 'ki-html-documentation',
     templateUrl: './html-documentation.component.html',
-    styleUrls: ['./html-documentation.component.sass']
+    styleUrls: ['./html-documentation.component.sass'],
+    standalone: false
 })
 export class HtmlDocumentationComponent implements OnInit, OnDestroy {
 

@@ -6,7 +6,8 @@ import {AuthenticationService} from 'ng-kiniauth';
 @Component({
     selector: 'ki-data-sharing-invite',
     templateUrl: './data-sharing-invite.component.html',
-    styleUrls: ['./data-sharing-invite.component.sass']
+    styleUrls: ['./data-sharing-invite.component.sass'],
+    standalone: false
 })
 export class DataSharingInviteComponent implements OnInit {
 

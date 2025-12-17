@@ -18,7 +18,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-snapshots',
     templateUrl: './snapshots.component.html',
-    styleUrls: ['./snapshots.component.sass']
+    styleUrls: ['./snapshots.component.sass'],
+    standalone: false
 })
 export class SnapshotsComponent implements OnInit, OnDestroy {
 

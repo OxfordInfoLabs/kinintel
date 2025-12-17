@@ -10,7 +10,8 @@ const _ = lodash.default;
     selector: 'ki-source-selector-dialog',
     templateUrl: './source-selector-dialog.component.html',
     styleUrls: ['./source-selector-dialog.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class SourceSelectorDialogComponent implements OnInit {
 

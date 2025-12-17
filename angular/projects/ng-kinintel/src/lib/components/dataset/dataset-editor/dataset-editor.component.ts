@@ -44,7 +44,8 @@ import {MatChipInputEvent} from "@angular/material/chips";
 @Component({
     selector: 'ki-dataset-editor',
     templateUrl: './dataset-editor.component.html',
-    styleUrls: ['./dataset-editor.component.sass']
+    styleUrls: ['./dataset-editor.component.sass'],
+    standalone: false
 })
 export class DatasetEditorComponent implements OnInit, OnDestroy {
 
@@ -1214,7 +1215,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
 @Component({
     selector: 'ki-dataset-editor-popup',
     templateUrl: 'dataset-editor-popup.html',
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetEditorPopupComponent {
 

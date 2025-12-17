@@ -11,7 +11,8 @@ import * as _ from 'lodash';
     selector: 'ki-project-link-selection',
     templateUrl: './project-link-selection.component.html',
     styleUrls: ['./project-link-selection.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ProjectLinkSelectionComponent implements OnInit {
 

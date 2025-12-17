@@ -9,7 +9,8 @@ import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators
     selector: 'ki-tag-picker',
     templateUrl: './tag-picker.component.html',
     styleUrls: ['./tag-picker.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class TagPickerComponent implements OnInit {
 

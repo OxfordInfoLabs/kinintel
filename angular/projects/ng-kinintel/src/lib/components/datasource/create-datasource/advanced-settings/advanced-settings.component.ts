@@ -13,7 +13,8 @@ const _ = lodash.default;
     selector: 'ki-advanced-settings',
     templateUrl: './advanced-settings.component.html',
     styleUrls: ['./advanced-settings.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class AdvancedSettingsComponent implements OnInit {
 

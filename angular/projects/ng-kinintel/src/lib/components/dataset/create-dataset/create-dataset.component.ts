@@ -7,7 +7,8 @@ import {DatasetService} from '../../../services/dataset.service';
     selector: 'ki-create-dataset',
     templateUrl: './create-dataset.component.html',
     styleUrls: ['./create-dataset.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class CreateDatasetComponent implements OnInit {
 

@@ -14,7 +14,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-query-cache-view',
     templateUrl: './query-cache-view.component.html',
-    styleUrls: ['./query-cache-view.component.sass']
+    styleUrls: ['./query-cache-view.component.sass'],
+    standalone: false
 })
 export class QueryCacheViewComponent implements OnInit {
 

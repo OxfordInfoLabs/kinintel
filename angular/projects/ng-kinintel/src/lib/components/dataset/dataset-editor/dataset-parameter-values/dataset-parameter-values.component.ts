@@ -8,7 +8,8 @@ import {Subject} from 'rxjs';
 @Component({
     selector: 'ki-dataset-parameter-values',
     templateUrl: './dataset-parameter-values.component.html',
-    styleUrls: ['./dataset-parameter-values.component.sass']
+    styleUrls: ['./dataset-parameter-values.component.sass'],
+    standalone: false
 })
 export class DatasetParameterValuesComponent implements OnInit {
 

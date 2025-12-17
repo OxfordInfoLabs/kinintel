@@ -17,7 +17,8 @@ import {Location} from '@angular/common';
 @Component({
     selector: 'ki-dataset',
     templateUrl: './dataset.component.html',
-    styleUrls: ['./dataset.component.sass']
+    styleUrls: ['./dataset.component.sass'],
+    standalone: false
 })
 export class DatasetComponent implements OnInit, OnDestroy {
 

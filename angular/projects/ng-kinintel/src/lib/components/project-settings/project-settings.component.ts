@@ -13,7 +13,8 @@ import {DashboardService} from '../../services/dashboard.service';
 @Component({
     selector: 'ki-project-settings',
     templateUrl: './project-settings.component.html',
-    styleUrls: ['./project-settings.component.sass']
+    styleUrls: ['./project-settings.component.sass'],
+    standalone: false
 })
 export class ProjectSettingsComponent implements OnInit {
 

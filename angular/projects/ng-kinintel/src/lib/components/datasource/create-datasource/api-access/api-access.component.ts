@@ -11,7 +11,8 @@ import { HttpClient } from '@angular/common/http';
     selector: 'ki-api-access',
     templateUrl: './api-access.component.html',
     styleUrls: ['./api-access.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ApiAccessComponent implements OnInit {
 

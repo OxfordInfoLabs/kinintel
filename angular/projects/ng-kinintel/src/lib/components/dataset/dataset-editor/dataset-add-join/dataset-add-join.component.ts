@@ -15,7 +15,8 @@ import {DataProcessorService} from '../../../../services/data-processor.service'
     selector: 'ki-dataset-add-join',
     templateUrl: './dataset-add-join.component.html',
     styleUrls: ['./dataset-add-join.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetAddJoinComponent implements OnInit {
 

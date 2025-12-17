@@ -3,7 +3,8 @@ import {Component, OnInit} from '@angular/core';
 @Component({
     selector: 'ki-dashboard-parameter',
     templateUrl: './dashboard-parameter.component.html',
-    styleUrls: ['./dashboard-parameter.component.sass']
+    styleUrls: ['./dashboard-parameter.component.sass'],
+    standalone: false
 })
 export class DashboardParameterComponent implements OnInit {
 

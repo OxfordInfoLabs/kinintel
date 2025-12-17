@@ -7,7 +7,8 @@ import {ProjectService} from '../../../services/project.service';
     selector: 'ki-dashboard-settings',
     templateUrl: './dashboard-settings.component.html',
     styleUrls: ['./dashboard-settings.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DashboardSettingsComponent implements OnInit {
 

@@ -27,7 +27,8 @@ import {DatasetService} from '../../../services/dataset.service';
     selector: 'ki-view-dashboard',
     templateUrl: './view-dashboard.component.html',
     styleUrls: ['./view-dashboard.component.sass'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class ViewDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 

@@ -10,7 +10,8 @@ import {MatLegacyOptionSelectionChange as MatOptionSelectionChange} from '@angul
     selector: 'ki-feed',
     templateUrl: './feed.component.html',
     styleUrls: ['./feed.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class FeedComponent implements OnInit {
 

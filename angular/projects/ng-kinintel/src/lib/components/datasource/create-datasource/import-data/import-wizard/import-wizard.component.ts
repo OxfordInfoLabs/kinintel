@@ -20,7 +20,8 @@ const _ = lodash.default;
     selector: 'ki-import-wizard',
     templateUrl: './import-wizard.component.html',
     styleUrls: ['./import-wizard.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ImportWizardComponent implements OnInit {
 

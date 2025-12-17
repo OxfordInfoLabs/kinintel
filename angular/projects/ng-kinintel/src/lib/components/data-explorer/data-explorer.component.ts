@@ -32,7 +32,8 @@ const _ = lodash.default;
     selector: 'ki-data-explorer',
     templateUrl: './data-explorer.component.html',
     styleUrls: ['./data-explorer.component.sass'],
-    host: {class: 'configure-dialog'}
+    host: { class: 'configure-dialog' },
+    standalone: false
 })
 export class DataExplorerComponent implements OnInit, OnDestroy {
 

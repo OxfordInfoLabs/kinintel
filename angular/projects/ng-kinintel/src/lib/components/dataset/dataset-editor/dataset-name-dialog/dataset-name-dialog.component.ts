@@ -10,7 +10,8 @@ import {ProjectService} from '../../../../services/project.service';
     selector: 'ki-dataset-name-dialog',
     templateUrl: './dataset-name-dialog.component.html',
     styleUrls: ['./dataset-name-dialog.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetNameDialogComponent implements OnInit {
 

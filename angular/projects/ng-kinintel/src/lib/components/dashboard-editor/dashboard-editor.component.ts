@@ -45,7 +45,8 @@ import {DatasetService} from '../../services/dataset.service';
     selector: 'ki-dashboard-editor',
     templateUrl: './dashboard-editor.component.html',
     styleUrls: ['./dashboard-editor.component.sass'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit, AfterViewInit, OnDestroy {
 

@@ -5,9 +5,10 @@ const _ = lodash.default;
 import '@revolist/revogrid';
 
 @Component({
-  selector: 'ki-tabular-datasource',
-  templateUrl: './tabular-datasource.component.html',
-  styleUrls: ['./tabular-datasource.component.sass']
+    selector: 'ki-tabular-datasource',
+    templateUrl: './tabular-datasource.component.html',
+    styleUrls: ['./tabular-datasource.component.sass'],
+    standalone: false
 })
 export class TabularDatasourceComponent {
 

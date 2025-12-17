@@ -28,7 +28,8 @@ declare var window: any;
 @Component({
     selector: 'ki-create-datasource',
     templateUrl: './create-datasource.component.html',
-    styleUrls: ['./create-datasource.component.sass']
+    styleUrls: ['./create-datasource.component.sass'],
+    standalone: false
 })
 export class CreateDatasourceComponent implements OnInit, AfterViewInit, OnDestroy {
 

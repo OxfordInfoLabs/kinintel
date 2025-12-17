@@ -11,7 +11,8 @@ import { HttpClient } from "@angular/common/http";
     selector: 'ki-snapshot-api-access',
     templateUrl: './snapshot-api-access.component.html',
     styleUrls: ['./snapshot-api-access.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class SnapshotApiAccessComponent implements OnInit {
 

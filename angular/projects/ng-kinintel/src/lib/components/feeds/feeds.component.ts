@@ -15,7 +15,8 @@ import {ProjectService} from '../../services/project.service';
 @Component({
     selector: 'ki-feeds',
     templateUrl: './feeds.component.html',
-    styleUrls: ['./feeds.component.sass']
+    styleUrls: ['./feeds.component.sass'],
+    standalone: false
 })
 export class FeedsComponent implements OnInit, OnDestroy {
 

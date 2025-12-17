@@ -17,7 +17,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-shared-with-me',
     templateUrl: './shared-with-me.component.html',
-    styleUrls: ['./shared-with-me.component.sass']
+    styleUrls: ['./shared-with-me.component.sass'],
+    standalone: false
 })
 export class SharedWithMeComponent implements OnInit {
 

@@ -4,7 +4,8 @@ import {MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialo
 @Component({
     selector: 'ki-move-transformation-confirmation',
     templateUrl: './move-transformation-confirmation.component.html',
-    styleUrls: ['./move-transformation-confirmation.component.sass']
+    styleUrls: ['./move-transformation-confirmation.component.sass'],
+    standalone: false
 })
 export class MoveTransformationConfirmationComponent implements OnInit {
 

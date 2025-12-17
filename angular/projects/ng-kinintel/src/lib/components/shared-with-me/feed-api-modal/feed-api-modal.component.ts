@@ -10,7 +10,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
     selector: 'ki-feed-api-modal',
     templateUrl: './feed-api-modal.component.html',
     styleUrls: ['./feed-api-modal.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class FeedApiModalComponent implements OnInit {
 

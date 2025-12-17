@@ -5,7 +5,8 @@ import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDial
     selector: 'ki-available-columns',
     templateUrl: './available-columns.component.html',
     styleUrls: ['./available-columns.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class AvailableColumnsComponent implements OnInit {
 

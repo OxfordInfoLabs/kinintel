@@ -40,7 +40,8 @@ declare var window: any;
 @Component({
     selector: 'ki-item-component',
     templateUrl: './item-component.component.html',
-    styleUrls: ['./item-component.component.sass']
+    styleUrls: ['./item-component.component.sass'],
+    standalone: false
 })
 export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 

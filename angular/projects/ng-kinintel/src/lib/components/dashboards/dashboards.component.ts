@@ -14,7 +14,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-dashboards',
     templateUrl: './dashboards.component.html',
-    styleUrls: ['./dashboards.component.sass']
+    styleUrls: ['./dashboards.component.sass'],
+    standalone: false
 })
 export class DashboardsComponent implements OnInit {
 

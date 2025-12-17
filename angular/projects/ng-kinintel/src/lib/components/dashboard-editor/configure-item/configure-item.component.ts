@@ -36,7 +36,8 @@ import {DatasetEditorComponent} from '../../dataset/dataset-editor/dataset-edito
     selector: 'ki-configure-item',
     templateUrl: './configure-item.component.html',
     styleUrls: ['./configure-item.component.sass'],
-    host: {class: 'configure-dialog'}
+    host: { class: 'configure-dialog' },
+    standalone: false
 })
 export class ConfigureItemComponent implements OnInit {
 

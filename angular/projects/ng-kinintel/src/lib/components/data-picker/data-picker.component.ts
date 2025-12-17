@@ -10,7 +10,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-data-picker',
     templateUrl: './data-picker.component.html',
-    styleUrls: ['./data-picker.component.sass']
+    styleUrls: ['./data-picker.component.sass'],
+    standalone: false
 })
 export class DataPickerComponent implements OnInit {
 

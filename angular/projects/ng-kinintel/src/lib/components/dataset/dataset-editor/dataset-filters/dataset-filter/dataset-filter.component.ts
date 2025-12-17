@@ -10,7 +10,8 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 @Component({
     selector: 'ki-dataset-filter',
     templateUrl: './dataset-filter.component.html',
-    styleUrls: ['./dataset-filter.component.sass']
+    styleUrls: ['./dataset-filter.component.sass'],
+    standalone: false
 })
 export class DatasetFilterComponent implements OnInit {
 

@@ -12,7 +12,8 @@ const _ = lodash.default;
     selector: 'ki-dataset-summarise',
     templateUrl: './dataset-summarise.component.html',
     styleUrls: ['./dataset-summarise.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetSummariseComponent implements OnInit {
 

@@ -5,7 +5,8 @@ import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDial
     selector: 'ki-job-tasks',
     templateUrl: './job-tasks.component.html',
     styleUrls: ['./job-tasks.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class JobTasksComponent implements OnInit {
 

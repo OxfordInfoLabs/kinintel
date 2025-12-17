@@ -13,7 +13,8 @@ const _ = lodash.default;
     selector: 'ki-snapshot-profile-dialog',
     templateUrl: './snapshot-profile-dialog.component.html',
     styleUrls: ['./snapshot-profile-dialog.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class SnapshotProfileDialogComponent implements OnInit {
 

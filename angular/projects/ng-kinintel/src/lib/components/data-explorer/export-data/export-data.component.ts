@@ -11,7 +11,8 @@ const _ = lodash.default;
     selector: 'ki-export-data',
     templateUrl: './export-data.component.html',
     styleUrls: ['./export-data.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ExportDataComponent implements OnInit {
 
