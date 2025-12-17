@@ -6,12 +6,10 @@
         "outDir": "./dist/out-tsc",
         "sourceMap": true,
         "declaration": false,
-        "downlevelIteration": true,
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "importHelpers": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
         "allowUmdGlobalAccess": true,
         "resolveJsonModule": true,
         "paths": {
