@@ -2,7 +2,6 @@ import {CUSTOM_ELEMENTS_SCHEMA, ModuleWithProviders, NgModule} from '@angular/co
 import {DashboardEditorComponent} from './components/dashboard-editor/dashboard-editor.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {ItemComponentComponent} from './components/dashboard-editor/item-component/item-component.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {CommonModule} from '@angular/common';
 import {ConfigureItemComponent} from './components/dashboard-editor/configure-item/configure-item.component';
@@ -75,7 +74,6 @@ import { DataPickerComponent } from './components/data-picker/data-picker.compon
 import { CreateDatasetComponent } from './components/dataset/create-dataset/create-dataset.component';
 import { TableCellFormatterComponent } from './components/dashboard-editor/configure-item/table-cell-formatter/table-cell-formatter.component';
 import { DocumentDatasourceComponent } from './components/datasource/document-datasource/document-datasource.component';
-import { AngularD3CloudModule } from 'angular-d3-cloud';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {CodemirrorModule} from '@ctrl/ngx-codemirror';
 import { ProjectSettingsComponent } from './components/project-settings/project-settings.component';
@@ -115,7 +113,6 @@ import { QueryCacheViewComponent } from './components/query-caching/query-cache-
 @NgModule({
     declarations: [
         DashboardEditorComponent,
-        ItemComponentComponent,
         ConfigureItemComponent,
         DatasourceComponent,
         DatasetComponent,
@@ -219,7 +216,6 @@ import { QueryCacheViewComponent } from './components/query-caching/query-cache-
         MatSnackBarModule,
         MatRadioModule,
         MatTooltipModule,
-        AngularD3CloudModule,
         MatProgressBarModule,
         CodemirrorModule,
         ClipboardModule,

@@ -31,7 +31,7 @@
     "angular-d3-cloud": "^20.0.0",
     "chart.js": "^4.4.1",
     "chroma-js": "^2.1.2",
-    "codemirror": "^5.64.0",
+    "codemirror": "5.65.20",
     "file-saver": "^2.0.5",
     "gridstack": "^4.2.1",
     "js-sha512": "^0.8.0",

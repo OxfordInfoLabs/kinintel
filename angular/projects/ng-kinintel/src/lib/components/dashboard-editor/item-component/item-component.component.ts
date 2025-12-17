@@ -34,14 +34,17 @@ import {ProjectService} from '../../../services/project.service';
 import chroma from 'chroma-js';
 import { DataSet, Network } from 'vis-network/standalone';
 import visNetworkOptions from '../configure-item/vis-network-options.json';
+import { AngularD3Cloud } from 'angular-d3-cloud';
+import {MatIcon} from '@angular/material/icon';
 
 declare var window: any;
 
 @Component({
+    imports: [AngularD3Cloud, MatIcon],
     selector: 'ki-item-component',
     templateUrl: './item-component.component.html',
     styleUrls: ['./item-component.component.sass'],
-    standalone: false
+    standalone: true
 })
 export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
