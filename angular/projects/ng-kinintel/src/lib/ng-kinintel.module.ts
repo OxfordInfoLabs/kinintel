@@ -108,6 +108,9 @@ import { DatasetFilterInclusionComponent } from './components/dataset/dataset-ed
 import { FeedApiModalComponent } from './components/shared-with-me/feed-api-modal/feed-api-modal.component';
 import {KININTEL_CONFIG, KinintelModuleConfig} from './kinintel-config';
 import { QueryCacheViewComponent } from './components/query-caching/query-cache-view/query-cache-view.component';
+import {
+    ItemComponentComponent
+} from './components/dashboard-editor/item-component/item-component.component';
 
 
 @NgModule({
@@ -220,7 +223,8 @@ import { QueryCacheViewComponent } from './components/query-caching/query-cache-
         CodemirrorModule,
         ClipboardModule,
         CdkOverlayOrigin,
-        CdkConnectedOverlay
+        CdkConnectedOverlay,
+        ItemComponentComponent
     ],
     exports: [
         DashboardEditorComponent,

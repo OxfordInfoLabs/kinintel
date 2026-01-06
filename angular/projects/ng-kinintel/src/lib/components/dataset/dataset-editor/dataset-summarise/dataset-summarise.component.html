@@ -1,176 +1,191 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Summarise Data</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Summarise Data</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content p-4">
+
+    <div class="border-t bg-blue-50 p-4 mb-4 -mx-4 -mt-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <!-- Heroicon name: mini/information-circle -->
+          <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3 flex-1 md:flex md:justify-between">
+          <p class="text-sm text-blue-700 mb-0">
+            The Summarise transformation is analogous to a <span class="font-medium">SQL GROUP BY</span> expression.
+            The <b>Summarise Fields</b> represent the columns to group by, and the <b>Summarise Expression</b> items
+            represent columns to Select. <b>Drag</b> the available column to the desired section.<br>
+            <a (click)="viewExample = true;" class="font-medium hover:underline">
+            View an example of how this summarisation would appear as a SQL statement.</a>
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="dialog-content p-4">
+    <div class="drop-container" cdkDropListGroup>
+      <div class="example-container">
+        <div class="border rounded-t bg-gray-100 text-lg px-2 font-medium py-1 border-gray-300">
+        Available Columns</div>
 
-        <div class="border-t bg-blue-50 p-4 mb-4 -mx-4 -mt-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <!-- Heroicon name: mini/information-circle -->
-                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3 flex-1 md:flex md:justify-between">
-                    <p class="text-sm text-blue-700 mb-0">
-                        The Summarise transformation is analogous to a <span class="font-medium">SQL GROUP BY</span> expression.
-                        The <b>Summarise Fields</b> represent the columns to group by, and the <b>Summarise Expression</b> items
-                        represent columns to Select. <b>Drag</b> the available column to the desired section.<br>
-                        <a (click)="viewExample = true;" class="font-medium hover:underline">
-                            View an example of how this summarisation would appear as a SQL statement.</a>
-                    </p>
-                </div>
-            </div>
+        <div
+          cdkDropList
+          id="availableColumns"
+          [cdkDropListData]="availableColumns"
+          class="example-list"
+          cdkDropListSortingDisabled
+          (cdkDropListDropped)="drop($event)">
+          @for (item of availableColumns; track item) {
+            <div class="example-box" cdkDrag>{{item.title}}</div>
+          }
         </div>
+      </div>
 
-        <div class="drop-container" cdkDropListGroup>
-            <div class="example-container">
-                <div class="border rounded-t bg-gray-100 text-lg px-2 font-medium py-1 border-gray-300">
-                    Available Columns</div>
+      <div class="example-container">
+        <div class="border rounded-t bg-gray-100 text-lg px-2 font-medium py-1 border-gray-300">
+        Summarise Fields</div>
 
-                <div
-                    cdkDropList
-                    id="availableColumns"
-                    [cdkDropListData]="availableColumns"
-                    class="example-list"
-                    cdkDropListSortingDisabled
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of availableColumns" cdkDrag>{{item.title}}</div>
-                </div>
+        <div
+          cdkDropList
+          [cdkDropListData]="summariseFields"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)">
+          @for (item of summariseFields; track item; let i = $index) {
+            <div class="example-box p-0 pl-2 h-12" cdkDrag>
+              {{item.title}}
+              <div class="bg-gray-50 h-full flex items-center">
+                <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </div>
             </div>
+          }
+        </div>
+      </div>
 
-            <div class="example-container">
-                <div class="border rounded-t bg-gray-100 text-lg px-2 font-medium py-1 border-gray-300">
-                    Summarise Fields</div>
+      <div class="example-container mr-0">
+        <div class="border rounded-t bg-gray-100 text-lg px-2 font-medium py-1 border-gray-300">
+        Summarise Expressions</div>
 
-                <div
-                    cdkDropList
-                    [cdkDropListData]="summariseFields"
-                    class="example-list"
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box p-0 pl-2 h-12" *ngFor="let item of summariseFields; let i = index" cdkDrag>
-                        {{item.title}}
-                        <div class="bg-gray-50 h-full flex items-center">
-                            <button mat-icon-button color="warn" (click)="removeListItem(summariseFields, i)">
-                                <mat-icon>clear</mat-icon>
-                            </button>
-                        </div>
+        <div
+          cdkDropList
+          [cdkDropListData]="summariseExpressions"
+          id="summariseExpressions"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)">
+          @for (item of summariseExpressions; track item; let i = $index) {
+            <div class="example-box expression"
+              cdkDrag >
+              <div class="h-full w-full flex flex-row">
+                <div class="flex-1 px-1">
+                  @if (item.expressionType !== 'CUSTOM') {
+                    <div
+                      class="px-2 pt-2 w-full flex items-center flex-row">
+                      <div class="font-medium w-20 text-gray-600 text-xs">Column</div>
+                      <div class="truncate w-48">{{item.title}}</div>
                     </div>
-                </div>
-            </div>
-
-            <div class="example-container mr-0">
-                <div class="border rounded-t bg-gray-100 text-lg px-2 font-medium py-1 border-gray-300">
-                    Summarise Expressions</div>
-
-                <div
-                    cdkDropList
-                    [cdkDropListData]="summariseExpressions"
-                    id="summariseExpressions"
-                    class="example-list"
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box expression"
-                         *ngFor="let item of summariseExpressions; let i = index"
-                         cdkDrag >
-                        <div class="h-full w-full flex flex-row">
-                            <div class="flex-1 px-1">
-                                <div *ngIf="item.expressionType !== 'CUSTOM'"
-                                    class="px-2 pt-2 w-full flex items-center flex-row">
-                                    <div class="font-medium w-20 text-gray-600 text-xs">Column</div>
-                                    <div class="truncate w-48">{{item.title}}</div>
-                                </div>
-
-                                <ng-template [ngIf]="item.expressionType !== 'CUSTOM'">
-                                    <div class="p-2 w-full flex items-center flex-row">
-                                        <div class="font-medium w-20 text-gray-600 text-xs">Expression</div>
-                                        <mat-select class="p-2 w-48" [(ngModel)]="item.expressionType">
-                                            <mat-option class="text-sm" *ngFor="let type of expressionTypes"
-                                                        [value]="type.value">{{type.label}}</mat-option>
-                                        </mat-select>
-                                    </div>
-                                </ng-template>
-                                <ng-template [ngIf]="item.expressionType === 'CUSTOM'">
-                                    <div class="top">
-                                        <div class="custom-container">
-                                            <div class="font-medium w-20 text-gray-600 text-xs pb-2">Expression</div>
-                                            <textarea class="w-full" rows="4" [(ngModel)]="item.customExpression"></textarea>
-                                        </div>
-
-                                    </div>
-                                </ng-template>
-                                <div class="px-2 pb-2 w-full flex items-center flex-row">
-                                    <div class="font-medium w-20 text-gray-600 text-xs">Label<span class="text-red-500 text-xs">&nbsp;*</span></div>
-                                    <input type="text" class="p-2 w-48"
-                                           [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.name"
-                                           [(ngModel)]="item.customLabel" [ngClass]="{'border border-red-500': !item.customLabel}">
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 flex items-center justify-center">
-                                <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
-                                    <mat-icon>clear</mat-icon>
-                                </button>
-                            </div>
-                        </div>
-
+                  }
+                  @if (item.expressionType !== 'CUSTOM') {
+                    <div class="p-2 w-full flex items-center flex-row">
+                      <div class="font-medium w-20 text-gray-600 text-xs">Expression</div>
+                      <mat-select class="p-2 w-48" [(ngModel)]="item.expressionType">
+                        @for (type of expressionTypes; track type) {
+                          <mat-option class="text-sm"
+                          [value]="type.value">{{type.label}}</mat-option>
+                        }
+                      </mat-select>
                     </div>
+                  }
+                  @if (item.expressionType === 'CUSTOM') {
+                    <div class="top">
+                      <div class="custom-container">
+                        <div class="font-medium w-20 text-gray-600 text-xs pb-2">Expression</div>
+                        <textarea class="w-full" rows="4" [(ngModel)]="item.customExpression"></textarea>
+                      </div>
+                    </div>
+                  }
+                  <div class="px-2 pb-2 w-full flex items-center flex-row">
+                    <div class="font-medium w-20 text-gray-600 text-xs">Label<span class="text-red-500 text-xs">&nbsp;*</span></div>
+                    <input type="text" class="p-2 w-48"
+                      [placeholder]="item.expressionType === 'CUSTOM' ? 'custom_expression' : item.expressionType + '_of_' + item.name"
+                      [(ngModel)]="item.customLabel" [class]="{'border border-red-500': !item.customLabel}">
+                  </div>
                 </div>
-
+                <div class="bg-gray-50 flex items-center justify-center">
+                  <button mat-icon-button color="warn" (click)="removeListItem(summariseExpressions, i)">
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+              </div>
             </div>
+          }
         </div>
 
-        <div *ngIf="viewExample" class="rounded bg-gray-50 p-4 my-2">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" stroke-width="1.5" stroke="currentColor"
-                     class="h-5 w-5 text-gray-400">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
-                </svg>
-                </div>
-                <div class="ml-3 flex-1 md:flex md:justify-between">
-                    <p class="text-sm text-gray-700 mb-0">
-                        <b>SELECT&nbsp;</b><span *ngFor="let expression of summariseExpressions; let i = index"><span *ngIf="i > 0">, </span>{{expression.customExpression || expression.expressionType + '(' + (expression.name || '') + ')'}}</span><b>&nbsp;FROM&nbsp;</b>{{originDataItemTitle}}<ng-template [ngIf]="summariseFields.length"><b>&nbsp;GROUP BY&nbsp;</b> {{_.chain(summariseFields).map('name').valueOf().join(', ')}}</ng-template>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <ki-whitelisted-sql-functions *ngIf="showDocs" [fields]="availableColumns"></ki-whitelisted-sql-functions>
-
+      </div>
     </div>
 
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close>Cancel</button>
-
-        <div class="flex items-center">
-            <a (click)="showDocs = !showDocs"
-               class="text-xs mr-2 hover:underline flex items-center primary">
-                view help docs&nbsp;
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                     fill="currentColor">
-                    <path
-                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
-                    <path
-                        d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
-                </svg>
-            </a>
-            <button mat-stroked-button color="primary" (click)="createCustomExpression()"
-                class="create-custom-button">
-                <mat-icon>construction</mat-icon>
-                Create custom expression
-            </button>
-            <button mat-flat-button color="primary" (click)="applySettings()"
-                [disabled]="!_.every(summariseExpressions, 'customLabel')">Apply Settings</button>
+    @if (viewExample) {
+      <div class="rounded bg-gray-50 p-4 my-2">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" stroke-width="1.5" stroke="currentColor"
+              class="h-5 w-5 text-gray-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+            </svg>
+          </div>
+          <div class="ml-3 flex-1 md:flex md:justify-between">
+            <p class="text-sm text-gray-700 mb-0">
+              <b>SELECT&nbsp;</b>@for (expression of summariseExpressions; track expression; let i = $index) {
+              <span>@if (i > 0) {
+                <span>, </span>
+              }{{expression.customExpression || expression.expressionType + '(' + (expression.name || '') + ')'}}</span>
+              }<b>&nbsp;FROM&nbsp;</b>{{originDataItemTitle}}@if (summariseFields.length) {
+              <b>&nbsp;GROUP BY&nbsp;</b> {{_.chain(summariseFields).map('name').valueOf().join(', ')}}
+            }
+          </p>
         </div>
-
+      </div>
     </div>
+  }
+
+  @if (showDocs) {
+    <ki-whitelisted-sql-functions [fields]="availableColumns"></ki-whitelisted-sql-functions>
+  }
+
+</div>
+
+<div class="dialog-footer">
+  <button mat-button mat-dialog-close>Cancel</button>
+
+  <div class="flex items-center">
+    <a (click)="showDocs = !showDocs"
+      class="text-xs mr-2 hover:underline flex items-center primary">
+      view help docs&nbsp;
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+        fill="currentColor">
+        <path
+          d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+        <path
+          d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+      </svg>
+    </a>
+    <button mat-stroked-button color="primary" (click)="createCustomExpression()"
+      class="create-custom-button">
+      <mat-icon>construction</mat-icon>
+      Create custom expression
+    </button>
+    <button mat-flat-button color="primary" (click)="applySettings()"
+    [disabled]="!_.every(summariseExpressions, 'customLabel')">Apply Settings</button>
+  </div>
+
+</div>
 
 </div>
 

@@ -1,78 +1,82 @@
 <div class="parameter">
-    <p *ngIf="parameter.type !== 'boolean'">{{parameter.title}}<span>*</span></p>
+  @if (parameter.type !== 'boolean') {
+    <p>{{parameter.title}}<span>*</span></p>
+  }
 
-    <ng-template [ngIf]="parameter.type === 'text'">
+  @if (parameter.type === 'text') {
+    <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+      (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+  }
+  @if (parameter.type === 'numeric') {
+    <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+      (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+  }
+  @if (parameter.type === 'date' || parameter.type === 'datetime') {
+    <input type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+      (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+  }
+  @if (parameter.type === 'boolean') {
+    <mat-slide-toggle [(ngModel)]="parameter.value" (ngModelChange)="valueChanged()"
+    required>{{parameter.title}}</mat-slide-toggle>
+  }
+
+  @if (parameter.type === 'join') {
+    <mat-button-toggle-group class="mt-2 mb-2" [(ngModel)]="parameter.selectedType"
+      (ngModelChange)="parameter.value = ''">
+      @for (joinType of parameter.values; track joinType) {
+        @if (joinType.values.length) {
+          <mat-button-toggle [value]="joinType.label">
+            {{joinType.label}}
+          </mat-button-toggle>
+        }
+      }
+    </mat-button-toggle-group>
+    <div class="align-center">
+      @for (joinType of parameter.values; track joinType) {
+        @if (parameter.selectedType === joinType.label) {
+          <mat-select [(value)]="parameter.value" class="mr-4">
+            <mat-option value="">-- Select {{joinType.label}} --</mat-option>
+            @for (field of joinType.values; track field) {
+              <mat-option
+              [value]="field.name">{{field.title}}</mat-option>
+            }
+          </mat-select>
+        }
+      }
+    </div>
+  }
+
+  @if (parameter.type === 'global') {
+    <mat-button-toggle-group class="mt-2 mb-2" [(ngModel)]="parameter.selectedValue">
+      <mat-button-toggle value="global">Use Global Parameter</mat-button-toggle>
+      <mat-button-toggle value="custom">Use Custom Value</mat-button-toggle>
+    </mat-button-toggle-group>
+    @if (parameter.selectedValue === 'global') {
+      <mat-select [(ngModel)]="parameter.value" class="mr-4" (change)="applyChanges()">
+        <mat-option value="">-- Select Value --</mat-option>
+        @for (field of parameter.values; track field) {
+          <mat-option
+          [value]="'{{'+field.name+'}}'">{{field.title}} ({{field.value}})</mat-option>
+        }
+      </mat-select>
+    }
+    @if (parameter.selectedValue === 'custom') {
+      @if (parameter._prevType === 'text') {
         <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
-    </ng-template>
-    <ng-template [ngIf]="parameter.type === 'numeric'">
-        <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
-    </ng-template>
-    <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
+          (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+      }
+      @if (parameter._prevType === 'numeric') {
+        <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+          (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+      }
+      @if (parameter._prevType === 'date' || parameter.type === 'datetime') {
         <input type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-               (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
-    </ng-template>
-    <ng-template [ngIf]="parameter.type === 'boolean'">
+          (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
+      }
+      @if (parameter._prevType === 'boolean') {
         <mat-slide-toggle [(ngModel)]="parameter.value" (ngModelChange)="valueChanged()"
-                          required>{{parameter.title}}</mat-slide-toggle>
-    </ng-template>
-
-    <ng-template [ngIf]="parameter.type === 'join'">
-        <mat-button-toggle-group class="mt-2 mb-2" [(ngModel)]="parameter.selectedType"
-                                 (ngModelChange)="parameter.value = ''">
-            <ng-template ngFor let-joinType [ngForOf]="parameter.values">
-                <mat-button-toggle *ngIf="joinType.values.length" [value]="joinType.label">
-                    {{joinType.label}}
-                </mat-button-toggle>
-            </ng-template>
-        </mat-button-toggle-group>
-        <div class="align-center">
-            <ng-template ngFor let-joinType [ngForOf]="parameter.values">
-                <ng-template [ngIf]="parameter.selectedType === joinType.label">
-                    <mat-select [(value)]="parameter.value" class="mr-4">
-                        <mat-option value="">-- Select {{joinType.label}} --</mat-option>
-                        <mat-option *ngFor="let field of joinType.values"
-                                    [value]="field.name">{{field.title}}</mat-option>
-                    </mat-select>
-                </ng-template>
-            </ng-template>
-
-        </div>
-
-    </ng-template>
-
-    <ng-template [ngIf]="parameter.type === 'global'">
-        <mat-button-toggle-group class="mt-2 mb-2" [(ngModel)]="parameter.selectedValue">
-            <mat-button-toggle value="global">Use Global Parameter</mat-button-toggle>
-            <mat-button-toggle value="custom">Use Custom Value</mat-button-toggle>
-        </mat-button-toggle-group>
-
-        <ng-template [ngIf]="parameter.selectedValue === 'global'">
-            <mat-select [(ngModel)]="parameter.value" class="mr-4" (change)="applyChanges()">
-                <mat-option value="">-- Select Value --</mat-option>
-                <mat-option *ngFor="let field of parameter.values"
-                            [value]="'{{'+field.name+'}}'">{{field.title}} ({{field.value}})</mat-option>
-            </mat-select>
-        </ng-template>
-
-        <ng-template [ngIf]="parameter.selectedValue === 'custom'">
-            <ng-template [ngIf]="parameter._prevType === 'text'">
-                <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                       (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
-            </ng-template>
-            <ng-template [ngIf]="parameter._prevType === 'numeric'">
-                <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                       (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
-            </ng-template>
-            <ng-template [ngIf]="parameter._prevType === 'date' || parameter.type === 'datetime'">
-                <input type="date" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                       (change)="valueChanged()" (keyup.enter)="applyChanges()" required autofocus>
-            </ng-template>
-            <ng-template [ngIf]="parameter._prevType === 'boolean'">
-                <mat-slide-toggle [(ngModel)]="parameter.value" (ngModelChange)="valueChanged()"
-                                  required>{{parameter.title}}</mat-slide-toggle>
-            </ng-template>
-        </ng-template>
-    </ng-template>
+        required>{{parameter.title}}</mat-slide-toggle>
+      }
+    }
+  }
 </div>

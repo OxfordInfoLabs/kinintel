@@ -1,430 +1,455 @@
 <div class="border-b w-full flex items-center justify-between ">
-    <div *ngIf="!readonly"
-         class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
-        Name
-        <input type="text" class="w-full py-1.5 ml-4" placeholder="Enter datasource name"
-               [ngClass]="{'border border-red-500': !datasourceUpdate.title}"
-               [(ngModel)]="datasourceUpdate.title">
+  @if (!readonly) {
+    <div
+      class="leading-5 flex items-center px-4 text-xs w-96 uppercase tracking-wider font-medium text-gray-600">
+      Name
+      <input type="text" class="w-full py-1.5 ml-4" placeholder="Enter datasource name"
+        [class]="{'border border-red-500': !datasourceUpdate.title}"
+        [(ngModel)]="datasourceUpdate.title">
     </div>
-    <div *ngIf="readonly"
-         class="leading-5 font-medium text-lg px-4">{{datasourceUpdate.title.replace((namePrefix || ''), '')}}</div>
-    <div class="flex-1 flex items-center flex-wrap w-full justify-end bg-white">
-        <ng-template [ngIf]="_.some(rows, '_selected')">
-            <button (click)="deleteSelectedEntries()"
-                    class="w-28 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <mat-icon class="text-xl">delete_forever</mat-icon>
-                delete selected
-            </button>
-            <div class="divider"></div>
-        </ng-template>
+  }
+  @if (readonly) {
+    <div
+    class="leading-5 font-medium text-lg px-4">{{datasourceUpdate.title.replace((namePrefix || ''), '')}}</div>
+  }
+  <div class="flex-1 flex items-center flex-wrap w-full justify-end bg-white">
+    @if (_.some(rows, '_selected')) {
+      <button (click)="deleteSelectedEntries()"
+        class="w-28 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <mat-icon class="text-xl">delete_forever</mat-icon>
+        delete selected
+      </button>
+      <div class="divider"></div>
+    }
 
-        <button *ngIf="!editMode" (click)="showFilters = !showFilters"
-                [ngStyle]="{'background-color': this.showFilters ? '#00000012' : ''}"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">filter_alt</mat-icon>
-            filter
-        </button>
-        <div *ngIf="!editMode" class="divider"></div>
-        <button *ngIf="!editMode" (click)="advancedSettings()" [disabled]="!datasourceInstanceKey"
-                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">tune</mat-icon>
-            advanced
-        </button>
-        <button *ngIf="!editMode && !hideAPIAccess" (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
-                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">api</mat-icon>
-            api access
-        </button>
-        <button *ngIf="!editMode" (click)="import()"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">upload_file</mat-icon>
-            upload
-        </button>
-        <div *ngIf="!editMode" class="divider"></div>
+    @if (!editMode) {
+      <button (click)="showFilters = !showFilters"
+        [style]="{'background-color': this.showFilters ? '#00000012' : ''}"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <mat-icon class="text-xl">filter_alt</mat-icon>
+        filter
+      </button>
+    }
+    @if (!editMode) {
+      <div class="divider"></div>
+    }
+    @if (!editMode) {
+      <button (click)="advancedSettings()" [disabled]="!datasourceInstanceKey"
+        class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <mat-icon class="text-xl">tune</mat-icon>
+        advanced
+      </button>
+    }
+    @if (!editMode && !hideAPIAccess) {
+      <button (click)="apiAccess()" [disabled]="!datasourceInstanceKey"
+        class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <mat-icon class="text-xl">api</mat-icon>
+        api access
+      </button>
+    }
+    @if (!editMode) {
+      <button (click)="import()"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <mat-icon class="text-xl">upload_file</mat-icon>
+        upload
+      </button>
+    }
+    @if (!editMode) {
+      <div class="divider"></div>
+    }
 
-        <button *ngIf="editMode" (click)="cancelChanges()"
-                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">cancel</mat-icon>
-            cancel edit
-        </button>
+    @if (editMode) {
+      <button (click)="cancelChanges()"
+        class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <mat-icon class="text-xl">cancel</mat-icon>
+        cancel edit
+      </button>
+    }
 
-        <button (click)="save()"
-                class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <mat-icon class="text-xl">save</mat-icon>
-            save
-        </button>
-    </div>
+    <button (click)="save()"
+      class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+      <mat-icon class="text-xl">save</mat-icon>
+      save
+    </button>
+  </div>
 </div>
-<div *ngIf="showFilters" class="dataset-filters">
+@if (showFilters) {
+  <div class="dataset-filters">
     <div class="dataset-filter border-b border-gray-200">
-
-        <ki-dataset-filters *ngIf="columns.length" [filterFields]="filterFields"
-                            [openSide]="openSide"
-                            [filterJunction]="filterJunction"></ki-dataset-filters>
-
-        <div class="flex items-center apply-filter">
-            <button mat-stroked-button class="mr-2 bg-white" color="warn"
-                    (click)="clearFilter()">
-                Clear Filter
-            </button>
-            <button mat-flat-button class="mr-2" color="primary"
-                    (click)="applyFilter()" [disabled]="!filterJunction.filters.length">
-                Apply Filter
-            </button>
-        </div>
-
-
+      @if (columns.length) {
+        <ki-dataset-filters [filterFields]="filterFields"
+          [openSide]="openSide"
+        [filterJunction]="filterJunction"></ki-dataset-filters>
+      }
+      <div class="flex items-center apply-filter">
+        <button mat-stroked-button class="mr-2 bg-white" color="warn"
+          (click)="clearFilter()">
+          Clear Filter
+        </button>
+        <button mat-flat-button class="mr-2" color="primary"
+          (click)="applyFilter()" [disabled]="!filterJunction.filters.length">
+          Apply Filter
+        </button>
+      </div>
     </div>
-</div>
+  </div>
+}
 <div class="flex create-datasource-container">
-    <div class="flex-1 relative overflow-y-scroll table-scroll">
+  <div class="flex-1 relative overflow-y-scroll table-scroll">
 
-        <div class="create-datasource">
-            <div id="tableWrapper" class="flex-1 overflow-y-scroll relative">
-                <table class="datasource-table table-fixed w-full overflow-scroll">
-                    <thead>
-                    <tr>
-                        <th class="w-10 relative cursor-pointer bg-gray-100 p-0 sticky text-xs">
-                            <div class="flex items-center justify-center">
-                                <input type="checkbox" [(ngModel)]="selectAll" (ngModelChange)="updateSelectAll()">
-                            </div>
-                        </th>
-                        <ng-template ngFor let-column [ngForOf]="columns" let-colIndex=index>
-                            <th [id]="column.type + colIndex" *ngIf="column.type === 'id' ? showAutoIncrement : true"
-                                class="w-64 relative cursor-pointer bg-gray-100 p-2 sticky text-xs"
-                                [ngClass]="{'bg-indigo-50': selectedItem._index === colIndex, 'border-r-0': (colIndex + 1) === columns.length}">
-                                <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
-                                    {{ column.title }}&nbsp;
-                                    <svg *ngIf="column.keyField || column.type ==='id'"
-                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                         class="w-5 h-5 text-yellow-500">
-                                        <path fill-rule="evenodd"
-                                              d="M8 7a5 5 0 113.61 4.804l-1.903 1.903A1 1 0 019 14H8v1a1 1 0 01-1 1H6v1a1 1 0 01-1 1H3a1 1 0 01-1-1v-2a1 1 0 01.293-.707L8.196 8.39A5.002 5.002 0 018 7zm5-3a.75.75 0 000 1.5A1.5 1.5 0 0114.5 7 .75.75 0 0016 7a3 3 0 00-3-3z"
-                                              clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <button mat-icon-button [matMenuTriggerFor]="header"
-                                        class="absolute header-actions">
-                                    <mat-icon>more_vert</mat-icon>
-                                </button>
-                                <mat-menu #header="matMenu">
-                                    <button mat-menu-item (click)="sortColumn(column, 'asc')">
-                                        <div class="flex items-center justify-between w-full">
-                                            Sort Ascending
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor"
-                                                 class="h-6 w-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12"/>
-                                            </svg>
-                                        </div>
-                                    </button>
-                                    <button mat-menu-item (click)="sortColumn(column, 'desc')">
-                                        <div class="flex items-center justify-between w-full">
-                                            Sort Descending
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor"
-                                                 class="h-6 w-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"/>
-                                            </svg>
-                                        </div>
-                                    </button>
-                                    <ng-template [ngIf]="column.type !== 'id' && editColumns">
-                                        <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
-                                            Insert column before
-                                        </button>
-                                    </ng-template>
-                                    <button *ngIf="editColumns" mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
-                                    <button *ngIf="editColumns" mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
-                                </mat-menu>
-                            </th>
-                        </ng-template>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="table-rows" [ngClass]="{'bg-gray-200 opacity-30': this.deletes.indexOf(rowIndex) > -1,
+    <div class="create-datasource">
+      <div id="tableWrapper" class="flex-1 overflow-y-scroll relative">
+        <table class="datasource-table table-fixed w-full overflow-scroll">
+          <thead>
+            <tr>
+              <th class="w-10 relative cursor-pointer bg-gray-100 p-0 sticky text-xs">
+                <div class="flex items-center justify-center">
+                  <input type="checkbox" [(ngModel)]="selectAll" (ngModelChange)="updateSelectAll()">
+                </div>
+              </th>
+              @for (column of columns; track column; let colIndex = $index) {
+                @if (column.type === 'id' ? showAutoIncrement : true) {
+                  <th [id]="column.type + colIndex"
+                    class="w-64 relative cursor-pointer bg-gray-100 p-2 sticky text-xs"
+                    [class]="{'bg-indigo-50': selectedItem._index === colIndex, 'border-r-0': (colIndex + 1) === columns.length}">
+                    <div class="pr-8 w-full header-title" (click)="selectColumn(column, colIndex)">
+                      {{ column.title }}&nbsp;
+                      @if (column.keyField || column.type ==='id') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                          class="w-5 h-5 text-yellow-500">
+                          <path fill-rule="evenodd"
+                            d="M8 7a5 5 0 113.61 4.804l-1.903 1.903A1 1 0 019 14H8v1a1 1 0 01-1 1H6v1a1 1 0 01-1 1H3a1 1 0 01-1-1v-2a1 1 0 01.293-.707L8.196 8.39A5.002 5.002 0 018 7zm5-3a.75.75 0 000 1.5A1.5 1.5 0 0114.5 7 .75.75 0 0016 7a3 3 0 00-3-3z"
+                            clip-rule="evenodd"/>
+                        </svg>
+                      }
+                    </div>
+                    <button mat-icon-button [matMenuTriggerFor]="header"
+                      class="absolute header-actions">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #header="matMenu">
+                      <button mat-menu-item (click)="sortColumn(column, 'asc')">
+                        <div class="flex items-center justify-between w-full">
+                          Sort Ascending
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor"
+                            class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12"/>
+                          </svg>
+                        </div>
+                      </button>
+                      <button mat-menu-item (click)="sortColumn(column, 'desc')">
+                        <div class="flex items-center justify-between w-full">
+                          Sort Descending
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor"
+                            class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"/>
+                          </svg>
+                        </div>
+                      </button>
+                      @if (column.type !== 'id' && editColumns) {
+                        <button mat-menu-item (click)="addColumn(colIndex === 0 ? 0 : colIndex - 1)">
+                          Insert column before
+                        </button>
+                      }
+                      @if (editColumns) {
+                        <button mat-menu-item (click)="addColumn(colIndex + 1)">Insert column after</button>
+                      }
+                      @if (editColumns) {
+                        <button mat-menu-item (click)="deleteColumn(colIndex)">Delete column</button>
+                      }
+                    </mat-menu>
+                  </th>
+                }
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows; track row; let rowIndex = $index) {
+<tr class="table-rows" [class]="{'bg-gray-200 opacity-30': this.deletes.indexOf(rowIndex) > -1,
                     'bg-green-50': this.adds.indexOf(rowIndex) > -1, 'bg-indigo-100': this.updates.indexOf(rowIndex) > -1}"
-                        *ngFor="let row of rows; let rowIndex = index">
+                       >
                         <td class="p-0 row-cell text-center">
                             <div class="flex items-center justify-center">
                                 <input type="checkbox" [(ngModel)]="row._selected" (ngModelChange)="updateSelected()">
                             </div>
                         </td>
-                        <ng-template ngFor let-rowColumn [ngForOf]="columns" let-rowColIndex=index>
-                            <td *ngIf="rowColumn.type === 'id' ? showAutoIncrement : true"
-                                [ngClass]="{'bg-indigo-50': selectedItem._index === rowColIndex,
+                        @for (rowColumn of columns; track rowColumn; let rowColIndex = $index) {
+
+                            @if (rowColumn.type === 'id' ? showAutoIncrement : true) {
+<td
+                                [class]="{'bg-indigo-50': selectedItem._index === rowColIndex,
                             'w-24 bg-gray-100': columns[rowColIndex].type === 'id',
                             'bg-gray-100': columns[rowColIndex].keyField && this.adds.indexOf(rowIndex) === -1}"
-                                class="p-0 row-cell">
-                                <div
-                                    class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
-                                    <input class="p-0 border-none w-full bg-transparent pr-10 cell-input"
-                                           [type]="inputTypeForField(rowColumn)" #field="ngModel"
-                                           [(ngModel)]="row[rowColumn.name]"
-                                           [step]="1"
-                                           [max]="columns[rowColIndex].typeConfig ? columns[rowColIndex].typeConfig.maximumValue : null"
-                                           [min]="columns[rowColIndex].typeConfig ? columns[rowColIndex].typeConfig.minimumValue : null"
-                                           *ngIf="columns[rowColIndex].type !== 'id' && columns[rowColIndex].type !== 'pickfromsource'  && columns[rowColIndex].type !== 'boolean' && !columns[rowColIndex].keyField"
-                                           (change)="updateField(rowColumn, rowIndex, $event)"
-                                           (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                           (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-
-
-                                    <input class="p-0 border-none w-full bg-transparent pr-10 cell-input"
-                                           type="checkbox" #field="ngModel"
-                                           [(ngModel)]="row[rowColumn.name]"
-                                           [step]="1"
-                                           *ngIf="columns[rowColIndex].type === 'boolean' && !columns[rowColIndex].keyField"
-                                           (change)="updateField(rowColumn, rowIndex, $event)"
-                                           (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                           (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-
-
-                                    <div
-                                        *ngIf="columns[rowColIndex].type == 'pickfromsource' && columnPickFromDatasets[rowColumn.name]"
-                                        class="w-full pr-10">
-                                        <select
-                                            class="p-0 border-none w-full bg-transparent cell-input outline-none ring-0"
-                                            #field="ngModel"
-                                            [(ngModel)]="row[rowColumn.name]"
-                                            (change)="updateField(field, rowIndex)"
-                                            (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-                                            <option
-                                                *ngFor="let pickFrom of columnPickFromDatasets[rowColumn.name].allData"
-                                                [value]="pickFrom[rowColumn.typeConfig.valueFieldName]">
-                                                {{pickFrom[rowColumn.typeConfig.labelFieldName]}}
-                                            </option>
-                                        </select>
-                                    </div>
-
-
-                                    <ng-template [ngIf]="columns[rowColIndex].type === 'id'">
-                                        <div
-                                            class="text-gray-500 text-xs">{{ row[rowColumn.name] || '<\generated\>' }}
-                                        </div>
-                                    </ng-template>
-
-                                    <ng-template [ngIf]="columns[rowColIndex].keyField">
-                                        <ng-template [ngIf]="this.adds.indexOf(rowIndex) > -1">
-                                            <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
-                                                   type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
-                                                   (change)="updateField(field, rowIndex)"
-                                                   (focus)="focusCell($event, rowIndex, rowColIndex)"
-                                                   (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
-                                        </ng-template>
-                                        <ng-template [ngIf]="this.adds.indexOf(rowIndex) === -1">
-                                            <div class="text-gray-500 text-xs">{{ row[rowColumn.name] }}</div>
-                                        </ng-template>
-
-                                    </ng-template>
-
-                                    <span
-                                        class="absolute material-symbols-outlined right-0 w-10 text-orange-500 text-lg"
-                                        *ngIf="invalidItems[rowIndex] && invalidItems[rowIndex][rowColumn.name]"
-                                        [matTooltip]="invalidItems[rowIndex][rowColumn.name]">warning</span>
-
-                                    <button mat-icon-button [matMenuTriggerFor]="menu"
-                                            class="absolute cell-actions" tabindex="-1">
-                                        <mat-icon>more_vert</mat-icon>
-                                    </button>
-                                    <mat-menu #menu="matMenu">
-                                        <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
-                                        <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
-                                        <button *ngIf="columns[rowColIndex].type !== 'id'"
-                                                mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell
-                                        </button>
-                                    </mat-menu>
-                                </div>
-
-                            </td>
-                        </ng-template>
-
-                    </tr>
-                    </tbody>
-                </table>
-                <div (click)="addRow()" title="Add Row"
-                     class="cursor-pointer flex items-center text-sm m-2 p-1 bg-gray-100 rounded-md">
-                    <button class="ml-2" mat-icon-button color="primary">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
-                    Add new row
-                </div>
-            </div>
-
-
-            <div class="border-t bg-gray-50 py-2 flex align-center justify-between">
-                <button class="ml-2" mat-icon-button color="primary" title="Add Row" (click)="addRow()">
-                    <mat-icon>add_circle</mat-icon>
-                </button>
-                <div *ngIf="!editMode" class="flex items-center">
-                    <div class="text-xs text-gray-400 mr-10">
-                        Showing {{offset + 1}}
-                        - {{(page * limit) - (limit - rows.length)}}</div>
-                    <select [value]="limit" (change)="pageSizeChange($event.target.value)"
-                            class="mr-8 p-2">
-                        <option [value]="10">10</option>
-                        <option [value]="25">25</option>
-                        <option [value]="50">50</option>
-                        <option [value]="100">100</option>
-                        <option [value]="250">250</option>
-                        <option [value]="1000">1000</option>
-                    </select>
-                    <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
-                        <mat-icon>chevron_left</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
-                        <mat-icon>chevron_right</mat-icon>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="border-l border-r bg-gray-50 -ml-2.5">
-        <button mat-icon-button color="primary" title="Add Column" (click)="addColumn()"
-                class="-mt-0.5">
+                      class="p-0 row-cell">
+                      <div
+                        class="py-1 px-2 h-full w-full border border-transparent input-wrapper flex items-center justify-between relative">
+                        @if (columns[rowColIndex].type !== 'id' && columns[rowColIndex].type !== 'pickfromsource'  && columns[rowColIndex].type !== 'boolean' && !columns[rowColIndex].keyField) {
+                          <input class="p-0 border-none w-full bg-transparent pr-10 cell-input"
+                            [type]="inputTypeForField(rowColumn)" #field="ngModel"
+                            [(ngModel)]="row[rowColumn.name]"
+                            [step]="1"
+                            [max]="columns[rowColIndex].typeConfig ? columns[rowColIndex].typeConfig.maximumValue : null"
+                            [min]="columns[rowColIndex].typeConfig ? columns[rowColIndex].typeConfig.minimumValue : null"
+                            (change)="updateField(rowColumn, rowIndex, $event)"
+                            (focus)="focusCell($event, rowIndex, rowColIndex)"
+                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                        }
+                        @if (columns[rowColIndex].type === 'boolean' && !columns[rowColIndex].keyField) {
+                          <input class="p-0 border-none w-full bg-transparent pr-10 cell-input"
+                            type="checkbox" #field="ngModel"
+                            [(ngModel)]="row[rowColumn.name]"
+                            [step]="1"
+                            (change)="updateField(rowColumn, rowIndex, $event)"
+                            (focus)="focusCell($event, rowIndex, rowColIndex)"
+                            (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                        }
+                        @if (columns[rowColIndex].type == 'pickfromsource' && columnPickFromDatasets[rowColumn.name]) {
+                          <div
+                            class="w-full pr-10">
+                            <select
+                              class="p-0 border-none w-full bg-transparent cell-input outline-none ring-0"
+                              #field="ngModel"
+                              [(ngModel)]="row[rowColumn.name]"
+                              (change)="updateField(field, rowIndex)"
+                              (focus)="focusCell($event, rowIndex, rowColIndex)"
+                              (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                              @for (pickFrom of columnPickFromDatasets[rowColumn.name].allData; track pickFrom) {
+                                <option
+                                  [value]="pickFrom[rowColumn.typeConfig.valueFieldName]">
+                                  {{pickFrom[rowColumn.typeConfig.labelFieldName]}}
+                                </option>
+                              }
+                            </select>
+                          </div>
+                        }
+                        @if (columns[rowColIndex].type === 'id') {
+                          <div
+                            class="text-gray-500 text-xs">{{ row[rowColumn.name] || '<\generated\>' }}
+                          </div>
+                        }
+                        @if (columns[rowColIndex].keyField) {
+                          @if (this.adds.indexOf(rowIndex) > -1) {
+                            <input class="p-0 border-none w-full bg-transparent pr-5 cell-input"
+                              type="text" #field="ngModel" [(ngModel)]="row[rowColumn.name]"
+                              (change)="updateField(field, rowIndex)"
+                              (focus)="focusCell($event, rowIndex, rowColIndex)"
+                              (keyup.enter)="enterCell(rowIndex, rowColIndex, $event)">
+                          }
+                          @if (this.adds.indexOf(rowIndex) === -1) {
+                            <div class="text-gray-500 text-xs">{{ row[rowColumn.name] }}</div>
+                          }
+                        }
+                        @if (invalidItems[rowIndex] && invalidItems[rowIndex][rowColumn.name]) {
+                          <span
+                            class="absolute material-symbols-outlined right-0 w-10 text-orange-500 text-lg"
+                          [matTooltip]="invalidItems[rowIndex][rowColumn.name]">warning</span>
+                        }
+                        <button mat-icon-button [matMenuTriggerFor]="menu"
+                          class="absolute cell-actions" tabindex="-1">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                          <button mat-menu-item (click)="addRow(rowIndex + 1)">Add row</button>
+                          <button mat-menu-item (click)="deleteRow(rowIndex)">Delete row</button>
+                          @if (columns[rowColIndex].type !== 'id') {
+                            <button
+                              mat-menu-item (click)="clearCell(rowIndex, rowColIndex)">Clear cell
+                            </button>
+                          }
+                        </mat-menu>
+                      </div>
+                    </td>
+                  }
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div (click)="addRow()" title="Add Row"
+          class="cursor-pointer flex items-center text-sm m-2 p-1 bg-gray-100 rounded-md">
+          <button class="ml-2" mat-icon-button color="primary">
             <mat-icon>add_circle</mat-icon>
-        </button>
-    </div>
-
-    <div *ngIf="Object.keys(selectedItem).length" class="bg-gray-100 w-72 h-full p-3 flex justify-between flex-col">
-        <div>
-            <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
-                Settings
-            </div>
-
-            <hr class="my-4">
-
-            <ng-template [ngIf]="selectedItem._tableType">
-                <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
-                    Column
-                </div>
-                <label *ngIf="datasourceUpdate.instanceImportKey" class="mb-4">
-                    Column Key
-                    <input type="text" [(ngModel)]="selectedItem.name" disabled>
-                </label>
-                <label class="mb-4">
-                    Column Title
-                    <input type="text" [(ngModel)]="selectedItem.title" placeholder="Enter column title"
-                           (change)="updateColumnName()">
-                </label>
-
-                <ng-template [ngIf]="selectedItem.type === 'id'">
-                    <label class="mb-4">
-                        Column Type
-                        <select [(ngModel)]="selectedItem.type" disabled>
-                            <option [value]="'id'">ID</option>
-                        </select>
-                    </label>
-                </ng-template>
-
-                <ng-template [ngIf]="selectedItem.type !== 'id'">
-                    <label class="mb-4">
-                        Column Type
-                        <select [(ngModel)]="selectedItem.type" (ngModelChange)="setTypeConfig()">
-                            <option [value]="null">-- Select column type --</option>
-                            <option *ngFor="let type of Object.keys(datasourceTypes)" [value]="type">
-                                {{ datasourceTypes[type] }}
-                            </option>
-                        </select>
-                    </label>
-                </ng-template>
-
-                <div class="flex items-center gap-2"
-                     *ngIf="selectedItem.typeConfig && selectedItem.type == 'integer' || selectedItem.type == 'float'">
-                    <label class="mb-4 w-32">
-                        Minimum Value
-                        <input type="number" class="py-1 px-2"
-                               [(ngModel)]="selectedItem.typeConfig.minimumValue" placeholder="Enter value" />
-                    </label>
-
-                    <label class="mb-4 w-32">
-                        Maximum Value
-                        <input type="number" class="py-1 px-2"
-                               [(ngModel)]="selectedItem.typeConfig.maximumValue" placeholder="Enter value" />
-                    </label>
-                </div>
-
-                <div *ngIf="selectedItem.type == 'pickfromsource'" class="mb-4">
-
-                    <div *ngIf="selectedItem.typeConfig && columnPickFromDatasets[selectedItem.name]"
-                         class="mb-4">
-                        Datasource: <span
-                        class="text-gray-500">{{ columnPickFromDatasets[selectedItem.name].instanceTitle }}</span>
-                    </div>
-
-                    <button mat-flat-button color="primary" (click)="selectColumnPickFromDatasource(selectedItem)">
-                        Select Datasource
-                    </button>
-
-                    <div *ngIf="selectedItem.typeConfig && columnPickFromDatasets[selectedItem.name]" class="mt-4">
-
-                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            Label column
-                        </label>
-                        <div class="mt-1 sm:col-span-2 sm:mt-0">
-                            <select [(ngModel)]="selectedItem.typeConfig.labelFieldName"
-                                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm py-1 px-2">
-                                <option *ngFor="let column of columnPickFromDatasets[selectedItem.name].columns"
-                                        [value]="column.name">
-                                    {{column.title}}
-                                </option>
-                            </select>
-                        </div>
-
-                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            Value column
-                        </label>
-                        <div class="mt-1 sm:col-span-2 sm:mt-0">
-                            <select [(ngModel)]="selectedItem.typeConfig.valueFieldName"
-                                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm py-1 px-2">
-                                <option *ngFor="let column of columnPickFromDatasets[selectedItem.name].columns"
-                                        [value]="column.name">
-                                    {{column.title}}
-                                </option>
-                            </select>
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-
-                <div>
-                    <mat-checkbox class="mb-4"
-                                  [(ngModel)]="selectedItem.required">
-                        Required
-                    </mat-checkbox>
-                </div>
-
-                <div>
-                    <mat-checkbox class="mb-4"
-                                  [(ngModel)]="selectedItem.valueExpressionOnNullOnly" (change)="!($event.checked) ? selectedItem.valueExpression = '' : null">
-                        Has Default Value
-                    </mat-checkbox>
-                </div>
-
-                <label *ngIf="selectedItem.valueExpressionOnNullOnly" class="mb-4">
-                    Default Value
-                    <input type="text" [(ngModel)]="selectedItem.valueExpression" placeholder="Enter default value">
-                </label>
-
-
-                <div>
-                    <button mat-button color="warn" (click)="deleteSelectedColumn()">Delete Column</button>
-                </div>
-
-                <hr class="my-4">
-            </ng-template>
+          </button>
+          Add new row
         </div>
+      </div>
 
-        <button mat-flat-button color="primary" (click)="save(true)">
-            Save & Exit
+
+      <div class="border-t bg-gray-50 py-2 flex align-center justify-between">
+        <button class="ml-2" mat-icon-button color="primary" title="Add Row" (click)="addRow()">
+          <mat-icon>add_circle</mat-icon>
         </button>
+        @if (!editMode) {
+          <div class="flex items-center">
+            <div class="text-xs text-gray-400 mr-10">
+              Showing {{offset + 1}}
+            - {{(page * limit) - (limit - rows.length)}}</div>
+            <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+              class="mr-8 p-2">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+              <option [value]="100">100</option>
+              <option [value]="250">250</option>
+              <option [value]="1000">1000</option>
+            </select>
+            <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
     </div>
+  </div>
+
+  <div class="border-l border-r bg-gray-50 -ml-2.5">
+    <button mat-icon-button color="primary" title="Add Column" (click)="addColumn()"
+      class="-mt-0.5">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+  </div>
+
+  @if (Object.keys(selectedItem).length) {
+    <div class="bg-gray-100 w-72 h-full p-3 flex justify-between flex-col">
+      <div>
+        <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
+          Settings
+        </div>
+        <hr class="my-4">
+        @if (selectedItem._tableType) {
+          <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
+            Column
+          </div>
+          @if (datasourceUpdate.instanceImportKey) {
+            <label class="mb-4">
+              Column Key
+              <input type="text" [(ngModel)]="selectedItem.name" disabled>
+            </label>
+          }
+          <label class="mb-4">
+            Column Title
+            <input type="text" [(ngModel)]="selectedItem.title" placeholder="Enter column title"
+              (change)="updateColumnName()">
+          </label>
+          @if (selectedItem.type === 'id') {
+            <label class="mb-4">
+              Column Type
+              <select [(ngModel)]="selectedItem.type" disabled>
+                <option [value]="'id'">ID</option>
+              </select>
+            </label>
+          }
+          @if (selectedItem.type !== 'id') {
+            <label class="mb-4">
+              Column Type
+              <select [(ngModel)]="selectedItem.type" (ngModelChange)="setTypeConfig()">
+                <option [value]="null">-- Select column type --</option>
+                @for (type of Object.keys(datasourceTypes); track type) {
+                  <option [value]="type">
+                    {{ datasourceTypes[type] }}
+                  </option>
+                }
+              </select>
+            </label>
+          }
+          @if (selectedItem.typeConfig && selectedItem.type == 'integer' || selectedItem.type == 'float') {
+            <div class="flex items-center gap-2"
+              >
+              <label class="mb-4 w-32">
+                Minimum Value
+                <input type="number" class="py-1 px-2"
+                  [(ngModel)]="selectedItem.typeConfig.minimumValue" placeholder="Enter value" />
+              </label>
+              <label class="mb-4 w-32">
+                Maximum Value
+                <input type="number" class="py-1 px-2"
+                  [(ngModel)]="selectedItem.typeConfig.maximumValue" placeholder="Enter value" />
+              </label>
+            </div>
+          }
+          @if (selectedItem.type == 'pickfromsource') {
+            <div class="mb-4">
+              @if (selectedItem.typeConfig && columnPickFromDatasets[selectedItem.name]) {
+                <div
+                  class="mb-4">
+                  Datasource: <span
+                class="text-gray-500">{{ columnPickFromDatasets[selectedItem.name].instanceTitle }}</span>
+              </div>
+            }
+            <button mat-flat-button color="primary" (click)="selectColumnPickFromDatasource(selectedItem)">
+              Select Datasource
+            </button>
+            @if (selectedItem.typeConfig && columnPickFromDatasets[selectedItem.name]) {
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Label column
+                </label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <select [(ngModel)]="selectedItem.typeConfig.labelFieldName"
+                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm py-1 px-2">
+                    @for (column of columnPickFromDatasets[selectedItem.name].columns; track column) {
+                      <option
+                        [value]="column.name">
+                        {{column.title}}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Value column
+                </label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <select [(ngModel)]="selectedItem.typeConfig.valueFieldName"
+                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm py-1 px-2">
+                    @for (column of columnPickFromDatasets[selectedItem.name].columns; track column) {
+                      <option
+                        [value]="column.name">
+                        {{column.title}}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+          </div>
+        }
+        <div>
+          <mat-checkbox class="mb-4"
+            [(ngModel)]="selectedItem.required">
+            Required
+          </mat-checkbox>
+        </div>
+        <div>
+          <mat-checkbox class="mb-4"
+            [(ngModel)]="selectedItem.valueExpressionOnNullOnly" (change)="!($event.checked) ? selectedItem.valueExpression = '' : null">
+            Has Default Value
+          </mat-checkbox>
+        </div>
+        @if (selectedItem.valueExpressionOnNullOnly) {
+          <label class="mb-4">
+            Default Value
+            <input type="text" [(ngModel)]="selectedItem.valueExpression" placeholder="Enter default value">
+          </label>
+        }
+        <div>
+          <button mat-button color="warn" (click)="deleteSelectedColumn()">Delete Column</button>
+        </div>
+        <hr class="my-4">
+      }
+    </div>
+    <button mat-flat-button color="primary" (click)="save(true)">
+      Save & Exit
+    </button>
+  </div>
+}
 </div>
 
 

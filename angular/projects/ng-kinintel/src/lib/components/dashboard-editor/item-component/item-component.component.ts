@@ -35,12 +35,25 @@ import chroma from 'chroma-js';
 import { DataSet, Network } from 'vis-network/standalone';
 import visNetworkOptions from '../configure-item/vis-network-options.json';
 import { AngularD3Cloud } from 'angular-d3-cloud';
-import {MatIcon} from '@angular/material/icon';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {NgChartsModule} from 'ng2-charts';
 
 declare var window: any;
 
 @Component({
-    imports: [AngularD3Cloud, MatIcon],
+    imports: [
+        AngularD3Cloud,
+        MatIconModule,
+        MatMenuModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatSlideToggleModule,
+        NgChartsModule
+    ],
     selector: 'ki-item-component',
     templateUrl: './item-component.component.html',
     styleUrls: ['./item-component.component.sass'],

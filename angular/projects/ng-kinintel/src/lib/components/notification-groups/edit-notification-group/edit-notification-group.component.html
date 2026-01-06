@@ -23,17 +23,23 @@
                [matAutocomplete]="auto"
                (keyup)="search($event.target.value)">
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="userSelected($event, userSearch)">
-            <mat-option *ngFor="let user of users" [value]="user">
-                {{user.name}}
-            </mat-option>
+            @for (user of users; track user) {
+                <mat-option [value]="user">
+                    {{ user.name }}
+                </mat-option>
+            }
         </mat-autocomplete>
-        <mat-chip-list>
-            <mat-chip *ngFor="let member of _.filter(notificationGroupMembers, 'user')"
-                      [removable]="true" (removed)="_.remove(notificationGroupMembers, {user: member})">
-                {{member.user.name}}
-                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-            </mat-chip>
-        </mat-chip-list>
+        <mat-chip-set>
+            @for (member of _.filter(notificationGroupMembers, 'user'); track member) {
+                <mat-chip
+                    [removable]="true" (removed)="_.remove(notificationGroupMembers, {user: member})">
+                    {{ member.user.name }}
+                    @if (removable) {
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    }
+                </mat-chip>
+            }
+        </mat-chip-set>
     </label>
 
     <label class="mb-8">
@@ -42,26 +48,34 @@
                placeholder="Enter recipient data"
                (keyup.enter)="addExternalMember($event)">
 
-        <mat-chip-list>
-            <mat-chip *ngFor="let member of _.filter(notificationGroupMembers, 'memberData')"
-                      [removable]="true"
-                      (removed)="_.remove(notificationGroupMembers, {memberData: member.memberData})">
-                {{member.memberData}}
-                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-            </mat-chip>
-        </mat-chip-list>
+        <mat-chip-set>
+            @for (member of _.filter(notificationGroupMembers, 'memberData'); track member) {
+                <mat-chip
+                    [removable]="true"
+                    (removed)="_.remove(notificationGroupMembers, {memberData: member.memberData})">
+                    {{ member.memberData }}
+                    @if (removable) {
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    }
+                </mat-chip>
+            }
+        </mat-chip-set>
     </label>
 
-    <div class="test-sent" *ngIf="testSent">
-        <p>
-            <mat-icon>check_circle</mat-icon>
-        </p>
-        <p>Test {{notification.type}} has been sent to the following recipients:
-            <ng-template ngFor let-recipient let-i=index [ngForOf]="notification.recipients">
-                <span *ngIf="i > 0">,&nbsp;</span><b>{{recipient}}</b>
-            </ng-template>
-        </p>
-    </div>
+    @if (testSent) {
+        <div class="test-sent">
+            <p>
+                <mat-icon>check_circle</mat-icon>
+            </p>
+            <p>Test {{ notification.type }} has been sent to the following recipients:
+                @for (recipient of notification.recipients; track recipient; let i = $index) {
+                    @if (i > 0) {
+                        <span>,&nbsp;</span>
+                    }<b>{{ recipient }}</b>
+                }
+            </p>
+        </div>
+    }
 
     <div class="py-4 align-center justify-between">
         <button mat-stroked-button (click)="cancel()">

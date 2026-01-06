@@ -1,80 +1,86 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Edit Alert</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Edit Alert</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+
+    <div><b>Enable Alert</b></div>
+    <mat-slide-toggle class="mb-4" [(ngModel)]="alert.enabled">
+      @if (alert.enabled) {
+        Alerts enabled
+      }
+      @if (!alert.enabled) {
+        Alerts disabled
+      }
+    </mat-slide-toggle>
+
+    <div class="my-2"><b>Alert Title<span class="ml-1 text-red-600">*</span></b></div>
+
+    <input type="text" class="w-full" #alertTitle="ngModel"
+      [class]="{'border border-red-600': alertTitle.invalid}"
+      [(ngModel)]="alert.title" required>
+
+    <div class="mt-2"><b>Conditions</b></div>
+    <ki-dataset-filters [filterFields]="filterFields"
+    [filterJunction]="alert.filterTransformation"></ki-dataset-filters>
+
+    <div class="my-2"><b>Matches</b></div>
+    <div class="align-center justify-between">
+      <mat-select class="mr-2 w-1/2" [(ngModel)]="alert.matchRuleConfiguration.matchType">
+        <mat-option value="equals">Equals</mat-option>
+        <mat-option value="greater">Greater than</mat-option>
+        <mat-option value="less">Less than</mat-option>
+      </mat-select>
+      <input class="mr-2 flex-1" type="number" [(ngModel)]="alert.matchRuleConfiguration.value">
+      <div>Rows</div>
     </div>
 
-    <div class="dialog-content">
+    <div class="my-2"><b>Alert Group</b></div>
 
-        <div><b>Enable Alert</b></div>
-        <mat-slide-toggle class="mb-4" [(ngModel)]="alert.enabled">
-            <ng-template [ngIf]="alert.enabled">Alerts enabled</ng-template>
-            <ng-template [ngIf]="!alert.enabled">Alerts disabled</ng-template>
-        </mat-slide-toggle>
+    <mat-select [(ngModel)]="alert.alertGroupId">
+      @for (alertGroup of alertGroups; track alertGroup) {
+        <mat-option [value]="alertGroup.id">
+          {{alertGroup.title}}
+        </mat-option>
+      }
+    </mat-select>
 
-        <div class="my-2"><b>Alert Title<span class="ml-1 text-red-600">*</span></b></div>
+    <div class="my-2"><b>Summary Template<span class="ml-1 text-red-600">*</span></b></div>
 
-        <input type="text" class="w-full" #alertTitle="ngModel"
-               [ngClass]="{'border border-red-600': alertTitle.invalid}"
-               [(ngModel)]="alert.title" required>
+    <input type="text" class="w-full" #summaryTemplate="ngModel"
+      [class]="{'border border-red-600': summaryTemplate.invalid}"
+      [(ngModel)]="alert.summaryTemplate" required>
+    <small>Used for display on dashboard</small>
 
-        <div class="mt-2"><b>Conditions</b></div>
-        <ki-dataset-filters [filterFields]="filterFields"
-                            [filterJunction]="alert.filterTransformation"></ki-dataset-filters>
+    <div class="my-2"><b>Notification Template<span class="ml-1 text-red-600">*</span></b></div>
 
-        <div class="my-2"><b>Matches</b></div>
-        <div class="align-center justify-between">
-            <mat-select class="mr-2 w-1/2" [(ngModel)]="alert.matchRuleConfiguration.matchType">
-                <mat-option value="equals">Equals</mat-option>
-                <mat-option value="greater">Greater than</mat-option>
-                <mat-option value="less">Less than</mat-option>
-            </mat-select>
-            <input class="mr-2 flex-1" type="number" [(ngModel)]="alert.matchRuleConfiguration.value">
-            <div>Rows</div>
-        </div>
+    <textarea class="w-full" rows="5" #notificationTemplate="ngModel"
+      [class]="{'border border-red-600': notificationTemplate.invalid}"
+    [(ngModel)]="alert.notificationTemplate" required></textarea>
+    <small>Used for the notification</small>
 
-        <div class="my-2"><b>Alert Group</b></div>
+    <div class="my-2"><b>Notification Call To Action</b></div>
 
-        <mat-select [(ngModel)]="alert.alertGroupId">
-            <mat-option *ngFor="let alertGroup of alertGroups" [value]="alertGroup.id">
-                {{alertGroup.title}}
-            </mat-option>
-        </mat-select>
+    <input type="text" class="w-full" [(ngModel)]="alert.notificationCta">
+    <small>Used for providing a click through for this alert for eg. a dashboard.</small>
 
-        <div class="my-2"><b>Summary Template<span class="ml-1 text-red-600">*</span></b></div>
+  </div>
 
-        <input type="text" class="w-full" #summaryTemplate="ngModel"
-               [ngClass]="{'border border-red-600': summaryTemplate.invalid}"
-               [(ngModel)]="alert.summaryTemplate" required>
-        <small>Used for display on dashboard</small>
+  <div class="dialog-footer">
 
-        <div class="my-2"><b>Notification Template<span class="ml-1 text-red-600">*</span></b></div>
+    <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
 
-        <textarea class="w-full" rows="5" #notificationTemplate="ngModel"
-                  [ngClass]="{'border border-red-600': notificationTemplate.invalid}"
-                  [(ngModel)]="alert.notificationTemplate" required></textarea>
-        <small>Used for the notification</small>
-
-        <div class="my-2"><b>Notification Call To Action</b></div>
-
-        <input type="text" class="w-full" [(ngModel)]="alert.notificationCta">
-        <small>Used for providing a click through for this alert for eg. a dashboard.</small>
-
-    </div>
-
-    <div class="dialog-footer">
-
-        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
-
-        <button mat-flat-button color="primary" [mat-dialog-close]="alert"
-                [disabled]="!alert.title || !alert.summaryTemplate || !alert.notificationTemplate">
-            {{alert.id ? 'Update' : 'Add'}} Alert
-        </button>
-    </div>
+    <button mat-flat-button color="primary" [mat-dialog-close]="alert"
+      [disabled]="!alert.title || !alert.summaryTemplate || !alert.notificationTemplate">
+      {{alert.id ? 'Update' : 'Add'}} Alert
+    </button>
+  </div>
 
 </div>
 

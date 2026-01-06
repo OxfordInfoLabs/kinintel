@@ -1,324 +1,311 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>API Access</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>API Access</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+
+    <div class="text-lg font-semibold mb-4">
+      Import Key
+    </div>
+
+    <div class="mb-4">
+      <input class="mt-2 w-full" type="text" [(ngModel)]="datasourceUpdate.instanceImportKey"
+        placeholder="Enter import key">
+      <small class="font-normal">This will be used as part of the API request</small>
+    </div>
+
+    @if (showExample) {
+      <div class="text-lg font-semibold mb-4">
+        Example API Usage
+      </div>
+      <div class="relative w-full mb-8">
+        <div class="text-base font-semibold">List</div>
+        <div class="text-sm mb-2">
+          Return the data for this datasource.
+          <br><br>
+          Filtering of the returned data can be effected by supplying parameters of the format <b>FIELD_MATCHTYPE</b>
+          where FIELD matches one of
+          the field names defined in the data source and MATCHTYPE should be one of the following values.
+          <br><br>
+          <table>
+            <tr>
+              <th>Match Type</th>
+              <th>Description</th>
+              <th>Example</th>
+            </tr>
+            <tr>
+              <td>eq</td>
+              <td>for an equals match</td>
+              <td>id_eq=3</td>
+            </tr>
+            <tr>
+              <td>neq</td>
+              <td>for a not equals match</td>
+              <td>id_neq=7</td>
+            </tr>
+            <tr>
+              <td>isnull</td>
+              <td>for a null match</td>
+              <td>id_isnull=1</td>
+            </tr>
+            <tr>
+              <td>isnotnull</td>
+              <td>for a not null match</td>
+              <td>id_isnotnull=1</td>
+            </tr>
+            <tr>
+              <td>gt</td>
+              <td>for a greater than match</td>
+              <td>id_gt=1</td>
+            </tr>
+            <tr>
+              <td>lt</td>
+              <td>for a less than match</td>
+              <td>id_lt=1</td>
+            </tr>
+            <tr>
+              <td>gte</td>
+              <td>for a greater than or equals match</td>
+              <td>id_gte=1</td>
+            </tr>
+            <tr>
+              <td>lte</td>
+              <td>for a less than or equals match</td>
+              <td>id_lte=10</td>
+            </tr>
+            <tr>
+              <td>startswith</td>
+              <td>for a string starts with match</td>
+              <td>name_startswith=app</td>
+            </tr>
+            <tr>
+              <td>endswith</td>
+              <td>for a string ends with match</td>
+              <td>name_endswith=app</td>
+            </tr>
+            <tr>
+              <td>contains</td>
+              <td>for a string contains match</td>
+              <td>name_contains=app</td>
+            </tr>
+            <tr>
+              <td>like</td>
+              <td>for a wildcard or regular expression match. Simple wildcards can be supplied using * for
+                one or more characters. Regular expressions
+                can be supplied by surrounding the value with / delimiters.
+              </td>
+              <td>name_like=ap*, name_like=/^ap.*le$/</td>
+            </tr>
+            <tr>
+              <td>in</td>
+              <td>for where the value is one of a list supplied in comma separated format</td>
+              <td>name_in="apple,pear,banana"</td>
+            </tr>
+            <tr>
+              <td>notin</td>
+              <td>for where the value is not one of a list supplied in comma separated format</td>
+              <td>name_notin="apple,pear,banana"</td>
+            </tr>
+          </table>
+          <br><br>
+          Alternatively, advanced queries can be supplied using the built in Data Query Language passed as a <b>query</b> parameter which should be suitable URL encoded.
+          <br><br>
+          e.g.  <code>query=((id >= 5 && name like 'app*') || id < 3)</code>
+          <br><br>
+          Results can be sorted by supplying a <b>sort</b> parameter which identifies columns to sort and
+          directions (either asc or desc) using pipe separation
+          <br><br>
+          By default the first 100 rows will be returned. Paging can be achieved by supplying
+          <b>limit</b> and <b>offset</b> parameters.
+        </div>
+        <div #list class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+          <pre class="whitespace-normal">curl -H <span
+            class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
+            class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+            <pre class="whitespace-normal"> -X <b>GET</b> <span class="text-cta">{{backendURL}}
+            /api/tabularData/{{datasourceUpdate.instanceImportKey}}?{{listQueryString}}
+          &limit=50&offset=10</span></pre>
+        </div>
+        <button mat-icon-button [cdkCopyToClipboard]="list.textContent" (cdkCopyToClipboardCopied)="copied()"
+          class="text-white absolute bottom-0 right-0">
+          <mat-icon>content_copy</mat-icon>
         </button>
-    </div>
-
-    <div class="dialog-content">
-
-        <div class="text-lg font-semibold mb-4">
-            Import Key
+      </div>
+      <div class="relative w-full">
+        <div class="text-base font-semibold">Create</div>
+        <div class="text-sm mb-2">
+          Insert a set of new rows to the data source identified by the passed import key
         </div>
-
-        <div class="mb-4">
-            <input class="mt-2 w-full" type="text" [(ngModel)]="datasourceUpdate.instanceImportKey"
-                   placeholder="Enter import key">
-            <small class="font-normal">This will be used as part of the API request</small>
+        <div #create class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+          <pre class="whitespace-normal">curl -H <span
+            class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
+            class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+            <pre class="whitespace-normal"> -X <b>POST</b> <span class="text-cta">{{backendURL}}
+          /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
         </div>
+        <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
+          class="text-white absolute bottom-0 right-0">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="font-semibold text-sm my-1">Example Payload</div>
+      <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+        <pre class="whitespace-normal" [innerHTML]="createExample"></pre>
+      </div>
+      <div class="relative w-full">
+        <div class="text-base font-semibold">Replace</div>
+        <div class="text-sm mb-2">
+          Replace a set of rows to the data source identified by the passed import key. This will perform
+          an insert or update depending on whether the row already exists according to the unique key.
+        </div>
+        <div #replace class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+          <pre class="whitespace-normal">curl -H <span
+            class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
+            class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+            <pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-cta">{{backendURL}}
+          /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+        </div>
+        <button mat-icon-button [cdkCopyToClipboard]="replace.textContent"
+          class="text-white absolute bottom-0 right-0">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="font-semibold text-sm my-1">Example Payload</div>
+      <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+        <pre class="whitespace-normal" [innerHTML]="updateExample"></pre>
+      </div>
+      <div class="relative w-full">
+        <div class="text-base font-semibold">Update</div>
+        <div class="text-sm mb-2">
+          Update a set of rows to the data source identified by the passed import key. This will perform
+          an update based upon the unique key and will not add any new rows if they don't already exist.
+        </div>
+        <div #update class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+          <pre class="whitespace-normal">curl -H <span
+            class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
+            class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+            <pre class="whitespace-normal"> -X <b>PUT</b> <span class="text-cta">{{backendURL}}
+          /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+        </div>
+        <button mat-icon-button [cdkCopyToClipboard]="update.textContent"
+          class="text-white absolute bottom-0 right-0">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="font-semibold text-sm my-1">Example Payload</div>
+      <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+        <pre class="whitespace-normal" [innerHTML]="updateExample"></pre>
+      </div>
+      <div class="relative w-full">
+        <div class="text-base font-semibold">Delete</div>
+        <div class="text-sm mb-2">
+          Delete a set of rows explicitly by unique key for the data source identified by the passed import
+          key.
+        </div>
+        <div #delete class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+          <pre class="whitespace-normal">curl -H <span
+            class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
+            class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+            <pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-cta">{{backendURL}}
+          /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
+        </div>
+        <button mat-icon-button [cdkCopyToClipboard]="delete.textContent"
+          class="text-white absolute bottom-0 right-0">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="font-semibold text-sm my-1">Example Payload</div>
+      <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+        <pre class="whitespace-normal" [innerHTML]="deleteExample">
+        </pre>
+      </div>
+      <div class="relative w-full">
+        <div class="text-base font-semibold">Filtered Delete</div>
+        <div class="text-sm mb-2">
+          Delete a set of rows using one or more filter expressions additively to identify the rows for
+          deletion for the data source identified by the passed import key.
+          <br><br>
+          Filters are supplied as objects containing a column name supplied as the <b>column</b> property, a
+          match value supplied as the <b>value</b> property and a match type supplied as
+          the <b>matchType</b> property.
+          <br><br>
+          Possible values for the <b>matchType</b> are:<br><br>
+          <table>
+            <tr>
+              <td>eq</td>
+              <td>for an equals match</td>
+            </tr>
+            <tr>
+              <td>neq</td>
+              <td>for a not equals match</td>
+            </tr>
+            <tr>
+              <td>null</td>
+              <td>for a null match</td>
+            </tr>
+            <tr>
+              <td>notnull</td>
+              <td>for a not null match</td>
+            </tr>
+            <tr>
+              <td>gt</td>
+              <td>for a greater than match</td>
+            </tr>
+            <tr>
+              <td>lt</td>
+              <td>for a less than match</td>
+            </tr>
+            <tr>
+              <td>gte</td>
+              <td>for a greater than or equals match</td>
+            </tr>
+            <tr>
+              <td>lte</td>
+              <td>for a less than or equals match</td>
+            </tr>
+            <tr>
+              <td>startswith</td>
+              <td>for a string starts with match</td>
+            </tr>
+            <tr>
+              <td>endswith</td>
+              <td>for a string ends with match</td>
+            </tr>
+            <tr>
+              <td>contains</td>
+              <td>or a string contains match</td>
+            </tr>
+          </table>
+        </div>
+        <div #deleteFiltered class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
+          <pre class="whitespace-normal">curl -H <span
+            class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
+            class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
+            <pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-cta">{{backendURL}}
+          /api/tabularData/filtered/{{datasourceUpdate.instanceImportKey}}</span></pre>
+        </div>
+        <button mat-icon-button [cdkCopyToClipboard]="deleteFiltered.textContent"
+          class="text-white absolute bottom-0 right-0">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="font-semibold text-sm my-1">Example Payload</div>
+      <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
+        <pre class="whitespace-normal" [innerHTML]="deleteFilteredExample"></pre>
+      </div>
+    }
+  </div>
 
-        <ng-template [ngIf]="showExample">
-
-            <div class="text-lg font-semibold mb-4">
-                Example API Usage
-            </div>
-
-            <div class="relative w-full mb-8">
-                <div class="text-base font-semibold">List</div>
-                <div class="text-sm mb-2">
-                    Return the data for this datasource.
-                    <br><br>
-                    Filtering of the returned data can be effected by supplying parameters of the format <b>FIELD_MATCHTYPE</b>
-                    where FIELD matches one of
-                    the field names defined in the data source and MATCHTYPE should be one of the following values.
-                    <br><br>
-                    <table>
-                        <tr>
-                            <th>Match Type</th>
-                            <th>Description</th>
-                            <th>Example</th>
-                        </tr>
-                        <tr>
-                            <td>eq</td>
-                            <td>for an equals match</td>
-                            <td>id_eq=3</td>
-                        </tr>
-                        <tr>
-                            <td>neq</td>
-                            <td>for a not equals match</td>
-                            <td>id_neq=7</td>
-                        </tr>
-                        <tr>
-                            <td>isnull</td>
-                            <td>for a null match</td>
-                            <td>id_isnull=1</td>
-                        </tr>
-                        <tr>
-                            <td>isnotnull</td>
-                            <td>for a not null match</td>
-                            <td>id_isnotnull=1</td>
-                        </tr>
-                        <tr>
-                            <td>gt</td>
-                            <td>for a greater than match</td>
-                            <td>id_gt=1</td>
-                        </tr>
-                        <tr>
-                            <td>lt</td>
-                            <td>for a less than match</td>
-                            <td>id_lt=1</td>
-                        </tr>
-                        <tr>
-                            <td>gte</td>
-                            <td>for a greater than or equals match</td>
-                            <td>id_gte=1</td>
-                        </tr>
-                        <tr>
-                            <td>lte</td>
-                            <td>for a less than or equals match</td>
-                            <td>id_lte=10</td>
-                        </tr>
-                        <tr>
-                            <td>startswith</td>
-                            <td>for a string starts with match</td>
-                            <td>name_startswith=app</td>
-                        </tr>
-                        <tr>
-                            <td>endswith</td>
-                            <td>for a string ends with match</td>
-                            <td>name_endswith=app</td>
-                        </tr>
-                        <tr>
-                            <td>contains</td>
-                            <td>for a string contains match</td>
-                            <td>name_contains=app</td>
-                        </tr>
-                        <tr>
-                            <td>like</td>
-                            <td>for a wildcard or regular expression match. Simple wildcards can be supplied using * for
-                                one or more characters. Regular expressions
-                                can be supplied by surrounding the value with / delimiters.
-                            </td>
-                            <td>name_like=ap*, name_like=/^ap.*le$/</td>
-                        </tr>
-                        <tr>
-                            <td>in</td>
-                            <td>for where the value is one of a list supplied in comma separated format</td>
-                            <td>name_in="apple,pear,banana"</td>
-                        </tr>
-                        <tr>
-                            <td>notin</td>
-                            <td>for where the value is not one of a list supplied in comma separated format</td>
-                            <td>name_notin="apple,pear,banana"</td>
-                        </tr>
-                    </table>
-                    <br><br>
-                    Alternatively, advanced queries can be supplied using the built in Data Query Language passed as a <b>query</b> parameter which should be suitable URL encoded.
-                    <br><br>
-                    e.g.  <code>query=((id >= 5 && name like 'app*') || id < 3)</code>
-                    <br><br>
-                    Results can be sorted by supplying a <b>sort</b> parameter which identifies columns to sort and
-                    directions (either asc or desc) using pipe separation
-                    <br><br>
-                    By default the first 100 rows will be returned. Paging can be achieved by supplying
-                    <b>limit</b> and <b>offset</b> parameters.
-                </div>
-                <div #list class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span
-                        class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
-                        class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
-                    <pre class="whitespace-normal"> -X <b>GET</b> <span class="text-cta">{{backendURL}}
-                        /api/tabularData/{{datasourceUpdate.instanceImportKey}}?{{listQueryString}}
-                        &limit=50&offset=10</span></pre>
-                </div>
-                <button mat-icon-button [cdkCopyToClipboard]="list.textContent" (cdkCopyToClipboardCopied)="copied()"
-                        class="text-white absolute bottom-0 right-0">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-
-
-            <div class="relative w-full">
-                <div class="text-base font-semibold">Create</div>
-                <div class="text-sm mb-2">
-                    Insert a set of new rows to the data source identified by the passed import key
-                </div>
-                <div #create class=" bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span
-                        class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
-                        class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
-                    <pre class="whitespace-normal"> -X <b>POST</b> <span class="text-cta">{{backendURL}}
-                        /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
-                </div>
-                <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
-                        class="text-white absolute bottom-0 right-0">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-
-            <div class="font-semibold text-sm my-1">Example Payload</div>
-            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
-                <pre class="whitespace-normal" [innerHTML]="createExample"></pre>
-            </div>
-
-            <div class="relative w-full">
-                <div class="text-base font-semibold">Replace</div>
-                <div class="text-sm mb-2">
-                    Replace a set of rows to the data source identified by the passed import key. This will perform
-                    an insert or update depending on whether the row already exists according to the unique key.
-                </div>
-                <div #replace class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span
-                        class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
-                        class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
-                    <pre class="whitespace-normal"> -X <b>PATCH</b> <span class="text-cta">{{backendURL}}
-                        /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
-                </div>
-                <button mat-icon-button [cdkCopyToClipboard]="replace.textContent"
-                        class="text-white absolute bottom-0 right-0">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-            <div class="font-semibold text-sm my-1">Example Payload</div>
-            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
-                <pre class="whitespace-normal" [innerHTML]="updateExample"></pre>
-            </div>
-
-            <div class="relative w-full">
-                <div class="text-base font-semibold">Update</div>
-                <div class="text-sm mb-2">
-                    Update a set of rows to the data source identified by the passed import key. This will perform
-                    an update based upon the unique key and will not add any new rows if they don't already exist.
-                </div>
-                <div #update class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span
-                        class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
-                        class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
-                    <pre class="whitespace-normal"> -X <b>PUT</b> <span class="text-cta">{{backendURL}}
-                        /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
-                </div>
-                <button mat-icon-button [cdkCopyToClipboard]="update.textContent"
-                        class="text-white absolute bottom-0 right-0">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-            <div class="font-semibold text-sm my-1">Example Payload</div>
-            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
-                <pre class="whitespace-normal" [innerHTML]="updateExample"></pre>
-            </div>
-
-            <div class="relative w-full">
-                <div class="text-base font-semibold">Delete</div>
-                <div class="text-sm mb-2">
-                    Delete a set of rows explicitly by unique key for the data source identified by the passed import
-                    key.
-                </div>
-                <div #delete class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span
-                        class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
-                        class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
-                    <pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-cta">{{backendURL}}
-                        /api/tabularData/{{datasourceUpdate.instanceImportKey}}</span></pre>
-                </div>
-                <button mat-icon-button [cdkCopyToClipboard]="delete.textContent"
-                        class="text-white absolute bottom-0 right-0">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-            <div class="font-semibold text-sm my-1">Example Payload</div>
-            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
-            <pre class="whitespace-normal" [innerHTML]="deleteExample">
-            </pre>
-            </div>
-
-            <div class="relative w-full">
-                <div class="text-base font-semibold">Filtered Delete</div>
-                <div class="text-sm mb-2">
-                    Delete a set of rows using one or more filter expressions additively to identify the rows for
-                    deletion for the data source identified by the passed import key.
-                    <br><br>
-                    Filters are supplied as objects containing a column name supplied as the <b>column</b> property, a
-                    match value supplied as the <b>value</b> property and a match type supplied as
-                    the <b>matchType</b> property.
-                    <br><br>
-                    Possible values for the <b>matchType</b> are:<br><br>
-                    <table>
-                        <tr>
-                            <td>eq</td>
-                            <td>for an equals match</td>
-                        </tr>
-                        <tr>
-                            <td>neq</td>
-                            <td>for a not equals match</td>
-                        </tr>
-                        <tr>
-                            <td>null</td>
-                            <td>for a null match</td>
-                        </tr>
-                        <tr>
-                            <td>notnull</td>
-                            <td>for a not null match</td>
-                        </tr>
-                        <tr>
-                            <td>gt</td>
-                            <td>for a greater than match</td>
-                        </tr>
-                        <tr>
-                            <td>lt</td>
-                            <td>for a less than match</td>
-                        </tr>
-                        <tr>
-                            <td>gte</td>
-                            <td>for a greater than or equals match</td>
-                        </tr>
-                        <tr>
-                            <td>lte</td>
-                            <td>for a less than or equals match</td>
-                        </tr>
-                        <tr>
-                            <td>startswith</td>
-                            <td>for a string starts with match</td>
-                        </tr>
-                        <tr>
-                            <td>endswith</td>
-                            <td>for a string ends with match</td>
-                        </tr>
-                        <tr>
-                            <td>contains</td>
-                            <td>or a string contains match</td>
-                        </tr>
-                    </table>
-
-
-                </div>
-                <div #deleteFiltered class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4">
-                    <pre class="whitespace-normal">curl -H <span
-                        class="text-cta">"API-KEY:<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>"</span> -H <span
-                        class="text-cta">"API-SECRET:<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b>"</span></pre>
-                    <pre class="whitespace-normal"> -X <b>DELETE</b> <span class="text-cta">{{backendURL}}
-                        /api/tabularData/filtered/{{datasourceUpdate.instanceImportKey}}</span></pre>
-                </div>
-                <button mat-icon-button [cdkCopyToClipboard]="deleteFiltered.textContent"
-                        class="text-white absolute bottom-0 right-0">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-            <div class="font-semibold text-sm my-1">Example Payload</div>
-            <div class="relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-4 mb-8">
-                <pre class="whitespace-normal" [innerHTML]="deleteFilteredExample"></pre>
-            </div>
-
-
-        </ng-template>
-    </div>
-
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
-        <button mat-button mat-flat-button color="primary" type="button" (click)="saveApiAccess()">Save</button>
-    </div>
+  <div class="dialog-footer">
+    <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+    <button mat-button mat-flat-button color="primary" type="button" (click)="saveApiAccess()">Save</button>
+  </div>
 
 </div>
 

@@ -1,238 +1,235 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title bg-gray-100" cdkDragHandle>
-        <h2 mat-dialog-title>Import Data</h2>
+  <div class="dialog-title bg-gray-100" cdkDragHandle>
+    <h2 mat-dialog-title>Import Data</h2>
 
-        <button mat-icon-button mat-dialog-close="closed">
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close="closed">
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content p-0 ">
+
+    <div class="bg-blue-50 p-4">
+      <div class="flex">
+        <div class="shrink-0">
+          <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3 flex-1 md:flex md:justify-between">
+          <p class="text-sm text-blue-700 mb-0">
+            Use this form to decide how you would like to add data to your account. For <b>Manual</b> and
+            <b>API</b> methods, you will need to decide up-front the structure of your data by supplying
+            the relevant column names below. For <b>CSV</b> upload you can use the existing header row in
+            the data to determine the structure.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="dialog-content p-0 ">
+    <div class="px-6 py-4">
+      <label class="mb-4">
+        Name
+        <input class="w-full" type="text" [(ngModel)]="name" placeholder="Enter data set name"
+          [class]="{'border-red-500': !name}">
+        <div class="m-0.5 text-xs text-gray-500 font-normal">Please enter a friendly name to identify this data set.</div>
+      </label>
 
-        <div class="bg-blue-50 p-4">
+      <div class="my-4 font-medium">Select method of data import</div>
+
+      <div class="flex items-center mb-4">
+        <button type="button" (click)="importChoice = 'MANUAL'"
+          [class]="{'bg-gray-50 border-gray-400': importChoice === 'MANUAL'}"
+          class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-8 text-center hover:border-gray-400 focus:outline-none">
+
+          <div class="relative inline-block">
+            <span
+              class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">edit_note
+            </span>
+          </div>
+
+          <span class="mt-2 block text-sm font-medium text-gray-900">Manual Data Entry</span>
+        </button>
+        <button type="button" (click)="importData()"
+          class="mx-2 relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-8 text-center hover:border-gray-400 focus:outline-none">
+
+          <div class="relative inline-block">
+            <span
+              class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">upload_file
+            </span>
+          </div>
+
+          <span class="mt-2 block text-sm font-medium text-gray-900">Upload CSV Data</span>
+        </button>
+        <button type="button" (click)="importChoice = 'API'"
+          [class]="{'bg-gray-50 border-gray-400': importChoice === 'API'}"
+          class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-8 text-center hover:border-gray-400 focus:outline-none">
+
+          <div class="relative inline-block">
+            <span
+              class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">database_upload
+            </span>
+          </div>
+
+          <span class="mt-2 block text-sm font-medium text-gray-900">Connect to API</span>
+        </button>
+      </div>
+
+      @if (importChoice === 'MANUAL' || importChoice === 'API') {
+        <div class="mt-6 font-medium">Enter the columns for this data set.</div>
+        <mat-form-field class="w-full" appearance="fill">
+          <mat-label>Dataset Columns</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Enter column name">
+            @for (column of columns; track column) {
+              <mat-chip-row class="bg-white"
+                (removed)="removeColumn(column)">
+                {{column.title}}
+                <button matChipRemove [attr.aria-label]="'remove ' + column.title">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+            <input placeholder="Enter column name and press enter..."
+              [matChipInputFor]="chipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              [matChipInputAddOnBlur]="addOnBlur"
+              (matChipInputTokenEnd)="addColumn($event)"/>
+          </mat-chip-grid>
+        </mat-form-field>
+        <div class="text-xs -mt-4 ml-0.5 text-gray-500">Start typing in the box above to enter the column names.</div>
+        @if (!columns.length) {
+          <div  class="rounded-md bg-yellow-50 p-3 mt-4">
             <div class="flex">
+              <div class="shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                  <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm text-yellow-800 mb-0">Please enter at least 1 column</h3>
+              </div>
+            </div>
+          </div>
+        }
+        @if (columns.length) {
+          <div class="font-medium text-sm mt-4">Structure Preview and Field Types</div>
+          <div class="text-xs mb-4 ml-0.5 text-gray-500">
+            Preview each column created and set which data type the column should be
+          </div>
+          @if (_.filter(columns, 'keyField').length) {
+            <div class="rounded-md bg-yellow-50 p-3 mt-4">
+              <div class="flex">
                 <div class="shrink-0">
-                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd" />
-                    </svg>
+                  <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                  </svg>
                 </div>
-                <div class="ml-3 flex-1 md:flex md:justify-between">
-                    <p class="text-sm text-blue-700 mb-0">
-                        Use this form to decide how you would like to add data to your account. For <b>Manual</b> and
-                        <b>API</b> methods, you will need to decide up-front the structure of your data by supplying
-                        the relevant column names below. For <b>CSV</b> upload you can use the existing header row in
-                        the data to determine the structure.
-                    </p>
+                <div class="ml-3">
+                  <h3 class="text-sm text-yellow-800 mb-0">No auto increment ID column will be generated
+                    due to primary keys being defined.
+                  </h3>
                 </div>
+              </div>
             </div>
-        </div>
-
-        <div class="px-6 py-4">
-            <label class="mb-4">
-                Name
-                <input class="w-full" type="text" [(ngModel)]="name" placeholder="Enter data set name"
-                       [ngClass]="{'border-red-500': !name}">
-                <div class="m-0.5 text-xs text-gray-500 font-normal">Please enter a friendly name to identify this data set.</div>
-            </label>
-
-            <div class="my-4 font-medium">Select method of data import</div>
-
-            <div class="flex items-center mb-4">
-                <button type="button" (click)="importChoice = 'MANUAL'"
-                        [ngClass]="{'bg-gray-50 border-gray-400': importChoice === 'MANUAL'}"
-                        class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-8 text-center hover:border-gray-400 focus:outline-none">
-
-                    <div class="relative inline-block">
-                    <span
-                        class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">edit_note
-                    </span>
-                    </div>
-
-                    <span class="mt-2 block text-sm font-medium text-gray-900">Manual Data Entry</span>
-                </button>
-                <button type="button" (click)="importData()"
-                        class="mx-2 relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-8 text-center hover:border-gray-400 focus:outline-none">
-
-                    <div class="relative inline-block">
-                    <span
-                        class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">upload_file
-                    </span>
-                    </div>
-
-                    <span class="mt-2 block text-sm font-medium text-gray-900">Upload CSV Data</span>
-                </button>
-                <button type="button" (click)="importChoice = 'API'"
-                        [ngClass]="{'bg-gray-50 border-gray-400': importChoice === 'API'}"
-                        class="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-8 text-center hover:border-gray-400 focus:outline-none">
-
-                    <div class="relative inline-block">
-                    <span
-                        class="material-symbols-outlined mx-auto text-6xl h-14 w-20 text-gray-300">database_upload
-                    </span>
-                    </div>
-
-                    <span class="mt-2 block text-sm font-medium text-gray-900">Connect to API</span>
-                </button>
-            </div>
-
-            <ng-template [ngIf]="importChoice === 'MANUAL' || importChoice === 'API'">
-
-                <div class="mt-6 font-medium">Enter the columns for this data set.</div>
-
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Dataset Columns</mat-label>
-                    <mat-chip-grid #chipGrid aria-label="Enter column name">
-                        <mat-chip-row class="bg-white" *ngFor="let column of columns"
-                                      (removed)="removeColumn(column)">
-                            {{column.title}}
-                            <button matChipRemove [attr.aria-label]="'remove ' + column.title">
-                                <mat-icon>cancel</mat-icon>
-                            </button>
-                        </mat-chip-row>
-                        <input placeholder="Enter column name and press enter..."
-                               [matChipInputFor]="chipGrid"
-                               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                               [matChipInputAddOnBlur]="addOnBlur"
-                               (matChipInputTokenEnd)="addColumn($event)"/>
-                    </mat-chip-grid>
-                </mat-form-field>
-                <div class="text-xs -mt-4 ml-0.5 text-gray-500">Start typing in the box above to enter the column names.</div>
-
-                <div  *ngIf="!columns.length" class="rounded-md bg-yellow-50 p-3 mt-4">
-                    <div class="flex">
-                        <div class="shrink-0">
-                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                                <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm text-yellow-800 mb-0">Please enter at least 1 column</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <ng-template [ngIf]="columns.length">
-                    <div class="font-medium text-sm mt-4">Structure Preview and Field Types</div>
-                    <div class="text-xs mb-4 ml-0.5 text-gray-500">
-                        Preview each column created and set which data type the column should be
-                    </div>
-
-                    <div *ngIf="_.filter(columns, 'keyField').length" class="rounded-md bg-yellow-50 p-3 mt-4">
-                        <div class="flex">
-                            <div class="shrink-0">
-                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm text-yellow-800 mb-0">No auto increment ID column will be generated
-                                    due to primary keys being defined.
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <table>
-                        <tr>
-                            <td class="border py-2 px-3 bg-gray-100 font-medium">Column Name</td>
-                            <td class="border py-2 px-3 bg-gray-100 font-medium">Column Type</td>
-                            <td class="border py-2 px-3 bg-gray-100 font-medium text-center">Primary Key</td>
-                            <td class="border py-2 px-3 bg-gray-100 font-medium"></td>
-                        </tr>
-                        <tr *ngFor="let column of columns; let i = index">
-                            <td class="border-l border-t border-b border-r py-2 px-3 font-medium">
-                                {{column.title}}
-                            </td>
-                            <td class="border-t border-b border-r p-0">
-                                <select class="border-none p-2" [(ngModel)]="columns[i].type">
-                                    <option [value]="type" *ngFor="let type of Object.keys(datasourceTypes)">
-                                        {{datasourceTypes[type]}}
-                                    </option>
-                                </select>
-                            </td>
-                            <td class="border-t border-b border-r p-0 text-center">
-                                <mat-checkbox color="primary" [(ngModel)]="columns[i].keyField"></mat-checkbox>
-                            </td>
-                            <td class="border-t border-b border-r p-0 text-center">
-                                <button color="warn" mat-icon-button (click)="removeColumn(column)">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-
-<!--                    <table>-->
-<!--                        <tr>-->
-<!--                            <td class="w-20 border-l border-t border-b border-r bg-gray-100 py-2 px-3"></td>-->
-<!--                            <td class="border-t border-b border-r py-2 px-3 bg-gray-100 font-medium" [colSpan]="columns.length">Columns</td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td class="w-20 border-l border-t border-b border-r bg-gray-100 py-2 px-3 font-medium">Name</td>-->
-<!--                            <td class="border-t border-b border-r py-2 px-3" *ngFor="let column of columns">-->
-<!--                                -->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td class="w-20 border-l border-t border-b border-r bg-gray-100 py-2 px-3 font-medium">Type</td>-->
-<!--                            <td class="border-t border-b border-r p-0" *ngFor="let column of columns; let i = index">-->
-<!--                                <select class="border-none p-2" [(ngModel)]="columns[i].type">-->
-<!--                                    <option [value]="type" *ngFor="let type of Object.keys(datasourceTypes)">-->
-<!--                                        {{datasourceTypes[type]}}-->
-<!--                                    </option>-->
+          }
+          <table>
+            <tr>
+              <td class="border py-2 px-3 bg-gray-100 font-medium">Column Name</td>
+              <td class="border py-2 px-3 bg-gray-100 font-medium">Column Type</td>
+              <td class="border py-2 px-3 bg-gray-100 font-medium text-center">Primary Key</td>
+              <td class="border py-2 px-3 bg-gray-100 font-medium"></td>
+            </tr>
+            @for (column of columns; track column; let i = $index) {
+              <tr>
+                <td class="border-l border-t border-b border-r py-2 px-3 font-medium">
+                  {{column.title}}
+                </td>
+                <td class="border-t border-b border-r p-0">
+                  <select class="border-none p-2" [(ngModel)]="columns[i].type">
+                    @for (type of Object.keys(datasourceTypes); track type) {
+                      <option [value]="type">
+                        {{datasourceTypes[type]}}
+                      </option>
+                    }
+                  </select>
+                </td>
+                <td class="border-t border-b border-r p-0 text-center">
+                  <mat-checkbox color="primary" [(ngModel)]="columns[i].keyField"></mat-checkbox>
+                </td>
+                <td class="border-t border-b border-r p-0 text-center">
+                  <button color="warn" mat-icon-button (click)="removeColumn(column)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </table>
+          <!--                    <table>-->
+          <!--                        <tr>-->
+          <!--                            <td class="w-20 border-l border-t border-b border-r bg-gray-100 py-2 px-3"></td>-->
+          <!--                            <td class="border-t border-b border-r py-2 px-3 bg-gray-100 font-medium" [colSpan]="columns.length">Columns</td>-->
+        <!--                        </tr>-->
+        <!--                        <tr>-->
+        <!--                            <td class="w-20 border-l border-t border-b border-r bg-gray-100 py-2 px-3 font-medium">Name</td>-->
+        <!--                            <td class="border-t border-b border-r py-2 px-3" *ngFor="let column of columns">-->
+        <!--                                -->
+      <!--                            </td>-->
+    <!--                        </tr>-->
+    <!--                        <tr>-->
+    <!--                            <td class="w-20 border-l border-t border-b border-r bg-gray-100 py-2 px-3 font-medium">Type</td>-->
+    <!--                            <td class="border-t border-b border-r p-0" *ngFor="let column of columns; let i = index">-->
+    <!--                                <select class="border-none p-2" [(ngModel)]="columns[i].type">-->
+    <!--                                    <option [value]="type" *ngFor="let type of Object.keys(datasourceTypes)">-->
+    <!--                                        {{datasourceTypes[type]}}-->
+  <!--                                    </option>-->
 <!--                                </select>-->
 <!--                            </td>-->
 <!--                        </tr>-->
 <!--                    </table>-->
-                </ng-template>
+}
+}
 
-
-
-            </ng-template>
-
-            <ng-template [ngIf]="importChoice === 'API'">
-                <label class="mt-2 mb-4">
-                    API Import Key
-                    <input class="w-full" type="text" [(ngModel)]="importKey" placeholder="Enter import key">
-                    <div class="font-normal text-gray-500 text-xs">
-                        This will be used as part of the API request when
-                    </div>
-                </label>
-
-                <ng-template [ngIf]="importKey">
-                    <div class="relative w-full">
-                        <div class="text-base font-semibold">Example</div>
-                        <div class="text-sm mb-2">
-                            Insert a set of new rows to the data source identified by the passed import key
-                        </div>
-                        <div #create class="text-xs bg-gray-800 border-2 border-gray-900 text-white rounded-md p-3">
-                            <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>[[apiKey]]</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>[[apiSecret]]</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{importKey}}</span></pre>
-                        </div>
-                        <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
-                                class="text-white absolute bottom-0 right-0">
-                            <mat-icon>content_copy</mat-icon>
-                        </button>
-                    </div>
-
-                    <div class="font-semibold text-sm my-1">Example Payload</div>
-                    <div class="text-xs relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-3">
-                        <pre class="whitespace-normal" [innerHTML]="createExample()"></pre>
-                    </div>
-                </ng-template>
-
-            </ng-template>
-
-        </div>
-
-
-
+@if (importChoice === 'API') {
+  <label class="mt-2 mb-4">
+    API Import Key
+    <input class="w-full" type="text" [(ngModel)]="importKey" placeholder="Enter import key">
+    <div class="font-normal text-gray-500 text-xs">
+      This will be used as part of the API request when
     </div>
-
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close="closed" mat-stroked-button type="button">Close</button>
-        <button mat-button mat-flat-button color="primary" type="button" [disabled]="!name || !columns.length"
-                (click)="createStructure()">Save Changes</button>
+  </label>
+  @if (importKey) {
+    <div class="relative w-full">
+      <div class="text-base font-semibold">Example</div>
+      <div class="text-sm mb-2">
+        Insert a set of new rows to the data source identified by the passed import key
+      </div>
+      <div #create class="text-xs bg-gray-800 border-2 border-gray-900 text-white rounded-md p-3">
+        <pre class="whitespace-normal">curl -H <span class="text-secondary">"API-KEY:<b>[[apiKey]]</b>"</span> -H <span class="text-secondary">"API-SECRET:<b>[[apiSecret]]</b>"</span></pre><pre class="whitespace-normal"> -X <b>POST</b> <span class="text-secondary">{{backendURL}}/api/tabularData/{{importKey}}</span></pre>
+      </div>
+      <button mat-icon-button [cdkCopyToClipboard]="create.textContent" (cdkCopyToClipboardCopied)="copied()"
+        class="text-white absolute bottom-0 right-0">
+        <mat-icon>content_copy</mat-icon>
+      </button>
     </div>
+    <div class="font-semibold text-sm my-1">Example Payload</div>
+    <div class="text-xs relative bg-gray-800 border-2 border-gray-900 text-white rounded-md p-3">
+      <pre class="whitespace-normal" [innerHTML]="createExample()"></pre>
+    </div>
+  }
+}
+
+</div>
+
+
+
+</div>
+
+<div class="dialog-footer">
+  <button mat-button mat-dialog-close="closed" mat-stroked-button type="button">Close</button>
+  <button mat-button mat-flat-button color="primary" type="button" [disabled]="!name || !columns.length"
+  (click)="createStructure()">Save Changes</button>
+</div>
 
 </div>
 

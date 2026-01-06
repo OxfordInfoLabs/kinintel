@@ -1,91 +1,93 @@
 <div class="p-6 bg-white border-b border-gray-200">
-    <div class="md:flex md:items-center md:justify-between md:space-x-5">
-        <div class="flex items-start flex-1">
-            <div class="pt-1.5">
-                <h1 class="text-2xl font-bold text-gray-900 mb-0">Alert Group</h1>
-                <p class="text-sm font-medium text-gray-500">
-                    These details will be used to schedule alerts with the system.
-                </p>
-            </div>
-        </div>
+  <div class="md:flex md:items-center md:justify-between md:space-x-5">
+    <div class="flex items-start flex-1">
+      <div class="pt-1.5">
+        <h1 class="text-2xl font-bold text-gray-900 mb-0">Alert Group</h1>
+        <p class="text-sm font-medium text-gray-500">
+          These details will be used to schedule alerts with the system.
+        </p>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="space-y-8 divide-y divide-gray-200 p-6">
-    <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
-        <div>
-            <div class="space-y-6 sm:space-y-5">
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Name <span class="text-red-500">*</span>
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <input type="text" name="title" [(ngModel)]="alertGroup.title"
-                               class="max-w-lg block w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Time Periods <span class="text-red-500">*</span>
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <ki-task-time-periods [showTitle]="false" [(taskTimePeriods)]="alertGroup.taskTimePeriods"></ki-task-time-periods>
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Notification Groups <span class="text-red-500">*</span>
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple [compareWith]="notificationGroupDisplay">
-                            <mat-option [value]="group" *ngFor="let group of notificationGroups">{{group.name}}</mat-option>
-                        </mat-select>
-                        <button mat-button color="primary" (click)="createNotificationGroup()">
-                            <mat-icon>group_add</mat-icon>&nbsp;Create new notification group
-                        </button>
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Title </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <input type="text" name="notificationTitle" [(ngModel)]="alertGroup.notificationTitle"
-                               class="max-w-lg block w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                        <p class="mt-2 text-sm text-gray-500">Will be used as the subject for the notification</p>
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Prefix Text </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <textarea name="notificationPrefixText" rows="3" [(ngModel)]="alertGroup.notificationPrefixText"
-                                  class="max-w-lg shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"></textarea>
-                        <p class="mt-2 text-sm text-gray-500">Text to include at the beginning of the notification</p>
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Suffix Text </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                        <textarea name="notificationSuffixText" rows="3" [(ngModel)]="alertGroup.notificationSuffixText"
-                                  class="max-w-lg shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"></textarea>
-                        <p class="mt-2 text-sm text-gray-500">Text to include at the end of the notification</p>
-                    </div>
-                </div>
-
-            </div>
+  <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+    <div>
+      <div class="space-y-6 sm:space-y-5">
+        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+            Name <span class="text-red-500">*</span>
+          </label>
+          <div class="mt-1 sm:mt-0 sm:col-span-2">
+            <input type="text" name="title" [(ngModel)]="alertGroup.title"
+              class="max-w-lg block w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+          </div>
         </div>
-    </div>
 
-    <div class="pt-5">
-        <div class="flex justify-end">
-            <button type="button" [routerLink]="[routePath]"
-                    class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">Cancel</button>
-            <button type="button" (click)="save()" [disabled]="!alertGroup.title || (!alertGroup.taskTimePeriods || !alertGroup.taskTimePeriods.length) || (!alertGroup.notificationGroups || !alertGroup.notificationGroups.length)"
-                    class="disabled:opacity-50 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary focus:outline-none">
-                Save Changes</button>
+        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+            Time Periods <span class="text-red-500">*</span>
+          </label>
+          <div class="mt-1 sm:mt-0 sm:col-span-2">
+            <ki-task-time-periods [showTitle]="false" [(taskTimePeriods)]="alertGroup.taskTimePeriods"></ki-task-time-periods>
+          </div>
         </div>
+
+        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+            Notification Groups <span class="text-red-500">*</span>
+          </label>
+          <div class="mt-1 sm:mt-0 sm:col-span-2">
+            <mat-select [(ngModel)]="alertGroup.notificationGroups" multiple [compareWith]="notificationGroupDisplay">
+              @for (group of notificationGroups; track group) {
+                <mat-option [value]="group">{{group.name}}</mat-option>
+              }
+            </mat-select>
+            <button mat-button color="primary" (click)="createNotificationGroup()">
+              <mat-icon>group_add</mat-icon>&nbsp;Create new notification group
+            </button>
+          </div>
+        </div>
+
+        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Title </label>
+          <div class="mt-1 sm:mt-0 sm:col-span-2">
+            <input type="text" name="notificationTitle" [(ngModel)]="alertGroup.notificationTitle"
+              class="max-w-lg block w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+            <p class="mt-2 text-sm text-gray-500">Will be used as the subject for the notification</p>
+          </div>
+        </div>
+
+        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Prefix Text </label>
+          <div class="mt-1 sm:mt-0 sm:col-span-2">
+            <textarea name="notificationPrefixText" rows="3" [(ngModel)]="alertGroup.notificationPrefixText"
+            class="max-w-lg shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"></textarea>
+            <p class="mt-2 text-sm text-gray-500">Text to include at the beginning of the notification</p>
+          </div>
+        </div>
+
+        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"> Notification Suffix Text </label>
+          <div class="mt-1 sm:mt-0 sm:col-span-2">
+            <textarea name="notificationSuffixText" rows="3" [(ngModel)]="alertGroup.notificationSuffixText"
+            class="max-w-lg shadow-sm block w-full sm:text-sm border border-gray-300 rounded-md"></textarea>
+            <p class="mt-2 text-sm text-gray-500">Text to include at the end of the notification</p>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
+
+  <div class="pt-5">
+    <div class="flex justify-end">
+      <button type="button" [routerLink]="[routePath]"
+      class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">Cancel</button>
+      <button type="button" (click)="save()" [disabled]="!alertGroup.title || (!alertGroup.taskTimePeriods || !alertGroup.taskTimePeriods.length) || (!alertGroup.notificationGroups || !alertGroup.notificationGroups.length)"
+        class="disabled:opacity-50 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary focus:outline-none">
+      Save Changes</button>
+    </div>
+  </div>
 </div>

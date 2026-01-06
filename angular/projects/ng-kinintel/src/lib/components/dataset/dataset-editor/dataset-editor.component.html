@@ -1,605 +1,636 @@
-<div *ngIf="longRunning" class="long-running flex-col">
-
+@if (longRunning) {
+  <div class="long-running flex-col">
     <div class="loading-box">
-        <mat-spinner [diameter]="150"></mat-spinner>
-        <div>Loading</div>
+      <mat-spinner [diameter]="150"></mat-spinner>
+      <div>Loading</div>
     </div>
-
     <p class="text-center">Please wait while we process this query.</p>
     <p class="text-center">The results will be shown here once it has finished running.</p>
     <div>
-        <a class="text-primary hover:underline" (click)="cancelEvaluate()">Cancel query and return to editor.</a>
+      <a class="text-primary hover:underline" (click)="cancelEvaluate()">Cancel query and return to editor.</a>
     </div>
-</div>
+  </div>
+}
 <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 -z-10" id="sidebarWrapper">
-    <div [ngClass]="{'translate-x-0': sideOpen, 'translate-x-full': !sideOpen}"
-         (click)="$event.stopPropagation()"
-         class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700"
-         id="docSidebar">
-        <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
-            <div class="px-4 sm:px-6">
-                <div class="flex items-start justify-between">
-                    <div></div>
+  <div [class]="{'translate-x-0': sideOpen, 'translate-x-full': !sideOpen}"
+    (click)="$event.stopPropagation()"
+    class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700"
+    id="docSidebar">
+    <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
+      <div class="px-4 sm:px-6">
+        <div class="flex items-start justify-between">
+          <div></div>
 
-                    <div class="ml-3 flex h-7 items-center">
-                        <button type="button" (click)="openSide.next(false)"
-                                class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none">
-                            <span class="sr-only">Close panel</span>
-                            <!-- Heroicon name: outline/x -->
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="relative flex-1 px-4 sm:px-6">
-                <ki-whitelisted-sql-functions [fields]="filterFields"></ki-whitelisted-sql-functions>
-            </div>
+          <div class="ml-3 flex h-7 items-center">
+            <button type="button" (click)="openSide.next(false)"
+              class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none">
+              <span class="sr-only">Close panel</span>
+              <!-- Heroicon name: outline/x -->
+              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
         </div>
+      </div>
+      <div class="relative flex-1 px-4 sm:px-6">
+        <ki-whitelisted-sql-functions [fields]="filterFields"></ki-whitelisted-sql-functions>
+      </div>
     </div>
+  </div>
 </div>
 
-<div *ngIf="!datasetEditorNoTools" class="border-b cell-header end">
+@if (!datasetEditorNoTools) {
+  <div class="border-b cell-header end">
     <div class="leading-5 px-4 text-xs uppercase tracking-wider font-medium border-r-2 text-gray-600">
-        Operations
+      Operations
     </div>
     <div class="dataset-data-actions">
-        <button (click)="addFilter()"
-                title="Filter the set using column based restrictions"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">filter_alt</span>
-            filter
+      <button (click)="addFilter()"
+        title="Filter the set using column based restrictions"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <span class="material-symbols-outlined text-xl">filter_alt</span>
+        filter
+      </button>
+      <button (click)="summariseData()"
+        title="Summarise this data to produce aggregated totals, sums and other derivations"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <span class="material-symbols-outlined text-xl">pivot_table_chart</span>
+        summarise
+      </button>
+      @if (!datasetEditorSimpleMode) {
+        <button (click)="joinData()"
+          title="Join another data set to the current dataset"
+          class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+          <span class="material-symbols-outlined text-xl">merge_type</span>
+          join
         </button>
-        <button (click)="summariseData()"
-                title="Summarise this data to produce aggregated totals, sums and other derivations"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">pivot_table_chart</span>
-            summarise
-        </button>
-        <button *ngIf="!datasetEditorSimpleMode" (click)="joinData()"
-                title="Join another data set to the current dataset"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">merge_type</span>
-            join
-        </button>
+      }
+      <div class="divider"></div>
+      <button (click)="createFormula()"
+        title="Create a formula column using an expression based on other columns"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <span class="material-symbols-outlined text-xl">functions</span>
+        formula
+      </button>
+      <button (click)="editColumnSettings()"
+        title="Switch on and off columns for display"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <span class="material-symbols-outlined text-xl">table_chart</span>
+        columns
+      </button>
+      @if (!datasetEditorSimpleMode) {
         <div class="divider"></div>
-        <button (click)="createFormula()"
-                title="Create a formula column using an expression based on other columns"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">functions</span>
-            formula
+      }
+      @if (!datasetEditorSimpleMode) {
+        <button (click)="addParameter()"
+          title="Add a parameter to use in filters, expressions etc."
+          class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+          <span class="material-symbols-outlined text-xl">text_fields</span>
+          parameters
         </button>
-        <button (click)="editColumnSettings()"
-                title="Switch on and off columns for display"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">table_chart</span>
-            columns
+      }
+      @if (!datasetEditorSimpleMode) {
+        <button (click)="addPagingMarker()"
+          title="Insert paging marker to limit results at this stage in the query flow"
+          class="w-24 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+          <span class="material-symbols-outlined text-xl">skip_next</span>
+          paging marker
         </button>
-        <div *ngIf="!datasetEditorSimpleMode" class="divider"></div>
-        <button *ngIf="!datasetEditorSimpleMode" (click)="addParameter()"
-                title="Add a parameter to use in filters, expressions etc."
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">text_fields</span>
-            parameters
+      }
+      <div class="divider"></div>
+      <button (click)="evaluateDataset()"
+        title="Reload this query based upon changes you may have made"
+        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+        <span class="material-symbols-outlined text-xl">sync</span>
+        reload
+      </button>
+      @if (!datasetEditorReadonly) {
+        <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
+          title="Share this query with other account holders"
+          class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+          <span class="material-symbols-outlined text-xl">share</span>
+          share
         </button>
-        <button *ngIf="!datasetEditorSimpleMode" (click)="addPagingMarker()"
-                title="Insert paging marker to limit results at this stage in the query flow"
-                class="w-24 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">skip_next</span>
-            paging marker
+        <button (click)="saveAsQuery()"
+          title="Make a copy of this query"
+          class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+          <span class="material-symbols-outlined text-xl">file_copy</span>
+          copy query
         </button>
-        <div class="divider"></div>
-        <button (click)="evaluateDataset()"
-                title="Reload this query based upon changes you may have made"
-                class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-            <span class="material-symbols-outlined text-xl">sync</span>
-            reload
-        </button>
-        <ng-template [ngIf]="!datasetEditorReadonly">
-            <button [disabled]="!datasetInstanceSummary || !datasetInstanceSummary.id" (click)="shareQuery()"
-                    title="Share this query with other account holders"
-                    class="disabled:opacity-50 w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <span class="material-symbols-outlined text-xl">share</span>
-                share
-            </button>
-            <button (click)="saveAsQuery()"
-                    title="Make a copy of this query"
-                    class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <span class="material-symbols-outlined text-xl">file_copy</span>
-                copy query
-            </button>
-            <button *ngIf="!dashboardLayoutSettings && datasetInstanceSummary.id" (click)="save()"
-                    class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-                <span class="material-symbols-outlined text-xl">save</span>
-                save
-            </button>
-        </ng-template>
+        @if (!dashboardLayoutSettings && datasetInstanceSummary.id) {
+          <button (click)="save()"
+            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <span class="material-symbols-outlined text-xl">save</span>
+            save
+          </button>
+        }
+      }
     </div>
-</div>
+  </div>
+}
 
 <div class="cell-header">
-    <div class="transformation-listing parameter-listing" *ngIf="showParameters || parameterValues.length">
-        <div class="list-title">
-            Parameters
-        </div>
-        <div class="flex items-center flex-wrap">
-            <ng-template ngFor let-parameter [ngForOf]="parameterValues" let-i=index>
-
-                <label class="pl-4">
-                    {{ parameter.title }}
-
-                    <div *ngIf="(parameter.value || '').toString().includes('}}')">
-                        <mat-chip class="bg-gray-50 ml-2" title="Using parameter value from {{parameter.value}}">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined text-xl mr-1 text-gray-500">layers</span>
-                                <span *ngIf="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
-                                      [innerHTML]="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')].value"></span>
-                                <span *ngIf="!dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]"
-                                      class="font-medium text-orange-600">
-                                    Parameter Not Found !
-                                </span>
-                            </div>
-
-                            <button matChipRemove (click)="parameter.value = ''" title="">
-                                <mat-icon>cancel</mat-icon>
-                            </button>
-                        </mat-chip>
-                    </div>
-
-
-                    <div *ngIf="!(parameter.value || '').toString().includes('}}')" class="parameter-input">
-
-                        <ng-template [ngIf]="!parameter.multiple">
-
-                            <ng-template [ngIf]="parameter.type === 'text'">
-                                <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
-                                       [(ngModel)]="parameter.value"
-                                       (keyup.enter)="evaluateDataset(true)" required autofocus>
-                            </ng-template>
-                            <ng-template [ngIf]="parameter.type === 'numeric'">
-                                <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
-                                       [(ngModel)]="parameter.value"
-                                       (keyup.enter)="evaluateDataset(true)" required autofocus>
-                            </ng-template>
-                            <ng-template [ngIf]="parameter.type === 'list'">
-                                <select class="pr-8 py-1.5 pl-1 self-center" [(ngModel)]="parameter.value"
-                                        (change)="evaluateDataset(true)" required autofocus>
-                                    <option [value]="null">-- Select Value --</option>
-                                    <option *ngFor="let item of parameter.list" [value]="item.value">{{ item.label }}
-                                    </option>
-                                </select>
-                            </ng-template>
-                            <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
-                                <ng-template [ngIf]="!parameter._dateType">
-                                    <div class="flex items-center mr-8">
-                                        <button (click)="changeDateType($event, parameter, 'picker')"
-                                                class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
-                                            <mat-icon class="text-base">calendar_month</mat-icon>
-                                            Date Picker
-                                        </button>
-                                        <button (click)="changeDateType($event, parameter, 'period')"
-                                                class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
-                                            <mat-icon class="text-base">restore</mat-icon>
-                                            Time Period
-                                        </button>
-                                    </div>
-                                </ng-template>
-                                <ng-template [ngIf]="parameter._dateType === 'picker'">
-                                    <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'"
-                                           placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
-                                           (keyup.enter)="evaluateDataset(true)" required autofocus>
-
-                                    <a (click)="changeDateType($event, parameter, 'period')"
-                                       matTooltip="Time Period"
-                                       class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
-                                        <mat-icon class="text-base">restore</mat-icon>
-                                    </a>
-                                </ng-template>
-                                <ng-template [ngIf]="parameter._dateType === 'period'">
-                                    <div class="flex items-center">
-                                        <input #periodValue type="number" placeholder="No." required autofocus
-                                               class="w-16 mr-2" min="0" [value]="parameter._periodValue"
-                                               (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
-
-                                        <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
-                                                #period
-                                                (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
-                                            <option value="DAYS">Days</option>
-                                            <option value="HOURS">Hours</option>
-                                        </select>
-
-                                        <div>Ago</div>
-                                    </div>
-
-                                    <a (click)="changeDateType($event, parameter, 'picker')"
-                                       matTooltip="Date Picker"
-                                       class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
-                                        <mat-icon class="text-base">calendar_month</mat-icon>
-                                    </a>
-                                </ng-template>
-
-                            </ng-template>
-                            <ng-template [ngIf]="parameter.type === 'boolean'">
-                                <mat-slide-toggle class="pr-8" color="primary"
-                                                  [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
-                                                  required></mat-slide-toggle>
-                            </ng-template>
-                        </ng-template>
-
-                        <ng-template [ngIf]="parameter.multiple">
-
-
-                            <mat-chip-grid class="pl-2" #chipGrid aria-label="Enter values">
-                                <mat-chip-row *ngFor="let paramValue of parameter.value"
-                                              class="bg-white mr-2"
-                                              (removed)="removeParameterValue(parameter, paramValue)">
-                                    {{paramValue}}
-                                    <button matChipRemove [attr.aria-label]="'remove ' + paramValue">
-                                        <mat-icon>cancel</mat-icon>
-                                    </button>
-                                </mat-chip-row>
-
-                                <ng-template [ngIf]="parameter.type === 'text'">
-                                    <input class="pr-8 py-1 self-center" type="text" placeholder="Enter {{parameter.title}}"
-                                           required autofocus
-                                           [matChipInputFor]="chipGrid"
-                                           [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
-                                           [matChipInputAddOnBlur]="true"
-                                           (matChipInputTokenEnd)="addParameterValue(parameter, $event)">
-                                </ng-template>
-                                <ng-template [ngIf]="parameter.type === 'numeric'">
-                                    <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
-                                           required autofocus
-                                           [matChipInputFor]="chipGrid"
-                                           [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
-                                           [matChipInputAddOnBlur]="true"
-                                           (matChipInputTokenEnd)="addParameterValue(parameter, $event)">
-                                </ng-template>
-                                <ng-template [ngIf]="parameter.type === 'list'">
-                                    <select class="pr-8 py-1.5 pl-1 self-center" matNativeControl
-                                            (change)="addParameterValue(parameter, $event)" required autofocus>
-                                        <option [value]="null">-- Select Value --</option>
-                                        <option *ngFor="let item of parameter.list" [value]="item.value">{{ item.label }}
-                                        </option>
-                                    </select>
-                                </ng-template>
-
-                            </mat-chip-grid>
-
-
-                        </ng-template>
-
-
-
-                        <ng-template [ngIf]="!parameter._locked">
-                            <button mat-icon-button [matMenuTriggerFor]="paramMenu">
-                                <mat-icon>settings</mat-icon>
-                            </button>
-                            <mat-menu #paramMenu="matMenu">
-                                <button mat-menu-item (click)="addParameter(parameter, i)">Edit Parameter</button>
-                                <button mat-menu-item (click)="removeParameter(parameter)">Remove Parameter</button>
-                            </mat-menu>
-                        </ng-template>
-                        <ng-template [ngIf]="Object.keys(dashboardParameters || {}).length">
-                            <button mat-icon-button [matMenuTriggerFor]="dashParamMenu"
-                                    title="Bind this parameter value to another">
-                                <mat-icon>text_fields</mat-icon>
-                            </button>
-                            <mat-menu #dashParamMenu="matMenu">
-                                <button mat-menu-item *ngFor="let dashParamKey of Object.keys(dashboardParameters)"
-                                        (click)="setDashboardParameter(parameter, dashboardParameters[dashParamKey].name)">{{ dashboardParameters[dashParamKey].title }}
-                                </button>
-                            </mat-menu>
-                        </ng-template>
-                    </div>
-
-                </label>
-
-                <div class="divider ml-2" *ngIf="parameterValues.length"></div>
-
-            </ng-template>
-            <button mat-icon-button color="primary" class="mx-2" (click)="addParameter()">
-                <mat-icon>add_circle</mat-icon>
-            </button>
-            <button type="button" (click)="evaluateDataset(true)" *ngIf="parameterValues.length"
-                    class="mr-2 flex items-center whitespace-nowrap justify-center px-4 py-1 border border-transparent text-sm rounded-md shadow-sm text-white bg-primary focus:outline-none">
-                Apply Parameters
-            </button>
-        </div>
-    </div>
-</div>
-
-<div class="cell-header">
-    <div class="transformation-listing py-2" *ngIf="terminatingTransformations.length">
-        <div class="list-title">
-            Transformations
-        </div>
-        <div class="example-list flex flex-wrap" cdkDropListGroup>
-            <ng-template ngFor let-transformation [ngForOf]="terminatingTransformations" let-i="index">
-                <div cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListOrientation="horizontal"
-                     [cdkDropListData]="{item:transformation,index:i}" *ngIf="!transformation.hidden">
-                    <div class="flex items-center">
-                        <div class="new-transformation flex items-center justify-center w-6 h-6">
-                            <a [matMenuTriggerFor]="addTransformation"
-                               class="items-center add-transformation text-primary">
-                                <mat-icon class="flex items-center w-5 h-5 text-xl">add_circle</mat-icon>
-                            </a>
-                            <mat-menu #addTransformation="matMenu">
-                                <button mat-menu-item (click)="insertTransformation(i, 'columns', transformation)">
-                                    Insert Column Transformation
-                                </button>
-                                <button mat-menu-item (click)="insertTransformation(i, 'formula', transformation)">
-                                    Insert Formula Transformation
-                                </button>
-                                <button mat-menu-item (click)="insertTransformation(i, 'join', transformation)">
-                                    Insert Join Transformation
-                                </button>
-                                <button mat-menu-item (click)="insertTransformation(i, 'summarise', transformation)">
-                                    Insert Summarise Transformation
-                                </button>
-                                <button mat-menu-item (click)="insertTransformation(i, 'filter', transformation)">
-                                    Insert Filter Transformation
-                                </button>
-                            </mat-menu>
-                        </div>
-
-                        <div cdkDrag class="pl-0 example-box badge-item w-auto m-0" cdkOverlayOrigin
-                             #trigger="cdkOverlayOrigin"
-                             [ngClass]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
-
-                            <button class="-mt-0.5" title="Show transformation details" mat-icon-button
-                                    (click)="showTransformationDetail(transformation)">
-                                <span class="material-symbols-outlined ml-1 text-xl"
-                                      *ngIf="transformation.type === 'columns'">table_chart</span>
-                                <span class="material-symbols-outlined text-xl"
-                                      *ngIf="transformation.type === 'formula'">functions</span>
-                                <span class="material-symbols-outlined text-xl" *ngIf="transformation.type === 'join'">merge_type</span>
-                                <span class="material-symbols-outlined ml-1 text-xl"
-                                      *ngIf="transformation.type === 'summarise'">pivot_table_chart</span>
-                                <span class="material-symbols-outlined text-xl"
-                                      *ngIf="transformation.type === 'filter'">filter_alt</span>
-                            </button>
-
-                            <span class="whitespace-nowrap cursor-pointer"
-                                  (click)="editTerminatingTransformation(transformation)">{{ transformation._label }}</span>
-
-                            <ng-template [ngIf]="transformation.exclude">
-                                <button class="-ml-1" [title]="'Re-enable this transformation'"
-                                        mat-icon-button (click)="disableTransformation(transformation, i)">
-                                    <mat-icon class="text-orange-400">replay</mat-icon>
-                                </button>
-                            </ng-template>
-                            <ng-template
-                                [ngIf]="!transformation.exclude && i + 1 === terminatingTransformations.length">
-                                <button class="-ml-1" [title]="'Disable transformation'"
-                                        mat-icon-button (click)="disableTransformation(transformation, i)">
-                                    <mat-icon>block</mat-icon>
-                                </button>
-                            </ng-template>
-                            <ng-template
-                                [ngIf]="!transformation.exclude && i + 1 !== terminatingTransformations.length">
-                                <button class="-ml-1" [matMenuTriggerFor]="disableMenu"
-                                        [title]="'Disable transformation'"
-                                        mat-icon-button>
-                                    <mat-icon>block</mat-icon>
-                                </button>
-                                <mat-menu #disableMenu="matMenu">
-                                    <button mat-menu-item (click)="disableTransformation(transformation, i)">
-                                        Disable this transformation
-                                    </button>
-                                    <button mat-menu-item (click)="excludeUpstreamTransformations(transformation)">
-                                        Disable subsequent transformation(s)
-                                    </button>
-                                </mat-menu>
-                            </ng-template>
-
-                            <button class="-ml-1" title="Remove this transformation" mat-icon-button color="primary"
-                                    (click)="removeTransformation(transformation, true, null, transformation._active)">
-                                <mat-icon>cancel</mat-icon>
-                            </button>
-                        </div>
-                        <ng-template
-                            cdkConnectedOverlay
-                            [cdkConnectedOverlayOrigin]="trigger"
-                            [cdkConnectedOverlayOpen]="transformation._showDetail">
-                            <div class="p-4 w-96 bg-white shadow rounded">
-                                <ng-template [ngIf]="transformation.type === 'summarise'">
-                                    <p class="text-sm text-gray-700 mb-0">
-                                        <b>SELECT&nbsp;</b><span
-                                        *ngFor="let expression of transformation.config.expressions; let i = index"><span
-                                        *ngIf="i > 0">, </span>{{ expression.customExpression || expression.expressionType + '(' + (expression.fieldName || '') + ')' }}</span>
-                                        <ng-template [ngIf]="transformation.config.summariseFieldNames.length"><br><b>GROUP
-                                            BY&nbsp;</b> {{ transformation.config.summariseFieldNames.join(', ') }}
-                                        </ng-template>
-                                    </p>
-                                </ng-template>
-                                <ng-template [ngIf]="transformation.type === 'formula'">
-                                    <div class="text-sm text-gray-700 mb-0">
-                                        <b>EXPRESSION</b>&nbsp;{{ decodeURIComponent(transformation.config.expressions[0].expression) }}
-                                    </div>
-                                </ng-template>
-                                <ng-template [ngIf]="transformation.type === 'columns'">
-                                    <div class="text-sm text-gray-700 mb-0">
-                                        <b>COLUMNS</b>&nbsp;{{ _.map(transformation.config.columns, 'title').join(', ') }}
-                                    </div>
-                                </ng-template>
-                                <ng-template [ngIf]="transformation.type === 'join'">
-                                    <div class="text-sm text-gray-700 mb-0">
-                                        <b>JOIN
-                                            COLUMNS</b>&nbsp;{{ _.map(transformation.config.joinColumns, 'title').join(', ') }}
-                                    </div>
-                                </ng-template>
-                                <ng-template [ngIf]="transformation.type === 'filter'">
-                                    <div *ngFor="let filter of transformation.config.filters"
-                                         class="text-sm text-gray-700 mb-0">
-                                        <b>FILTER</b>&nbsp;{{ filter.lhsExpression }}&nbsp;<b>{{ filter.filterType }}</b>&nbsp;{{ filter.rhsExpression }}
-                                    </div>
-                                </ng-template>
-                            </div>
-                        </ng-template>
-                    </div>
-
-                </div>
-                <button
-                    *ngIf="_.some(terminatingTransformations, {exclude: true}) && i === terminatingTransformations.length - 1"
-                    class="ml-4 flex items-center border-none bg-primary text-sm rounded-md text-white pr-2 pl-1 py-0.5"
-                    (click)="enableAllTransformation()">
-                    <mat-icon class="mr-1 text-base">replay</mat-icon>
-                    Enable All
-                </button>
-            </ng-template>
-
-        </div>
-
-    </div>
-</div>
-
-<div class="cell-header">
-    <div class="transformation-listing py-2 filters-list"
-         *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length">
-        <a class="list-title flex items-center" (click)="showFilters = !showFilters">
-            Filters&nbsp;
-            <mat-icon *ngIf="!showFilters">expand_more</mat-icon>
-            <mat-icon *ngIf="showFilters">expand_less</mat-icon>
-        </a>
-        <ng-template ngFor let-filterTransformation
-                     [ngForOf]="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false})">
-
-            <div class="badge-item pl-2 mr-1" *ngIf="_.every(filterTransformation.config.filters[0])"
-                 (click)="showFilters = !showFilters">
-                <span class="cursor-pointer" [innerHtml]="getFilterString(filterTransformation.config)"></span>
-            </div>
-
-        </ng-template>
-    </div>
-</div>
-
-<div class="dataset-filters" id="datasetFilters"
-     *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length
-    && showFilters">
-
-    <ng-template ngFor let-transformation [ngForOf]="datasetInstanceSummary.transformationInstances" let-i=index>
-        <ng-template [ngIf]="transformation.type === 'filter' && transformation.hide === false">
-            <div class="dataset-filter border-b border-gray-200">
-
-                <button mat-stroked-button class="mr-2 bg-white remove-filter" color="warn"
-                        (click)="removeTransformation(transformation, true, i)">
-                    Remove Filter
-                </button>
-
-                <ki-dataset-filters *ngIf="filterFields.length" [filterFields]="filterFields"
-                                    [openSide]="openSide" [parameterValues]="filterParameterValues"
-                                    [filterJunction]="transformation.config"></ki-dataset-filters>
-                <button
-                    *ngIf="_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length"
-                    mat-flat-button class="apply-filter mr-2" color="primary"
-                    (click)="applyFilters()" [disabled]="!filterJunction.filters.length">
-                    Apply Filters
-                </button>
-
-            </div>
-        </ng-template>
-    </ng-template>
-
-</div>
-
-<div class="cell-header">
-    <div class="transformation-listing sort"
-         *ngIf="_.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'})">
-        <div class="list-title">
-            Sort
-        </div>
-        <div class="flex flex-wrap">
-            <div class="badge-item outline"
-                 [ngClass]="{'exclude bg-orange-50 border-orange-200': _.find(datasetInstanceSummary.transformationInstances, {exclude: true})}"
-                 *ngFor="let sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; let i = index">
-                <span>{{ _.startCase(sort.fieldName) }}&nbsp;<span class="uppercase">{{ sort.direction }}</span></span>
-                <button mat-icon-button (click)="removeFilter(i)">
+  @if (showParameters || parameterValues.length) {
+    <div class="transformation-listing parameter-listing">
+      <div class="list-title">
+        Parameters
+      </div>
+      <div class="flex items-center flex-wrap">
+        @for (parameter of parameterValues; track parameter; let i = $index) {
+          <label class="pl-4">
+            {{ parameter.title }}
+            @if ((parameter.value || '').toString().includes('}}')) {
+              <div>
+                <mat-chip class="bg-gray-50 ml-2" title="Using parameter value from {{parameter.value}}">
+                  <div class="flex items-center">
+                    <span class="material-symbols-outlined text-xl mr-1 text-gray-500">layers</span>
+                    @if (dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]) {
+                      <span
+                      [innerHTML]="dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')].value"></span>
+                    }
+                    @if (!dashboardParameters[parameter.value.replace('{{', '').replace('}}', '')]) {
+                      <span
+                        class="font-medium text-orange-600">
+                        Parameter Not Found !
+                      </span>
+                    }
+                  </div>
+                  <button matChipRemove (click)="parameter.value = ''" title="">
                     <mat-icon>cancel</mat-icon>
-                </button>
-            </div>
-        </div>
-
+                  </button>
+                </mat-chip>
+              </div>
+            }
+            @if (!(parameter.value || '').toString().includes('}}')) {
+              <div class="parameter-input">
+                @if (!parameter.multiple) {
+                  @if (parameter.type === 'text') {
+                    <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
+                      [(ngModel)]="parameter.value"
+                      (keyup.enter)="evaluateDataset(true)" required autofocus>
+                  }
+                  @if (parameter.type === 'numeric') {
+                    <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
+                      [(ngModel)]="parameter.value"
+                      (keyup.enter)="evaluateDataset(true)" required autofocus>
+                  }
+                  @if (parameter.type === 'list') {
+                    <select class="pr-8 py-1.5 pl-1 self-center" [(ngModel)]="parameter.value"
+                      (change)="evaluateDataset(true)" required autofocus>
+                      <option [value]="null">-- Select Value --</option>
+                      @for (item of parameter.list; track item) {
+                        <option [value]="item.value">{{ item.label }}
+                        </option>
+                      }
+                    </select>
+                  }
+                  @if (parameter.type === 'date' || parameter.type === 'datetime') {
+                    @if (!parameter._dateType) {
+                      <div class="flex items-center mr-8">
+                        <button (click)="changeDateType($event, parameter, 'picker')"
+                          class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
+                          <mat-icon class="text-base">calendar_month</mat-icon>
+                          Date Picker
+                        </button>
+                        <button (click)="changeDateType($event, parameter, 'period')"
+                          class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
+                          <mat-icon class="text-base">restore</mat-icon>
+                          Time Period
+                        </button>
+                      </div>
+                    }
+                    @if (parameter._dateType === 'picker') {
+                      <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'"
+                        placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                        (keyup.enter)="evaluateDataset(true)" required autofocus>
+                      <a (click)="changeDateType($event, parameter, 'period')"
+                        matTooltip="Time Period"
+                        class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
+                        <mat-icon class="text-base">restore</mat-icon>
+                      </a>
+                    }
+                    @if (parameter._dateType === 'period') {
+                      <div class="flex items-center">
+                        <input #periodValue type="number" placeholder="No." required autofocus
+                          class="w-16 mr-2" min="0" [value]="parameter._periodValue"
+                          (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+                        <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
+                          #period
+                          (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+                          <option value="DAYS">Days</option>
+                          <option value="HOURS">Hours</option>
+                        </select>
+                        <div>Ago</div>
+                      </div>
+                      <a (click)="changeDateType($event, parameter, 'picker')"
+                        matTooltip="Date Picker"
+                        class="mr-10 text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
+                        <mat-icon class="text-base">calendar_month</mat-icon>
+                      </a>
+                    }
+                  }
+                  @if (parameter.type === 'boolean') {
+                    <mat-slide-toggle class="pr-8" color="primary"
+                      [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
+                    required></mat-slide-toggle>
+                  }
+                }
+                @if (parameter.multiple) {
+                  <mat-chip-grid class="pl-2" #chipGrid aria-label="Enter values">
+                    @for (paramValue of parameter.value; track paramValue) {
+                      <mat-chip-row
+                        class="bg-white mr-2"
+                        (removed)="removeParameterValue(parameter, paramValue)">
+                        {{paramValue}}
+                        <button matChipRemove [attr.aria-label]="'remove ' + paramValue">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                    @if (parameter.type === 'text') {
+                      <input class="pr-8 py-1 self-center" type="text" placeholder="Enter {{parameter.title}}"
+                        required autofocus
+                        [matChipInputFor]="chipGrid"
+                        [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
+                        [matChipInputAddOnBlur]="true"
+                        (matChipInputTokenEnd)="addParameterValue(parameter, $event)">
+                    }
+                    @if (parameter.type === 'numeric') {
+                      <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
+                        required autofocus
+                        [matChipInputFor]="chipGrid"
+                        [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
+                        [matChipInputAddOnBlur]="true"
+                        (matChipInputTokenEnd)="addParameterValue(parameter, $event)">
+                    }
+                    @if (parameter.type === 'list') {
+                      <select class="pr-8 py-1.5 pl-1 self-center" matNativeControl
+                        (change)="addParameterValue(parameter, $event)" required autofocus>
+                        <option [value]="null">-- Select Value --</option>
+                        @for (item of parameter.list; track item) {
+                          <option [value]="item.value">{{ item.label }}
+                          </option>
+                        }
+                      </select>
+                    }
+                  </mat-chip-grid>
+                }
+                @if (!parameter._locked) {
+                  <button mat-icon-button [matMenuTriggerFor]="paramMenu">
+                    <mat-icon>settings</mat-icon>
+                  </button>
+                  <mat-menu #paramMenu="matMenu">
+                    <button mat-menu-item (click)="addParameter(parameter, i)">Edit Parameter</button>
+                    <button mat-menu-item (click)="removeParameter(parameter)">Remove Parameter</button>
+                  </mat-menu>
+                }
+                @if (Object.keys(dashboardParameters || {}).length) {
+                  <button mat-icon-button [matMenuTriggerFor]="dashParamMenu"
+                    title="Bind this parameter value to another">
+                    <mat-icon>text_fields</mat-icon>
+                  </button>
+                  <mat-menu #dashParamMenu="matMenu">
+                    @for (dashParamKey of Object.keys(dashboardParameters); track dashParamKey) {
+                      <button mat-menu-item
+                        (click)="setDashboardParameter(parameter, dashboardParameters[dashParamKey].name)">{{ dashboardParameters[dashParamKey].title }}
+                      </button>
+                    }
+                  </mat-menu>
+                }
+              </div>
+            }
+          </label>
+          @if (parameterValues.length) {
+            <div class="divider ml-2"></div>
+          }
+        }
+        <button mat-icon-button color="primary" class="mx-2" (click)="addParameter()">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+        @if (parameterValues.length) {
+          <button type="button" (click)="evaluateDataset(true)"
+            class="mr-2 flex items-center whitespace-nowrap justify-center px-4 py-1 border border-transparent text-sm rounded-md shadow-sm text-white bg-primary focus:outline-none">
+            Apply Parameters
+          </button>
+        }
+      </div>
     </div>
+  }
+</div>
+
+<div class="cell-header">
+  @if (terminatingTransformations.length) {
+    <div class="transformation-listing py-2">
+      <div class="list-title">
+        Transformations
+      </div>
+      <div class="example-list flex flex-wrap" cdkDropListGroup>
+        @for (transformation of terminatingTransformations; track transformation; let i = $index) {
+          @if (!transformation.hidden) {
+            <div cdkDropList (cdkDropListDropped)="drop($event)" cdkDropListOrientation="horizontal"
+              [cdkDropListData]="{item:transformation,index:i}">
+              <div class="flex items-center">
+                <div class="new-transformation flex items-center justify-center w-6 h-6">
+                  <a [matMenuTriggerFor]="addTransformation"
+                    class="items-center add-transformation text-primary">
+                    <mat-icon class="flex items-center w-5 h-5 text-xl">add_circle</mat-icon>
+                  </a>
+                  <mat-menu #addTransformation="matMenu">
+                    <button mat-menu-item (click)="insertTransformation(i, 'columns', transformation)">
+                      Insert Column Transformation
+                    </button>
+                    <button mat-menu-item (click)="insertTransformation(i, 'formula', transformation)">
+                      Insert Formula Transformation
+                    </button>
+                    <button mat-menu-item (click)="insertTransformation(i, 'join', transformation)">
+                      Insert Join Transformation
+                    </button>
+                    <button mat-menu-item (click)="insertTransformation(i, 'summarise', transformation)">
+                      Insert Summarise Transformation
+                    </button>
+                    <button mat-menu-item (click)="insertTransformation(i, 'filter', transformation)">
+                      Insert Filter Transformation
+                    </button>
+                  </mat-menu>
+                </div>
+                <div cdkDrag class="pl-0 example-box badge-item w-auto m-0" cdkOverlayOrigin
+                  #trigger="cdkOverlayOrigin"
+                  [class]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
+                  <button class="-mt-0.5" title="Show transformation details" mat-icon-button
+                    (click)="showTransformationDetail(transformation)">
+                    @if (transformation.type === 'columns') {
+                      <span class="material-symbols-outlined ml-1 text-xl"
+                      >table_chart</span>
+                    }
+                    @if (transformation.type === 'formula') {
+                      <span class="material-symbols-outlined text-xl"
+                      >functions</span>
+                    }
+                    @if (transformation.type === 'join') {
+                      <span class="material-symbols-outlined text-xl">merge_type</span>
+                    }
+                    @if (transformation.type === 'summarise') {
+                      <span class="material-symbols-outlined ml-1 text-xl"
+                      >pivot_table_chart</span>
+                    }
+                    @if (transformation.type === 'filter') {
+                      <span class="material-symbols-outlined text-xl"
+                      >filter_alt</span>
+                    }
+                  </button>
+                  <span class="whitespace-nowrap cursor-pointer"
+                  (click)="editTerminatingTransformation(transformation)">{{ transformation._label }}</span>
+                  @if (transformation.exclude) {
+                    <button class="-ml-1" [title]="'Re-enable this transformation'"
+                      mat-icon-button (click)="disableTransformation(transformation, i)">
+                      <mat-icon class="text-orange-400">replay</mat-icon>
+                    </button>
+                  }
+                  @if (!transformation.exclude && i + 1 === terminatingTransformations.length) {
+                    <button class="-ml-1" [title]="'Disable transformation'"
+                      mat-icon-button (click)="disableTransformation(transformation, i)">
+                      <mat-icon>block</mat-icon>
+                    </button>
+                  }
+                  @if (!transformation.exclude && i + 1 !== terminatingTransformations.length) {
+                    <button class="-ml-1" [matMenuTriggerFor]="disableMenu"
+                      [title]="'Disable transformation'"
+                      mat-icon-button>
+                      <mat-icon>block</mat-icon>
+                    </button>
+                    <mat-menu #disableMenu="matMenu">
+                      <button mat-menu-item (click)="disableTransformation(transformation, i)">
+                        Disable this transformation
+                      </button>
+                      <button mat-menu-item (click)="excludeUpstreamTransformations(transformation)">
+                        Disable subsequent transformation(s)
+                      </button>
+                    </mat-menu>
+                  }
+                  <button class="-ml-1" title="Remove this transformation" mat-icon-button color="primary"
+                    (click)="removeTransformation(transformation, true, null, transformation._active)">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </div>
+                <ng-template
+                  cdkConnectedOverlay
+                  [cdkConnectedOverlayOrigin]="trigger"
+                  [cdkConnectedOverlayOpen]="transformation._showDetail">
+                  <div class="p-4 w-96 bg-white shadow rounded">
+                    @if (transformation.type === 'summarise') {
+                      <p class="text-sm text-gray-700 mb-0">
+                        <b>SELECT&nbsp;</b>@for (expression of transformation.config.expressions; track expression; let i = $index) {
+                        <span
+                          >@if (i > 0) {
+                          <span
+                          >, </span>
+                        }{{ expression.customExpression || expression.expressionType + '(' + (expression.fieldName || '') + ')' }}</span>
+                      }
+                      @if (transformation.config.summariseFieldNames.length) {
+                        <br><b>GROUP
+                      BY&nbsp;</b> {{ transformation.config.summariseFieldNames.join(', ') }}
+                    }
+                  </p>
+                }
+                @if (transformation.type === 'formula') {
+                  <div class="text-sm text-gray-700 mb-0">
+                    <b>EXPRESSION</b>&nbsp;{{ decodeURIComponent(transformation.config.expressions[0].expression) }}
+                  </div>
+                }
+                @if (transformation.type === 'columns') {
+                  <div class="text-sm text-gray-700 mb-0">
+                    <b>COLUMNS</b>&nbsp;{{ _.map(transformation.config.columns, 'title').join(', ') }}
+                  </div>
+                }
+                @if (transformation.type === 'join') {
+                  <div class="text-sm text-gray-700 mb-0">
+                    <b>JOIN
+                    COLUMNS</b>&nbsp;{{ _.map(transformation.config.joinColumns, 'title').join(', ') }}
+                  </div>
+                }
+                @if (transformation.type === 'filter') {
+                  @for (filter of transformation.config.filters; track filter) {
+                    <div
+                      class="text-sm text-gray-700 mb-0">
+                      <b>FILTER</b>&nbsp;{{ filter.lhsExpression }}&nbsp;<b>{{ filter.filterType }}</b>&nbsp;{{ filter.rhsExpression }}
+                    </div>
+                  }
+                }
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      }
+      @if (_.some(terminatingTransformations, {exclude: true}) && i === terminatingTransformations.length - 1) {
+        <button
+          class="ml-4 flex items-center border-none bg-primary text-sm rounded-md text-white pr-2 pl-1 py-0.5"
+          (click)="enableAllTransformation()">
+          <mat-icon class="mr-1 text-base">replay</mat-icon>
+          Enable All
+        </button>
+      }
+    }
+  </div>
+</div>
+}
+</div>
+
+<div class="cell-header">
+  @if (_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length) {
+    <div class="transformation-listing py-2 filters-list"
+      >
+      <a class="list-title flex items-center" (click)="showFilters = !showFilters">
+        Filters&nbsp;
+        @if (!showFilters) {
+          <mat-icon>expand_more</mat-icon>
+        }
+        @if (showFilters) {
+          <mat-icon>expand_less</mat-icon>
+        }
+      </a>
+      @for (filterTransformation of _.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}); track filterTransformation) {
+        @if (_.every(filterTransformation.config.filters[0])) {
+          <div class="badge-item pl-2 mr-1"
+            (click)="showFilters = !showFilters">
+            <span class="cursor-pointer" [innerHtml]="getFilterString(filterTransformation.config)"></span>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>
+
+@if (_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length
+  && showFilters) {
+  <div class="dataset-filters" id="datasetFilters"
+    >
+    @for (transformation of datasetInstanceSummary.transformationInstances; track transformation; let i = $index) {
+      @if (transformation.type === 'filter' && transformation.hide === false) {
+        <div class="dataset-filter border-b border-gray-200">
+          <button mat-stroked-button class="mr-2 bg-white remove-filter" color="warn"
+            (click)="removeTransformation(transformation, true, i)">
+            Remove Filter
+          </button>
+          @if (filterFields.length) {
+            <ki-dataset-filters [filterFields]="filterFields"
+              [openSide]="openSide" [parameterValues]="filterParameterValues"
+            [filterJunction]="transformation.config"></ki-dataset-filters>
+          }
+          @if (_.filter(datasetInstanceSummary.transformationInstances, {type: 'filter', hide: false}).length) {
+            <button
+              mat-flat-button class="apply-filter mr-2" color="primary"
+              (click)="applyFilters()" [disabled]="!filterJunction.filters.length">
+              Apply Filters
+            </button>
+          }
+        </div>
+      }
+    }
+  </div>
+}
+
+<div class="cell-header">
+  @if (_.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'})) {
+    <div class="transformation-listing sort"
+      >
+      <div class="list-title">
+        Sort
+      </div>
+      <div class="flex flex-wrap">
+        @for (sort of _.find(datasetInstanceSummary.transformationInstances, {type: 'multisort'}).config.sorts; track sort; let i = $index) {
+          <div class="badge-item outline"
+            [class]="{'exclude bg-orange-50 border-orange-200': _.find(datasetInstanceSummary.transformationInstances, {exclude: true})}"
+            >
+            <span>{{ _.startCase(sort.fieldName) }}&nbsp;<span class="uppercase">{{ sort.direction }}</span></span>
+            <button mat-icon-button (click)="removeFilter(i)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>
 
 <div class="h-full table-overflow overflow-scroll">
-    <table mat-table [dataSource]="tableData" *ngIf="displayedColumns.length" matSort (matSortChange)="sort($event)"
-           class="block sticky">
-
-        <ng-template ngFor let-column [ngForOf]="filterFields">
-            <ng-container [matColumnDef]="column.name">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header
-                    class="text-xs font-semibold text-gray-900 py-3.5 px-4"> {{ column.title }}
-                </th>
-                <td mat-cell *matCellDef="let element" class="py-3 px-4">
-                    <ng-template
-                        [ngIf]="!Array.isArray(element[column.name]) && !_.isPlainObject(element[column.name])">
-                        <ng-template [ngIf]="element[column.name] && String(element[column.name]).length <= 100">
-                            <div [innerHTML]="element[column.name]"></div>
-                        </ng-template>
-                        <ng-template [ngIf]="element[column.name] && String(element[column.name]).length > 100">
-                            <div>{{ element[column.name].substring(0, 100) + '...' }}</div>
-                            <a (click)="viewFullItemData(element[column.name], column.name)"
-                               class="flex items-center text-sm text-cta">
-                                view more
-                                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
-                                     viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                </svg>
-                            </a>
-                        </ng-template>
-                        <ng-template [ngIf]="!element[column.name]">
-                            <span *ngIf="element[column.name] === null" class="font-mono text-gray-400">null</span>
-                            <span *ngIf="element[column.name] !== null">{{ element[column.name] }}</span>
-                        </ng-template>
-                    </ng-template>
-                    <ng-template [ngIf]="Array.isArray(element[column.name])">
-                        Contains {{ element[column.name].length }} items
-                    </ng-template>
-                    <ng-template [ngIf]="_.isPlainObject(element[column.name])">
-                        Object has {{ Object.keys(element[column.name]).length }} keys
-                    </ng-template>
-                </td>
-            </ng-container>
-        </ng-template>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-auto"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
+  @if (displayedColumns.length) {
+    <table mat-table [dataSource]="tableData" matSort (matSortChange)="sort($event)"
+      class="block sticky">
+      @for (column of filterFields; track column) {
+        <ng-container [matColumnDef]="column.name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="text-xs font-semibold text-gray-900 py-3.5 px-4"> {{ column.title }}
+          </th>
+          <td mat-cell *matCellDef="let element" class="py-3 px-4">
+            @if (!Array.isArray(element[column.name]) && !_.isPlainObject(element[column.name])) {
+              @if (element[column.name] && String(element[column.name]).length <= 100) {
+                <div [innerHTML]="element[column.name]"></div>
+              }
+              @if (element[column.name] && String(element[column.name]).length > 100) {
+                <div>{{ element[column.name].substring(0, 100) + '...' }}</div>
+                <a (click)="viewFullItemData(element[column.name], column.name)"
+                  class="flex items-center text-sm text-cta">
+                  view more
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                </a>
+              }
+              @if (!element[column.name]) {
+                @if (element[column.name] === null) {
+                  <span class="font-mono text-gray-400">null</span>
+                }
+                @if (element[column.name] !== null) {
+                  <span>{{ element[column.name] }}</span>
+                }
+              }
+            }
+            @if (Array.isArray(element[column.name])) {
+              Contains {{ element[column.name].length }} items
+            }
+            @if (_.isPlainObject(element[column.name])) {
+              Object has {{ Object.keys(element[column.name]).length }} keys
+            }
+          </td>
+        </ng-container>
+      }
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-auto"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+  }
 </div>
 
 
 <div class="border-b border-t bg-gray-50 px-4 py-1 flex align-center justify-end">
 
-    <div class="flex items-center">
-        <div class="text-sm text-gray-500 mr-10">
-            <ng-template [ngIf]="dataset">
-                Showing {{ offset + 1 }} - {{ (page * limit) - (limit - tableData.length) }}
-            </ng-template>
-        </div>
-        <select [value]="limit" (change)="pageSizeChange($event.target.value)"
-                class="mr-8 p-1.5">
-            <option [value]="1">1</option>
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="25">25</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
-            <option [value]="250">250</option>
-            <option [value]="1000">1000</option>
-        </select>
-        <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
-            <mat-icon>chevron_left</mat-icon>
-        </button>
-        <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
-            <mat-icon>chevron_right</mat-icon>
-        </button>
+  <div class="flex items-center">
+    <div class="text-sm text-gray-500 mr-10">
+      @if (dataset) {
+        Showing {{ offset + 1 }} - {{ (page * limit) - (limit - tableData.length) }}
+      }
     </div>
+    <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+      class="mr-8 p-1.5">
+      <option [value]="1">1</option>
+      <option [value]="5">5</option>
+      <option [value]="10">10</option>
+      <option [value]="25">25</option>
+      <option [value]="50">50</option>
+      <option [value]="100">100</option>
+      <option [value]="250">250</option>
+      <option [value]="1000">1000</option>
+    </select>
+    <button mat-icon-button class="mr-4" (click)="decreaseOffset()" [disabled]="page <= 1">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
 </div>

@@ -1,27 +1,29 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Column Expressions</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Column Expressions</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <div class="dialog-content">
+  <div class="dialog-content">
 
-        <p>Use columns by wrapping the column name in double square brackets. Available columns are outlined
-            below...</p>
+    <p>Use columns by wrapping the column name in double square brackets. Available columns are outlined
+    below...</p>
 
-        <div class="pr-4" *ngFor="let column of columns">
-            {{column.title}} <b>[[{{column.name}}]]</b>
-        </div>
+    @for (column of columns; track column) {
+      <div class="pr-4">
+        {{column.title}} <b>[[{{column.name}}]]</b>
+      </div>
+    }
 
-    </div>
+  </div>
 
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close>Close</button>
-    </div>
+  <div class="dialog-footer">
+    <button mat-button mat-dialog-close>Close</button>
+  </div>
 
 </div>
 

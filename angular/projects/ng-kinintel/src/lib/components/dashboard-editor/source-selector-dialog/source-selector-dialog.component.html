@@ -1,47 +1,49 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Select Data Source</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Select Data Source</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <div class="dialog-content p-0">
-        <mat-horizontal-stepper #stepper>
+  <div class="dialog-content p-0">
+    <mat-horizontal-stepper #stepper>
 
-            <mat-step label="Select your data source">
+      <mat-step label="Select your data source">
 
-                <ki-data-picker class="block" style="height: 620px" [admin]="admin" (selected)="select($event, stepper)"></ki-data-picker>
+        <ki-data-picker class="block" style="height: 620px" [admin]="admin" (selected)="select($event, stepper)"></ki-data-picker>
 
-            </mat-step>
+      </mat-step>
 
-            <mat-step label="Parameters required" *ngIf="requiredParameters.length">
+      @if (requiredParameters.length) {
+        <mat-step label="Parameters required">
+          <div class="parameter-values mt-4">
+            <ki-dataset-parameter-values [parameterValues]="requiredParameters" [(evaluatedDatasource)]="dashboardDatasetInstance"
+              [update]="updateParams"
+            (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
+          </div>
+        </mat-step>
+      }
 
-                <div class="parameter-values mt-4">
-                    <ki-dataset-parameter-values [parameterValues]="requiredParameters" [(evaluatedDatasource)]="dashboardDatasetInstance"
-                                                 [update]="updateParams"
-                                                 (changed)="setEvaluatedParameters($event, true)"></ki-dataset-parameter-values>
-                </div>
-
-            </mat-step>
-
-        </mat-horizontal-stepper>
+    </mat-horizontal-stepper>
 
 
 
-    </div>
+  </div>
 
-    <div class="dialog-footer">
+  <div class="dialog-footer">
 
-        <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+    <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
 
-        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 1"
-            (click)="setParameters()">
-            Apply Parameters
-        </button>
-    </div>
+    @if (stepper.selectedIndex === 1) {
+      <button mat-flat-button color="primary"
+        (click)="setParameters()">
+        Apply Parameters
+      </button>
+    }
+  </div>
 
 </div>
 
