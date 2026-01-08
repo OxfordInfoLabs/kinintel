@@ -38,7 +38,7 @@
     "kinibind": "0.0.112",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "ng-kiniauth": "file:../../kiniauth/angular/dist/ng-kiniauth",
+    "ng-kiniauth": "20.0.1",
     "ng-recaptcha-2": "^16.0.1",
     "ng2-charts": "^4.1.1",
     "ngx-papaparse": "^5.0.0",
