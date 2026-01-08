@@ -1,22 +1,21 @@
 import {CUSTOM_ELEMENTS_SCHEMA, ModuleWithProviders, NgModule} from '@angular/core';
 import {DashboardEditorComponent} from './components/dashboard-editor/dashboard-editor.component';
-import {MatLegacyButtonModule as MatButtonModule} from '@angular/material/legacy-button';
+import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {ItemComponentComponent} from './components/dashboard-editor/item-component/item-component.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {CommonModule} from '@angular/common';
 import {ConfigureItemComponent} from './components/dashboard-editor/configure-item/configure-item.component';
-import {MatLegacyDialogModule as MatDialogModule} from '@angular/material/legacy-dialog';
+import {MatDialogModule} from '@angular/material/dialog';
 import {NgxResizableModule} from '@3dgenomes/ngx-resizable';
-import {MatLegacyMenuModule as MatMenuModule} from '@angular/material/legacy-menu';
+import {MatMenuModule} from '@angular/material/menu';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {MatLegacyFormFieldModule as MatFormFieldModule} from '@angular/material/legacy-form-field';
-import {MatLegacyInputModule as MatInputModule} from '@angular/material/legacy-input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 import {DatasourceComponent} from './components/datasource/datasource.component';
 import {DatasetComponent} from './components/dataset/dataset.component';
 import {DatasetEditorComponent, DatasetEditorPopupComponent} from './components/dataset/dataset-editor/dataset-editor.component';
-import {MatLegacyTableModule as MatTableModule} from '@angular/material/legacy-table';
-import {MatLegacyPaginatorModule as MatPaginatorModule} from '@angular/material/legacy-paginator';
+import {MatTableModule} from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
 import {ProjectPickerComponent} from './components/project-picker/project-picker.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
@@ -29,28 +28,28 @@ import {DatasetFilterJunctionComponent} from './components/dataset/dataset-edito
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {DatasetNameDialogComponent} from './components/dataset/dataset-editor/dataset-name-dialog/dataset-name-dialog.component';
 import {DatasetSummariseComponent} from './components/dataset/dataset-editor/dataset-summarise/dataset-summarise.component';
-import {MatLegacySelectModule as MatSelectModule} from '@angular/material/legacy-select';
+import {MatSelectModule} from '@angular/material/select';
 import {DatasetFiltersComponent} from './components/dataset/dataset-editor/dataset-filters/dataset-filters.component';
 import {DatasetParameterValuesComponent} from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-values.component';
 import {DatasetParameterTypeComponent} from './components/dataset/dataset-editor/dataset-parameter-values/dataset-parameter-type/dataset-parameter-type.component';
-import {MatLegacySlideToggleModule as MatSlideToggleModule} from '@angular/material/legacy-slide-toggle';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { DatasetAddParameterComponent } from './components/dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
 import { DatasetAddJoinComponent } from './components/dataset/dataset-editor/dataset-add-join/dataset-add-join.component';
 import {MatStepperModule} from '@angular/material/stepper';
-import {MatLegacyCheckboxModule as MatCheckboxModule} from '@angular/material/legacy-checkbox';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import { DatasetCreateFormulaComponent } from './components/dataset/dataset-editor/dataset-create-formula/dataset-create-formula.component';
-import {MatLegacyListModule as MatListModule} from '@angular/material/legacy-list';
+import {MatListModule} from '@angular/material/list';
 import { DatasetColumnSettingsComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-settings.component';
 import { DatasetColumnEditorComponent } from './components/dataset/dataset-editor/dataset-column-settings/dataset-column-editor/dataset-column-editor.component';
-import {MatLegacyProgressSpinnerModule as MatProgressSpinnerModule} from '@angular/material/legacy-progress-spinner';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { SourceSelectorDialogComponent } from './components/dashboard-editor/source-selector-dialog/source-selector-dialog.component';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import { DashboardParameterComponent } from './components/dashboard-editor/dashboard-parameter/dashboard-parameter.component';
-import {MatLegacyTabsModule as MatTabsModule} from '@angular/material/legacy-tabs';
+import {MatTabsModule} from '@angular/material/tabs';
 import {RouterModule} from '@angular/router';
 import {NotificationGroupsComponent} from './components/notification-groups/notification-groups.component';
 import {EditNotificationGroupComponent} from './components/notification-groups/edit-notification-group/edit-notification-group.component';
-import {MatLegacyAutocompleteModule as MatAutocompleteModule} from '@angular/material/legacy-autocomplete';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { AlertGroupsComponent } from './components/alert-groups/alert-groups.component';
 import { EditAlertGroupComponent } from './components/alert-groups/edit-alert-group/edit-alert-group.component';
 import { EditDashboardAlertComponent } from './components/dashboard-editor/configure-item/edit-dashboard-alert/edit-dashboard-alert.component';
@@ -58,12 +57,12 @@ import { SnapshotProfileDialogComponent } from './components/data-explorer/snaps
 import { TaskTimePeriodsComponent } from './components/task-time-periods/task-time-periods.component';
 import { SnapshotsComponent } from './components/snapshots/snapshots.component';
 import { ViewDashboardComponent } from './components/dashboards/view-dashboard/view-dashboard.component';
-import {MatLegacySnackBarModule as MatSnackBarModule} from '@angular/material/legacy-snack-bar';
-import {MatLegacyRadioModule as MatRadioModule} from '@angular/material/legacy-radio';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatRadioModule} from '@angular/material/radio';
 import { FeedsComponent } from './components/feeds/feeds.component';
 import { FeedComponent } from './components/feeds/feed/feed.component';
 import { ExportDataComponent } from './components/data-explorer/export-data/export-data.component';
-import {MatLegacyTooltipModule as MatTooltipModule} from '@angular/material/legacy-tooltip';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import { MetadataComponent } from './components/metadata/metadata.component';
 import { AvailableColumnsComponent } from './components/dataset/dataset-editor/available-columns/available-columns.component';
 import { JobTasksComponent } from './components/job-tasks/job-tasks.component';
@@ -75,8 +74,7 @@ import { DataPickerComponent } from './components/data-picker/data-picker.compon
 import { CreateDatasetComponent } from './components/dataset/create-dataset/create-dataset.component';
 import { TableCellFormatterComponent } from './components/dashboard-editor/configure-item/table-cell-formatter/table-cell-formatter.component';
 import { DocumentDatasourceComponent } from './components/datasource/document-datasource/document-datasource.component';
-import { AngularD3CloudModule } from 'angular-d3-cloud';
-import {MatLegacyProgressBarModule as MatProgressBarModule} from '@angular/material/legacy-progress-bar';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {CodemirrorModule} from '@ctrl/ngx-codemirror';
 import { ProjectSettingsComponent } from './components/project-settings/project-settings.component';
 import { ProjectLinkSelectionComponent } from './components/project-settings/project-link-selection/project-link-selection.component';
@@ -110,12 +108,14 @@ import { DatasetFilterInclusionComponent } from './components/dataset/dataset-ed
 import { FeedApiModalComponent } from './components/shared-with-me/feed-api-modal/feed-api-modal.component';
 import {KININTEL_CONFIG, KinintelModuleConfig} from './kinintel-config';
 import { QueryCacheViewComponent } from './components/query-caching/query-cache-view/query-cache-view.component';
+import {
+    ItemComponentComponent
+} from './components/dashboard-editor/item-component/item-component.component';
 
 
 @NgModule({
     declarations: [
         DashboardEditorComponent,
-        ItemComponentComponent,
         ConfigureItemComponent,
         DatasourceComponent,
         DatasetComponent,
@@ -219,12 +219,12 @@ import { QueryCacheViewComponent } from './components/query-caching/query-cache-
         MatSnackBarModule,
         MatRadioModule,
         MatTooltipModule,
-        AngularD3CloudModule,
         MatProgressBarModule,
         CodemirrorModule,
         ClipboardModule,
         CdkOverlayOrigin,
-        CdkConnectedOverlay
+        CdkConnectedOverlay,
+        ItemComponentComponent
     ],
     exports: [
         DashboardEditorComponent,

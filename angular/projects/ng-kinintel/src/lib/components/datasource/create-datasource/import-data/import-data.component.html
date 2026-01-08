@@ -1,118 +1,138 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title bg-gray-100" cdkDragHandle>
-        <h2 mat-dialog-title>Import Data</h2>
+  <div class="dialog-title bg-gray-100" cdkDragHandle>
+    <h2 mat-dialog-title>Import Data</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <div class="dialog-content">
+  <div class="dialog-content">
 
-        <div class="mb-2 text-sm font-thin">Select how you would like to import your data.</div>
+    <div class="mb-2 text-sm font-thin">Select how you would like to import your data.</div>
 
-        <mat-radio-group class="mb-4 block" [(ngModel)]="importType">
-            <mat-radio-button class="block mb-2" [value]="1">
-                Replace whole dataset
-            </mat-radio-button>
-            <mat-radio-button *ngIf="!_.some(columns, {type: 'id'})" class="block mb-2" [value]="2" [disabled]="!rows.length">
-                Overwrite duplicates (with same unique key)
-            </mat-radio-button>
-            <mat-radio-button class="block" [value]="3" [disabled]="!rows.length">
-                Add (will fail if duplicates exist with same key)
-            </mat-radio-button>
-        </mat-radio-group>
+    <mat-radio-group class="mb-4 block" [(ngModel)]="importType">
+      <mat-radio-button class="block mb-2" [value]="1">
+        Replace whole dataset
+      </mat-radio-button>
+      @if (!_.some(columns, {type: 'id'})) {
+        <mat-radio-button class="block mb-2" [value]="2" [disabled]="!rows.length">
+          Overwrite duplicates (with same unique key)
+        </mat-radio-button>
+      }
+      <mat-radio-button class="block" [value]="3" [disabled]="!rows.length">
+        Add (will fail if duplicates exist with same key)
+      </mat-radio-button>
+    </mat-radio-group>
 
-        <label class="mb-4">
-            Delimiting character
-            <input class="w-12" type="text" [(ngModel)]="import.delimiter" placeholder="Enter delimiting character">
-        </label>
+    <label class="mb-4">
+      Delimiting character
+      <input class="w-12" type="text" [(ngModel)]="import.delimiter" placeholder="Enter delimiting character">
+    </label>
 
-        <label class="mb-4">
-            <input id="csvUpload" type="file" (change)="fileUpload($event)">
-        </label>
+    <label class="mb-4">
+      <input id="csvUpload" type="file" (change)="fileUpload($event)">
+    </label>
 
-        <mat-checkbox class="mb-4" [(ngModel)]="import.headerRow" [disabled]="!columns.length">
-            File contains header row
-        </mat-checkbox>
-        <div class="text-xs text-gray-500" *ngIf="!columns.length">
-            File header row required as no columns have been defined.
-        </div>
+    <mat-checkbox class="mb-4" [(ngModel)]="import.headerRow" [disabled]="!columns.length">
+      File contains header row
+    </mat-checkbox>
+    @if (!columns.length) {
+      <div class="text-xs text-gray-500">
+        File header row required as no columns have been defined.
+      </div>
+    }
 
-        <mat-checkbox class="block mb-4" *ngIf="import.headerRow && columns.length" [(ngModel)]="import.replaceColumns">
-            Replace Columns with Header Row
-        </mat-checkbox>
+    @if (import.headerRow && columns.length) {
+      <mat-checkbox class="block mb-4" [(ngModel)]="import.replaceColumns">
+        Replace Columns with Header Row
+      </mat-checkbox>
+    }
 
-        <hr class="my-4">
+    <hr class="my-4">
 
-        <div class="rounded-md bg-red-50 p-4 mb-4" *ngIf="importErrors.length">
-            <div class="flex">
-                <div class="shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">There were {{importErrors.length}} lines with errors in your upload</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                        <ul role="list" class="list-disc space-y-1 pl-5">
-                            <li *ngFor="let item of importErrors.slice(0, 10)">
-                                <span class="text-red-800">Line {{item.itemNumber + 1}}: {{Object.values(item.validationErrors).join (', ')}}</span>
-                            </li>
-                        </ul>
-                        <div *ngIf="importErrors.length > 10" class="mt-4">* Showing first 10 invalid lines only</div>
-                    </div>
-                </div>
+    @if (importErrors.length) {
+      <div class="rounded-md bg-red-50 p-4 mb-4">
+        <div class="flex">
+          <div class="shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">There were {{importErrors.length}} lines with errors in your upload</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul role="list" class="list-disc space-y-1 pl-5">
+                @for (item of importErrors.slice(0, 10); track item) {
+                  <li>
+                    <span class="text-red-800">Line {{item.itemNumber + 1}}: {{Object.values(item.validationErrors).join (', ')}}</span>
+                  </li>
+                }
+              </ul>
+              @if (importErrors.length > 10) {
+                <div class="mt-4">* Showing first 10 invalid lines only</div>
+              }
             </div>
+          </div>
         </div>
+      </div>
+    }
 
-        <ng-template [ngIf]="import.preview">
-            <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
-                Preview
-            </div>
+    @if (import.preview) {
+      <div class="uppercase font-medium tracking-wider mb-4 text-xs text-gray-600">
+        Preview
+      </div>
+      <table class="preview-table w-full">
+        @if (import.headerRow && import.replaceColumns) {
+          <thead>
+            <tr>
+              @for (header of import.preview[0]; track header) {
+                <th>{{header}}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              @for (col of import.preview[1]; track col) {
+                <td>{{col}}</td>
+              }
+            </tr>
+            <tr>
+              @for (col of import.preview[2]; track col) {
+                <td>{{col}}</td>
+              }
+            </tr>
+          </tbody>
+        }
+        @if (!import.headerRow || !import.replaceColumns) {
+          <thead>
+            <tr>
+              @for (col of import.columns; track col) {
+                <th>{{col.title}}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of (!import.headerRow ? import.preview : import.preview.slice(1, 3)); track row) {
+              <tr>
+                @for (col of import.columns; track col; let i = $index) {
+                  <td>{{row[i]}}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        }
+      </table>
+    }
 
-            <table class="preview-table w-full">
-                <ng-template [ngIf]="import.headerRow && import.replaceColumns">
-                    <thead>
-                    <tr>
-                        <th *ngFor="let header of import.preview[0]">{{header}}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td *ngFor="let col of import.preview[1]">{{col}}</td>
-                    </tr>
-                    <tr>
-                        <td *ngFor="let col of import.preview[2]">{{col}}</td>
-                    </tr>
-                    </tbody>
-                </ng-template>
-                <ng-template [ngIf]="!import.headerRow || !import.replaceColumns">
-                    <thead>
-                    <tr>
-                        <th *ngFor="let col of import.columns">{{col.title}}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr *ngFor="let row of (!import.headerRow ? import.preview : import.preview.slice(1, 3))">
-                        <td *ngFor="let col of import.columns; let i = index">{{row[i]}}</td>
-                    </tr>
-                    </tbody>
-                </ng-template>
 
+  </div>
 
-            </table>
-
-        </ng-template>
-
-
-    </div>
-
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
-        <button mat-button mat-flat-button color="primary" type="button" (click)="importData()">Import Data</button>
-    </div>
+  <div class="dialog-footer">
+    <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+    <button mat-button mat-flat-button color="primary" type="button" (click)="importData()">Import Data</button>
+  </div>
 
 </div>
 

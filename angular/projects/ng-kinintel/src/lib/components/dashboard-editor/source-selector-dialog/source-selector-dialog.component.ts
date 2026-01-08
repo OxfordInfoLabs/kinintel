@@ -2,7 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {Subject} from 'rxjs';
 import {DatasetService} from '../../../services/dataset.service';
 import {DatasourceService} from '../../../services/datasource.service';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 
@@ -10,7 +10,8 @@ const _ = lodash.default;
     selector: 'ki-source-selector-dialog',
     templateUrl: './source-selector-dialog.component.html',
     styleUrls: ['./source-selector-dialog.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class SourceSelectorDialogComponent implements OnInit {
 

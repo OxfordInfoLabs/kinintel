@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef
+} from '@angular/material/dialog';
 import {DataProcessorService} from '../../../services/data-processor.service';
 import * as lodash from 'lodash';
 const _ = lodash.default;
@@ -11,7 +11,8 @@ const _ = lodash.default;
     selector: 'ki-edit-query-cache',
     templateUrl: './edit-query-cache.component.html',
     styleUrls: ['./edit-query-cache.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class EditQueryCacheComponent implements OnInit {
 

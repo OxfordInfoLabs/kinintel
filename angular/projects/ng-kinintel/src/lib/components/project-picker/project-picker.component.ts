@@ -1,8 +1,8 @@
 import {Component, Inject, Input, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef
+} from '@angular/material/dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
 import {ProjectService} from '../../services/project.service';
@@ -14,7 +14,8 @@ const _ = lodash.default;
     selector: 'ki-project-picker',
     templateUrl: './project-picker.component.html',
     styleUrls: ['./project-picker.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ProjectPickerComponent implements OnInit {
 

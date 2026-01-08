@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
-import {HttpClient} from '@angular/common/http';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 import {ProjectService} from '../../services/project.service';
 import * as lodash from 'lodash';
 const _ = lodash.default;
@@ -9,7 +9,8 @@ const _ = lodash.default;
     selector: 'ki-metadata',
     templateUrl: './metadata.component.html',
     styleUrls: ['./metadata.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class MetadataComponent implements OnInit {
 

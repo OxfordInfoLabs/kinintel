@@ -1,9 +1,9 @@
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef
+} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 import {DatasourceService} from '../../../../services/datasource.service';
 
@@ -13,7 +13,8 @@ const _ = lodash.default;
     selector: 'ki-advanced-settings',
     templateUrl: './advanced-settings.component.html',
     styleUrls: ['./advanced-settings.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class AdvancedSettingsComponent implements OnInit {
 

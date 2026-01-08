@@ -3,17 +3,18 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationService} from '../../../services/notification.service';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
-import {BehaviorSubject, merge, Subject} from 'rxjs';
+import {BehaviorSubject, merge, Observable, ObservableInput, Subject} from 'rxjs';
 import {UserService} from 'ng-kiniauth';
-import {MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent} from '@angular/material/legacy-autocomplete';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import * as lodash from 'lodash';
 const _ = lodash.default;
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-edit-notification-group',
     templateUrl: './edit-notification-group.component.html',
-    styleUrls: ['./edit-notification-group.component.sass']
+    styleUrls: ['./edit-notification-group.component.sass'],
+    standalone: false
 })
 export class EditNotificationGroupComponent implements OnInit {
 
@@ -51,7 +52,7 @@ export class EditNotificationGroupComponent implements OnInit {
                 debounceTime(300),
                 distinctUntilChanged(),
                 switchMap(() =>
-                    this.getUsers()
+                    this.getUsers() as unknown as ObservableInput<any>
                 )
             )
             .subscribe((users: any) => {
@@ -112,11 +113,11 @@ export class EditNotificationGroupComponent implements OnInit {
     }
 
     private getUsers() {
-        return this.userService.getAccountUsers(
+        return (this.userService.getAccountUsers(
             this.searchText.getValue(),
             '10',
             '0'
-        ).pipe(map((data: any) => {
+        ) as unknown as Observable<any>).pipe(map((data: any) => {
             return data.results;
         }));
     }

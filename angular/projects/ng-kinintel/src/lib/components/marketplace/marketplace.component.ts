@@ -5,7 +5,8 @@ import {debounceTime, switchMap} from 'rxjs/operators';
 @Component({
     selector: 'ki-marketplace',
     templateUrl: './marketplace.component.html',
-    styleUrls: ['./marketplace.component.sass']
+    styleUrls: ['./marketplace.component.sass'],
+    standalone: false
 })
 export class MarketplaceComponent implements OnInit {
 

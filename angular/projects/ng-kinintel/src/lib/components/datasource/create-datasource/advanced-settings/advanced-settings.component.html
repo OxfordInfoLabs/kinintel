@@ -1,133 +1,138 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Advanced Settings</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Advanced Settings</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+
+    @if (errorMessage) {
+      <div class="rounded-md bg-red-50 p-4 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">There was an issue saving your datasource.</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul role="list" class="list-disc space-y-1 pl-5">
+                <li>{{errorMessage}}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <mat-checkbox class="mb-0" [(ngModel)]="advancedSettings.showAutoIncrement"
+      [disabled]="advancedSettings.primaryKeys.length">
+      Show Auto Increment Column
+    </mat-checkbox>
+    <div class="text-xs text-gray-500 mb-8">By default, datasources are created with an auto increment ID primary
+      key
+      column. Show this column using the toggle above.
     </div>
 
-    <div class="dialog-content">
+    <hr>
 
-        <div class="rounded-md bg-red-50 p-4 mb-4" *ngIf="errorMessage">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">There was an issue saving your datasource.</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                        <ul role="list" class="list-disc space-y-1 pl-5">
-                            <li>{{errorMessage}}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+      <div class="font-medium text-base mt-6">Create custom primary key</div>
+      <div class="text-gray-500 text-sm mb-6">Drag column(s) to make up the primary key for this datasource</div>
+
+      <div class="flex justify-between">
+        <div class="example-container">
+          <div class="font-medium">Available Columns</div>
+
+          <div
+            cdkDropList
+            #columnList="cdkDropList"
+            [cdkDropListData]="columns"
+            [cdkDropListConnectedTo]="[pkList]"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            @for (item of columns; track item) {
+              <div class="example-box" cdkDrag>{{ item.title }}</div>
+            }
+          </div>
         </div>
 
-        <mat-checkbox class="mb-0" [(ngModel)]="advancedSettings.showAutoIncrement"
-                      [disabled]="advancedSettings.primaryKeys.length">
-            Show Auto Increment Column
-        </mat-checkbox>
-        <div class="text-xs text-gray-500 mb-8">By default, datasources are created with an auto increment ID primary
-            key
-            column. Show this column using the toggle above.
+        <div class="example-container">
+          <div class="font-medium">Primary Key(s)</div>
+
+          <div
+            cdkDropList
+            #pkList="cdkDropList"
+            [cdkDropListData]="advancedSettings.primaryKeys"
+            [cdkDropListConnectedTo]="[columnList]"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            @for (item of advancedSettings.primaryKeys; track item) {
+              <div class="example-box" cdkDrag>
+                {{ item.title }}
+              </div>
+            }
+          </div>
         </div>
+      </div>
 
-        <hr>
-
-        <div class="font-medium text-base mt-6">Create custom primary key</div>
-        <div class="text-gray-500 text-sm mb-6">Drag column(s) to make up the primary key for this datasource</div>
-
-        <div class="flex justify-between">
-            <div class="example-container">
-                <div class="font-medium">Available Columns</div>
-
-                <div
-                    cdkDropList
-                    #columnList="cdkDropList"
-                    [cdkDropListData]="columns"
-                    [cdkDropListConnectedTo]="[pkList]"
-                    class="example-list"
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of columns" cdkDrag>{{ item.title }}</div>
-                </div>
-            </div>
-
-            <div class="example-container">
-                <div class="font-medium">Primary Key(s)</div>
-
-                <div
-                    cdkDropList
-                    #pkList="cdkDropList"
-                    [cdkDropListData]="advancedSettings.primaryKeys"
-                    [cdkDropListConnectedTo]="[columnList]"
-                    class="example-list"
-                    (cdkDropListDropped)="drop($event)">
-                    <div class="example-box" *ngFor="let item of advancedSettings.primaryKeys" cdkDrag>
-                        {{ item.title }}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <hr>
+      <hr>
 
         <div class="font-medium text-base mt-6">Datasource Indexes</div>
         <div class="text-gray-500 text-sm mb-6">Select the columns to be indexed and drag to reorder if required.</div>
 
-        <ng-template ngFor let-aIndex [ngForOf]="advancedSettings.indexes" let-i=index>
-            <div class="flex justify-between p-3 mb-3 bg-gray-50">
-                <div class="example-container">
-                    <div class="font-medium">Available Columns</div>
-
-                    <mat-select [(ngModel)]="aIndex.indexCols" (ngModelChange)="updateIndexes(aIndex)" [multiple]="true">
-                        <mat-option *ngFor="let column of columns2" [value]="column">
-                            {{column.title}}
-                        </mat-option>
-                    </mat-select>
-
-                </div>
-
-                <div class="example-container">
-                    <div class="font-medium">Indexes</div>
-
-                    <div
-                        cdkDropList
-                        class="example-list"
-                        (cdkDropListDropped)="dropIndex($event, aIndex.fieldNames)">
-                        <div class="example-box" *ngFor="let item of aIndex.fieldNames" cdkDrag>
-                            {{ aIndex.indexCols.length ? _.find(aIndex.indexCols, {name: item})?.title : '' }}
-                        </div>
-                    </div>
-                </div>
-
-                <button mat-icon-button color="warn" class="self-center" type="button"
-                        (click)="advancedSettings.indexes.splice(i, 1)">
-                    <mat-icon>remove_circle_outline</mat-icon>
-                </button>
+        @for (aIndex of advancedSettings.indexes; track aIndex; let i = $index) {
+          <div class="flex justify-between p-3 mb-3 bg-gray-50">
+            <div class="example-container">
+              <div class="font-medium">Available Columns</div>
+              <mat-select [(ngModel)]="aIndex.indexCols" (ngModelChange)="updateIndexes(aIndex)" [multiple]="true">
+                @for (column of columns2; track column) {
+                  <mat-option [value]="column">
+                    {{column.title}}
+                  </mat-option>
+                }
+              </mat-select>
             </div>
-        </ng-template>
-        <div class="flex justify-between">
-            <div></div>
-            <button mat-stroked-button color="primary" type="button"
-                (click)="advancedSettings.indexes.push({fieldNames: []})">
-                Create additional index
+            <div class="example-container">
+              <div class="font-medium">Indexes</div>
+              <div
+                cdkDropList
+                class="example-list"
+                (cdkDropListDropped)="dropIndex($event, aIndex.fieldNames)">
+                @for (item of aIndex.fieldNames; track item) {
+                  <div class="example-box" cdkDrag>
+                    {{ aIndex.indexCols.length ? _.find(aIndex.indexCols, {name: item})?.title : '' }}
+                  </div>
+                }
+              </div>
+            </div>
+            <button mat-icon-button color="warn" class="self-center" type="button"
+              (click)="advancedSettings.indexes.splice(i, 1)">
+              <mat-icon>remove_circle_outline</mat-icon>
             </button>
+          </div>
+        }
+        <div class="flex justify-between">
+          <div></div>
+          <button mat-stroked-button color="primary" type="button"
+            (click)="advancedSettings.indexes.push({fieldNames: []})">
+            Create additional index
+          </button>
         </div>
 
-    </div>
+      </div>
 
-    <div class="dialog-footer">
+      <div class="dialog-footer">
         <div></div>
         <button mat-flat-button color="primary" type="button"
-                (click)="saveChanges()">Save Changes
+          (click)="saveChanges()">Save Changes
         </button>
-    </div>
+      </div>
 
-</div>
+    </div>
 
 

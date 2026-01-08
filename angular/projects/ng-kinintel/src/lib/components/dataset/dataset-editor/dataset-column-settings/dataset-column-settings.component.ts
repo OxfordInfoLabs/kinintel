@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef
+} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
@@ -12,7 +12,8 @@ import {Subject} from 'rxjs';
     selector: 'ki-dataset-column-settings',
     templateUrl: './dataset-column-settings.component.html',
     styleUrls: ['./dataset-column-settings.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetColumnSettingsComponent implements OnInit {
 

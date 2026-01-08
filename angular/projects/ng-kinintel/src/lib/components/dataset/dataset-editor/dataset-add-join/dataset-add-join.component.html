@@ -1,195 +1,213 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Join Data</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Join Data</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content p-0">
+
+    <div class="border-t bg-blue-50 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <!-- Heroicon name: mini/information-circle -->
+          <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+            fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z"
+              clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3 flex-1 md:flex md:justify-between">
+          <p class="text-sm text-blue-700 mb-0">
+            Join Data functionality allows you to merge data from another Data Feed, or Stored Query
+            into this data feed. <b>Select</b> the data to merge and follow the on screen prompts to
+            complete
+            the join.
+          </p>
+
+        </div>
+      </div>
     </div>
 
-    <div class="dialog-content p-0">
+    <mat-horizontal-stepper [linear]="true" #stepper [animationDuration]="0">
+      <mat-step [completed]="selectedSource" label="Select data">
 
-        <div class="border-t bg-blue-50 p-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <!-- Heroicon name: mini/information-circle -->
-                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                         fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd"
-                              d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z"
-                              clip-rule="evenodd"/>
+        <ki-data-picker class="block" style="height: 547px" [admin]="admin"
+        (selected)="select($event, stepper)"></ki-data-picker>
+
+      </mat-step>
+      @if (requiredParameters && requiredParameters.length) {
+        <mat-step
+          [completed]="joinTransformation.config.joinParameterMappings.length >= 1"
+          label="Required parameters">
+          <div class="mx-4">
+            @if (!selectedSource) {
+              <p>Please select either a Datasource or Dataset to join to.</p>
+            }
+            @if (selectedSource) {
+              <p class="mb-4">
+                @if (!joinTransformation.config.joinedDataItemTitle) {
+                  <b>Selected
+                  source: {{ selectedSource.title || selectedSource.name }}</b>
+                }
+                @if (joinTransformation.config.joinedDataItemTitle) {
+                  <b>Selected
+                  source: {{ joinTransformation.config.joinedDataItemTitle }}</b>
+                }
+              </p>
+              @if (requiredParameters && requiredParameters.length) {
+                <div class="mb-4">
+                  <ki-dataset-parameter-values [parameterValues]="requiredParameters" [hideNew]="true"
+                    [update]="updateParams"
+                  (changed)="setEvaluatedParameters($event, stepper)"></ki-dataset-parameter-values>
+                </div>
+              }
+              <div class="rounded-md bg-blue-50 p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <!-- Heroicon name: solid/information-circle -->
+                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clip-rule="evenodd"/>
                     </svg>
-                </div>
-                <div class="ml-3 flex-1 md:flex md:justify-between">
-                    <p class="text-sm text-blue-700 mb-0">
-                        Join Data functionality allows you to merge data from another Data Feed, or Stored Query
-                        into this data feed. <b>Select</b> the data to merge and follow the on screen prompts to
-                        complete
-                        the join.
+                  </div>
+                  <div class="ml-3 flex-1 md:flex md:justify-between">
+                    <p class="text-sm text-blue-600 mb-0">
+                      The selected source requires a parameter to be set in order for the data
+                      to be retrieved. Please choose the relevant column to use as the parameter or
+                      choose an existing parameter value already defined in this query.
                     </p>
-
+                  </div>
                 </div>
-            </div>
-        </div>
-
-        <mat-horizontal-stepper [linear]="true" #stepper [animationDuration]="0">
-            <mat-step [completed]="selectedSource" label="Select data">
-
-                <ki-data-picker class="block" style="height: 547px" [admin]="admin"
-                                (selected)="select($event, stepper)"></ki-data-picker>
-
-            </mat-step>
-            <mat-step *ngIf="requiredParameters && requiredParameters.length"
-                      [completed]="joinTransformation.config.joinParameterMappings.length >= 1"
-                      label="Required parameters">
-                <div class="mx-4">
-                    <ng-template [ngIf]="!selectedSource">
-                        <p>Please select either a Datasource or Dataset to join to.</p>
-                    </ng-template>
-
-                    <ng-template [ngIf]="selectedSource">
-                        <p class="mb-4">
-                            <b *ngIf="!joinTransformation.config.joinedDataItemTitle">Selected
-                                source: {{ selectedSource.title || selectedSource.name }}</b>
-                            <b *ngIf="joinTransformation.config.joinedDataItemTitle">Selected
-                                source: {{ joinTransformation.config.joinedDataItemTitle }}</b>
-                        </p>
-
-                        <div class="mb-4" *ngIf="requiredParameters && requiredParameters.length">
-                            <ki-dataset-parameter-values [parameterValues]="requiredParameters" [hideNew]="true"
-                                                         [update]="updateParams"
-                                                         (changed)="setEvaluatedParameters($event, stepper)"></ki-dataset-parameter-values>
-                        </div>
-
-                        <div class="rounded-md bg-blue-50 p-4">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <!-- Heroicon name: solid/information-circle -->
-                                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg"
-                                         viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd"
-                                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                              clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3 flex-1 md:flex md:justify-between">
-                                    <p class="text-sm text-blue-600 mb-0">
-                                        The selected source requires a parameter to be set in order for the data
-                                        to be retrieved. Please choose the relevant column to use as the parameter or
-                                        choose an existing parameter value already defined in this query.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </ng-template>
-                </div>
-            </mat-step>
-            <mat-step *ngIf="!requiredParameters || !requiredParameters.length"
+              </div>
+            }
+          </div>
+        </mat-step>
+      }
+      @if (!requiredParameters || !requiredParameters.length) {
+        <mat-step
                       [completed]="(!joinFilterFields || !joinFilterFields.length) ||
                         (_.every(joinTransformation.config.joinFilters.filters, 'lhsExpression') &&
                                    _.every(joinTransformation.config.joinFilters.filters, 'rhsExpression'))"
-                      label="Join criteria">
-                <div class="mx-4">
-                    <ng-template [ngIf]="!selectedSource">
-                        <p>Please select either a Datasource or Dataset to join to.</p>
-                    </ng-template>
+          label="Join criteria">
+          <div class="mx-4">
+            @if (!selectedSource) {
+              <p>Please select either a Datasource or Dataset to join to.</p>
+            }
+            @if (selectedSource) {
+              <p class="mb-4">
+                @if (!joinTransformation.config.joinedDataItemTitle) {
+                  <b>Selected
+                  source: {{ selectedSource.title || selectedSource.name }}</b>
+                }
+                @if (joinTransformation.config.joinedDataItemTitle) {
+                  <b>Selected
+                  source: {{ joinTransformation.config.joinedDataItemTitle }}</b>
+                }
+              </p>
+              <div class="my-4">
+                <mat-checkbox [(ngModel)]="joinTransformation.config.strictJoin">Strict Join?</mat-checkbox>
+                <p><small>If turned on, data will be pruned to only return rows that match.</small></p>
+              </div>
+              @if (joinFilterFields) {
+                <ki-dataset-filters [filterFields]="filterFields"
+                  [joinFilterFields]="joinFilterFields" [openSide]="openSide"
+                  [joinFieldsName]="selectedSource.title || selectedSource.name"
+                [filterJunction]="joinTransformation.config.joinFilters"></ki-dataset-filters>
+              }
+              @if (openSide.getValue()) {
+                <ki-whitelisted-sql-functions [fields]="filterFields"></ki-whitelisted-sql-functions>
+              }
+            }
+          </div>
+        </mat-step>
+      }
 
-                    <ng-template [ngIf]="selectedSource">
-                        <p class="mb-4">
-                            <b *ngIf="!joinTransformation.config.joinedDataItemTitle">Selected
-                                source: {{ selectedSource.title || selectedSource.name }}</b>
-                            <b *ngIf="joinTransformation.config.joinedDataItemTitle">Selected
-                                source: {{ joinTransformation.config.joinedDataItemTitle }}</b>
-                        </p>
-                        <div class="my-4">
-                            <mat-checkbox [(ngModel)]="joinTransformation.config.strictJoin">Strict Join?</mat-checkbox>
-                            <p><small>If turned on, data will be pruned to only return rows that match.</small></p>
-                        </div>
+      <mat-step [completed]="false" label="Column definition">
+        <div class="mx-4">
+          @if (!selectedSource) {
+            <p>Please select either a Datasource or Dataset to join to.</p>
+          }
 
-                        <ki-dataset-filters *ngIf="joinFilterFields" [filterFields]="filterFields"
-                                            [joinFilterFields]="joinFilterFields" [openSide]="openSide"
-                                            [joinFieldsName]="selectedSource.title || selectedSource.name"
-                                            [filterJunction]="joinTransformation.config.joinFilters"></ki-dataset-filters>
+          @if (selectedSource) {
+            <p class="mb-4">
+              @if (!joinTransformation.config.joinedDataItemTitle) {
+                <b>Selected
+                source: {{ selectedSource.title || selectedSource.name }}</b>
+              }
+              @if (joinTransformation.config.joinedDataItemTitle) {
+                <b>Selected
+                source: {{ joinTransformation.config.joinedDataItemTitle }}</b>
+              }
+            </p>
+            <p>Select the columns you would like to view, and set a new column name if required.</p>
+            <div class="column-definition align-center">
+              <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
+              <label class="mw">Column Name</label>
+              <label class="mw">New Column Title</label>
+            </div>
+            @for (column of joinColumns; track column) {
+              <div class="column-definition align-center">
+                <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
+                <label>
+                  <input type="text" [(ngModel)]="column.name" disabled>
+                </label>
+                <label>
+                  <input type="text" [(ngModel)]="column.title">
+                </label>
+                @if (column.duplicate) {
+                  <span class="primary">Duplicate column name</span>
+                }
+              </div>
+            }
+          }
+        </div>
+      </mat-step>
 
-                        <ng-template [ngIf]="openSide.getValue()">
-                            <ki-whitelisted-sql-functions [fields]="filterFields"></ki-whitelisted-sql-functions>
-                        </ng-template>
+    </mat-horizontal-stepper>
 
-                    </ng-template>
-                </div>
-            </mat-step>
+  </div>
 
-            <mat-step [completed]="false" label="Column definition">
-                <div class="mx-4">
-                    <ng-template [ngIf]="!selectedSource">
-                        <p>Please select either a Datasource or Dataset to join to.</p>
-                    </ng-template>
+  <div class="dialog-footer">
 
-                    <ng-template [ngIf]="selectedSource">
-                        <p class="mb-4">
-                            <b *ngIf="!joinTransformation.config.joinedDataItemTitle">Selected
-                                source: {{ selectedSource.title || selectedSource.name }}</b>
-                            <b *ngIf="joinTransformation.config.joinedDataItemTitle">Selected
-                                source: {{ joinTransformation.config.joinedDataItemTitle }}</b>
-                        </p>
+    <!-- BACK/CANCEL BUTTONS-->
+    @if (stepper.selectedIndex === 0) {
+      <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+    }
+    @if (stepper.selectedIndex > 0) {
+      <button mat-stroked-button color="primary" (click)="stepper.previous()">Back
+      </button>
+    }
 
-                        <p>Select the columns you would like to view, and set a new column name if required.</p>
-
-                        <div class="column-definition align-center">
-                            <mat-checkbox [(ngModel)]="allColumns" (change)="toggleAllColumns($event)"></mat-checkbox>
-                            <label class="mw">Column Name</label>
-                            <label class="mw">New Column Title</label>
-                        </div>
-
-                        <div class="column-definition align-center" *ngFor="let column of joinColumns">
-                            <mat-checkbox [(ngModel)]="column.selected" (ngModelChange)="allSelected()"></mat-checkbox>
-                            <label>
-                                <input type="text" [(ngModel)]="column.name" disabled>
-                            </label>
-                            <label>
-                                <input type="text" [(ngModel)]="column.title">
-                            </label>
-                            <span *ngIf="column.duplicate" class="primary">Duplicate column name</span>
-                        </div>
-                    </ng-template>
-                </div>
-            </mat-step>
-
-        </mat-horizontal-stepper>
-
-    </div>
-
-    <div class="dialog-footer">
-
-        <!-- BACK/CANCEL BUTTONS-->
-        <button *ngIf="stepper.selectedIndex === 0" mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
-        <button *ngIf="stepper.selectedIndex > 0" mat-stroked-button color="primary" (click)="stepper.previous()">Back
-        </button>
-
-        <!-- MIDDLE NEXT BUTTONS -->
-        <ng-template [ngIf]="stepper.selectedIndex === 1">
-            <ng-template [ngIf]="!requiredParameters || !requiredParameters.length">
-                <button mat-flat-button color="primary" (click)="stepper.next()"
+    <!-- MIDDLE NEXT BUTTONS -->
+    @if (stepper.selectedIndex === 1) {
+      @if (!requiredParameters || !requiredParameters.length) {
+        <button mat-flat-button color="primary" (click)="stepper.next()"
                         [disabled]="(joinFilterFields && joinFilterFields.length) &&
                                 !(_.every(joinTransformation.config.joinFilters.filters, 'lhsExpression') &&
                                    _.every(joinTransformation.config.joinFilters.filters, 'rhsExpression'))">
-                    Next
-                </button>
-            </ng-template>
-
-            <ng-template [ngIf]="requiredParameters && requiredParameters.length">
-                <button mat-flat-button color="primary" (click)="getParameterValues(stepper)">
-                    Next
-                </button>
-            </ng-template>
-        </ng-template>
-        <!-- FINAL BUTTON -->
-        <button mat-flat-button color="primary" *ngIf="stepper.selectedIndex === 2" (click)="join()">
-            Create Join
+          Next
         </button>
-    </div>
+      }
+      @if (requiredParameters && requiredParameters.length) {
+        <button mat-flat-button color="primary" (click)="getParameterValues(stepper)">
+          Next
+        </button>
+      }
+    }
+    <!-- FINAL BUTTON -->
+    @if (stepper.selectedIndex === 2) {
+      <button mat-flat-button color="primary" (click)="join()">
+        Create Join
+      </button>
+    }
+  </div>
 
 </div>
 

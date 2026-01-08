@@ -1,5 +1,5 @@
 import {Inject, Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import {ProjectService} from '../services/project.service';
 import {interval, of} from 'rxjs';

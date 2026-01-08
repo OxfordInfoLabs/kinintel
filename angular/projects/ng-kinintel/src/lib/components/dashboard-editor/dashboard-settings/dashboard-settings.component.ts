@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DashboardService} from '../../../services/dashboard.service';
 import {ProjectService} from '../../../services/project.service';
 
@@ -7,7 +7,8 @@ import {ProjectService} from '../../../services/project.service';
     selector: 'ki-dashboard-settings',
     templateUrl: './dashboard-settings.component.html',
     styleUrls: ['./dashboard-settings.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DashboardSettingsComponent implements OnInit {
 

@@ -6,7 +6,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-task-time-periods',
     templateUrl: './task-time-periods.component.html',
-    styleUrls: ['./task-time-periods.component.sass']
+    styleUrls: ['./task-time-periods.component.sass'],
+    standalone: false
 })
 export class TaskTimePeriodsComponent implements OnInit {
 

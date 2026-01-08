@@ -1,167 +1,168 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Dashboard Settings</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Dashboard Settings</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <div class="dialog-content">
-
-
-        <ng-template [ngIf]="dashboard">
-            <div class="space-y-8 divide-y divide-gray-200">
-                <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
-
-                    <div class="space-y-6 sm:space-y-5">
-                        <div>
-                            <h3 class="text-lg font-medium leading-6 text-gray-900">Configure Dashboard</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Edit additional settings for the
-                                dashboard.</p>
-                        </div>
-                        <div *ngIf="!canManageFeeds" class="px-4 sm:px-6 lg:px-8 mt-0">
-                            <div class="flex flex-col">
-                                <div class="mt-8 border-l-4 border-yellow-400 bg-yellow-50 p-4">
-                                    <div class="flex">
-                                        <div class="flex-shrink-0">
-                                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"
-                                                 aria-hidden="true">
-                                                <path fill-rule="evenodd"
-                                                      d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                                                      clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm text-yellow-700 mb-0">
-                                                External Dashboards are only available to our Partners. Please <a class="font-medium text-yellow-700 underline hover:text-yellow-600"
-                                                                                                              href="https://dnsrf.org/joining-options/index.html">review our Tiers</a> to find out more.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="canManageFeeds" class="space-y-6 sm:space-y-5">
-
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    External Dashboard
-                                </label>
-                                <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                    <mat-checkbox class="example-margin" [(ngModel)]="dashboard.external">
-                                        Make dashboard external
-                                    </mat-checkbox>
-
-                                    <small class="font-normal">Make this dashboard accessible externally outside of
-                                        DAP.LIVE </small>
-                                </div>
-
-                                <ng-template [ngIf]="dashboard.external">
+  <div class="dialog-content">
 
 
-                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        &nbsp;
-                                    </label>
-                                    <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                        <mat-checkbox class="example-margin"
-                                                      [(ngModel)]="dashboard.externalSettings.darkMode">
-                                            Set dark mode
-                                        </mat-checkbox>
-                                    </div>
-
-                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        &nbsp;
-                                    </label>
-                                    <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                        <mat-checkbox class="example-margin"
-                                                      [(ngModel)]="dashboard.externalSettings.showParameters">
-                                            Show parameters
-                                        </mat-checkbox>
-
-                                        <small class="font-normal">Show any top level parameters for this
-                                            dashboard.</small>
-                                    </div>
-
-                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        &nbsp;
-                                    </label>
-                                    <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                        <div *ngIf="refreshInterval" class="text-gray-400 text-xs">
-                                            Refresh dashboard every {{refreshInterval / 60}} Minute(s)
-                                        </div>
-                                        <div *ngIf="!refreshInterval" class="text-gray-400 text-xs">
-                                            Dashboard refresh off
-                                        </div>
-                                        <button mat-flat-button color="primary" class="w-3/4" [matMenuTriggerFor]="menu"
-                                                matTooltip="Set refresh interval">
-                                            <mat-icon>autorenew</mat-icon>
-                                            Set Refresh Interval
-                                        </button>
-                                        <mat-menu #menu="matMenu">
-                                            <button mat-menu-item (click)="setRefreshInterval(0)">Off</button>
-                                            <button mat-menu-item (click)="setRefreshInterval(60)">Every 1 Minute
-                                            </button>
-                                            <button mat-menu-item (click)="setRefreshInterval(300)">Every 5 Minutes
-                                            </button>
-                                            <button mat-menu-item (click)="setRefreshInterval(600)">Every 10 Minutes
-                                            </button>
-                                            <button mat-menu-item (click)="setRefreshInterval(1800)">Every 30 Minutes
-                                            </button>
-                                            <button mat-menu-item (click)="setRefreshInterval(3600)">Every 60 Minutes
-                                            </button>
-                                        </mat-menu>
-
-                                        <small class="font-normal">Determine how often you would like the dashboard to
-                                            refresh.</small>
-                                    </div>
-                                </ng-template>
-                            </div>
-                            <div *ngIf="dashboard.external">
-                                <div class="tracking-wider font-bold">Example</div>
-                                <pre class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">{{externalURL}}/external/dashboard/{{dashboard.id}}?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b></pre>
-                            </div>
-                            <div *ngIf="dashboard.external"
-                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Caching Options
-                                </label>
-                                <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                    <mat-checkbox class="example-margin"
-                                                  [(ngModel)]="dashboard.externalSettings.cacheEnabled">
-                                        Enable API Caching
-                                    </mat-checkbox>
-
-                                    <div class="flex mt-4" *ngIf="dashboard.externalSettings.cacheEnabled">
-                                        <span
-                                            class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                            Cache time in seconds
-                                        </span>
-                                        <input type="number" class="w-full rounded-l-none flex-1"
-                                               placeholder="time in seconds"
-                                               [(ngModel)]="dashboard.externalSettings.cacheTimeSeconds">
-                                    </div>
-                                    <small class="font-normal">Enable caching to reduce requests to the server. Setting
-                                        cache to zero will disable caching.</small>
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
+    @if (dashboard) {
+      <div class="space-y-8 divide-y divide-gray-200">
+        <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+          <div class="space-y-6 sm:space-y-5">
+            <div>
+              <h3 class="text-lg font-medium leading-6 text-gray-900">Configure Dashboard</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">Edit additional settings for the
+              dashboard.</p>
             </div>
-        </ng-template>
+            @if (!canManageFeeds) {
+              <div class="px-4 sm:px-6 lg:px-8 mt-0">
+                <div class="flex flex-col">
+                  <div class="mt-8 border-l-4 border-yellow-400 bg-yellow-50 p-4">
+                    <div class="flex">
+                      <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"
+                          aria-hidden="true">
+                          <path fill-rule="evenodd"
+                            d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                            clip-rule="evenodd"/>
+                        </svg>
+                      </div>
+                      <div class="ml-3">
+                        <p class="text-sm text-yellow-700 mb-0">
+                          External Dashboards are only available to our Partners. Please <a class="font-medium text-yellow-700 underline hover:text-yellow-600"
+                        href="https://dnsrf.org/joining-options/index.html">review our Tiers</a> to find out more.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @if (canManageFeeds) {
+            <div class="space-y-6 sm:space-y-5">
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  External Dashboard
+                </label>
+                <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                  <mat-checkbox class="example-margin" [(ngModel)]="dashboard.external">
+                    Make dashboard external
+                  </mat-checkbox>
+                  <small class="font-normal">Make this dashboard accessible externally outside of
+                  DAP.LIVE </small>
+                </div>
+                @if (dashboard.external) {
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    &nbsp;
+                  </label>
+                  <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                    <mat-checkbox class="example-margin"
+                      [(ngModel)]="dashboard.externalSettings.darkMode">
+                      Set dark mode
+                    </mat-checkbox>
+                  </div>
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    &nbsp;
+                  </label>
+                  <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                    <mat-checkbox class="example-margin"
+                      [(ngModel)]="dashboard.externalSettings.showParameters">
+                      Show parameters
+                    </mat-checkbox>
+                    <small class="font-normal">Show any top level parameters for this
+                    dashboard.</small>
+                  </div>
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    &nbsp;
+                  </label>
+                  <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                    @if (refreshInterval) {
+                      <div class="text-gray-400 text-xs">
+                        Refresh dashboard every {{refreshInterval / 60}} Minute(s)
+                      </div>
+                    }
+                    @if (!refreshInterval) {
+                      <div class="text-gray-400 text-xs">
+                        Dashboard refresh off
+                      </div>
+                    }
+                    <button mat-flat-button color="primary" class="w-3/4" [matMenuTriggerFor]="menu"
+                      matTooltip="Set refresh interval">
+                      <mat-icon>autorenew</mat-icon>
+                      Set Refresh Interval
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item (click)="setRefreshInterval(0)">Off</button>
+                      <button mat-menu-item (click)="setRefreshInterval(60)">Every 1 Minute
+                      </button>
+                      <button mat-menu-item (click)="setRefreshInterval(300)">Every 5 Minutes
+                      </button>
+                      <button mat-menu-item (click)="setRefreshInterval(600)">Every 10 Minutes
+                      </button>
+                      <button mat-menu-item (click)="setRefreshInterval(1800)">Every 30 Minutes
+                      </button>
+                      <button mat-menu-item (click)="setRefreshInterval(3600)">Every 60 Minutes
+                      </button>
+                    </mat-menu>
+                    <small class="font-normal">Determine how often you would like the dashboard to
+                    refresh.</small>
+                  </div>
+                }
+              </div>
+              @if (dashboard.external) {
+                <div>
+                  <div class="tracking-wider font-bold">Example</div>
+                  <pre class="block bg-gray-800 text-gray-100 p-2 rounded whitespace-normal">{{externalURL}}/external/dashboard/{{dashboard.id}}?apiKey=<b>{{apiKeys ? apiKeys.apiKey : '[[apiKey]]'}}</b>&apiSecret=<b>{{apiKeys ? apiKeys.apiSecret : '[[apiSecret]]'}}</b></pre>
+                </div>
+              }
+              @if (dashboard.external) {
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    Caching Options
+                  </label>
+                  <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                    <mat-checkbox class="example-margin"
+                      [(ngModel)]="dashboard.externalSettings.cacheEnabled">
+                      Enable API Caching
+                    </mat-checkbox>
+                    @if (dashboard.externalSettings.cacheEnabled) {
+                      <div class="flex mt-4">
+                        <span
+                          class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                          Cache time in seconds
+                        </span>
+                        <input type="number" class="w-full rounded-l-none flex-1"
+                          placeholder="time in seconds"
+                          [(ngModel)]="dashboard.externalSettings.cacheTimeSeconds">
+                      </div>
+                    }
+                    <small class="font-normal">Enable caching to reduce requests to the server. Setting
+                    cache to zero will disable caching.</small>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
     </div>
+  }
+</div>
 
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+<div class="dialog-footer">
+  <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
 
-        <button mat-button mat-flat-button color="primary" type="button"
-                (click)="saveSettings()">Save Settings
-        </button>
-    </div>
+  <button mat-button mat-flat-button color="primary" type="button"
+    (click)="saveSettings()">Save Settings
+  </button>
+</div>
 
 </div>

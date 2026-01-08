@@ -1,195 +1,195 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>New Parameter</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>New Parameter</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content p-4">
+
+    <div class="border-t bg-blue-50 p-4 -mt-4 -mx-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <!-- Heroicon name: mini/information-circle -->
+          <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+            fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z"
+              clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3 flex-1 md:flex md:justify-between">
+          <p class="text-sm text-blue-700 mb-0">
+            Parameters allow you to create a dynamic field that can be used within your queries. Once
+            created you can access the value of your parameter in Filters etc using
+            the {{'{{' + 'parameterName' + '\}\}'}}
+            value.
+          </p>
+
+        </div>
+      </div>
     </div>
 
-    <div class="dialog-content p-4">
+    <div class="space-y-6 pt-4">
+      <div>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Parameter Information</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following details to setup your parameter.</p>
+      </div>
+      <div class="space-y-6 sm:space-y-5">
+        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+          <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+            Enter the title for this parameter <span class="text-red-600">*</span></label>
+            <div class="mt-1 sm:col-span-2 sm:mt-0">
+              <input type="text" [(ngModel)]="parameter.title" (ngModelChange)="setName()" required
+                class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+            </div>
+          </div>
 
-        <div class="border-t bg-blue-50 p-4 -mt-4 -mx-4">
-            <div class="flex">
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+              Name for this parameter
+            </label>
+            <div class="mt-1 sm:col-span-2 sm:mt-0">
+              <input type="text" [(ngModel)]="parameter.name" disabled
+                class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+            </div>
+          </div>
+
+          @if (parameter.name && parameter.name !== _.camelCase(parameter.title)) {
+            <div class="border-l-4 border-yellow-400 bg-yellow-50 p-4">
+              <div class="flex">
                 <div class="flex-shrink-0">
-                    <!-- Heroicon name: mini/information-circle -->
-                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                         fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd"
-                              d="M19 10.5a8.5 8.5 0 11-17 0 8.5 8.5 0 0117 0zM8.25 9.75A.75.75 0 019 9h.253a1.75 1.75 0 011.709 2.13l-.46 2.066a.25.25 0 00.245.304H11a.75.75 0 010 1.5h-.253a1.75 1.75 0 01-1.709-2.13l.46-2.066a.25.25 0 00-.245-.304H9a.75.75 0 01-.75-.75zM10 7a1 1 0 100-2 1 1 0 000 2z"
-                              clip-rule="evenodd"/>
-                    </svg>
+                  <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                  </svg>
                 </div>
-                <div class="ml-3 flex-1 md:flex md:justify-between">
-                    <p class="text-sm text-blue-700 mb-0">
-                        Parameters allow you to create a dynamic field that can be used within your queries. Once
-                        created you can access the value of your parameter in Filters etc using
-                        the {{'{{' + 'parameterName' + '\}\}'}}
-                        value.
-                    </p>
-
+                <div class="ml-3">
+                  <p class="text-sm text-yellow-700 mb-0">
+                    <b>Note:</b> Changing the parameter title will not change the parameter name.<br>To access
+                    this parameter value please continue to use <b>{{'{{' + parameter.name + '\}\}'}}</b>
+                  </p>
                 </div>
+              </div>
             </div>
+          }
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+              Enter the field type for this parameter
+            </label>
+            <div class="mt-1 sm:col-span-2 sm:mt-0">
+              <select [(ngModel)]="parameter.type"
+                class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                <option value="text">Text</option>
+                <option value="numeric">Numeric</option>
+                <option value="date">Date</option>
+                <option value="datetime">Datetime</option>
+                <option value="boolean">Boolean</option>
+                <option value="list">List</option>
+              </select>
+            </div>
+          </div>
+
+          @if (parameter.type === 'list') {
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Select Datasource
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0 flex items-center">
+                <button mat-flat-button color="primary" (click)="selectDatasource()">
+                  Select Datasource
+                </button>
+                @if (parameter.settings && parameter.settings.datasetInstance) {
+                  <div
+                    class="text-gray-500 ml-4">
+                    {{parameter.settings.datasetInstance.title}}
+                  </div>
+                }
+              </div>
+            </div>
+            @if (sourceColumns.length) {
+              <div class="flex items-center justify-between">
+                <div class="mr-2 flex-1">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    Label column
+                  </label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    <select [(ngModel)]="parameter.settings.labelColumn"
+                      class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                      @for (column of sourceColumns; track column) {
+                        <option [value]="column">
+                          {{_.startCase(column)}}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                </div>
+                <div class="ml-2 flex-1">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    Value column
+                  </label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    <select [(ngModel)]="parameter.settings.valueColumn"
+                      class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                      @for (column of sourceColumns; track column) {
+                        <option [value]="column">
+                          {{_.startCase(column)}}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+              Should the parameter be locked for editing in 'view' mode
+            </label>
+            <div class="mt-1 sm:col-span-2 sm:mt-0">
+              <mat-slide-toggle [(ngModel)]="parameter.locked">Locked</mat-slide-toggle>
+            </div>
+          </div>
+
+          @if (parameter.type !== 'date' && parameter.type !== 'datetime' && parameter.type !== 'boolean') {
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Is this parameter multiple
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                <mat-slide-toggle [(ngModel)]="parameter.multiple" (change)="multipleStatusUpdated()">Multiple</mat-slide-toggle>
+              </div>
+            </div>
+          }
+          @if (parameter.type !== 'list') {
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Enter a default value for this parameter
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                <input type="text" [(ngModel)]="parameter.defaultValue"
+                  class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+              </div>
+            </div>
+          }
+
+
         </div>
-
-        <div class="space-y-6 pt-4">
-            <div>
-                <h3 class="text-lg font-medium leading-6 text-gray-900">Parameter Information</h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following details to setup your parameter.</p>
-            </div>
-            <div class="space-y-6 sm:space-y-5">
-                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Enter the title for this parameter <span class="text-red-600">*</span></label>
-                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                        <input type="text" [(ngModel)]="parameter.title" (ngModelChange)="setName()" required
-                               class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Name for this parameter
-                    </label>
-                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                        <input type="text" [(ngModel)]="parameter.name" disabled
-                               class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                    </div>
-                </div>
-
-                <div *ngIf="parameter.name && parameter.name !== _.camelCase(parameter.title)" class="border-l-4 border-yellow-400 bg-yellow-50 p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                                <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-yellow-700 mb-0">
-                                <b>Note:</b> Changing the parameter title will not change the parameter name.<br>To access
-                                this parameter value please continue to use <b>{{'{{' + parameter.name + '\}\}'}}</b>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Enter the field type for this parameter
-                    </label>
-                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                        <select [(ngModel)]="parameter.type"
-                                class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                            <option value="text">Text</option>
-                            <option value="numeric">Numeric</option>
-                            <option value="date">Date</option>
-                            <option value="datetime">Datetime</option>
-                            <option value="boolean">Boolean</option>
-                            <option value="list">List</option>
-                        </select>
-                    </div>
-                </div>
-
-                <ng-template [ngIf]="parameter.type === 'list'">
-
-                    <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            Select Datasource
-                        </label>
-                        <div class="mt-1 sm:col-span-2 sm:mt-0 flex items-center">
-                            <button mat-flat-button color="primary" (click)="selectDatasource()">
-                                Select Datasource
-                            </button>
-                            <div *ngIf="parameter.settings && parameter.settings.datasetInstance"
-                                class="text-gray-500 ml-4">
-                                {{parameter.settings.datasetInstance.title}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <ng-template [ngIf]="sourceColumns.length">
-
-                        <div class="flex items-center justify-between">
-                            <div class="mr-2 flex-1">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Label column
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <select [(ngModel)]="parameter.settings.labelColumn"
-                                            class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                        <option *ngFor="let column of sourceColumns" [value]="column">
-                                            {{_.startCase(column)}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="ml-2 flex-1">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Value column
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <select [(ngModel)]="parameter.settings.valueColumn"
-                                            class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                        <option *ngFor="let column of sourceColumns" [value]="column">
-                                            {{_.startCase(column)}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                    </ng-template>
-
-                </ng-template>
-
-                <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                        Should the parameter be locked for editing in 'view' mode
-                    </label>
-                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                        <mat-slide-toggle [(ngModel)]="parameter.locked">Locked</mat-slide-toggle>
-                    </div>
-                </div>
-
-                <ng-template [ngIf]="parameter.type !== 'date' && parameter.type !== 'datetime' && parameter.type !== 'boolean'">
-
-                    <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            Is this parameter multiple
-                        </label>
-                        <div class="mt-1 sm:col-span-2 sm:mt-0">
-                            <mat-slide-toggle [(ngModel)]="parameter.multiple" (change)="multipleStatusUpdated()">Multiple</mat-slide-toggle>
-                        </div>
-                    </div>
-                </ng-template>
-                <ng-template [ngIf]="parameter.type !== 'list'">
-                    <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                        <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            Enter a default value for this parameter
-                        </label>
-                        <div class="mt-1 sm:col-span-2 sm:mt-0">
-                            <input type="text" [(ngModel)]="parameter.defaultValue"
-                                   class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                        </div>
-                    </div>
-                </ng-template>
-
-
-            </div>
-        </div>
+      </div>
     </div>
 
     <div class="dialog-footer">
-        <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-button mat-dialog-close>Cancel</button>
 
-        <button mat-flat-button color="primary" [mat-dialog-close]="parameter"
-                [disabled]="!parameter.title">Update Parameter
-        </button>
+      <button mat-flat-button color="primary" [mat-dialog-close]="parameter"
+        [disabled]="!parameter.title">Update Parameter
+      </button>
     </div>
 
-</div>
+  </div>
 
 

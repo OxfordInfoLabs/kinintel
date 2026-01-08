@@ -1,16 +1,17 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FeedService} from '../../../services/feed.service';
 import {DatasetService} from '../../../services/dataset.service';
 import {BehaviorSubject, merge} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {MatLegacyOptionSelectionChange as MatOptionSelectionChange} from '@angular/material/legacy-core';
+import {MatOptionSelectionChange} from '@angular/material/core';
 
 @Component({
     selector: 'ki-feed',
     templateUrl: './feed.component.html',
     styleUrls: ['./feed.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class FeedComponent implements OnInit {
 

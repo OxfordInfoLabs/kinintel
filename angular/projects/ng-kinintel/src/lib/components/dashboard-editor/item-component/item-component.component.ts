@@ -9,7 +9,7 @@ import {
     Output,
     ViewChild
 } from '@angular/core';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {ConfigureItemComponent} from '../configure-item/configure-item.component';
 import {DatasourceService} from '../../../services/datasource.service';
 import * as lodash from 'lodash';
@@ -34,13 +34,30 @@ import {ProjectService} from '../../../services/project.service';
 import chroma from 'chroma-js';
 import { DataSet, Network } from 'vis-network/standalone';
 import visNetworkOptions from '../configure-item/vis-network-options.json';
+import { AngularD3Cloud } from 'angular-d3-cloud';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {NgChartsModule} from 'ng2-charts';
 
 declare var window: any;
 
 @Component({
+    imports: [
+        AngularD3Cloud,
+        MatIconModule,
+        MatMenuModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatSlideToggleModule,
+        NgChartsModule
+    ],
     selector: 'ki-item-component',
     templateUrl: './item-component.component.html',
-    styleUrls: ['./item-component.component.sass']
+    styleUrls: ['./item-component.component.sass'],
+    standalone: true
 })
 export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 

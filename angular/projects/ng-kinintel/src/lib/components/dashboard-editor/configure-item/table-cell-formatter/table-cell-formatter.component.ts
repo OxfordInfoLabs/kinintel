@@ -7,7 +7,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-table-cell-formatter',
     templateUrl: './table-cell-formatter.component.html',
-    styleUrls: ['./table-cell-formatter.component.sass']
+    styleUrls: ['./table-cell-formatter.component.sass'],
+    standalone: false
 })
 export class TableCellFormatterComponent implements OnInit {
 

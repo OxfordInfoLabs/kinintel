@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {BehaviorSubject, merge, Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
 import {DatasourceService} from '../../services/datasource.service';
 import {ProjectService} from '../../services/project.service';
@@ -12,7 +12,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-datasource',
     templateUrl: './datasource.component.html',
-    styleUrls: ['./datasource.component.sass']
+    styleUrls: ['./datasource.component.sass'],
+    standalone: false
 })
 export class DatasourceComponent implements OnInit, OnDestroy {
 

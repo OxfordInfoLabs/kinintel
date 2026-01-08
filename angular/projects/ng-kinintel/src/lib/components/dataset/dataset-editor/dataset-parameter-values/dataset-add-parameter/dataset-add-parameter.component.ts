@@ -3,18 +3,19 @@ import * as lodash from 'lodash';
 
 const _ = lodash.default;
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef,
+    MatDialog
+} from '@angular/material/dialog';
 import {CreateDatasetComponent} from '../../../../dataset/create-dataset/create-dataset.component';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {DatasetService} from '../../../../../services/dataset.service';
 
 @Component({
     selector: 'ki-dataset-add-parameter',
     templateUrl: './dataset-add-parameter.component.html',
     styleUrls: ['./dataset-add-parameter.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetAddParameterComponent implements OnInit {
 

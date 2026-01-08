@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ProjectService} from '../../services/project.service';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {
     ProjectLinkSelectionComponent
 } from '../project-settings/project-link-selection/project-link-selection.component';
@@ -13,7 +13,8 @@ import {DashboardService} from '../../services/dashboard.service';
 @Component({
     selector: 'ki-project-settings',
     templateUrl: './project-settings.component.html',
-    styleUrls: ['./project-settings.component.sass']
+    styleUrls: ['./project-settings.component.sass'],
+    standalone: false
 })
 export class ProjectSettingsComponent implements OnInit {
 

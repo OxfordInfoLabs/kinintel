@@ -1,12 +1,13 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {AlertService} from '../../../../services/alert.service';
 
 @Component({
     selector: 'ki-edit-dashboard-alert',
     templateUrl: './edit-dashboard-alert.component.html',
     styleUrls: ['./edit-dashboard-alert.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class EditDashboardAlertComponent implements OnInit {
 

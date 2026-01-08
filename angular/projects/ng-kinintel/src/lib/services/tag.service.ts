@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {ProjectService} from './project.service';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 

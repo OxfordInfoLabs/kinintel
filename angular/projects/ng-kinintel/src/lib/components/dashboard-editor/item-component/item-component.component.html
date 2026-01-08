@@ -1,196 +1,231 @@
-<div class="alert-panel" *ngIf="showAlertData" (click)="showAlertData = false">
-    <div class="align-center flex-col w-3/4 m-auto">
-        <mat-icon>notification_important</mat-icon>
-        <h2 class="mb-0">Alert Notification</h2>
-        <p class="text-center">The following alerts have been triggered based on the criteria set for this dashboard
-            item...</p>
-        <div class="alert-item mb-2" *ngFor="let alertItem of alertData"
-             [innerHTML]="alertItem.notificationMessage">
+@if (showAlertData) {
+    <div class="alert-panel" (click)="showAlertData = false">
+        <div class="align-center flex-col w-3/4 m-auto">
+            <mat-icon>notification_important</mat-icon>
+            <h2 class="mb-0">Alert Notification</h2>
+            <p class="text-center">The following alerts have been triggered based on the criteria set for this dashboard
+                item...</p>
+            @for (alertItem of alertData; track alertItem) {
+                <div class="alert-item mb-2"
+                     [innerHTML]="alertItem.notificationMessage">
+                </div>
+            }
         </div>
     </div>
-</div>
+}
 
 <div class="item-disabled">
-    <p>{{general.name || dashboardItemType.label}}</p>
+    <p>{{ general.name || dashboardItemType.label }}</p>
     <mat-icon>block</mat-icon>
-    <p class="disabled-notice">{{dependencies.notice || 'No Data Available'}}</p>
+    <p class="disabled-notice">{{ dependencies.notice || 'No Data Available' }}</p>
 </div>
 
-<ng-template [ngIf]="dragItem">
-    <span class="material-symbols-outlined">{{dashboardItemType.icon}}</span>
+@if (dragItem) {
+    <span class="material-symbols-outlined">{{ dashboardItemType.icon }}</span>
     <span [innerHTML]="dashboardItemType.label"></span>
-</ng-template>
-<div class="alert-widget" *ngIf="alert" (click)="showAlertData = true;">
-    <button mat-icon-button>
-        <mat-icon>notification_important</mat-icon>
-    </button>
-    <div class="alert-summaries">
-        <span class="mr-2" *ngFor="let alertItem of alertData">
-            {{alertItem.summaryMessage}}
+}
+@if (alert) {
+    <div class="alert-widget" (click)="showAlertData = true;">
+        <button mat-icon-button>
+            <mat-icon>notification_important</mat-icon>
+        </button>
+        <div class="alert-summaries">
+            @for (alertItem of alertData; track alertItem) {
+                <span class="mr-2">
+          {{ alertItem.summaryMessage }}
         </span>
+            }
+        </div>
     </div>
-</div>
+}
 
-<ng-template
-    [ngIf]="!dragItem && !dashboardDatasetInstance && !dashboardItemType.headingValue && !dashboardItemType._editing">
+@if (!dragItem && !dashboardDatasetInstance && !dashboardItemType.headingValue && !dashboardItemType._editing) {
     <button mat-stroked-button color="primary" class="config-button" (click)="configure()">
-        Configure {{dashboardItemType.label}}
+        Configure {{ dashboardItemType.label }}
     </button>
-</ng-template>
+}
 
-<div class="absolute top-1 right-1  z-20" *ngIf="!dragItem && loadingItem && (chartData || dataset)">
-    <svg class="animate-spin h-5 w-5 text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-</div>
-
-<ng-template [ngIf]="!viewOnly">
-    <div class="absolute top-1 left-1 z-20 cursor-pointer" *ngIf="!dragItem && this.itemNoMove"
-         (click)="lockItem()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-             class="h-5 w-5 text-gray-400">
-            <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clip-rule="evenodd" />
+@if (!dragItem && loadingItem && (chartData || dataset)) {
+    <div class="absolute top-1 right-1  z-20">
+        <svg class="animate-spin h-5 w-5 text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
     </div>
+}
 
-    <div class="item-unlocked absolute top-1 left-1 z-20 cursor-pointer" *ngIf="!dragItem && !this.itemNoMove"
-         (click)="lockItem()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-             class="h-5 w-5 text-gray-400">
-            <path d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z" />
-        </svg>
-    </div>
-</ng-template>
-
-
-<ng-template [ngIf]="!externalError && !quotaExceeded">
-    <div class="loading-item" *ngIf="!dragItem && loadingItem && !(chartData || dataset)">
-
-        <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 ">
-            <svg class="animate-spin h-14 w-14 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+@if (!viewOnly) {
+    @if (!dragItem && this.itemNoMove) {
+        <div class="absolute top-1 left-1 z-20 cursor-pointer"
+             (click)="lockItem()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                 class="h-5 w-5 text-gray-400">
+                <path fill-rule="evenodd"
+                      d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z"
+                      clip-rule="evenodd"/>
             </svg>
         </div>
-        <div class="px-4 text-center mt-4">Loading {{dashboardItemType.label}} ...</div>
-    </div>
-</ng-template>
+    }
+    @if (!dragItem && !this.itemNoMove) {
+        <div class="item-unlocked absolute top-1 left-1 z-20 cursor-pointer"
+             (click)="lockItem()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                 class="h-5 w-5 text-gray-400">
+                <path
+                    d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z"/>
+            </svg>
+        </div>
+    }
+}
 
-<ng-template [ngIf]="externalError">
+
+@if (!externalError && !quotaExceeded) {
+    @if (!dragItem && loadingItem && !(chartData || dataset)) {
+        <div class="loading-item">
+            <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 ">
+                <svg class="animate-spin h-14 w-14 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <div class="px-4 text-center mt-4">Loading {{ dashboardItemType.label }} ...</div>
+        </div>
+    }
+}
+
+@if (externalError) {
     <div class="loading-item">
         <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-red-100 ">
-            <svg class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            <svg class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                 aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
             </svg>
         </div>
         <div class="px-4 w-3/4 text-center mt-4">There was a problem loading this item. Please try again later.</div>
     </div>
-</ng-template>
+}
 
-<ng-template [ngIf]="quotaExceeded">
+@if (quotaExceeded) {
     <div class="loading-item">
         <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 ">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor"
                  class="h-10 w-10 text-blue-600">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
             </svg>
         </div>
-        <div class="px-4 w-3/4 text-center mt-4">{{quotaExceeded}}</div>
+        <div class="px-4 w-3/4 text-center mt-4">{{ quotaExceeded }}</div>
     </div>
-</ng-template>
+}
 
-<ng-template [ngIf]="!itemLocked">
-    <button *ngIf="!dragItem" mat-mini-fab class="edit-widget bg-white text-gray-500 bg-opacity-90"
-            [matMenuTriggerFor]="editMenu">
-        <mat-icon>more_horiz</mat-icon>
-    </button>
-    <mat-menu #editMenu="matMenu">
-        <ng-template [ngIf]="!viewOnly">
-            <button mat-menu-item (click)="configure()">
-                <mat-icon>edit</mat-icon>
-                Edit Item
-            </button>
-            <button *ngIf="existingGridItem" mat-menu-item (click)="duplicate()">
-                <mat-icon>copy_all</mat-icon>
-                Duplicate Item
-            </button>
-            <button *ngIf="canExportData" mat-menu-item (click)="exportData()">
-                <mat-icon>file_download</mat-icon>
-                Export Data
-            </button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="removeWidget($event)">
-                <mat-icon class="text-red-600">delete</mat-icon>
-                Delete Item
-            </button>
-        </ng-template>
-        <ng-template [ngIf]="viewOnly">
-            <button *ngIf="canExportData" mat-menu-item (click)="exportData()">
-                <mat-icon>file_download</mat-icon>
-                Export Data
-            </button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item (click)="editItemAlerts(null)">
-                <mat-icon color="primary">add</mat-icon>
-                <span>New Alert</span>
-            </button>
-            <ng-template [ngIf]="dashboardDatasetInstance">
-                <div mat-menu-item class="flex items-center justify-between p-0 "
-                     [ngClass]="{'border border-t border-b-0 border-r-0 border-l-0 border-solid border-gray-200': i === 0}"
-                     *ngFor="let alert of dashboardDatasetInstance.alerts; let i = index">
-                    <div class="px-4 flex items-center" (click)="editItemAlerts(alert, i)">
-                        <mat-icon>edit</mat-icon>
-                        <span>{{alert.title}}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="mx-2 divider"></div>
-                        <button mat-icon-button (click)="removeAlert($event, alert, i)">
-                            <mat-icon class="mx-2 text-red-600 m-0">highlight_off</mat-icon>
-                        </button>
-                    </div>
+@if (!itemLocked) {
+    @if (!dragItem) {
+        <button mat-mini-fab class="edit-widget bg-white text-gray-500 bg-opacity-90"
+                [matMenuTriggerFor]="editMenu">
+            <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #editMenu="matMenu">
+            @if (!viewOnly) {
+                <button mat-menu-item (click)="configure()">
+                    <mat-icon>edit</mat-icon>
+                    Edit Item
+                </button>
+                @if (existingGridItem) {
+                    <button mat-menu-item (click)="duplicate()">
+                        <mat-icon>copy_all</mat-icon>
+                        Duplicate Item
+                    </button>
+                }
+                @if (canExportData) {
+                    <button mat-menu-item (click)="exportData()">
+                        <mat-icon>file_download</mat-icon>
+                        Export Data
+                    </button>
+                }
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="removeWidget($event)">
+                    <mat-icon class="text-red-600">delete</mat-icon>
+                    Delete Item
+                </button>
+            }
+            @if (viewOnly) {
+                @if (canExportData) {
+                    <button mat-menu-item (click)="exportData()">
+                        <mat-icon>file_download</mat-icon>
+                        Export Data
+                    </button>
+                }
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="editItemAlerts(null)">
+                    <mat-icon color="primary">add</mat-icon>
+                    <span>New Alert</span>
+                </button>
+                @if (dashboardDatasetInstance) {
+                    @for (alert of dashboardDatasetInstance.alerts; track alert; let i = $index) {
+                        <div mat-menu-item class="flex items-center justify-between p-0 "
+                             [class]="{'border border-t border-b-0 border-r-0 border-l-0 border-solid border-gray-200': i === 0}"
+                        >
+                            <div class="px-4 flex items-center" (click)="editItemAlerts(alert, i)">
+                                <mat-icon>edit</mat-icon>
+                                <span>{{ alert.title }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="mx-2 divider"></div>
+                                <button mat-icon-button (click)="removeAlert($event, alert, i)">
+                                    <mat-icon class="mx-2 text-red-600 m-0">highlight_off</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </mat-menu>
+    }
+}
 
-                </div>
-            </ng-template>
-        </ng-template>
-    </mat-menu>
-</ng-template>
+@if (!dragItem && dashboardItemType.type === 'heading') {
+    @if (!dashboardItemType._editing) {
+        <div class="item-heading">
+            {{ bindParametersInString(dashboardItemType.headingValue) }}
+        </div>
+    }
+    @if (dashboardItemType._editing) {
+        <input type="text" [(ngModel)]="dashboardItemType.headingValue"
+               (blur)="updateHeading($event)" class="w-11/12">
+    }
+}
 
-<ng-template [ngIf]="!dragItem && dashboardItemType.type === 'heading'">
-
-    <div class="item-heading" *ngIf="!dashboardItemType._editing">
-        {{bindParametersInString(dashboardItemType.headingValue)}}
-    </div>
-
-    <input type="text" *ngIf="dashboardItemType._editing" [(ngModel)]="dashboardItemType.headingValue"
-           (blur)="updateHeading($event)" class="w-11/12">
-
-</ng-template>
-
-<ng-template [ngIf]="!dragItem && (chartData || dataset)">
-
-    <div class="item-title " *ngIf="general.name" [innerHTML]="general.evaluatedName"
-         [ngClass]="{'pb-4': !general.description, 'pb-2': general.description}"></div>
-
-    <div class="item-description text-sm" *ngIf="general.description"
-         [innerHTML]="general.evaluatedDescription"></div>
-
-    <ng-template [ngIf]="general.widgetParameters && _.values(general.widgetParameters).length">
+@if (!dragItem && (chartData || dataset)) {
+    @if (general.name) {
+        <div class="item-title " [innerHTML]="general.evaluatedName"
+             [class]="{'pb-4': !general.description, 'pb-2': general.description}"></div>
+    }
+    @if (general.description) {
+        <div class="item-description text-sm"
+             [innerHTML]="general.evaluatedDescription"></div>
+    }
+    @if (general.widgetParameters && _.values(general.widgetParameters).length) {
         <div class="p-2 bg-gray-100 w-full flex flex-wrap">
-            <ng-template ngFor let-parameter [ngForOf]="_.values(general.widgetParameters)" let-i=index>
+            @for (parameter of _.values(general.widgetParameters); track parameter; let i = $index) {
                 <label class="widget-parameter">
-                    {{parameter.title}}
+                    {{ parameter.title }}
                     <div class="parameter-input">
-                        <ng-template [ngIf]="parameter.type === 'text'">
+                        @if (parameter.type === 'text') {
                             <input type="text" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                    (keyup.enter)="reloadWidget()" required autofocus>
-                        </ng-template>
-                        <ng-template [ngIf]="parameter.type === 'numeric'">
+                        }
+                        @if (parameter.type === 'numeric') {
                             <input type="number" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                    (keyup.enter)="reloadWidget()" required autofocus>
-                        </ng-template>
-                        <ng-template [ngIf]="parameter.type === 'date' || parameter.type === 'datetime'">
-                            <ng-template [ngIf]="!parameter._dateType">
+                        }
+                        @if (parameter.type === 'date' || parameter.type === 'datetime') {
+                            @if (!parameter._dateType) {
                                 <div class="flex items-center">
                                     <button (click)="changeDateType($event, parameter, 'picker')"
                                             class="hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-2 rounded mr-2 bg-white flex items-center">
@@ -203,284 +238,307 @@
                                         Time Period
                                     </button>
                                 </div>
-                            </ng-template>
-                            <ng-template [ngIf]="parameter._dateType === 'picker'">
-                                <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'" placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
+                            }
+                            @if (parameter._dateType === 'picker') {
+                                <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'"
+                                       placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                                        (keyup.enter)="reloadWidget()" required autofocus>
-
                                 <a (click)="changeDateType($event, parameter, 'period')"
                                    matTooltip="Time Period"
                                    class="text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
                                     <mat-icon class="text-base">restore</mat-icon>
                                 </a>
-                            </ng-template>
-                            <ng-template [ngIf]="parameter._dateType === 'period'">
+                            }
+                            @if (parameter._dateType === 'period') {
                                 <div class="flex items-center">
                                     <input #periodValue type="number" placeholder="No." required autofocus
                                            class="w-16 mr-2" min="0" [value]="parameter._periodValue || 1"
                                            (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
-
                                     <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
-                                            #period (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
+                                            #period
+                                            (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
                                         <option value="DAYS">Days</option>
                                         <option value="HOURS">Hours</option>
                                     </select>
-
                                     <div>Ago</div>
                                 </div>
-
                                 <a (click)="changeDateType($event, parameter, 'picker')"
                                    matTooltip="Date Picker"
                                    class="text-center ml-2 hover:bg-gray-50 text-gray-800 border border-gray-300 py-0.5 pr-0.5 rounded mr-2 bg-white flex items-center">
                                     <mat-icon class="text-base">calendar_month</mat-icon>
                                 </a>
-                            </ng-template>
-
-                        </ng-template>
-                        <ng-template [ngIf]="parameter.type === 'boolean'">
+                            }
+                        }
+                        @if (parameter.type === 'boolean') {
                             <mat-slide-toggle class="pr-4" color="primary"
                                               [checked]="parameter.value" (change)="booleanUpdate($event, parameter)"
                                               required></mat-slide-toggle>
-                        </ng-template>
+                        }
                     </div>
                 </label>
-            </ng-template>
+            }
         </div>
-    </ng-template>
-
-    <div class="item-container" [ngClass]="{'flex justify-center': dashboardItemType.type === 'image',
+    }
+    <div class="item-container" [class]="{'flex justify-center': dashboardItemType.type === 'image',
         'p-px': (dashboardItemType.type === 'table' || general.transparent), 'overflow-hidden': !!chartData,
         'flex items-center': dashboardItemType.type === 'metric', 'cursor-pointer': (actionItem && Object.keys(actionItem).length)}"
          (click)="(actionItem && Object.keys(actionItem).length) ? callToActionLink(actionItem): null">
-
-        <ng-template [ngIf]="dashboardItemType.type === 'text' && textData.value">
-            <div class="h-full" *ngIf="textData.safeTextData" [innerHTML]="textData.safeTextData"></div>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'metric'">
+        @if (dashboardItemType.type === 'text' && textData.value) {
+            @if (textData.safeTextData) {
+                <div class="h-full" [innerHTML]="textData.safeTextData"></div>
+            }
+        }
+        @if (dashboardItemType.type === 'metric') {
             <div class="w-full">
-                <dt class="text-base font-normal text-gray-900">{{metric.title}}</dt>
+                <dt class="text-base font-normal text-gray-900">{{ metric.title }}</dt>
                 <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
                     <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
-                        {{metric.mainValue}}
-                        <span *ngIf="metric.subMetric"
-                              class="ml-2 text-sm font-medium text-gray-500">from {{metric.subValue}}
-                            <span class="text-xs">({{metric.subTitle}})</span></span>
+                        {{ metric.mainValue }}
+                        @if (metric.subMetric) {
+                            <span
+                                class="ml-2 text-sm font-medium text-gray-500">from {{ metric.subValue }}
+                                <span class="text-xs">({{ metric.subTitle }})</span></span>
+                        }
                     </div>
-
-                    <div *ngIf="metric.showSubChange"
-                         class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
-                         [ngClass]="{'bg-green-100 text-green-800': metric.mainValue >= metric.subValue, 'bg-red-100 text-red-800': metric.mainValue < metric.subValue}">
-                        <!-- Heroicon name: mini/arrow-up -->
-                        <svg *ngIf="metric.mainValue >= metric.subValue"
-                             class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500"
-                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                             aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                                  clip-rule="evenodd"/>
-                        </svg>
-                        <svg *ngIf="metric.mainValue < metric.subValue " xmlns="http://www.w3.org/2000/svg"
-                             viewBox="0 0 20 20" fill="currentColor"
-                             class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500">
-                            <path fill-rule="evenodd"
-                                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                                  clip-rule="evenodd"/>
-                        </svg>
-                        {{metric.difference}}
-                    </div>
+                    @if (metric.showSubChange) {
+                        <div
+                            class="inline-flex items-baseline px-2.5 py-0.5 rounded-full text-sm font-medium md:mt-2 lg:mt-0"
+                            [class]="{'bg-green-100 text-green-800': metric.mainValue >= metric.subValue, 'bg-red-100 text-red-800': metric.mainValue < metric.subValue}">
+                            <!-- Heroicon name: mini/arrow-up -->
+                            @if (metric.mainValue >= metric.subValue) {
+                                <svg
+                                    class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            }
+                            @if (metric.mainValue < metric.subValue) {
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 20 20" fill="currentColor"
+                                     class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500">
+                                    <path fill-rule="evenodd"
+                                          d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            }
+                            {{ metric.difference }}
+                        </div>
+                    }
                 </dd>
             </div>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'network'">
+        }
+        @if (dashboardItemType.type === 'network') {
             <div class="w-full h-full" [id]="itemInstanceKey + 'VIS'"></div>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'image'">
-            <div *ngIf="imageData.source" class="w-auto h-full">
-                <img [src]="imageData.source" alt=""
-                     (error)="imageError = true">
-            </div>
-
-            <div *ngIf="!imageData.source || imageError" class="h-full relative flex items-center justify-center">
-                <p class="z-10 text-lg">No image</p>
-                <svg xmlns="http://www.w3.org/2000/svg" class="filter blur-sm absolute w-auto h-full text-gray-300"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-            </div>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut'">
-            <canvas baseChart *ngIf="chartData" style="height: 200px"
-                    [datasets]="chartData"
-                    [labels]="dashboardItemType.labels"
-                    [options]="{tooltips: { titleFontSize: 0 }, responsive:true, maintainAspectRatio: false}"
-                    [legend]="!!dashboardItemType.legend"
-                    [type]="dashboardItemType.type"
-                    [plugins]="[]">
-            </canvas>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'line' || dashboardItemType.type === 'bar' || dashboardItemType.type === 'scatter'">
-            <canvas baseChart *ngIf="chartData" style="height: 200px"
-                    [datasets]="chartData"
-                    [labels]="dashboardItemType.labels"
-                    [options]="{tooltips: { titleFontSize: 0 }, scales: {y: {beginAtZero: dashboardItemType.beginAtZero, max: dashboardItemType.maxValue || null}}, responsive:true, maintainAspectRatio: false}"
-                    [legend]="!!dashboardItemType.legend"
-                    [type]="dashboardItemType.type"
-                    [plugins]="[]">
-            </canvas>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'table'">
-
+        }
+        @if (dashboardItemType.type === 'image') {
+            @if (imageData.source) {
+                <div class="w-auto h-full">
+                    <img [src]="imageData.source" alt=""
+                         (error)="imageError = true">
+                </div>
+            }
+            @if (!imageData.source || imageError) {
+                <div class="h-full relative flex items-center justify-center">
+                    <p class="z-10 text-lg">No image</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="filter blur-sm absolute w-auto h-full text-gray-300"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            }
+        }
+        @if (dashboardItemType.type === 'pie' || dashboardItemType.type === 'doughnut') {
+            @if (chartData) {
+                <canvas baseChart style="height: 200px"
+                        [datasets]="chartData"
+                        [labels]="dashboardItemType.labels"
+                        [options]="{tooltips: { titleFontSize: 0 }, responsive:true, maintainAspectRatio: false}"
+                        [legend]="!!dashboardItemType.legend"
+                        [type]="dashboardItemType.type"
+                        [plugins]="[]">
+                </canvas>
+            }
+        }
+        @if (dashboardItemType.type === 'line' || dashboardItemType.type === 'bar' || dashboardItemType.type === 'scatter') {
+            @if (chartData) {
+                <canvas baseChart style="height: 200px"
+                        [datasets]="chartData"
+                        [labels]="dashboardItemType.labels"
+                        [options]="{tooltips: { titleFontSize: 0 }, scales: {y: {beginAtZero: dashboardItemType.beginAtZero, max: dashboardItemType.maxValue || null}}, responsive:true, maintainAspectRatio: false}"
+                        [legend]="!!dashboardItemType.legend"
+                        [type]="dashboardItemType.type"
+                        [plugins]="[]">
+                </canvas>
+            }
+        }
+        @if (dashboardItemType.type === 'table') {
             <table class="min-w-full border-separate" style="border-spacing: 0">
                 <thead class="bg-gray-50 ">
                 <tr>
-                    <ng-template ngFor let-column [ngForOf]="dataset.columns">
-                        <th scope="col" *ngIf="!hiddenColumns[column.name]" (click)="sortHeader(column)"
-                            class="cursor-pointer sticky -top-px z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 p-3 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
-                            <div *ngIf="!tableCells[column.name] || tableCells[column.name].type !== 'action'"
-                                 class="flex items-center ">
-                                {{column.title}}
-                                <svg *ngIf="column.direction === 'asc'"
-                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="1.5"
-                                     stroke="currentColor" class="stroke-3 text-secondary ml-1 w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"/>
-                                </svg>
-                                <svg *ngIf="column.direction === 'desc'" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                     class="stroke-3 text-secondary ml-1 w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/>
-                                </svg>
-                            </div>
-                        </th>
-                    </ng-template>
+                    @for (column of dataset.columns; track column) {
+                        @if (!hiddenColumns[column.name]) {
+                            <th scope="col" (click)="sortHeader(column)"
+                                class="cursor-pointer sticky -top-px z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 p-3 text-left text-xs font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                @if (!tableCells[column.name] || tableCells[column.name].type !== 'action') {
+                                    <div
+                                        class="flex items-center ">
+                                        {{ column.title }}
+                                        @if (column.direction === 'asc') {
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5"
+                                                stroke="currentColor" class="stroke-3 text-secondary ml-1 w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"/>
+                                            </svg>
+                                        }
+                                        @if (column.direction === 'desc') {
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                 class="stroke-3 text-secondary ml-1 w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/>
+                                            </svg>
+                                        }
+                                    </div>
+                                }
+                            </th>
+                        }
+                    }
                 </tr>
                 </thead>
                 <tbody class="bg-white ">
-                <tr *ngFor="let dataItem of optimise ? dataset.allData.slice(0,10) : dataset.allData"
-                    [ngClass]="{'hover:bg-gray-50 cursor-pointer ': (tabular.actionRows && tabular.cta)}"
-                    (click)="(tabular.actionRows && tabular.cta) ? callToActionLink(tabular.cta, dataItem) : null">
-                    <ng-template ngFor let-column [ngForOf]="dataset.columns" let-i=index>
-                        <td *ngIf="!hiddenColumns[column.name]"
-                            [title]="(tableCells[column.name] && tableCells[column.name].maxWidth) ? dataItem[column.name] : ''"
-                            class="border-b border-gray-200  px-3 py-2 text-sm text-gray-500 relative"
-                            [ngClass]="{'whitespace-nowrap': !tabular.expandRows, 'font-medium text-gray-900': i === 0}"
-                            [ngStyle]="{'width': '', 'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
-                            <ng-template [ngIf]="tableCells[column.name] && tableCells[column.name].type === 'action'">
-                                <button type="button" *ngIf="tableCells[column.name].data.actionEvent"
-                                        [ngClass]="{'bg-orange-50 border-orange-200 hover:bg-orange-100': isActionComplete(tableCells[column.name].data.actionEvent, dataItem[column.name])}"
-                                        (click)="triggerActionEvent(tableCells[column.name].data.actionEvent, column, dataItem[column.name])"
-                                        class="text-gray-600 inline-flex items-center rounded border border-primary bg-gray-50 px-2.5 py-1.5 text-xs font-medium hover:bg-gray-100">
-                                    {{getActionEventTitle(tableCells[column.name].data.actionEvent, column, dataItem[column.name])}}
-                                </button>
-                            </ng-template>
-
-                            <ng-template [ngIf]="!tableCells[column.name] || tableCells[column.name].type !== 'action'">
-
-
-                                <ng-template [ngIf]="tabular.expandRows">
-                                    <div *ngIf="!_.isPlainObject(dataItem[column.name])"
-                                         [innerHTML]="dataItem[column.name]"></div>
-                                    <div *ngIf="_.isPlainObject(dataItem[column.name])"
-                                         [innerHTML]="dataItem[column.name].cellValue"></div>
-                                </ng-template>
-                                <ng-template [ngIf]="!tabular.expandRows && _.isPlainObject(dataItem[column.name])">
-                                    <div [innerHTML]="dataItem[column.name].cellValue"
-                                         [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
-                                </ng-template>
-                                <ng-template [ngIf]="!tabular.expandRows && !_.isPlainObject(dataItem[column.name])">
-                                    <ng-template
-                                        [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length <= 100">
-                                        {{dataItem[column.name]}}
-                                    </ng-template>
-                                    <ng-template
-                                        [ngIf]="dataItem[column.name] && String(dataItem[column.name]).length > 100">
-                                        <div
-                                            [ngStyle]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"
-                                            [title]="dataItem[column.name]">{{dataItem[column.name].substring(0, 100) + '...'}}</div>
-                                    </ng-template>
-                                    <ng-template [ngIf]="!dataItem[column.name]">
-                                        {{dataItem[column.name]}}
-                                    </ng-template>
-                                </ng-template>
-                            </ng-template>
-                        </td>
-                    </ng-template>
-
-                </tr>
-                <tr *ngIf="optimise && dataset.allData.length > 10">
-                    <td class="pl-3 text-gray-900 font-medium bg-gray-200" [colSpan]="dataset.columns.length">
-                        Results limited during editing for enhanced performance.
-                    </td>
-                </tr>
+                    @for (dataItem of optimise ? dataset.allData.slice(0, 10) : dataset.allData; track dataItem) {
+                        <tr
+                            [class]="{'hover:bg-gray-50 cursor-pointer ': (tabular.actionRows && tabular.cta)}"
+                            (click)="(tabular.actionRows && tabular.cta) ? callToActionLink(tabular.cta, dataItem) : null">
+                            @for (column of dataset.columns; track column; let i = $index) {
+                                @if (!hiddenColumns[column.name]) {
+                                    <td
+                                        [title]="(tableCells[column.name] && tableCells[column.name].maxWidth) ? dataItem[column.name] : ''"
+                                        class="border-b border-gray-200  px-3 py-2 text-sm text-gray-500 relative"
+                                        [class]="{'whitespace-nowrap': !tabular.expandRows, 'font-medium text-gray-900': i === 0}"
+                                        [style]="{'width': '', 'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}">
+                                        @if (tableCells[column.name] && tableCells[column.name].type === 'action') {
+                                            @if (tableCells[column.name].data.actionEvent) {
+                                                <button type="button"
+                                                        [class]="{'bg-orange-50 border-orange-200 hover:bg-orange-100': isActionComplete(tableCells[column.name].data.actionEvent, dataItem[column.name])}"
+                                                        (click)="triggerActionEvent(tableCells[column.name].data.actionEvent, column, dataItem[column.name])"
+                                                        class="text-gray-600 inline-flex items-center rounded border border-primary bg-gray-50 px-2.5 py-1.5 text-xs font-medium hover:bg-gray-100">
+                                                    {{ getActionEventTitle(tableCells[column.name].data.actionEvent, column, dataItem[column.name]) }}
+                                                </button>
+                                            }
+                                        }
+                                        @if (!tableCells[column.name] || tableCells[column.name].type !== 'action') {
+                                            @if (tabular.expandRows) {
+                                                @if (!_.isPlainObject(dataItem[column.name])) {
+                                                    <div
+                                                        [innerHTML]="dataItem[column.name]"></div>
+                                                }
+                                                @if (_.isPlainObject(dataItem[column.name])) {
+                                                    <div
+                                                        [innerHTML]="dataItem[column.name].cellValue"></div>
+                                                }
+                                            }
+                                            @if (!tabular.expandRows && _.isPlainObject(dataItem[column.name])) {
+                                                <div [innerHTML]="dataItem[column.name].cellValue"
+                                                     [style]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"></div>
+                                            }
+                                            @if (!tabular.expandRows && !_.isPlainObject(dataItem[column.name])) {
+                                                @if (dataItem[column.name] && String(dataItem[column.name]).length <= 100) {
+                                                    {{ dataItem[column.name] }}
+                                                }
+                                                @if (dataItem[column.name] && String(dataItem[column.name]).length > 100) {
+                                                    <div
+                                                        [style]="{'max-width': (tableCells[column.name] && tableCells[column.name].maxWidth) ? tableCells[column.name].maxWidth + 'px' : null, 'overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'hidden' : null, 'text-overflow': (tableCells[column.name] && tableCells[column.name].maxWidth) ? 'ellipsis' : null}"
+                                                        [title]="dataItem[column.name]">{{ dataItem[column.name].substring(0, 100) + '...' }}
+                                                    </div>
+                                                }
+                                                @if (!dataItem[column.name]) {
+                                                    {{ dataItem[column.name] }}
+                                                }
+                                            }
+                                        }
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                    @if (optimise && dataset.allData.length > 10) {
+                        <tr>
+                            <td class="pl-3 text-gray-900 font-medium bg-gray-200" [colSpan]="dataset.columns.length">
+                                Results limited during editing for enhanced performance.
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
-
-            <div *ngIf="!dataset.allData.length"
-                 class="no-table-records text-sm text-gray-500 flex m-0 justify-center items-center">
-                No records to show
+            @if (!dataset.allData.length) {
+                <div
+                    class="no-table-records text-sm text-gray-500 flex m-0 justify-center items-center">
+                    No records to show
+                </div>
+            }
+        }
+        @if (dashboardItemType.type === 'words') {
+            @if (wordCloud.data) {
+                <angular-d3-cloud
+                    [data]="wordCloud.data"
+                    [width]="wordCloud.width"
+                    [height]="wordCloud.height"
+                    [padding]="5"
+                    font="serif"
+                    [rotate]="0"
+                    [autoFill]="true"
+                ></angular-d3-cloud>
+            }
+        }
+    </div>
+    @if (!optimise && dashboardItemType.type === 'table' && !tabular.hidePager) {
+        <div
+            class="table-pager flex items-center justify-between px-2 border-t border-gray-200 h-12 bg-gray-50 w-full">
+            <div class="text-xs text-gray-400">
+                Showing {{ offset + 1 }} - {{ (page * limit) - (limit - dataset.allData.length) }}
             </div>
-        </ng-template>
-
-        <ng-template [ngIf]="dashboardItemType.type === 'words'">
-            <angular-d3-cloud *ngIf="wordCloud.data"
-                              [data]="wordCloud.data"
-                              [width]="wordCloud.width"
-                              [height]="wordCloud.height"
-                              [padding]="5"
-                              font="serif"
-                              [rotate]="0"
-                              [autoFill]="true"
-            ></angular-d3-cloud>
-        </ng-template>
-
-    </div>
-
-    <div *ngIf="!optimise && dashboardItemType.type === 'table' && !tabular.hidePager"
-         class="table-pager flex items-center justify-between px-2 border-t border-gray-200 h-12 bg-gray-50 w-full">
-        <div class="text-xs text-gray-400">
-            Showing {{offset + 1}} - {{(page * limit) - (limit - dataset.allData.length)}}</div>
-        <div class="flex items-center justify-center">
-            <button mat-icon-button (click)="decreaseOffset()" [disabled]="page <= 1">
-                <mat-icon>chevron_left</mat-icon>
-            </button>
-            <select [value]="limit" (change)="pageSizeChange($event.target.value)"
-                    class="p-1 mx-2">
-                <option [value]="1">1</option>
-                <option [value]="5">5</option>
-                <option [value]="10">10</option>
-                <option [value]="25">25</option>
-                <option [value]="50">50</option>
-                <option [value]="100">100</option>
-                <option [value]="250">250</option>
-                <option [value]="1000">1000</option>
-            </select>
-            <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
-                <mat-icon>chevron_right</mat-icon>
-            </button>
+            <div class="flex items-center justify-center">
+                <button mat-icon-button (click)="decreaseOffset()" [disabled]="page <= 1">
+                    <mat-icon>chevron_left</mat-icon>
+                </button>
+                <select [value]="limit" (change)="pageSizeChange($event.target.value)"
+                        class="p-1 mx-2">
+                    <option [value]="1">1</option>
+                    <option [value]="5">5</option>
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                    <option [value]="250">250</option>
+                    <option [value]="1000">1000</option>
+                </select>
+                <button mat-icon-button (click)="increaseOffset()" [disabled]="endOfResults">
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
+            </div>
         </div>
-    </div>
-
-    <div class="footer w-full bg-gray-50 px-2 py-1 text-gray-600 border-b border-gray-200 text-xs"
-         [ngClass]="{'border-b': callToAction && Object.keys(callToAction).length}"
-         *ngIf="general.footer" [innerHTML]="general.evaluatedFooter"></div>
-
-    <div class="call-to-action w-full bg-gray-50 px-5 py-3" *ngIf="callToAction && Object.keys(callToAction).length">
-        <div class="text-sm">
-            <a class="font-medium text-cta flex items-center"
-               (click)="callToActionLink(callToAction)">
-                {{callToAction.label}}
-                <mat-icon>chevron_right</mat-icon>
-            </a>
+    }
+    @if (general.footer) {
+        <div class="footer w-full bg-gray-50 px-2 py-1 text-gray-600 border-b border-gray-200 text-xs"
+             [class]="{'border-b': callToAction && Object.keys(callToAction).length}"
+             [innerHTML]="general.evaluatedFooter"></div>
+    }
+    @if (callToAction && Object.keys(callToAction).length) {
+        <div class="call-to-action w-full bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <a class="font-medium text-cta flex items-center"
+                   (click)="callToActionLink(callToAction)">
+                    {{ callToAction.label }}
+                    <mat-icon>chevron_right</mat-icon>
+                </a>
+            </div>
         </div>
-    </div>
-
-</ng-template>
+    }
+}

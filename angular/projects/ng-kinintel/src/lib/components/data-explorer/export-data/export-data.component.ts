@@ -1,9 +1,9 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DatasetService} from '../../../services/dataset.service';
 import * as fileSaver from 'file-saver';
 import * as lodash from 'lodash';
-import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 const _ = lodash.default;
 
@@ -11,7 +11,8 @@ const _ = lodash.default;
     selector: 'ki-export-data',
     templateUrl: './export-data.component.html',
     styleUrls: ['./export-data.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ExportDataComponent implements OnInit {
 

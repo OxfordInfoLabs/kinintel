@@ -1,186 +1,195 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>
-            {{feed.id ? 'Edit API Connection' : 'Create API Connection'}}
-        </h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>
+      {{feed.id ? 'Edit API Connection' : 'Create API Connection'}}
+    </h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <div class="dialog-content">
-        <div class="space-y-8 divide-y divide-gray-200">
-            <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+  <div class="dialog-content">
+    <div class="space-y-8 divide-y divide-gray-200">
+      <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
 
-                <div class="space-y-6 sm:space-y-5">
-                    <div>
-                        <h3 class="text-lg font-medium leading-6 text-gray-900">Setup API Connection</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following information in order to
-                            configure your API endpoint.</p>
-                    </div>
-                    <div class="space-y-6 sm:space-y-5">
-                        <div
-                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                API Path
-                            </label>
-                            <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                <div class="flex">
-                                  <span
-                                      class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                    {{feedUrl}}
-                                  </span>
-                                    <input type="text" class="w-full rounded-l-none"
-                                           [ngClass]="{'border-red-600': !!error}"
-                                           placeholder="my-new-data-feed" [(ngModel)]="feed.path">
-                                </div>
-                                <small *ngIf="!error" class="font-normal">The path used to identify this API
-                                    Connection</small>
-                                <small *ngIf="error" class="font-normal text-red-600">{{error}}</small>
-
-                            </div>
-                        </div>
-
-                        <div
-                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                API Data
-                            </label>
-                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                <input type="text" class="w-full" [matAutocomplete]="autoDatasets"
-                                       [value]="feed.datasetLabel ? feed.datasetLabel.title : ''"
-                                       (keyup)="searchText.next($event.target.value)" placeholder="Search for a query">
-                                <mat-autocomplete #autoDatasets="matAutocomplete" [displayWith]="displayFn">
-                                    <mat-option *ngFor="let dataset of datasets" [value]="dataset"
-                                                (onSelectionChange)="updateFeedDataset($event)">
-                                        {{dataset.title}}
-                                    </mat-option>
-                                </mat-autocomplete>
-                                <small class="font-normal">Start typing name to view available stored queries</small>
-                            </div>
-                        </div>
-
-                        <div
-                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Caching Options
-                            </label>
-                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                <mat-checkbox class="example-margin" [(ngModel)]="cacheEnabled"
-                                              (ngModelChange)="updateCacheEnabled($event)">
-                                    Enable API Caching
-                                </mat-checkbox>
-
-                                <div class="flex mt-4" *ngIf="cacheEnabled">
-                                      <span
-                                          class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                        Cache time in seconds
-                                      </span>
-                                    <input type="number" class="w-full rounded-l-none flex-1"
-                                           placeholder="time in seconds"
-                                           [(ngModel)]="feed.cacheTimeSeconds">
-                                </div>
-                                <small class="font-normal">Enable caching to reduce requests to the server. Setting
-                                    cache to zero will disable caching.</small>
-                            </div>
-                        </div>
-
-                        <div
-                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Export Type
-                            </label>
-                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                <select [(ngModel)]="feed.exporterKey">
-                                    <option value="sv">Separated Value</option>
-                                    <option value="json">JSON</option>
-                                </select>
-
-                                <ng-template [ngIf]="feed.exporterKey === 'sv'">
-                                    <mat-checkbox class="mb-2"
-                                                  [(ngModel)]="feed.exporterConfiguration.includeHeaderRow">
-                                        Include header row
-                                    </mat-checkbox>
-                                    <label class="mb-2">
-                                        Separator
-                                        <input type="text" [(ngModel)]="feed.exporterConfiguration.separator">
-                                        <small class="font-normal">Enter the character used to separate the
-                                            values.</small>
-                                    </label>
-                                </ng-template>
-                            </div>
-                        </div>
-
-                        <div *ngIf="feedDataset && parameters.length"
-                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Exposed Parameters
-                            </label>
-                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                <mat-selection-list [(ngModel)]="feed.exposedParameterNames">
-                                    <mat-list-option checkboxPosition="before" [value]="param.name"
-                                                     *ngFor="let param of parameters">
-                                        {{param.title}}
-                                    </mat-list-option>
-                                </mat-selection-list>
-                                <small class="font-normal">If selected, these parameters will be available to be
-                                    supplied as request parameters with names matching the parameter names.</small>
-                            </div>
-                        </div>
-
-                        <div *ngIf="feedDataset"
-                             class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Advanced Querying
-                            </label>
-                            <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
-                                <mat-checkbox class="example-margin" [(ngModel)]="feed.adhocFiltering">
-                                    Enable Adhoc Filtering
-                                </mat-checkbox>
-                                <small class="font-normal">Adhoc filtering allows adhoc field filters to be supplied as
-                                    request parameters
-                                    in the format field_operator=value</small>
-
-
-                                <mat-checkbox class="example-margin mt-3" [(ngModel)]="feed.advancedQuerying">
-                                    Enable Advanced Querying
-                                </mat-checkbox>
-
-                                <div class="flex mt-4" *ngIf="feed.advancedQuerying">
-                                      <span
-                                          class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                       Request Parameter Name
-                                      </span>
-                                    <input type="text" class="w-full rounded-l-none flex-1"
-                                           placeholder="Parameter name"
-                                           [(ngModel)]="feed.advancedQueryParameterName">
-                                </div>
-
-                                <small class="font-normal">Advanced querying allows for advanced queries to be supplied as a query string with nested
-                                boolean logic.</small>
-                            </div>
-
-
-
-                        </div>
-
-
-                    </div>
+        <div class="space-y-6 sm:space-y-5">
+          <div>
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Setup API Connection</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following information in order to
+            configure your API endpoint.</p>
+          </div>
+          <div class="space-y-6 sm:space-y-5">
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                API Path
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                <div class="flex">
+                  <span
+                    class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    {{feedUrl}}
+                  </span>
+                  <input type="text" class="w-full rounded-l-none"
+                    [class]="{'border-red-600': !!error}"
+                    placeholder="my-new-data-feed" [(ngModel)]="feed.path">
                 </div>
+                @if (!error) {
+                  <small class="font-normal">The path used to identify this API
+                  Connection</small>
+                }
+                @if (error) {
+                  <small class="font-normal text-red-600">{{error}}</small>
+                }
+
+              </div>
             </div>
+
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                API Data
+              </label>
+              <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                <input type="text" class="w-full" [matAutocomplete]="autoDatasets"
+                  [value]="feed.datasetLabel ? feed.datasetLabel.title : ''"
+                  (keyup)="searchText.next($event.target.value)" placeholder="Search for a query">
+                <mat-autocomplete #autoDatasets="matAutocomplete" [displayWith]="displayFn">
+                  @for (dataset of datasets; track dataset) {
+                    <mat-option [value]="dataset"
+                      (onSelectionChange)="updateFeedDataset($event)">
+                      {{dataset.title}}
+                    </mat-option>
+                  }
+                </mat-autocomplete>
+                <small class="font-normal">Start typing name to view available stored queries</small>
+              </div>
+            </div>
+
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Caching Options
+              </label>
+              <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                <mat-checkbox class="example-margin" [(ngModel)]="cacheEnabled"
+                  (ngModelChange)="updateCacheEnabled($event)">
+                  Enable API Caching
+                </mat-checkbox>
+
+                @if (cacheEnabled) {
+                  <div class="flex mt-4">
+                    <span
+                      class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                      Cache time in seconds
+                    </span>
+                    <input type="number" class="w-full rounded-l-none flex-1"
+                      placeholder="time in seconds"
+                      [(ngModel)]="feed.cacheTimeSeconds">
+                  </div>
+                }
+                <small class="font-normal">Enable caching to reduce requests to the server. Setting
+                cache to zero will disable caching.</small>
+              </div>
+            </div>
+
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Export Type
+              </label>
+              <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                <select [(ngModel)]="feed.exporterKey">
+                  <option value="sv">Separated Value</option>
+                  <option value="json">JSON</option>
+                </select>
+
+                @if (feed.exporterKey === 'sv') {
+                  <mat-checkbox class="mb-2"
+                    [(ngModel)]="feed.exporterConfiguration.includeHeaderRow">
+                    Include header row
+                  </mat-checkbox>
+                  <label class="mb-2">
+                    Separator
+                    <input type="text" [(ngModel)]="feed.exporterConfiguration.separator">
+                    <small class="font-normal">Enter the character used to separate the
+                    values.</small>
+                  </label>
+                }
+              </div>
+            </div>
+
+            @if (feedDataset && parameters.length) {
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Exposed Parameters
+                </label>
+                <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                  <mat-selection-list [(ngModel)]="feed.exposedParameterNames">
+                    @for (param of parameters; track param) {
+                      <mat-list-option checkboxPosition="before" [value]="param.name"
+                        >
+                        {{param.title}}
+                      </mat-list-option>
+                    }
+                  </mat-selection-list>
+                  <small class="font-normal">If selected, these parameters will be available to be
+                  supplied as request parameters with names matching the parameter names.</small>
+                </div>
+              </div>
+            }
+
+            @if (feedDataset) {
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Advanced Querying
+                </label>
+                <div class="flex flex-col mt-1 sm:col-span-2 sm:mt-0">
+                  <mat-checkbox class="example-margin" [(ngModel)]="feed.adhocFiltering">
+                    Enable Adhoc Filtering
+                  </mat-checkbox>
+                  <small class="font-normal">Adhoc filtering allows adhoc field filters to be supplied as
+                    request parameters
+                  in the format field_operator=value</small>
+                  <mat-checkbox class="example-margin mt-3" [(ngModel)]="feed.advancedQuerying">
+                    Enable Advanced Querying
+                  </mat-checkbox>
+                  @if (feed.advancedQuerying) {
+                    <div class="flex mt-4">
+                      <span
+                        class="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        Request Parameter Name
+                      </span>
+                      <input type="text" class="w-full rounded-l-none flex-1"
+                        placeholder="Parameter name"
+                        [(ngModel)]="feed.advancedQueryParameterName">
+                    </div>
+                  }
+                  <small class="font-normal">Advanced querying allows for advanced queries to be supplied as a query string with nested
+                  boolean logic.</small>
+                </div>
+              </div>
+            }
+
+
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+  <div class="dialog-footer">
+    <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
 
-        <button mat-button mat-flat-button color="primary" type="button"
-                (click)="saveFeed()"
-                [disabled]="!feed.path || !feed.datasetInstanceId || !feed.exporterKey">Save API Connection
-        </button>
-    </div>
+    <button mat-button mat-flat-button color="primary" type="button"
+      (click)="saveFeed()"
+      [disabled]="!feed.path || !feed.datasetInstanceId || !feed.exporterKey">Save API Connection
+    </button>
+  </div>
 
 </div>
 

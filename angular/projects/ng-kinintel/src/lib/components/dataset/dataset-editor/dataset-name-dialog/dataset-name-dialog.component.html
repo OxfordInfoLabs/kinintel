@@ -1,48 +1,50 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Dataset Details</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Dataset Details</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+
+    <div class="my-4">
+      <p><b>Title</b></p>
+      <input class="full" type="text" placeholder="Enter title" [(ngModel)]="datasetInstanceSummary.title">
     </div>
 
-    <div class="dialog-content">
-
-        <div class="my-4">
-            <p><b>Title</b></p>
-            <input class="full" type="text" placeholder="Enter title" [(ngModel)]="datasetInstanceSummary.title">
-        </div>
-
-        <div class="my-4">
-            <p><b>Summary</b></p>
-            <input class="full" type="text" placeholder="Enter summary" [(ngModel)]="datasetInstanceSummary.summary">
-        </div>
-
-        <div class="my-4">
-            <p><b>Description</b></p>
-            <textarea [(ngModel)]="datasetInstanceSummary.description" placeholder="Enter description" rows="5"
-                      class="w-full"></textarea>
-        </div>
-
-        <div class="my-4">
-            <p><b>Categories</b></p>
-
-            <mat-selection-list [compareWith]="showSelected" [(ngModel)]="datasetInstanceSummary.categories" >
-                <mat-list-option *ngFor="let category of categories" checkboxPosition="before" [value]="category">
-                    {{category.category}}
-                </mat-list-option>
-            </mat-selection-list>
-        </div>
-
+    <div class="my-4">
+      <p><b>Summary</b></p>
+      <input class="full" type="text" placeholder="Enter summary" [(ngModel)]="datasetInstanceSummary.summary">
     </div>
 
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close>Cancel</button>
-
-        <button mat-flat-button color="primary" [mat-dialog-close]="datasetInstanceSummary">Save Changes</button>
+    <div class="my-4">
+      <p><b>Description</b></p>
+      <textarea [(ngModel)]="datasetInstanceSummary.description" placeholder="Enter description" rows="5"
+      class="w-full"></textarea>
     </div>
+
+    <div class="my-4">
+      <p><b>Categories</b></p>
+
+      <mat-selection-list [compareWith]="showSelected" [(ngModel)]="datasetInstanceSummary.categories" >
+        @for (category of categories; track category) {
+          <mat-list-option checkboxPosition="before" [value]="category">
+            {{category.category}}
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    </div>
+
+  </div>
+
+  <div class="dialog-footer">
+    <button mat-button mat-dialog-close>Cancel</button>
+
+    <button mat-flat-button color="primary" [mat-dialog-close]="datasetInstanceSummary">Save Changes</button>
+  </div>
 
 </div>
 

@@ -3,7 +3,8 @@ import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 @Component({
     selector: 'ki-dataset-parameter-type',
     templateUrl: './dataset-parameter-type.component.html',
-    styleUrls: ['./dataset-parameter-type.component.sass']
+    styleUrls: ['./dataset-parameter-type.component.sass'],
+    standalone: false
 })
 export class DatasetParameterTypeComponent implements OnInit {
 

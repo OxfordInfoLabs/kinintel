@@ -6,14 +6,13 @@
         "outDir": "./dist/out-tsc",
         "sourceMap": true,
         "declaration": false,
-        "downlevelIteration": true,
         "experimentalDecorators": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "importHelpers": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
         "allowUmdGlobalAccess": true,
         "resolveJsonModule": true,
+        "skipLibCheck": true,
         "paths": {
             "ng-kinintel/*": [
                 "projects/ng-kinintel/*",

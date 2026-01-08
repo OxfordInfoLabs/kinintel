@@ -1,95 +1,88 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Query Caching</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Query Caching</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <ng-template [ngIf]="cache">
-
-
-        <div class="dialog-content">
-
-            <div class="space-y-8 divide-y divide-gray-200">
-                <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
-
-                    <div class="space-y-6 sm:space-y-5">
-                        <div>
-                            <h3 class="text-lg font-medium leading-6 text-gray-900">Create a query cache</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                                Enter the following details to configure your caching data set.
-                            </p>
-                        </div>
-                        <div
-                            class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                            <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                Snapshot Title<span class="ml-1 text-red-600">*</span>
-                            </label>
-                            <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                <input type="text" #cacheTitle="ngModel"
-                                       [ngClass]="{'border border-red-600': cacheTitle.invalid}"
-                                       [(ngModel)]="cache.title" required
-                                       class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                            </div>
-                        </div>
-                        <div class="space-y-6 sm:space-y-5">
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Cache Expiry Days
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <input type="number"
-                                           [(ngModel)]="cache.config.cacheExpiryDays" required
-                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                </div>
-                            </div>
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Cache Expiry Hours
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <input type="number"
-                                           [(ngModel)]="cache.config.cacheExpiryHours" required
-                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                </div>
-                            </div>
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Primary Key Column Names
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <mat-select [(ngModel)]="cache.config.primaryKeyColumnNames"
-                                                name="primaryKeyColumnNames" required [multiple]="true">
-                                        <mat-option [value]="column.name"
-                                                    *ngFor="let column of columns">{{ column.title }}
-                                        </mat-option>
-                                    </mat-select>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
+  @if (cache) {
+    <div class="dialog-content">
+      <div class="space-y-8 divide-y divide-gray-200">
+        <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+          <div class="space-y-6 sm:space-y-5">
+            <div>
+              <h3 class="text-lg font-medium leading-6 text-gray-900">Create a query cache</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                Enter the following details to configure your caching data set.
+              </p>
             </div>
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Snapshot Title<span class="ml-1 text-red-600">*</span>
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                <input type="text" #cacheTitle="ngModel"
+                  [class]="{'border border-red-600': cacheTitle.invalid}"
+                  [(ngModel)]="cache.title" required
+                  class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+              </div>
+            </div>
+            <div class="space-y-6 sm:space-y-5">
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Cache Expiry Days
+                </label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <input type="number"
+                    [(ngModel)]="cache.config.cacheExpiryDays" required
+                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                </div>
+              </div>
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Cache Expiry Hours
+                </label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <input type="number"
+                    [(ngModel)]="cache.config.cacheExpiryHours" required
+                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                </div>
+              </div>
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Primary Key Column Names
+                </label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <mat-select [(ngModel)]="cache.config.primaryKeyColumnNames"
+                    name="primaryKeyColumnNames" required [multiple]="true">
+                    @for (column of columns; track column) {
+                      <mat-option [value]="column.name"
+                        >{{ column.title }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div class="dialog-footer">
-
-            <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
-
-            <button mat-flat-button color="primary" (click)="saveQueryCache()"
-                [disabled]="!cache.title">
-                Save Query Cache
-            </button>
-        </div>
-
-    </ng-template>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+      <button mat-flat-button color="primary" (click)="saveQueryCache()"
+        [disabled]="!cache.title">
+        Save Query Cache
+      </button>
+    </div>
+  }
 
 </div>
 

@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {DashboardService} from '../../../services/dashboard.service';
 import {DatasetService} from '../../../services/dataset.service';
@@ -11,7 +11,8 @@ import * as _ from 'lodash';
     selector: 'ki-project-link-selection',
     templateUrl: './project-link-selection.component.html',
     styleUrls: ['./project-link-selection.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ProjectLinkSelectionComponent implements OnInit {
 

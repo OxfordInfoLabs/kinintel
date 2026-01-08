@@ -8,7 +8,8 @@ import moment from 'moment';
 @Component({
     selector: 'ki-alert-groups',
     templateUrl: './alert-groups.component.html',
-    styleUrls: ['./alert-groups.component.sass']
+    styleUrls: ['./alert-groups.component.sass'],
+    standalone: false
 })
 export class AlertGroupsComponent implements OnInit {
 

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {NotificationService} from '../../services/notification.service';
 import {EditNotificationGroupComponent} from '../notification-groups/edit-notification-group/edit-notification-group.component';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject, merge, Subject} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import * as lodash from 'lodash';
@@ -11,7 +11,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-notification-groups',
     templateUrl: './notification-groups.component.html',
-    styleUrls: ['./notification-groups.component.sass']
+    styleUrls: ['./notification-groups.component.sass'],
+    standalone: false
 })
 export class NotificationGroupsComponent implements OnInit {
 

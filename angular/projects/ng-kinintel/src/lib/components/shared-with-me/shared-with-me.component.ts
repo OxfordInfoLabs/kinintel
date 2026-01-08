@@ -3,7 +3,7 @@ import {BehaviorSubject, merge, Observable, of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
 import {DatasetService} from '../../services/dataset.service';
 import {DataExplorerComponent} from '../data-explorer/data-explorer.component';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import shortHash from 'short-hash';
 import * as lodash from 'lodash';
@@ -17,7 +17,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-shared-with-me',
     templateUrl: './shared-with-me.component.html',
-    styleUrls: ['./shared-with-me.component.sass']
+    styleUrls: ['./shared-with-me.component.sass'],
+    standalone: false
 })
 export class SharedWithMeComponent implements OnInit {
 

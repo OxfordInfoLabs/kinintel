@@ -1,10 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'ki-change-source-warning',
     templateUrl: './change-source-warning.component.html',
-    styleUrls: ['./change-source-warning.component.sass']
+    styleUrls: ['./change-source-warning.component.sass'],
+    standalone: false
 })
 export class ChangeSourceWarningComponent implements OnInit {
 

@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DatasourceService} from '../../../services/datasource.service';
 import {DatasetService} from '../../../services/dataset.service';
 
@@ -7,7 +7,8 @@ import {DatasetService} from '../../../services/dataset.service';
     selector: 'ki-create-dataset',
     templateUrl: './create-dataset.component.html',
     styleUrls: ['./create-dataset.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class CreateDatasetComponent implements OnInit {
 

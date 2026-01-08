@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 
@@ -7,7 +7,8 @@ const _ = lodash.default;
     selector: 'ki-dataset-create-formula',
     templateUrl: './dataset-create-formula.component.html',
     styleUrls: ['./dataset-create-formula.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetCreateFormulaComponent implements OnInit {
 

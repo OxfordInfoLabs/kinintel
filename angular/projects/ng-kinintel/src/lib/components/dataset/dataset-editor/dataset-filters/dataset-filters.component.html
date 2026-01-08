@@ -1,47 +1,49 @@
 <div class="top-filters">
-    <div class="filter">
-        <div class="flex align-center justify-between">
-            <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
-                                     [ngStyle]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
-                <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
-                <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
-            </mat-button-toggle-group>
+  <div class="filter">
+    <div class="flex align-center justify-between">
+      <mat-button-toggle-group [(ngModel)]="filterJunction.logic"
+        [style]="{visibility: (filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'hidden': 'visible'}">
+        <mat-button-toggle value="AND">All of the following apply</mat-button-toggle>
+        <mat-button-toggle value="OR">Any of the following apply</mat-button-toggle>
+      </mat-button-toggle-group>
 
 
 
-        </div>
-
-        <div *ngIf="!joinFilterFields" class="flex {{(filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'mt-0': 'mt-2'}}">
-            <ki-dataset-filter-inclusion class="-ml-2" [filter]="filterJunction" [parameterValues]="parameterValues"
-                dependsString="Filter group depends"></ki-dataset-filter-inclusion>
-        </div>
-
-        <ng-template ngFor let-filter [ngForOf]="filterJunction.filters" let-i=index>
-
-            <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
-                               [joinFieldsName]="joinFieldsName" [openSide]="openSide"
-                               [parameterValues]="parameterValues"
-                               [filterFields]="filterFields" [joinFilterFields]="joinFilterFields"></ki-dataset-filter>
-
-        </ng-template>
-        <div>
-            <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
-                <mat-icon>add_circle</mat-icon>
-                filter
-            </button>
-            <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')"
-                    [disabled]="!filterJunction.filters.length">
-                <mat-icon>playlist_add</mat-icon>
-                filter group
-            </button>
-        </div>
     </div>
 
+    @if (!joinFilterFields) {
+      <div class="flex {{(filterJunction.filters.length <= 1 && filterJunction.filterJunctions.length === 0) ? 'mt-0': 'mt-2'}}">
+        <ki-dataset-filter-inclusion class="-ml-2" [filter]="filterJunction" [parameterValues]="parameterValues"
+        dependsString="Filter group depends"></ki-dataset-filter-inclusion>
+      </div>
+    }
 
-    <div class="group-filters mb-4" *ngFor="let junction of filterJunction.filterJunctions; let j = index">
-        <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]" [openSide]="openSide"
-                                    [joinFilterFields]="joinFilterFields" [joinFieldsName]="joinFieldsName"
-                                    [parameterValues]="parameterValues"
-                                    [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
+    @for (filter of filterJunction.filters; track filter; let i = $index) {
+      <ki-dataset-filter [filter]="filter" [filterJunction]="filterJunction" [filterIndex]="i"
+        [joinFieldsName]="joinFieldsName" [openSide]="openSide"
+        [parameterValues]="parameterValues"
+      [filterFields]="filterFields" [joinFilterFields]="joinFilterFields"></ki-dataset-filter>
+    }
+    <div>
+      <button mat-button color="primary" title="Add single filter" (click)="addFilter('single')">
+        <mat-icon>add_circle</mat-icon>
+        filter
+      </button>
+      <button mat-button color="primary" title="Add group filters" (click)="addFilter('group')"
+        [disabled]="!filterJunction.filters.length">
+        <mat-icon>playlist_add</mat-icon>
+        filter group
+      </button>
     </div>
+  </div>
+
+
+  @for (junction of filterJunction.filterJunctions; track junction; let j = $index) {
+    <div class="group-filters mb-4">
+      <ki-dataset-filter-junction [(filterJunction)]="filterJunction.filterJunctions[j]" [openSide]="openSide"
+        [joinFilterFields]="joinFilterFields" [joinFieldsName]="joinFieldsName"
+        [parameterValues]="parameterValues"
+      [filterFields]="filterFields" [parentJunction]="filterJunction" [junctionIndex]="j"></ki-dataset-filter-junction>
+    </div>
+  }
 </div>

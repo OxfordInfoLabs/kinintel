@@ -1,61 +1,63 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Edit Metadata</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Edit Metadata</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+
+    <div class="my-4">
+      <p><b>Title</b></p>
+      <input class="full" type="text" placeholder="Enter title" [(ngModel)]="metadata.title">
     </div>
 
-    <div class="dialog-content">
-
-        <div class="my-4">
-            <p><b>Title</b></p>
-            <input class="full" type="text" placeholder="Enter title" [(ngModel)]="metadata.title">
-        </div>
-
-        <div class="my-4">
-            <p><b>Summary</b></p>
-            <input class="full" type="text" placeholder="Enter summary" [(ngModel)]="metadata.summary">
-        </div>
-
-        <div class="my-4">
-            <p><b>Description</b></p>
-            <textarea [(ngModel)]="metadata.description" placeholder="Enter description" rows="5"
-                class="w-full"></textarea>
-        </div>
-
-        <div class="my-4">
-            <p><b>Categories</b></p>
-
-            <mat-selection-list [compareWith]="showSelected" [(ngModel)]="metadata.categories" >
-                <mat-list-option *ngFor="let category of categories" checkboxPosition="before" [value]="category">
-                    {{category.category}}
-                </mat-list-option>
-            </mat-selection-list>
-        </div>
-
-        <div class="my-4">
-            <p><b>Add New Category</b></p>
-
-            <input class="full" type="text" placeholder="Enter name" [(ngModel)]="newCategory.category" required>
-            <input class="full mt-4" type="text" placeholder="Enter description" [(ngModel)]="newCategory.description">
-            <div class="flex items-center justify-between mt-4">
-                <div></div>
-                <button mat-stroked-button color="primary" [disabled]="!newCategory.category" (click)="addCategory()">Add Category</button>
-            </div>
-        </div>
-
+    <div class="my-4">
+      <p><b>Summary</b></p>
+      <input class="full" type="text" placeholder="Enter summary" [(ngModel)]="metadata.summary">
     </div>
 
-    <div class="dialog-footer">
-        <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
-
-        <button mat-button mat-flat-button color="primary" type="button"
-                (click)="saveMetadata()">Save Metadata
-        </button>
+    <div class="my-4">
+      <p><b>Description</b></p>
+      <textarea [(ngModel)]="metadata.description" placeholder="Enter description" rows="5"
+      class="w-full"></textarea>
     </div>
+
+    <div class="my-4">
+      <p><b>Categories</b></p>
+
+      <mat-selection-list [compareWith]="showSelected" [(ngModel)]="metadata.categories" >
+        @for (category of categories; track category) {
+          <mat-list-option checkboxPosition="before" [value]="category">
+            {{category.category}}
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    </div>
+
+    <div class="my-4">
+      <p><b>Add New Category</b></p>
+
+      <input class="full" type="text" placeholder="Enter name" [(ngModel)]="newCategory.category" required>
+      <input class="full mt-4" type="text" placeholder="Enter description" [(ngModel)]="newCategory.description">
+      <div class="flex items-center justify-between mt-4">
+        <div></div>
+        <button mat-stroked-button color="primary" [disabled]="!newCategory.category" (click)="addCategory()">Add Category</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="dialog-footer">
+    <button mat-button mat-dialog-close mat-stroked-button type="button">Close</button>
+
+    <button mat-button mat-flat-button color="primary" type="button"
+      (click)="saveMetadata()">Save Metadata
+    </button>
+  </div>
 
 </div>
 

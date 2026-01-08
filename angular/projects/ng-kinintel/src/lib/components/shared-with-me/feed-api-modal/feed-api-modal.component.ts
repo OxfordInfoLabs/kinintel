@@ -1,16 +1,18 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialog as MatDialog,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
-import {HttpClient} from '@angular/common/http';
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef
+} from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'ki-feed-api-modal',
     templateUrl: './feed-api-modal.component.html',
     styleUrls: ['./feed-api-modal.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class FeedApiModalComponent implements OnInit {
 

@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NotificationService} from '../../../../lib/services/notification.service';
 import {AlertService} from '../../../../lib/services/alert.service';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {EditNotificationGroupComponent} from '../../notification-groups/edit-notification-group/edit-notification-group.component';
 import * as lodash from 'lodash';
 const _ = lodash.default;
@@ -10,7 +10,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 @Component({
     selector: 'ki-edit-alert-group',
     templateUrl: './edit-alert-group.component.html',
-    styleUrls: ['./edit-alert-group.component.sass']
+    styleUrls: ['./edit-alert-group.component.sass'],
+    standalone: false
 })
 export class EditAlertGroupComponent implements OnInit {
 

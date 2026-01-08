@@ -5,7 +5,7 @@ import {DataProcessorService, } from '../../services/data-processor.service';
 import * as lodash from 'lodash';
 import {Router} from '@angular/router';
 import {DatasetService} from '../../services/dataset.service';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {
     EditQueryCacheComponent
 } from '../query-caching/edit-query-cache/edit-query-cache.component';
@@ -14,7 +14,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-query-caching',
     templateUrl: './query-caching.component.html',
-    styleUrls: ['./query-caching.component.sass']
+    styleUrls: ['./query-caching.component.sass'],
+    standalone: false
 })
 export class QueryCachingComponent implements OnInit {
 

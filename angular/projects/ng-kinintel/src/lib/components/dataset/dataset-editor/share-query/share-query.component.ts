@@ -1,12 +1,12 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef
+} from '@angular/material/dialog';
 import {AccountService, AuthenticationService} from 'ng-kiniauth';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {DatasetService} from '../../../../services/dataset.service';
-import moment from "moment";
+import moment from 'moment';
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
@@ -15,7 +15,8 @@ const _ = lodash.default;
     selector: 'ki-share-query',
     templateUrl: './share-query.component.html',
     styleUrls: ['./share-query.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class ShareQueryComponent implements OnInit {
 

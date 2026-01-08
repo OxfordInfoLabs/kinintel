@@ -6,7 +6,7 @@ import {TagService} from '../../services/tag.service';
 import {ProjectService} from '../../services/project.service';
 import {DashboardService} from '../../services/dashboard.service';
 import {KININTEL_CONFIG, KinintelModuleConfig} from '../../kinintel-config';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {MetadataComponent} from '../metadata/metadata.component';
 import * as lodash from 'lodash';
 const _ = lodash.default;
@@ -14,7 +14,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-dashboards',
     templateUrl: './dashboards.component.html',
-    styleUrls: ['./dashboards.component.sass']
+    styleUrls: ['./dashboards.component.sass'],
+    standalone: false
 })
 export class DashboardsComponent implements OnInit {
 

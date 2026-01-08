@@ -28,8 +28,8 @@ const _ = lodash.default;
 import {
     DatasetAddParameterComponent
 } from '../dataset/dataset-editor/dataset-parameter-values/dataset-add-parameter/dataset-add-parameter.component';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
-import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {AlertService} from '../../services/alert.service';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import moment from 'moment';
@@ -45,7 +45,8 @@ import {DatasetService} from '../../services/dataset.service';
     selector: 'ki-dashboard-editor',
     templateUrl: './dashboard-editor.component.html',
     styleUrls: ['./dashboard-editor.component.sass'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class DashboardEditorComponent implements ComponentCanDeactivate, OnInit, AfterViewInit, OnDestroy {
 

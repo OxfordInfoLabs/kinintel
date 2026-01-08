@@ -1,9 +1,9 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DatasetService} from '../../../services/dataset.service';
 import * as lodash from 'lodash';
-import {MatLegacySelect as MatSelect} from '@angular/material/legacy-select';
-import { MatLegacyOption as MatOption } from '@angular/material/legacy-core';
+import {MatSelect} from '@angular/material/select';
+import {MatOption} from '@angular/material/core';
 import {TaskTimePeriodsComponent} from '../../task-time-periods/task-time-periods.component';
 import {NgForm, NgModel} from '@angular/forms';
 import {DataProcessorService} from '../../../services/data-processor.service';
@@ -13,7 +13,8 @@ const _ = lodash.default;
     selector: 'ki-snapshot-profile-dialog',
     templateUrl: './snapshot-profile-dialog.component.html',
     styleUrls: ['./snapshot-profile-dialog.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class SnapshotProfileDialogComponent implements OnInit {
 

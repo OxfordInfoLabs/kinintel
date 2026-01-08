@@ -1,374 +1,367 @@
 <div class="dialog" cdkDrag cdkDragRootElement=".cdk-overlay-pane">
 
-    <div class="dialog-title" cdkDragHandle>
-        <h2 mat-dialog-title>Snapshot Profile</h2>
+  <div class="dialog-title" cdkDragHandle>
+    <h2 mat-dialog-title>Snapshot Profile</h2>
 
-        <button mat-icon-button mat-dialog-close>
-            <mat-icon>clear</mat-icon>
-        </button>
-    </div>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
 
-    <ng-template [ngIf]="snapshot">
-
-
-        <div class="dialog-content">
-
-            <div class="space-y-8 divide-y divide-gray-200">
-                <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
-
-                    <div class="space-y-6 sm:space-y-5">
-                        <div>
-                            <h3 class="text-lg font-medium leading-6 text-gray-900">Create a snapshot profile</h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following information in order to
-                                configure your snapshot.</p>
-                        </div>
-                        <div class="space-y-6 sm:space-y-5">
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Snapshot Title<span class="ml-1 text-red-600">*</span>
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <input type="text" #snapshotTitle="ngModel"
-                                           [ngClass]="{'border border-red-600': snapshotTitle.invalid}"
-                                           [(ngModel)]="snapshot.title" required
-                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                </div>
-                            </div>
-
-                            <div *ngIf="snapshot.config.parameterValues && Object.keys(snapshot.config.parameterValues).length"
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Parameter Values
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <ng-template ngFor let-parameterKey [ngForOf]="Object.keys(snapshot.config.parameterValues)">
-                                        <div class="text-gray-600 text-xs">{{_.startCase(parameterKey)}}</div>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'text'">
-                                            <input type="text" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
-                                                   placeholder="Enter a value for {{_.startCase(parameterKey)}}"
-                                                   class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                        </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'numeric'">
-                                            <input type="number" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
-                                                   placeholder="Enter a value for {{_.startCase(parameterKey)}}"
-                                                   class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                        </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'list'">
-                                            <select class="pr-8" [(ngModel)]="snapshot.config.parameterValues[parameterKey]">
-                                                <option *ngFor="let item of _.find(parameters, {name: parameterKey}).list" [value]="item.value">
-                                                    {{item.label}}</option>
-                                            </select>
-                                        </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'date'">
-                                            <input type="date" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
-                                                   placeholder="Enter a value for {{_.startCase(parameterKey)}}"
-                                                   class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                        </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'datetime'">
-                                            <input type="datetime-local" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
-                                                   placeholder="Enter a value for {{_.startCase(parameterKey)}}"
-                                                   class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-                                        </ng-template>
-                                        <ng-template [ngIf]="_.find(parameters, {name: parameterKey})?.type === 'boolean'">
-                                            <mat-slide-toggle class="pr-8" color="primary"
-                                                              [(ngModel)]="snapshot.config.parameterValues[parameterKey]">
-                                            </mat-slide-toggle>
-                                        </ng-template>
-                                    </ng-template>
-                                </div>
-                            </div>
-
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Snapshot Trigger</label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <mat-radio-group [(ngModel)]="snapshot.trigger">
-                                        <mat-radio-button class="mr-4" value="scheduled">Scheduled</mat-radio-button>
-                                        <mat-radio-button value="adhoc">Ad hoc</mat-radio-button>
-                                    </mat-radio-group>
-                                </div>
-                            </div>
-
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Snapshot Processor</label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <mat-radio-group [(ngModel)]="snapshot.type">
-                                        <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard
-                                        </mat-radio-button>
-                                        <mat-radio-button value="tabulardatasetincrementalsnapshot">Incremental
-                                        </mat-radio-button>
-                                    </mat-radio-group>
-                                </div>
-                            </div>
-
-                            <ng-template [ngIf]="snapshot.type === 'tabulardatasetincrementalsnapshot'">
-                                <div
-                                    class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        Newer Values Field Name
-                                    </label>
-                                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                        <mat-select [(ngModel)]="snapshot.config.newerValuesFieldName"
-                                                    name="newerValuesFieldName" required>
-                                            <mat-option [value]="column.name"
-                                                        *ngFor="let column of columns">{{ column.title }}
-                                            </mat-option>
-                                        </mat-select>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                    <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        Newer Values Rules
-                                    </label>
-                                    <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                        <mat-select [(ngModel)]="snapshot.config.newerValuesRules"
-                                                    name="newerValuesRules" required>
-                                            <mat-option value="GREATER">Greater Than</mat-option>
-                                            <mat-option value="GREATER_OR_EQUAL">Greater Than or Equal To</mat-option>
-                                            <mat-option value="LESSER">Lesser Than</mat-option>
-                                            <mat-option value="LESSER_OR_EQUAL">Lesser Than or Equal To</mat-option>
-                                        </mat-select>
-                                    </div>
-                                </div>
-                            </ng-template>
-
-                            <div *ngIf="snapshot.type === 'tabulardatasetsnapshot'"
-                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Snapshot Type</label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0 flex flex-col">
-                                    <mat-checkbox [(ngModel)]="snapshot.config.createHistory"
-                                                  (ngModelChange)="updateCreateHistory($event)">
-                                        Historical
-                                    </mat-checkbox>
-                                    <div class="text-xs text-gray-600 mb-4">Create regular data snapshots based on the
-                                        time periods below.
-                                    </div>
-                                    <mat-checkbox [(ngModel)]="snapshot.config.createLatest"
-                                                  [disabled]="snapshot.config.createHistory">
-                                        Latest
-                                    </mat-checkbox>
-                                    <div class="text-xs text-gray-600 mb-2">Save the latest data snapshot as it's own
-                                        entity, separate from the history.
-                                    </div>
-                                    <div
-                                        *ngIf="!_.some([snapshot.config.createHistory, snapshot.config.createLatest])"
-                                        class="mt-6 border-l-4 border-red-600 bg-red-50 p-4">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0">
-                                                <!-- Heroicon name: mini/exclamation-triangle -->
-                                                <svg class="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg"
-                                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                    <path fill-rule="evenodd"
-                                                          d="M8.485 3.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 3.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                                                          clip-rule="evenodd"/>
-                                                </svg>
-                                            </div>
-                                            <div class="ml-3">
-                                                <p class="mb-0 text-sm text-red-700">
-                                                    Please select one snapshot type.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div *ngIf="snapshot.trigger === 'scheduled'"
-                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Time Periods</label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <ki-task-time-periods #timePeriods class="block" [showTitle]="false"
-                                                          [(taskTimePeriods)]="snapshot.taskTimePeriods"></ki-task-time-periods>
-                                </div>
-                            </div>
-
-
-
-
-                            <div *ngIf="snapshot.config.createHistory && snapshot.type === 'tabulardatasetsnapshot'"
-                                 class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time Lapse
-                                    Fields</label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <div class="time-lapsed-field"
-                                         *ngFor="let timeLapse of snapshot.config.timeLapsedFields; let i = index">
-                                        <div>
-                                            <div class="mb-1"><b>Day Offsets:</b> {{ timeLapse.dayOffsets.join(', ') }}
-                                            </div>
-                                            <div><b>Field Names:</b> {{ timeLapse.fieldNames.join(', ') }}</div>
-                                        </div>
-                                        <button mat-icon-button color="warn" (click)="removeTimeLapsedField(i)">
-                                            <mat-icon>clear</mat-icon>
-                                        </button>
-                                    </div>
-                                    <button mat-button color="primary" (click)="addTimeLapsedField()">
-                                        <mat-icon>date_range</mat-icon>&nbsp;Add time lapsed field
-                                    </button>
-
-                                    <div class="w-full bg-gray-50 p-4 mt-4" *ngIf="newTimeLapse">
-                                        <div class="mb-2 text-xs ">Select the desired offsets for the time lapse, along
-                                            with field names then click
-                                            <span class="font-medium">Save time lapse</span></div>
-                                        <form #timeLapseForm="ngForm" class="w-1/2">
-                                            <label class="mb-4">
-                                                Day Offsets
-                                                <mat-select [(ngModel)]="newTimeLapse.dayOffsets"
-                                                            name="offsets" required multiple>
-                                                    <mat-option [value]="offset.value"
-                                                                *ngFor="let offset of defaultOffsets">{{ offset.label }}
-                                                    </mat-option>
-                                                    <mat-option [value]="'CUSTOM'">Custom period</mat-option>
-                                                </mat-select>
-                                            </label>
-
-                                            <label class="mb-4"
-                                                   *ngIf="newTimeLapse.dayOffsets && newTimeLapse.dayOffsets.indexOf('CUSTOM') > -1">
-                                                Custom Offset
-                                                <div class="mt-1 flex custom-offset shadow-sm">
-                                                    <input type="number" name="custom-offset"
-                                                           [(ngModel)]="newTimeLapse.customDayOffsets"
-                                                           class="flex-1 block w-full sm:text-sm border-gray-300">
-                                                    <span
-                                                        class="inline-flex items-center px-3 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                                    Days Ago
-                                                </span>
-                                                </div>
-                                            </label>
-
-                                            <label class="mb-4">
-                                                Field Names
-                                                <mat-select [(ngModel)]="newTimeLapse.fieldNames" multiple name="names">
-                                                    <mat-option *ngFor="let column of columns"
-                                                                [value]="column.name">{{ column.title }}
-                                                    </mat-option>
-                                                </mat-select>
-                                            </label>
-
-                                            <div class="align-center justify-between">
-                                                <div></div>
-                                                <button mat-flat-button color="primary" (click)="saveTimeLapse()"
-                                                        [disabled]="timeLapseForm.invalid">Save time lapse
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Key Fields<span *ngIf="snapshot.config.timeLapsedFields.length"
-                                                    class="ml-1 text-red-600">*</span>
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-
-                                    <mat-select #selectModel="ngModel" #selectKeyFields
-                                                [required]="snapshot.config.timeLapsedFields.length > 0"
-                                                [(ngModel)]="snapshot.config.keyFieldNames" multiple
-                                                [ngClass]="{'border-red-600': selectModel.invalid}">
-                                        <div class="px-4 py-3 font-normal flex items-center cursor-pointer"
-                                             (click)="selectAll($event)">
-                                            <mat-checkbox [(ngModel)]="allSelected"
-                                                          [ngModelOptions]="{standalone: true}"
-                                                          (change)="toggleAllSelection()"></mat-checkbox>
-                                            <span class="ml-2">Select All</span>
-                                        </div>
-                                        <mat-option *ngFor="let column of columns" (click)="keyFieldClick()"
-                                                    [value]="column.name">{{ column.title }}
-                                        </mat-option>
-                                    </mat-select>
-                                    <div class="mt-2 text-xs ">
-                                        Select the key fields for this data feed. <br>
-                                        <ng-template [ngIf]="snapshot.trigger === 'scheduled'">
-                                            This required where <span class="font-medium">Time Lapse Fields</span> have
-                                            been
-                                            specified.
-                                        </ng-template>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                    Indexes
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-
-
-                                    <ng-template ngFor let-snapshotIndex [ngForOf]="snapshot.config.indexes"
-                                                 let-i="index">
-                                        <div class="flex items-center justify-between">
-                                            <mat-select [ngClass]="{'border-red-600': !snapshot.config.indexes[i].fieldNames.length}"
-                                                [(ngModel)]="snapshot.config.indexes[i].fieldNames"
-                                                        multiple>
-                                                <mat-option *ngFor="let column of columns"
-                                                            [value]="column.name">{{ column.title }}
-                                                </mat-option>
-                                            </mat-select>
-                                            <button mat-icon-button color="warn" (click)="removeIndex(i)">
-                                                <mat-icon>clear</mat-icon>
-                                            </button>
-                                        </div>
-                                    </ng-template>
-
-                                    <button mat-stroked-button color="primary" class="mt-2 mr-2 bg-white"
-                                            (click)="snapshot.config.indexes.push({fieldNames: []})">
-                                        Add Indexes
-                                    </button>
-
-                                    <div class="mt-2 text-xs ">
-                                        Select the fields you would like to set database indexes on. <br>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div
-                                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                   Read chunk size
-                                </label>
-                                <div class="mt-1 sm:col-span-2 sm:mt-0">
-                                    <input type="text"
-                                           [(ngModel)]="snapshot.config.readChunkSize"
-                                           class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
-
-                                    <div class="mt-2 text-xs ">
-                                        Set the chunk size for reading data when generating this snapshot.  This can be usefully
-                                        overridden to larger values if the query is expected to be very slow or smaller values
-                                        if the dataset is very wide.
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
+  @if (snapshot) {
+    <div class="dialog-content">
+      <div class="space-y-8 divide-y divide-gray-200">
+        <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+          <div class="space-y-6 sm:space-y-5">
+            <div>
+              <h3 class="text-lg font-medium leading-6 text-gray-900">Create a snapshot profile</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">Enter the following information in order to
+              configure your snapshot.</p>
             </div>
+            <div class="space-y-6 sm:space-y-5">
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Snapshot Title<span class="ml-1 text-red-600">*</span>
+                </label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <input type="text" #snapshotTitle="ngModel"
+                    [class]="{'border border-red-600': snapshotTitle.invalid}"
+                    [(ngModel)]="snapshot.title" required
+                    class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                </div>
+              </div>
+              @if (snapshot.config.parameterValues && Object.keys(snapshot.config.parameterValues).length) {
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    Parameter Values
+                  </label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    @for (parameterKey of Object.keys(snapshot.config.parameterValues); track parameterKey) {
+                      <div class="text-gray-600 text-xs">{{_.startCase(parameterKey)}}</div>
+                      @if (_.find(parameters, {name: parameterKey})?.type === 'text') {
+                        <input type="text" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
+                          placeholder="Enter a value for {{_.startCase(parameterKey)}}"
+                          class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                      }
+                      @if (_.find(parameters, {name: parameterKey})?.type === 'numeric') {
+                        <input type="number" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
+                          placeholder="Enter a value for {{_.startCase(parameterKey)}}"
+                          class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                      }
+                      @if (_.find(parameters, {name: parameterKey})?.type === 'list') {
+                        <select class="pr-8" [(ngModel)]="snapshot.config.parameterValues[parameterKey]">
+                          @for (item of _.find(parameters, {name: parameterKey}).list; track item) {
+                            <option [value]="item.value">
+                            {{item.label}}</option>
+                          }
+                        </select>
+                      }
+                      @if (_.find(parameters, {name: parameterKey})?.type === 'date') {
+                        <input type="date" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
+                          placeholder="Enter a value for {{_.startCase(parameterKey)}}"
+                          class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                      }
+                      @if (_.find(parameters, {name: parameterKey})?.type === 'datetime') {
+                        <input type="datetime-local" [(ngModel)]="snapshot.config.parameterValues[parameterKey]"
+                          placeholder="Enter a value for {{_.startCase(parameterKey)}}"
+                          class="mb-2 block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                      }
+                      @if (_.find(parameters, {name: parameterKey})?.type === 'boolean') {
+                        <mat-slide-toggle class="pr-8" color="primary"
+                          [(ngModel)]="snapshot.config.parameterValues[parameterKey]">
+                        </mat-slide-toggle>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Snapshot Trigger</label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <mat-radio-group [(ngModel)]="snapshot.trigger">
+                    <mat-radio-button class="mr-4" value="scheduled">Scheduled</mat-radio-button>
+                    <mat-radio-button value="adhoc">Ad hoc</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Snapshot Processor</label>
+                <div class="mt-1 sm:col-span-2 sm:mt-0">
+                  <mat-radio-group [(ngModel)]="snapshot.type">
+                    <mat-radio-button class="mr-4" value="tabulardatasetsnapshot">Standard
+                    </mat-radio-button>
+                    <mat-radio-button value="tabulardatasetincrementalsnapshot">Incremental
+                    </mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+              @if (snapshot.type === 'tabulardatasetincrementalsnapshot') {
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    Newer Values Field Name
+                  </label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    <mat-select [(ngModel)]="snapshot.config.newerValuesFieldName"
+                      name="newerValuesFieldName" required>
+                      @for (column of columns; track column) {
+                        <mat-option [value]="column.name"
+                          >{{ column.title }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </div>
+                </div>
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                    Newer Values Rules
+                  </label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    <mat-select [(ngModel)]="snapshot.config.newerValuesRules"
+                      name="newerValuesRules" required>
+                      <mat-option value="GREATER">Greater Than</mat-option>
+                      <mat-option value="GREATER_OR_EQUAL">Greater Than or Equal To</mat-option>
+                      <mat-option value="LESSER">Lesser Than</mat-option>
+                      <mat-option value="LESSER_OR_EQUAL">Lesser Than or Equal To</mat-option>
+                    </mat-select>
+                  </div>
+                </div>
+              }
+              @if (snapshot.type === 'tabulardatasetsnapshot') {
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Snapshot Type</label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0 flex flex-col">
+                    <mat-checkbox [(ngModel)]="snapshot.config.createHistory"
+                      (ngModelChange)="updateCreateHistory($event)">
+                      Historical
+                    </mat-checkbox>
+                    <div class="text-xs text-gray-600 mb-4">Create regular data snapshots based on the
+                      time periods below.
+                    </div>
+                    <mat-checkbox [(ngModel)]="snapshot.config.createLatest"
+                      [disabled]="snapshot.config.createHistory">
+                      Latest
+                    </mat-checkbox>
+                    <div class="text-xs text-gray-600 mb-2">Save the latest data snapshot as it's own
+                      entity, separate from the history.
+                    </div>
+                    @if (!_.some([snapshot.config.createHistory, snapshot.config.createLatest])) {
+                      <div
+                        class="mt-6 border-l-4 border-red-600 bg-red-50 p-4">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0">
+                            <!-- Heroicon name: mini/exclamation-triangle -->
+                            <svg class="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fill-rule="evenodd"
+                                d="M8.485 3.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 3.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                                clip-rule="evenodd"/>
+                            </svg>
+                          </div>
+                          <div class="ml-3">
+                            <p class="mb-0 text-sm text-red-700">
+                              Please select one snapshot type.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (snapshot.trigger === 'scheduled') {
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Time Periods</label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    <ki-task-time-periods #timePeriods class="block" [showTitle]="false"
+                    [(taskTimePeriods)]="snapshot.taskTimePeriods"></ki-task-time-periods>
+                  </div>
+                </div>
+              }
+              @if (snapshot.config.createHistory && snapshot.type === 'tabulardatasetsnapshot') {
+                <div
+                  class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                  <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">Time Lapse
+                  Fields</label>
+                  <div class="mt-1 sm:col-span-2 sm:mt-0">
+                    @for (timeLapse of snapshot.config.timeLapsedFields; track timeLapse; let i = $index) {
+                      <div class="time-lapsed-field"
+                        >
+                        <div>
+                          <div class="mb-1"><b>Day Offsets:</b> {{ timeLapse.dayOffsets.join(', ') }}
+                        </div>
+                        <div><b>Field Names:</b> {{ timeLapse.fieldNames.join(', ') }}</div>
+                      </div>
+                      <button mat-icon-button color="warn" (click)="removeTimeLapsedField(i)">
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                    </div>
+                  }
+                  <button mat-button color="primary" (click)="addTimeLapsedField()">
+                    <mat-icon>date_range</mat-icon>&nbsp;Add time lapsed field
+                  </button>
+                  @if (newTimeLapse) {
+                    <div class="w-full bg-gray-50 p-4 mt-4">
+                      <div class="mb-2 text-xs ">Select the desired offsets for the time lapse, along
+                        with field names then click
+                        <span class="font-medium">Save time lapse</span></div>
+                        <form #timeLapseForm="ngForm" class="w-1/2">
+                          <label class="mb-4">
+                            Day Offsets
+                            <mat-select [(ngModel)]="newTimeLapse.dayOffsets"
+                              name="offsets" required multiple>
+                              @for (offset of defaultOffsets; track offset) {
+                                <mat-option [value]="offset.value"
+                                  >{{ offset.label }}
+                                </mat-option>
+                              }
+                              <mat-option [value]="'CUSTOM'">Custom period</mat-option>
+                            </mat-select>
+                          </label>
+                          @if (newTimeLapse.dayOffsets && newTimeLapse.dayOffsets.indexOf('CUSTOM') > -1) {
+                            <label class="mb-4"
+                              >
+                              Custom Offset
+                              <div class="mt-1 flex custom-offset shadow-sm">
+                                <input type="number" name="custom-offset"
+                                  [(ngModel)]="newTimeLapse.customDayOffsets"
+                                  class="flex-1 block w-full sm:text-sm border-gray-300">
+                                <span
+                                  class="inline-flex items-center px-3 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                  Days Ago
+                                </span>
+                              </div>
+                            </label>
+                          }
+                          <label class="mb-4">
+                            Field Names
+                            <mat-select [(ngModel)]="newTimeLapse.fieldNames" multiple name="names">
+                              @for (column of columns; track column) {
+                                <mat-option
+                                  [value]="column.name">{{ column.title }}
+                                </mat-option>
+                              }
+                            </mat-select>
+                          </label>
+                          <div class="align-center justify-between">
+                            <div></div>
+                            <button mat-flat-button color="primary" (click)="saveTimeLapse()"
+                              [disabled]="timeLapseForm.invalid">Save time lapse
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              <div
+                class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                  Key Fields@if (snapshot.config.timeLapsedFields.length) {
+                  <span
+                  class="ml-1 text-red-600">*</span>
+                }
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                <mat-select #selectModel="ngModel" #selectKeyFields
+                  [required]="snapshot.config.timeLapsedFields.length > 0"
+                  [(ngModel)]="snapshot.config.keyFieldNames" multiple
+                  [class]="{'border-red-600': selectModel.invalid}">
+                  <div class="px-4 py-3 font-normal flex items-center cursor-pointer"
+                    (click)="selectAll($event)">
+                    <mat-checkbox [(ngModel)]="allSelected"
+                      [ngModelOptions]="{standalone: true}"
+                    (change)="toggleAllSelection()"></mat-checkbox>
+                    <span class="ml-2">Select All</span>
+                  </div>
+                  @for (column of columns; track column) {
+                    <mat-option (click)="keyFieldClick()"
+                      [value]="column.name">{{ column.title }}
+                    </mat-option>
+                  }
+                </mat-select>
+                <div class="mt-2 text-xs ">
+                  Select the key fields for this data feed. <br>
+                  @if (snapshot.trigger === 'scheduled') {
+                    This required where <span class="font-medium">Time Lapse Fields</span> have
+                    been
+                    specified.
+                  }
+                </div>
+              </div>
+            </div>
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Indexes
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                @for (snapshotIndex of snapshot.config.indexes; track snapshotIndex; let i = $index) {
+                  <div class="flex items-center justify-between">
+                    <mat-select [class]="{'border-red-600': !snapshot.config.indexes[i].fieldNames.length}"
+                      [(ngModel)]="snapshot.config.indexes[i].fieldNames"
+                      multiple>
+                      @for (column of columns; track column) {
+                        <mat-option
+                          [value]="column.name">{{ column.title }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    <button mat-icon-button color="warn" (click)="removeIndex(i)">
+                      <mat-icon>clear</mat-icon>
+                    </button>
+                  </div>
+                }
+                <button mat-stroked-button color="primary" class="mt-2 mr-2 bg-white"
+                  (click)="snapshot.config.indexes.push({fieldNames: []})">
+                  Add Indexes
+                </button>
+                <div class="mt-2 text-xs ">
+                  Select the fields you would like to set database indexes on. <br>
+                </div>
+              </div>
+            </div>
+            <div
+              class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Read chunk size
+              </label>
+              <div class="mt-1 sm:col-span-2 sm:mt-0">
+                <input type="text"
+                  [(ngModel)]="snapshot.config.readChunkSize"
+                  class="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs sm:text-sm">
+                <div class="mt-2 text-xs ">
+                  Set the chunk size for reading data when generating this snapshot.  This can be usefully
+                  overridden to larger values if the query is expected to be very slow or smaller values
+                  if the dataset is very wide.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div class="dialog-footer">
-
-            <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
-
-            <button mat-flat-button color="primary" (click)="saveSnapshot()"
-                    [disabled]="!snapshot.title || selectModel.invalid">
-                {{ snapshot.id ? 'Update' : 'Add' }} Snapshot Profile
-            </button>
-        </div>
-
-    </ng-template>
+      </div>
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <button mat-stroked-button color="primary" mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" (click)="saveSnapshot()"
+      [disabled]="!snapshot.title || selectModel.invalid">
+      {{ snapshot.id ? 'Update' : 'Add' }} Snapshot Profile
+    </button>
+  </div>
+}
 
 </div>
 

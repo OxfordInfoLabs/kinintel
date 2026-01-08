@@ -7,7 +7,7 @@ import {DatasetService} from '../../../services/dataset.service';
 import {
     DatasetEditorPopupComponent
 } from '../../dataset/dataset-editor/dataset-editor.component';
-import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatDialog} from '@angular/material/dialog';
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
@@ -15,7 +15,8 @@ const _ = lodash.default;
 @Component({
     selector: 'ki-document-datasource',
     templateUrl: './document-datasource.component.html',
-    styleUrls: ['./document-datasource.component.sass']
+    styleUrls: ['./document-datasource.component.sass'],
+    standalone: false
 })
 export class DocumentDatasourceComponent implements OnInit {
 

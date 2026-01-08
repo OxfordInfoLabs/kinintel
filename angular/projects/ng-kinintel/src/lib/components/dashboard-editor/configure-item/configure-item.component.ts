@@ -1,9 +1,9 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialog as MatDialog,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef
+} from '@angular/material/dialog';
 import {
     SourceSelectorDialogComponent
 } from '../../dashboard-editor/source-selector-dialog/source-selector-dialog.component';
@@ -36,7 +36,8 @@ import {DatasetEditorComponent} from '../../dataset/dataset-editor/dataset-edito
     selector: 'ki-configure-item',
     templateUrl: './configure-item.component.html',
     styleUrls: ['./configure-item.component.sass'],
-    host: {class: 'configure-dialog'}
+    host: { class: 'configure-dialog' },
+    standalone: false
 })
 export class ConfigureItemComponent implements OnInit {
 

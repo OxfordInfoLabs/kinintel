@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-    MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-    MatLegacyDialogRef as MatDialogRef
-} from '@angular/material/legacy-dialog';
+    MAT_DIALOG_DATA,
+    MatDialogRef
+} from '@angular/material/dialog';
 import {CdkDragDrop, copyArrayItem, moveItemInArray} from '@angular/cdk/drag-drop';
 import * as lodash from 'lodash';
 
@@ -12,7 +12,8 @@ const _ = lodash.default;
     selector: 'ki-dataset-summarise',
     templateUrl: './dataset-summarise.component.html',
     styleUrls: ['./dataset-summarise.component.sass'],
-    host: {class: 'dialog-wrapper'}
+    host: { class: 'dialog-wrapper' },
+    standalone: false
 })
 export class DatasetSummariseComponent implements OnInit {
 

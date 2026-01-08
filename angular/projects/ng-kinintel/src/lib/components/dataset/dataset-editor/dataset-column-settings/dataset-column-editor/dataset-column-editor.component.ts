@@ -7,7 +7,8 @@ import {Subject} from 'rxjs';
 @Component({
     selector: 'ki-dataset-column-editor',
     templateUrl: './dataset-column-editor.component.html',
-    styleUrls: ['./dataset-column-editor.component.sass']
+    styleUrls: ['./dataset-column-editor.component.sass'],
+    standalone: false
 })
 export class DatasetColumnEditorComponent implements OnInit, OnDestroy {
 
