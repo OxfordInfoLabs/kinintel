@@ -75,7 +75,7 @@ class Filter {
 
         // If an in or a not in filter and supplied as a string, upgrade to an array using CSV parser for enclosure safety
         if (($filterType == FilterType::in || $filterType == FilterType::notin) && is_string($rhsExpression)) {
-            $rhsExpression = str_getcsv($rhsExpression, ",", '"');
+            $rhsExpression = str_getcsv($rhsExpression, ",", '"', "\\");
         }
 
         $this->rhsExpression = $rhsExpression;
