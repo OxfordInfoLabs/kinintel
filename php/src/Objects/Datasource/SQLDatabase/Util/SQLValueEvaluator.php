@@ -59,6 +59,7 @@ class SQLValueEvaluator {
         }
 
 
+
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
 
@@ -189,6 +190,9 @@ class SQLValueEvaluator {
     }
 
     private function isSimpleExpression($string) {
+
+        if (is_array($string) || is_object($string)) return false;
+
         preg_match("/^[0-9A-Z_]+$/", $string ?? "", $matches);
         return sizeof($matches) > 0;
     }
