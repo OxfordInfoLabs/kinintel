@@ -54,12 +54,14 @@
         <span class="material-symbols-outlined text-xl">filter_alt</span>
         filter
       </button>
-      <button (click)="summariseData()"
-        title="Summarise this data to produce aggregated totals, sums and other derivations"
-        class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
-        <span class="material-symbols-outlined text-xl">pivot_table_chart</span>
-        summarise
-      </button>
+      @if (!datasetEditorSimpleMode) {
+          <button (click)="summariseData()"
+            title="Summarise this data to produce aggregated totals, sums and other derivations"
+            class="w-20 flex flex-col items-center justify-center py-1 px-2 text-xs text-gray-600 cursor-pointer hover:bg-gray-100">
+            <span class="material-symbols-outlined text-xl">pivot_table_chart</span>
+            summarise
+          </button>
+      }
       @if (!datasetEditorSimpleMode) {
         <button (click)="joinData()"
           title="Join another data set to the current dataset"
@@ -595,7 +597,7 @@
               Contains {{ element[column.name].length }} items
             }
             @if (_.isPlainObject(element[column.name])) {
-              Object has {{ Object.keys(element[column.name]).length }} keys
+              <span [innerHTML]="toJSON(element[column.name])"></span>
             }
           </td>
         </ng-container>

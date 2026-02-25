@@ -759,6 +759,23 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
         }
     }
 
+    public toJSON(data: any) {
+        const jsonStrings = [];
+        Object.keys(data).forEach(key => {
+            if (_.isPlainObject(data[key])) {
+                const keyStrings = [];
+                Object.keys(data[key]).forEach(itemKey => {
+                    keyStrings.push('<b>' + itemKey + '</b>' + ': ' + data[key][itemKey]);
+                });
+                jsonStrings.push('<b>' + key + '</b>' + ': ' + keyStrings.join(', '));
+            } else {
+                jsonStrings.push('<b>' + key + '</b>' + ': ' + data[key]);
+            }
+        });
+
+        return jsonStrings.join(', ');
+    }
+
     public getOrdinal(n) {
         const s = ['th', 'st', 'nd', 'rd'];
         const v = n % 100;
@@ -1210,6 +1227,7 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     protected readonly decodeURI = decodeURI;
     protected readonly ENTER = ENTER;
     protected readonly COMMA = COMMA;
+    protected readonly JSON = JSON;
 }
 
 @Component({
