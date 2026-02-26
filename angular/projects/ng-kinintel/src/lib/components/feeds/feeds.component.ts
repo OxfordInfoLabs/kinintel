@@ -50,7 +50,12 @@ export class FeedsComponent implements OnInit, OnDestroy {
         this.canHaveAPIConnections = this.projectService.doesActiveProjectHavePrivilege('feedaccess');
 
         if (this.canHaveAPIConnections) {
-            this.apiKeys = await this.http.get('/account/apikey/first/feedaccess').toPromise();
+
+            try {
+                this.apiKeys = await this.http.get('/account/apikey/first/feedaccess').toPromise();
+            } catch (e) {
+                // Ignore
+            }
 
             merge(this.searchText, this.reload)
                 .pipe(
