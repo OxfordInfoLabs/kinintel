@@ -597,7 +597,7 @@
               Contains {{ element[column.name].length }} items
             }
             @if (_.isPlainObject(element[column.name])) {
-              <span [innerHTML]="toJSON(element[column.name])"></span>
+              <span class="text-xs font-mono" [innerHTML]="toJSON(element[column.name])"></span>
             }
           </td>
         </ng-container>
