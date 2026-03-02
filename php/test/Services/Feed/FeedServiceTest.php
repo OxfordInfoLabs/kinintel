@@ -250,7 +250,7 @@ class FeedServiceTest extends TestBase {
     }
 
 
-    public function testCanEvaluateFeedWithBlankParametersAndTheseAreSetToBlankStrings() {
+    public function testCanEvaluateFeedWithBlankParametersAndTheseAreSetToDatasetParameterValuesOrBlankStringIfNotSet() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 
@@ -264,13 +264,14 @@ class FeedServiceTest extends TestBase {
         $expectedResponse = new SimpleResponse(new StringContentSource("BONZO"));
 
         $datasetInstance = MockObjectProvider::instance()->getMockInstance(DatasetInstance::class);
+        $datasetInstance->returnValue("getParameterValues", ["param1" => "BONGOCHOPS"]);
         $this->datasetService->returnValue("getDataSetInstance", $datasetInstance, [2]);
 
         $this->datasetService->returnValue("exportDatasetInstance", $expectedResponse, [
             $datasetInstance,
             "test",
             ["config" => "Hello"],
-            ["param1" => "",
+            ["param1" => "BONGOCHOPS",
                 "param2" => ""],
             [],
             0,
@@ -738,8 +739,6 @@ class FeedServiceTest extends TestBase {
         $response = $this->feedService->evaluateFeedByPath("/new/adhoc",
             ["param1_eq" => 25, "param2_like" => "*string*", "param3_similarto" => "smith", "param4_in" => "mark,john,james"]
         );
-
-
 
 
         $this->assertEquals($expectedResponse, $response);

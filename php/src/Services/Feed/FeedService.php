@@ -9,6 +9,7 @@ use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
 use Kiniauth\Services\Security\SecurityService;
 use Kinikit\Core\Exception\AccessDeniedException;
+use Kinikit\Core\Logging\Logger;
 use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
@@ -248,7 +249,8 @@ class FeedService {
                     $exportParameters[$exposedParameterName] = sizeof($parameterValue) == 1 ? $parameterValue[0] : $parameterValue;
                 }
             } else {
-                $exportParameters[$exposedParameterName] = "";
+                $defaultValues = $datasetInstanceSummary->getParameterValues();
+                $exportParameters[$exposedParameterName] = $defaultValues[$exposedParameterName] ?? "";
             }
         }
 
