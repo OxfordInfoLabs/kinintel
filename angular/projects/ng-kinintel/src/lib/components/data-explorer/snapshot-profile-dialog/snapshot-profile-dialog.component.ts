@@ -74,6 +74,10 @@ export class SnapshotProfileDialogComponent implements OnInit {
             }
         };
 
+        if (!this.snapshot.config.taskTimePeriods) {
+            this.snapshot.config.taskTimePeriods = [];
+        }
+
         if (!this.snapshot.config.indexes) {
             this.snapshot.config.indexes = [];
         }

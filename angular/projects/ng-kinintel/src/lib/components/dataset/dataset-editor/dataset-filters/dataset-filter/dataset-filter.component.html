@@ -12,7 +12,7 @@
       }
       @if (customLhs) {
         <input type="text" [(ngModel)]="filter.lhsExpression"
-          name="lhsExpression" placeholder="Custom expression" class="p-2 mr-4 full font-mono">
+          name="lhsExpression" placeholder="Custom expression" class="py-2.5 p-2 mr-4 full font-mono">
       }
     </div>
     <div class="mt-2 custom-checkbox flex items-center justify-between">
@@ -70,17 +70,17 @@
       @if (!filter._expType && filter.filterType !== 'in' && filter.filterType !== 'notin') {
         <input type="text" [(ngModel)]="filter.rhsExpression[0]" name="filterValue"
           placeholder="Value"
-          class="pl-2 py-2 pr-8 mr-4 full">
+          class="pl-2 py-2.5  pr-8 mr-4 full">
       }
       @if (filter._expType === 'date-picker') {
         <input type="date" [(ngModel)]="filter.rhsExpression[0]"
           name="filterValue" placeholder="Value"
-          class="pl-2 py-2 pr-10 mr-4 full">
+          class="pl-2 py-2.5  pr-10 mr-4 full">
       }
       @if (filter._expType === 'period') {
         <div class="flex items-center">
           <input #periodValue type="number" placeholder="No." required autofocus
-            class="w-32 mr-2 p-2" min="0" [value]="filter._periodValue || 1"
+            class="w-32 mr-2 p-2 py-2.5 " min="0" [value]="filter._periodValue || 1"
             (change)="updatePeriodValue(periodValue.value, period.value, filter)">
           <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._period || 'DAYS'"
             #period (change)="updatePeriodValue(periodValue.value, period.value, filter)">
@@ -171,19 +171,19 @@
           <div class="relative flex items-center">
             <div class="mr-2 font-medium">and</div>
             @if (!filter._otherExpType) {
-              <input type="text" type="text" [(ngModel)]="filter.rhsExpression[1]"
+              <input type="text" [(ngModel)]="filter.rhsExpression[1]"
                 name="otherbetween" placeholder="To value"
-                class="pl-2 py-2 pr-8 full">
+                class="pl-2 py-2.5  pr-8 full">
             }
             @if (filter._otherExpType === 'date-picker') {
               <input type="date" [(ngModel)]="filter.rhsExpression[1]"
                 name="filterValue" placeholder="Value"
-                class="pl-2 py-2 pr-10 mr-4 full">
+                class="pl-2 py-2.5  pr-10 mr-4 full">
             }
             @if (filter._otherExpType === 'period') {
               <div class="flex items-center">
                 <input #periodValue type="number" placeholder="No." required autofocus
-                  class="w-32 mr-2 p-2" min="0" [value]="filter._otherPeriodValue || 1"
+                  class="w-32 mr-2 p-2 py-2.5 " min="0" [value]="filter._otherPeriodValue || 1"
                   (change)="updatePeriodValue(periodValue.value, period.value, filter,1)">
                 <select class="param-period-picker w-32 mr-2 p-2" [value]="filter._otherPeriod || 'DAYS'"
                   #period (change)="updatePeriodValue(periodValue.value, period.value, filter,1)">
@@ -232,7 +232,7 @@
       }
       @if (customLhs) {
         <input type="text" [(ngModel)]="filter.lhsExpression"
-          name="lhsExpression" placeholder="Custom expression" class="p-2 mr-4 full font-mono">
+          name="lhsExpression" placeholder="Custom expression" class="p-2 py-2.5  mr-4 full font-mono">
       }
     </div>
     <div class="mt-2 custom-checkbox flex items-center justify-between">
@@ -275,7 +275,7 @@
       }
       @if (customValue) {
         <input type="text" [(ngModel)]="filter.rhsExpression[0]"
-          name="filterValue" placeholder="Custom value" class="mr-4 full p-2 font-mono">
+          name="filterValue" placeholder="Custom value" class="mr-4 full p-2 py-2.5  font-mono">
       }
     </div>
     <div class="mt-2 custom-checkbox flex items-center justify-between">
@@ -312,12 +312,12 @@
   @if (filter.filterType === 'similarto') {
     <input type="number" [(ngModel)]="filter.rhsExpression[1]"
       name="similarityDistance" placeholder="Maximum Distance"
-      class="pl-2 py-2 pr-8 mr-4 full">
+      class="pl-2 py-2.5  pr-8 mr-4 full">
   }
   @if (filter.filterType === 'between') {
     <input type="text" [(ngModel)]="filter.rhsExpression[1]" name="otherValue"
       placeholder="Other value"
-      class="pl-2 py-2 pr-8 mr-4 full">
+      class="pl-2 py-2.5  pr-8 mr-4 full">
   }
 }
 

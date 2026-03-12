@@ -36,7 +36,7 @@
   @if (filter.inclusionCriteria == 'ParameterValue') {
     <input
       placeholder="Enter value"
-      class="py-2" [(ngModel)]="filter._inclusionParamValue"
+      class="py-2.5 " [(ngModel)]="filter._inclusionParamValue"
            (change)="filter.inclusionData = filter._inclusionParam + '=' + filter._inclusionParamValue"/>
 }
 

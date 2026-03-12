@@ -35,6 +35,9 @@ export class TaskTimePeriodsComponent implements OnInit {
     }
 
     public addTimePeriod() {
+        if (!this.taskTimePeriods) {
+            this.taskTimePeriods = [];
+        }
         this.taskTimePeriods.push(this.newTaskTimePeriod);
         this.showNewTaskTimePeriod = false;
         this.newTaskTimePeriod = {};
