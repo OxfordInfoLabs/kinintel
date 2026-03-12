@@ -170,12 +170,12 @@
               <div class="parameter-input">
                 @if (!parameter.multiple) {
                   @if (parameter.type === 'text') {
-                    <input class="pr-8" type="text" placeholder="Enter {{parameter.title}}"
+                    <input class="pr-8 py-1.5" type="text" placeholder="Enter {{parameter.title}}"
                       [(ngModel)]="parameter.value"
                       (keyup.enter)="evaluateDataset(true)" required autofocus>
                   }
                   @if (parameter.type === 'numeric') {
-                    <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
+                    <input class="pr-8 py-1.5" type="number" placeholder="Enter {{parameter.title}}"
                       [(ngModel)]="parameter.value"
                       (keyup.enter)="evaluateDataset(true)" required autofocus>
                   }
@@ -206,6 +206,7 @@
                     }
                     @if (parameter._dateType === 'picker') {
                       <input [type]="parameter.type === 'date' ? 'date' : 'datetime-local'"
+                             class=" py-1.5"
                         placeholder="Enter {{parameter.title}}" [(ngModel)]="parameter.value"
                         (keyup.enter)="evaluateDataset(true)" required autofocus>
                       <a (click)="changeDateType($event, parameter, 'period')"
@@ -217,7 +218,7 @@
                     @if (parameter._dateType === 'period') {
                       <div class="flex items-center">
                         <input #periodValue type="number" placeholder="No." required autofocus
-                          class="w-16 mr-2" min="0" [value]="parameter._periodValue"
+                          class="w-16 mr-2 py-1.5" min="0" [value]="parameter._periodValue"
                           (change)="updatePeriodValue(periodValue.value, period.value, parameter)">
                         <select class="param-period-picker mr-2" [value]="parameter._period || 'DAYS'"
                           #period
@@ -253,7 +254,7 @@
                       </mat-chip-row>
                     }
                     @if (parameter.type === 'text') {
-                      <input class="pr-8 py-1 self-center" type="text" placeholder="Enter {{parameter.title}}"
+                      <input class="pr-8  py-1.5 self-center" type="text" placeholder="Enter {{parameter.title}}"
                         required autofocus
                         [matChipInputFor]="chipGrid"
                         [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
@@ -261,7 +262,7 @@
                         (matChipInputTokenEnd)="addParameterValue(parameter, $event)">
                     }
                     @if (parameter.type === 'numeric') {
-                      <input class="pr-8" type="number" placeholder="Enter {{parameter.title}}"
+                      <input class="pr-8 py-1.5" type="number" placeholder="Enter {{parameter.title}}"
                         required autofocus
                         [matChipInputFor]="chipGrid"
                         [matChipInputSeparatorKeyCodes]="[ENTER, COMMA]"
@@ -360,7 +361,12 @@
                 </div>
                 <div cdkDrag class="pl-0 example-box badge-item w-auto m-0" cdkOverlayOrigin
                   #trigger="cdkOverlayOrigin"
-                  [class]="{active: transformation._active, 'exclude bg-orange-50 border-orange-200': !!transformation.exclude, 'bg-indigo-50 border-indigo-200': (transformation.type === 'filter' && transformation.hide === false)}">
+                     [class.active]="transformation._active"
+                     [class.exclude]="!!transformation.exclude"
+                     [class.bg-orange-50]="!!transformation.exclude"
+                     [class.border-orange-200]="!!transformation.exclude"
+                     [class.bg-indigo-50]="(transformation.type === 'filter' && transformation.hide === false)"
+                     [class.border-indigo-200]="(transformation.type === 'filter' && transformation.hide === false)">
                   <button class="-mt-0.5" title="Show transformation details" mat-icon-button
                     (click)="showTransformationDetail(transformation)">
                     @if (transformation.type === 'columns') {
@@ -388,20 +394,20 @@
                   @if (transformation.exclude) {
                     <button class="-ml-1" [title]="'Re-enable this transformation'"
                       mat-icon-button (click)="disableTransformation(transformation, i)">
-                      <mat-icon class="text-orange-400">replay</mat-icon>
+                      <mat-icon class="text-xl leading-6 text-orange-400">replay</mat-icon>
                     </button>
                   }
                   @if (!transformation.exclude && i + 1 === terminatingTransformations.length) {
                     <button class="-ml-1" [title]="'Disable transformation'"
                       mat-icon-button (click)="disableTransformation(transformation, i)">
-                      <mat-icon>block</mat-icon>
+                      <mat-icon class="text-xl leading-6">block</mat-icon>
                     </button>
                   }
                   @if (!transformation.exclude && i + 1 !== terminatingTransformations.length) {
                     <button class="-ml-1" [matMenuTriggerFor]="disableMenu"
                       [title]="'Disable transformation'"
                       mat-icon-button>
-                      <mat-icon>block</mat-icon>
+                      <mat-icon class="text-xl leading-6">block</mat-icon>
                     </button>
                     <mat-menu #disableMenu="matMenu">
                       <button mat-menu-item (click)="disableTransformation(transformation, i)">
@@ -414,7 +420,7 @@
                   }
                   <button class="-ml-1" title="Remove this transformation" mat-icon-button color="primary"
                     (click)="removeTransformation(transformation, true, null, transformation._active)">
-                    <mat-icon>cancel</mat-icon>
+                    <mat-icon class="text-xl leading-6">cancel</mat-icon>
                   </button>
                 </div>
                 <ng-template
