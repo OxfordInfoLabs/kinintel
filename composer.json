@@ -14,7 +14,7 @@
     "oxil/kinimailer": "dev-main",
     "aws/aws-sdk-php": "*",
     "smalot/pdfparser": "dev-master",
-    "google/cloud-storage": "dev-main",
+    "google/cloud-storage": "v1.50.0",
     "google/apiclient": "^2.15.0"
   },
   "require-dev": {
