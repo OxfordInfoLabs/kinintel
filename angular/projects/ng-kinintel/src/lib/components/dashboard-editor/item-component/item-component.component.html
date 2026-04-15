@@ -124,7 +124,7 @@
     </div>
 }
 
-@if (!itemLocked) {
+@if (!itemLocked && !viewOnly) {
     @if (!dragItem) {
         <button mat-mini-fab class="edit-widget bg-white text-gray-500 bg-opacity-90"
                 [matMenuTriggerFor]="editMenu">
