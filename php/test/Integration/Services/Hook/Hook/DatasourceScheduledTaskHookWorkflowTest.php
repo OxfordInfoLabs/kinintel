@@ -5,6 +5,7 @@ namespace Kinintel\Test\Integration\Services\Hook\Hook;
 use GSE\TestBase;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
+use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Hook\Hook\DatasourceScheduledTaskHook;
@@ -30,18 +31,29 @@ class DatasourceScheduledTaskHookWorkflowTest extends TestBase {
         AuthenticationHelper::login("admin@kinicart.com", "password");
     }
 
-    public function testTargetDatasourceUpdatedWithPassedDataWhenNoFieldsPassed() {
+    /**
+     * @throws UnsupportedDatasetException
+     */
+    public function testWebhookWorksWithPassedDataWhenNoFieldsPassed() {
 
         $config = new DatasourceScheduledTaskHookConfig(
+            [],
             [
-                new Field("signal")
+                "abuse_type" => "testType",
             ]
         );
 
         $this->hook->processHook($config, DatasourceHookInstance::HOOK_MODE_ADD, [
             [
                 "signal" => "testSignal1",
+                "source" => "testSource1",
+                "abuse_type" => "testType"
             ],
+            [
+                "signal" => "testSignal2",
+                "source" => "testSource1",
+                "abuse_type" => "testType2"
+            ]
 
         ]);
 

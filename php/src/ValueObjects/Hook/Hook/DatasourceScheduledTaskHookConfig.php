@@ -10,7 +10,10 @@ class DatasourceScheduledTaskHookConfig implements DatasourceHookConfig {
     /**
      * @param Field[] $fields
      */
-    public function __construct(public array $fields = []) {
+    public function __construct(
+        public array $fields = [],
+        public array $filters = []
+    ) {
     }
 
     /**
@@ -27,6 +30,18 @@ class DatasourceScheduledTaskHookConfig implements DatasourceHookConfig {
         $this->fields = $fields;
     }
 
+    /**
+     * @return array
+     */
+    public function getFilters(): array {
+        return $this->filters;
+    }
 
+    /**
+     * @param array $filters
+     */
+    public function setFilters(array $filters): void {
+        $this->filters = $filters;
+    }
 
 }
