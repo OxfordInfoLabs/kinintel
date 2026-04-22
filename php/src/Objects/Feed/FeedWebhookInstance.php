@@ -46,7 +46,7 @@ class FeedWebhookInstance extends ActiveRecord {
      * @param int|null $accountId
      * @param string|null $projectKey
      */
-    public function __construct(?int $feedId = null, mixed $config = null, mixed $lastState = null, ?int $accountId = null, ?string $projectKey = null) {
+    public function __construct(?int $feedId = null, mixed $config = null, mixed $lastState = null, int $accountId = null, string $projectKey = null) {
         $this->feedId = $feedId;
         $this->config = $config;
         $this->lastState = $lastState;
@@ -86,19 +86,19 @@ class FeedWebhookInstance extends ActiveRecord {
         $this->lastState = $lastState;
     }
 
-    public function getAccountId(): ?string {
+    public function getAccountId(): int {
         return $this->accountId;
     }
 
-    public function setAccountId(?string $accountId): void {
+    public function setAccountId(int $accountId): void {
         $this->accountId = $accountId;
     }
 
-    public function getProjectKey(): ?string {
+    public function getProjectKey(): string {
         return $this->projectKey;
     }
 
-    public function setProjectKey(?string $projectKey): void {
+    public function setProjectKey(string $projectKey): void {
         $this->projectKey = $projectKey;
     }
 
