@@ -15,38 +15,44 @@ class FeedWebhookInstance extends ActiveRecord {
 
 
     /**
-     * @var ?int
+     * The auto-generated id for this feed webhook instance
+     *
+     * @var integer
      */
-    protected ?int $id = null;
+    protected $id;
 
     /**
-     * @var ?int
+     * Associated feed id
+     *
+     * @var integer
      */
-    protected ?int $feedId = null;
+    protected $feedId;
 
     /**
+     * JSON configuration data of the webhook instance
+     *
+     * @var mixed
      * @json
      */
-    protected mixed $config;
+    protected $config;
 
     /**
+     * JSON configuration of the last state of the webhook instance
+     *
+     * @var mixed
      * @json
      */
-    protected mixed $lastState;
-
-    protected $accountId;
-
-    protected $projectKey;
+    protected $lastState;
 
 
     /**
-     * @param int|null $feedId
-     * @param mixed|null $config
-     * @param mixed|null $lastState
-     * @param int|null $accountId
-     * @param string|null $projectKey
+     * @param integer $feedId
+     * @param mixed $config
+     * @param mixed $lastState
+     * @param int $accountId
+     * @param string $projectKey
      */
-    public function __construct(?int $feedId = null, mixed $config = null, mixed $lastState = null, int $accountId = null, string $projectKey = null) {
+    public function __construct($feedId = null, $config = null, $lastState = null, $accountId = null, $projectKey = null) {
         $this->feedId = $feedId;
         $this->config = $config;
         $this->lastState = $lastState;
@@ -54,11 +60,11 @@ class FeedWebhookInstance extends ActiveRecord {
         $this->projectKey = $projectKey;
     }
 
-    public function getId(): ?int {
+    public function getId(): int {
         return $this->id;
     }
 
-    public function setId(?int $id): void {
+    public function setId(int $id): void {
         $this->id = $id;
     }
 
@@ -85,24 +91,5 @@ class FeedWebhookInstance extends ActiveRecord {
     public function setLastState(mixed $lastState): void {
         $this->lastState = $lastState;
     }
-
-    public function getAccountId(): int {
-        return $this->accountId;
-    }
-
-    public function setAccountId(int $accountId): void {
-        $this->accountId = $accountId;
-    }
-
-    public function getProjectKey(): string {
-        return $this->projectKey;
-    }
-
-    public function setProjectKey(string $projectKey): void {
-        $this->projectKey = $projectKey;
-    }
-
-
-
 
 }

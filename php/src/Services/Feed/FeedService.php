@@ -3,7 +3,6 @@
 
 namespace Kinintel\Services\Feed;
 
-
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
 use Kiniauth\Services\Security\Captcha\GoogleRecaptchaProvider;
@@ -14,6 +13,7 @@ use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Objects\Feed\FeedWebhookInstance;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\FilterQueryParser;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -36,6 +36,7 @@ class FeedService {
     ) {
     }
 
+    /** Feed Functions */
 
     /**
      * Get a single feed by id
@@ -134,7 +135,7 @@ class FeedService {
      *
      * @param FeedSummary $feed
      * @param string $projectKey
-     * @param string $accountId
+     * @param int $accountId
      */
     public function saveFeed($feed, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
@@ -281,4 +282,50 @@ class FeedService {
     }
 
 
+    /** Feed Webhook Functions */
+
+    /**
+     * Get a single feed webhook instance by id
+     * @param $id
+     * @return FeedWebhookInstance
+     */
+    public function getFeedWebhookById($id) {
+        return FeedWebhookInstance::fetch($id)->returnSummary();
+    }
+
+    /**
+     * Save a feed webhook, optionally
+     *
+     * @param ?int $feedId
+     * @param mixed $config
+     * @param mixed $lastState
+     * @param string $projectKey
+     * @param int $accountId
+     */
+    public function saveFeedWebhook(
+        $feedId = null,
+        $config = null,
+        $lastState = null,
+        $accountId = Account::LOGGED_IN_ACCOUNT,
+        $projectKey = null
+    ) {
+
+        /**
+         * Create a real feed and save it
+         */
+        $feedWebhook = new FeedWebhookInstance($feedId, $config, $lastState, $projectKey, $accountId);
+        $feedWebhook->save();
+
+        return $feedWebhook->getId();
+    }
+
+    /**
+     * Remove a feed webhook instance by id
+     *
+     * @param $feedId
+     */
+    public function removeFeedWebhook($feedId): void {
+        $feedWebhook = FeedWebhookInstance::fetch($feedId);
+        $feedWebhook->remove();
+    }
 }

@@ -8,6 +8,7 @@ use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Hook\Hook\DatasourceQueuedTaskHookConfig;
 use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
+use Kiniauth\Exception\QueuedTask\NoQueuedTaskImplementationException;
 
 class DatasourceQueuedTaskHook implements DatasourceHook {
 
@@ -37,7 +38,7 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
      * @param mixed $updateData
      *
      * @return void
-     * @throws UnsupportedDatasetException
+     * @throws UnsupportedDatasetException|NoQueuedTaskImplementationException
      */
     public function processHook($hookConfig, $updateMode, $updateData): void {
 
