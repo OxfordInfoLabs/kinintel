@@ -14,6 +14,7 @@ use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Objects\Feed\FeedWebhookInstance;
+use Kinintel\Objects\Feed\FeedWebhookInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\FilterQueryParser;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -294,29 +295,32 @@ class FeedService {
     }
 
     /**
-     * Save a feed webhook, optionally
+     * Save a feed webhook
      *
-     * @param ?int $feedId
-     * @param mixed $config
-     * @param mixed $lastState
+     * @param FeedWebhookInstanceSummary $FeedWebhookSummary
      * @param string $projectKey
      * @param int $accountId
      */
     public function saveFeedWebhook(
-        $feedId = null,
-        $config = null,
-        $lastState = null,
+        $FeedWebhookSummary,
         $accountId = Account::LOGGED_IN_ACCOUNT,
         $projectKey = null
     ) {
 
         /**
-         * Create a real feed and save it
+         * Create a real feed webhook instance and save it
          */
-        $feedWebhook = new FeedWebhookInstance($feedId, $config, $lastState, $projectKey, $accountId);
+        $feedWebhook = new FeedWebhookInstance($FeedWebhookSummary, $projectKey, $accountId);
         $feedWebhook->save();
 
         return $feedWebhook->getId();
+    }
+
+    /**
+     * Return all feed webhook instances saved
+     */
+    public function returnAllFeedWebhooks() {
+        return FeedWebhookInstance::filter();
     }
 
     /**
