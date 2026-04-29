@@ -31,6 +31,8 @@ class FeedWebhookInstance extends FeedWebhookInstanceSummary {
 
     /**
      * Return a summary object
+     *
+     * @returns FeedWebhookInstanceSummary
      */
     public function returnSummary() {
         return new FeedWebhookInstanceSummary(

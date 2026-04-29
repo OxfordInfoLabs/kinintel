@@ -43,32 +43,22 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
     public function processHook($hookConfig, $updateMode, $updateData): void {
 
         //retrieve the data from the hook
-        $data = null;
         if ($hookConfig->getFields()) {
             $data = (new ArrayTabularDataset($hookConfig->getFields(), $updateData))->getAllData();
         } else {
             $data = $updateData;
         }
 
-        $newTaskID = $this->queuedTaskService->queueTask(
-            "pushAPIQueue",
-            "pushAPITask",
+        $this->queuedTaskService->queueTask(
+            "PushAPIQueue",
+            "PushAPITask",
             "Push API signals",
             [
                 "source" => $data[0]["source"] ?? null,
             ],
         );
 
-        print_r($this->queuedTaskService->listQueuedTasks("pushAPIQueue"));
-
-        $this->queuedTaskService->processQueuedTask(
-            "pushAPIQueue",
-            "pushAPITask",
-            $newTaskID,
-            [
-                "source" => $data[0]["source"] ?? null,
-            ],
-        );
+        //print_r($this->queuedTaskService->listQueuedTasks("PushAPIQueue"));
 
     }
 }

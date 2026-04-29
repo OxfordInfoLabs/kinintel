@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Kinintel\Services\Feed;
 
 use Kiniauth\Objects\Account\Account;
