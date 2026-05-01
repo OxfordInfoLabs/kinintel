@@ -44,11 +44,13 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
      * @param int $feedId
      * @param mixed $config
      * @param mixed $lastState
+     * @param ?int $id
      */
-    public function __construct($feedId = null, $config = null, $lastState = null) {
+    public function __construct($feedId = null, $config = null, $lastState = null, $id = null) {
         $this->feedId = $feedId;
         $this->config = $config;
         $this->lastState = $lastState;
+        $this->id = $id;
     }
 
     public function getId(): ?int {

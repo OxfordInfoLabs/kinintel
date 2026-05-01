@@ -302,8 +302,8 @@ class FeedService {
      */
     public function saveFeedWebhook(
         $FeedWebhookSummary,
+        $projectKey = null,
         $accountId = Account::LOGGED_IN_ACCOUNT,
-        $projectKey = null
     ) {
 
         /**

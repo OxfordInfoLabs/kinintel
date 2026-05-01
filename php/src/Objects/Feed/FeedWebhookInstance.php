@@ -38,7 +38,8 @@ class FeedWebhookInstance extends FeedWebhookInstanceSummary {
         return new FeedWebhookInstanceSummary(
             $this->getFeedId(),
             $this->getConfig(),
-            $this->getLastState()
+            $this->getLastState(),
+            $this->getId()
         );
     }
 

@@ -20,6 +20,8 @@ use Kinintel\Objects\Dataset\DatasetInstance;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Objects\Feed\FeedWebhookInstance;
+use Kinintel\Objects\Feed\FeedWebhookInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Feed\FeedService;
 use Kinintel\Services\Util\FilterQueryParser;
@@ -74,6 +76,9 @@ class FeedServiceTest extends TestBase {
         $this->feedService = new FeedService($this->datasetService, $this->securityService, $this->captchaProvider, $this->filterQueryParser);
     }
 
+    /**
+     * Feed Tests
+     */
 
     public function testCanCreateReadUpdateAndDeleteFeeds() {
 
@@ -790,4 +795,66 @@ class FeedServiceTest extends TestBase {
 
     }
 
+    /**
+     * Feed Webhook Tests
+     */
+
+    public function testGetFeedWebhookById() {
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $feedWebhookSummary = new FeedWebhookInstanceSummary(
+            2,
+            ["param1" => "Hello", "param2" => "World"],
+            ["param3" => "Hello"]
+        );
+
+        $feedId = $this->feedService->saveFeedWebhook($feedWebhookSummary, "1", 1);
+
+        $byPath = $this->feedService->getFeedWebhookById($feedId);
+        $this->assertEquals($feedId, $byPath->getId());
+
+        $this->feedService->removeFeedWebhook($feedId);
+    }
+
+    public function testCanGetAllSavedFeeds() {
+        AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
+
+        $feedWebhookSummary = [
+            new FeedWebhookInstanceSummary(
+                1,
+                ["param1" => "Hello", "param2" => "World"],
+                ["param3" => "Hello"]
+            ),
+            new FeedWebhookInstanceSummary(
+                2,
+                ["param1" => "Fee", "param2" => "Fi"],
+                ["param3" => "Fo"]
+            ),
+            new FeedWebhookInstanceSummary(
+                3,
+                ["param1" => "Tick", "param2" => "Tac"],
+                ["param3" => "Toe"]
+            )
+        ];
+
+        $feedId1 = $this->feedService->saveFeedWebhook($feedWebhookSummary[0], "1", 1);
+        $feedId2 = $this->feedService->saveFeedWebhook($feedWebhookSummary[1], "1", 1);
+        $feedId3 = $this->feedService->saveFeedWebhook($feedWebhookSummary[2], "1", 1);
+
+        $returnedInstances = $this->feedService->returnAllFeedWebhooks();
+
+        for($i = 0; $i < count($returnedInstances); $i++) {
+            $this->assertInstanceOf(FeedWebhookInstance::class, $returnedInstances[$i]);
+            $this->assertEquals($i+1, $returnedInstances[$i]->returnSummary()->getId());
+            $this->assertEquals($feedWebhookSummary[$i]->getFeedId(), $returnedInstances[$i]->returnSummary()->getFeedId());
+            $this->assertEquals($feedWebhookSummary[$i]->getConfig(), $returnedInstances[$i]->returnSummary()->getConfig());
+            $this->assertEquals($feedWebhookSummary[$i]->getLastState(), $returnedInstances[$i]->returnSummary()->getLastState());
+            $this->assertEquals("1", $returnedInstances[$i]->getProjectKey());
+            $this->assertEquals(1, $returnedInstances[$i]->getAccountId());
+        }
+
+        $this->feedService->removeFeedWebhook($feedId1);
+        $this->feedService->removeFeedWebhook($feedId2);
+        $this->feedService->removeFeedWebhook($feedId3);
+    }
 }

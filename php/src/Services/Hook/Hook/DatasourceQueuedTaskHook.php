@@ -2,13 +2,13 @@
 
 namespace Kinintel\Services\Hook\Hook;
 
+use Exception;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Hook\Hook\DatasourceQueuedTaskHookConfig;
 use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
-use Kiniauth\Exception\QueuedTask\NoQueuedTaskImplementationException;
 
 class DatasourceQueuedTaskHook implements DatasourceHook {
 
@@ -38,7 +38,8 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
      * @param mixed $updateData
      *
      * @return void
-     * @throws UnsupportedDatasetException|NoQueuedTaskImplementationException
+     * @throws UnsupportedDatasetException
+     * @throws Exception
      */
     public function processHook($hookConfig, $updateMode, $updateData): void {
 
