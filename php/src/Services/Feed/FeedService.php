@@ -319,7 +319,7 @@ class FeedService {
      * Return all feed webhook instances saved
      */
     public function returnAllFeedWebhooks() {
-        return FeedWebhookInstance::filter();
+        return FeedWebhookInstance::filter("ORDER BY id");
     }
 
     /**

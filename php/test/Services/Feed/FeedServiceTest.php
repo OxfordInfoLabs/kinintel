@@ -816,7 +816,7 @@ class FeedServiceTest extends TestBase {
         $this->feedService->removeFeedWebhook($feedId);
     }
 
-    public function testCanGetAllSavedFeeds() {
+    public function testCanGetAllSavedFeedWebhooks() {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
         $feedWebhookSummary = [
@@ -841,11 +841,13 @@ class FeedServiceTest extends TestBase {
         $feedId2 = $this->feedService->saveFeedWebhook($feedWebhookSummary[1], "1", 1);
         $feedId3 = $this->feedService->saveFeedWebhook($feedWebhookSummary[2], "1", 1);
 
+        $expectedIds = [$feedId1, $feedId2, $feedId3];
+
         $returnedInstances = $this->feedService->returnAllFeedWebhooks();
 
         for($i = 0; $i < count($returnedInstances); $i++) {
             $this->assertInstanceOf(FeedWebhookInstance::class, $returnedInstances[$i]);
-            $this->assertEquals($i+1, $returnedInstances[$i]->returnSummary()->getId());
+            $this->assertEquals($expectedIds[$i], $returnedInstances[$i]->returnSummary()->getId());
             $this->assertEquals($feedWebhookSummary[$i]->getFeedId(), $returnedInstances[$i]->returnSummary()->getFeedId());
             $this->assertEquals($feedWebhookSummary[$i]->getConfig(), $returnedInstances[$i]->returnSummary()->getConfig());
             $this->assertEquals($feedWebhookSummary[$i]->getLastState(), $returnedInstances[$i]->returnSummary()->getLastState());

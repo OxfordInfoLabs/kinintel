@@ -19,13 +19,13 @@ use Kinintel\Objects\Feed\FeedSummary;
 use Kinintel\Services\DataProcessor\DataProcessor;
 use Kinintel\Services\DataProcessor\DataProcessorService;
 use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\TestBase;
 use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\TransformationInstance;
-use PHPUnit\Framework\TestCase;
 
 include_once "autoloader.php";
 
-class DatasetInstanceInterceptorTest extends TestCase {
+class DatasetInstanceInterceptorTest extends TestBase {
 
     /**
      * @var DatasetInstanceInterceptor
