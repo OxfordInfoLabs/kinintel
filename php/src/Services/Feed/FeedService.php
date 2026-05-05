@@ -51,7 +51,7 @@ class FeedService {
     /**
      * Get a feed by path
      *
-     * @param $path
+     * @param string $feedPath
      *
      * @return Feed
      */

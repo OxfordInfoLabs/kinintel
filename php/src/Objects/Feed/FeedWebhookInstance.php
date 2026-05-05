@@ -20,9 +20,12 @@ class FeedWebhookInstance extends FeedWebhookInstanceSummary {
     public function __construct( $feedWebhookSummary, $projectKey = null, $accountId = null) {
         if ($feedWebhookSummary) {
             parent::__construct(
-                $feedWebhookSummary->getFeedId(),
+                $feedWebhookSummary->getFeedPath(),
+                $feedWebhookSummary->getUrl(),
+                $feedWebhookSummary->getHeaders(),
                 $feedWebhookSummary->getConfig(),
-                $feedWebhookSummary->getLastState()
+                $feedWebhookSummary->getLastState(),
+                $feedWebhookSummary->getLastStateConfig()
             );
         }
         $this->projectKey = $projectKey;
@@ -36,9 +39,12 @@ class FeedWebhookInstance extends FeedWebhookInstanceSummary {
      */
     public function returnSummary() {
         return new FeedWebhookInstanceSummary(
-            $this->getFeedId(),
+            $this->getFeedPath(),
+            $this->getUrl(),
+            $this->getHeaders(),
             $this->getConfig(),
             $this->getLastState(),
+            $this->getLastStateConfig(),
             $this->getId()
         );
     }

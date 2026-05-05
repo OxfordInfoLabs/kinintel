@@ -6,6 +6,9 @@ namespace Kinintel\Objects\Feed;
 use Kinikit\Persistence\ORM\ActiveRecord;
 use Kinintel\Objects\Dataset\DatasetInstanceSearchResult;
 
+/**
+ * @table ki_feed_webhook_instance
+ */
 class FeedWebhookInstanceSummary extends ActiveRecord {
 
     /**
@@ -18,12 +21,28 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
     /**
      * Feed ID
      *
-     * @var integer
+     * @var string
      */
-    protected $feedId;
+    protected $feedPath;
 
     /**
-     * config of webhook
+     * Webhook URL
+     *
+     * @var string
+     */
+    protected $url;
+
+    /**
+     * Webhook headers
+     *
+     * @var mixed
+     * @sqlType LONGTEXT
+     * @json
+     */
+    protected $headers;
+
+    /**
+     * JSON of config of webhook
      *
      * @var mixed
      * @sqlType LONGTEXT
@@ -41,15 +60,30 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
     protected $lastState;
 
     /**
-     * @param int $feedId
+     * JSON of config of last state
+     *
+     * @var mixed
+     * @sqlType LONGTEXT
+     * @json
+     */
+    protected $lastStateConfig;
+
+    /**
+     * @param string $feedPath
+     * @param string $url
+     * @param mixed $headers
      * @param mixed $config
      * @param mixed $lastState
+     * @param mixed $lastStateConfig
      * @param ?int $id
      */
-    public function __construct($feedId = null, $config = null, $lastState = null, $id = null) {
-        $this->feedId = $feedId;
+    public function __construct($feedPath = null, $url = null, $headers = null, $config = null, $lastState = null, $lastStateConfig = null, $id = null) {
+        $this->feedPath = $feedPath;
+        $this->url = $url;
+        $this->headers = $headers;
         $this->config = $config;
         $this->lastState = $lastState;
+        $this->lastStateConfig = $lastStateConfig;
         $this->id = $id;
     }
 
@@ -57,12 +91,28 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
         return $this->id;
     }
 
-    public function getFeedId(): mixed {
-        return $this->feedId;
+    public function getFeedPath(): mixed {
+        return $this->feedPath;
     }
 
-    public function setFeedId(mixed $feedId): void {
-        $this->feedId = $feedId;
+    public function setFeedPath(string $feedPath): void {
+        $this->feedPath = $feedPath;
+    }
+
+    public function getUrl(): string {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void {
+        $this->url = $url;
+    }
+
+    public function getHeaders(): mixed {
+        return $this->headers;
+    }
+
+    public function setHeaders(mixed $headers): void {
+        $this->headers = $headers;
     }
 
     public function getConfig(): mixed {
@@ -81,7 +131,12 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
         $this->lastState = $lastState;
     }
 
+    public function getLastStateConfig(): mixed {
+        return $this->lastStateConfig;
+    }
 
-
+    public function setLastStateConfig(mixed $lastStateConfig): void {
+        $this->lastStateConfig = $lastStateConfig;
+    }
 
 }
