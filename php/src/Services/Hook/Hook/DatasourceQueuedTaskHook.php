@@ -13,11 +13,10 @@ use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
 class DatasourceQueuedTaskHook implements DatasourceHook {
 
     /**
-     * @param DatasourceService $datasourceService
+     * @param QueuedTaskService $queuedTaskService
      */
     public function __construct(
-        private readonly DatasourceService $datasourceService,
-        private readonly QueuedTaskService $queuedTaskService,
+        private $queuedTaskService,
     ) {
     }
 
@@ -43,19 +42,12 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
      */
     public function processHook($hookConfig, $updateMode, $updateData): void {
 
-        //retrieve the data from the hook
-        if ($hookConfig->getFields()) {
-            $data = (new ArrayTabularDataset($hookConfig->getFields(), $updateData))->getAllData();
-        } else {
-            $data = $updateData;
-        }
-
         $this->queuedTaskService->queueTask(
             "PushAPIQueue",
             "PushAPITask",
             "Push API signals",
             [
-                "source" => $data[0]["source"] ?? null,
+                "source" => $updateData[0]["source"] ?? null,
             ],
         );
 

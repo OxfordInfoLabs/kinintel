@@ -60,15 +60,6 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
     protected $lastState;
 
     /**
-     * JSON of config of last state
-     *
-     * @var mixed
-     * @sqlType LONGTEXT
-     * @json
-     */
-    protected $lastStateConfig;
-
-    /**
      * @param string $feedPath
      * @param string $url
      * @param mixed $headers
@@ -77,13 +68,12 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
      * @param mixed $lastStateConfig
      * @param ?int $id
      */
-    public function __construct($feedPath = null, $url = null, $headers = null, $config = null, $lastState = null, $lastStateConfig = null, $id = null) {
+    public function __construct($feedPath = null, $url = null, $headers = null, $config = null, $lastState = null, $id = null) {
         $this->feedPath = $feedPath;
         $this->url = $url;
         $this->headers = $headers;
         $this->config = $config;
         $this->lastState = $lastState;
-        $this->lastStateConfig = $lastStateConfig;
         $this->id = $id;
     }
 
@@ -129,14 +119,6 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
 
     public function setLastState(mixed $lastState): void {
         $this->lastState = $lastState;
-    }
-
-    public function getLastStateConfig(): mixed {
-        return $this->lastStateConfig;
-    }
-
-    public function setLastStateConfig(mixed $lastStateConfig): void {
-        $this->lastStateConfig = $lastStateConfig;
     }
 
 }

@@ -286,7 +286,7 @@ class FeedService {
 
     /**
      * Get a single feed webhook instance by id
-     * @param $id
+     * @param int $id
      * @return FeedWebhookInstance
      */
     public function getFeedWebhookById($id) {
@@ -313,6 +313,18 @@ class FeedService {
         $feedWebhook->save();
 
         return $feedWebhook->getId();
+    }
+
+    /**
+     *  Update a feed webhooks lastState config
+     *
+     * @param int $id
+     * @param mixed $newLastState
+     */
+    public function updateFeedWebhookLastStateById($id, $newLastState) {
+        $webhook = $this->getFeedWebhookById($id);
+
+        $webhook->setLastState($newLastState);
     }
 
     /**

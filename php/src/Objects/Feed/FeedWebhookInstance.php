@@ -25,7 +25,6 @@ class FeedWebhookInstance extends FeedWebhookInstanceSummary {
                 $feedWebhookSummary->getHeaders(),
                 $feedWebhookSummary->getConfig(),
                 $feedWebhookSummary->getLastState(),
-                $feedWebhookSummary->getLastStateConfig()
             );
         }
         $this->projectKey = $projectKey;
@@ -44,7 +43,6 @@ class FeedWebhookInstance extends FeedWebhookInstanceSummary {
             $this->getHeaders(),
             $this->getConfig(),
             $this->getLastState(),
-            $this->getLastStateConfig(),
             $this->getId()
         );
     }
