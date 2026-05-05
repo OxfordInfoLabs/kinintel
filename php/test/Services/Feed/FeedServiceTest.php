@@ -803,7 +803,9 @@ class FeedServiceTest extends TestBase {
         AuthenticationHelper::login("sam@samdavisdesign.co.uk", "password");
 
         $feedWebhookSummary = new FeedWebhookInstanceSummary(
-            2,
+            "test/path",
+            "testUrl",
+            ["testHeader1" => "testValue1", "testHeader2" => "testValue2"],
             ["param1" => "Hello", "param2" => "World"],
             ["param3" => "Hello"]
         );
@@ -821,17 +823,23 @@ class FeedServiceTest extends TestBase {
 
         $feedWebhookSummary = [
             new FeedWebhookInstanceSummary(
-                1,
+                "test/path1",
+                "testUrl1",
+                ["testHeader1" => "testValue1", "testHeader2" => "testValue2"],
                 ["param1" => "Hello", "param2" => "World"],
                 ["param3" => "Hello"]
             ),
             new FeedWebhookInstanceSummary(
-                2,
+                "test/path2",
+                "testUrl1",
+                ["testHeader1" => "testValue1", "testHeader2" => "testValue2"],
                 ["param1" => "Fee", "param2" => "Fi"],
                 ["param3" => "Fo"]
             ),
             new FeedWebhookInstanceSummary(
-                3,
+                "test/path3",
+                "testUrl1",
+                ["testHeader1" => "testValue1", "testHeader2" => "testValue2"],
                 ["param1" => "Tick", "param2" => "Tac"],
                 ["param3" => "Toe"]
             )
@@ -848,7 +856,9 @@ class FeedServiceTest extends TestBase {
         for($i = 0; $i < count($returnedInstances); $i++) {
             $this->assertInstanceOf(FeedWebhookInstance::class, $returnedInstances[$i]);
             $this->assertEquals($expectedIds[$i], $returnedInstances[$i]->returnSummary()->getId());
-            $this->assertEquals($feedWebhookSummary[$i]->getFeedId(), $returnedInstances[$i]->returnSummary()->getFeedId());
+            $this->assertEquals($feedWebhookSummary[$i]->getUrl(), $returnedInstances[$i]->returnSummary()->getUrl());
+            $this->assertEquals($feedWebhookSummary[$i]->getHeaders(), $returnedInstances[$i]->returnSummary()->getHeaders());
+            $this->assertEquals($feedWebhookSummary[$i]->getFeedPath(), $returnedInstances[$i]->returnSummary()->getFeedPath());
             $this->assertEquals($feedWebhookSummary[$i]->getConfig(), $returnedInstances[$i]->returnSummary()->getConfig());
             $this->assertEquals($feedWebhookSummary[$i]->getLastState(), $returnedInstances[$i]->returnSummary()->getLastState());
             $this->assertEquals("1", $returnedInstances[$i]->getProjectKey());

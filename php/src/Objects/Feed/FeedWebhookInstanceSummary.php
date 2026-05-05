@@ -65,7 +65,6 @@ class FeedWebhookInstanceSummary extends ActiveRecord {
      * @param mixed $headers
      * @param mixed $config
      * @param mixed $lastState
-     * @param mixed $lastStateConfig
      * @param ?int $id
      */
     public function __construct($feedPath = null, $url = null, $headers = null, $config = null, $lastState = null, $id = null) {
