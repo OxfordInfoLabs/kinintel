@@ -325,6 +325,7 @@ class FeedService {
         $webhook = $this->getFeedWebhookById($id);
 
         $webhook->setLastState($newLastState);
+        $webhook->save();
     }
 
     /**
