@@ -50,8 +50,5 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
                 "source" => $updateData[0]["source"] ?? null,
             ],
         );
-
-        //print_r($this->queuedTaskService->listQueuedTasks("PushAPIQueue"));
-
     }
 }
