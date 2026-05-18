@@ -290,7 +290,7 @@ class FeedService {
      * @return FeedWebhookInstance
      */
     public function getFeedWebhookById($id) {
-        return FeedWebhookInstance::fetch($id)->returnSummary();
+        return FeedWebhookInstance::fetch($id);
     }
 
     /**
