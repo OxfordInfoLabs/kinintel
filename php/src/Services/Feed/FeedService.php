@@ -271,8 +271,8 @@ class FeedService {
 
 
         // Limit the limit
-        if ($limit > 10000) {
-            $limit = 10000;
+        if ($limit > 100000) {
+            $limit = 100000;
         }
 
         // Export and return result directly
