@@ -4,16 +4,14 @@ namespace Kinintel\Services\Hook\Hook;
 
 use Exception;
 use Kinintel\Exception\UnsupportedDatasetException;
-use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
-use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Hook\Hook\DatasourceQueuedTaskHookConfig;
-use Kiniauth\Services\Workflow\Task\Queued\QueuedTaskService;
+use Kiniauth\Services\Workflow\Task\Queued\Processor\GoogleCloudQueuedTaskProcessor;
 
 class DatasourceQueuedTaskHook implements DatasourceHook {
 
     /**
-     * @param QueuedTaskService $queuedTaskService
+     * @param GoogleCloudQueuedTaskProcessor $queuedTaskService
      */
     public function __construct(
         private $queuedTaskService,
