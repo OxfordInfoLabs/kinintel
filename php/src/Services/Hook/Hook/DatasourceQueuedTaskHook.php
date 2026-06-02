@@ -41,7 +41,7 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
     public function processHook($hookConfig, $updateMode, $updateData): void {
 
         $this->queuedTaskService->queueTask(
-            "default-queue",
+            "push-feed-test",
             "PushAPITask",
             "Push API signals",
             [
