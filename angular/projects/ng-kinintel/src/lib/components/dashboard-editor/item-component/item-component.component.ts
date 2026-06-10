@@ -788,7 +788,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
             Object.keys(params).forEach(paramKey => {
                 let value = this.bindParametersInString(params[paramKey], data);
                 // Check if we have any column eg. [[ ]] values needing mapping
-                value = this.mapColumnToValue(value, data);
+                value = this.mapColumnToValue(value, this.dataset.allData?.length ? this.dataset.allData[0] : data);
 
                 params[paramKey] = value;
             });
@@ -801,7 +801,7 @@ export class ItemComponentComponent implements AfterViewInit, OnDestroy {
 
             url = this.bindParametersInString(url, data);
             // Check if we have any column eg. [[ ]] values needing mapping
-            url = this.mapColumnToValue(url, data);
+            url = this.mapColumnToValue(url, this.dataset.allData?.length ? this.dataset.allData[0] : data);
         } else if (cta.type === 'feed') {
             url = `/dap-data-feeds/${cta.value}`;
         }
