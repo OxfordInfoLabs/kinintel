@@ -3,6 +3,7 @@
 namespace Kinintel\Services\Hook\Hook;
 
 use Exception;
+use Kinikit\Core\Configuration\Configuration;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Hook\Hook\DatasourceQueuedTaskHookConfig;
@@ -12,10 +13,13 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
 
     /**
      * @param GoogleCloudQueuedTaskProcessor $queuedTaskService
+     * @param string $queueName
      */
     public function __construct(
-        private $queuedTaskService,
+        private GoogleCloudQueuedTaskProcessor $queuedTaskService,
+        private string $queueName
     ) {
+        $this->queueName = Configuration::readParameter("pushapi.queue");
     }
 
     /**
@@ -41,7 +45,7 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
     public function processHook($hookConfig, $updateMode, $updateData): void {
 
         $this->queuedTaskService->queueTask(
-            "push-feed-test",
+            $this->queueName,
             "PushAPITask",
             "Push API signals",
             [
