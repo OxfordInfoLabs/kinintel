@@ -4,6 +4,7 @@ namespace Kinintel\Services\Hook\Hook;
 
 use Exception;
 use Kinikit\Core\Configuration\Configuration;
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\Services\Hook\DatasourceHook;
 use Kinintel\ValueObjects\Hook\Hook\DatasourceQueuedTaskHookConfig;
@@ -43,6 +44,8 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
      * @throws Exception
      */
     public function processHook($hookConfig, $updateMode, $updateData): void {
+
+        Logger::log("HOOK CALLED");
 
         $this->queuedTaskService->queueTask(
             $this->queueName,
