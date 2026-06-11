@@ -3,6 +3,7 @@
 
 namespace Kinintel\Objects\Dataset\Tabular;
 
+use Kinikit\Core\Logging\Logger;
 use Kinintel\Exception\UnsupportedDatasetException;
 use Kinintel\ValueObjects\Dataset\Field;
 
@@ -28,6 +29,8 @@ class ArrayTabularDataset extends TabularDataset {
      */
     public function __construct($columns, ?array $data) {
         parent::__construct($columns);
+
+        Logger::log("CONSTRUCTING DATASET!");
 
         if ($data && (!array_key_exists(0, $data) || (isset($data[0]) && !is_array($data[0])))) {
             throw new UnsupportedDatasetException("ArrayTabularDataset expects an array of arrays!!");
