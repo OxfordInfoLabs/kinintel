@@ -18,7 +18,7 @@ class DatasourceQueuedTaskHook implements DatasourceHook {
      */
     public function __construct(
         private GoogleCloudQueuedTaskProcessor $queuedTaskService,
-        private string $queueName
+        private string $queueName = ""
     ) {
         $this->queueName = Configuration::readParameter("pushapi.queue");
     }
