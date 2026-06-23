@@ -338,10 +338,11 @@ class FeedService {
     /**
      * Remove a feed webhook instance by id
      *
-     * @param $feedId
+     * @param $id
      */
-    public function removeFeedWebhook($feedId): void {
-        $feedWebhook = FeedWebhookInstance::fetch($feedId);
-        $feedWebhook->remove();
+    public function removeFeedWebhook($id): void {
+        $webhook = $this->getFeedWebhookById($id);
+
+        $webhook->remove();
     }
 }
