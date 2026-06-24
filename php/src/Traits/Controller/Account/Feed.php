@@ -104,13 +104,13 @@ trait Feed {
      */
 
     /**
-     * @http GET /webhook/$projectKey
+     * @http GET /webhook/list
      *
-     * @param string|null $projectKey
+     * @param string $projectKey
      *
      * @return mixed
      */
-    public function listWebhooks(string $projectKey = null) {
+    public function listWebhooks($projectKey = null) {
         return $this->feedService->returnAllFeedWebhooks($projectKey);
     }
 
@@ -122,18 +122,18 @@ trait Feed {
      *
      * @return int|null
      */
-    public function saveFeedWebhookInstance(FeedWebhookInstanceSummary $feedSummary, string $projectKey = null): ?int {
+    public function saveFeedWebhookInstance($feedSummary, $projectKey = null) {
         return $this->feedService->saveFeedWebhook($feedSummary, $projectKey);
     }
 
     /**
-     * @http DELETE /webhook/$id
+     * @http DELETE /webhook/delete/$id
      *
      * @param int $id
      *
      * @returns void
      */
-    public function removeFeedWebhookInstance(int $id): void {
+    public function removeFeedWebhookInstance($id) {
         $this->feedService->removeFeedWebhook($id);
     }
 
