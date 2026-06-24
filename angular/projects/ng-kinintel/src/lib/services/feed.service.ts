@@ -56,7 +56,7 @@ export class FeedService {
     public getWebhooks() {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : null;
 
-        return this.http.get(this.config.backendURL + '/feed/webhook/list?projectKey=' + projectKey).toPromise();
+        return this.http.get(this.config.backendURL + '/feed/webhook/' + projectKey).toPromise();
     }
 
     public async saveWebhook(webhook: Webhook) {
