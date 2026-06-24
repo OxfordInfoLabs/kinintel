@@ -9,8 +9,8 @@ const _ = lodash.default;
 export interface Webhook {
     feedPath: string;
     url: string;
-    headers: any;
-    config: any;
+    headers?: any;
+    config?: any;
 }
 
 @Injectable({

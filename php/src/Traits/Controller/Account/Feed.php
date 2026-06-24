@@ -106,10 +106,12 @@ trait Feed {
     /**
      * @http GET /webhook
      *
+     * @param string|null $projectKey
+     *
      * @return mixed
      */
-    public function listWebhooks() {
-        return $this->feedService->returnAllFeedWebhooks();
+    public function listWebhooks(string $projectKey = null) {
+        return $this->feedService->returnAllFeedWebhooks($projectKey);
     }
 
     /**

@@ -331,8 +331,23 @@ class FeedService {
     /**
      * Return all feed webhook instances saved
      */
-    public function returnAllFeedWebhooks() {
-        return FeedWebhookInstance::filter("ORDER BY id");
+    public function returnAllFeedWebhooks(string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        $whereClauses = [];
+        $params = [];
+
+        if ($accountId) {
+            $whereClauses[] = "accountId = ?";
+            $params[] = $accountId;
+        }
+
+        if ($projectKey) {
+            $whereClauses[] = "projectKey = ?";
+            $params[] = $projectKey;
+        }
+
+        $query = (sizeof($whereClauses) ? "WHERE " : "") . join(" AND ", $whereClauses) . " ORDER BY id";
+
+        return FeedWebhookInstance::filter($query, $params);
     }
 
     /**
