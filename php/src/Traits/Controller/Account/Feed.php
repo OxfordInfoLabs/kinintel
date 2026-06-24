@@ -5,6 +5,7 @@ namespace Kinintel\Traits\Controller\Account;
 
 
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Objects\Feed\FeedWebhookInstanceSummary;
 use Kinintel\Services\Feed\FeedService;
 
 trait Feed {
@@ -96,6 +97,42 @@ trait Feed {
      */
     public function removeFeed($feedId) {
         $this->feedService->removeFeed($feedId);
+    }
+
+    /**
+     * FEED WEBHOOK RELATED ENDPOINTS
+     */
+
+    /**
+     * @http GET /webhook
+     *
+     * @return mixed
+     */
+    public function listWebhooks() {
+        return $this->feedService->returnAllFeedWebhooks();
+    }
+
+    /**
+     * @http POST /webhook
+     *
+     * @param FeedWebhookInstanceSummary $feedSummary
+     * @param string|null $projectKey
+     *
+     * @return int|null
+     */
+    public function saveFeedWebhookInstance(FeedWebhookInstanceSummary $feedSummary, string $projectKey = null): ?int {
+        return $this->feedService->saveFeedWebhook($feedSummary, $projectKey);
+    }
+
+    /**
+     * @http DELETE /webhook/$id
+     *
+     * @param int $id
+     *
+     * @returns void
+     */
+    public function removeFeedWebhookInstance(int $id): void {
+        $this->feedService->removeFeedWebhook($id);
     }
 
 }
