@@ -54,13 +54,15 @@ export class FeedService {
     }
 
     public getWebhooks() {
-        return this.http.get(this.config.backendURL + '/feed/webhook').toPromise();
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : null;
+
+        return this.http.get(this.config.backendURL + '/feed/webhook/list?projectKey=' + projectKey).toPromise();
     }
 
     public async saveWebhook(webhook: Webhook) {
         const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
 
-        return this.http.post(this.config.backendURL + '/feed/webhook?projectKey=' + projectKey, webhook)
+        return this.http.post(this.config.backendURL + '/feed/webhook/save?projectKey=' + projectKey, webhook)
             .toPromise();
     }
 

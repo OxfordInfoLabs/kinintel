@@ -104,7 +104,7 @@ trait Feed {
      */
 
     /**
-     * @http GET /webhook
+     * @http GET /webhook/list
      *
      * @param string|null $projectKey
      *
@@ -115,7 +115,7 @@ trait Feed {
     }
 
     /**
-     * @http POST /webhook
+     * @http POST /webhook/save
      *
      * @param FeedWebhookInstanceSummary $feedSummary
      * @param string|null $projectKey
