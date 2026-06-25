@@ -290,26 +290,21 @@ class FeedService {
      * @return FeedWebhookInstance
      */
     public function getFeedWebhookById($id) {
-        return FeedWebhookInstance::fetch($id);
+        return FeedWebhookInstance::fetch($id)->returnSummary();
     }
 
     /**
      * Save a feed webhook
      *
-     * @param FeedWebhookInstanceSummary $FeedWebhookSummary
+     * @param FeedWebhookInstanceSummary $feedWebhookSummary
      * @param string $projectKey
      * @param int $accountId
      */
-    public function saveFeedWebhook(
-        $FeedWebhookSummary,
-        $projectKey = null,
-        $accountId = Account::LOGGED_IN_ACCOUNT,
-    ) {
-
+    public function saveFeedWebhook($feedWebhookSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         /**
          * Create a real feed webhook instance and save it
          */
-        $feedWebhook = new FeedWebhookInstance($FeedWebhookSummary, $projectKey, $accountId);
+        $feedWebhook = new FeedWebhookInstance($feedWebhookSummary, $projectKey, $accountId);
         $feedWebhook->save();
 
         return $feedWebhook->getId();
@@ -347,7 +342,10 @@ class FeedService {
 
         $query = (sizeof($whereClauses) ? "WHERE " : "") . join(" AND ", $whereClauses) . " ORDER BY id";
 
-        return FeedWebhookInstance::filter($query, $params);
+        $results = FeedWebhookInstance::filter($query, $params);
+        return array_map(function ($item) {
+            return $item->returnSummary();
+        }, $results);
     }
 
     /**
