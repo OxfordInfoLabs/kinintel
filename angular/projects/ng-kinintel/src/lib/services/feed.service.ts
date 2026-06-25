@@ -67,6 +67,6 @@ export class FeedService {
     }
 
     public async deleteWebhook(id: number) {
-        return this.http.delete(this.config.backendURL + '/feed/webhook/delete' + id).toPromise();
+        return this.http.delete(this.config.backendURL + '/feed/webhook/delete/' + id).toPromise();
     }
 }
