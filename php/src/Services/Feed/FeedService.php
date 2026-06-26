@@ -326,7 +326,7 @@ class FeedService {
     /**
      * Return all feed webhook instances saved
      */
-    public function returnAllFeedWebhooks(string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function returnAllFeedWebhooks(?string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $whereClauses = [];
         $params = [];
 
