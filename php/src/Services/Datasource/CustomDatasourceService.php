@@ -86,6 +86,57 @@ class CustomDatasourceService {
     }
 
     /**
+     * Apply a field mapping to a DataousourceUpdateWithStructure
+     *
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     * @param array $mapping
+     *
+     * @return DatasourceUpdateWithStructure
+     */
+    public function applyFieldMapping($datasourceUpdate, $mapping): DatasourceUpdateWithStructure {
+
+        // Re-map fields
+        $mappedFields = [];
+
+        foreach ($datasourceUpdate->getFields() as $field) {
+            $mappedName = $mapping[$field->getName()] ?? $field->getName();
+
+            $mappedFields[] = new Field(
+                $mappedName,
+                null,
+                $field->getValueExpression(),
+                $field->getType(),
+                $field->isKeyField()
+            );
+        }
+
+        // Re-map adds
+        $mappedAdds = [];
+
+        foreach ($datasourceUpdate->getAdds() as $row) {
+
+            $mappedRow = [];
+
+            foreach ($row as $column => $value) {
+                $mappedRow[$mapping[$column] ?? $column] = $value;
+            }
+
+            $mappedAdds[] = $mappedRow;
+        }
+
+        return new DatasourceUpdateWithStructure(
+            $datasourceUpdate->getTitle(),
+            $datasourceUpdate->getImportKey(),
+            $mappedFields,
+            $datasourceUpdate->getIndexes(),
+            $mappedAdds,
+            $datasourceUpdate->getUpdates(),
+            $datasourceUpdate->getDeletes()
+        );
+
+    }
+
+    /**
      * Create new snapshot datasource instance and return the snapshot instance.
      * The datasource type is SQLDatabaseDatasource
      *

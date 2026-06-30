@@ -102,6 +102,36 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
+    public function testCanRemapFieldsInCustomDatasourceUpdateWithStructureObject() {
+
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
+            new Field("name"),
+            new Field("age", null, null, Field::TYPE_INTEGER)
+        ], [], [
+            ["name" => "Joe Bloggs", "age" => 12],
+            ["name" => "Mary Jane", "age" => 7]
+        ]);
+
+        $mapping = [
+            "name" => "signal",
+            "age" => "abuse_type"
+        ];
+
+        $returnedDatasourceUpdate = $this->customDatasourceService->applyFieldMapping($datasourceUpdate, $mapping);
+
+        $expectedDatasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
+            new Field("signal"),
+            new Field("abuse_type", null, null, Field::TYPE_INTEGER)
+        ], [], [
+            ["signal" => "Joe Bloggs", "abuse_type" => 12],
+            ["signal" => "Mary Jane", "abuse_type" => 7]
+        ]);
+
+        $this->assertEquals($expectedDatasourceUpdate, $returnedDatasourceUpdate);
+
+    }
+
     public function testIfDatasourceKeySuppliedItIsUsedOnCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
