@@ -29,11 +29,18 @@ class CustomDatasourceService {
     private DatasourceService $datasourceService;
     private HttpRequestDispatcher $requestDispatcher;
     private GoogleDriveService $googleDriveService;
+    private DatasourceRemappingService $datasourceRemappingService;
 
-    public function __construct(DatasourceService $datasourceService, HttpRequestDispatcher $requestDispatcher, GoogleDriveService $googleDriveService) {
+    public function __construct(
+        DatasourceService $datasourceService,
+        HttpRequestDispatcher $requestDispatcher,
+        GoogleDriveService $googleDriveService,
+        DatasourceRemappingService $datasourceRemappingService
+    ) {
         $this->datasourceService = $datasourceService;
         $this->requestDispatcher = $requestDispatcher;
         $this->googleDriveService = $googleDriveService;
+        $this->datasourceRemappingService = $datasourceRemappingService;
     }
 
 
@@ -41,8 +48,11 @@ class CustomDatasourceService {
      * Create a new custom datasource instance
      *
      * @param DatasourceUpdateWithStructure $datasourceUpdate
-     * @param string $projectKey
+     * @param ?string $datasourceKey
+     * @param ?string $projectKey
      * @param integer $accountId
+     * @param string $type
+     *
      * @throws Exception
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom") {
@@ -86,54 +96,23 @@ class CustomDatasourceService {
     }
 
     /**
-     * Apply a field mapping to a DataousourceUpdateWithStructure
+     * Create a custom datasource instance using a saved CSV profile to remap the datasourceUpdate fields.
      *
      * @param DatasourceUpdateWithStructure $datasourceUpdate
-     * @param array $mapping
+     * @param int $csvProfileId
+     * @param ?string $datasourceKey
+     * @param ?string $projectKey
+     * @param integer $accountId
+     * @param string $type
      *
-     * @return DatasourceUpdateWithStructure
+     * @throws Exception
      */
-    public function applyFieldMapping($datasourceUpdate, $mapping): DatasourceUpdateWithStructure {
+    public function createCustomDatasourceInstanceWithProfile($datasourceUpdate, $csvProfileId, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom") {
+        $mapping = $this->datasourceRemappingService->getCSVProfile($csvProfileId)->getMapping();
 
-        // Re-map fields
-        $mappedFields = [];
+        $datasourceUpdateRemapped = $this->datasourceRemappingService->applyFieldMapping($datasourceUpdate, $mapping);
 
-        foreach ($datasourceUpdate->getFields() as $field) {
-            $mappedName = $mapping[$field->getName()] ?? $field->getName();
-
-            $mappedFields[] = new Field(
-                $mappedName,
-                null,
-                $field->getValueExpression(),
-                $field->getType(),
-                $field->isKeyField()
-            );
-        }
-
-        // Re-map adds
-        $mappedAdds = [];
-
-        foreach ($datasourceUpdate->getAdds() as $row) {
-
-            $mappedRow = [];
-
-            foreach ($row as $column => $value) {
-                $mappedRow[$mapping[$column] ?? $column] = $value;
-            }
-
-            $mappedAdds[] = $mappedRow;
-        }
-
-        return new DatasourceUpdateWithStructure(
-            $datasourceUpdate->getTitle(),
-            $datasourceUpdate->getImportKey(),
-            $mappedFields,
-            $datasourceUpdate->getIndexes(),
-            $mappedAdds,
-            $datasourceUpdate->getUpdates(),
-            $datasourceUpdate->getDeletes()
-        );
-
+        return $this->createCustomDatasourceInstance($datasourceUpdateRemapped, $datasourceKey, $projectKey, $accountId, $type);
     }
 
     /**

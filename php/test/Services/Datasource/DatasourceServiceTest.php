@@ -1,10 +1,13 @@
 <?php
 
 
-namespace Kinintel\Services\Datasource;
+namespace Kinintel\Test\Services\Datasource;
 
 use Kiniauth\Objects\Account\Account;
+use Kiniauth\Objects\Account\AccountCSVProfile;
+use Kiniauth\Objects\Account\AccountCSVProfileSummary;
 use Kiniauth\Objects\Security\Role;
+use Kiniauth\Services\Account\AccountService;
 use Kiniauth\Services\Security\SecurityService;
 use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\DependencyInjection\Container;
@@ -31,9 +34,10 @@ use Kinintel\Objects\Datasource\DefaultDatasource;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Objects\Datasource\UpdatableTabularDatasource;
-use Kinintel\Objects\Hook\DatasourceHookInstance;
 use Kinintel\Services\DataProcessor\DataProcessorService;
-use Kinintel\Services\Dataset\DatasetService;
+use Kinintel\Services\Datasource\DatasourceDAO;
+use Kinintel\Services\Datasource\DatasourceRemappingService;
+use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Test\ValueObjects\Transformation\AnotherTestTransformation;
 use Kinintel\TestBase;
@@ -53,7 +57,6 @@ use Kinintel\ValueObjects\Parameter\Parameter;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterTransformation;
-use Kinintel\ValueObjects\Transformation\Join\JoinTransformation;
 use Kinintel\ValueObjects\Transformation\Paging\PagingTransformation;
 use Kinintel\ValueObjects\Transformation\TestTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -92,6 +95,11 @@ class DatasourceServiceTest extends TestBase {
     private $datasourceHookService;
 
     /**
+     * @var MockObject
+     */
+    private $datasourceRemappingService;
+
+    /**
      * Set up
      */
     public function setUp(): void {
@@ -99,8 +107,16 @@ class DatasourceServiceTest extends TestBase {
         $this->securityService = MockObjectProvider::instance()->getMockInstance(SecurityService::class);
         $this->valueFunctionEvaluator = MockObjectProvider::instance()->getMockInstance(ValueFunctionEvaluator::class);
         $this->datasourceHookService = MockObjectProvider::instance()->getMockInstance(DatasourceHookService::class);
-        $this->dataSourceService = new DatasourceService($this->datasourceDAO, $this->securityService, $this->valueFunctionEvaluator,
-            Container::instance()->get(DataProcessorService::class), $this->datasourceHookService);
+        $this->datasourceRemappingService = MockObjectProvider::instance()->getMockInstance(DatasourceRemappingService::class);
+
+        $this->dataSourceService = new DatasourceService(
+            $this->datasourceDAO,
+            $this->securityService,
+            $this->valueFunctionEvaluator,
+            Container::instance()->get(DataProcessorService::class),
+            $this->datasourceHookService,
+            $this->datasourceRemappingService
+        );
 
     }
 
@@ -768,6 +784,170 @@ class DatasourceServiceTest extends TestBase {
 
     }
 
+    public function testCanUpdateDatasourceInstanceWithCSVProfileAndDatasourceCalledAppropriately() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSourceInstance->returnValue("getKey", "test");
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        // prepare the datasource updates and remapping
+        $datasourceUpdate = new DatasourceUpdate(
+            [
+                ["name" => "Joe Bloggs", "age" => 12],
+                ["name" => "Mary Jane", "age" => 7]
+            ],
+            [
+                ["name" => "Mr Smith", "age" => 22],
+                ["name" => "Mrs Apple", "age" => 72]
+            ],
+            [
+                ["name" => "Going away", "age" => 33]
+            ],
+            [
+                ["name" => "Replace me", "age" => 88],
+                ["name" => "Replace me twice", "age" => 65]
+            ]
+        );
+
+        $remappedUpdate = new DatasourceUpdate(
+            [
+                ["signal" => "Joe Bloggs", "abuse_type" => 12],
+                ["signal" => "Mary Jane", "abuse_type" => 7]
+            ],
+            [
+                ["signal" => "Mr Smith", "abuse_type" => 22],
+                ["signal" => "Mrs Apple", "abuse_type" => 72]
+            ],
+            [
+                ["signal" => "Going away", "abuse_type" => 33]
+            ],
+            [
+                ["signal" => "Replace me", "abuse_type" => 88],
+                ["signal" => "Replace me twice", "abuse_type" => 65]
+            ]
+        );
+
+        $mapping = [
+            "name" => "signal",
+            "age" => "abuse_type"
+        ];
+
+        // mock the returned mapped update from the remapping service
+        $this->datasourceRemappingService->returnValue(
+            "applyFieldMapping",
+            $remappedUpdate,
+            [
+                $datasourceUpdate,
+                $mapping
+            ]
+        );
+
+        // create the expected results from the datasource update
+        $addDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type")
+        ], [
+            ["signal" => "Joe Bloggs", "abuse_type" => 12],
+            ["signal" => "Mary Jane", "abuse_type" => 7]
+        ]);
+
+        $updateDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type")
+        ], [
+            ["signal" => "Mr Smith", "abuse_type" => 22],
+            ["signal" => "Mrs Apple", "abuse_type" => 72]
+        ]);
+
+        $deleteDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type")
+        ], [
+            ["signal" => "Going away", "abuse_type" => 33]
+        ]);
+
+        $replaceDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type")
+        ], [
+            ["signal" => "Replace me", "abuse_type" => 88],
+            ["signal" => "Replace me twice", "abuse_type" => 65]
+        ]);
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0, 1, 0, ["add" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])
+        ]]), [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]);
+
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0, 0, [
+        ]), [
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
+        ]);
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2, 0, 0, [
+        ]), [
+            $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
+        ]);
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1, 0, ["replace" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])
+        ]]), [
+            $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]);
+
+        // mock the CSV profile calls
+        $profileId = 123;
+
+        $profile = MockObjectProvider::instance()->getMockInstance(AccountCSVProfile::class);
+
+        $profile->returnValue("getMapping", $mapping);
+        $this->datasourceRemappingService->returnValue(
+            "getCSVProfile",
+            $profile,
+            [$profileId]
+        );
+
+        $result = $this->dataSourceService->updateDatasourceInstanceByKeyWithProfile("test", $profileId, $datasourceUpdate);
+
+        // assert the expected results and right methods were called
+        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2, 0, [
+            "add" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])],
+            "replace" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])]
+        ]), $result);
+
+
+        $this->assertTrue(
+            $this->datasourceRemappingService->methodWasCalled(
+                "getCSVProfile",
+                [$profileId]
+            )
+        );
+
+        $this->assertTrue(
+            $this->datasourceRemappingService->methodWasCalled(
+                "applyFieldMapping",
+                [
+                    $datasourceUpdate,
+                    $mapping
+                ]
+            )
+        );
+
+    }
+
 
     public function testCanUpdateDatasourceTitleImportKeyAndFieldsIfUpdateWithStructureObjectPassedToUpdateMethod() {
 
@@ -1177,7 +1357,7 @@ class DatasourceServiceTest extends TestBase {
     }
 
 
-    public function testAccountOwnedDatasourcesAreReturnedAsTreeCorrectly() {
+    public function testAccountOwnedDataSourcesAreReturnedAsTreeCorrectly() {
 
         AuthenticationHelper::login("admin@kinicart.com", "password");
 

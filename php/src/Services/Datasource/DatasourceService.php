@@ -46,11 +46,12 @@ class DatasourceService {
 
 
     public function __construct(
-        private DatasourceDAO          $datasourceDAO,
-        private SecurityService        $securityService,
-        private ValueFunctionEvaluator $valueFunctionEvaluator,
-        private DataProcessorService   $dataProcessorService,
-        private DatasourceHookService  $datasourceHookService
+        private DatasourceDAO               $datasourceDAO,
+        private SecurityService             $securityService,
+        private ValueFunctionEvaluator      $valueFunctionEvaluator,
+        private DataProcessorService        $dataProcessorService,
+        private DatasourceHookService       $datasourceHookService,
+        private DatasourceRemappingService  $datasourceRemappingService,
     ) {
     }
 
@@ -311,6 +312,30 @@ class DatasourceService {
         // Grab the instance and call the child function
         $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
         return $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdate, $allowInsecure);
+
+    }
+
+    /**
+     * Update a datasource instance using a passed datasource key and update object.  This variant allows for insecure
+     * use if required
+     *
+     * @param string $datasourceInstanceKey
+     * @param int $csvProfileId
+     * @param DatasourceUpdate $datasourceUpdate
+     *
+     * @return DatasourceUpdateResult
+     */
+    public function updateDatasourceInstanceByKeyWithProfile($datasourceInstanceKey, $csvProfileId, $datasourceUpdate, $allowInsecure = false) {
+
+        // Grab the instance and call the child function
+        $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
+
+        // get the CSV profile mapping
+        $mapping = $this->datasourceRemappingService->getCSVProfile($csvProfileId)->getMapping();
+
+        $datasourceUpdateRemapped = $this->datasourceRemappingService->applyFieldMapping($datasourceUpdate, $mapping);
+
+        return $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdateRemapped, $allowInsecure);
 
     }
 

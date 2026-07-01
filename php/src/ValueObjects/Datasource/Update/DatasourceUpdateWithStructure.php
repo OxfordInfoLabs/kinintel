@@ -42,9 +42,10 @@ class DatasourceUpdateWithStructure extends DatasourceUpdate {
      * @param mixed[] $adds
      * @param mixed[] $updates
      * @param mixed[] $deletes
+     * @param mixed[] $replaces
      */
-    public function __construct($title, $importKey = null, $fields = [], $indexes = [], $adds = [], $updates = [], $deletes = []) {
-        parent::__construct($adds, $updates, $deletes);
+    public function __construct($title, $importKey = null, $fields = [], $indexes = [], $adds = [], $updates = [], $deletes = [], $replaces = []) {
+        parent::__construct($adds, $updates, $deletes, $replaces);
         $this->title = $title;
         $this->fields = $fields;
         $this->importKey = $importKey;

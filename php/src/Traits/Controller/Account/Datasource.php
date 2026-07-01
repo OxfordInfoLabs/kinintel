@@ -3,6 +3,7 @@
 
 namespace Kinintel\Traits\Controller\Account;
 
+use Exception;
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Workflow\Task\LongRunning\StoredLongRunningTaskSummary;
 use Kiniauth\Services\Workflow\Task\LongRunning\LongRunningTaskService;
@@ -144,15 +145,35 @@ trait Datasource {
      * @http POST /custom
      *
      * @param DatasourceUpdateWithStructure $datasourceUpdate
-     * @param string $projectKey
-     * @param string $datasourceKey
+     * @param ?string $projectKey
+     * @param ?string $datasourceKey
      *
      * @return string
      *
      * @hasPrivilege PROJECT:customdatasourcemanage($projectKey)
+     * @throws Exception
      */
     public function createCustomDatasourceInstance($datasourceUpdate, $projectKey = null, $datasourceKey = null) {
         return $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, $datasourceKey, $projectKey);
+    }
+
+    /**
+     * Create a new custom datasource instance with the profile datasource update remapped. Return the datasource key
+     *
+     * @http POST /custom/profile
+     *
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     * @param int $profileId
+     * @param ?string $projectKey
+     * @param ?string $datasourceKey
+     *
+     * @return string
+     *
+     * @hasPrivilege PROJECT:customdatasourcemanage($projectKey)
+     * @throws Exception
+     */
+    public function createCustomDatasourceInstanceWithProfile($datasourceUpdate, $profileId, $projectKey = null, $datasourceKey = null) {
+        return $this->customDatasourceService->createCustomDatasourceInstanceWithProfile($datasourceUpdate, $profileId, $datasourceKey, $projectKey);
     }
 
 
@@ -171,6 +192,22 @@ trait Datasource {
         return $this->datasourceService->updateDatasourceInstanceByKey($datasourceInstanceKey, $datasourceUpdate);
     }
 
+    /**
+     * Update a custom datasource instance with the profile datasource update remapped, and optionally structure
+     *
+     *
+     * @http PUT /custom/profile/$datasourceInstanceKey
+     *
+     * @param string $datasourceInstanceKey
+     * @param int $csvProfileId
+     * @param DatasourceUpdateWithStructure $datasourceUpdate
+     *
+     * @unsanitise datasourceUpdate
+     */
+    public function updateCustomDatasourceInstanceWithProfile($datasourceInstanceKey, $csvProfileId, $datasourceUpdate) {
+        return $this->datasourceService->updateDatasourceInstanceByKeyWithProfile($datasourceInstanceKey, $csvProfileId, $datasourceUpdate);
+    }
+
 
     /**
      * Update a custom datasource instance with the supplied data and optionally structure
@@ -180,6 +217,7 @@ trait Datasource {
      *
      * @param string $datasourceInstanceKey
      * @param DatasourceUpdate $datasourceUpdate
+     *
      * @unsanitise datasourceUpdate
      */
     public function populateCustomDatasourceInstance($datasourceInstanceKey, $datasourceUpdate) {

@@ -2,16 +2,22 @@
 
 namespace Kinintel\Test\Services\Datasource;
 
+use Exception;
+use Kiniauth\Objects\Account\AccountCSVProfile;
+use Kiniauth\Objects\Account\AccountCSVProfileSummary;
+use Kiniauth\Test\Services\Security\AuthenticationHelper;
 use Kinikit\Core\Configuration\Configuration;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\HTTP\Dispatcher\HttpRequestDispatcher;
-use Kinikit\Core\Logging\Logger;
+use Kiniauth\Services\Account\AccountService;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Core\Validation\ValidationException;
 use Kinintel\Objects\Datasource\DatasourceInstance;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
 use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Datasource\CustomDatasourceService;
+use Kinintel\Services\Datasource\DatasourceRemappingService;
 use Kinintel\Services\Datasource\DatasourceService;
 use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\DocxTextExtractor;
 use Kinintel\Services\Util\Analysis\TextAnalysis\Extractors\PDFTextExtractor;
@@ -38,24 +44,35 @@ class CustomDatasourceServiceTest extends TestBase {
     private $customDatasourceService;
 
     /**
-     * @var GoogleDriveService
+     * @var MockObject
      */
     private $googleDriveService;
+
+    /**
+     * @var MockObject
+     */
+    private $datasourceRemappingService;
+
 
     /**
      * @return void
      */
     public function setUp(): void {
         $this->datasourceService = MockObjectProvider::instance()->getMockInstance(DatasourceService::class);
-
         $this->googleDriveService = MockObjectProvider::instance()->getMockInstance(GoogleDriveService::class);
+        $this->datasourceRemappingService = MockObjectProvider::instance()->getMockInstance(DatasourceRemappingService::class);
+
         $this->customDatasourceService = new CustomDatasourceService(
             $this->datasourceService,
             Container::instance()->get(HttpRequestDispatcher::class),
-            $this->googleDriveService
+            $this->googleDriveService,
+            $this->datasourceRemappingService
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCanCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
@@ -102,23 +119,90 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
-    public function testCanRemapFieldsInCustomDatasourceUpdateWithStructureObject() {
+    /**
+     * @throws Exception
+     */
+    public function testCanRemapFieldsInCustomDatasourceUpdateWithStructuredObject() {
 
+        $datasourceUpdate = new DatasourceUpdateWithStructure(
+            "Hello world",
+            null,
+            [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ],
+            [],
+            [
+                ["name" => "Joe Bloggs", "age" => 12],
+                ["name" => "Mary Jane", "age" => 7]
+            ]
+        );
 
-        $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
-            new Field("name"),
-            new Field("age", null, null, Field::TYPE_INTEGER)
-        ], [], [
-            ["name" => "Joe Bloggs", "age" => 12],
-            ["name" => "Mary Jane", "age" => 7]
-        ]);
+        $expectedDatasourceUpdate = new DatasourceUpdateWithStructure(
+            "Hello world",
+            null,
+            [
+                new Field("signal"),
+                new Field("abuse_type", null, null, Field::TYPE_INTEGER)
+            ],
+            [],
+            [
+                ["signal" => "Joe Bloggs", "abuse_type" => 12],
+                ["signal" => "Mary Jane", "abuse_type" => 7]
+            ]
+        );
 
         $mapping = [
             "name" => "signal",
             "age" => "abuse_type"
         ];
 
-        $returnedDatasourceUpdate = $this->customDatasourceService->applyFieldMapping($datasourceUpdate, $mapping);
+        // mock the returned mapped update from the remapping service
+        $this->datasourceRemappingService->returnValue(
+            "applyFieldMapping",
+            $expectedDatasourceUpdate,
+            [
+                $datasourceUpdate,
+                $mapping
+            ]
+        );
+
+        // mock the CSV profile calls
+        $profileId = 123;
+
+        $profile = MockObjectProvider::instance()->getMockInstance(AccountCSVProfile::class);
+
+        $profile->returnValue("getMapping", $mapping);
+        $this->datasourceRemappingService->returnValue(
+            "getCSVProfile",
+            $profile,
+            [$profileId]
+        );
+
+        $mockInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDatasourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+        $mockInstance->returnValue("returnDataSource", $mockDatasource);
+        $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
+        $this->datasourceService->returnValue("saveDataSourceInstance", $mockInstance);
+
+        $newDatasourceKey = $this->customDatasourceService->createCustomDatasourceInstanceWithProfile(
+            $datasourceUpdate,
+            $profileId,
+            null,
+            "myproject",
+            1
+        );
+
+        $expectedDatasourceInstance = new DatasourceInstance($newDatasourceKey, "Hello world", "custom", [
+            "source" => "table",
+            "tableName" => "custom." . $newDatasourceKey,
+            "columns" => [
+                new Field("signal"),
+                new Field("abuse_type", null, null, Field::TYPE_INTEGER)
+            ],
+            "manageTableStructure" => true
+        ], "test");
 
         $expectedDatasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
             new Field("signal"),
@@ -128,10 +212,32 @@ class CustomDatasourceServiceTest extends TestBase {
             ["signal" => "Mary Jane", "abuse_type" => 7]
         ]);
 
-        $this->assertEquals($expectedDatasourceUpdate, $returnedDatasourceUpdate);
+        $expectedDatasourceInstance->setAccountId(1);
+        $expectedDatasourceInstance->setProjectKey("myproject");
+
+        // Check datasource was saved
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $expectedDatasourceInstance
+        ]));
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
+            $newDatasourceKey, $expectedDatasourceUpdate
+        ]));
+
+        $this->assertTrue($this->datasourceRemappingService->methodWasCalled("getCSVProfile", [
+            $profileId
+        ]));
+
+        $this->assertTrue($this->datasourceRemappingService->methodWasCalled("applyFieldMapping", [
+            $datasourceUpdate, ["name" => "signal", "age" => "abuse_type"]
+        ]));
 
     }
 
+    /**
+     * @throws Exception
+     */
     public function testIfDatasourceKeySuppliedItIsUsedOnCreateCustomDatasourceUsingUpdateWithStructureObject() {
 
 
@@ -180,7 +286,6 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
-
     public function testIfCustomDataSourceCreationFailsInstanceIsDeleted() {
 
         $datasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
@@ -197,21 +302,22 @@ class CustomDatasourceServiceTest extends TestBase {
         $mockDatasourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
         $mockInstance->returnValue("returnDataSource", $mockDatasource);
         $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
-        $this->datasourceService->throwException("saveDataSourceInstance", new \Exception("RANDOM FAILURE"));
+        $this->datasourceService->throwException("saveDataSourceInstance", new Exception("RANDOM FAILURE"));
 
         try {
             $this->customDatasourceService->createCustomDatasourceInstance($datasourceUpdate, null, "myproject", 1);
             $this->fail("Should have thrown here");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->assertEquals("RANDOM FAILURE", $e->getMessage());
             $this->assertTrue($this->datasourceService->methodWasCalled("removeDatasourceInstance", [
                 "custom_data_set_1_" . date("U")
             ]));
         }
-
-
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function testCanCreateDocumentDatasourceInstanceAndIndexDatasourceInstanceAndChunkDatasourceInstance() {
         $indexFields = [
             new Field("document_file_name", "Document File Name", null, Field::TYPE_STRING, true),
@@ -294,6 +400,9 @@ class CustomDatasourceServiceTest extends TestBase {
 
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function testCanUploadDocumentsToCustomDatasourceByUrl() {
         $links = [
             "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
