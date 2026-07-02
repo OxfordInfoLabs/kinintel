@@ -43,8 +43,14 @@ class DatasourceRemappingService {
 
             // Re-map fields
             $mappedFields = [];
+            $hasExtraDataField = false;
 
             foreach ($datasourceUpdate->getFields() as $field) {
+
+                // Check if we have valid extra data
+                if ($extraDataFlags[$field->getName()] ?? false) {
+                    $hasExtraDataField = true;
+                }
 
                 // Skip if not in mapping
                 if (!isset($mapping[$field->getName()])) continue;
@@ -58,7 +64,7 @@ class DatasourceRemappingService {
                 );
             }
 
-            if (!empty($extraDataFlags)) {
+            if ($hasExtraDataField) {
                 $mappedFields[] = new Field("extra_data");
             }
 
