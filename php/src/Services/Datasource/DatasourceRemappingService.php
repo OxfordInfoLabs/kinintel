@@ -45,15 +45,21 @@ class DatasourceRemappingService {
             $mappedFields = [];
 
             foreach ($datasourceUpdate->getFields() as $field) {
-                $mappedName = $mapping[$field->getName()] ?? $field->getName();
+
+                // Skip if not in mapping
+                if (!isset($mapping[$field->getName()])) continue;
 
                 $mappedFields[] = new Field(
-                    $mappedName,
+                    $mapping[$field->getName()],
                     null,
                     $field->getValueExpression(),
                     $field->getType(),
                     $field->isKeyField()
                 );
+            }
+
+            if (!empty($extraDataFlags)) {
+                $mappedFields[] = new Field("extra_data");
             }
 
             return new DatasourceUpdateWithStructure(
@@ -93,27 +99,27 @@ class DatasourceRemappingService {
         foreach ($rows as $row) {
 
             // collect extra data flagged values
-            $extraData = [];
-
-            foreach ($row as $column => $value) {
-                if ($extraDataFlags[$column] ?? false) {
-                    $extraData[$column] = $value;
-                }
-            }
+            $extraData = array_filter($row, function ($column) use ($extraDataFlags) {
+                return $extraDataFlags[$column] ?? false;
+            }, ARRAY_FILTER_USE_KEY);
 
             // remap row
             $mappedRow = [];
 
             foreach ($row as $column => $value) {
-                $mappedRow[$mapping[$column] ?? $column] = $value;
-            }
 
-            $mappedRows[] = $mappedRow;
+                // skip if not in mapping
+                if (!isset($mapping[$column])) continue;
+
+                $mappedRow[$mapping[$column]] = $value;
+            }
 
             // check if we have extra data
             if (!empty($extraData)) {
-                $mappedRows["extra_data"] = json_encode($extraData);
+                $mappedRow["extra_data"] = json_encode($extraData);
             }
+
+            $mappedRows[] = $mappedRow;
         }
 
         return $mappedRows;

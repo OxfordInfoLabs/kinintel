@@ -163,7 +163,7 @@ trait Datasource {
      * @http POST /custom/profile
      *
      * @param DatasourceUpdateWithStructure $datasourceUpdate
-     * @param int $profileId
+     * @param int $csvProfileId
      * @param ?string $projectKey
      * @param ?string $datasourceKey
      *
@@ -172,8 +172,8 @@ trait Datasource {
      * @hasPrivilege PROJECT:customdatasourcemanage($projectKey)
      * @throws Exception
      */
-    public function createCustomDatasourceInstanceWithProfile($datasourceUpdate, $profileId, $projectKey = null, $datasourceKey = null) {
-        return $this->customDatasourceService->createCustomDatasourceInstanceWithProfile($datasourceUpdate, $profileId, $datasourceKey, $projectKey);
+    public function createCustomDatasourceInstanceWithProfile($datasourceUpdate, $csvProfileId, $projectKey = null, $datasourceKey = null) {
+        return $this->customDatasourceService->createCustomDatasourceInstanceWithProfile($datasourceUpdate, $csvProfileId, $datasourceKey, $projectKey);
     }
 
 
