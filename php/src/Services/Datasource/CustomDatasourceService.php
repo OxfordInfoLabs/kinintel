@@ -108,9 +108,11 @@ class CustomDatasourceService {
      * @throws Exception
      */
     public function createCustomDatasourceInstanceWithProfile($datasourceUpdate, $csvProfileId, $datasourceKey = null, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT, $type = "custom") {
-        $mapping = $this->datasourceRemappingService->getCSVProfile($csvProfileId)->getMapping();
+        // get the csv profile
+        $csvProfile = $this->datasourceRemappingService->getCSVProfile($csvProfileId);
 
-        $datasourceUpdateRemapped = $this->datasourceRemappingService->applyFieldMapping($datasourceUpdate, $mapping);
+        // remap the datasourceUpdate fields using the CSV profile
+        $datasourceUpdateRemapped = $this->datasourceRemappingService->applyFieldMapping($datasourceUpdate, $csvProfile);
 
         return $this->createCustomDatasourceInstance($datasourceUpdateRemapped, $datasourceKey, $projectKey, $accountId, $type);
     }

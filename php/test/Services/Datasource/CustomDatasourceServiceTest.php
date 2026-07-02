@@ -152,27 +152,23 @@ class CustomDatasourceServiceTest extends TestBase {
             ]
         );
 
-        $mapping = [
-            "name" => "signal",
-            "age" => "abuse_type"
-        ];
+        // creat a mocked csv profile
+        $profile = $this->createMockCSVProfile(
+            [
+                "name" => "signal",
+                "age" => "abuse_type"
+            ]
+        );
 
         // mock the returned mapped update from the remapping service
         $this->datasourceRemappingService->returnValue(
             "applyFieldMapping",
             $expectedDatasourceUpdate,
-            [
-                $datasourceUpdate,
-                $mapping
-            ]
         );
 
         // mock the CSV profile calls
         $profileId = 123;
 
-        $profile = MockObjectProvider::instance()->getMockInstance(AccountCSVProfile::class);
-
-        $profile->returnValue("getMapping", $mapping);
         $this->datasourceRemappingService->returnValue(
             "getCSVProfile",
             $profile,
@@ -230,10 +226,131 @@ class CustomDatasourceServiceTest extends TestBase {
         ]));
 
         $this->assertTrue($this->datasourceRemappingService->methodWasCalled("applyFieldMapping", [
-            $datasourceUpdate, ["name" => "signal", "age" => "abuse_type"]
+            $datasourceUpdate,
+            $profile
         ]));
 
     }
+
+    /**
+     * @throws Exception
+     */
+    public function testCanRemapFieldsInCustomDatasourceUpdateWithStructuredObjectAndExtraData() {
+
+        $datasourceUpdate = new DatasourceUpdateWithStructure(
+            "Hello world",
+            null,
+            [
+                new Field("name"),
+                new Field("age", null, null, Field::TYPE_INTEGER)
+            ],
+            [],
+            [
+                ["name" => "Joe Bloggs", "age" => 12],
+                ["name" => "Mary Jane", "age" => 7]
+            ]
+        );
+
+        $expectedDatasourceUpdate = new DatasourceUpdateWithStructure(
+            "Hello world",
+            null,
+            [
+                new Field("signal"),
+                new Field("abuse_type", null, null, Field::TYPE_INTEGER),
+                new Field("extra_data")
+            ],
+            [],
+            [
+                ["signal" => "Joe Bloggs", "abuse_type" => 12, "extra_data" => json_encode(["age" => 12])],
+                ["signal" => "Mary Jane", "abuse_type" => 7, "extra_data" => json_encode(["age" => 7])]
+            ]
+        );
+
+        // creat a mocked csv profile
+        $profile = $this->createMockCSVProfile(
+            [
+                "name" => "signal",
+                "age" => "abuse_type"
+            ],
+            [
+                "age" => true
+            ]
+        );
+
+        // mock the returned mapped update from the remapping service
+        $this->datasourceRemappingService->returnValue(
+            "applyFieldMapping",
+            $expectedDatasourceUpdate,
+        );
+
+        // mock the CSV profile calls
+        $profileId = 123;
+
+        $this->datasourceRemappingService->returnValue(
+            "getCSVProfile",
+            $profile,
+            [$profileId]
+        );
+
+        $mockInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $mockDatasource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $mockDatasourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+        $mockInstance->returnValue("returnDataSource", $mockDatasource);
+        $mockDatasource->returnValue("getConfig", $mockDatasourceConfig);
+        $this->datasourceService->returnValue("saveDataSourceInstance", $mockInstance);
+
+        $newDatasourceKey = $this->customDatasourceService->createCustomDatasourceInstanceWithProfile(
+            $datasourceUpdate,
+            $profileId,
+            null,
+            "myproject",
+            1
+        );
+
+        $expectedDatasourceInstance = new DatasourceInstance($newDatasourceKey, "Hello world", "custom", [
+            "source" => "table",
+            "tableName" => "custom." . $newDatasourceKey,
+            "columns" => [
+                new Field("signal"),
+                new Field("abuse_type", null, null, Field::TYPE_INTEGER),
+                new Field("extra_data")
+            ],
+            "manageTableStructure" => true
+        ], "test");
+
+        $expectedDatasourceUpdate = new DatasourceUpdateWithStructure("Hello world", null, [
+            new Field("signal"),
+            new Field("abuse_type", null, null, Field::TYPE_INTEGER),
+            new Field("extra_data")
+        ], [], [
+            ["signal" => "Joe Bloggs", "abuse_type" => 12, "extra_data" => json_encode(["age" => 12])],
+            ["signal" => "Mary Jane", "abuse_type" => 7, "extra_data" => json_encode(["age" => 7])]
+        ]);
+
+        $expectedDatasourceInstance->setAccountId(1);
+        $expectedDatasourceInstance->setProjectKey("myproject");
+
+        // Check datasource was saved
+        $this->assertTrue($this->datasourceService->methodWasCalled("saveDataSourceInstance", [
+            $expectedDatasourceInstance
+        ]));
+
+
+        $this->assertTrue($this->datasourceService->methodWasCalled("updateDatasourceInstanceByKey", [
+            $newDatasourceKey, $expectedDatasourceUpdate
+        ]));
+
+        $this->assertTrue($this->datasourceRemappingService->methodWasCalled("getCSVProfile", [
+            $profileId
+        ]));
+
+        $this->assertTrue($this->datasourceRemappingService->methodWasCalled("applyFieldMapping", [
+            $datasourceUpdate,
+            $profile
+        ]));
+
+    }
+
 
     /**
      * @throws Exception
@@ -473,5 +590,32 @@ class CustomDatasourceServiceTest extends TestBase {
         $this->assertTrue(str_contains($testGdriveExport["documentSource"],
             "some other file contents"));
         $this->assertEquals("text/html", $testGdriveExport["file_type"]);
+    }
+
+    /**
+     * helper function to create a new mocked CSV profile
+     *
+     * @param array $mapping
+     * @param array $extraDataFlags
+     *
+     * @return AccountCSVProfile
+     */
+    public function createMockCSVProfile($mapping, $extraDataFlags = []) {
+
+        $summary = $this->createMock(AccountCSVProfileSummary::class);
+
+        $summary->method("getMapping")
+            ->willReturn($mapping);
+
+        $summary->method("getExtraDataFlags")
+            ->willReturn($extraDataFlags);
+
+        $csvProfile = $this->createMock(AccountCSVProfile::class);
+
+        $csvProfile
+            ->method("returnSummary")
+            ->willReturn($summary);
+
+        return $csvProfile;
     }
 }

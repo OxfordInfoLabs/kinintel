@@ -330,10 +330,11 @@ class DatasourceService {
         // Grab the instance and call the child function
         $datasourceInstance = $this->getDataSourceInstanceByKey($datasourceInstanceKey);
 
-        // get the CSV profile mapping
-        $mapping = $this->datasourceRemappingService->getCSVProfile($csvProfileId)->getMapping();
+        // get the CSV profile
+        $csvProfile = $this->datasourceRemappingService->getCSVProfile($csvProfileId);
 
-        $datasourceUpdateRemapped = $this->datasourceRemappingService->applyFieldMapping($datasourceUpdate, $mapping);
+        // Remap the fields in the update object to the CSV profile
+        $datasourceUpdateRemapped = $this->datasourceRemappingService->applyFieldMapping($datasourceUpdate, $csvProfile);
 
         return $this->updateDatasourceInstance($datasourceInstance, $datasourceUpdateRemapped, $allowInsecure);
 

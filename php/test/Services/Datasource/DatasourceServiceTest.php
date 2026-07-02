@@ -784,7 +784,7 @@ class DatasourceServiceTest extends TestBase {
 
     }
 
-    public function testCanUpdateDatasourceInstanceWithCSVProfileAndDatasourceCalledAppropriately() {
+    public function testCanUpdateDatasourceInstanceWithCSVProfile() {
 
         // Login as superuser
         $this->securityService->returnValue("isSuperUserLoggedIn", true);
@@ -838,19 +838,10 @@ class DatasourceServiceTest extends TestBase {
             ]
         );
 
-        $mapping = [
-            "name" => "signal",
-            "age" => "abuse_type"
-        ];
-
         // mock the returned mapped update from the remapping service
         $this->datasourceRemappingService->returnValue(
             "applyFieldMapping",
             $remappedUpdate,
-            [
-                $datasourceUpdate,
-                $mapping
-            ]
         );
 
         // create the expected results from the datasource update
@@ -908,12 +899,17 @@ class DatasourceServiceTest extends TestBase {
             $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
         ]);
 
+        // create a mocked CSV profile
+        $profile = $this->createMockCSVProfile(
+            [
+                "name" => "signal",
+                "age" => "abuse_type"
+            ]
+        );
+
         // mock the CSV profile calls
         $profileId = 123;
 
-        $profile = MockObjectProvider::instance()->getMockInstance(AccountCSVProfile::class);
-
-        $profile->returnValue("getMapping", $mapping);
         $this->datasourceRemappingService->returnValue(
             "getCSVProfile",
             $profile,
@@ -941,7 +937,174 @@ class DatasourceServiceTest extends TestBase {
                 "applyFieldMapping",
                 [
                     $datasourceUpdate,
-                    $mapping
+                    $profile
+                ]
+            )
+        );
+
+    }
+
+    public function testCanUpdateDatasourceInstanceWithCSVProfileAndExtraData() {
+
+        // Login as superuser
+        $this->securityService->returnValue("isSuperUserLoggedIn", true);
+
+        // Program expected return values
+        $dataSourceInstance = MockObjectProvider::instance()->getMockInstance(DatasourceInstance::class);
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSourceConfig = MockObjectProvider::instance()->getMockInstance(TabularResultsDatasourceConfig::class);
+
+        $dataSourceInstance->returnValue("returnDataSource", $dataSource);
+        $dataSourceInstance->returnValue("getKey", "test");
+        $dataSource->returnValue("getConfig", $dataSourceConfig);
+        $this->datasourceDAO->returnValue("getDataSourceInstanceByKey", $dataSourceInstance, [
+            "test"
+        ]);
+
+        // prepare the datasource updates and remapping
+        $datasourceUpdate = new DatasourceUpdate(
+            [
+                ["name" => "Joe Bloggs", "age" => 12],
+                ["name" => "Mary Jane", "age" => 7]
+            ],
+            [
+                ["name" => "Mr Smith", "age" => 22],
+                ["name" => "Mrs Apple", "age" => 72]
+            ],
+            [
+                ["name" => "Going away", "age" => 33]
+            ],
+            [
+                ["name" => "Replace me", "age" => 88],
+                ["name" => "Replace me twice", "age" => 65]
+            ]
+        );
+
+        $remappedUpdate = new DatasourceUpdate(
+            [
+                ["signal" => "Joe Bloggs", "abuse_type" => 12, "extra_data" => json_encode(["age" => 12])],
+                ["signal" => "Mary Jane", "abuse_type" => 7, "extra_data" => json_encode(["age" => 7])]
+            ],
+            [
+                ["signal" => "Mr Smith", "abuse_type" => 22, "extra_data" => json_encode(["age" => 22])],
+                ["signal" => "Mrs Apple", "abuse_type" => 72, "extra_data" => json_encode(["age" => 72])]
+            ],
+            [
+                ["signal" => "Going away", "abuse_type" => 33, "extra_data" => json_encode(["age" => 33])]
+            ],
+            [
+                ["signal" => "Replace me", "abuse_type" => 88, "extra_data" => json_encode(["age" => 88])],
+                ["signal" => "Replace me twice", "abuse_type" => 65, "extra_data" => json_encode(["age" => 65])]
+            ]
+        );
+
+        // mock the returned mapped update from the remapping service
+        $this->datasourceRemappingService->returnValue(
+            "applyFieldMapping",
+            $remappedUpdate,
+        );
+
+        // create the expected results from the datasource update
+        $addDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type"),
+            new Field("extra_data")
+        ], [
+            ["signal" => "Joe Bloggs", "abuse_type" => 12, "extra_data" => json_encode(["age" => 12])],
+            ["signal" => "Mary Jane", "abuse_type" => 7, "extra_data" => json_encode(["age" => 7])]
+        ]);
+
+        $updateDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type"),
+            new Field("extra_data")
+        ], [
+            ["signal" => "Mr Smith", "abuse_type" => 22, "extra_data" => json_encode(["age" => 22])],
+            ["signal" => "Mrs Apple", "abuse_type" => 72, "extra_data" => json_encode(["age" => 72])]
+        ]);
+
+        $deleteDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type"),
+            new Field("extra_data")
+        ], [
+            ["signal" => "Going away", "abuse_type" => 33, "extra_data" => json_encode(["age" => 33])]
+        ]);
+
+        $replaceDatasource = new ArrayTabularDataset([
+            new Field("signal"),
+            new Field("abuse_type"),
+            new Field("extra_data")
+        ], [
+            ["signal" => "Replace me", "abuse_type" => 88, "extra_data" => json_encode(["age" => 88])],
+            ["signal" => "Replace me twice", "abuse_type" => 65, "extra_data" => json_encode(["age" => 65])]
+        ]);
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(1, 0, 0, 0, 1, 0, ["add" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])
+        ]]), [
+            $addDatasource, UpdatableDatasource::UPDATE_MODE_ADD
+        ]);
+
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 2, 0, 0, 0, 0, [
+        ]), [
+            $updateDatasource, UpdatableDatasource::UPDATE_MODE_UPDATE
+        ]);
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 0, 2, 0, 0, [
+        ]), [
+            $deleteDatasource, UpdatableDatasource::UPDATE_MODE_DELETE
+        ]);
+
+        $dataSource->returnValue("update", new DatasourceUpdateResult(0, 0, 1, 0, 1, 0, ["replace" => [
+            new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])
+        ]]), [
+            $replaceDatasource, UpdatableDatasource::UPDATE_MODE_REPLACE
+        ]);
+
+        // create a mocked CSV profile
+        $profile = $this->createMockCSVProfile(
+            [
+                "name" => "signal",
+                "age" => "abuse_type"
+            ],
+            [
+                "age" => true
+            ]
+        );
+
+        // mock the CSV profile calls
+        $profileId = 123;
+
+        $this->datasourceRemappingService->returnValue(
+            "getCSVProfile",
+            $profile,
+            [$profileId]
+        );
+
+        $result = $this->dataSourceService->updateDatasourceInstanceByKeyWithProfile("test", $profileId, $datasourceUpdate);
+
+        // assert the expected results and right methods were called
+        $this->assertEquals(new DatasourceUpdateResult(1, 2, 1, 2, 2, 0, [
+            "add" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad add validation"])],
+            "replace" => [new DatasourceUpdateResultItemValidationErrors(1, ["Bad replace validation"])]
+        ]), $result);
+
+
+        $this->assertTrue(
+            $this->datasourceRemappingService->methodWasCalled(
+                "getCSVProfile",
+                [$profileId]
+            )
+        );
+
+        $this->assertTrue(
+            $this->datasourceRemappingService->methodWasCalled(
+                "applyFieldMapping",
+                [
+                    $datasourceUpdate,
+                    $profile
                 ]
             )
         );
@@ -1406,5 +1569,32 @@ class DatasourceServiceTest extends TestBase {
         $tree = $datasourceService->getDatasetTreeForDatasourceKey("test-snap_latest");
         $this->assertEquals(new DatasetTree($snapshotItem, new DatasetTree($derivedDatasetItem)), $tree);
 
+    }
+
+    /**
+     * helper function to create a new mocked CSV profile
+     *
+     * @param array $mapping
+     * @param array $extraDataFlags
+     *
+     * @return AccountCSVProfile
+     */
+    public function createMockCSVProfile($mapping, $extraDataFlags = []) {
+
+        $summary = $this->createMock(AccountCSVProfileSummary::class);
+
+        $summary->method("getMapping")
+            ->willReturn($mapping);
+
+        $summary->method("getExtraDataFlags")
+            ->willReturn($extraDataFlags);
+
+        $csvProfile = $this->createMock(AccountCSVProfile::class);
+
+        $csvProfile
+            ->method("returnSummary")
+            ->willReturn($summary);
+
+        return $csvProfile;
     }
 }
