@@ -12,13 +12,19 @@ use Kiniauth\Services\Workflow\Task\Queued\Processor\GoogleCloudQueuedTaskProces
 class DatasourceQueuedTaskHook implements DatasourceHook {
 
     /**
+     * @var GoogleCloudQueuedTaskProcessor
+     */
+    private $queuedTaskService;
+
+    private $queueName;
+
+    /**
      * @param GoogleCloudQueuedTaskProcessor $queuedTaskService
      * @param string $queueName
      */
-    public function __construct(
-        private GoogleCloudQueuedTaskProcessor $queuedTaskService,
-        private $queueName = null
-    ) {
+    public function __construct($queuedTaskService, $queueName = null) {
+        $this->queuedTaskService = $queuedTaskService;
+        $this->queueName = $queueName;
         $this->queueName = Configuration::readParameter("pushapi.queue");
     }
 
