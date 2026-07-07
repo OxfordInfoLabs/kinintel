@@ -6,6 +6,13 @@ import {KININTEL_CONFIG, KinintelModuleConfig} from '../kinintel-config';
 import * as lodash from 'lodash';
 const _ = lodash.default;
 
+export interface Webhook {
+    feedPath: string;
+    url: string;
+    headers?: any;
+    config?: any;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -44,5 +51,22 @@ export class FeedService {
 
     public deleteFeed(id) {
         return this.http.delete(this.config.backendURL + '/feed/' + id).toPromise();
+    }
+
+    public getWebhooks() {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : null;
+
+        return this.http.get(this.config.backendURL + '/feed/webhook/list?projectKey=' + projectKey).toPromise();
+    }
+
+    public async saveWebhook(webhook: Webhook) {
+        const projectKey = this.projectService.activeProject.getValue() ? this.projectService.activeProject.getValue().projectKey : '';
+
+        return this.http.post(this.config.backendURL + '/feed/webhook/save?projectKey=' + projectKey, webhook)
+            .toPromise();
+    }
+
+    public async deleteWebhook(id: number) {
+        return this.http.delete(this.config.backendURL + '/feed/webhook/delete/' + id).toPromise();
     }
 }

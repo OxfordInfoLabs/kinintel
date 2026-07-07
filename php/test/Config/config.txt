@@ -27,3 +27,5 @@ google.cloud.attachment.storage.bucket = attachments
 
 http.loopback.host = http://kinintel.test
 internal.controller.secret = ABCDEFGHIJKLM
+
+pushapi.queue = PushAPIQueue

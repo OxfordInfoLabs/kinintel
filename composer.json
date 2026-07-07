@@ -15,6 +15,7 @@
     "aws/aws-sdk-php": "*",
     "smalot/pdfparser": "dev-master",
     "google/cloud-storage": "v1.50.0",
+    "google/cloud-tasks": "^2.2.0",
     "google/apiclient": "^2.15.0"
   },
   "require-dev": {

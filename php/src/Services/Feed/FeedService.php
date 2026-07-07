@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Kinintel\Services\Feed;
-
 
 use Kiniauth\Objects\Account\Account;
 use Kiniauth\Objects\Security\Role;
@@ -14,6 +12,8 @@ use Kinikit\MVC\Request\Request;
 use Kinintel\Exception\FeedNotFoundException;
 use Kinintel\Objects\Feed\Feed;
 use Kinintel\Objects\Feed\FeedSummary;
+use Kinintel\Objects\Feed\FeedWebhookInstance;
+use Kinintel\Objects\Feed\FeedWebhookInstanceSummary;
 use Kinintel\Services\Dataset\DatasetService;
 use Kinintel\Services\Util\FilterQueryParser;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
@@ -36,6 +36,7 @@ class FeedService {
     ) {
     }
 
+    /** Feed Functions */
 
     /**
      * Get a single feed by id
@@ -50,7 +51,7 @@ class FeedService {
     /**
      * Get a feed by path
      *
-     * @param $path
+     * @param string $feedPath
      *
      * @return Feed
      */
@@ -134,7 +135,7 @@ class FeedService {
      *
      * @param FeedSummary $feed
      * @param string $projectKey
-     * @param string $accountId
+     * @param int $accountId
      */
     public function saveFeed($feed, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
 
@@ -281,4 +282,80 @@ class FeedService {
     }
 
 
+    /** Feed Webhook Functions */
+
+    /**
+     * Get a single feed webhook instance by id
+     * @param int $id
+     * @return FeedWebhookInstance
+     */
+    public function getFeedWebhookById($id) {
+        return FeedWebhookInstance::fetch($id)->returnSummary();
+    }
+
+    /**
+     * Save a feed webhook
+     *
+     * @param FeedWebhookInstanceSummary $feedWebhookSummary
+     * @param string $projectKey
+     * @param int $accountId
+     */
+    public function saveFeedWebhook($feedWebhookSummary, $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        /**
+         * Create a real feed webhook instance and save it
+         */
+        $feedWebhook = new FeedWebhookInstance($feedWebhookSummary, $projectKey, $accountId);
+        $feedWebhook->save();
+
+        return $feedWebhook->getId();
+    }
+
+    /**
+     *  Update a feed webhooks lastState config
+     *
+     * @param int $id
+     * @param mixed $newLastState
+     */
+    public function updateFeedWebhookLastStateById($id, $newLastState) {
+        $webhook = $this->getFeedWebhookById($id);
+
+        $webhook->setLastState($newLastState);
+        $webhook->save();
+    }
+
+    /**
+     * Return all feed webhook instances saved
+     */
+    public function returnAllFeedWebhooks(?string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+        $whereClauses = [];
+        $params = [];
+
+        if ($accountId) {
+            $whereClauses[] = "accountId = ?";
+            $params[] = $accountId;
+        }
+
+        if ($projectKey) {
+            $whereClauses[] = "projectKey = ?";
+            $params[] = $projectKey;
+        }
+
+        $query = (sizeof($whereClauses) ? "WHERE " : "") . join(" AND ", $whereClauses) . " ORDER BY id";
+
+        $results = FeedWebhookInstance::filter($query, $params);
+        return array_map(function ($item) {
+            return $item->returnSummary();
+        }, $results);
+    }
+
+    /**
+     * Remove a feed webhook instance by id
+     *
+     * @param $id
+     */
+    public function removeFeedWebhook($id): void {
+        $webhook = $this->getFeedWebhookById($id);
+
+        $webhook->remove();
+    }
 }
