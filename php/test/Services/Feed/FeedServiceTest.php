@@ -815,6 +815,14 @@ class FeedServiceTest extends TestBase {
         $byPath = $this->feedService->getFeedWebhookById($feedId);
         $this->assertEquals($feedId, $byPath->getId());
 
+        $this->assertEquals($feedWebhookSummary->getFeedPath(), $byPath->returnSummary()->getFeedPath());
+        $this->assertEquals($feedWebhookSummary->getUrl(), $byPath->returnSummary()->getUrl());
+        $this->assertEquals($feedWebhookSummary->getHeaders(), $byPath->returnSummary()->getHeaders());
+        $this->assertEquals($feedWebhookSummary->getLastState(), $byPath->returnSummary()->getLastState());
+
+        $this->assertEquals("1", $byPath->getAccountId());
+        $this->assertEquals(1, $byPath->getProjectKey());
+
         $this->feedService->removeFeedWebhook($feedId);
     }
 
