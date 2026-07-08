@@ -290,6 +290,15 @@ class FeedService {
      * @return FeedWebhookInstance
      */
     public function getFeedWebhookById($id) {
+        return FeedWebhookInstance::fetch($id);
+    }
+
+    /**
+     * Get a single feed webhook instance by id
+     * @param int $id
+     * @return FeedWebhookInstance
+     */
+    public function getFeedWebhookSummaryById($id) {
         return FeedWebhookInstance::fetch($id)->returnSummary();
     }
 
@@ -324,9 +333,9 @@ class FeedService {
     }
 
     /**
-     * Return all feed webhook instances saved
+     * Return all feed webhook summary instances saved
      */
-    public function returnAllFeedWebhooks(?string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
+    public function returnAllFeedWebhooksSummaries(?string $projectKey = null, $accountId = Account::LOGGED_IN_ACCOUNT) {
         $whereClauses = [];
         $params = [];
 
@@ -346,6 +355,13 @@ class FeedService {
         return array_map(function ($item) {
             return $item->returnSummary();
         }, $results);
+    }
+
+    /**
+     * Return all feed webhook instances saved
+     */
+    public function returnAllFeedWebhooks() {
+        return FeedWebhookInstance::filter("ORDER BY id");
     }
 
     /**
