@@ -111,7 +111,7 @@ trait Feed {
      * @return mixed
      */
     public function listWebhooks($projectKey = null) {
-        return $this->feedService->returnAllFeedWebhooks($projectKey);
+        return $this->feedService->returnAllFeedWebhooksSummaries($projectKey);
     }
 
     /**
