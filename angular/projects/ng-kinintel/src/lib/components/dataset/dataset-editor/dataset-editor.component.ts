@@ -1,4 +1,4 @@
-import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy} from '@angular/core';
+import {Component, Inject, Input, OnInit, Output, EventEmitter, OnDestroy, Optional} from '@angular/core';
 import * as lodash from 'lodash';
 
 const _ = lodash.default;
@@ -101,8 +101,8 @@ export class DatasetEditorComponent implements OnInit, OnDestroy {
     private resultsSub: Subscription;
     private datasetTitle: string;
 
-    constructor(public dialogRef: MatDialogRef<DatasetEditorComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any,
+    constructor(@Optional() public dialogRef: MatDialogRef<DatasetEditorComponent>,
+                @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
                 private dialog: MatDialog,
                 private datasetService: DatasetService,
                 private snackBar: MatSnackBar) {
