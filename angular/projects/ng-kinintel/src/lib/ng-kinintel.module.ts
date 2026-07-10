@@ -251,7 +251,8 @@ import {
         QueryCachingComponent,
         DataSharingInviteComponent,
         ExportProjectComponent,
-        ShareQueryComponent
+        ShareQueryComponent,
+        DatasetEditorComponent
     ],
     providers: [DashboardChangesGuard],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

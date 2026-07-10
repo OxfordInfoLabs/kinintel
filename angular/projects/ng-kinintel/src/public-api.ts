@@ -38,6 +38,7 @@ export * from './lib/components/query-caching/query-caching.component';
 export * from './lib/components/data-sharing-invite/data-sharing-invite.component';
 export * from './lib/components/export-project/export-project.component';
 export * from './lib/components/dataset/dataset-editor/share-query/share-query.component';
+export * from './lib/components/dataset/dataset-editor/dataset-editor.component';
 
 export * from './lib/guards/dashboard-changes.guard';
 
