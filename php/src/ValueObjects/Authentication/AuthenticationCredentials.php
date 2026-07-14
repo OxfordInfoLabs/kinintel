@@ -22,9 +22,10 @@ namespace Kinintel\ValueObjects\Authentication;
  * @implementation mysql \Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials
  * @implementation postgresql \Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials
  * @implementation sqlite \Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials
+ * @implementation bigquery \Kinintel\ValueObjects\Authentication\SQLDatabase\BigQueryAuthenticationCredentials
+ * @implementation spanner \Kinintel\ValueObjects\Authentication\SQLDatabase\SpannerAuthenticationCredentials
  *
  * @implementation google-cloud \Kinintel\ValueObjects\Authentication\Google\GoogleCloudCredentials
- *
  */
 interface AuthenticationCredentials {
 }
