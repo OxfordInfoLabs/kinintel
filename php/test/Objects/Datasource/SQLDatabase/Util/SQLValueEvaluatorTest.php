@@ -166,6 +166,12 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $year = date_create()->format("Y");
         $this->assertTrue($year === $year7DaysAgo || $year == ((int)$year7DaysAgo + 1));
 
+        // We can evaluate null values
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("{{test}}", ["test" => null], null, $parameters);
+        $this->assertEquals("?", $value);
+        $this->assertSame([null], $parameters);
     }
 
 

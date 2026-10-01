@@ -6,7 +6,6 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
 use DateInterval;
 use Kinikit\Core\DependencyInjection\Container;
-use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
@@ -59,9 +58,18 @@ class SQLValueEvaluator {
         }
 
 
-
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
+
+            // Deal with pure params which are boolean or null
+            if (preg_match("/^{{([a-zA-Z_]+)}}$/", $valueEntry, $matches)) {
+                $value = $encodedParams[$matches[1]];
+                if (is_bool($value) || is_null($value)) {
+                    $outputParameters[] = $value;
+                    $valueStrings[] = "?";
+                    continue;
+                }
+            }
 
             // Replace any template parameters
             $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $encodedParams) {
@@ -161,6 +169,10 @@ class SQLValueEvaluator {
 
         // Decode params
         foreach ($outputParameters as $index => $parameter) {
+            if (is_bool($parameter) || is_null($parameter)) {
+                continue;
+            }
+
             $parameter = preg_replace_callback("/###PARAM-(.*?)###/", function ($matches) use ($parameter, $templateParameters, $index) {
                 $explodedPath = explode("#", $matches[1]);
                 $param = $templateParameters[$explodedPath[0]];
@@ -192,6 +204,8 @@ class SQLValueEvaluator {
     private function isSimpleExpression($string) {
 
         if (is_array($string) || is_object($string)) return false;
+
+        if (is_bool($string) || is_null($string)) return true;
 
         preg_match("/^[0-9A-Z_]+$/", $string ?? "", $matches);
         return sizeof($matches) > 0;
