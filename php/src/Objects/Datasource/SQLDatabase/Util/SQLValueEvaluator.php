@@ -63,6 +63,10 @@ class SQLValueEvaluator {
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
 
+            if (is_null($valueEntry) || is_bool($valueEntry)) {
+                continue;
+            }
+
             // Replace any template parameters
             $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $encodedParams) {
                 $matchingParamValue = $encodedParams[$matches[2]] ?? null;
@@ -78,7 +82,7 @@ class SQLValueEvaluator {
                 }
 
                 return join(",", $literals);
-            }, $valueEntry ?? "");
+            }, $valueEntry);
 
 
             $toIntervalStr = [
