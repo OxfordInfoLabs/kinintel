@@ -2,6 +2,7 @@
 
 namespace Kinintel\ValueObjects\Authentication\SQLDatabase;
 
+use Kinikit\Core\Util\FunctionStringRewriter;
 use Kinikit\Persistence\Database\Vendors\Google\Spanner\SpannerDatabaseConnection;
 
 class SpannerAuthenticationCredentials implements SQLDatabaseCredentials {
@@ -29,6 +30,7 @@ class SpannerAuthenticationCredentials implements SQLDatabaseCredentials {
     }
 
     private function parseSQL($sql, &$parameterValues) {
+        $sql = FunctionStringRewriter::rewrite($sql, "GROUP_CONCAT", "STRING_AGG($1,$2)", [null, ","]);
         return $sql;
     }
 }
