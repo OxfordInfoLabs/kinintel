@@ -107,7 +107,9 @@ class SQLFilterJunctionEvaluator {
         $lhsParams = [];
         $rhsParams = [];
 
+        Logger::log($filter);
         Logger::log($parameters);
+        Logger::log($templateParameters);
 
         // Map any square brackets to direct columns with table alias or assume whole string is single column
         $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getLhsExpression(), $templateParameters, $this->lhsTableAlias, $lhsParams);
