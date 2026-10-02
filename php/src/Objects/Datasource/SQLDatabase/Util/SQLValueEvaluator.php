@@ -68,8 +68,18 @@ class SQLValueEvaluator {
                 $valueArray = is_array($matchingParamValue) ? $matchingParamValue : [$matchingParamValue];
                 $literals = [];
                 foreach ($valueArray as $matchingParamValueElement) {
-                    if (is_null($matchingParamValueElement) || is_bool($matchingParamValueElement)) {
-                        $literals[] = "?";
+                    if (is_null($matchingParamValueElement)) {
+                        $literals[] = "NULL";
+                        continue;
+                    }
+
+                    if ($matchingParamValueElement === true) {
+                        $literals[] = "TRUE";
+                        continue;
+                    }
+
+                    if ($matchingParamValueElement === false) {
+                        $literals[] = "FALSE";
                         continue;
                     }
 
