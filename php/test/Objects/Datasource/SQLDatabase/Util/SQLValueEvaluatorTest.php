@@ -172,6 +172,13 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $value = $evaluator->evaluateFilterValue("{{test}}", ["test" => null], null, $parameters);
         $this->assertEquals("?", $value);
         $this->assertSame([null], $parameters);
+
+        // Can evaluate nulls in expressions
+        $evaluator = new SQLValueEvaluator($this->databaseConnection);
+        $parameters = [];
+        $value = $evaluator->evaluateFilterValue("IFNULL({{test}}, 0)", ["test" => null], null, $parameters);
+        $this->assertEquals("IFNULL(?, ?)", $value);
+        $this->assertSame([null, 0], $parameters);
     }
 
 

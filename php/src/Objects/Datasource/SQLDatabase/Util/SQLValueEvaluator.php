@@ -61,16 +61,6 @@ class SQLValueEvaluator {
         $valueStrings = [];
         foreach ($valueArray as $valueEntry) {
 
-            // Deal with pure params which are boolean or null
-            if (preg_match("/^{{([a-zA-Z_]+)}}$/", $valueEntry, $matches)) {
-                $value = $encodedParams[$matches[1]];
-                if (is_bool($value) || is_null($value)) {
-                    $outputParameters[] = $value;
-                    $valueStrings[] = "?";
-                    continue;
-                }
-            }
-
             // Replace any template parameters
             $value = preg_replace_callback("/([\*%]*){{(.*?)}}([\*%]*)/", function ($matches) use (&$outputParameters, $encodedParams) {
                 $matchingParamValue = $encodedParams[$matches[2]] ?? null;
@@ -78,6 +68,11 @@ class SQLValueEvaluator {
                 $valueArray = is_array($matchingParamValue) ? $matchingParamValue : [$matchingParamValue];
                 $literals = [];
                 foreach ($valueArray as $matchingParamValueElement) {
+                    if (is_null($matchingParamValueElement) || is_bool($matchingParamValueElement)) {
+                        $literals[] = "?";
+                        continue;
+                    }
+
                     // For parameters, we will check if they're wrapped in quotes and substitute them as a literal at the end if they are (hence #~#)
                     if ($matches[1] || !is_numeric($matchingParamValueElement))
                         $literals[] = "#~p~#" . ($matches[1] ? "%" : "") . $matchingParamValueElement . ($matches[3] ? "%" : "") . "#~p~#";
@@ -87,7 +82,6 @@ class SQLValueEvaluator {
 
                 return join(",", $literals);
             }, $valueEntry ?? "");
-
 
             $toIntervalStr = [
                 "_YEARS_AGO" => (fn($n) => "P" . $n . "Y"),
