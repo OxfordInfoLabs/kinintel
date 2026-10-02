@@ -17,6 +17,18 @@ class SpannerAuthenticationCredentialsTest extends TestCase {
         $result = $authCreds->parseSQL($sql);
         $this->assertEquals("STRING_AGG(statement)", $result);
 
+        $sql = "WHERE `col` = NULL";
+        $result = $authCreds->parseSQL($sql);
+        $this->assertEquals("WHERE `col` IS NULL", $result);
+
+        $sql = "WHERE `col` <> NULL";
+        $result = $authCreds->parseSQL($sql);
+        $this->assertEquals("WHERE `col` IS NOT NULL", $result);
+
+        $sql = "WHERE `col` != NULL";
+        $result = $authCreds->parseSQL($sql);
+        $this->assertEquals("WHERE `col` IS NOT NULL", $result);
+
     }
 
 }

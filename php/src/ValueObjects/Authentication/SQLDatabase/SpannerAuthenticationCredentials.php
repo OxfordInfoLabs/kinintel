@@ -30,6 +30,10 @@ class SpannerAuthenticationCredentials implements SQLDatabaseCredentials {
 
     public function parseSQL($sql, &$parameterValues = []) {
         $sql = str_ireplace("GROUP_CONCAT(", "STRING_AGG(", $sql);
+
+        $sql = str_ireplace("<> NULL", "IS NOT NULL", $sql);
+        $sql = str_ireplace("!= NULL", "IS NOT NULL", $sql);
+        $sql = str_ireplace("= NULL", "IS NULL", $sql);
         return $sql;
     }
 }
