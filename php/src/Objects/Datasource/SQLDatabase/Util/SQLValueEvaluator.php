@@ -105,7 +105,7 @@ class SQLValueEvaluator {
             // Evaluate time offset parameters for days ago and hours ago
             foreach ($toIntervalStr as $suffix => $toInterval) {
                 $value = preg_replace_callback("/'*([0-9]+)$suffix'*/", function ($matches) use ($toInterval) {
-                    return "#~d~#" . (new \DateTime())->sub(new DateInterval($toInterval($matches[1])))->format("Y-m-d H:i:s") . "#~d~#";
+                    return "#~d~#" . (new \DateTime())->sub(new DateInterval($toInterval($matches[1])))->format("Y-m-d\TH:i:s\Z") . "#~d~#";
                 }, $value);
             }
 
