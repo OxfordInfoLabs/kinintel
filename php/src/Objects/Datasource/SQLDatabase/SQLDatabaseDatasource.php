@@ -33,6 +33,7 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\BigQueryAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SpannerAuthenticationCredentials;
@@ -165,7 +166,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             SQLiteAuthenticationCredentials::class,
             MySQLAuthenticationCredentials::class,
             PostgreSQLAuthenticationCredentials::class,
-            SpannerAuthenticationCredentials::class
+            SpannerAuthenticationCredentials::class,
+            BigQueryAuthenticationCredentials::class,
         ], self::$additionalCredentialClasses);
     }
 
