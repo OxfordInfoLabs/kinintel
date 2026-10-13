@@ -33,6 +33,7 @@ use Kinintel\Objects\Datasource\UpdatableDatasource;
 use Kinintel\Services\Hook\DatasourceHookService;
 use Kinintel\Services\Util\ParameterisedStringEvaluator;
 use Kinintel\ValueObjects\Authentication\AuthenticationCredentials;
+use Kinintel\ValueObjects\Authentication\SQLDatabase\BigQueryAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\MySQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\PostgreSQLAuthenticationCredentials;
 use Kinintel\ValueObjects\Authentication\SQLDatabase\SQLiteAuthenticationCredentials;
@@ -163,7 +164,8 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
         return array_merge([
             SQLiteAuthenticationCredentials::class,
             MySQLAuthenticationCredentials::class,
-            PostgreSQLAuthenticationCredentials::class
+            PostgreSQLAuthenticationCredentials::class,
+            BigQueryAuthenticationCredentials::class,
         ], self::$additionalCredentialClasses);
     }
 
