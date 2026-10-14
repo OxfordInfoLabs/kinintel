@@ -167,7 +167,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
             MySQLAuthenticationCredentials::class,
             PostgreSQLAuthenticationCredentials::class,
             SpannerAuthenticationCredentials::class,
-            BigQueryAuthenticationCredentials::class,
+            BigQueryAuthenticationCredentials::class
         ], self::$additionalCredentialClasses);
     }
 
