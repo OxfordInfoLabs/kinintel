@@ -312,7 +312,12 @@ class JoinTransformationProcessor extends SQLTransformationProcessor {
             if ($transformation->getJoinFilters() && (sizeof($transformation->getJoinFilters()->getFilters()) || sizeof($transformation->getJoinFilters()->getFilterJunctions()))) {
 
                 $evaluator = new SQLFilterJunctionEvaluator($mainTableAlias, $childTableAlias, $dataSource->returnDatabaseConnection());
-                $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation->getJoinFilters(), $parameterValues);
+                $evaluated = $evaluator->evaluateFilterJunctionSQL(
+                    $transformation->getJoinFilters(),
+                    $parameterValues,
+                    $dataSource->returnFields($parameterValues) ?? [],
+                    $joinDatasource->returnFields($parameterValues) ?? []
+                );
                 $joinCriteria = $evaluated["sql"];
                 $joinParameters = $evaluated["parameters"];
             }

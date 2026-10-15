@@ -4,8 +4,11 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterLogic;
@@ -617,6 +620,31 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ],
             FilterLogic::OR
         )));
+    }
+
+    public function testCanBindFilterValuesUsingTheComparedFieldType() {
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
+
+        $evaluated = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
+            new FilterJunction([
+                new Filter("[[age]]", "42"),
+                new Filter("[[active]]", 1)
+            ]),
+            [],
+            [
+                new Field("age", null, null, Field::TYPE_INTEGER),
+                new Field("active", null, null, Field::TYPE_BOOLEAN)
+            ]
+        );
+
+        $this->assertSame("\"age\" = ? AND \"active\" = ?", $evaluated["sql"]);
+        $this->assertEquals([
+            [42, BindParameterType::TYPE_INT],
+            [true, BindParameterType::TYPE_BOOL]
+        ], array_map(
+            fn(BindParameter $parameter) => [$parameter->getValue(), $parameter->getType()],
+            $evaluated["parameters"]
+        ));
     }
 
 

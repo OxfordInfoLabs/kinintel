@@ -275,7 +275,7 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
 
         $authenticationCredentials = $this->getAuthenticationCredentials();
         try {
-            $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getParameters());
+            $resultSet = $authenticationCredentials->query($query->getSQL(), $query->getBindParameters());
         } catch (PDOException $e) {
             $time = microtime(true);
             Logger::log("SQL Database Datasource Error: " . $time);

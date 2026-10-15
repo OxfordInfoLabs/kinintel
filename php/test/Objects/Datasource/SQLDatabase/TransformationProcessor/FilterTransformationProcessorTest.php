@@ -8,6 +8,8 @@ use Kinikit\Core\Template\TemplateParser;
 use Kinikit\Core\Testing\MockObject;
 use Kinikit\Core\Testing\MockObjectProvider;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Exception\DatasourceTransformationException;
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
@@ -50,6 +52,7 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->databaseConnection = new SQLite3DatabaseConnection();
         $this->dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $this->dataSource->returnValue("returnDatabaseConnection", $this->databaseConnection);
+        $this->dataSource->returnValue("returnFields", []);
     }
 
 
@@ -63,6 +66,25 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("SELECT * FROM test_data WHERE \"name\" = ?", $query->getSQL());
         $this->assertEquals(["Jeeves"], $query->getParameters());
 
+    }
+
+    public function testFilterParametersUseTheComparedFieldTypeWhenAvailable() {
+        $this->dataSource->returnValue("returnFields", [
+            new Field("age", type: Field::TYPE_INTEGER)
+        ]);
+
+        $processor = new FilterTransformationProcessor();
+        $query = $processor->updateQuery(
+            new FilterTransformation([new Filter("[[age]]", "42")]),
+            new SQLQuery("*", "test_data"),
+            [],
+            $this->dataSource
+        );
+
+        $parameter = $query->getParameters()[0];
+        $this->assertInstanceOf(BindParameter::class, $parameter);
+        $this->assertSame(42, $parameter->getValue());
+        $this->assertSame(BindParameterType::TYPE_INT, $parameter->getType());
     }
 
 
@@ -607,4 +629,3 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
 
 }
-

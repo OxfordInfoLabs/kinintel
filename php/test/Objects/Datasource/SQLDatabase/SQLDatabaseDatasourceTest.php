@@ -15,6 +15,8 @@ use Kinikit\Persistence\Database\MetaData\TableIndex;
 use Kinikit\Persistence\Database\MetaData\TableIndexColumn;
 use Kinikit\Persistence\Database\MetaData\TableMetaData;
 use Kinikit\Persistence\Database\MetaData\UpdatableTableColumn;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\ResultSet\ResultSet;
 use Kinintel\Exception\DatasourceNotUpdatableException;
 use Kinintel\Exception\DatasourceUpdateException;
@@ -326,7 +328,7 @@ class SQLDatabaseDatasourceTest extends \PHPUnit\Framework\TestCase {
         $resultSet = MockObjectProvider::instance()->getMockInstance(ResultSet::class);
 
         $this->authCredentials->returnValue("query", $resultSet, [
-            "SELECT * FROM ?", [3]
+            "SELECT * FROM ?", [new BindParameter(3, BindParameterType::TYPE_INT)]
         ]);
 
 

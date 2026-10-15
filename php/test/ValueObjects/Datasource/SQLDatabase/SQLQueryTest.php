@@ -4,6 +4,9 @@
 namespace Kinintel\ValueObjects\Datasource\SQLDatabase;
 
 
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
+
 include_once "autoloader.php";
 
 class SQLQueryTest extends \PHPUnit\Framework\TestCase {
@@ -78,6 +81,18 @@ class SQLQueryTest extends \PHPUnit\Framework\TestCase {
         $sqlQuery->setHavingClause("count(*) > ?", [6]);
         $this->assertEquals("SELECT apples, count(*) FROM test WHERE apples = ? AND animal = ? GROUP BY apples HAVING count(*) > ?", $sqlQuery->getSQL());
         $this->assertEquals(["pears", 5, 6], $sqlQuery->getParameters());
+    }
+
+    public function testBindParametersPreserveExistingTypesAndInferOtherValues() {
+        $providedBindParameter = new BindParameter("00123", BindParameterType::TYPE_STRING);
+        $sqlQuery = new SQLQuery("*", "test", [$providedBindParameter, 123, "text"]);
+
+        $bindParameters = $sqlQuery->getBindParameters();
+
+        $this->assertSame($providedBindParameter, $bindParameters[0]);
+        $this->assertSame(BindParameterType::TYPE_INT, $bindParameters[1]->getType());
+        $this->assertSame(BindParameterType::TYPE_STRING, $bindParameters[2]->getType());
+        $this->assertSame([$providedBindParameter, 123, "text"], $sqlQuery->getParameters());
     }
 
 

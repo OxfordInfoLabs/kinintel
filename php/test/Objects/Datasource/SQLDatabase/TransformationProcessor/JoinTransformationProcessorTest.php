@@ -995,6 +995,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             []
         ]);
         $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $joinDatasource->returnValue("returnFields", []);
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
@@ -1002,6 +1003,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
         $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $mainDataSource->returnValue("returnFields", []);
 
 
         // Try a simple column based join
@@ -1051,6 +1053,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             []
         ]);
         $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $joinDatasource->returnValue("returnFields", []);
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
@@ -1058,6 +1061,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
         $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $mainDataSource->returnValue("returnFields", []);
 
 
         // Try a simple column based join
@@ -1094,6 +1098,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             []
         ]);
         $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $joinDatasource->returnValue("returnFields", []);
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
@@ -1101,6 +1106,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $mainDataSource->returnValue("getAuthenticationCredentials", $authenticationCredentials);
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
         $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $mainDataSource->returnValue("returnFields", []);
 
 
         // Try a simple column based join
@@ -1142,6 +1148,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
             []
         ]);
         $joinDatasource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $joinDatasource->returnValue("returnFields", []);
 
 
         $mainDataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
@@ -1151,6 +1158,7 @@ class JoinTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $mainDataSource->returnValue("getConfig", $mainDataSourceConfig);
         $mainDataSourceConfig->returnValue("getColumns", [new Field("otherName"), new Field("notes")]);
         $mainDataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $mainDataSource->returnValue("returnFields", []);
 
 
         // Try simple non aliased columns

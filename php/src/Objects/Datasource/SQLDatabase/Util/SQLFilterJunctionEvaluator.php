@@ -3,8 +3,12 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 
+use Kinikit\Core\Logging\Logger;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinintel\Exception\DatasourceTransformationException;
+use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Transformation\Filter\Filter;
 use Kinintel\ValueObjects\Transformation\Filter\FilterJunction;
 use Kinintel\ValueObjects\Transformation\Filter\FilterType;
@@ -48,10 +52,10 @@ class SQLFilterJunctionEvaluator {
      *
      * @return array
      */
-    public function evaluateFilterJunctionSQL($filterJunction, $templateParameters = []) {
+    public function evaluateFilterJunctionSQL($filterJunction, $templateParameters = [], $lhsFields = [], $rhsFields = []) {
 
         $parameters = [];
-        $statement = $this->createFilterJunctionStatement($filterJunction, $parameters, $templateParameters);
+        $statement = $this->createFilterJunctionStatement($filterJunction, $parameters, $templateParameters, $lhsFields, $rhsFields);
 
         return [
             "sql" => $statement,
@@ -65,7 +69,7 @@ class SQLFilterJunctionEvaluator {
      * @param FilterJunction $filterJunction
      * @param mixed[] $parameters
      */
-    private function createFilterJunctionStatement($filterJunction, &$parameters, $templateParameters = []) {
+    private function createFilterJunctionStatement($filterJunction, &$parameters, $templateParameters = [], $lhsFields = [], $rhsFields = []) {
 
         if ($filterJunction->meetsInclusionCriteria($templateParameters)) {
 
@@ -73,7 +77,7 @@ class SQLFilterJunctionEvaluator {
             $clauses = [];
             foreach ($filterJunction->getFilters() ?? [] as $filter) {
                 if ($filter->meetsInclusionCriteria($templateParameters)) {
-                    $statement = $this->createFilterStatement($filter, $parameters, $templateParameters);
+                    $statement = $this->createFilterStatement($filter, $parameters, $templateParameters, $lhsFields, $rhsFields);
                     if (trim($statement))
                         $clauses[] = $statement;
                 }
@@ -81,7 +85,7 @@ class SQLFilterJunctionEvaluator {
 
             foreach ($filterJunction->getFilterJunctions() ?? [] as $junction) {
                 if ($junction->meetsInclusionCriteria($templateParameters)) {
-                    $statement = $this->createFilterJunctionStatement($junction, $parameters, $templateParameters);
+                    $statement = $this->createFilterJunctionStatement($junction, $parameters, $templateParameters, $lhsFields, $rhsFields);
                     if (trim($statement))
                         $clauses[] = "(" . $statement . ")";
                 }
@@ -101,7 +105,7 @@ class SQLFilterJunctionEvaluator {
      * @param Filter $filter
      * @param $parameters
      */
-    private function createFilterStatement($filter, &$parameters, $templateParameters = []) {
+    private function createFilterStatement($filter, &$parameters, $templateParameters = [], $lhsFields = [], $rhsFields = []) {
 
         $lhsParams = [];
         $rhsParams = [];
@@ -211,6 +215,13 @@ class SQLFilterJunctionEvaluator {
         }
 
 
+        if ($filter->getFilterType() !== FilterType::similarto) {
+            $lhsBindType = $this->getBindTypeForExpression($filter->getLhsExpression(), $lhsFields);
+            $rhsBindType = $this->getBindTypeForExpression($filter->getRhsExpression(), $rhsFields);
+            $lhsParams = $this->typeParameters($lhsParams, $rhsBindType);
+            $rhsParams = $this->typeParameters($rhsParams, $lhsBindType);
+        }
+
         // Add both lhs and rhs params
         if (sizeof($lhsParams))
             array_splice($parameters, sizeof($parameters), 0, $lhsParams);
@@ -221,6 +232,62 @@ class SQLFilterJunctionEvaluator {
 
 
         return $clause;
+    }
+
+    private function getBindTypeForExpression($expression, $fields): ?BindParameterType {
+        if (!is_string($expression) || !preg_match('/^\s*\[\[(.*?)\]\]\s*$/', $expression, $matches)) {
+            return null;
+        }
+
+        $fieldName = $matches[1];
+        foreach ($fields as $field) {
+            if ($field instanceof Field && $field->getName() === $fieldName) {
+                return match ($field->getType()) {
+                    Field::TYPE_INTEGER, Field::TYPE_BIGINTEGER, Field::TYPE_ID => BindParameterType::TYPE_INT,
+                    Field::TYPE_FLOAT => BindParameterType::TYPE_FLOAT,
+                    Field::TYPE_BOOLEAN => BindParameterType::TYPE_BOOL,
+                    Field::TYPE_DATE => BindParameterType::TYPE_DATE,
+                    Field::TYPE_DATE_TIME => BindParameterType::TYPE_DATETIME,
+                    Field::TYPE_JSON => BindParameterType::TYPE_ARRAY,
+                    default => BindParameterType::TYPE_STRING
+                };
+            }
+        }
+
+        return null;
+    }
+
+    private function typeParameters(array $parameters, ?BindParameterType $type): array {
+        if ($type === null) {
+            return $parameters;
+        }
+
+        return array_map(function ($parameter) use ($type) {
+            if ($parameter instanceof BindParameter) {
+                return $parameter;
+            }
+
+            if ($parameter === null) {
+                return new BindParameter(null, $type);
+            }
+
+            $value = match ($type) {
+                BindParameterType::TYPE_INT => filter_var($parameter, FILTER_VALIDATE_INT) !== false
+                    ? (int)$parameter
+                    : null,
+                BindParameterType::TYPE_FLOAT => is_numeric($parameter) ? (float)$parameter : null,
+                BindParameterType::TYPE_BOOL => filter_var($parameter, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+                BindParameterType::TYPE_STRING, BindParameterType::TYPE_DATE, BindParameterType::TYPE_DATETIME => is_scalar($parameter)
+                    ? (string)$parameter
+                    : null,
+                BindParameterType::TYPE_ARRAY => is_array($parameter) ? $parameter : null,
+                default => null
+            };
+
+            return $value === null
+                ? BindParameter::create($parameter)
+                : new BindParameter($value, $type);
+        }, $parameters);
     }
 
 
