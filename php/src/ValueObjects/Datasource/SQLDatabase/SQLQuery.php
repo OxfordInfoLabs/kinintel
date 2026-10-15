@@ -4,6 +4,8 @@
 namespace Kinintel\ValueObjects\Datasource\SQLDatabase;
 
 
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+
 class SQLQuery {
 
     /**
@@ -235,6 +237,15 @@ class SQLQuery {
         $parameters = array_merge($parameters, $this->parametersByClauseType[self::OFFSET_CLAUSE] ?? []);
 
         return $parameters;
+    }
+
+    /**
+     * Return parameters in positional order, wrapped for database binding.
+     *
+     * @return BindParameter[]
+     */
+    public function getBindParameters(): array {
+        return BindParameter::createAll($this->getParameters());
     }
 
 

@@ -3,7 +3,6 @@
 
 namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
-use Kinikit\Core\Template\TemplateParser;
 use Kinintel\Objects\Datasource\Datasource;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLFilterJunctionEvaluator;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
@@ -22,12 +21,8 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
 
     /**
      * FilterTransformationProcessor constructor.
-     *
-     * @param TemplateParser $templateParser
-     */
-    public function __construct(
-        private TemplateParser $templateParser
-    ) {
+     **/
+    public function __construct() {
     }
 
     /**
@@ -44,7 +39,8 @@ class FilterTransformationProcessor extends SQLTransformationProcessor {
 
         $evaluator = new SQLFilterJunctionEvaluator(null, null, $dataSource->returnDatabaseConnection());
 
-        $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation, $parameterValues);
+        $fields = $dataSource->returnFields($parameterValues, $transformation) ?? [];
+        $evaluated = $evaluator->evaluateFilterJunctionSQL($transformation, $parameterValues, $fields);
 
         // If SQL returned, continue
         if ($evaluated["sql"]) {
