@@ -248,6 +248,10 @@ class SQLFilterJunctionEvaluator {
     }
 
     private function getBindTypeForExpression($expression, $fields): ?BindParameterType {
+        if (is_array($expression) && count($expression) === 1) {
+            $expression = reset($expression);
+        }
+
         if (!is_string($expression) || !preg_match('/^\s*\[\[(.*?)\]\]\s*$/', $expression, $matches)) {
             return null;
         }

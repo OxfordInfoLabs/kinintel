@@ -667,6 +667,17 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             $evaluated["parameters"][0]->getValue()
         );
 
+        $evaluatedDate = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
+            new FilterJunction([
+                new Filter("[[import_date]]", ["15_DAYS_AGO"], FilterType::gt)
+            ]),
+            [],
+            [new Field("import_date", null, null, Field::TYPE_DATE)]
+        );
+
+        $this->assertInstanceOf(BindParameter::class, $evaluatedDate["parameters"][0]);
+        $this->assertSame(BindParameterType::TYPE_DATE, $evaluatedDate["parameters"][0]->getType());
+
         $evaluatedWithoutFieldMetadata = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
             new FilterJunction([
                 new Filter("[[import_date]]", ["15_DAYS_AGO"], FilterType::gt)
@@ -682,7 +693,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
 
         $evaluated = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
             new FilterJunction([
-                new Filter("15_DAYS_AGO", "[[import_date]]", FilterType::lt)
+                new Filter("15_DAYS_AGO", ["[[import_date]]"], FilterType::lt)
             ]),
             [],
             [],
