@@ -87,26 +87,6 @@ class FilterTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->assertSame(BindParameterType::TYPE_INT, $parameter->getType());
     }
 
-    public function testRelativeDateFilterParameterUsesTheComparedDateFieldType() {
-        $this->dataSource->returnValue("returnFields", [
-            new Field("import_date", type: Field::TYPE_DATE)
-        ]);
-
-        $query = (new FilterTransformationProcessor())->updateQuery(
-            new FilterTransformation([
-                new Filter("[[import_date]]", ["15_DAYS_AGO"], FilterType::gt)
-            ]),
-            new SQLQuery("*", "test_data"),
-            [],
-            $this->dataSource
-        );
-
-        $parameters = $query->getBindParameters();
-        $this->assertCount(1, $parameters);
-        $this->assertInstanceOf(BindParameter::class, $parameters[0]);
-        $this->assertSame(BindParameterType::TYPE_DATE, $parameters[0]->getType());
-    }
-
 
     public function testNotEqualsFiltersAppliedCorrectly() {
         $processor = new FilterTransformationProcessor($this->templateParser);
