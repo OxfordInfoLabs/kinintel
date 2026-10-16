@@ -110,10 +110,24 @@ class SQLFilterJunctionEvaluator {
         $lhsParams = [];
         $rhsParams = [];
 
+        $lhsBindType = $this->getBindTypeForExpression($filter->getLhsExpression(), $lhsFields);
+        $rhsBindType = $this->getBindTypeForExpression($filter->getRhsExpression(), $rhsFields);
 
         // Map any square brackets to direct columns with table alias or assume whole string is single column
-        $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getLhsExpression(), $templateParameters, $this->lhsTableAlias, $lhsParams);
-        $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue($filter->getRhsExpression(), $templateParameters, $this->rhsTableAlias, $rhsParams);
+        $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue(
+            $filter->getLhsExpression(),
+            $templateParameters,
+            $this->lhsTableAlias,
+            $lhsParams,
+            $rhsBindType
+        );
+        $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue(
+            $filter->getRhsExpression(),
+            $templateParameters,
+            $this->rhsTableAlias,
+            $rhsParams,
+            $lhsBindType
+        );
         $rhsExpressionComponents = explode(",", $rhsExpression);
 
         $clause = "";
@@ -215,10 +229,7 @@ class SQLFilterJunctionEvaluator {
                 break;
         }
 
-
         if ($filter->getFilterType() !== FilterType::similarto) {
-            $lhsBindType = $this->getBindTypeForExpression($filter->getLhsExpression(), $lhsFields);
-            $rhsBindType = $this->getBindTypeForExpression($filter->getRhsExpression(), $rhsFields);
             $lhsParams = $this->typeParameters($lhsParams, $rhsBindType);
             $rhsParams = $this->typeParameters($rhsParams, $lhsBindType);
         }

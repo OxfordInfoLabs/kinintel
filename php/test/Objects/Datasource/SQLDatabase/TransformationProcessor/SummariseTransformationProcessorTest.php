@@ -5,6 +5,8 @@ namespace Kinintel\Test\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Core\Testing\MockObjectProvider;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Dataset\Tabular\ArrayTabularDataset;
 use Kinintel\Objects\Datasource\DatasourceInstance;
@@ -123,6 +125,40 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals('SELECT "category", "dept", COUNT(*) + SUM("total") FROM (SELECT "name","category","dept" FROM my_table) S1 GROUP BY "category", "dept"', $query->getSQL());
 
 
+    }
+
+    public function testRelativeDateParametersInCustomSummariseExpressionsAreTypedAsDateTimes() {
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+
+        $transformation = new SummariseTransformation([], [
+            new SummariseExpression(
+                SummariseExpression::EXPRESSION_TYPE_CUSTOM,
+                null,
+                "MAX(15_DAYS_AGO)",
+                "Recent"
+            ),
+            new SummariseExpression(
+                SummariseExpression::EXPRESSION_TYPE_CUSTOM,
+                null,
+                "MAX(30_DAYS_AGO)",
+                "Older"
+            )
+        ]);
+        $query = (new SummariseTransformationProcessor())->updateQuery(
+            $transformation,
+            new SQLQuery("*", "my_table"),
+            [],
+            $dataSource
+        );
+
+        $this->assertSame('SELECT MAX(?) "recent", MAX(?) "older" FROM my_table', $query->getSQL());
+        $this->assertCount(2, $query->getParameters());
+        foreach ($query->getParameters() as $parameter) {
+            $this->assertInstanceOf(BindParameter::class, $parameter);
+            $this->assertSame(BindParameterType::TYPE_DATETIME, $parameter->getType());
+        }
     }
 
 
