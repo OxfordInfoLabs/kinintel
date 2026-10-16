@@ -7,6 +7,8 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\Util;
 use DateInterval;
 use Kinikit\Core\DependencyInjection\Container;
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinintel\Services\Util\SQLClauseSanitiser;
 
 class SQLValueEvaluator {
@@ -31,9 +33,11 @@ class SQLValueEvaluator {
      * @param $value
      * @param array $templateParameters
      */
-    public function evaluateFilterValue($value, $templateParameters = [], $tableAlias = null, &$outputParameters = []) {
+    public function evaluateFilterValue($value, $templateParameters = [], $tableAlias = null, &$outputParameters = [], ?BindParameterType $relativeDateBindType = null) {
 
         $valueArray = is_array($value) ? $value : [$value];
+        $parameterStartIndex = count($outputParameters);
+        $relativeDateValues = [];
 
         // Encode params for substitution back later
         $encodedParams = [];
@@ -104,8 +108,11 @@ class SQLValueEvaluator {
 
             // Evaluate time offset parameters for days ago and hours ago
             foreach ($toIntervalStr as $suffix => $toInterval) {
-                $value = preg_replace_callback("/'*([0-9]+)$suffix'*/", function ($matches) use ($toInterval) {
-                    return "#~d~#" . (new \DateTime())->sub(new DateInterval($toInterval($matches[1])))->format("Y-m-d\TH:i:s\Z") . "#~d~#";
+
+                $value = preg_replace_callback("/'*([0-9]+)$suffix'*/", function ($matches) use ($toInterval, &$relativeDateValues) {
+                    $dateTime = (new \DateTime())->sub(new DateInterval($toInterval($matches[1])))->format("Y-m-d H:i:s");
+                    $relativeDateValues[] = $dateTime;
+                    return "#~d~#" . $dateTime . "#~d~#";
                 }, $value);
             }
 
@@ -171,9 +178,11 @@ class SQLValueEvaluator {
         }
 
 
-        // Decode params
-        foreach ($outputParameters as $index => $parameter) {
-            if (is_bool($parameter) || is_null($parameter)) {
+
+        // Decode only parameters added by this evaluation; previous expressions may already contain bind parameters.
+        for ($index = $parameterStartIndex; $index < count($outputParameters); $index++) {
+            $parameter = $outputParameters[$index];
+            if ($parameter instanceof BindParameter) {
                 continue;
             }
 
@@ -198,6 +207,18 @@ class SQLValueEvaluator {
 
             $outputParameters[$index] = $parameter;
 
+        }
+
+        foreach ($relativeDateValues as $relativeDateValue) {
+            for ($index = $parameterStartIndex; $index < count($outputParameters); $index++) {
+                if ($outputParameters[$index] === $relativeDateValue) {
+                    $outputParameters[$index] = new BindParameter(
+                        $relativeDateValue,
+                        $relativeDateBindType ?? BindParameterType::TYPE_DATETIME
+                    );
+                    break;
+                }
+            }
         }
 
 

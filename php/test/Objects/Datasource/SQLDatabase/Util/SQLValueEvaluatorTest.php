@@ -4,6 +4,8 @@
 namespace Kinintel\Test\Objects\Datasource\SQLDatabase\Util;
 
 use Kinikit\Persistence\Database\Connection\DatabaseConnection;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameter;
+use Kinikit\Persistence\Database\PreparedStatement\BindParameterType;
 use Kinikit\Persistence\Database\Vendors\SQLite3\SQLite3DatabaseConnection;
 use Kinintel\Objects\Datasource\SQLDatabase\Util\SQLValueEvaluator;
 use function PHPUnit\Framework\assertEquals;
@@ -162,7 +164,9 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("{{test}}_DAYS_AGO", ["test" => "1"], null, $parameters);
         $this->assertEquals("?", $value);
-        $year7DaysAgo = substr($parameters[0], 0, 4);
+        $this->assertInstanceOf(BindParameter::class, $parameters[0]);
+        $this->assertSame(BindParameterType::TYPE_DATETIME, $parameters[0]->getType());
+        $year7DaysAgo = substr($parameters[0]->getValue(), 0, 4);
         $year = date_create()->format("Y");
         $this->assertTrue($year === $year7DaysAgo || $year == ((int)$year7DaysAgo + 1));
 
@@ -187,49 +191,49 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("1_DAYS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("7_DAYS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P7D"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P7D"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("5_HOURS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("PT5H"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("PT5H"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("4_MINUTES_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("PT4M"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("PT4M"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("25_SECONDS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("PT25S"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("PT25S"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("1_MONTHS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P1M"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P1M"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("6_MONTHS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P6M"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P6M"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("1_YEARS_AGO", [], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P1Y"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P1Y"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
     }
@@ -239,12 +243,12 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $evaluator = new SQLValueEvaluator($this->databaseConnection);
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("{{timePeriod}}", ["timePeriod" => "1_DAYS_AGO"], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P1D"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
 
         $parameters = [];
         $value = $evaluator->evaluateFilterValue("'{{timePeriod}}'", ["timePeriod" => "2_DAYS_AGO"], null, $parameters);
-        $this->assertEquals([(new \DateTime())->sub(new \DateInterval("P2D"))->format("Y-m-d H:i:s")], $parameters);
+        $this->assertDateTimeBindParameter((new \DateTime())->sub(new \DateInterval("P2D"))->format("Y-m-d H:i:s"), $parameters);
         $this->assertEquals("?", $value);
     }
 
@@ -280,6 +284,14 @@ class SQLValueEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("?", $value);
 
     }
+
+    private function assertDateTimeBindParameter(string $expectedValue, array $parameters): void {
+        $this->assertCount(1, $parameters);
+        $this->assertInstanceOf(BindParameter::class, $parameters[0]);
+        $this->assertSame($expectedValue, $parameters[0]->getValue());
+        $this->assertSame(BindParameterType::TYPE_DATETIME, $parameters[0]->getType());
+    }
+
 
     //TODO
 //    public function testSubstitution(){

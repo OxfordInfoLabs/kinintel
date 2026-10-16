@@ -647,5 +647,53 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         ));
     }
 
+    public function testRelativeDateFilterBindsTheResolvedValueAsTheComparedDateTimeType() {
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
+
+        $evaluated = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
+            new FilterJunction([
+                new Filter("[[import_date]]", ["15_DAYS_AGO"], FilterType::gt)
+            ]),
+            [],
+            [new Field("import_date", null, null, Field::TYPE_DATE_TIME)]
+        );
+
+        $this->assertSame('"import_date" > ?', $evaluated["sql"]);
+        $this->assertCount(1, $evaluated["parameters"]);
+        $this->assertInstanceOf(BindParameter::class, $evaluated["parameters"][0]);
+        $this->assertSame(BindParameterType::TYPE_DATETIME, $evaluated["parameters"][0]->getType());
+        $this->assertMatchesRegularExpression(
+            '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+            $evaluated["parameters"][0]->getValue()
+        );
+
+        $evaluatedWithoutFieldMetadata = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
+            new FilterJunction([
+                new Filter("[[import_date]]", ["15_DAYS_AGO"], FilterType::gt)
+            ])
+        );
+
+        $this->assertInstanceOf(BindParameter::class, $evaluatedWithoutFieldMetadata["parameters"][0]);
+        $this->assertSame(BindParameterType::TYPE_DATETIME, $evaluatedWithoutFieldMetadata["parameters"][0]->getType());
+    }
+
+    public function testRelativeDateJoinConditionUsesTheTypeOfTheFieldOnTheOtherSide() {
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator("L", "R", $this->databaseConnection);
+
+        $evaluated = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
+            new FilterJunction([
+                new Filter("15_DAYS_AGO", "[[import_date]]", FilterType::lt)
+            ]),
+            [],
+            [],
+            [new Field("import_date", null, null, Field::TYPE_DATE)]
+        );
+
+        $this->assertSame('? < R."import_date"', $evaluated["sql"]);
+        $this->assertCount(1, $evaluated["parameters"]);
+        $this->assertInstanceOf(BindParameter::class, $evaluated["parameters"][0]);
+        $this->assertSame(BindParameterType::TYPE_DATE, $evaluated["parameters"][0]->getType());
+    }
+
 
 }
