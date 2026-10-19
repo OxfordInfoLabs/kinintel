@@ -25,6 +25,30 @@ include_once "autoloader.php";
 
 class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
 
+    public function testGroupedFieldTypeIsPreservedBySummariseTransformation() {
+        $transformation = new SummariseTransformation(["import_date"]);
+        $sourceFields = [new Field("import_date", null, null, Field::TYPE_DATE)];
+
+        $derivedFields = $transformation->returnAlteredColumns($sourceFields);
+
+        $this->assertSame(Field::TYPE_DATE, $derivedFields[0]->getType());
+    }
+
+    public function testProcessorPreservesGroupedFieldTypeInDatasourceColumns() {
+        $transformation = new SummariseTransformation(["import_date"]);
+        $sourceFields = [new Field("import_date", null, null, Field::TYPE_DATE)];
+        $config = new SQLDatabaseDatasourceConfig(SQLDatabaseDatasourceConfig::SOURCE_TABLE, "my_table");
+        $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
+        $dataSource->returnValue("getConfig", $config);
+        $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", $sourceFields);
+
+        $processor = new SummariseTransformationProcessor();
+        $processor->updateQuery($transformation, new SQLQuery("*", "my_table"), [], $dataSource);
+
+        $this->assertSame(Field::TYPE_DATE, $config->getColumns()[0]->getType());
+    }
+
     public function testSummariseTransformationCorrectlyAppliesSelectAndGroupByClauseForBuiltInExpressions() {
 
         // COUNT(*)
@@ -36,6 +60,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
         $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", []);
 
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
@@ -51,6 +76,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
         $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", []);
 
         $transformationProcessor = new SummariseTransformationProcessor();
         $query = $transformationProcessor->updateQuery($summariseTransformation, $query, [], $dataSource);
@@ -112,6 +138,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
         $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", []);
 
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
@@ -131,6 +158,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
         $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", []);
 
         $transformation = new SummariseTransformation([], [
             new SummariseExpression(
@@ -167,6 +195,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
         $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", []);
 
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [
@@ -209,6 +238,7 @@ class SummariseTransformationProcessorTest extends \PHPUnit\Framework\TestCase {
         $dataSource = MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasource::class);
         $dataSource->returnValue("getConfig", MockObjectProvider::instance()->getMockInstance(SQLDatabaseDatasourceConfig::class));
         $dataSource->returnValue("returnDatabaseConnection", new SQLite3DatabaseConnection());
+        $dataSource->returnValue("returnFields", []);
 
 
         $summariseTransformation = new SummariseTransformation(["category", "dept"], [

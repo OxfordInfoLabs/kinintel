@@ -70,7 +70,15 @@ class SummariseTransformation implements Transformation, SQLDatabaseTransformati
     }
 
     public function returnAlteredColumns(array $columns): array {
-        $summariseOverFields = array_map(fn($fieldName) => new Field($fieldName), $this->summariseFieldNames);
+        $summariseOverFields = array_map(function ($fieldName) use ($columns) {
+            foreach ($columns as $column) {
+                if ($column instanceof Field && $column->getName() === $fieldName) {
+                    return new Field($fieldName, null, null, $column->getType());
+                }
+            }
+
+            return new Field($fieldName);
+        }, $this->summariseFieldNames);
         $expressionFields = array_map(fn($expression) => $expression->toField(), $this->expressions);
         return array_merge($summariseOverFields, $expressionFields);
     }

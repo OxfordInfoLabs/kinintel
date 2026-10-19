@@ -677,7 +677,7 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
         $this->assertSame(BindParameterType::TYPE_DATETIME, $evaluatedWithoutFieldMetadata["parameters"][0]->getType());
     }
 
-    public function testRelativeDateFilterUsesDateTimeTypeWhenComparedFieldIsReportedAsString() {
+    public function testRelativeDateFilterUsesTheComparedFieldTypeWhenItIsAString() {
         $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
 
         $evaluated = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
@@ -686,6 +686,19 @@ class SQLFilterJunctionEvaluatorTest extends \PHPUnit\Framework\TestCase {
             ]),
             [],
             [new Field("import_date", null, null, Field::TYPE_STRING)]
+        );
+
+        $this->assertInstanceOf(BindParameter::class, $evaluated["parameters"][0]);
+        $this->assertSame(BindParameterType::TYPE_STRING, $evaluated["parameters"][0]->getType());
+    }
+
+    public function testRelativeTimeFilterDefaultsToDateTimeWhenFieldMetadataIsUnavailable() {
+        $filterJunctionEvaluator = new SQLFilterJunctionEvaluator(null, null, $this->databaseConnection);
+
+        $evaluated = $filterJunctionEvaluator->evaluateFilterJunctionSQL(
+            new FilterJunction([
+                new Filter("[[import_date]]", ["15_HOURS_AGO"], FilterType::gt)
+            ])
         );
 
         $this->assertInstanceOf(BindParameter::class, $evaluated["parameters"][0]);
