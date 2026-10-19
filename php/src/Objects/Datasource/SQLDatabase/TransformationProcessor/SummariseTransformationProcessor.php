@@ -5,7 +5,6 @@ namespace Kinintel\Objects\Datasource\SQLDatabase\TransformationProcessor;
 
 
 use Kinintel\Objects\Datasource\SQLDatabase\SQLDatabaseDatasource;
-use Kinintel\ValueObjects\Dataset\Field;
 use Kinintel\ValueObjects\Datasource\SQLDatabase\SQLQuery;
 use Kinintel\ValueObjects\Transformation\Summarise\SummariseTransformation;
 use Kinintel\ValueObjects\Transformation\Transformation;
@@ -54,14 +53,16 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
                 $query = new SQLQuery("*", "(" . $query->getSQL() . ") S" . ++$this->aliasIndex, $query->getParameters());
             }
 
-            $columns = [];
+            $summariseFieldNames = $transformation->getSummariseFieldNames();
+            $sourceFields = $summariseFieldNames
+                ? $dataSource->returnFields($parameterValues, $transformation)
+                : [];
+            $columns = $transformation->returnAlteredColumns($sourceFields);
             $databaseConnection = $dataSource->returnDatabaseConnection();
 
-            $summariseFieldNames = $transformation->getSummariseFieldNames();
             $groupByClauses = [];
             foreach ($summariseFieldNames as $summariseFieldName) {
                 $groupByClauses[] = $databaseConnection->escapeColumn($summariseFieldName);
-                $columns[] = new Field($summariseFieldName);
             }
 
             $evaluatedExpressions = [];
@@ -70,7 +71,6 @@ class SummariseTransformationProcessor extends SQLTransformationProcessor {
                 $expressionParams = [];
                 $evaluatedExpressions[] = $expression->getFunctionString($expressionParams, $parameterValues, $databaseConnection);
                 $clauseParameters = array_merge($clauseParameters, $expressionParams);
-                $columns[] = $expression->toField();
             }
 
 
