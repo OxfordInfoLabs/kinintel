@@ -113,6 +113,8 @@ class SQLFilterJunctionEvaluator {
 
         $lhsBindType = $this->getBindTypeForExpression($filter->getLhsExpression(), $lhsFields);
         $rhsBindType = $this->getBindTypeForExpression($filter->getRhsExpression(), $rhsFields);
+        $lhsRelativeDateBindType = $this->getRelativeDateBindType($filter->getLhsExpression(), $rhsBindType);
+        $rhsRelativeDateBindType = $this->getRelativeDateBindType($filter->getRhsExpression(), $lhsBindType);
 
         // Map any square brackets to direct columns with table alias or assume whole string is single column
         $lhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue(
@@ -120,14 +122,14 @@ class SQLFilterJunctionEvaluator {
             $templateParameters,
             $this->lhsTableAlias,
             $lhsParams,
-            $rhsBindType
+            $lhsRelativeDateBindType
         );
         $rhsExpression = $this->sqlFilterValueEvaluator->evaluateFilterValue(
             $filter->getRhsExpression(),
             $templateParameters,
             $this->rhsTableAlias,
             $rhsParams,
-            $lhsBindType
+            $rhsRelativeDateBindType
         );
         $rhsExpressionComponents = explode(",", $rhsExpression);
 
@@ -268,6 +270,20 @@ class SQLFilterJunctionEvaluator {
         }
 
         return null;
+    }
+
+    private function getRelativeDateBindType($expression, ?BindParameterType $comparedFieldType): ?BindParameterType {
+        $values = is_array($expression) ? $expression : [$expression];
+        foreach ($values as $value) {
+            if (is_string($value) && preg_match('/[0-9]+_(?:YEARS|MONTHS|DAYS|HOURS|MINUTES|SECONDS)_AGO/', $value)) {
+                return match ($comparedFieldType) {
+                    BindParameterType::TYPE_DATE, BindParameterType::TYPE_DATETIME => $comparedFieldType,
+                    default => BindParameterType::TYPE_DATETIME
+                };
+            }
+        }
+
+        return $comparedFieldType;
     }
 
     private function typeParameters(array $parameters, ?BindParameterType $type): array {
