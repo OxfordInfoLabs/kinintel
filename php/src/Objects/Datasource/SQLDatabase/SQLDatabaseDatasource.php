@@ -543,8 +543,10 @@ class SQLDatabaseDatasource extends BaseUpdatableDatasource {
      *
      */
     public function onInstanceSave() {
-        if ($this->getConfig()->isManageTableStructure())
+        if ($this->getConfig()->isManageTableStructure()) {
+            Logger::log($this->getConfig());
             $this->updateFields($this->getConfig()->getColumns());
+        }
     }
 
 
