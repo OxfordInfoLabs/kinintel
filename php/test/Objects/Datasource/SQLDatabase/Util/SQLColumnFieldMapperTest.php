@@ -125,6 +125,8 @@ class SQLColumnFieldMapperTest extends \PHPUnit\Framework\TestCase {
         // String types
         $this->assertEquals(new TableColumn("string", TableColumn::SQL_VARCHAR, 255),
             $this->mapper->mapFieldToTableColumn(new Field("string", null, null, Field::TYPE_STRING)));
+        $this->assertEquals(new TableColumn("pick-from-source", TableColumn::SQL_VARCHAR, 255),
+            $this->mapper->mapFieldToTableColumn(new Field("pick-from-source", null, null, Field::TYPE_PICK_FROM_SOURCE)));
         $this->assertEquals(new TableColumn("mediumstring", TableColumn::SQL_VARCHAR, 32767),
             $this->mapper->mapFieldToTableColumn(new Field("mediumstring", null, null, Field::TYPE_MEDIUM_STRING)));
         $this->assertEquals(new TableColumn("longstring", TableColumn::SQL_LONGBLOB),

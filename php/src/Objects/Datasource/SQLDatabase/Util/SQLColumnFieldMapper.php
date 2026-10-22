@@ -44,6 +44,7 @@ class SQLColumnFieldMapper {
 
     const FIELD_TYPE_LENGTH_MAP = [
         Field::TYPE_STRING => 255,
+        Field::TYPE_PICK_FROM_SOURCE => 255,
         Field::TYPE_MEDIUM_STRING => 32767,
         Field::TYPE_ID => 11
     ];
